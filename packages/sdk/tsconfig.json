@@ -1,0 +1,16 @@
+{
+  "extends": "@ankr.com/tsconfig/base.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "esModuleInterop": false,
+    "noEmit": true,
+    "baseUrl": "src"
+  },
+  "include": ["src/**/*"],
+  "references": [
+    {
+      "path": "./tsconfig.vite.json"
+    }
+  ]
+}

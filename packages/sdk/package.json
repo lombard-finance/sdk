@@ -1,0 +1,28 @@
+{
+  "name": "@lombard.finance/sdk",
+  "version": "0.0.1",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./src/index.ts"
+    }
+  },
+  "license": "MIT",
+  "type": "module",
+  "types": "./src/index.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "axios": "^1.7.4"
+  },
+  "peerDependencies": {},
+  "devDependencies": {
+    "@ankr.com/tsconfig": "^0.0.1",
+    "typescript": "^5.4.5"
+  }
+}
