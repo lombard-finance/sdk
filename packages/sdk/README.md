@@ -3,18 +3,20 @@
 #### npm
 
 ```bash
-npm i @lombard.xyz/service
+npm i @lombard.finance/sdk
 ```
 
 #### yarn
 
 ```bash
-yarn add @lombard.xyz/service
+yarn add @lombard.finance/sdk
 ```
 
 ### Example
 
 ```ts
+import { getLatestBtcAddress } from '@lombard.finance/sdk';
+
 /**
  * Retrieves the latest Bitcoin address associated with a given blockchain and address.
  *
