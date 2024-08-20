@@ -1,0 +1,101 @@
+import axios from 'axios';
+import { IEnvParam } from '../../common/types/internalTypes';
+import { TChainId } from '../../common/types/types';
+import { getApiConfig } from '../apiConfig';
+import { TChainName } from '../internalTypes';
+import { getChainNameById } from '../utils/getChainNameById';
+
+// todo: implement case when the address is sanctioned
+/**
+ * The address wich will be returned if the provided BTC address is sanctioned.
+ *
+ * @remarks not implemented yet
+ */
+export const SANCTIONED_ADDRESS = 'sanctioned_address';
+
+const ADDRESS_URL = 'api/v1/address';
+
+interface IDepositAddress {
+  btc_address: string;
+  created_at: string;
+  deprecated?: boolean;
+  type: string;
+  used?: boolean;
+  deposit_metadata: {
+    to_address: string;
+    to_blockchain: TChainName;
+  };
+}
+
+interface IDepositAddressesResponse {
+  addresses: IDepositAddress[];
+  has_more?: boolean;
+}
+
+export interface IGetDepositBtcAddressParams extends IEnvParam {
+  /**
+   * The destination EVM user address where LBTC will be claimed.
+   */
+  address: string;
+  /**
+   * The destination chain ID where LBTC will be claimed.
+   */
+  chainId: TChainId;
+}
+
+/**
+ * Returns the address for depositing BTC.
+ *
+ * @param {IGetDepositBtcAddressParams} params - function parameters
+ *
+ * @returns {Promise<string>} the address for depositing BTC
+ */
+export async function getDepositBtcAddress({
+  address,
+  chainId,
+  env,
+}: IGetDepositBtcAddressParams): Promise<string> {
+  const toBlockchain = getChainNameById(chainId);
+  const addresses = await getDepositBtcAddresses({ address, chainId, env });
+
+  const addressData = addresses.find(
+    addressData => addressData.deposit_metadata.to_blockchain === toBlockchain,
+  );
+
+  if (!addressData) {
+    throw new Error('No address');
+  }
+
+  return addressData.btc_address;
+}
+
+/**
+ * Returns the addresses for depositing BTC.
+ *
+ * @param {IGetDepositBtcAddressParams} params - function parameters
+ *
+ * @returns {Promise<IDepositAddress[]>} the deposit addresses
+ */
+export async function getDepositBtcAddresses({
+  address,
+  chainId,
+  env,
+}: IGetDepositBtcAddressParams): Promise<IDepositAddress[]> {
+  const { depositAddrApiUrl } = getApiConfig(env);
+  const toBlockchain = getChainNameById(chainId);
+
+  const requestrParams = {
+    to_address: address,
+    to_blockchain: toBlockchain,
+    limit: 1,
+    offset: 0,
+    asc: false,
+  };
+
+  const { data } = await axios.get<IDepositAddressesResponse>(ADDRESS_URL, {
+    baseURL: depositAddrApiUrl,
+    params: requestrParams,
+  });
+
+  return data?.addresses || [];
+}

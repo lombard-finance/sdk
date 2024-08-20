@@ -1,29 +1,32 @@
-### Installation
+# @lombard.finance/sdk
 
-#### npm
+The SDK package provides a set of tools to interact with the Lombard Protocol.
+
+It includes API-based and Web3-based methods with which to interact.
+
+Web3 methods require a Web3 provider to be set up.
+
+## Installation
 
 ```bash
 npm i @lombard.finance/sdk
 ```
 
-#### yarn
+Install Dependencies
 
 ```bash
-yarn add @lombard.finance/sdk
+npm i web3@^4 axios@^1 bignumber.js@^9
 ```
 
-### Example
+## Usage
 
-```ts
-import { getLatestBtcAddress } from '@lombard.finance/sdk';
+TODO: add few examples
 
-/**
- * Retrieves the latest Bitcoin address associated with a given blockchain and address.
- *
- * @param {1 | 17000} chainId - The ID of the blockchain to query (Eth Mainnet or Holesky).
- * @param {string} address - User's evm compatible address.
- * @returns {Promise<string | null>} - The latest Bitcoin address or null if none is found.
- * @throws {Error} - Throws an error if the blockchain is not supported or the request fails.
- */
-const latestBtcAddress = await getLatestBtcAddress(chainId, address);
-```
+## Development
+
+Available scripts:
+
+- `npm run build` - build the package
+- `npm run storybook` - start [storybook](https://storybook.js.org/) for development
+- `npm run build-storybook` - build storybook
+- `npm run build-docs` - build [Typedoc](https://typedoc.org/) documentation
