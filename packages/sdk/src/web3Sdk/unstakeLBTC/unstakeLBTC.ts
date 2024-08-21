@@ -36,7 +36,7 @@ export function unstakeLBTC({
 
   const amountSat = toSatoshi(amount);
 
-  const tx = tokenContract.methods.burn(outputScript, amountSat);
+  const tx = tokenContract.methods.redeem(outputScript, amountSat);
 
   return provider.sendTransactionAsync(
     provider.account,

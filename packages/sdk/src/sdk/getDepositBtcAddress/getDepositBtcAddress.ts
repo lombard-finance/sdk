@@ -52,18 +52,34 @@ export async function getDepositBtcAddress({
   chainId,
   env,
 }: IGetDepositBtcAddressParams): Promise<string> {
-  const toBlockchain = getChainNameById(chainId);
   const addresses = await getDepositBtcAddresses({ address, chainId, env });
 
-  const addressData = addresses.find(
-    addressData => addressData.deposit_metadata.to_blockchain === toBlockchain,
-  );
+  const addressData = getActualAddress(addresses);
 
   if (!addressData) {
     throw new Error('No address');
   }
 
   return addressData.btc_address;
+}
+
+/**
+ * Retrieves the actual deposit address from a list of deposit addresses.
+ *
+ * @param addresses - The list of deposit addresses.
+ * @returns The actual deposit address or undefined if the last created address is deprecated.
+ */
+function getActualAddress(
+  addresses: IDepositAddress[],
+): IDepositAddress | undefined {
+  const actualAddress = addresses.reduce((acc, address) => {
+    if (acc.created_at < address.created_at) {
+      return address;
+    }
+    return acc;
+  });
+
+  return actualAddress.deprecated ? undefined : actualAddress;
 }
 
 /**
