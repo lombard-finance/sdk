@@ -1,10 +1,13 @@
 import axios from 'axios';
 import { IEnvParam } from '../../common/types/internalTypes';
 import { TChainId } from '../../common/types/types';
+import { getErrorMessage } from '../../common/utils/getErrorMessage';
 import { getApiConfig } from '../apiConfig';
+import { SANCTIONED_ADDRESS } from '../getDepositBtcAddress';
 import { getChainNameById } from '../utils/getChainNameById';
 
 const ADDRESS_URL = 'api/v1/address';
+const SANCTIONS_MESSAGE = 'destination address is under sanctions';
 
 interface IGenerateNewAddressResponse {
   address: string;
@@ -31,6 +34,9 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
 
 /**
  * Generates a BTC deposit address.
+ *
+ * If the provided EVM address is sanctioned, the function will return the `SANCTIONED_ADDRESS`.
+ *
  * @param {IGenerateDepositBtcAddressParams} params - The parameters for generating the deposit address.
  * @returns {Promise<string>} The generated deposit address.
  */
@@ -55,10 +61,28 @@ export async function generateDepositBtcAddress({
   const { data } = await axios.post<IGenerateNewAddressResponse>(
     ADDRESS_URL,
     requestParams,
-    {
-      baseURL: depositAddrApiUrl,
-    },
+    { baseURL: depositAddrApiUrl },
   );
 
-  return data.address;
+  try {
+    const { data } = await axios.post<IGenerateNewAddressResponse>(
+      ADDRESS_URL,
+      requestParams,
+      { baseURL: depositAddrApiUrl },
+    );
+
+    return data.address;
+  } catch (error) {
+    const errorMsg = getErrorMessage(error);
+
+    if (isSanctioned(errorMsg)) {
+      return SANCTIONED_ADDRESS;
+    } else {
+      throw new Error(errorMsg);
+    }
+  }
+}
+
+function isSanctioned(errorMsg: string): boolean {
+  return !!errorMsg.includes(SANCTIONS_MESSAGE);
 }
