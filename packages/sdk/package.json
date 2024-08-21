@@ -1,0 +1,55 @@
+{
+  "name": "@lombard.finance/sdk",
+  "version": "0.2.2",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./src/index.ts"
+    }
+  },
+  "license": "MIT",
+  "type": "module",
+  "types": "./src/index.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">= 18"
+  },
+  "scripts": {
+    "types": "tsc --noEmit",
+    "build": "yarn types && vite build",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "build-docs": "rimraf ./docs && typedoc"
+  },
+  "peerDependencies": {
+    "@bitcoin-js/tiny-secp256k1-asmjs": "^2",
+    "axios": "^1",
+    "bitcoinjs-lib": "^6",
+    "bignumber.js": "^9",
+    "web3": "^4"
+  },
+  "devDependencies": {
+    "@bitcoin-js/tiny-secp256k1-asmjs": "^2.2.3",
+    "@chromatic-com/storybook": "1.6.1",
+    "@storybook/addon-essentials": "^8.2.9",
+    "@storybook/addon-interactions": "^8.2.9",
+    "@storybook/addon-links": "^8.2.9",
+    "@storybook/addon-onboarding": "^8.2.9",
+    "@storybook/blocks": "^8.2.9",
+    "@storybook/react": "^8.2.9",
+    "@storybook/react-vite": "^8.2.9",
+    "@storybook/test": "^8.2.9",
+    "axios": "^1.7.4",
+    "bitcoinjs-lib": "^6.1.5",
+    "bignumber.js": "^9.1.2",
+    "bootstrap": "^5.3.3",
+    "rimraf": "^5",
+    "storybook": "^8.2.9",
+    "typedoc": "^0.26.6",
+    "typescript": "^5.4.5",
+    "web3": "^4.11.1"
+  }
+}
