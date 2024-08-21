@@ -5,11 +5,8 @@ import { getApiConfig } from '../apiConfig';
 import { TChainName } from '../internalTypes';
 import { getChainNameById } from '../utils/getChainNameById';
 
-// todo: implement case when the address is sanctioned
 /**
- * The address wich will be returned if the provided BTC address is sanctioned.
- *
- * @remarks not implemented yet
+ * The address wich will be returned if the provided EVM address is sanctioned.
  */
 export const SANCTIONED_ADDRESS = 'sanctioned_address';
 
