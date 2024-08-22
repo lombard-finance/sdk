@@ -22,7 +22,7 @@
     "build": "yarn types && vite build",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "build-docs": "rimraf ./docs && typedoc"
+    "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs"
   },
   "peerDependencies": {
     "@bitcoin-js/tiny-secp256k1-asmjs": "^2",
