@@ -5,14 +5,6 @@ import { getApiConfig } from '../apiConfig';
 import { TChainName } from '../internalTypes';
 import { getChainNameById } from '../utils/getChainNameById';
 
-// todo: implement case when the address is sanctioned
-/**
- * The address wich will be returned if the provided BTC address is sanctioned.
- *
- * @remarks not implemented yet
- */
-export const SANCTIONED_ADDRESS = 'sanctioned_address';
-
 const ADDRESS_URL = 'api/v1/address';
 
 interface IDepositAddress {
@@ -97,7 +89,7 @@ export async function getDepositBtcAddresses({
   chainId,
   env,
 }: IGetDepositBtcAddressParams): Promise<IDepositAddress[]> {
-  const { depositAddrApiUrl } = getApiConfig(env);
+  const { baseApiUrl } = getApiConfig(env);
   const toBlockchain = getChainNameById(chainId);
 
   const requestrParams = {
@@ -109,7 +101,7 @@ export async function getDepositBtcAddresses({
   };
 
   const { data } = await axios.get<IDepositAddressesResponse>(ADDRESS_URL, {
-    baseURL: depositAddrApiUrl,
+    baseURL: baseApiUrl,
     params: requestrParams,
   });
 

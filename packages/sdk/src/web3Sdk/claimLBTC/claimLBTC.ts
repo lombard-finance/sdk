@@ -1,7 +1,7 @@
 import { IEnvParam } from '../../common/types/internalTypes';
 import { getErrorMessage } from '../../common/utils/getErrorMessage';
 import { IWeb3SendResult, Provider } from '../../provider';
-import { IProviderBasedParams } from '../internalTypes';
+import { IProviderBasedParams } from '../types';
 import { getGasMultiplier } from '../utils/getGasMultiplier';
 import { getLbtcTokenContract } from '../utils/getLbtcTokenContract';
 
