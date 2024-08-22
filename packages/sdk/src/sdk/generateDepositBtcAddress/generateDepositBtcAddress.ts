@@ -3,9 +3,12 @@ import { IEnvParam } from '../../common/types/internalTypes';
 import { TChainId } from '../../common/types/types';
 import { getErrorMessage } from '../../common/utils/getErrorMessage';
 import { getApiConfig } from '../apiConfig';
-import { SANCTIONED_ADDRESS } from '../getDepositBtcAddress';
 import { getChainNameById } from '../utils/getChainNameById';
 
+/**
+ * The address wich will be returned if the provided EVM address is sanctioned.
+ */
+export const SANCTIONED_ADDRESS = 'sanctioned_address';
 const ADDRESS_URL = 'api/v1/address';
 const SANCTIONS_MESSAGE = 'destination address is under sanctions';
 
@@ -47,7 +50,7 @@ export async function generateDepositBtcAddress({
   referralId,
   env,
 }: IGenerateDepositBtcAddressParams): Promise<string> {
-  const { depositAddrApiUrl } = getApiConfig(env);
+  const { baseApiUrl } = getApiConfig(env);
   const toChain = getChainNameById(chainId);
 
   const requestParams = {
@@ -58,17 +61,11 @@ export async function generateDepositBtcAddress({
     nonce: 0,
   };
 
-  const { data } = await axios.post<IGenerateNewAddressResponse>(
-    ADDRESS_URL,
-    requestParams,
-    { baseURL: depositAddrApiUrl },
-  );
-
   try {
     const { data } = await axios.post<IGenerateNewAddressResponse>(
       ADDRESS_URL,
       requestParams,
-      { baseURL: depositAddrApiUrl },
+      { baseURL: baseApiUrl },
     );
 
     return data.address;
