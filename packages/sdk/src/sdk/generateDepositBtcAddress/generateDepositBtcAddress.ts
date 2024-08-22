@@ -1,16 +1,10 @@
 import axios from 'axios';
 import { IEnvParam } from '../../common/types/internalTypes';
 import { TChainId } from '../../common/types/types';
-import { getErrorMessage } from '../../common/utils/getErrorMessage';
 import { getApiConfig } from '../apiConfig';
 import { getChainNameById } from '../utils/getChainNameById';
 
-/**
- * The address wich will be returned if the provided EVM address is sanctioned.
- */
-export const SANCTIONED_ADDRESS = 'sanctioned_address';
 const ADDRESS_URL = 'api/v1/address';
-const SANCTIONS_MESSAGE = 'destination address is under sanctions';
 
 interface IGenerateNewAddressResponse {
   address: string;
@@ -37,9 +31,6 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
 
 /**
  * Generates a BTC deposit address.
- *
- * If the provided EVM address is sanctioned, the function will return the `SANCTIONED_ADDRESS`.
- *
  * @param {IGenerateDepositBtcAddressParams} params - The parameters for generating the deposit address.
  * @returns {Promise<string>} The generated deposit address.
  */
@@ -50,7 +41,7 @@ export async function generateDepositBtcAddress({
   referralId,
   env,
 }: IGenerateDepositBtcAddressParams): Promise<string> {
-  const { baseApiUrl } = getApiConfig(env);
+  const { depositAddrApiUrl } = getApiConfig(env);
   const toChain = getChainNameById(chainId);
 
   const requestParams = {
@@ -61,25 +52,13 @@ export async function generateDepositBtcAddress({
     nonce: 0,
   };
 
-  try {
-    const { data } = await axios.post<IGenerateNewAddressResponse>(
-      ADDRESS_URL,
-      requestParams,
-      { baseURL: baseApiUrl },
-    );
+  const { data } = await axios.post<IGenerateNewAddressResponse>(
+    ADDRESS_URL,
+    requestParams,
+    {
+      baseURL: depositAddrApiUrl,
+    },
+  );
 
-    return data.address;
-  } catch (error) {
-    const errorMsg = getErrorMessage(error);
-
-    if (isSanctioned(errorMsg)) {
-      return SANCTIONED_ADDRESS;
-    } else {
-      throw new Error(errorMsg);
-    }
-  }
-}
-
-function isSanctioned(errorMsg: string): boolean {
-  return !!errorMsg.includes(SANCTIONS_MESSAGE);
+  return data.address;
 }

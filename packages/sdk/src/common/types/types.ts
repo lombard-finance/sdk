@@ -1,6 +1,5 @@
 export const OEnv = {
   prod: 'prod',
-  testnet: 'testnet',
   stage: 'stage',
 } as const;
 

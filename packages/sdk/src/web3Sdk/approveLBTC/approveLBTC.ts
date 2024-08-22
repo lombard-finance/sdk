@@ -1,7 +1,7 @@
 import { IEnvParam } from '../../common/types/internalTypes';
 import { toSatoshi } from '../../common/utils/convertSatoshi';
 import { IWeb3SendResult, Provider } from '../../provider';
-import { IProviderBasedParams } from '../types';
+import { IProviderBasedParams } from '../internalTypes';
 import { getGasMultiplier } from '../utils/getGasMultiplier';
 import { getLbtcTokenContract } from '../utils/getLbtcTokenContract';
 
