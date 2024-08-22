@@ -21,7 +21,7 @@
     "types": "tsc --noEmit",
     "build": "yarn types && vite build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "build-storybook": "storybook build -o sdk-storybook",
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs"
   },
   "peerDependencies": {
