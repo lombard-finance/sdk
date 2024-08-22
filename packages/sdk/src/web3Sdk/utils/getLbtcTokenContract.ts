@@ -1,21 +1,17 @@
-import { TEnv } from '../../common/types/types';
-import { isValidChain } from '../../common/utils/isValidChain';
+import { TChainId, TEnv } from '../../common/types/types';
 import { Provider } from '../../provider';
 import { getLbtcAddressConfig } from '../lbtcAddressConfig';
 import { getTokenABI } from './getTokenABI';
 
 export function getLbtcTokenContract(provider: Provider, env?: TEnv) {
   const lbtcAddressConfig = getLbtcAddressConfig(env);
-  const { chainId } = provider;
 
-  if (!isValidChain(chainId)) {
-    throw new Error(`This chain ${chainId} is not supported`);
-  }
-
-  const tokenAddress = lbtcAddressConfig[chainId];
+  const tokenAddress = lbtcAddressConfig[provider.chainId as TChainId];
 
   if (!tokenAddress) {
-    throw new Error(`Token address for chain ${chainId} is not defined`);
+    throw new Error(
+      `Token address for chain ${provider.chainId} is not defined`,
+    );
   }
 
   const abi = getTokenABI('LBTC');

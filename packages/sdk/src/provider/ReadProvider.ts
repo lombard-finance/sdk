@@ -11,9 +11,6 @@ const FEE_MULTIPLIER = 2;
 const ADDITIONAL_SAFE_GAS_PRICE_WEI = 25_000;
 
 export interface IReadProviderParams {
-  /**
-   * Chain ID of the network to interact with.
-   */
   chainId: number;
   /**
    * The RPC URL configuration. If not provided, the default configuration will be used.
@@ -54,9 +51,6 @@ export class ReadProvider {
     const rpcUrl = this.rpcConfig?.[chainId];
 
     if (!rpcUrl) {
-      console.error(
-        `You might need to add the rpcConfig for the ${chainId} chain ID when creating the provider.`,
-      );
       throw new Error(`RPC URL for chainId ${chainId} not found`);
     }
 

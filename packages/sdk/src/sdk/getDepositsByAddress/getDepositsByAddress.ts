@@ -59,11 +59,9 @@ export async function getDepositsByAddress({
   env,
 }: IGetDepositsByAddressParams): Promise<IDeposit[]> {
   const { baseApiUrl } = getApiConfig(env);
+  const url = `${baseApiUrl}/api/v1/address/outputs/${address}`;
 
-  const { data } = await axios.get<IDepositsByAddressResponse | undefined>(
-    `api/v1/address/outputs/${address}`,
-    { baseURL: baseApiUrl },
-  );
+  const { data } = await axios.get<IDepositsByAddressResponse | undefined>(url);
 
   const outputs = data?.outputs ?? [];
 

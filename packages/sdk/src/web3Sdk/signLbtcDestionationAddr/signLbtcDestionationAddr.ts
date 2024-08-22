@@ -1,5 +1,5 @@
 import { Provider } from '../../provider';
-import { IProviderBasedParams } from '../types';
+import { IProviderBasedParams } from '../internalTypes';
 
 export type SignLbtcDestionationAddrParams = IProviderBasedParams;
 
