@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "0.2.2",
+  "version": "0.5.0",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -21,8 +21,8 @@
     "types": "tsc --noEmit",
     "build": "yarn types && vite build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "build-docs": "rimraf ./docs && typedoc"
+    "build-storybook": "storybook build -o sdk-storybook",
+    "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs"
   },
   "peerDependencies": {
     "@bitcoin-js/tiny-secp256k1-asmjs": "^2",
