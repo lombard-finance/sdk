@@ -148,18 +148,6 @@ export class Provider extends ReadProvider {
         .once('transactionHash', async (transactionHash: string) => {
           console.log(`Just signed transaction has is: ${transactionHash}`);
 
-          const rawTx = await web3Read.eth.getTransaction(transactionHash);
-
-          console.log(
-            'Found transaction in node: ',
-            JSON.stringify(
-              rawTx,
-              (_, value) =>
-                typeof value === 'bigint' ? value.toString() : value,
-              2,
-            ),
-          );
-
           resolve({
             receiptPromise: promise,
             transactionHash,

@@ -9,7 +9,7 @@ import { getChainNameById } from '../utils/getChainNameById';
  * The address wich will be returned if the provided EVM address is sanctioned.
  */
 export const SANCTIONED_ADDRESS = 'sanctioned_address';
-const ADDRESS_URL = 'api/v1/address';
+const ADDRESS_URL = 'api/v1/address/generate';
 const SANCTIONS_MESSAGE = 'destination address is under sanctions';
 
 interface IGenerateNewAddressResponse {
@@ -32,7 +32,7 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
   /**
    * The referral ID.
    */
-  referralId?: string;
+  referralId: string;
 }
 
 /**

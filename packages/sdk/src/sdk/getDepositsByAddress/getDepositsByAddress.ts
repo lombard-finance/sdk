@@ -50,7 +50,7 @@ export interface IGetDepositsByAddressParams extends IEnvParam {
 /**
  * Returns all deposits for a given address
  *
- * @param {IGetDepositsByAddressParams} params - the parameters for getting deposits
+ * @param {IGetDepositsByAddressParams} params
  *
  * @returns {Promise<IDeposit[]>} a list of deposits
  */
