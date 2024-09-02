@@ -1,24 +1,26 @@
 import axios from 'axios';
 import { IEnvParam } from '../../common/types/internalTypes';
-import { OChainId, TChainId, TEnv } from '../../common/types/types';
+import { TChainId, TEnv } from '../../common/types/types';
 import { fromSatoshi } from '../../common/utils/convertSatoshi';
 import { getApiConfig } from '../apiConfig';
 import { getCainIdByName } from '../utils/getCainIdByName';
 
 type Address = string;
+type Seconds = number;
 
 interface IDepositResponse {
   txid: string;
-  index?: number;
-  block_height?: string;
-  block_time?: string;
   value: number;
   address: Address;
   to_chain: string;
+  notarization_wait_dur?: string | number;
+  index?: number;
+  raw_payload?: string;
+  payload?: string;
+  signature?: string;
   claim_tx?: string;
-  raw_payload: string;
-  payload: string;
-  signature: string;
+  block_height?: string;
+  block_time?: string;
   sanctioned?: boolean;
 }
 
@@ -38,6 +40,7 @@ export interface IDeposit {
   rawPayload?: string;
   signature?: string;
   isRestricted?: boolean;
+  notarizationWaitDur?: Seconds;
 }
 
 export interface IGetDepositsByAddressParams extends IEnvParam {
@@ -50,7 +53,7 @@ export interface IGetDepositsByAddressParams extends IEnvParam {
 /**
  * Returns all deposits for a given address
  *
- * @param {IGetDepositsByAddressParams} params - the parameters for getting deposits
+ * @param {IGetDepositsByAddressParams} params
  *
  * @returns {Promise<IDeposit[]>} a list of deposits
  */
@@ -84,65 +87,8 @@ function mapResponse(env?: TEnv) {
     rawPayload: data.raw_payload,
     signature: data.signature,
     isRestricted: !!data.sanctioned,
+    notarizationWaitDur: data.notarization_wait_dur
+      ? Number(data.notarization_wait_dur)
+      : undefined,
   });
 }
-
-export const demoDepositsByAddress: IDeposit[] = [
-  {
-    txid: 'txid0',
-    index: 0,
-    blockHeight: 100,
-    blockTime: 1715964690,
-    value: 0.2,
-    address: 'address0',
-    chainId: OChainId.holesky,
-    isClaimed: false,
-    rawPayload: 'rawPayload0',
-    signature: 'signature0',
-  },
-  {
-    txid: 'dasjmnkosdfjnkdsgjnk',
-    index: 0,
-    blockHeight: 110,
-    blockTime: 1715964690,
-    value: 0.3,
-    address: 'adslhjnkbsfdahbk',
-    chainId: OChainId.holesky,
-    isClaimed: false,
-    rawPayload: 'rawPayload0',
-    signature: 'signature0',
-  },
-  {
-    txid: '0xfsmkfdskm',
-    index: 0,
-    blockHeight: 102,
-    blockTime: 1715964690,
-    value: 0.55,
-    address: 'dgfgfasd',
-    chainId: OChainId.holesky,
-    isClaimed: false,
-  },
-  {
-    txid: 'kmgnjkofejnadwnjdasljmnkjgsdklmn',
-    index: 0,
-    blockHeight: 102,
-    blockTime: 1715964691,
-    value: 0.77,
-    address: 'hgjhyewadwss',
-    chainId: OChainId.holesky,
-    isClaimed: false,
-    isRestricted: true,
-  },
-  {
-    txid: 'f6b6d0e1e77df21e406bd730c32b05c3fae8296491a1d946925eff07d02d5825',
-    index: 1,
-    blockHeight: 100,
-    blockTime: 1715789138,
-    value: 0.2,
-    address: 'address1',
-    chainId: OChainId.holesky,
-    isClaimed: true,
-    rawPayload: 'rawPayload1',
-    signature: 'signature1',
-  },
-];

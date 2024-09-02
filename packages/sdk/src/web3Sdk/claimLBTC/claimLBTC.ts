@@ -6,7 +6,9 @@ import { getGasMultiplier } from '../utils/getGasMultiplier';
 import { getLbtcTokenContract } from '../utils/getLbtcTokenContract';
 
 const INSUFFICIENT_FUNDS_PARTIAL_ERROR = 'insufficient funds';
-const INSUFFICIENT_FUNDS_ERROR = 'Insufficient funds for transfer';
+
+const INSUFFICIENT_FUNDS_ERROR =
+  'Insufficient funds for transfer. Make sure you have enough ETH to cover the gas cost.';
 
 export interface IClaimLBTCParams extends IProviderBasedParams, IEnvParam {
   /**
