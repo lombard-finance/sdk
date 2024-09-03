@@ -77,12 +77,16 @@ export async function getDepositBtcAddress({
 function getActualAddress(
   addresses: IDepositAddress[],
 ): IDepositAddress | undefined {
+  if (!addresses.length) {
+    return undefined;
+  }
+
   const actualAddress = addresses.reduce((acc, address) => {
     if (acc.created_at < address.created_at) {
       return address;
     }
     return acc;
-  });
+  }, addresses[0]);
 
   return actualAddress.deprecated ? undefined : actualAddress;
 }
