@@ -91,7 +91,6 @@ export class Provider extends ReadProvider {
       from,
       to,
       value: utils.numberToHex(value),
-      gas: utils.numberToHex(gasLimit),
       data,
       nonce,
       chainId: utils.numberToHex(chainId),
@@ -115,6 +114,8 @@ export class Provider extends ReadProvider {
             'Failed to estimate gas limit for transaction.',
         );
       }
+    } else {
+      tx.gas = utils.numberToHex(gasLimit);
     }
 
     const { maxFeePerGas, maxPriorityFeePerGas } = estimateFee

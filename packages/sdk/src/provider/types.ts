@@ -25,7 +25,7 @@ export interface ISendOptions {
   data?: string;
   /**
    * Gas limit for transaction.
-   * @note When `estimate` is `true`, this value will redefined by estimated gas limit.
+   * @note When `estimate` is `true`, this value will be redefined by estimated gas limit.
    */
   gasLimit?: string;
   /**
