@@ -22,6 +22,20 @@ npm i web3@^4 axios@^1 bignumber.js@^9 @bitcoin-js/tiny-secp256k1-asmjs@2.2.3 bi
 
 All methods are documented with JSDoc comments. You can use your IDE's autocomplete feature to see the available methods and their parameters.
 
+### Importing
+
+If you are using a module bundler like Vite, Webpack or Rollup, you can import the package like this:
+
+```typescript
+import { getDepositBtcAddress } from '@lombard.finance/sdk';
+```
+
+If you are using a commonjs module system, you can import the package like this:
+
+```javascript
+const { getDepositBtcAddress } = require('@lombard.finance/sdk');
+```
+
 ### API Methods
 
 - API based
