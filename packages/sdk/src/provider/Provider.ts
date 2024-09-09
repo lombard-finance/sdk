@@ -24,7 +24,7 @@ export interface IProviderParams extends IReadProviderParams {
 export class Provider extends ReadProvider {
   web3: Web3;
   account: string;
-  rpcConfig: TRpcUrlConfig;
+  rpcConfig: TRpcUrlConfig = defaultRpcUrlConfig;
 
   constructor({ provider, account, chainId, rpcUrlConfig }: IProviderParams) {
     super({ chainId, rpcUrlConfig });
