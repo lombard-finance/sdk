@@ -35,6 +35,7 @@ export async function claimLBTC({
   ...providerParams
 }: IClaimLBTCParams): Promise<IWeb3SendResult> {
   const provider = new Provider(providerParams);
+
   const tokenContract = getLbtcTokenContract(provider, env);
 
   const tx = tokenContract.methods.mint(data, proofSignature);

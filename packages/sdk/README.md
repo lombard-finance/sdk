@@ -48,6 +48,8 @@ const { getDepositBtcAddress } = require('@lombard.finance/sdk');
   - [signLbtcDestionationAddr](#signLbtcDestionationAddr)
   - [claimLBTC](#claimLBTC)
   - [unstakeLBTC](#unstakeLBTC)
+  - [getBasculeDepositStatus](#getBasculeDepositStatus)
+
 
 #### getDepositBtcAddress
 
@@ -259,6 +261,37 @@ const { receiptPromise, transactionHash } = await unstakeLBTC({
 });
 console.log(transactionHash); // '0x...'
 const receipt = await receiptPromise; // {...}
+```
+
+#### getBasculeDepositStatus
+
+`@returns Promise<BasculeDepositStatus>` transaction promise
+
+Check Deposit Status by hash id through Bascule
+
+Parameters:
+
+| name             | type               | description                                                                            |
+| ---------------- | ------------------ | -------------------------------------------------------------------------------------- |
+| `txId`           | `string`           | Payload from deposit notarization. Can be obtained from the `getDepositsByAddress`     |
+| `provider`       | `IEIP1193Provider` | The EIP-1193 provider instance                                                         |
+| `account`        | `string`           | Current account address                                                                |
+| `chainId`        | `TChainId`         | Current chain ID                                                                       |
+| `env`            | `TEnv`             | Environment (optional, default: 'prod')                                                |
+
+Usage
+
+```typescript
+import { getBasculeDepositStatus } from '@lombard.finance/sdk';
+...
+// do connect to the wallet using web3.js or ethers.js or any other library
+// and get the provider, account and chainId
+const status = await getBasculeDepositStatus({
+  txId: 'PAYLOAD',
+  provider: window.ethereum,
+  chainId: 1,
+});
+console.log(status); // '0, 1, 2'
 ```
 
 ## Development

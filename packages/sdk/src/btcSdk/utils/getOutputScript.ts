@@ -9,6 +9,8 @@ import { OEnv, TEnv } from '../../common/types/types';
 
 initEccLib(ecc);
 
+type AddressType = 'p2tr' | 'p2wpkh' | 'p2wsh';
+
 /**
  * Get output script from address.
  *
@@ -21,9 +23,9 @@ export function getOutputScript(
   address: string,
   env: TEnv = OEnv.prod,
 ): string {
-  const paymentType = getPaymentType(address);
+  const addressType = getAddressType(address);
 
-  const payment = payments[paymentType]({
+  const payment = payments[addressType]({
     address,
     network: env === OEnv.prod ? networks.bitcoin : networks.testnet,
   });
@@ -37,7 +39,7 @@ export function getOutputScript(
   return `0x${paymentOutputScript}`;
 }
 
-function getPaymentType(address: string): 'p2tr' | 'p2wpkh' {
+function getAddressType(address: string): AddressType {
   const result = addressUtils.fromBech32(address);
 
   const isP2TR = result.version === 1 && result.data.length === 32;
@@ -50,5 +52,16 @@ function getPaymentType(address: string): 'p2tr' | 'p2wpkh' {
     return 'p2wpkh';
   }
 
-  throw new Error('Payment type is not supported.');
+  if (isP2WSHAddressType(address)) {
+    return 'p2wsh';
+  }
+
+  throw new Error('Address type is not supported.');
+}
+
+function isP2WSHAddressType(address: string): boolean {
+  return (
+    (address.startsWith('bc1') || address.startsWith('tb1')) &&
+    address.length === 62
+  );
 }
