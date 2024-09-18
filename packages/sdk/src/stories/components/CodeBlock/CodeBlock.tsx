@@ -12,7 +12,7 @@ export function CodeBlock({
   const formattedCode =
     text && withFormatting ? JSON.stringify(text, null, 2) : text;
 
-  if (!text) {
+  if (text === undefined || text === null) {
     return null;
   }
 
