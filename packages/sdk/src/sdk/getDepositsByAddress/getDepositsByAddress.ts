@@ -41,6 +41,8 @@ export interface IDeposit {
   signature?: string;
   isRestricted?: boolean;
   notarizationWaitDur?: Seconds;
+  // bascule hash id
+  payload?: string;
 }
 
 export interface IGetDepositsByAddressParams extends IEnvParam {
@@ -90,5 +92,6 @@ function mapResponse(env?: TEnv) {
     notarizationWaitDur: data.notarization_wait_dur
       ? Number(data.notarization_wait_dur)
       : undefined,
+    payload: data.payload,
   });
 }
