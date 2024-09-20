@@ -294,6 +294,32 @@ const status = await getBasculeDepositStatus({
 console.log(status); // '0, 1, 2'
 ```
 
+#### getLBTCTotalSupply
+
+`@returns Promise<string>` Supply promise
+
+Get LBTC total supply
+
+Parameters:
+
+| name             | type               | description                                                                            |
+| ---------------- | ------------------ | -------------------------------------------------------------------------------------- |
+| `rpcUrl`         | `string`           | Rpc url for the chain                                                                  |
+| `chainId`        | `TChainId`         | Current chain ID                                                                       |
+| `env`            | `TEnv`             | Environment (optional, default: 'prod')                                                |
+
+Usage
+
+```typescript
+import { getLBTCTotalSupply } from '@lombard.finance/sdk';
+
+const totalSupply = await getLBTCTotalSupply({
+  rpcUrl: 'yourRpcUrl',
+  chainId: 1,
+});
+console.log(totalSupply); // '2000000'
+```
+
 ## Development
 
 Available scripts:
