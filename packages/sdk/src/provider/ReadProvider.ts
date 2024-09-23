@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import Web3, { Contract, ContractAbi } from 'web3';
+import { Web3, Contract, ContractAbi } from 'web3';
 import {
   TRpcUrlConfig,
   rpcUrlConfig as defaultRpcUrlConfig,
