@@ -28,20 +28,12 @@ export const WithParams: Story = {
 type TotalSupplyLBTCProps = Pick<ILBTCTotalSupplyParams, 'env'>;
 
 export function StoryView(props: TotalSupplyLBTCProps) {
-  const {
-    data: connectData,
-    error: connectError,
-    isLoading: isConnectLoading,
-    connect,
-  } = useConnect();
+
+  const { data: connectData, error: connectError } = useConnect();
 
   const request = async () => {
-    if (!connectData) {
-      return;
-    }
-
     return getLBTCTotalSupply({
-      chainId: connectData?.chainId,
+      chainId: 1,
       rpcUrl: 'https://rpc.ankr.com/eth',
       ...props,
     });
@@ -57,22 +49,9 @@ export function StoryView(props: TotalSupplyLBTCProps) {
   return (
     <>
       <div className="mb-4">
-        <Button
-          onClick={connect}
-          disabled={isConnectLoading}
-          isLoading={isConnectLoading}
-        >
-          Connect
-        </Button>
-
         <CodeBlock text={connectError || formattedConnectData} />
       </div>
-
-      <Button
-        onClick={refetch}
-        disabled={isLoading || !connectData}
-        isLoading={isLoading}
-      >
+      <Button onClick={refetch} disabled={isLoading} isLoading={isLoading}>
         Get Total LBTC Supply
       </Button>
 
