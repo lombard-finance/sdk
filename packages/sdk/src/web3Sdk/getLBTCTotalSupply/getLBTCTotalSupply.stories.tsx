@@ -51,6 +51,7 @@ export function StoryView(props: TotalSupplyLBTCProps) {
       <div className="mb-4">
         <CodeBlock text={connectError || formattedConnectData} />
       </div>
+      <Button onClick={refetch} disabled={isLoading} isLoading={isLoading}>
         Get Total LBTC Supply
       </Button>
 
