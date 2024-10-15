@@ -11,6 +11,13 @@ export function getErrorMessage(error: unknown): string {
     return error;
   }
 
+  const hasDataMessage = (err: any): err is { data: { message: string } } =>
+    err?.data?.message && typeof err.data.message === 'string';
+
+  if (hasDataMessage(error)) {
+    return error.data.message;
+  }
+
   if (error instanceof Error) {
     return getAxiosErrorMessage(error as AxiosError);
   }
