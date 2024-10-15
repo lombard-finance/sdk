@@ -9,19 +9,30 @@ type BasculeTokenConfig = Record<TChainId, string>;
 const stageConfig: BasculeTokenConfig = {
   [OChainId.holesky]: '0x3a0c40c84b5034ed9a98a9a47a02af2b0885246f',
   [OChainId.ethereum]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.binanceSmartChainTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
 };
 
 const testnetConfig: BasculeTokenConfig = {
   [OChainId.holesky]: '0x3a0c40c84b5034ed9a98a9a47a02af2b0885246f',
   [OChainId.ethereum]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.binanceSmartChainTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
 };
 
 const prodConfig: BasculeTokenConfig = {
   [OChainId.holesky]: PLACEHOLDER_ADDRESS,
   [OChainId.ethereum]: '0xc750eCAC7250E0D18ecE2C7a5F130E3A765dc260',
+
+  [OChainId.binanceSmartChainTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
 };
 
-export function getBasculeAddressConfig(env: TEnv = defaultEnv): BasculeTokenConfig {
+export function getBasculeAddressConfig(
+  env: TEnv = defaultEnv,
+): BasculeTokenConfig {
   switch (env) {
     case OEnv.prod:
       return prodConfig;

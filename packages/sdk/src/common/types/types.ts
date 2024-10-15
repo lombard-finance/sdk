@@ -9,6 +9,8 @@ export type TEnv = (typeof OEnv)[keyof typeof OEnv];
 export const OChainId = {
   ethereum: 1,
   holesky: 17000,
+  binanceSmartChain: 56,
+  binanceSmartChainTestnet: 97,
 } as const;
 
 export type TChainId = (typeof OChainId)[keyof typeof OChainId];
