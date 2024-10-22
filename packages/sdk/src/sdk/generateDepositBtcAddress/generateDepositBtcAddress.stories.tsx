@@ -30,7 +30,7 @@ export const WithParams: Story = {
     chainId: OChainId.ethereum,
     signature: '',
     env: defaultEnv,
-    referralId: 'lombard',
+    referrerCode: 'lombard',
   },
 };
 
