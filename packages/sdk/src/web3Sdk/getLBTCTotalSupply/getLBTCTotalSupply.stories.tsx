@@ -28,6 +28,7 @@ export const WithParams: Story = {
 type TotalSupplyLBTCProps = Pick<ILBTCTotalSupplyParams, 'env'>;
 
 export function StoryView(props: TotalSupplyLBTCProps) {
+
   const { data: connectData, error: connectError } = useConnect();
 
   const request = async () => {
@@ -50,7 +51,6 @@ export function StoryView(props: TotalSupplyLBTCProps) {
       <div className="mb-4">
         <CodeBlock text={connectError || formattedConnectData} />
       </div>
-
       <Button onClick={refetch} disabled={isLoading} isLoading={isLoading}>
         Get Total LBTC Supply
       </Button>
