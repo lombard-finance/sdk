@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "exports": {
     ".": {
       "import": "./dist/index.js",

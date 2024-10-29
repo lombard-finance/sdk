@@ -31,6 +31,7 @@ export const WithParams: Story = {
     signature: '',
     env: defaultEnv,
     referrerCode: 'lombard',
+    referralId: 'lombard',
   },
 };
 

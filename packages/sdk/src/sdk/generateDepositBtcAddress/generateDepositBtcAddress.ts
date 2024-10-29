@@ -37,6 +37,10 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
    * The referrer code.
    */
   referrerCode?: string;
+  /**
+   * The referral ID.
+   */
+  referralId: string;
 }
 
 /**
@@ -54,6 +58,7 @@ export async function generateDepositBtcAddress({
   env,
   captchaToken,
   referrerCode,
+  referralId,
 }: IGenerateDepositBtcAddressParams): Promise<string> {
   const { baseApiUrl } = getApiConfig(env);
   const toChain = getChainNameById(chainId);
@@ -63,6 +68,7 @@ export async function generateDepositBtcAddress({
     to_address_signature: signature,
     to_chain: toChain,
     referrer_code: referrerCode,
+    referral_id: referralId,
     nonce: 0,
     captcha: captchaToken,
   };
