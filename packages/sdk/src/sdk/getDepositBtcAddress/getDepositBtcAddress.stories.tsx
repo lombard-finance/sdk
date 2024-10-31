@@ -29,6 +29,7 @@ export const WithParams: Story = {
     address: exampleEvmAddress,
     chainId: OChainId.ethereum,
     env: defaultEnv,
+    referralId: 'lombard',
   },
 };
 

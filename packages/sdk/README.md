@@ -102,6 +102,7 @@ Parameters:
 | `referrerCode` | `string` | The referrer code. |
 | `env` | `TEnv` | Environment (optional, default: 'prod') |
 | `captchaToken` | `string` | The captcha token (optional) |
+| `referralId` | `string` | The referral ID. |
 
 Usage
 
@@ -112,6 +113,7 @@ const depositBtcAddress = await generateDepositBtcAddress({
   address: '0x...',
   chainId: 1,
   signature: 'SIGNATURE',
+  referralId: 'YOUR_REFERRAL_ID',
   referrerCode: 'YOUR_REFERRER_CODE',
 }); // bc1q...
 ```
