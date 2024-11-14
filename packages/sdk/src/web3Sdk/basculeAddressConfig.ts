@@ -12,6 +12,9 @@ const stageConfig: BasculeTokenConfig = {
 
   [OChainId.binanceSmartChainTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.base]: PLACEHOLDER_ADDRESS,
+  [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
 };
 
 const testnetConfig: BasculeTokenConfig = {
@@ -20,6 +23,9 @@ const testnetConfig: BasculeTokenConfig = {
 
   [OChainId.binanceSmartChainTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.base]: PLACEHOLDER_ADDRESS,
+  [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
 };
 
 const prodConfig: BasculeTokenConfig = {
@@ -28,6 +34,9 @@ const prodConfig: BasculeTokenConfig = {
 
   [OChainId.binanceSmartChainTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.base]: PLACEHOLDER_ADDRESS,
+  [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
 };
 
 export function getBasculeAddressConfig(
