@@ -1,5 +1,5 @@
 const BTC_DECIMALS = 8;
-const SATOSHI_SCALE = 10 ** BTC_DECIMALS;
+export const SATOSHI_SCALE = 10 ** BTC_DECIMALS;
 
 /**
  * Convert Satoshi to BTC

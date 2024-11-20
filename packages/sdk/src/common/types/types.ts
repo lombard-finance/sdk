@@ -11,6 +11,8 @@ export const OChainId = {
   holesky: 17000,
   binanceSmartChain: 56,
   binanceSmartChainTestnet: 97,
+  base: 8453,
+  baseTestnet: 84532,
 } as const;
 
 export type TChainId = (typeof OChainId)[keyof typeof OChainId];
