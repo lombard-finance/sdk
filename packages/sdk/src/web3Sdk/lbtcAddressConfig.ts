@@ -17,6 +17,9 @@ const stageConfig: LbtcTokenConfig = {
   [OChainId.base]: PLACEHOLDER_ADDRESS,
   // TODO: Add baseTestnet address
   [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.berachainBartioTestnet]:
+    '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
+  [OChainId.sepolia]: '0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30',
 };
 
 const testnetConfig: LbtcTokenConfig = {
@@ -29,6 +32,9 @@ const testnetConfig: LbtcTokenConfig = {
 
   [OChainId.base]: PLACEHOLDER_ADDRESS,
   [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.berachainBartioTestnet]:
+    '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
+  [OChainId.sepolia]: '0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30',
 };
 
 const prodConfig: LbtcTokenConfig = {
@@ -40,6 +46,8 @@ const prodConfig: LbtcTokenConfig = {
 
   [OChainId.base]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
   [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.berachainBartioTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.sepolia]: PLACEHOLDER_ADDRESS,
 };
 
 export function getLbtcAddressConfig(env: TEnv = defaultEnv): LbtcTokenConfig {
