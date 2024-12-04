@@ -18,6 +18,7 @@ const stageConfig: BasculeTokenConfig = {
 
   [OChainId.berachainBartioTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.sepolia]: PLACEHOLDER_ADDRESS,
+  [OChainId.corn]: PLACEHOLDER_ADDRESS,
 };
 
 const testnetConfig: BasculeTokenConfig = {
@@ -32,6 +33,7 @@ const testnetConfig: BasculeTokenConfig = {
 
   [OChainId.berachainBartioTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.sepolia]: PLACEHOLDER_ADDRESS,
+  [OChainId.corn]: PLACEHOLDER_ADDRESS,
 };
 
 const prodConfig: BasculeTokenConfig = {
@@ -46,6 +48,7 @@ const prodConfig: BasculeTokenConfig = {
 
   [OChainId.berachainBartioTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.sepolia]: PLACEHOLDER_ADDRESS,
+  [OChainId.corn]: PLACEHOLDER_ADDRESS,
 };
 
 export function getBasculeAddressConfig(
