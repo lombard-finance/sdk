@@ -13,9 +13,18 @@ export const OChainId = {
   binanceSmartChainTestnet: 97,
   base: 8453,
   baseTestnet: 84532,
+  berachainBartioTestnet: 80084,
+  sepolia: 11155111,
+  corn: 21000000,
 } as const;
 
 export type TChainId = (typeof OChainId)[keyof typeof OChainId];
+
+export type TOFTChainId =
+  | (typeof OChainId)['berachainBartioTestnet']
+  | (typeof OChainId)['sepolia']
+  | (typeof OChainId)['corn']
+  | (typeof OChainId)['ethereum'];
 
 /**
  * Abstract EIP-1193 provider

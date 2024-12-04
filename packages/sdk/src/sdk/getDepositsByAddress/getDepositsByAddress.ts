@@ -4,6 +4,7 @@ import { TChainId, TEnv } from '../../common/types/types';
 import { fromSatoshi } from '../../common/utils/convertSatoshi';
 import { getApiConfig } from '../apiConfig';
 import { getCainIdByName } from '../utils/getCainIdByName';
+import BigNumber from 'bignumber.js';
 
 type Address = string;
 type Seconds = number;
@@ -33,16 +34,20 @@ export interface IDeposit {
   index?: number;
   blockHeight?: number;
   blockTime?: number;
-  value: number;
+  value: BigNumber;
   address: Address;
-  chainId: TChainId;
-  isClaimed: boolean;
+  chainId?: TChainId;
+  isClaimed?: boolean;
   rawPayload?: string;
   signature?: string;
   isRestricted?: boolean;
   notarizationWaitDur?: Seconds;
   // bascule hash id
   payload?: string;
+
+  fromChainId?: TChainId;
+  toChainId?: TChainId;
+  status?: string;
 }
 
 export interface IGetDepositsByAddressParams extends IEnvParam {
@@ -81,7 +86,7 @@ function mapResponse(env?: TEnv) {
     index: data.index ?? 0,
     blockHeight: data.block_height ? Number(data.block_height) : undefined,
     blockTime: data.block_time ? Number(data.block_time) : undefined,
-    value: fromSatoshi(data.value),
+    value: new BigNumber(fromSatoshi(data.value)),
     address: data.address,
     chainId: getCainIdByName(data.to_chain, env),
     // todo: return claiming tx from the API when it's available
