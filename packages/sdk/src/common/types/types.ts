@@ -16,6 +16,7 @@ export const OChainId = {
   berachainBartioTestnet: 80084,
   sepolia: 11155111,
   corn: 21000000,
+  swell: 1923,
 } as const;
 
 export type TChainId = (typeof OChainId)[keyof typeof OChainId];
@@ -24,7 +25,8 @@ export type TOFTChainId =
   | (typeof OChainId)['berachainBartioTestnet']
   | (typeof OChainId)['sepolia']
   | (typeof OChainId)['corn']
-  | (typeof OChainId)['ethereum'];
+  | (typeof OChainId)['ethereum']
+  | (typeof OChainId)['swell'];
 
 /**
  * Abstract EIP-1193 provider
