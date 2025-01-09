@@ -7,7 +7,7 @@ import { getChainNameById } from '../utils/getChainNameById';
 
 const ADDRESS_URL = 'api/v1/address';
 
-type TReferralId = 'lombard' | string;
+type TPartnerId = 'lombard' | string;
 
 interface IDepositAddress {
   btc_address: string;
@@ -16,7 +16,8 @@ interface IDepositAddress {
   type: string;
   used?: boolean;
   deposit_metadata: {
-    referral: TReferralId;
+    referral: TPartnerId;
+    partner_id: TPartnerId;
     to_address: string;
     to_blockchain: TChainName;
   };
@@ -26,7 +27,6 @@ interface IDepositAddressesResponse {
   addresses: IDepositAddress[];
   has_more?: boolean;
 }
-
 
 export interface IGetDepositBtcAddressParams extends IEnvParam {
   /**
@@ -40,7 +40,7 @@ export interface IGetDepositBtcAddressParams extends IEnvParam {
   /**
    * The referral ID.
    */
-  referralId: TReferralId;
+  partnerId: TPartnerId;
 }
 
 /**
@@ -54,13 +54,13 @@ export async function getDepositBtcAddress({
   address,
   chainId,
   env,
-  referralId,
+  partnerId,
 }: IGetDepositBtcAddressParams): Promise<string> {
   const addresses = await getDepositBtcAddresses({
     address,
     chainId,
     env,
-    referralId,
+    partnerId,
   });
 
   const addressData = getActualAddress(addresses);
@@ -106,7 +106,7 @@ export async function getDepositBtcAddresses({
   address,
   chainId,
   env,
-  referralId,
+  partnerId,
 }: IGetDepositBtcAddressParams): Promise<IDepositAddress[]> {
   const { baseApiUrl } = getApiConfig(env);
   const toBlockchain = getChainNameById(chainId);
@@ -117,7 +117,7 @@ export async function getDepositBtcAddresses({
     limit: 1,
     offset: 0,
     asc: false,
-    referralId,
+    referralId: partnerId,
   };
 
   const { data } = await axios.get<IDepositAddressesResponse>(ADDRESS_URL, {

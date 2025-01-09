@@ -13,13 +13,14 @@ const stageConfig: LbtcTokenConfig = {
   [OChainId.binanceSmartChainTestnet]:
     '0x731eFa688F3679688cf60A3993b8658138953ED6',
   [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
+  [OChainId.sepolia]: '0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30',
 
   [OChainId.base]: PLACEHOLDER_ADDRESS,
-  // TODO: Add baseTestnet address
-  [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.baseSepoliaTestnet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
+  
   [OChainId.berachainBartioTestnet]:
     '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
-  [OChainId.sepolia]: '0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30',
+
   [OChainId.corn]: PLACEHOLDER_ADDRESS,
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
 };
@@ -31,12 +32,13 @@ const testnetConfig: LbtcTokenConfig = {
   [OChainId.binanceSmartChainTestnet]:
     '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
   [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
+  [OChainId.sepolia]: '0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30',
 
   [OChainId.base]: PLACEHOLDER_ADDRESS,
-  [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.baseSepoliaTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.berachainBartioTestnet]:
     '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
-  [OChainId.sepolia]: '0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30',
+
   [OChainId.corn]: PLACEHOLDER_ADDRESS,
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
 };
@@ -50,7 +52,7 @@ const prodConfig: LbtcTokenConfig = {
   [OChainId.binanceSmartChain]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
 
   [OChainId.base]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
-  [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.baseSepoliaTestnet]: PLACEHOLDER_ADDRESS,
 
   [OChainId.berachainBartioTestnet]: PLACEHOLDER_ADDRESS,
 

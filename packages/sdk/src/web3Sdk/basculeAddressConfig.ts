@@ -14,7 +14,7 @@ const stageConfig: BasculeTokenConfig = {
   [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
 
   [OChainId.base]: PLACEHOLDER_ADDRESS,
-  [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.baseSepoliaTestnet]: PLACEHOLDER_ADDRESS,
 
   [OChainId.berachainBartioTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.sepolia]: PLACEHOLDER_ADDRESS,
@@ -31,7 +31,7 @@ const testnetConfig: BasculeTokenConfig = {
   [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
 
   [OChainId.base]: PLACEHOLDER_ADDRESS,
-  [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.baseSepoliaTestnet]: PLACEHOLDER_ADDRESS,
 
   [OChainId.berachainBartioTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.sepolia]: PLACEHOLDER_ADDRESS,
@@ -48,7 +48,7 @@ const prodConfig: BasculeTokenConfig = {
   [OChainId.binanceSmartChain]: PLACEHOLDER_ADDRESS,
 
   [OChainId.base]: PLACEHOLDER_ADDRESS,
-  [OChainId.baseTestnet]: PLACEHOLDER_ADDRESS,
+  [OChainId.baseSepoliaTestnet]: PLACEHOLDER_ADDRESS,
 
   [OChainId.berachainBartioTestnet]: PLACEHOLDER_ADDRESS,
   [OChainId.sepolia]: PLACEHOLDER_ADDRESS,
