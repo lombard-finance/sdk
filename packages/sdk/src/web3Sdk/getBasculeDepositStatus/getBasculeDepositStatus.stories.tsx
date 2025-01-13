@@ -18,14 +18,14 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    txId: '',
+    rawPayload: '',
     env: defaultEnv,
   },
 };
 
 type CheckBasculeDepositStatusProps = Pick<
   ICheckBasculeDepositStatusParams,
-  'env' | 'txId'
+  'env' | 'rawPayload'
 >;
 
 const BASCULE_DEPOSIT_TX_ID =
@@ -47,7 +47,7 @@ export function StoryView(props: CheckBasculeDepositStatusProps) {
     return getBasculeDepositStatus({
       ...connectData,
       ...props,
-      txId: BASCULE_DEPOSIT_TX_ID,
+      rawPayload: BASCULE_DEPOSIT_TX_ID,
     });
   };
 
