@@ -30,6 +30,10 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
    */
   signature: string;
   /**
+   * The typed data object used to generate the signature if using a network fee authorization signature.
+   */
+  eip712Data?: string;
+  /**
    * The captcha token.
    */
   captchaToken?: string;
@@ -40,7 +44,7 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
   /**
    * The referral ID.
    */
-  referralId: string;
+  partnerId?: string;
 }
 
 /**
@@ -55,10 +59,11 @@ export async function generateDepositBtcAddress({
   address,
   chainId,
   signature,
+  eip712Data,
   env,
-  captchaToken,
   referrerCode,
-  referralId,
+  partnerId,
+  captchaToken,
 }: IGenerateDepositBtcAddressParams): Promise<string> {
   const { baseApiUrl } = getApiConfig(env);
   const toChain = getChainNameById(chainId);
@@ -67,10 +72,11 @@ export async function generateDepositBtcAddress({
     to_address: address,
     to_address_signature: signature,
     to_chain: toChain,
-    referrer_code: referrerCode,
-    referral_id: referralId,
+    partner_id: partnerId,
     nonce: 0,
     captcha: captchaToken,
+    referrer_code: referrerCode,
+    eip_712_data: eip712Data,
   };
 
   try {

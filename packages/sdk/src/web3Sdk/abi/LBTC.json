@@ -28,53 +28,6 @@
   },
   {
     "inputs": [],
-    "name": "AmountTooSmallToPayRelativeFee",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "expected",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "received",
-        "type": "uint256"
-      }
-    ],
-    "name": "BadChainId",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BadCommission",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BadDestination",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "expected",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "received",
-        "type": "address"
-      }
-    ],
-    "name": "BadToContractAddress",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ECDSAInvalidSignature",
     "type": "error"
   },
@@ -187,6 +140,33 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "ERC2612ExpiredSignature",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "ERC2612InvalidSigner",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "EnforcedPause",
     "type": "error"
@@ -194,6 +174,27 @@
   {
     "inputs": [],
     "name": "ExpectedPause",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FeeGreaterThanAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentNonce",
+        "type": "uint256"
+      }
+    ],
+    "name": "InvalidAccountNonce",
     "type": "error"
   },
   {
@@ -208,12 +209,17 @@
   },
   {
     "inputs": [],
-    "name": "KnownDestination",
+    "name": "InvalidInputLength",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "MathOverflowedMulDiv",
+    "name": "InvalidUserSignature",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "KnownDestination",
     "type": "error"
   },
   {
@@ -245,7 +251,7 @@
   },
   {
     "inputs": [],
-    "name": "ProofAlreadyUsed",
+    "name": "PayloadAlreadyUsed",
     "type": "error"
   },
   {
@@ -256,11 +262,6 @@
   {
     "inputs": [],
     "name": "ScriptPubkeyUnsupported",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "SignatureVerificationFailed",
     "type": "error"
   },
   {
@@ -275,8 +276,46 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "action",
+        "type": "bytes4"
+      }
+    ],
+    "name": "UnexpectedAction",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "UnknownDestination",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "fromChainId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "fromContract",
+        "type": "address"
+      }
+    ],
+    "name": "UnknownOriginContract",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "expiry",
+        "type": "uint256"
+      }
+    ],
+    "name": "UserSignatureExpired",
     "type": "error"
   },
   {
@@ -286,27 +325,7 @@
   },
   {
     "inputs": [],
-    "name": "WrongAddressEncoding",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongChainIdEncoding",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongDataLength",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongDataLength",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongTxIdEncoding",
+    "name": "WrongChainId",
     "type": "error"
   },
   {
@@ -322,16 +341,6 @@
   {
     "inputs": [],
     "name": "ZeroAmount",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ZeroAmount",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ZeroChainId",
     "type": "error"
   },
   {
@@ -346,7 +355,7 @@
   },
   {
     "inputs": [],
-    "name": "ZeroTxHash",
+    "name": "ZeroFee",
     "type": "error"
   },
   {
@@ -398,37 +407,18 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "toChain",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "prevVal",
+        "type": "address"
       },
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "toContract",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "newVal",
+        "type": "address"
       }
     ],
-    "name": "BridgeDestinationAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "toChain",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "toContract",
-        "type": "bytes32"
-      }
-    ],
-    "name": "BridgeDestinationRemoved",
+    "name": "BridgeChanged",
     "type": "event"
   },
   {
@@ -456,6 +446,25 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "claimer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isClaimer",
+        "type": "bool"
+      }
+    ],
+    "name": "ClaimerUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "prevVal",
         "type": "address"
       },
@@ -467,81 +476,6 @@
       }
     ],
     "name": "ConsortiumChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "newValue",
-        "type": "uint64"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "toChain",
-        "type": "bytes32"
-      }
-    ],
-    "name": "DepositAbsoluteCommissionChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint16",
-        "name": "newValue",
-        "type": "uint16"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "toChain",
-        "type": "bytes32"
-      }
-    ],
-    "name": "DepositRelativeCommissionChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "fromAddress",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "toAddress",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "toContract",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "chainId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "amount",
-        "type": "uint64"
-      }
-    ],
-    "name": "DepositToBridge",
     "type": "event"
   },
   {
@@ -565,6 +499,50 @@
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "EIP712DomainChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "oldFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "newFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "FeeChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "userSignature",
+        "type": "bytes"
+      }
+    ],
+    "name": "FeeCharged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": false,
@@ -574,6 +552,50 @@
       }
     ],
     "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "payloadHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
+      }
+    ],
+    "name": "MintProofConsumed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "minter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isMinter",
+        "type": "bool"
+      }
+    ],
+    "name": "MinterUpdated",
     "type": "event"
   },
   {
@@ -593,31 +615,6 @@
       }
     ],
     "name": "NameAndSymbolChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "transactionId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint32",
-        "name": "index",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "proofHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "OutputProcessed",
     "type": "event"
   },
   {
@@ -776,55 +773,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "toAddress",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "txHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint32",
-        "name": "eventIndex",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "proofHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "fromContract",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "fromChainId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "amount",
-        "type": "uint64"
-      }
-    ],
-    "name": "WithdrawFromBridge",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "bool",
         "name": "",
@@ -849,12 +797,12 @@
   },
   {
     "inputs": [],
-    "name": "MAX_COMMISSION",
+    "name": "DOMAIN_SEPARATOR",
     "outputs": [
       {
-        "internalType": "uint16",
+        "internalType": "bytes32",
         "name": "",
-        "type": "uint16"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -870,27 +818,25 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "toChain",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "toContract",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint16",
-        "name": "relCommission",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint64",
-        "name": "absCommission",
-        "type": "uint64"
+        "internalType": "address",
+        "name": "newClaimer",
+        "type": "address"
       }
     ],
-    "name": "addDestination",
+    "name": "addClaimer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newMinter",
+        "type": "address"
+      }
+    ],
+    "name": "addMinter",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -965,6 +911,88 @@
   {
     "inputs": [
       {
+        "internalType": "address[]",
+        "name": "to",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amount",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "batchMint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes[]",
+        "name": "payload",
+        "type": "bytes[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "proof",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "batchMint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes[]",
+        "name": "mintPayload",
+        "type": "bytes[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "proof",
+        "type": "bytes[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "feePayload",
+        "type": "bytes[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "userSignature",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "batchMintWithFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "burn",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -1020,6 +1048,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "newBridge",
+        "type": "address"
+      }
+    ],
+    "name": "changeBridge",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint64",
         "name": "newValue",
         "type": "uint64"
@@ -1039,42 +1080,6 @@
       }
     ],
     "name": "changeConsortium",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint64",
-        "name": "newValue",
-        "type": "uint64"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "chain",
-        "type": "bytes32"
-      }
-    ],
-    "name": "changeDepositAbsoluteCommission",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint16",
-        "name": "newValue",
-        "type": "uint16"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "chain",
-        "type": "bytes32"
-      }
-    ],
-    "name": "changeDepositRelativeCommission",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1150,26 +1155,46 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "eip712Domain",
+    "outputs": [
       {
-        "internalType": "bytes32",
-        "name": "toChain",
-        "type": "bytes32"
+        "internalType": "bytes1",
+        "name": "fields",
+        "type": "bytes1"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "version",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "chainId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "verifyingContract",
+        "type": "address"
       },
       {
         "internalType": "bytes32",
-        "name": "toAddress",
+        "name": "salt",
         "type": "bytes32"
       },
       {
-        "internalType": "uint64",
-        "name": "amount",
-        "type": "uint64"
+        "internalType": "uint256[]",
+        "name": "extensions",
+        "type": "uint256[]"
       }
     ],
-    "name": "depositToBridge",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1186,57 +1211,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "toChain",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getDepositAbsoluteCommission",
+    "inputs": [],
+    "name": "getDustFeeRate",
     "outputs": [
       {
-        "internalType": "uint64",
+        "internalType": "uint256",
         "name": "",
-        "type": "uint64"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "toChain",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getDepositRelativeCommission",
-    "outputs": [
-      {
-        "internalType": "uint16",
-        "name": "",
-        "type": "uint16"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "chainId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getDestination",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1244,7 +1225,7 @@
   },
   {
     "inputs": [],
-    "name": "getDustFeeRate",
+    "name": "getMintFee",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1279,6 +1260,11 @@
         "internalType": "uint64",
         "name": "burnCommission_",
         "type": "uint64"
+      },
+      {
+        "internalType": "address",
+        "name": "owner_",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -1289,12 +1275,12 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "proof",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "claimer",
+        "type": "address"
       }
     ],
-    "name": "isUsed",
+    "name": "isClaimer",
     "outputs": [
       {
         "internalType": "bool",
@@ -1308,17 +1294,82 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "minter",
+        "type": "address"
+      }
+    ],
+    "name": "isMinter",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes",
-        "name": "data",
+        "name": "payload",
         "type": "bytes"
       },
       {
         "internalType": "bytes",
-        "name": "proofSignature",
+        "name": "proof",
         "type": "bytes"
       }
     ],
     "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "mintPayload",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "proof",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "feePayload",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "userSignature",
+        "type": "bytes"
+      }
+    ],
+    "name": "mintWithFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1331,6 +1382,25 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "nonces",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1398,6 +1468,49 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "v",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "r",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "s",
+        "type": "bytes32"
+      }
+    ],
+    "name": "permit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes",
         "name": "scriptPubkey",
         "type": "bytes"
@@ -1414,14 +1527,34 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "reinitialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "toChain",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "oldClaimer",
+        "type": "address"
       }
     ],
-    "name": "removeDestination",
+    "name": "removeClaimer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "oldMinter",
+        "type": "address"
+      }
+    ],
+    "name": "removeMinter",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1429,6 +1562,19 @@
   {
     "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMintFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1555,17 +1701,59 @@
   {
     "inputs": [
       {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "fromChain",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "fromContract",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "toChain",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "toContract",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "amount",
+            "type": "uint64"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "uniqueActionData",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct Actions.DepositBridgeAction",
+        "name": "action",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       },
       {
         "internalType": "bytes",
-        "name": "proofSignature",
+        "name": "",
         "type": "bytes"
       }
     ],
-    "name": "withdrawFromBridge",
+    "name": "withdraw",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -5,6 +5,8 @@ import { getErrorMessage } from '../../common/utils/getErrorMessage';
 import { Provider } from '../../provider';
 import { IProviderBasedParams } from '../types';
 import { getBasculeTokenContract } from '../utils/getBasculeTokenContract';
+import { getLbtcTokenContract } from '../utils/getLbtcTokenContract';
+import { ZERO_ADDRESS } from '../../common/const';
 
 const NO_DEPOSIT_ID_ERROR =
   'No deposit ID provided. Please provide a deposit ID as an argument.';
@@ -49,7 +51,16 @@ export async function getBasculeDepositStatus({
   }
 
   const provider = new Provider(providerParams);
-  const basculeContract = getBasculeTokenContract(provider, env);
+
+  const tokenContract = getLbtcTokenContract(provider, env);
+
+  const basculeAddress: string = await tokenContract.methods.Bascule().call();
+
+  if (basculeAddress === ZERO_ADDRESS) {
+    return BasculeDepositStatus.REPORTED;
+  }
+
+  const basculeContract = getBasculeTokenContract(provider, basculeAddress);
 
   try {
     const status: bigint = await basculeContract.methods

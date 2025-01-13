@@ -5,12 +5,12 @@ import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import useQuery from '../../stories/hooks/useQuery';
 import {
-  getLBTCExchageRate,
-  IGetLBTCExchageRateParams,
-} from './getLBTCExchageRate';
+    getLBTCExchangeRate,
+    IgetLBTCExchangeRateParams,
+} from './getLBTCExchangeRate';
 
 const meta = {
-  title: 'SDK/getLBTCExchageRate',
+  title: 'SDK/getLBTCExchangeRate',
   component: StoryView,
   tags: ['autodocs'],
 } satisfies Meta<typeof StoryView>;
@@ -19,17 +19,17 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const WithParams: Story = {
+export const WithDefaults: Story = {
   args: {
     env: defaultEnv,
     amount: 1,
-    chainId: OChainId.holesky,
+    chainId: OChainId.ethereum,
   },
 };
 
-export function StoryView(props: IGetLBTCExchageRateParams) {
+export function StoryView(props: IgetLBTCExchangeRateParams) {
   const { data, error, isLoading, refetch } = useQuery(
-    () => getLBTCExchageRate(props),
+    () => getLBTCExchangeRate(props),
     [props],
     false,
   );

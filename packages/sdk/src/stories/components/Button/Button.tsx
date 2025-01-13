@@ -20,10 +20,6 @@ export const Button = ({
   isLoading,
   ...props
 }: ButtonProps) => {
-  const mode = primary
-    ? 'storybook-button--primary'
-    : 'storybook-button--secondary';
-
   return (
     <button
       type="button"

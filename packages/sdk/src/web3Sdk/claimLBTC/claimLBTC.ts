@@ -21,6 +21,8 @@ export interface IClaimLBTCParams extends IProviderBasedParams, IEnvParam {
   proofSignature: string;
 }
 
+const hexify = (hexString: string) =>
+  hexString.startsWith('0x') ? hexString : '0x' + hexString;
 /**
  * Claims LBTC.
  *
@@ -38,7 +40,7 @@ export async function claimLBTC({
 
   const tokenContract = getLbtcTokenContract(provider, env);
 
-  const tx = tokenContract.methods.mint(data, proofSignature);
+  const tx = tokenContract.methods.mint(hexify(data), hexify(proofSignature));
 
   try {
     const result = await provider.sendTransactionAsync(
@@ -46,6 +48,7 @@ export async function claimLBTC({
       tokenContract.options.address,
       {
         data: tx.encodeABI(),
+        // TODO: add getGasOptions from the app for bsc here
         estimate: true,
         estimateFee: true,
         gasLimitMultiplier: getGasMultiplier(provider.chainId),
@@ -54,6 +57,7 @@ export async function claimLBTC({
 
     return result;
   } catch (error) {
+    console.log('error', error);
     const errorMessage = getErrorMessage(error);
 
     if (errorMessage.includes(INSUFFICIENT_FUNDS_PARTIAL_ERROR)) {

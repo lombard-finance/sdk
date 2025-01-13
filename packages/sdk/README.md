@@ -43,13 +43,13 @@ const { getDepositBtcAddress } = require('@lombard.finance/sdk');
   - [getDepositBtcAddresses](#getDepositBtcAddresses)
   - [generateDepositBtcAddress](#generateDepositBtcAddress)
   - [getDepositsByAddress](#getDepositsByAddress)
-  - [getLBTCExchageRate](#getLBTCExchageRate)
+  - [getLBTCExchangeRate](#getLBTCExchangeRate)
 - Web3 based
   - [signLbtcDestionationAddr](#signLbtcDestionationAddr)
   - [claimLBTC](#claimLBTC)
   - [unstakeLBTC](#unstakeLBTC)
   - [getBasculeDepositStatus](#getBasculeDepositStatus)
-
+  - [getLBTCTotalSupply](#getLBTCTotalSupply)
 
 #### getDepositBtcAddress
 
@@ -63,6 +63,7 @@ Parameters:
 | `address` | `string` | The destination EVM user address where LBTC will be claimed. |
 | `chainId` | `TChainId` | The destination chain ID where LBTC will be claimed. |
 | `env` | `TEnv` | Environment (optional, default: 'prod') |
+| `partnerId` | `string` | Partner ID (optional) |
 
 Usage
 
@@ -72,7 +73,7 @@ import { getDepositBtcAddress } from '@lombard.finance/sdk';
 const depositBtcAddress = await getDepositBtcAddress({
   address: '0x...',
   chainId: 1,
-  referrerCode: 'YOUR_REFERRAL_ID',
+  partnerId: 'YOUR_PARTNER_ID',
 }); // bc1q...
 ```
 
@@ -102,7 +103,7 @@ Parameters:
 | `referrerCode` | `string` | The referrer code. |
 | `env` | `TEnv` | Environment (optional, default: 'prod') |
 | `captchaToken` | `string` | The captcha token (optional) |
-| `referralId` | `string` | The referral ID. |
+| `partnerId` | `string` | The partner ID (optional) |
 
 Usage
 
@@ -113,7 +114,7 @@ const depositBtcAddress = await generateDepositBtcAddress({
   address: '0x...',
   chainId: 1,
   signature: 'SIGNATURE',
-  referralId: 'YOUR_REFERRAL_ID',
+  partnerId: 'YOUR_PARTNER_ID',
   referrerCode: 'YOUR_REFERRER_CODE',
 }); // bc1q...
 ```
@@ -125,10 +126,10 @@ Returns all deposits for a given address.
 
 Parameters:
 
-| name      | type     | description                             |
-| --------- | -------- | --------------------------------------- |
-| `address` | `string` | The EVM address to get deposits for     |
-| `env`     | `TEnv`   | Environment (optional, default: 'prod') |
+| name | type | description |
+|-----------|----------|--------------------------------------|
+| `address` | `string` | The EVM address to get deposits for |
+| `env` | `TEnv` | Environment (optional, default: 'prod') |
 
 Usage
 
@@ -140,7 +141,7 @@ const deposits = await getDepositsByAddress({
 }); // [{...}]
 ```
 
-#### getLBTCExchageRate
+#### getLBTCExchangeRate
 
 `@returns Promise<number>`
 
@@ -148,18 +149,18 @@ Returns the exchange rate for LBTC.
 
 Parameters:
 
-| name      | type       | description                                            |
-| --------- | ---------- | ------------------------------------------------------ |
+| name | type | description |
+|-----------|------------|-----------------------------------------------------|
 | `chainId` | `TChainId` | The chain id of the asset to get the exchange rate for |
-| `amount`  | `number`   | The amount of the asset to get the exchange rate for   |
-| `env`     | `TEnv`     | Environment (optional, default: 'prod')                |
+| `amount` | `number` | The amount of the asset to get the exchange rate for |
+| `env` | `TEnv` | Environment (optional, default: 'prod') |
 
 Usage
 
 ```typescript
-import { getLBTCExchageRate } from '@lombard.finance/sdk';
+import { getLBTCExchangeRate } from '@lombard.finance/sdk';
 ...
-const exchangeRate = await getLBTCExchageRate({
+const exchangeRate = await getLBTCExchangeRate({
   chainId: 1,
   amount: 3,
 }); // 3
@@ -174,11 +175,11 @@ Signing is necessary for the generation of the deposit address.
 
 Parameters:
 
-| name       | type               | description                    |
-| ---------- | ------------------ | ------------------------------ |
+| name | type | description |
+|------------|------------------|------------------------------|
 | `provider` | `IEIP1193Provider` | The EIP-1193 provider instance |
-| `account`  | `string`           | Current account address        |
-| `chainId`  | `TChainId`         | Current chain ID               |
+| `account` | `string` | Current account address |
+| `chainId` | `TChainId` | Current chain ID |
 
 Usage
 
@@ -202,14 +203,14 @@ Claims LBTC.
 
 Parameters:
 
-| name             | type               | description                                                                            |
-| ---------------- | ------------------ | -------------------------------------------------------------------------------------- |
-| `data`           | `string`           | Raw payload from deposit notarization. Can be obtained from the `getDepositsByAddress` |
-| `proofSignature` | `string`           | Signature from deposit notarization. Can be obtained from the `getDepositsByAddress`   |
-| `provider`       | `IEIP1193Provider` | The EIP-1193 provider instance                                                         |
-| `account`        | `string`           | Current account address                                                                |
-| `chainId`        | `TChainId`         | Current chain ID                                                                       |
-| `env`            | `TEnv`             | Environment (optional, default: 'prod')                                                |
+| name | type | description |
+|-----------------|------------------|--------------------------------------------------------------------------------------|
+| `data` | `string` | Raw payload from deposit notarization. Can be obtained from the `getDepositsByAddress` |
+| `proofSignature` | `string` | Signature from deposit notarization. Can be obtained from the `getDepositsByAddress` |
+| `provider` | `IEIP1193Provider` | The EIP-1193 provider instance |
+| `account` | `string` | Current account address |
+| `chainId` | `TChainId` | Current chain ID |
+| `env` | `TEnv` | Environment (optional, default: 'prod') |
 
 Usage
 
@@ -237,14 +238,14 @@ Unstakes LBTC to the specified BTC address.
 
 Parameters:
 
-| name         | type               | description                                  |
-| ------------ | ------------------ | -------------------------------------------- |
-| `btcAddress` | `string`           | The BTC address to send the unstaked BTC to. |
-| `amount`     | `string`           | The amount of LBTC to unstake.               |
-| `provider`   | `IEIP1193Provider` | The EIP-1193 provider instance               |
-| `account`    | `string`           | Current account address                      |
-| `chainId`    | `TChainId`         | Current chain ID                             |
-| `env`        | `TEnv`             | Environment (optional, default: 'prod')      |
+| name | type | description |
+|--------------|------------------|-------------------------------------------|
+| `btcAddress` | `string` | The BTC address to send the unstaked BTC to |
+| `amount` | `string` | The amount of LBTC to unstake |
+| `provider` | `IEIP1193Provider` | The EIP-1193 provider instance |
+| `account` | `string` | Current account address |
+| `chainId` | `TChainId` | Current chain ID |
+| `env` | `TEnv` | Environment (optional, default: 'prod') |
 
 Usage
 
@@ -272,13 +273,13 @@ Check Deposit Status by hash id through Bascule
 
 Parameters:
 
-| name             | type               | description                                                                            |
-| ---------------- | ------------------ | -------------------------------------------------------------------------------------- |
-| `txId`           | `string`           | Payload from deposit notarization. Can be obtained from the `getDepositsByAddress`     |
-| `provider`       | `IEIP1193Provider` | The EIP-1193 provider instance                                                         |
-| `account`        | `string`           | Current account address                                                                |
-| `chainId`        | `TChainId`         | Current chain ID                                                                       |
-| `env`            | `TEnv`             | Environment (optional, default: 'prod')                                                |
+| name | type | description |
+|-----------------|------------------|--------------------------------------------------------------------------------------|
+| `txId` | `string` | Payload from deposit notarization. Can be obtained from the `getDepositsByAddress` |
+| `provider` | `IEIP1193Provider` | The EIP-1193 provider instance |
+| `account` | `string` | Current account address |
+| `chainId` | `TChainId` | Current chain ID |
+| `env` | `TEnv` | Environment (optional, default: 'prod') |
 
 Usage
 
@@ -303,11 +304,11 @@ Get LBTC total supply
 
 Parameters:
 
-| name             | type               | description                                                                            |
-| ---------------- | ------------------ | -------------------------------------------------------------------------------------- |
-| `rpcUrl`         | `string`           | Rpc url for the chain                                                                  |
-| `chainId`        | `TChainId`         | Current chain ID                                                                       |
-| `env`            | `TEnv`             | Environment (optional, default: 'prod')                                                |
+| name | type | description |
+|-----------------|------------------|--------------------------------------------------------------------------------------|
+| `rpcUrl` | `string` | Rpc url for the chain |
+| `chainId` | `TChainId` | Current chain ID |
+| `env` | `TEnv` | Environment (optional, default: 'prod') |
 
 Usage
 

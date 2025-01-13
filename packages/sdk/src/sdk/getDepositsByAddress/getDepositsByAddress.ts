@@ -1,13 +1,32 @@
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { IEnvParam } from '../../common/types/internalTypes';
 import { TChainId, TEnv } from '../../common/types/types';
 import { fromSatoshi } from '../../common/utils/convertSatoshi';
 import { getApiConfig } from '../apiConfig';
-import { getCainIdByName } from '../utils/getCainIdByName';
-import BigNumber from 'bignumber.js';
+import { getChainIdByName } from '../utils/getChainIdByName';
 
 type Address = string;
 type Seconds = number;
+
+export enum ENotarizationStatus {
+  NOTARIZATION_STATUS_UNSPECIFIED = 'NOTARIZATION_STATUS_UNSPECIFIED',
+  // actually initial status for a deposit tx
+  NOTARIZATION_STATUS_PENDING = 'NOTARIZATION_STATUS_PENDING',
+  // the deposit was sent to the notarization
+  NOTARIZATION_STATUS_SUBMITTED = 'NOTARIZATION_STATUS_SUBMITTED',
+  // notarization was approved
+  NOTARIZATION_STATUS_SESSION_APPROVED = 'NOTARIZATION_STATUS_SESSION_APPROVED',
+  // notarization was failed
+  NOTARIZATION_STATUS_FAILED = 'NOTARIZATION_STATUS_FAILED',
+}
+
+export enum ESessionState {
+  SESSION_STATE_UNSPECIFIED = 'SESSION_STATE_UNSPECIFIED',
+  SESSION_STATE_PENDING = 'SESSION_STATE_PENDING',
+  SESSION_STATE_COMPLETED = 'SESSION_STATE_COMPLETED',
+  SESSION_STATE_EXPIRED = 'SESSION_STATE_EXPIRED',
+}
 
 interface IDepositResponse {
   txid: string;
@@ -17,12 +36,16 @@ interface IDepositResponse {
   notarization_wait_dur?: string | number;
   index?: number;
   raw_payload?: string;
-  payload?: string;
-  signature?: string;
-  claim_tx?: string;
+  payload_hash?: string;
+  proof?: string;
+  claim_tx?: string; // tx on the destination chain
   block_height?: string;
   block_time?: string;
   sanctioned?: boolean;
+
+  session_id: number;
+  notarization_status: ENotarizationStatus;
+  session_state: ESessionState;
 }
 
 interface IDepositsByAddressResponse {
@@ -36,8 +59,9 @@ export interface IDeposit {
   blockTime?: number;
   value: BigNumber;
   address: Address;
-  chainId?: TChainId;
+  chainId: TChainId;
   isClaimed?: boolean;
+  claimedTxId?: string;
   rawPayload?: string;
   signature?: string;
   isRestricted?: boolean;
@@ -45,6 +69,9 @@ export interface IDeposit {
   // bascule hash id
   payload?: string;
 
+  sessionId: number;
+  notarizationStatus: ENotarizationStatus;
+  sessionState: ESessionState;
   fromChainId?: TChainId;
   toChainId?: TChainId;
   status?: string;
@@ -71,7 +98,7 @@ export async function getDepositsByAddress({
   const { baseApiUrl } = getApiConfig(env);
 
   const { data } = await axios.get<IDepositsByAddressResponse | undefined>(
-    `api/v1/address/outputs/${address}`,
+    `api/v1/address/outputs-v2/${address}`,
     { baseURL: baseApiUrl },
   );
 
@@ -88,15 +115,19 @@ function mapResponse(env?: TEnv) {
     blockTime: data.block_time ? Number(data.block_time) : undefined,
     value: new BigNumber(fromSatoshi(data.value)),
     address: data.address,
-    chainId: getCainIdByName(data.to_chain, env),
+    chainId: getChainIdByName(data.to_chain, env),
+    claimedTxId: data.claim_tx,
     // todo: return claiming tx from the API when it's available
     isClaimed: !!data.claim_tx,
     rawPayload: data.raw_payload,
-    signature: data.signature,
+    signature: data.proof,
     isRestricted: !!data.sanctioned,
     notarizationWaitDur: data.notarization_wait_dur
       ? Number(data.notarization_wait_dur)
       : undefined,
-    payload: data.payload,
+    payload: data.payload_hash,
+    sessionId: data.session_id,
+    notarizationStatus: data.notarization_status,
+    sessionState: data.session_state,
   });
 }

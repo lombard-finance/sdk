@@ -12,6 +12,7 @@ export function getGasMultiplier(chainId: number): number {
     case OChainId.ethereum:
       return 1.3;
     case OChainId.holesky:
+    case OChainId.sepolia:
       return 1.5;
     default:
       return 1.3;
