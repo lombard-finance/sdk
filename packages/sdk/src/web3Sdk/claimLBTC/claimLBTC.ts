@@ -48,7 +48,6 @@ export async function claimLBTC({
       tokenContract.options.address,
       {
         data: tx.encodeABI(),
-        // TODO: add getGasOptions from the app for bsc here
         estimate: true,
         estimateFee: true,
         gasLimitMultiplier: getGasMultiplier(provider.chainId),

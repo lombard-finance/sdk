@@ -6,6 +6,7 @@ import {
   rpcUrlConfig as defaultRpcUrlConfig,
 } from './rpcUrlConfig';
 import { ISendOptions, IWeb3SendResult } from './types';
+import { getGasLimit } from './utils/getGasLimit';
 
 export interface IProviderParams extends IReadProviderParams {
   /**
@@ -98,10 +99,9 @@ export class Provider extends ReadProvider {
 
     if (estimate) {
       try {
-        const estimatedGas = await web3Read.eth.estimateGas(tx);
-        const multipliedGasLimit = Math.round(
-          Number(estimatedGas) * gasLimitMultiplier,
-        );
+        const gasLimit = await getGasLimit(web3Read, tx, chainId);
+
+        const multipliedGasLimit = Math.round(gasLimit * gasLimitMultiplier);
 
         if (extendedGasLimit) {
           tx.gas = utils.numberToHex(multipliedGasLimit + extendedGasLimit);
