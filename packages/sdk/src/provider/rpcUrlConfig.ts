@@ -8,7 +8,7 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [OChainId.sepolia]: 'https://rpc.ankr.com/eth_sepolia',
   [OChainId.base]: 'https://rpc.ankr.com/base',
   [OChainId.baseSepoliaTestnet]: 'https://rpc.ankr.com/base_sepolia',
-  [OChainId.binanceSmartChain]: 'https://rpc.ankr.com/bsc',
+  [OChainId.binanceSmartChain]: 'https://bsc-dataseed.bnbchain.org',
   [OChainId.binanceSmartChainTestnet]:
-    'https://rpc.ankr.com/bsc_testnet_chapel',
+    'https://bsc-testnet-dataseed.bnbchain.org',
 };

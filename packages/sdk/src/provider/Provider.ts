@@ -99,6 +99,7 @@ export class Provider extends ReadProvider {
     if (estimate) {
       try {
         const estimatedGas = await web3Read.eth.estimateGas(tx);
+
         const multipliedGasLimit = Math.round(
           Number(estimatedGas) * gasLimitMultiplier,
         );
