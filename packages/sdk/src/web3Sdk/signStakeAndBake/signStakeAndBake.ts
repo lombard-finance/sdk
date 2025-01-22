@@ -1,4 +1,4 @@
-import { IEnvParam } from 'common/types/internalTypes';
+import { IEnvParam } from '../../common/types/internalTypes';
 import { TChainId } from '../../common/types/types';
 import { Provider } from '../../provider';
 import { IProviderBasedParams } from '../types';
