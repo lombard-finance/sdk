@@ -44,12 +44,15 @@ const { getDepositBtcAddress } = require('@lombard.finance/sdk');
   - [generateDepositBtcAddress](#generateDepositBtcAddress)
   - [getDepositsByAddress](#getDepositsByAddress)
   - [getLBTCExchangeRate](#getLBTCExchangeRate)
+  - [storeStakeAndBakeSignature](#storeStakeAndBakeSignature)
+  - [getUserStakeAndBakeSignature](#getUserStakeAndBakeSignature)
 - Web3 based
   - [signLbtcDestionationAddr](#signLbtcDestionationAddr)
   - [claimLBTC](#claimLBTC)
   - [unstakeLBTC](#unstakeLBTC)
   - [getBasculeDepositStatus](#getBasculeDepositStatus)
   - [getLBTCTotalSupply](#getLBTCTotalSupply)
+  - [signStakeAndBake](#signStakeAndBake)
 
 #### getDepositBtcAddress
 
@@ -322,11 +325,107 @@ const totalSupply = await getLBTCTotalSupply({
 console.log(totalSupply); // '2000000'
 ```
 
-## Development
+#### signStakeAndBake
 
-Available scripts:
+`@returns Promise<ISignStakeAndBakeResult>` Sign authorization promise
 
-- `npm run build` - build the package
-- `npm run storybook` - start [storybook](https://storybook.js.org/) for development
-- `npm run build-storybook` - build storybook
-- `npm run build-docs` - build [Typedoc](https://typedoc.org/) documentation
+Sign Stake And Bake
+
+## Parameters
+
+| name         | type                | description                                                                 |
+|--------------|---------------------|-----------------------------------------------------------------------------|
+| `provider`   | `IProvider`         | Provider instance to interact with the blockchain                          |
+| `address`    | `string`            | The address to sign with (owner)                                           |
+| `chainId`    | `TChainId`          | Chain ID for the signature                                                 |
+| `value`      | `string`            | The value to approve                                                       |
+| `expiry`     | `number`            | Expiry date as a unix timestamp                                            |
+| `rpcUrl`     | `string` (optional) | Optional RPC URL for the network                                           |
+| `vaultKey`   | `string`            | The key of the vault to authorize                                          |
+
+Usage
+
+```typescript
+import { signStakeAndBake } from '@lombard.finance/sdk';
+
+const { signature, signatureData } = await signStakeAndBake({
+  provider: window.ethereum,
+  address: '0x...',
+  chainId,
+  value: toSatoshi(approvalValue.toString()).toString(),
+  expiry: permitExpiryTime,
+  vaultKey: selectedVault.key
+});
+```
+
+#### storeStakeAndBakeSignature
+
+`@returns Promise<IStoreStakeAndBakeSignatureStatus>` Store Stake And Bake Signature Status promise
+
+Store stake and bake signature
+
+## Parameters
+
+| name         | type                | description                                 |
+|--------------|---------------------|---------------------------------------------|
+| `env`        | `TEnv`              | Environment (e.g., 'prod', 'dev', etc.)     |
+| `signature`  | `string`            | The generated signature                     |
+| `typedData`  | `string`            | JSON typed data used for the signature      |
+
+Usage
+
+```typescript
+import { storeStakeAndBakeSignature } from '@lombard.finance/sdk';
+
+const status = await storeStakeAndBakeSignature({ signature, signatureData, env: 'prod' });
+
+```
+
+#### getUserStakeAndBakeSignature
+
+`@returns Promise<IGetUserStakeAndBakeSignatureResponse>` Promise that resolves to the signature response
+
+Get user's stake and bake signature from the API
+
+## Parameters
+
+| name                    | type     | description                                |
+|-------------------------|----------|--------------------------------------------|
+| `userDestinationAddress`| `string` | The user's destination address             |
+| `chainId`               | `string` | The chain ID                               |
+| `env`                   | `TEnv`   | Environment (e.g., 'prod', 'dev', etc.)    |
+
+
+Usage
+
+```typescript
+import { getUserStakeAndBakeSignature } from '@lombard.finance/sdk';
+
+const response = await getUserStakeAndBakeSignature({
+  userDestinationAddress: address,
+  chainId,
+  env: 'prod'
+});
+console.log(response);
+```
+
+#### getStakeAndBakeVaults
+
+`@returns IStakeAndBakeVault[]` A list of available vaults
+
+## Parameters
+
+| name                    | type     | description                                |
+|-------------------------|----------|--------------------------------------------|
+| `chainId`               | `string` | The chain ID                               |
+
+
+Usage
+
+```typescript
+import { getStakeAndBakeVaults } from '@lombard.finance/sdk';
+
+const vaults = getStakeAndBakeVaults(1);
+
+console.log(vaults);
+```

@@ -46,7 +46,7 @@ export function StoryView(props: GetUserStakeAndBakeSignatureProps) {
     return getUserStakeAndBakeSignature({
       ...props,
       userDestinationAddress: connectData.account,
-      chainId: OChainId.holesky,
+      chainId: connectData.chainId,
     });
   };
 
