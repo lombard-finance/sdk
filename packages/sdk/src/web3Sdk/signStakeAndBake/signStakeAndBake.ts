@@ -1,3 +1,4 @@
+import { IEnvParam } from 'common/types/internalTypes';
 import { TChainId } from '../../common/types/types';
 import { Provider } from '../../provider';
 import { IProviderBasedParams } from '../types';
@@ -9,7 +10,7 @@ const NO_SIGNATURE_ERROR =
   'Failed to obtain a valid signature. The response is undefined or invalid.';
 
 export interface ISignStakeAndBakeParams
-  extends Pick<IProviderBasedParams, 'provider'> {
+  extends Pick<IProviderBasedParams, 'provider'>, IEnvParam {
   /**
    * The address to sign with (owner)
    */
@@ -61,6 +62,7 @@ export async function signStakeAndBake({
   expiry,
   rpcUrl,
   vaultKey,
+  env
 }: ISignStakeAndBakeParams): Promise<ISignStakeAndBakeResult> {
   const providerInstance = new Provider({
     provider,
@@ -68,7 +70,7 @@ export async function signStakeAndBake({
     chainId,
   });
 
-  const verifyingContract = getVerifyingContract(chainId);
+  const verifyingContract = getVerifyingContract(chainId, env);
   const spender = getStakeAndBakeSpenderContract(chainId, vaultKey);
 
   const typedDataObject = await getStakeAndBakeTypedData({
