@@ -44,12 +44,16 @@ const { getDepositBtcAddress } = require('@lombard.finance/sdk');
   - [generateDepositBtcAddress](#generateDepositBtcAddress)
   - [getDepositsByAddress](#getDepositsByAddress)
   - [getLBTCExchangeRate](#getLBTCExchangeRate)
+  - [storeStakeAndBakeSignature](#storeStakeAndBakeSignature)
+  - [getUserStakeAndBakeSignature](#getUserStakeAndBakeSignature)
 - Web3 based
   - [signLbtcDestionationAddr](#signLbtcDestionationAddr)
   - [claimLBTC](#claimLBTC)
   - [unstakeLBTC](#unstakeLBTC)
   - [getBasculeDepositStatus](#getBasculeDepositStatus)
   - [getLBTCTotalSupply](#getLBTCTotalSupply)
+  - [signStakeAndBake](#signStakeAndBake)
+  - [getStakeAndBakeFee](#getStakeAndBakeFee)
 
 #### getDepositBtcAddress
 
@@ -126,10 +130,10 @@ Returns all deposits for a given address.
 
 Parameters:
 
-| name | type | description |
-|-----------|----------|--------------------------------------|
-| `address` | `string` | The EVM address to get deposits for |
-| `env` | `TEnv` | Environment (optional, default: 'prod') |
+| name      | type     | description                             |
+| --------- | -------- | --------------------------------------- |
+| `address` | `string` | The EVM address to get deposits for     |
+| `env`     | `TEnv`   | Environment (optional, default: 'prod') |
 
 Usage
 
@@ -149,11 +153,11 @@ Returns the exchange rate for LBTC.
 
 Parameters:
 
-| name | type | description |
-|-----------|------------|-----------------------------------------------------|
+| name      | type       | description                                            |
+| --------- | ---------- | ------------------------------------------------------ |
 | `chainId` | `TChainId` | The chain id of the asset to get the exchange rate for |
-| `amount` | `number` | The amount of the asset to get the exchange rate for |
-| `env` | `TEnv` | Environment (optional, default: 'prod') |
+| `amount`  | `number`   | The amount of the asset to get the exchange rate for   |
+| `env`     | `TEnv`     | Environment (optional, default: 'prod')                |
 
 Usage
 
@@ -175,11 +179,11 @@ Signing is necessary for the generation of the deposit address.
 
 Parameters:
 
-| name | type | description |
-|------------|------------------|------------------------------|
+| name       | type               | description                    |
+| ---------- | ------------------ | ------------------------------ |
 | `provider` | `IEIP1193Provider` | The EIP-1193 provider instance |
-| `account` | `string` | Current account address |
-| `chainId` | `TChainId` | Current chain ID |
+| `account`  | `string`           | Current account address        |
+| `chainId`  | `TChainId`         | Current chain ID               |
 
 Usage
 
@@ -203,14 +207,14 @@ Claims LBTC.
 
 Parameters:
 
-| name | type | description |
-|-----------------|------------------|--------------------------------------------------------------------------------------|
-| `data` | `string` | Raw payload from deposit notarization. Can be obtained from the `getDepositsByAddress` |
-| `proofSignature` | `string` | Signature from deposit notarization. Can be obtained from the `getDepositsByAddress` |
-| `provider` | `IEIP1193Provider` | The EIP-1193 provider instance |
-| `account` | `string` | Current account address |
-| `chainId` | `TChainId` | Current chain ID |
-| `env` | `TEnv` | Environment (optional, default: 'prod') |
+| name             | type               | description                                                                            |
+| ---------------- | ------------------ | -------------------------------------------------------------------------------------- |
+| `data`           | `string`           | Raw payload from deposit notarization. Can be obtained from the `getDepositsByAddress` |
+| `proofSignature` | `string`           | Signature from deposit notarization. Can be obtained from the `getDepositsByAddress`   |
+| `provider`       | `IEIP1193Provider` | The EIP-1193 provider instance                                                         |
+| `account`        | `string`           | Current account address                                                                |
+| `chainId`        | `TChainId`         | Current chain ID                                                                       |
+| `env`            | `TEnv`             | Environment (optional, default: 'prod')                                                |
 
 Usage
 
@@ -238,14 +242,14 @@ Unstakes LBTC to the specified BTC address.
 
 Parameters:
 
-| name | type | description |
-|--------------|------------------|-------------------------------------------|
-| `btcAddress` | `string` | The BTC address to send the unstaked BTC to |
-| `amount` | `string` | The amount of LBTC to unstake |
-| `provider` | `IEIP1193Provider` | The EIP-1193 provider instance |
-| `account` | `string` | Current account address |
-| `chainId` | `TChainId` | Current chain ID |
-| `env` | `TEnv` | Environment (optional, default: 'prod') |
+| name         | type               | description                                 |
+| ------------ | ------------------ | ------------------------------------------- |
+| `btcAddress` | `string`           | The BTC address to send the unstaked BTC to |
+| `amount`     | `string`           | The amount of LBTC to unstake               |
+| `provider`   | `IEIP1193Provider` | The EIP-1193 provider instance              |
+| `account`    | `string`           | Current account address                     |
+| `chainId`    | `TChainId`         | Current chain ID                            |
+| `env`        | `TEnv`             | Environment (optional, default: 'prod')     |
 
 Usage
 
@@ -273,13 +277,13 @@ Check Deposit Status by hash id through Bascule
 
 Parameters:
 
-| name | type | description |
-|-----------------|------------------|--------------------------------------------------------------------------------------|
-| `txId` | `string` | Payload from deposit notarization. Can be obtained from the `getDepositsByAddress` |
-| `provider` | `IEIP1193Provider` | The EIP-1193 provider instance |
-| `account` | `string` | Current account address |
-| `chainId` | `TChainId` | Current chain ID |
-| `env` | `TEnv` | Environment (optional, default: 'prod') |
+| name       | type               | description                                                                        |
+| ---------- | ------------------ | ---------------------------------------------------------------------------------- |
+| `txId`     | `string`           | Payload from deposit notarization. Can be obtained from the `getDepositsByAddress` |
+| `provider` | `IEIP1193Provider` | The EIP-1193 provider instance                                                     |
+| `account`  | `string`           | Current account address                                                            |
+| `chainId`  | `TChainId`         | Current chain ID                                                                   |
+| `env`      | `TEnv`             | Environment (optional, default: 'prod')                                            |
 
 Usage
 
@@ -304,11 +308,11 @@ Get LBTC total supply
 
 Parameters:
 
-| name | type | description |
-|-----------------|------------------|--------------------------------------------------------------------------------------|
-| `rpcUrl` | `string` | Rpc url for the chain |
-| `chainId` | `TChainId` | Current chain ID |
-| `env` | `TEnv` | Environment (optional, default: 'prod') |
+| name      | type       | description                             |
+| --------- | ---------- | --------------------------------------- |
+| `rpcUrl`  | `string`   | Rpc url for the chain                   |
+| `chainId` | `TChainId` | Current chain ID                        |
+| `env`     | `TEnv`     | Environment (optional, default: 'prod') |
 
 Usage
 
@@ -322,11 +326,135 @@ const totalSupply = await getLBTCTotalSupply({
 console.log(totalSupply); // '2000000'
 ```
 
-## Development
+#### signStakeAndBake
 
-Available scripts:
+`@returns Promise<ISignStakeAndBakeResult>` Sign authorization promise
 
-- `npm run build` - build the package
-- `npm run storybook` - start [storybook](https://storybook.js.org/) for development
-- `npm run build-storybook` - build storybook
-- `npm run build-docs` - build [Typedoc](https://typedoc.org/) documentation
+Sign Stake And Bake
+
+## Parameters
+
+| name       | type                | description                                       |
+| ---------- | ------------------- | ------------------------------------------------- |
+| `provider` | `IProvider`         | Provider instance to interact with the blockchain |
+| `address`  | `string`            | The address to sign with (owner)                  |
+| `chainId`  | `TChainId`          | Chain ID for the signature                        |
+| `value`    | `string`            | The value to approve                              |
+| `expiry`   | `number`            | Expiry date as a unix timestamp                   |
+| `rpcUrl`   | `string` (optional) | Optional RPC URL for the network                  |
+| `vaultKey` | `string`            | The key of the vault to authorize                 |
+
+Usage
+
+```typescript
+import { signStakeAndBake } from '@lombard.finance/sdk';
+
+const { signature, signatureData } = await signStakeAndBake({
+  provider: window.ethereum,
+  address: '0x...',
+  chainId,
+  value: toSatoshi(approvalValue.toString()).toString(),
+  expiry: permitExpiryTime,
+  vaultKey: selectedVault.key,
+});
+```
+
+#### storeStakeAndBakeSignature
+
+`@returns Promise<IStoreStakeAndBakeSignatureStatus>` Store Stake And Bake Signature Status promise
+
+Store stake and bake signature
+
+## Parameters
+
+| name        | type     | description                             |
+| ----------- | -------- | --------------------------------------- |
+| `env`       | `TEnv`   | Environment (e.g., 'prod', 'dev', etc.) |
+| `signature` | `string` | The generated signature                 |
+| `typedData` | `string` | JSON typed data used for the signature  |
+
+Usage
+
+```typescript
+import { storeStakeAndBakeSignature } from '@lombard.finance/sdk';
+
+const status = await storeStakeAndBakeSignature({
+  signature,
+  signatureData,
+  env: 'prod',
+});
+```
+
+#### getUserStakeAndBakeSignature
+
+`@returns Promise<IGetUserStakeAndBakeSignatureResponse>` Promise that resolves to the signature response
+
+Get user's stake and bake signature from the API
+
+## Parameters
+
+| name                     | type     | description                             |
+| ------------------------ | -------- | --------------------------------------- |
+| `userDestinationAddress` | `string` | The user's destination address          |
+| `chainId`                | `string` | The chain ID                            |
+| `env`                    | `TEnv`   | Environment (e.g., 'prod', 'dev', etc.) |
+
+Usage
+
+```typescript
+import { getUserStakeAndBakeSignature } from '@lombard.finance/sdk';
+
+const response = await getUserStakeAndBakeSignature({
+  userDestinationAddress: address,
+  chainId,
+  env: 'prod',
+});
+console.log(response);
+```
+
+#### getStakeAndBakeVaults
+
+`@returns IStakeAndBakeVault[]` A list of available vaults
+
+## Parameters
+
+| name      | type     | description  |
+| --------- | -------- | ------------ |
+| `chainId` | `string` | The chain ID |
+
+Usage
+
+```typescript
+import { getStakeAndBakeVaults } from '@lombard.finance/sdk';
+
+const vaults = getStakeAndBakeVaults(1);
+
+console.log(vaults);
+```
+
+#### getStakeAndBakeFee
+
+`@returns Promise<string>` Promise that resolves stakeAndBake fee in satoshis
+
+Get Stake and bake fee in satoshis
+
+## Parameters
+
+| name           | type     | description           |
+| -------------- | -------- | --------------------- |
+| `vaultAddress` | `string` | The vault address     |
+| `chainId`      | `string` | The chain ID          |
+| `rpcUrl`       | `string` | Rpc url for the chain |
+
+Usage
+
+```typescript
+import { getStakeAndBakeFee } from '@lombard.finance/sdk';
+
+const response = await getStakeAndBakeFee({
+  chainId: OChainId.binanceSmartChain,
+  rpcUrl: 'https://rpc.ankr.com/bsc',
+  vaultAddress: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
+});
+console.log(response);
+```
