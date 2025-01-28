@@ -9,3 +9,4 @@ export * from './storeNetworkFeeSignature';
 export * from './storeStakeAndBakeSignature';
 export * from './utils/getChainIdByName';
 export * from './utils/getChainNameById';
+export * from './setReferral';
