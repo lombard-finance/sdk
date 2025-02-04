@@ -17,12 +17,15 @@ const stageConfig: LbtcTokenConfig = {
 
   [OChainId.base]: PLACEHOLDER_ADDRESS,
   [OChainId.baseSepoliaTestnet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
-  
+
   [OChainId.berachainBartioTestnet]:
     '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
 
   [OChainId.corn]: PLACEHOLDER_ADDRESS,
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.morph]: PLACEHOLDER_ADDRESS,
+  [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
 
 const testnetConfig: LbtcTokenConfig = {
@@ -41,6 +44,9 @@ const testnetConfig: LbtcTokenConfig = {
 
   [OChainId.corn]: PLACEHOLDER_ADDRESS,
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.morph]: PLACEHOLDER_ADDRESS,
+  [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
 
 const prodConfig: LbtcTokenConfig = {
@@ -58,6 +64,9 @@ const prodConfig: LbtcTokenConfig = {
 
   [OChainId.corn]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
   [OChainId.swell]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+
+  [OChainId.morph]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+  [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
 
 export function getLbtcAddressConfig(env: TEnv = defaultEnv): LbtcTokenConfig {

@@ -21,6 +21,9 @@ const stageConfig: BasculeTokenConfig = {
   [OChainId.corn]: PLACEHOLDER_ADDRESS,
 
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.morph]: PLACEHOLDER_ADDRESS,
+  [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
 
 const testnetConfig: BasculeTokenConfig = {
@@ -38,6 +41,9 @@ const testnetConfig: BasculeTokenConfig = {
   [OChainId.corn]: PLACEHOLDER_ADDRESS,
 
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.morph]: PLACEHOLDER_ADDRESS,
+  [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
 
 const prodConfig: BasculeTokenConfig = {
@@ -54,6 +60,9 @@ const prodConfig: BasculeTokenConfig = {
   [OChainId.sepolia]: PLACEHOLDER_ADDRESS,
   [OChainId.corn]: PLACEHOLDER_ADDRESS,
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.morph]: PLACEHOLDER_ADDRESS,
+  [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
 
 export function getBasculeAddressConfig(

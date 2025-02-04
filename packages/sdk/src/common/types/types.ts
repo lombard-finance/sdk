@@ -18,6 +18,8 @@ export const OChainId = {
 
   corn: 21000000,
   swell: 1923,
+  morph: 2818,
+  morphHolesky: 2810,
 } as const;
 
 export type TChainId = (typeof OChainId)[keyof typeof OChainId];
