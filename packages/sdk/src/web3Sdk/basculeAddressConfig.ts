@@ -24,6 +24,7 @@ const stageConfig: BasculeTokenConfig = {
 
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
 
+  [OChainId.sonic]: PLACEHOLDER_ADDRESS,
   [OChainId.morph]: PLACEHOLDER_ADDRESS,
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
@@ -46,6 +47,7 @@ const testnetConfig: BasculeTokenConfig = {
 
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
 
+  [OChainId.sonic]: PLACEHOLDER_ADDRESS,
   [OChainId.morph]: PLACEHOLDER_ADDRESS,
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
@@ -68,6 +70,7 @@ const prodConfig: BasculeTokenConfig = {
 
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
 
+  [OChainId.sonic]: PLACEHOLDER_ADDRESS,
   [OChainId.morph]: PLACEHOLDER_ADDRESS,
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
