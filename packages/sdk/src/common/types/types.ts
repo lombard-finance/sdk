@@ -14,10 +14,16 @@ export const OChainId = {
   sepolia: 11155111,
   base: 8453,
   baseSepoliaTestnet: 84532,
+
+  berachain: 80094,
   berachainBartioTestnet: 80084,
 
   corn: 21000000,
   swell: 1923,
+
+  sonic: 146,
+  morph: 2818,
+  morphHolesky: 2810,
 } as const;
 
 export type TChainId = (typeof OChainId)[keyof typeof OChainId];
