@@ -14,6 +14,8 @@ export const OChainId = {
   sepolia: 11155111,
   base: 8453,
   baseSepoliaTestnet: 84532,
+
+  berachain: 80094,
   berachainBartioTestnet: 80084,
 
   corn: 21000000,

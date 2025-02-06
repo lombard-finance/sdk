@@ -18,6 +18,7 @@ const stageConfig: LbtcTokenConfig = {
   [OChainId.base]: PLACEHOLDER_ADDRESS,
   [OChainId.baseSepoliaTestnet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
 
+  [OChainId.berachain]: PLACEHOLDER_ADDRESS,
   [OChainId.berachainBartioTestnet]:
     '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
 
@@ -39,6 +40,8 @@ const testnetConfig: LbtcTokenConfig = {
 
   [OChainId.base]: PLACEHOLDER_ADDRESS,
   [OChainId.baseSepoliaTestnet]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.berachain]: PLACEHOLDER_ADDRESS,
   [OChainId.berachainBartioTestnet]:
     '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
 
@@ -60,6 +63,7 @@ const prodConfig: LbtcTokenConfig = {
   [OChainId.base]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
   [OChainId.baseSepoliaTestnet]: PLACEHOLDER_ADDRESS,
 
+  [OChainId.berachain]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
   [OChainId.berachainBartioTestnet]: PLACEHOLDER_ADDRESS,
 
   [OChainId.corn]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
