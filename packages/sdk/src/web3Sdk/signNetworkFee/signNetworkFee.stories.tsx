@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { OEnv } from '../../common/types/types';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { useConnect } from '../../stories/hooks/useConnect';
@@ -7,6 +6,7 @@ import useQuery from '../../stories/hooks/useQuery';
 import { fromCamelCase } from '../../stories/utils/fromCamelCase';
 import { MS_PER_DAY } from '../const';
 import { ISignNetworkFeeParams, signNetworkFee } from './signNetworkFee';
+import { defaultEnv } from '../../common/const';
 
 const { name } = signNetworkFee;
 const nameWithWhitespaces = fromCamelCase(name);
@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    env: OEnv.stage,
+    env: defaultEnv,
   },
 };
 

@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { OEnv } from '../../common/types/types';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { useConnect } from '../../stories/hooks/useConnect';
@@ -8,6 +7,7 @@ import {
   IStoreNetworkFeeSignatureParams,
   storeNetworkFeeSignature,
 } from './storeNetworkFeeSignature';
+import { defaultEnv } from '../../common/const';
 
 const meta = {
   title: 'SDK/storeNetworkFeeSignature',
@@ -21,7 +21,7 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    env: OEnv.stage,
+    env: defaultEnv,
   },
 };
 
