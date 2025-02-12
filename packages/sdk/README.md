@@ -46,6 +46,8 @@ const { getDepositBtcAddress } = require('@lombard.finance/sdk');
   - [getLBTCExchangeRate](#getLBTCExchangeRate)
   - [storeStakeAndBakeSignature](#storeStakeAndBakeSignature)
   - [getUserStakeAndBakeSignature](#getUserStakeAndBakeSignature)
+  - [storeNetworkFeeSignature](#storeNetworkFeeSignature)
+  - [getNetworkFeeSignature](#getNetworkFeeSignature)
 - Web3 based
   - [signLbtcDestionationAddr](#signLbtcDestionationAddr)
   - [claimLBTC](#claimLBTC)
@@ -54,6 +56,7 @@ const { getDepositBtcAddress } = require('@lombard.finance/sdk');
   - [getLBTCTotalSupply](#getLBTCTotalSupply)
   - [signStakeAndBake](#signStakeAndBake)
   - [getStakeAndBakeFee](#getStakeAndBakeFee)
+  - [signNetworkFee](#signNetworkFee)
 
 #### getDepositBtcAddress
 
@@ -369,7 +372,7 @@ Store stake and bake signature
 
 | name        | type     | description                             |
 | ----------- | -------- | --------------------------------------- |
-| `env`       | `TEnv`   | Environment (e.g., 'prod', 'dev', etc.) |
+| `env`       | `TEnv`   | Environment (e.g., 'prod', 'stage', etc.) |
 | `signature` | `string` | The generated signature                 |
 | `typedData` | `string` | JSON typed data used for the signature  |
 
@@ -397,7 +400,7 @@ Get user's stake and bake signature from the API
 | ------------------------ | -------- | --------------------------------------- |
 | `userDestinationAddress` | `string` | The user's destination address          |
 | `chainId`                | `string` | The chain ID                            |
-| `env`                    | `TEnv`   | Environment (e.g., 'prod', 'dev', etc.) |
+| `env`                    | `TEnv`   | Environment (e.g., 'prod', 'stage', etc.) |
 
 Usage
 
@@ -410,6 +413,62 @@ const response = await getUserStakeAndBakeSignature({
   env: 'prod',
 });
 console.log(response);
+```
+
+#### storeNetworkFeeSignature
+
+`@returns Promise<IStoreNetworkFeeSignatureResponse>` Response promise with statuses
+
+Store authorize network fee
+
+## Parameters
+
+| name                     | type     | description                             |
+| ------------------------ | -------- | --------------------------------------- |
+| `signature`              | `string` | The signature of signNetworkFee method  |
+| `typedData`              | `string` | JSON typed data used for the signature  |
+| `address`                | `string` | Destination address                     |
+| `env`                    | `TEnv`   | Environment (e.g., 'prod', 'stage', etc.) |
+
+Usage
+
+```typescript
+import { storeNetworkFeeSignature } from '@lombard.finance/sdk';
+
+const status = await storeNetworkFeeSignature({
+  signature: '',
+  typedData: '',
+  address: '0x...',
+  env: 'prod',
+});
+console.log(status); // success
+```
+
+#### getNetworkFeeSignature
+
+`@returns Promise<IStoreNetworkFeeSignatureResponse>` Response promise with statuses
+
+Store authorize network fee
+
+## Parameters
+
+| name                     | type     | description                             |
+| ------------------------ | -------- | --------------------------------------- |
+| `chainId`                | `number` | The chain ID                            |
+| `address`                | `string` | Destination address                     |
+| `env`                    | `TEnv`   | Environment (e.g., 'prod', 'stage', etc.) |
+
+Usage
+
+```typescript
+import { getNetworkFeeSignature } from '@lombard.finance/sdk';
+
+const signatureResponse = await getNetworkFeeSignature({
+  chainId: 1,
+  address: '0x...',
+  env: 'prod',
+});
+console.log(signatureResponse);
 ```
 
 #### getStakeAndBakeVaults
@@ -455,6 +514,40 @@ const response = await getStakeAndBakeFee({
   chainId: OChainId.binanceSmartChain,
   rpcUrl: 'https://rpc.ankr.com/bsc',
   vaultAddress: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
+});
+console.log(response);
+```
+
+#### signNetworkFee
+
+`@returns Promise<ISignNetworkFeeResponse>` A promise that resolves to the signature and typed data
+
+Signs the network fee transaction in the current account.
+Signing is necessary for the auto-mint.
+
+## Parameters
+
+| name       | type        | description                                       |
+| ---------- | ----------- | ------------------------------------------------- |
+| `address`  | `string`    | The user address                                  |
+| `fee`      | `string`    | The Authorization fee                             |
+| `expiry`   | `number`    | Expiration time                                   |
+| `chainId`  | `string`    | The chain ID                                      |
+| `env`      | `TEnv`      | Environment (e.g., 'prod', 'stage', etc.)           |
+| `provider` | `IProvider` | Provider instance to interact with the blockchain |
+
+Usage
+
+```typescript
+import { signNetworkFee } from '@lombard.finance/sdk';
+
+const response = await signNetworkFee({
+  chainId: OChainId.binanceSmartChain,
+  address: '0x...',
+  provider: window.ethereum,
+  fee: toSatoshi('0.0001'),
+  expiry: Math.floor(Date.now() / 1000) + NETWORK_FEE_EXPIRATION_TIME_SECONDS,
+  env: 'prod',
 });
 console.log(response);
 ```

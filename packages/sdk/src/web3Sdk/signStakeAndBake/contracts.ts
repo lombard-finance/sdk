@@ -23,13 +23,13 @@ export const STAKE_AND_BAKE_VAULTS: Record<number, IStakeAndBakeVault[]> = {
       address: '0x4A3cD83CEbb91E0Cd31EdA2Ee0F4AebfcCFCbBb6',
     },
   ],
-  // [OChainId.ethereum]: [
-  //   {
-  //     key: 'veda',
-  //     name: 'Veda / Lombard DeFi Vault',
-  //     address: '0x5401b8620e5fb570064ca9114fd1e135fd77d57c',
-  //   },
-  // ],
+  [OChainId.ethereum]: [
+    {
+      key: 'veda',
+      name: 'Veda / Lombard DeFi Vault',
+      address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
+    },
+  ],
   [OChainId.binanceSmartChain]: [
     {
       key: 'veda',
@@ -44,13 +44,6 @@ export const STAKE_AND_BAKE_VAULTS: Record<number, IStakeAndBakeVault[]> = {
       address: '0x72143309A662bDB4aad5cA65Ab59eD8977D047C5',
     },
   ],
-  // [OChainId.base]: [
-  //   {
-  //     key: 'veda',
-  //     name: 'Veda / Lombard DeFi Vault',
-  //     address: '0x5401b8620e5fb570064ca9114fd1e135fd77d57c',
-  //   },
-  // ],
 } as const;
 
 export const SUPPORTED_STAKE_AND_BAKE_CHAINS = Object.keys(
