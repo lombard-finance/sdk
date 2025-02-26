@@ -1,8 +1,7 @@
-import {
-  defaultEnv,
-  ZERO_ADDRESS as PLACEHOLDER_ADDRESS,
-} from '../common/const';
-import { OChainId, OEnv, TChainId, TEnv } from '../common/types/types';
+import { ZERO_ADDRESS as PLACEHOLDER_ADDRESS } from '../common/const';
+import { OChainId, TChainId } from '../common/types/types';
+
+import { Env, defaultEnv } from '@lombard.finance/sdk-common';
 
 type BasculeTokenConfig = Record<TChainId, string>;
 
@@ -76,12 +75,12 @@ const prodConfig: BasculeTokenConfig = {
 };
 
 export function getBasculeAddressConfig(
-  env: TEnv = defaultEnv,
+  env: Env = defaultEnv,
 ): BasculeTokenConfig {
   switch (env) {
-    case OEnv.prod:
+    case Env.prod:
       return prodConfig;
-    case OEnv.testnet:
+    case Env.testnet:
       return testnetConfig;
     default:
       return stageConfig;

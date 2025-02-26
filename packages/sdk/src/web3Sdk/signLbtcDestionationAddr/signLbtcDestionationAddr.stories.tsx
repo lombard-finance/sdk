@@ -6,9 +6,9 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { useConnect } from '../../stories/hooks/useConnect';
 import useQuery from '../../stories/hooks/useQuery';
 import { fromCamelCase } from '../../stories/utils/fromCamelCase';
-import { signLbtcDestionationAddr } from './signLbtcDestionationAddr';
+import { signLbtcDestinationAddr } from './signLbtcDestinationAddr';
 
-const { name } = signLbtcDestionationAddr;
+const { name } = signLbtcDestinationAddr;
 const nameWithWhitespaces = fromCamelCase(name);
 
 const meta = {
@@ -32,7 +32,7 @@ export function StoryView() {
       return;
     }
 
-    return signLbtcDestionationAddr(connectData);
+    return signLbtcDestinationAddr(connectData);
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

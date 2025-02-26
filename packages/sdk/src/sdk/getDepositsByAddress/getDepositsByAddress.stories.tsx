@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { defaultEnv } from '../../common/const';
+import { defaultEnv } from '@lombard.finance/sdk-common';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { exampleEvmAddress } from '../../stories/const';

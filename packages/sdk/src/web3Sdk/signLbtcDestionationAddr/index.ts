@@ -1,1 +1,1 @@
-export * from './signLbtcDestionationAddr';
+export * from './signLbtcDestinationAddr';

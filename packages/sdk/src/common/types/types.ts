@@ -1,10 +1,4 @@
-export const OEnv = {
-  prod: 'prod',
-  testnet: 'testnet',
-  stage: 'stage',
-} as const;
-
-export type TEnv = (typeof OEnv)[keyof typeof OEnv];
+import { Env } from '@lombard.finance/sdk-common';
 
 export const OChainId = {
   ethereum: 1,
@@ -35,13 +29,16 @@ export interface IEIP1193Provider {
   request: (args: any) => Promise<any>;
 }
 
-export const getEthNetworkByEnv = (env: TEnv) =>
-  env === OEnv.prod ? OChainId.ethereum : OChainId.holesky;
+export const getEthNetworkByEnv = (env: Env) =>
+  env === Env.prod ? OChainId.ethereum : OChainId.holesky;
 
-export const getBscNetworkByEnv = (env: TEnv) =>
-  env === OEnv.prod
+export const getBscNetworkByEnv = (env: Env) =>
+  env === Env.prod
     ? OChainId.binanceSmartChain
     : OChainId.binanceSmartChainTestnet;
 
-export const getBaseNetworkByEnv = (env: TEnv) =>
-  env === OEnv.prod ? OChainId.base : OChainId.baseSepoliaTestnet;
+export const getBaseNetworkByEnv = (env: Env) =>
+  env === Env.prod ? OChainId.base : OChainId.baseSepoliaTestnet;
+
+export const getSuiNetworkByEnv = (env: Env) =>
+  env === Env.prod ? 'sui:mainnet' : 'sui:testnet';

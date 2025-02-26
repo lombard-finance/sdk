@@ -1,4 +1,5 @@
-import { OChainId, OEnv, TChainId, TEnv } from '../../common/types/types';
+import { OChainId, TChainId } from '../../common/types/types';
+import { Env } from '@lombard.finance/sdk-common';
 
 const PROD_NATIVE_MINT_CHAINS = [
   OChainId.ethereum,
@@ -6,6 +7,6 @@ const PROD_NATIVE_MINT_CHAINS = [
   OChainId.binanceSmartChain,
 ] as TChainId[];
 
-export const chainIdToEnv = (chainId: TChainId): TEnv => {
-  return PROD_NATIVE_MINT_CHAINS.includes(chainId) ? OEnv.prod : OEnv.stage;
+export const chainIdToEnv = (chainId: TChainId): Env => {
+  return PROD_NATIVE_MINT_CHAINS.includes(chainId) ? Env.prod : Env.stage;
 };

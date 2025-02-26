@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { defaultEnv } from '../../common/const';
+import { defaultEnv } from '@lombard.finance/sdk-common';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { useConnect } from '../../stories/hooks/useConnect';
@@ -28,7 +28,6 @@ export const WithParams: Story = {
 type TotalSupplyLBTCProps = Pick<ILBTCTotalSupplyParams, 'env'>;
 
 export function StoryView(props: TotalSupplyLBTCProps) {
-
   const { data: connectData, error: connectError } = useConnect();
 
   const request = async () => {

@@ -7,6 +7,9 @@ export const OChainName = {
 
   bsc: 'DESTINATION_BLOCKCHAIN_BSC',
   bscOld: 'BLOCKCHAIN_BSC',
+
+  sui: 'DESTINATION_BLOCKCHAIN_SUI',
+  suiOld: 'BLOCKCHAIN_SUI',
 } as const;
 
 export type TChainName = (typeof OChainName)[keyof typeof OChainName];

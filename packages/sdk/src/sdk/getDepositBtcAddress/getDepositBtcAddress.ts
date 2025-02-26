@@ -36,7 +36,12 @@ export interface IGetDepositBtcAddressParams extends IEnvParam {
   /**
    * The destination chain ID where LBTC will be claimed.
    */
-  chainId: TChainId;
+  chainId:
+    | TChainId
+    | 'sui:testnet'
+    | 'sui:mainnet'
+    | 'sui:devnet'
+    | 'sui:localnet';
   /**
    * The referral ID.
    */
@@ -111,7 +116,7 @@ export async function getDepositBtcAddresses({
   const { baseApiUrl } = getApiConfig(env);
   const toBlockchain = getChainNameById(chainId);
 
-  const requestrParams = {
+  const requestParams = {
     to_address: address,
     to_blockchain: toBlockchain,
     limit: 1,
@@ -122,7 +127,7 @@ export async function getDepositBtcAddresses({
 
   const { data } = await axios.get<IDepositAddressesResponse>(ADDRESS_URL, {
     baseURL: baseApiUrl,
-    params: requestrParams,
+    params: requestParams,
   });
 
   return data?.addresses || [];

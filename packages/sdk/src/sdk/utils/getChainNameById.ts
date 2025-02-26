@@ -6,19 +6,36 @@ import { OChainName, TChainName } from '../internalTypes';
  *
  * @returns the chain name
  */
-export function getChainNameById(chainId: TChainId): TChainName {
-  switch (chainId) {
-    case OChainId.ethereum:
-    case OChainId.holesky:
-    case OChainId.sepolia:
-      return OChainName.eth;
-    case OChainId.base:
-    case OChainId.baseSepoliaTestnet:
-      return OChainName.base;
-    case OChainId.binanceSmartChain:
-    case OChainId.binanceSmartChainTestnet:
-      return OChainName.bsc;
-    default:
-      throw new Error(`Unknown chain ID: ${chainId}`);
+export function getChainNameById(
+  chainId:
+    | TChainId
+    | 'sui:testnet'
+    | 'sui:mainnet'
+    | 'sui:devnet'
+    | 'sui:localnet',
+): TChainName {
+  if (
+    chainId === OChainId.ethereum ||
+    chainId === OChainId.holesky ||
+    chainId === OChainId.sepolia
+  ) {
+    return OChainName.eth;
   }
+
+  if (chainId === OChainId.base || chainId === OChainId.baseSepoliaTestnet) {
+    return OChainName.base;
+  }
+
+  if (
+    chainId === OChainId.binanceSmartChain ||
+    chainId === OChainId.binanceSmartChainTestnet
+  ) {
+    return OChainName.bsc;
+  }
+
+  if (chainId === 'sui:testnet' || chainId === 'sui:mainnet') {
+    return OChainName.sui;
+  }
+
+  throw new Error(`Unknown chain ID: ${chainId}`);
 }

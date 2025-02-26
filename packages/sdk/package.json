@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -26,14 +26,14 @@
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs"
   },
   "peerDependencies": {
-    "@bitcoin-js/tiny-secp256k1-asmjs": "2.2.3",
     "axios": "^1",
     "bignumber.js": "^9",
-    "bitcoinjs-lib": "6.1.5",
     "web3": "^4"
   },
+  "dependencies": {
+    "@lombard.finance/sdk-common": "*"
+  },
   "devDependencies": {
-    "@bitcoin-js/tiny-secp256k1-asmjs": "2.2.3",
     "@chromatic-com/storybook": "1.6.1",
     "@storybook/addon-essentials": "^8.2.9",
     "@storybook/addon-interactions": "^8.2.9",
@@ -45,7 +45,6 @@
     "@storybook/test": "^8.2.9",
     "axios": "^1.7.4",
     "bignumber.js": "^9.1.2",
-    "bitcoinjs-lib": "6.1.5",
     "bootstrap": "^5.3.3",
     "rimraf": "^5",
     "storybook": "^8.2.9",

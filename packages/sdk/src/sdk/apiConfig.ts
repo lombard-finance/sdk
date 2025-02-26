@@ -1,5 +1,5 @@
-import { defaultEnv } from '../common/const';
-import { OEnv, TEnv } from '../common/types/types';
+import { defaultEnv } from '@lombard.finance/sdk-common';
+import { Env } from '@lombard.finance/sdk-common';
 
 interface IApiConfig {
   baseApiUrl: string;
@@ -17,11 +17,11 @@ const prodConfig: IApiConfig = {
   baseApiUrl: 'https://mainnet.prod.lombard.finance',
 };
 
-export const getApiConfig = (env: TEnv = defaultEnv): IApiConfig => {
+export const getApiConfig = (env: Env = defaultEnv): IApiConfig => {
   switch (env) {
-    case OEnv.prod:
+    case Env.prod:
       return prodConfig;
-    case OEnv.testnet:
+    case Env.testnet:
       return testnetConfig;
     default:
       return stageConfig;

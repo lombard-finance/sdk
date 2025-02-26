@@ -1,4 +1,4 @@
-import { getOutputScript } from '../../btcSdk/utils/getOutputScript';
+import { getOutputScript } from '@lombard.finance/sdk-common';
 import { IEnvParam } from '../../common/types/internalTypes';
 import { toSatoshi } from '../../common/utils/convertSatoshi';
 import { IWeb3SendResult, Provider } from '../../provider';
