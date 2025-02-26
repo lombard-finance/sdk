@@ -3,7 +3,10 @@ import type { WalletAccount } from '@wallet-standard/core';
 import type { CoinStruct } from '@mysten/sui/client';
 import { SuiClient } from '@mysten/sui/client';
 import BigNumber from 'bignumber.js';
-import { ERROR_COIN_METADATA_NOT_FUND } from '../../const';
+import {
+  ERROR_COIN_METADATA_NOT_FUND,
+  ERROR_NOT_ENOUGH_BALANCE,
+} from '../../const';
 import { getAllCoinsOfType } from '../getAllCoinsOfType';
 
 interface IUnstakeLBTCParams {
@@ -42,30 +45,43 @@ export async function prepareCoinsTransaction({
     let selectedAmount = BigInt(0);
 
     for (const coin of coins) {
-      selectedCoins.push(coin);
-      selectedAmount += BigInt(coin.balance);
-      if (selectedAmount >= unstakeAmount) break;
-    }
+      if (selectedAmount + BigInt(coin.balance) < unstakeAmount) {
+        selectedCoins.push(coin);
+        selectedAmount += BigInt(coin.balance);
+      } else if (selectedAmount + BigInt(coin.balance) === unstakeAmount) {
+        selectedCoins.push(coin);
 
-    if (selectedAmount > unstakeAmount) {
-      const [splitCoin] = transaction.splitCoins(
-        transaction.object(selectedCoins[0].coinObjectId),
-        [transaction.pure.u64(unstakeAmount)],
-      );
+        const coinObjects = selectedCoins.map(coin =>
+          transaction.object(coin.coinObjectId),
+        );
 
-      return transaction.object(splitCoin);
-    } else {
-      const coinObjectsIds = selectedCoins.map(coin =>
-        transaction.object(coin.coinObjectId),
-      );
+        if (coinObjects.length > 1) {
+          const [coin, ...rest] = coinObjects;
+          transaction.mergeCoins(coin, rest);
+          return coin;
+        }
 
-      if (coinObjectsIds.length > 1) {
-        const [coin, ...rest] = coinObjectsIds;
-        return transaction.mergeCoins(coin, rest);
+        return coinObjects[0];
+      } else if (selectedAmount + BigInt(coin.balance) > unstakeAmount) {
+        const remaining = unstakeAmount - selectedAmount;
+        const [splitCoin] = transaction.splitCoins(
+          transaction.object(coin.coinObjectId),
+          [transaction.pure.u64(remaining)],
+        );
+
+        if (selectedCoins.length == 0) {
+          return transaction.object(splitCoin);
+        }
+
+        transaction.mergeCoins(
+          splitCoin,
+          selectedCoins.map(coin => transaction.object(coin.coinObjectId)),
+        );
+
+        return transaction.object(splitCoin);
       }
-
-      return coinObjectsIds[0];
     }
+    throw ERROR_NOT_ENOUGH_BALANCE;
   })();
 
   return { transaction, preparedCoins };
