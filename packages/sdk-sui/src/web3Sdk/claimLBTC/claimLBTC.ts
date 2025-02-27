@@ -19,6 +19,8 @@ interface IClaimLBTCParams {
   env?: Env;
 }
 
+const SIGN_TRANSACTION_V2_FEATURE = 'sui:signTransaction';
+
 /**
  * Claims LBTC.
  */
@@ -54,16 +56,34 @@ export async function claimLBTC({
     typeArguments: [LBTC],
   });
 
+  if (wallet.features[SIGN_TRANSACTION_V2_FEATURE]) {
+    const signedTransaction = await wallet.features[
+      'sui:signTransaction'
+    ].signTransaction({
+      chain: chainId,
+      transaction,
+      account: walletAccount,
+    });
+
+    return client.executeTransactionBlock({
+      transactionBlock: signedTransaction.bytes,
+      signature: signedTransaction.signature,
+    });
+  }
+
+  transaction.setSender(walletAccount.address);
+
   const signedTransaction = await wallet.features[
-    'sui:signTransaction'
-  ].signTransaction({
+    // @ts-ignore The current wallet standard interface version doesn't support this type 
+    'sui:signTransactionBlock'
+  ].signTransactionBlock({
     chain: chainId,
-    transaction,
+    transactionBlock: transaction,
     account: walletAccount,
   });
 
   return client.executeTransactionBlock({
-    transactionBlock: signedTransaction.bytes,
+    transactionBlock: signedTransaction.transactionBlockBytes,
     signature: signedTransaction.signature,
   });
 }
