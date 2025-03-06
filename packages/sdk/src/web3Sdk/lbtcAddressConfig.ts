@@ -1,8 +1,6 @@
-import {
-  defaultEnv,
-  ZERO_ADDRESS as PLACEHOLDER_ADDRESS,
-} from '../common/const';
-import { OChainId, OEnv, TChainId, TEnv } from '../common/types/types';
+import { ZERO_ADDRESS as PLACEHOLDER_ADDRESS } from '../common/const';
+import { OChainId, TChainId } from '../common/types/types';
+import { Env, defaultEnv } from '@lombard.finance/sdk-common';
 
 type LbtcTokenConfig = Record<TChainId, string>;
 
@@ -79,11 +77,11 @@ const prodConfig: LbtcTokenConfig = {
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
 };
 
-export function getLbtcAddressConfig(env: TEnv = defaultEnv): LbtcTokenConfig {
+export function getLbtcAddressConfig(env: Env = defaultEnv): LbtcTokenConfig {
   switch (env) {
-    case OEnv.prod:
+    case Env.prod:
       return prodConfig;
-    case OEnv.testnet:
+    case Env.testnet:
       return testnetConfig;
     default:
       return stageConfig;

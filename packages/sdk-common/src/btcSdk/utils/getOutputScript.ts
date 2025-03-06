@@ -5,7 +5,7 @@ import {
   networks,
   payments,
 } from 'bitcoinjs-lib';
-import { OEnv, TEnv } from '../../common/types/types';
+import { Env } from '../../types/env';
 
 initEccLib(ecc);
 
@@ -15,19 +15,16 @@ type AddressType = 'p2tr' | 'p2wpkh' | 'p2wsh';
  * Get output script from address.
  *
  * @param address - The address.
- * @param networkMode - The network mode.
+ * @param env
  *
  * @returns The output script.
  */
-export function getOutputScript(
-  address: string,
-  env: TEnv = OEnv.prod,
-): string {
+export function getOutputScript(address: string, env: Env = Env.prod): string {
   const addressType = getAddressType(address);
 
   const payment = payments[addressType]({
     address,
-    network: env === OEnv.prod ? networks.bitcoin : networks.testnet,
+    network: env === Env.prod ? networks.bitcoin : networks.testnet,
   });
 
   const paymentOutputScript = payment.output?.toString('hex');

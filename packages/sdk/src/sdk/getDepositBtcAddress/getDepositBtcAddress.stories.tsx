@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { defaultEnv } from '../../common/const';
+import { defaultEnv } from '@lombard.finance/sdk-common';
 import { OChainId } from '../../common/types/types';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
@@ -39,8 +39,6 @@ export function StoryView(props: IGetDepositBtcAddressParams) {
     [props],
     false,
   );
-
-  const test = true;
 
   return (
     <>

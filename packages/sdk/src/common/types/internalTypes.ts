@@ -1,4 +1,4 @@
-import { TEnv } from './types';
+import { Env } from '@lombard.finance/sdk-common';
 
 export interface IEnvParam {
   /**
@@ -6,5 +6,5 @@ export interface IEnvParam {
    *
    * @default 'prod'
    */
-  env?: TEnv;
+  env?: Env;
 }

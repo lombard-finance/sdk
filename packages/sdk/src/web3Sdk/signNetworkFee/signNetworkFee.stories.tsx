@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { defaultEnv } from '@lombard.finance/sdk-common';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { useConnect } from '../../stories/hooks/useConnect';
@@ -6,7 +7,6 @@ import useQuery from '../../stories/hooks/useQuery';
 import { fromCamelCase } from '../../stories/utils/fromCamelCase';
 import { MS_PER_DAY } from '../const';
 import { ISignNetworkFeeParams, signNetworkFee } from './signNetworkFee';
-import { defaultEnv } from '../../common/const';
 
 const { name } = signNetworkFee;
 const nameWithWhitespaces = fromCamelCase(name);

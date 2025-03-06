@@ -1,10 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { defaultEnv } from '../../common/const';
+import { defaultEnv } from '@lombard.finance/sdk-common';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { useConnect } from '../../stories/hooks/useConnect';
 import useQuery from '../../stories/hooks/useQuery';
-import { getBasculeDepositStatus, ICheckBasculeDepositStatusParams } from './getBasculeDepositStatus';
+import {
+  getBasculeDepositStatus,
+  ICheckBasculeDepositStatusParams,
+} from './getBasculeDepositStatus';
 
 const meta = {
   title: 'Web3SDK/getBasculeDepositStatus',

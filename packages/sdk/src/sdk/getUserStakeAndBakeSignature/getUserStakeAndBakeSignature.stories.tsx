@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { defaultEnv } from '@lombard.finance/sdk-common';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { useConnect } from '../../stories/hooks/useConnect';
@@ -7,7 +8,6 @@ import {
   IGetUserStakeAndBakeSignatureParams,
   getUserStakeAndBakeSignature,
 } from './getUserStakeAndBakeSignature';
-import { defaultEnv } from '../../common/const';
 
 const meta = {
   title: 'SDK/getUserStakeAndBakeSignature',

@@ -1,10 +1,11 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { IEnvParam } from '../../common/types/internalTypes';
-import { TChainId, TEnv } from '../../common/types/types';
+import { TChainId } from '../../common/types/types';
 import { fromSatoshi } from '../../common/utils/convertSatoshi';
 import { getApiConfig } from '../apiConfig';
 import { getChainIdByName } from '../utils/getChainIdByName';
+import { Env } from '@lombard.finance/sdk-common';
 
 type Address = string;
 type Seconds = number;
@@ -59,7 +60,12 @@ export interface IDeposit {
   blockTime?: number;
   value: BigNumber;
   address: Address;
-  chainId: TChainId;
+  chainId:
+    | TChainId
+    | 'sui:testnet'
+    | 'sui:mainnet'
+    | 'sui:devnet'
+    | 'sui:localnet';
   isClaimed?: boolean;
   claimedTxId?: string;
   rawPayload?: string;
@@ -107,7 +113,7 @@ export async function getDepositsByAddress({
   return outputs.map(mapResponse(env));
 }
 
-function mapResponse(env?: TEnv) {
+function mapResponse(env?: Env) {
   return (data: IDepositResponse): IDeposit => ({
     txid: data.txid,
     index: data.index ?? 0,

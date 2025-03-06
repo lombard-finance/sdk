@@ -1,7 +1,3 @@
-import { OEnv, TEnv } from './types/types';
-
-export const defaultEnv: TEnv = OEnv.prod;
-
 /**
  * Address of the zero account.
  * Can also be used as a placeholder for unknown addresses.

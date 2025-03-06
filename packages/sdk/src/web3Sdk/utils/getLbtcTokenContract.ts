@@ -1,11 +1,14 @@
 import { ReadProvider } from '../../provider/ReadProvider';
-import { TEnv } from '../../common/types/types';
+import { Env } from '@lombard.finance/sdk-common';
 import { isValidChain } from '../../common/utils/isValidChain';
 import { Provider } from '../../provider';
 import { getLbtcAddressConfig } from '../lbtcAddressConfig';
 import { getTokenABI } from './getTokenABI';
 
-export function getLbtcTokenContract(provider: Provider | ReadProvider, env?: TEnv) {
+export function getLbtcTokenContract(
+  provider: Provider | ReadProvider,
+  env?: Env,
+) {
   const lbtcAddressConfig = getLbtcAddressConfig(env);
   const { chainId } = provider;
 
