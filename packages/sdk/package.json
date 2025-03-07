@@ -28,7 +28,8 @@
   "peerDependencies": {
     "axios": "^1",
     "bignumber.js": "^9",
-    "web3": "^4"
+    "web3": "^4",
+    "bitcoinjs-lib": "6.1.5"
   },
   "dependencies": {
     "@lombard.finance/sdk-common": "*"

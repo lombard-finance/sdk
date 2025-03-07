@@ -1,4 +1,4 @@
-import { OChainId, TChainId } from '../../common/types/types';
+import { OChainId, SuiChain, TChainId } from '../../common/types/types';
 import { OChainName, TChainName } from '../internalTypes';
 
 /**
@@ -6,14 +6,7 @@ import { OChainName, TChainName } from '../internalTypes';
  *
  * @returns the chain name
  */
-export function getChainNameById(
-  chainId:
-    | TChainId
-    | 'sui:testnet'
-    | 'sui:mainnet'
-    | 'sui:devnet'
-    | 'sui:localnet',
-): TChainName {
+export function getChainNameById(chainId: TChainId | SuiChain): TChainName {
   if (
     chainId === OChainId.ethereum ||
     chainId === OChainId.holesky ||

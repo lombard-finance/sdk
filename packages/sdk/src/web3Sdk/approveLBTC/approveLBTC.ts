@@ -31,7 +31,7 @@ export function approveLBTC({
 }: IApproveLBTCParams): Promise<IWeb3SendResult> {
   const provider = new Provider(providerParams);
   const tokenContract = getLbtcTokenContract(provider, env);
-  const amountSat = toSatoshi(amount);
+  const amountSat = toSatoshi(amount).toNumber();
 
   const tx = tokenContract.methods.approve(spender, amountSat);
 

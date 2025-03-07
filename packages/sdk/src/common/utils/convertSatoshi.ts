@@ -1,21 +1,25 @@
+import BigNumber from 'bignumber.js';
+
 const BTC_DECIMALS = 8;
-export const SATOSHI_SCALE = 10 ** BTC_DECIMALS;
+export const SATOSHI_SCALE = BigNumber(10).pow(BTC_DECIMALS);
 
 /**
- * Convert Satoshi to BTC
+ * Converts Satoshi to BTC
  * @param amount - Satoshi amount
  * @returns BTC amount
  */
-export function fromSatoshi(amount: number | string) {
-  return +amount / SATOSHI_SCALE;
+export function fromSatoshi(amount: number | string | BigNumber) {
+  return BigNumber(amount).dividedBy(SATOSHI_SCALE);
 }
 
 /**
- * Convert BTC to Satoshi
+ * Converts BTC to Satoshi
  *
  * @param amount - BTC amount
  * @returns Satoshi amount
  */
-export function toSatoshi(amount: number | string) {
-  return Math.floor(+amount * SATOSHI_SCALE);
+export function toSatoshi(amount: number | string | BigNumber) {
+  return BigNumber(amount)
+    .multipliedBy(SATOSHI_SCALE)
+    .decimalPlaces(0, BigNumber.ROUND_HALF_UP);
 }
