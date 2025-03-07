@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { IEnvParam } from '../../common/types/internalTypes';
-import { TChainId } from '../../common/types/types';
+import { SuiChain, TChainId } from '../../common/types/types';
 import { getApiConfig } from '../apiConfig';
 import { TChainName } from '../internalTypes';
 import { getChainNameById } from '../utils/getChainNameById';
@@ -36,12 +36,7 @@ export interface IGetDepositBtcAddressParams extends IEnvParam {
   /**
    * The destination chain ID where LBTC will be claimed.
    */
-  chainId:
-    | TChainId
-    | 'sui:testnet'
-    | 'sui:mainnet'
-    | 'sui:devnet'
-    | 'sui:localnet';
+  chainId: TChainId | SuiChain;
   /**
    * The referral ID.
    */

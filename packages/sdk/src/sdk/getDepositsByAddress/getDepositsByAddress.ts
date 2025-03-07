@@ -1,7 +1,7 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { IEnvParam } from '../../common/types/internalTypes';
-import { TChainId } from '../../common/types/types';
+import { SuiChain, TChainId } from '../../common/types/types';
 import { fromSatoshi } from '../../common/utils/convertSatoshi';
 import { getApiConfig } from '../apiConfig';
 import { getChainIdByName } from '../utils/getChainIdByName';
@@ -60,12 +60,7 @@ export interface IDeposit {
   blockTime?: number;
   value: BigNumber;
   address: Address;
-  chainId:
-    | TChainId
-    | 'sui:testnet'
-    | 'sui:mainnet'
-    | 'sui:devnet'
-    | 'sui:localnet';
+  chainId: TChainId | SuiChain;
   isClaimed?: boolean;
   claimedTxId?: string;
   rawPayload?: string;

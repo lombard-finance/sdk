@@ -1,5 +1,16 @@
 import { Env } from '@lombard.finance/sdk-common';
 
+export const SUI_DEVNET_CHAIN = 'sui:devnet' as const;
+export const SUI_TESTNET_CHAIN = 'sui:testnet' as const;
+export const SUI_LOCALNET_CHAIN = 'sui:localnet' as const;
+export const SUI_MAINNET_CHAIN = 'sui:mainnet' as const;
+
+export type SuiChain =
+  | typeof SUI_DEVNET_CHAIN
+  | typeof SUI_TESTNET_CHAIN
+  | typeof SUI_LOCALNET_CHAIN
+  | typeof SUI_MAINNET_CHAIN;
+
 export const OChainId = {
   ethereum: 1,
   holesky: 17000,
@@ -8,13 +19,10 @@ export const OChainId = {
   sepolia: 11155111,
   base: 8453,
   baseSepoliaTestnet: 84532,
-
   berachain: 80094,
   berachainBartioTestnet: 80084,
-
   corn: 21000000,
   swell: 1923,
-
   sonic: 146,
   morph: 2818,
   morphHolesky: 2810,
