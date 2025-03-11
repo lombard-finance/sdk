@@ -34,7 +34,7 @@ export function unstakeLBTC({
   const tokenContract = getLbtcTokenContract(provider, env);
   const outputScript = getOutputScript(btcAddress, env);
 
-  const amountSat = toSatoshi(amount);
+  const amountSat = toSatoshi(amount).toNumber();
 
   const tx = tokenContract.methods.redeem(outputScript, amountSat);
 

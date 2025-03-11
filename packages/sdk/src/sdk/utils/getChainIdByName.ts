@@ -5,6 +5,7 @@ import {
   getEthNetworkByEnv,
   getSuiNetworkByEnv,
   OChainId,
+  SuiChain,
   TChainId,
 } from '../../common/types/types';
 import { Env } from '@lombard.finance/sdk-common';
@@ -18,7 +19,7 @@ import { OChainName, TChainName } from '../internalTypes';
 export function getChainIdByName(
   chain: string,
   env: Env = defaultEnv,
-): TChainId | 'sui:testnet' | 'sui:mainnet' | 'sui:devnet' | 'sui:localnet' {
+): TChainId | SuiChain {
   switch (chain as TChainName) {
     case OChainName.eth:
     case OChainName.ethOld:

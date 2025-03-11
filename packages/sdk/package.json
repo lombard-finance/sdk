@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -28,7 +28,8 @@
   "peerDependencies": {
     "axios": "^1",
     "bignumber.js": "^9",
-    "web3": "^4"
+    "web3": "^4",
+    "bitcoinjs-lib": "6.1.5"
   },
   "dependencies": {
     "@lombard.finance/sdk-common": "*"
