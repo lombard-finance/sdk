@@ -7,15 +7,15 @@ import { exampleEvmAddress } from '../../stories/const';
 import useQuery from '../../stories/hooks/useQuery';
 import { fromCamelCase } from '../../stories/utils/fromCamelCase';
 import {
-  getDepositBtcAddress,
-  IGetDepositBtcAddressParameters,
+  getDepositBtcAddresses,
+  IGetDepositBtcAddressesParameters,
 } from './getDepositBtcAddress';
 
-const { name } = getDepositBtcAddress;
+const { name } = getDepositBtcAddresses;
 const nameWithWhitespaces = fromCamelCase(name);
 
 const meta = {
-  title: 'SDK/getDepositBtcAddress',
+  title: 'SDK/getDepositBtcAddresses',
   component: StoryView,
   tags: ['autodocs'],
 } satisfies Meta<typeof StoryView>;
@@ -29,13 +29,15 @@ export const WithParams: Story = {
     address: exampleEvmAddress,
     chainId: OChainId.ethereum,
     env: defaultEnv,
+    limit: 1,
+    offset: 0,
     partnerId: 'lombard',
   },
 };
 
-export function StoryView(props: IGetDepositBtcAddressParameters) {
+export function StoryView(props: IGetDepositBtcAddressesParameters) {
   const { data, error, isLoading, refetch } = useQuery(
-    () => getDepositBtcAddress(props),
+    () => getDepositBtcAddresses(props),
     [props],
     false,
   );

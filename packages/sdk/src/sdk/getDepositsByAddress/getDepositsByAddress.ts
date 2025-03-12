@@ -114,7 +114,7 @@ function mapResponse(env?: Env) {
     index: data.index ?? 0,
     blockHeight: data.block_height ? Number(data.block_height) : undefined,
     blockTime: data.block_time ? Number(data.block_time) : undefined,
-    value: new BigNumber(fromSatoshi(data.value)),
+    value: fromSatoshi(data.value),
     address: data.address,
     chainId: getChainIdByName(data.to_chain, env),
     claimedTxId: data.claim_tx,
