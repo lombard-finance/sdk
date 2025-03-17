@@ -1,3 +1,8 @@
+import {
+  Vault,
+  VaultNameMap,
+  VEDA_VAULT_SPENDER_CONTRACTS,
+} from '../../vaults';
 import { OChainId, TChainId } from '../../common/types/types';
 
 export interface IStakeAndBakeVault {
@@ -18,30 +23,30 @@ export interface IStakeAndBakeVault {
 export const STAKE_AND_BAKE_VAULTS: Record<number, IStakeAndBakeVault[]> = {
   [OChainId.holesky]: [
     {
-      key: 'veda',
-      name: 'Veda / Lombard DeFi Vault',
-      address: '0x4A3cD83CEbb91E0Cd31EdA2Ee0F4AebfcCFCbBb6',
+      key: Vault.Veda,
+      name: VaultNameMap[Vault.Veda],
+      address: VEDA_VAULT_SPENDER_CONTRACTS[OChainId.holesky],
     },
   ],
   [OChainId.ethereum]: [
     {
-      key: 'veda',
-      name: 'Veda / Lombard DeFi Vault',
-      address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
+      key: Vault.Veda,
+      name: VaultNameMap[Vault.Veda],
+      address: VEDA_VAULT_SPENDER_CONTRACTS[OChainId.ethereum],
     },
   ],
   [OChainId.binanceSmartChain]: [
     {
-      key: 'veda',
-      name: 'Veda / Lombard DeFi Vault',
-      address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
+      key: Vault.Veda,
+      name: VaultNameMap[Vault.Veda],
+      address: VEDA_VAULT_SPENDER_CONTRACTS[OChainId.binanceSmartChain],
     },
   ],
   [OChainId.binanceSmartChainTestnet]: [
     {
-      key: 'veda',
-      name: 'Veda / Lombard DeFi Vault',
-      address: '0x72143309A662bDB4aad5cA65Ab59eD8977D047C5',
+      key: Vault.Veda,
+      name: VaultNameMap[Vault.Veda],
+      address: VEDA_VAULT_SPENDER_CONTRACTS[OChainId.binanceSmartChainTestnet],
     },
   ],
 } as const;
