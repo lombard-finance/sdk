@@ -11,4 +11,5 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [OChainId.binanceSmartChain]: 'https://bsc-dataseed.bnbchain.org',
   [OChainId.binanceSmartChainTestnet]:
     'https://bsc-testnet-dataseed.bnbchain.org',
+  [OChainId.corn]: 'https://rpc.ankr.com/corn_maizenet',
 };
