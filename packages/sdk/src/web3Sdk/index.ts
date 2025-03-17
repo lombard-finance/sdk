@@ -13,3 +13,5 @@ export * from './unstakeLBTC';
 export * from './getBasculeDepositStatus';
 export * from './getLBTCTotalSupply';
 export * from './getStakeAndBakeFee';
+export * from './getShareValue';
+export * from './getSharesByAddress';
