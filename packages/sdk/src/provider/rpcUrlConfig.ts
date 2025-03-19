@@ -2,7 +2,7 @@ import { OChainId } from '../common/types/types';
 
 export type TRpcUrlConfig = Record<number, string>;
 
-export const RPC_URL = 'https://bff.prod.lombard.finance';
+export const RPC_URL = 'https://bff.prod.lombard.finance/multi-rpc/proxy';
 
 export const rpcUrlConfig: TRpcUrlConfig = {
   [OChainId.ethereum]: `${RPC_URL}/eth`,
