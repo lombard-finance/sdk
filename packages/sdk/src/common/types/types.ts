@@ -24,7 +24,7 @@ export const OChainId = {
   corn: 21000000,
   swell: 1923,
   sonic: 146,
-  sonicBlazenet: 57054,
+  sonicBlazeTestnet: 57054,
   morph: 2818,
   morphHolesky: 2810,
 } as const;

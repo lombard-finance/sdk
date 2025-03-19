@@ -14,4 +14,6 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [OChainId.binanceSmartChainTestnet]:
     'https://bsc-testnet-dataseed.bnbchain.org',
   [OChainId.corn]: `${RPC_URL}/corn_maizenet`,
+  [OChainId.sonic]: `${RPC_URL}/sonic_mainnet`,
+  [OChainId.sonicBlazeTestnet]: `${RPC_URL}/sonic_blaze_testnet`,
 };

@@ -10,6 +10,9 @@ export const OChainName = {
 
   sui: 'DESTINATION_BLOCKCHAIN_SUI',
   suiOld: 'BLOCKCHAIN_SUI',
+
+  sonic: 'DESTINATION_BLOCKCHAIN_SONIC',
+  sonicOld: 'BLOCKCHAIN_SONIC',
 } as const;
 
 export type TChainName = (typeof OChainName)[keyof typeof OChainName];
