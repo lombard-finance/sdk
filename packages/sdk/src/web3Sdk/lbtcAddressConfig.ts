@@ -24,7 +24,7 @@ const stageConfig: LbtcTokenConfig = {
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
 
   [OChainId.sonic]: PLACEHOLDER_ADDRESS,
-  [OChainId.sonicBlazenet]: '', // TODO
+  [OChainId.sonicBlazenet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
 
   [OChainId.morph]: PLACEHOLDER_ADDRESS,
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
@@ -50,7 +50,7 @@ const testnetConfig: LbtcTokenConfig = {
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
 
   [OChainId.sonic]: PLACEHOLDER_ADDRESS,
-  [OChainId.sonicBlazenet]: PLACEHOLDER_ADDRESS,
+  [OChainId.sonicBlazenet]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
 
   [OChainId.morph]: PLACEHOLDER_ADDRESS,
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
