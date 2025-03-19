@@ -3,6 +3,7 @@ import {
   getBaseNetworkByEnv,
   getBscNetworkByEnv,
   getEthNetworkByEnv,
+  getSonicNetworkByEnv,
   getSuiNetworkByEnv,
   OChainId,
   SuiChain,
@@ -36,6 +37,10 @@ export function getChainIdByName(
     case OChainName.sui:
     case OChainName.suiOld:
       return getSuiNetworkByEnv(env);
+
+    case OChainName.sonic:
+    case OChainName.sonicOld:
+      return getSonicNetworkByEnv(env);
 
     default:
       return OChainId.ethereum;

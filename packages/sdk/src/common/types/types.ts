@@ -51,3 +51,6 @@ export const getBaseNetworkByEnv = (env: Env) =>
 
 export const getSuiNetworkByEnv = (env: Env) =>
   env === Env.prod ? 'sui:mainnet' : 'sui:testnet';
+
+export const getSonicNetworkByEnv = (env: Env) =>
+  env === Env.prod ? OChainId.sonic : OChainId.sonicBlazeTestnet;
