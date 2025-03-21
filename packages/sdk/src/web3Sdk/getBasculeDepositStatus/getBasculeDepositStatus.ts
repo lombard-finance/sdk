@@ -20,7 +20,7 @@ export interface ICheckBasculeDepositStatusParams
   extends IProviderBasedParams,
     IEnvParam {
   /**
-   * rawPayload of the transaction.
+   * raw_payload of the transaction.
    */
   rawPayload?: string;
 }
