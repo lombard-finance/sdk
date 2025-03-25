@@ -24,6 +24,7 @@ export const OChainId = {
   corn: 21000000,
   swell: 1923,
   sonic: 146,
+  sonicBlazeTestnet: 57054,
   morph: 2818,
   morphHolesky: 2810,
 } as const;
@@ -50,3 +51,6 @@ export const getBaseNetworkByEnv = (env: Env) =>
 
 export const getSuiNetworkByEnv = (env: Env) =>
   env === Env.prod ? 'sui:mainnet' : 'sui:testnet';
+
+export const getSonicNetworkByEnv = (env: Env) =>
+  env === Env.prod ? OChainId.sonic : OChainId.sonicBlazeTestnet;

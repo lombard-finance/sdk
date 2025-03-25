@@ -24,6 +24,7 @@ const stageConfig: LbtcTokenConfig = {
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
 
   [OChainId.sonic]: PLACEHOLDER_ADDRESS,
+  [OChainId.sonicBlazeTestnet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
 
   [OChainId.morph]: PLACEHOLDER_ADDRESS,
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
@@ -49,6 +50,7 @@ const testnetConfig: LbtcTokenConfig = {
   [OChainId.swell]: PLACEHOLDER_ADDRESS,
 
   [OChainId.sonic]: PLACEHOLDER_ADDRESS,
+  [OChainId.sonicBlazeTestnet]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
 
   [OChainId.morph]: PLACEHOLDER_ADDRESS,
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
@@ -72,6 +74,7 @@ const prodConfig: LbtcTokenConfig = {
   [OChainId.swell]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
 
   [OChainId.sonic]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+  [OChainId.sonicBlazeTestnet]: PLACEHOLDER_ADDRESS,
 
   [OChainId.morph]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,

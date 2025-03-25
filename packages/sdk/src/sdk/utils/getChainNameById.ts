@@ -26,6 +26,10 @@ export function getChainNameById(chainId: TChainId | SuiChain): TChainName {
     return OChainName.bsc;
   }
 
+  if (chainId === OChainId.sonic || chainId === OChainId.sonicBlazeTestnet) {
+    return OChainName.sonic;
+  }
+
   if (chainId === 'sui:testnet' || chainId === 'sui:mainnet') {
     return OChainName.sui;
   }
