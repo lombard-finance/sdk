@@ -26,7 +26,7 @@ export async function prepareCoinsTransaction({
 
   const transaction = new Transaction();
 
-  const preparedCoins = await (async function () {
+  const preparedCoins = await (async () => {
     const coinMetadata = await client.getCoinMetadata({
       coinType,
     });
@@ -69,7 +69,7 @@ export async function prepareCoinsTransaction({
           [transaction.pure.u64(remaining)],
         );
 
-        if (selectedCoins.length == 0) {
+        if (selectedCoins.length === 0) {
           return transaction.object(splitCoin);
         }
 

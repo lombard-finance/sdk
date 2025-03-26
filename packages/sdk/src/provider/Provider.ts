@@ -40,17 +40,20 @@ export class Provider extends ReadProvider {
    * @param message - The message to be signed.
    * @returns A promise that resolves to the signed message as a string.
    */
-  public async signMessage(message: string): Promise<string> {
+  public async signMessage(message: string) {
     const { account } = this;
 
     const messageHex = `0x${Buffer.from(message, 'utf8').toString('hex')}`;
 
-    const ethereum = this.web3.currentProvider as any;
+    const ethereum = this.web3.currentProvider;
+    if (!ethereum) {
+      throw new Error('Undefined provider');
+    }
 
     return ethereum.request({
       method: 'personal_sign',
       params: [messageHex, account],
-    });
+    }) as unknown as Promise<string>;
   }
 
   /**
@@ -160,7 +163,7 @@ export class Provider extends ReadProvider {
   }
 
   public createContract<AbiType extends ContractAbi>(
-    abi: any,
+    abi: AbiType,
     address: string,
   ): Contract<AbiType> {
     return new this.web3.eth.Contract<AbiType>(abi, address);

@@ -35,7 +35,7 @@ export type TChainId = (typeof OChainId)[keyof typeof OChainId];
  * Abstract EIP-1193 provider
  */
 export interface IEIP1193Provider {
-  request: (args: any) => Promise<any>;
+  request: (args: unknown) => Promise<unknown>;
 }
 
 export const getEthNetworkByEnv = (env: Env) =>

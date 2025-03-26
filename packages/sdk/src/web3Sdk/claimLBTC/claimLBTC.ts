@@ -28,7 +28,7 @@ export interface IClaimLBTCParams extends IProviderBasedParams, IEnvParam {
 }
 
 const hexify = (hexString: string) =>
-  hexString.startsWith('0x') ? hexString : '0x' + hexString;
+  hexString.startsWith('0x') ? hexString : `0x${hexString}`;
 /**
  * Claims LBTC.
  *

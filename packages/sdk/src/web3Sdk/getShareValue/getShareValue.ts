@@ -49,7 +49,7 @@ export async function getShareValue({
       typeof vault.accountantContract.abi
     >(vault.accountantContract.abi, vault.accountantContract.address);
 
-    const exchangeRate = await accountant.methods['getRate']().call();
+    const exchangeRate = await accountant.methods.getRate().call();
     return fromSatoshi(String(exchangeRate));
   } catch (error) {
     const errorMessage = getErrorMessage(error);

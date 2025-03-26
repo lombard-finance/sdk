@@ -5,8 +5,6 @@ import { getApiConfig } from '../apiConfig';
 
 const URL = 'api/v1/referral-system/referrer/';
 
-interface ISetReferrerResponse {}
-
 export interface ISetReferralParams extends IEnvParam {
   /**
    * The destination EVM user address where LBTC will be claimed.
@@ -50,7 +48,7 @@ export async function setReferral({
   };
 
   try {
-    await axios.post<ISetReferrerResponse>(`${URL}${address}`, requestParams, {
+    await axios.post(`${URL}${address}`, requestParams, {
       baseURL: baseApiUrl,
     });
 

@@ -11,8 +11,17 @@ export function getErrorMessage(error: unknown): string {
     return error;
   }
 
-  const hasDataMessage = (err: any): err is { data: { message: string } } =>
-    err?.data?.message && typeof err.data.message === 'string';
+  const hasDataMessage = (err: unknown): err is { data: { message: string } } =>
+    Boolean(
+      err &&
+        typeof err === 'object' &&
+        'data' in err &&
+        err.data &&
+        typeof err.data === 'object' &&
+        'message' in err.data &&
+        err?.data?.message &&
+        typeof err.data.message === 'string',
+    );
 
   if (hasDataMessage(error)) {
     return error.data.message;
@@ -33,8 +42,13 @@ function getAxiosErrorMessage(error: AxiosError): string {
   return error.message;
 }
 
-function getErrorMessageFromObject(error: any): string {
-  if (error?.message) {
+function getErrorMessageFromObject(error: unknown): string {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof error.message === 'string'
+  ) {
     return error.message;
   }
 

@@ -111,11 +111,11 @@ async function makeRequest({
   };
 
   // remove undefined fields, undefined limit and offset params cause error
-  Object.entries(params).forEach(([k, v]) => {
+  for (const [k, v] of Object.entries(params)) {
     if (v === undefined) {
       delete params[k as keyof typeof params];
     }
-  });
+  }
 
   const url = `api/v1/address/destination/${destinationBlockchain}/${address}`;
   try {
