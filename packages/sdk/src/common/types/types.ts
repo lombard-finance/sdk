@@ -27,6 +27,7 @@ export const OChainId = {
   sonicBlazeTestnet: 57054,
   morph: 2818,
   morphHolesky: 2810,
+  etherlink: 42793,
 } as const;
 
 export type TChainId = (typeof OChainId)[keyof typeof OChainId];
