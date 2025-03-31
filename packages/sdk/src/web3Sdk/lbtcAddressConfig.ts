@@ -28,6 +28,7 @@ const stageConfig: LbtcTokenConfig = {
 
   [OChainId.morph]: PLACEHOLDER_ADDRESS,
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
+  [OChainId.etherlink]: PLACEHOLDER_ADDRESS,
 };
 
 const testnetConfig: LbtcTokenConfig = {
@@ -54,6 +55,7 @@ const testnetConfig: LbtcTokenConfig = {
 
   [OChainId.morph]: PLACEHOLDER_ADDRESS,
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
+  [OChainId.etherlink]: PLACEHOLDER_ADDRESS,
 };
 
 const prodConfig: LbtcTokenConfig = {
@@ -78,6 +80,8 @@ const prodConfig: LbtcTokenConfig = {
 
   [OChainId.morph]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
   [OChainId.morphHolesky]: PLACEHOLDER_ADDRESS,
+
+  [OChainId.etherlink]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
 };
 
 export function getLbtcAddressConfig(env: Env = defaultEnv): LbtcTokenConfig {
