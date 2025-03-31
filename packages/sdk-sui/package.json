@@ -11,19 +11,17 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "engines": {
     "node": ">= 18"
   },
   "scripts": {
-    "types": "tsc --noEmit",
-    "build": "yarn types && vite build",
-    "storybook": "storybook dev -p 6006",
+    "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
     "build-storybook": "storybook build -o sdk-storybook",
-    "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs"
+    "build": "yarn types && vite build",
+    "lint": "biome lint",
+    "storybook": "storybook dev -p 6006",
+    "types": "tsc --noEmit"
   },
   "peerDependencies": {
     "@bitcoin-js/tiny-secp256k1-asmjs": "2.2.3",

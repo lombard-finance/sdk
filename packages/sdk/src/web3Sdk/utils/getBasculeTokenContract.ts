@@ -6,7 +6,7 @@ export function getBasculeTokenContract(
   contractAddress: string,
 ) {
   if (!contractAddress) {
-    throw new Error(`The address for bascule module is not defined`);
+    throw new Error('The address for bascule module is not defined');
   }
 
   const contract = provider.createContract(BASCULE_ABI, contractAddress);

@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 
 import { defineConfig } from 'vite';
 
@@ -16,14 +16,14 @@ export default defineConfig({
         {
           format: 'es',
           dir: 'dist',
-          entryFileNames: `[name].js`,
-          chunkFileNames: `[name].js`,
+          entryFileNames: '[name].js',
+          chunkFileNames: '[name].js',
         },
         {
           format: 'commonjs',
           dir: 'dist',
-          entryFileNames: `[name].cjs`,
-          chunkFileNames: `[name].cjs`,
+          entryFileNames: '[name].cjs',
+          chunkFileNames: '[name].cjs',
         },
       ],
       plugins: [],

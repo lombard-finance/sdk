@@ -98,9 +98,8 @@ export async function generateDepositBtcAddress({
 
     if (isSanctioned(errorMsg)) {
       return SANCTIONED_ADDRESS;
-    } else {
-      throw new Error(errorMsg);
     }
+      throw new Error(errorMsg);
   }
 }
 

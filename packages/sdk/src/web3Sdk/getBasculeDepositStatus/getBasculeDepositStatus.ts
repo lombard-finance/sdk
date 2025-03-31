@@ -36,7 +36,7 @@ export async function getBasculeDepositStatus({
   rawPayload,
   env,
   ...providerParams
-}: ICheckBasculeDepositStatusParams): Promise<any> {
+}: ICheckBasculeDepositStatusParams) {
   if (!rawPayload) {
     throw new Error(NO_DEPOSIT_ID_ERROR);
   }

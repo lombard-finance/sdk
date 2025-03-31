@@ -117,7 +117,7 @@ export class ReadProvider {
    * @returns {Contract<AbiType>} The contract instance.
    */
   public createContract<AbiType extends ContractAbi>(
-    abi: any,
+    abi: AbiType,
     address: string,
   ): Contract<AbiType> {
     const web3 = this.getReadWeb3();

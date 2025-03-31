@@ -11,17 +11,15 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "engines": {
     "node": ">= 18"
   },
   "scripts": {
-    "types": "tsc --noEmit",
+    "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
     "build": "yarn types && vite build",
-    "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs"
+    "lint": "biome lint",
+    "types": "tsc --noEmit"
   },
   "peerDependencies": {
     "@bitcoin-js/tiny-secp256k1-asmjs": "2.2.3",
