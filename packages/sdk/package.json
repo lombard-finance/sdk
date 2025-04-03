@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "2.4.5",
+  "version": "2.5.0",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -11,9 +11,12 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "engines": {
-    "node": ">= 18"
+    "node": ">= 22.14.0"
   },
   "scripts": {
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
