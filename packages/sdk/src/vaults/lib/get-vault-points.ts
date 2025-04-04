@@ -8,8 +8,7 @@ export type GetVaultPointsParameters = {
   vaultKey?: Vault;
 };
 
-const POINTS_URL =
-  "https://app.veda.tech/api/user-veda-points?userAddress={account}";
+const POINTS_URL = "https://api.veda.tech/points/user/{account}";
 
 type Response = {
   Response: {
