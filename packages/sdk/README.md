@@ -1,554 +1,513 @@
 # @lombard.finance/sdk
 
-The SDK package provides a set of tools to interact with the Lombard Protocol.
+The Lombard's SDK package provides a set of functions that allow interacting with the Lombard protocol and its features.
 
-It includes API-based and Web3-based methods with which to interact.
+Read more about Lombard's mission: https://www.lombard.finance
 
-Web3 methods require a Web3 provider to be set up.
+# Table of Contents
+
+1. [Installation](#installation)
+
+   1.1. [Dependencies installation](#1-dependencies-installation)
+
+   1.2. [SDK installation](#2-sdk-installation)
+
+2. [Usage](#usage)
+
+   2.1. [Depositing BTC in order to get LBTC (aka staking)](#1-depositing-btc-in-order-to-get-lbtc-aka-staking)
+
+      2.1.1. [Get the current minting fee](#11-get-the-current-minting-fee)
+
+      2.1.2. [Sign the network fee signature](#12-sign-the-network-fee-signature)
+
+      2.1.3. [Store the signature to the Lombard's systems](#13-store-the-signature-to-the-lombards-systems)
+
+      2.1.4. [Get or generate the BTC deposit address](#14-get-or-generate-the-btc-deposit-address)
+
+      2.1.5. [Deposit BTC to the address](#15-deposit-btc-to-the-address)
+
+      2.1.6. [Check the status of your deposit](#16-check-the-status-of-your-deposit)
+
+   2.2. [Manually claiming LBTC](#2-manually-claiming-lbtc)
+
+   2.3. [Depositing BTC and automatically staking LBTC into the DeFi vault (aka stake and bake)](#3-depositing-btc-and-automatically-staking-lbtc-into-the-defi-vault-aka-stake-and-bake)
+
+      2.3.1. [See what's the current stake and bake fee](#31-see-whats-the-current-stake-and-bake-fee)
+
+      2.3.2. [Sign the stake and bake signature](#32-sign-the-stake-and-bake-signature)
+
+      2.3.3. [Store the signature to the Lombard's systems](#33-store-the-signature-to-the-lombards-systems)
+
+      2.3.4. [Get or generate the BTC deposit address](#34-get-or-generate-the-btc-deposit-address)
+
+      2.3.5. [Deposit BTC to the address](#35-deposit-btc-to-the-address)
+
+      2.3.6. [Check the status of your deposit](#36-check-the-status-of-your-deposit)
+
+      2.3.7. [Check the amount of shares acquired](#37-check-the-amount-of-shares-acquired)
+
+   2.4. [Unstaking LBTC and getting BTC back](#4-unstaking-lbtc-and-getting-btc-back)
+
+      2.4.1. [Unstake LBTC](#41-unstake-lbtc)
+
+      2.4.2. [Check the status of your unstakes](#42-check-the-status-of-your-unstakes)
+
+   2.5. [Depositing LBTC to the DeFi vault](#5-depositing-lbtc-to-the-defi-vault)
+
+      2.5.1. [Making a deposit to the DeFi vault](#51-making-a-deposit-to-the-defi-vault)
+
+      2.5.2. [Checking the deposit history](#52-checking-the-deposit-history)
+
+      2.5.3. [Checking the user's DeFi vault balance](#53-checking-the-users-defi-vault-balance)
+
+   2.6. [Withdrawing LBTC from the DeFi vault](#6-withdrawing-lbtc-from-the-defi-vault)
+
+      2.6.1. [Requesting a withdrawal from the DeFi vault](#61-requesting-a-withdrawal-from-the-defi-vault)
+
+      2.6.2. [Checking the withdrawal history (tracking the withdrawal request)](#62-checking-the-withdrawal-history-tracking-the-withdrawal-request)
+
+      2.6.3. [Cancelling the withdrawal](#63-cancelling-the-withdrawal)
+
+   2.7. [Getting the points earned by an address](#7-getting-the-points-earned-by-an-address)
+
+   2.8. [Getting the DeFi vault points earned by an address](#8-getting-the-defi-vault-points-earned-by-an-address)
+
 
 ## Installation
 
+### 1. Dependencies installation
+
+The SDK depends on the following packages:
+* axios
+* viem@2.23
+* bignumber.js@9
+* bitcoinjs-lib@6.1.5
+* @bitcoin-js/tiny-secp256k1-asmjs@2.2.3
+
+You may install them by running the following command:
+
 ```bash
-npm i @lombard.finance/sdk
+npm i --save viem@^2.23.15 axios@^1 bignumber.js@^9 @bitcoin-js/tiny-secp256k1-asmjs@2.2.3 bitcoinjs-lib@6.1.5
 ```
 
-Install Dependencies
+### 2. SDK installation
+
+To install the SDK package, please run:
 
 ```bash
-npm i web3@^4 axios@^1 bignumber.js@^9 @bitcoin-js/tiny-secp256k1-asmjs@2.2.3 bitcoinjs-lib@6.1.5
+npm i --save @lombard.finance/sdk
 ```
 
 ## Usage
 
-All methods are documented with JSDoc comments. You can use your IDE's autocomplete feature to see the available methods and their parameters.
+All functions are documented with JSDoc comments. You can use your IDE's autocomplete feature to see the available methods and their parameters.
 
-### Importing
+### 1. Depositing BTC in order to get LBTC (aka staking).
 
-If you are using a module bundler like Vite, Webpack or Rollup, you can import the package like this:
+You can read more about LBTC here: https://docs.lombard.finance/lbtc-liquid-bitcoin/introduction-to-lbtc
 
-```typescript
-import { getDepositBtcAddress } from '@lombard.finance/sdk';
-```
+If you'd wish to stake your BTC and get LBTC follow the below steps:
 
-If you are using a commonjs module system, you can import the package like this:
+#### 1.1 Get the current minting fee.
 
 ```javascript
-const { getDepositBtcAddress } = require('@lombard.finance/sdk');
+const fee = await getLBTCMintingFee({ chainId: ChainId.ethereum }); // The fee represented in satoshis (BigNumber)
 ```
 
-### API Methods
-
-- API based
-  - [getDepositBtcAddress](#getDepositBtcAddress)
-  - [getDepositBtcAddresses](#getDepositBtcAddresses)
-  - [generateDepositBtcAddress](#generateDepositBtcAddress)
-  - [getDepositsByAddress](#getDepositsByAddress)
-  - [getLBTCExchangeRate](#getLBTCExchangeRate)
-  - [storeStakeAndBakeSignature](#storeStakeAndBakeSignature)
-  - [getUserStakeAndBakeSignature](#getUserStakeAndBakeSignature)
-  - [storeNetworkFeeSignature](#storeNetworkFeeSignature)
-  - [getNetworkFeeSignature](#getNetworkFeeSignature)
-- Web3 based
-  - [signLbtcDestionationAddr](#signLbtcDestionationAddr)
-  - [claimLBTC](#claimLBTC)
-  - [unstakeLBTC](#unstakeLBTC)
-  - [getBasculeDepositStatus](#getBasculeDepositStatus)
-  - [getLBTCTotalSupply](#getLBTCTotalSupply)
-  - [signStakeAndBake](#signStakeAndBake)
-  - [getStakeAndBakeFee](#getStakeAndBakeFee)
-  - [signNetworkFee](#signNetworkFee)
-
-#### getDepositBtcAddress
-
-`@returns Promise<string>`
-
-Returns the address for depositing BTC.
-
-Parameters:
-| name | type | description |
-|-----------|----------|--------------------------------------------------------------|
-| `address` | `string` | The destination EVM user address where LBTC will be claimed. |
-| `chainId` | `TChainId` | The destination chain ID where LBTC will be claimed. |
-| `env` | `Env` | Environment (optional, default: 'prod') |
-| `partnerId` | `string` | Partner ID (optional) |
-
-Usage
-
-```typescript
-import { getDepositBtcAddress } from '@lombard.finance/sdk';
-...
-const depositBtcAddress = await getDepositBtcAddress({
-  address: '0x...',
-  chainId: 1,
-  partnerId: 'YOUR_PARTNER_ID',
-}); // bc1q...
-```
-
-#### getDepositBtcAddresses
-
-`@returns Promise<IDepositAddress[]>`
-
-Returns the addresses for depositing BTC.
-
-Parameters are the same as for `getDepositBtcAddress`.
-
-Probably you will not need this method. You can just use `getDepositBtcAddress`.
-
-#### generateDepositBtcAddress
-
-`@returns {Promise<string>}`
-
-Generates a BTC deposit address.
-If the provided EVM address is sanctioned, the function will return the `SANCTIONED_ADDRESS` variable.
-
-Parameters:
-| name | type | description |
-|----------------|------------|---------------------------------------------------------------------------------------------------|
-| `address` | `string` | The destination EVM user address where LBTC will be claimed. |
-| `chainId` | `TChainId` | The destination chain ID where LBTC will be claimed. |
-| `signature` | `string` | The signature of the address. The signature is generated by signing the address using EVM wallet. |
-| `referrerCode` | `string` | The referrer code. |
-| `env` | `Env` | Environment (optional, default: 'prod') |
-| `captchaToken` | `string` | The captcha token (optional) |
-| `partnerId` | `string` | The partner ID (optional) |
-
-Usage
-
-```typescript
-import { generateDepositBtcAddress } from '@lombard.finance/sdk';
-...
-const depositBtcAddress = await generateDepositBtcAddress({
-  address: '0x...',
-  chainId: 1,
-  signature: 'SIGNATURE',
-  partnerId: 'YOUR_PARTNER_ID',
-  referrerCode: 'YOUR_REFERRER_CODE',
-}); // bc1q...
-```
-
-#### getDepositsByAddress
-
-`@returns Promise<IDeposit[]>`
-Returns all deposits for a given address.
-
-Parameters:
-
-| name      | type    | description                             |
-| --------- | ------- | --------------------------------------- |
-| `address` | `string` | The EVM address to get deposits for     |
-| `env`     | `Env`   | Environment (optional, default: 'prod') |
-
-Usage
-
-```typescript
-import { getDepositsByAddress } from '@lombard.finance/sdk';
-...
-const deposits = await getDepositsByAddress({
-  address: '0x...',
-}); // [{...}]
-```
-
-#### getLBTCExchangeRate
-
-`@returns Promise<number>`
-
-Returns the exchange rate for LBTC.
-
-Parameters:
-
-| name      | type      | description                                            |
-| --------- | --------- | ------------------------------------------------------ |
-| `chainId` | `TChainId` | The chain id of the asset to get the exchange rate for |
-| `amount`  | `number`  | The amount of the asset to get the exchange rate for   |
-| `env`     | `Env`     | Environment (optional, default: 'prod')                |
-
-Usage
-
-```typescript
-import { getLBTCExchangeRate } from '@lombard.finance/sdk';
-...
-const exchangeRate = await getLBTCExchangeRate({
-  chainId: 1,
-  amount: 3,
-}); // 3
-```
-
-#### signLbtcDestionationAddr
-
-`@returns Promise<string>` - The signature of the message.
-
-Signs the destination address for the LBTC in active chain in the current account.
-Signing is necessary for the generation of the deposit address.
-
-Parameters:
-
-| name       | type               | description                    |
-| ---------- | ------------------ | ------------------------------ |
-| `provider` | `IEIP1193Provider` | The EIP-1193 provider instance |
-| `account`  | `string`           | Current account address        |
-| `chainId`  | `TChainId`         | Current chain ID               |
-
-Usage
-
-```typescript
-import { signLbtcDestinationAddr } from '@lombard.finance/sdk';
-
-...
-// do connect to the wallet using web3.js or ethers.js or any other library
-// and get the provider, account and chainId
-const destinationAddr = await signLbtcDestinationAddr({
-  provider: window.ethereum,
-  account: '0x...',
-  chainId: 1,
-}); // '0x...'
-```
-
-#### claimLBTC
-
-`@returns Promise<IWeb3SendResult>` transaction promise
-
-Claims LBTC.
-
-Parameters:
-
-| name             | type              | description                                                                            |
-| ---------------- | ----------------- | -------------------------------------------------------------------------------------- |
-| `data`           | `string`          | Raw payload from deposit notarization. Can be obtained from the `getDepositsByAddress` |
-| `proofSignature` | `string`          | Signature from deposit notarization. Can be obtained from the `getDepositsByAddress`   |
-| `provider`       | `IEIP1193Provider` | The EIP-1193 provider instance                                                         |
-| `account`        | `string`          | Current account address                                                                |
-| `chainId`        | `TChainId`        | Current chain ID                                                                       |
-| `env`            | `Env`             | Environment (optional, default: 'prod')                                                |
-
-Usage
-
-```typescript
-import { claimLBTC } from '@lombard.finance/sdk';
-...
-// do connect to the wallet using web3.js or ethers.js or any other library
-// and get the provider, account and chainId
-const { receiptPromise, transactionHash } = await claimLBTC({
-  data: 'PAYLOAD',
-  proofSignature: 'SIGNATURE',
-  provider: window.ethereum,
-  account: '0x...',
-  chainId: 1,
-});
-console.log(transactionHash); // '0x...'
-const receipt = await receiptPromise; // {...}
-```
-
-#### unstakeLBTC
-
-`@returns Promise<IWeb3SendResult>` transaction promise
-
-Unstakes LBTC to the specified BTC address.
-
-Parameters:
-
-| name         | type              | description                                 |
-| ------------ | ----------------- | ------------------------------------------- |
-| `btcAddress` | `string`          | The BTC address to send the unstaked BTC to |
-| `amount`     | `string`          | The amount of LBTC to unstake               |
-| `provider`   | `IEIP1193Provider` | The EIP-1193 provider instance              |
-| `account`    | `string`          | Current account address                     |
-| `chainId`    | `TChainId`        | Current chain ID                            |
-| `env`        | `Env`             | Environment (optional, default: 'prod')     |
-
-Usage
-
-```typescript
-import { unstakeLBTC } from '@lombard.finance/sdk';
-...
-// do connect to the wallet using web3.js or ethers.js or any other library
-// and get the provider, account and chainId
-const { receiptPromise, transactionHash } = await unstakeLBTC({
-  btcAddress: 'bs...',
-  amount: 1,
-  provider: window.ethereum,
-  account: '0x...',
-  chainId: 1,
-});
-console.log(transactionHash); // '0x...'
-const receipt = await receiptPromise; // {...}
-```
-
-#### getBasculeDepositStatus
-
-`@returns Promise<BasculeDepositStatus>` transaction promise
-
-Check Deposit Status by hash id through Bascule
-
-Parameters:
-
-| name       | type              | description                                                                        |
-| ---------- | ----------------- | ---------------------------------------------------------------------------------- |
-| `txId`     | `string`          | Payload from deposit notarization. Can be obtained from the `getDepositsByAddress` |
-| `provider` | `IEIP1193Provider` | The EIP-1193 provider instance                                                     |
-| `account`  | `string`          | Current account address                                                            |
-| `chainId`  | `TChainId`        | Current chain ID                                                                   |
-| `env`      | `Env`             | Environment (optional, default: 'prod')                                            |
-
-Usage
-
-```typescript
-import { getBasculeDepositStatus } from '@lombard.finance/sdk';
-...
-// do connect to the wallet using web3.js or ethers.js or any other library
-// and get the provider, account and chainId
-const status = await getBasculeDepositStatus({
-  txId: 'PAYLOAD',
-  provider: window.ethereum,
-  chainId: 1,
-});
-console.log(status); // '0, 1, 2'
-```
-
-#### getLBTCTotalSupply
-
-`@returns Promise<string>` Supply promise
-
-Get LBTC total supply
-
-Parameters:
-
-| name      | type      | description                             |
-| --------- | --------- | --------------------------------------- |
-| `rpcUrl`  | `string`  | Rpc url for the chain                   |
-| `chainId` | `TChainId` | Current chain ID                        |
-| `env`     | `Env`     | Environment (optional, default: 'prod') |
-
-Usage
-
-```typescript
-import { getLBTCTotalSupply } from '@lombard.finance/sdk';
-
-const totalSupply = await getLBTCTotalSupply({
-  rpcUrl: 'yourRpcUrl',
-  chainId: 1,
-});
-console.log(totalSupply); // '2000000'
-```
-
-#### signStakeAndBake
-
-`@returns Promise<ISignStakeAndBakeResult>` Sign authorization promise
-
-Sign Stake And Bake
-
-## Parameters
-
-| name       | type                | description                                       |
-| ---------- | ------------------- | ------------------------------------------------- |
-| `provider` | `IProvider`         | Provider instance to interact with the blockchain |
-| `address`  | `string`            | The address to sign with (owner)                  |
-| `chainId`  | `TChainId`          | Chain ID for the signature                        |
-| `value`    | `string`            | The value to approve                              |
-| `expiry`   | `number`            | Expiry date as a unix timestamp                   |
-| `rpcUrl`   | `string` (optional) | Optional RPC URL for the network                  |
-| `vaultKey` | `string`            | The key of the vault to authorize                 |
-
-Usage
-
-```typescript
-import { signStakeAndBake } from '@lombard.finance/sdk';
-
-const { signature, signatureData } = await signStakeAndBake({
-  provider: window.ethereum,
-  address: '0x...',
-  chainId,
-  value: toSatoshi(approvalValue.toString()).toString(),
-  expiry: permitExpiryTime,
-  vaultKey: selectedVault.key,
+#### 1.2. Sign the network fee signature.
+
+```javascript
+const expiry = Math.round((Date.now() + 24 * 60 * 60 * 1000) / 1000);
+const { signature, typedData } = await signNetworkFee({
+  fee, // The fee from step 1
+  expiry, // The optional expiration unix timestamp. This parameter can be omitted, it default to 24h from now. We recommend to set this to at least 8h from now.
+  account, // The destination account address from the connected wallet.
+  chainId: ChainId.ethereum // The destination chain id.
+  provider, // The EIP-1193 provider, e.g. the injected provider: window.ethereum
 });
 ```
 
-#### storeStakeAndBakeSignature
+#### 1.3. Store the signature to the Lombard's systems.
 
-`@returns Promise<IStoreStakeAndBakeSignatureStatus>` Store Stake And Bake Signature Status promise
-
-Store stake and bake signature
-
-## Parameters
-
-| name        | type     | description                             |
-| ----------- | -------- | --------------------------------------- |
-| `env`       | `TEnv`   | Environment (e.g., 'prod', 'stage', etc.) |
-| `signature` | `string` | The generated signature                 |
-| `typedData` | `string` | JSON typed data used for the signature  |
-
-Usage
-
-```typescript
-import { storeStakeAndBakeSignature } from '@lombard.finance/sdk';
-
-const status = await storeStakeAndBakeSignature({
-  signature,
-  signatureData,
-  env: 'prod',
-});
+```javascript
+await storeNetworkFeeSignature({ signature, typedData, address }); // Pass the signature and typed data from step 2.
 ```
 
-#### getUserStakeAndBakeSignature
+It is recommended to verify that the signature has been stored. Please use `getNetworkFeeSignature`.
 
-`@returns Promise<IGetUserStakeAndBakeSignatureResponse>` Promise that resolves to the signature response
+```javascript
+const { expirationData, hasSignature, isDelayed } = await getNetworkFeeSignature({ address, chainId });
+```
 
-Get user's stake and bake signature from the API
+`isDelayed` is a flag determining whether the execution of auto-claimer using the stored signature is delayed due to the higher gas costs.
 
-## Parameters
+#### 1.4. Get or generate the BTC deposit address.
 
-| name                     | type    | description                             |
-| ------------------------ | ------- | --------------------------------------- |
-| `userDestinationAddress` | `string` | The user's destination address          |
-| `chainId`                | `string` | The chain ID                            |
-| `env`                    | `TEnv`   | Environment (e.g., 'prod', 'stage', etc.) |
+```javascript
+let depositBtcAddress = await getDepositBtcAddress({ address, chainId });
+if (!depositBtcAddress) {
+  depositBtcAddress = await generateDepositBtcAddress({ 
+    address,
+    chainId,
+    signature, // Pass here the signature from step 2.
+    eip712Data: typedData // Pass here the typed data from step 2.
+  });
+}
+```
 
-Usage
+#### 1.5. Deposit BTC to the address.
 
-```typescript
-import { getUserStakeAndBakeSignature } from '@lombard.finance/sdk';
+Now you can deposit your BTC to the generated in the previous step BTC address.
+The funds will be claimed automatically by Lombard's claimer and transferred to
+the account (`address`).
 
-const response = await getUserStakeAndBakeSignature({
+#### 1.6. Check the status of your deposit.
+
+If you'd like to check the status of your deposit use `getDepositsByAddress` function.
+
+```javascript
+const deposits = await getDepositsByAddress({ address });
+```
+
+Every entry in the result of the above function may consist of the following properties:
+* `txid` - the BTC transaction id,
+* `index` - the index of the actual deposit transaction,
+* `blockHeight`
+* `blockTime`
+* `value` - the amount of BTC deposited,
+* `address` - the destination address,
+* `chainId` - the destination chain id,
+* `isClaimer` - a flag determining whether the deposit has been already claimed,
+* `claimedTxId` - the corresponding claim transaction that transfer funds to the destination address,
+* `rawPayload` - the payload of the transaction (can be use to claim the funds manually),
+* `signature` - the signature used (can be used to claim the funds manually),
+* `isRestricted` - a flag determining whether the transaction has been marked as suspicious/restricted,
+* `payload` - the payload (corresponding to the Bascule drawbridge security),
+* `sessionId`
+* `notarizationStatus` - the notarization status of the deposit (pending, submitted, approved or failed),
+* `sessionState` - the state of the session (pending, completed, expired)
+
+### 2. Manually claiming LBTC.
+
+In case when a user deposited BTC to the BTC deposit address but the transaction has not been claimed automatically (due to expired signature or any other issue), you may want to claim LBTC manually as in the example below:
+
+```javascript
+const txHash = await claimLBTC({
+  data: rawPayload, // Pass the raw payload from the deposit data as presented in the previous step.
+  proofSignature: signature, // Pass the signature from the deposit data.
+  account, // The connected account address
+  chainId, // The chain id
+  provider, // The EIP-1193 provider,
+  rpcUrl, // The optional RPC url.
+})
+```
+
+The successful execution of the above will result with the transaction id.
+
+### 3. Depositing BTC and automatically staking LBTC into the DeFi vault (aka stake and bake)
+
+You can read more about the DeFi vaults here: https://docs.lombard.finance/lbtc-liquid-bitcoin/defi-vaults/lombard-defi-vault
+
+If you'd wish to stake and bake your BTC follow the steps below.
+
+#### 3.1. See what's the current stake and bake fee.
+
+To check the current stake and bake fee you may use the following function:
+
+```javascript
+const fee = await getStakeAndBakeFee({
+  vaultKey: Vault.Veda, // The vault identifier, currently only "veda" is accepted.
+  chainId, // The chain id.
+  rpcUrl, // The options RPC url.
+});
+const expectedLBTCAmount = BigNumber(amountToBeDeposited).minus(fee);
+```
+The fee amount will be deducted from the claimed LBTC automatically.
+
+#### 3.2. Sign the stake and bake signature.
+
+```javascript
+const { signature, typedData } = await signStakeAndBake({
+  account, // The connected account address,
+  expiry, // The optional expiration unix timestamp. This parameter can be omitted, it default to 24h from now. We recommend to set this to at least 8h from now.
+  value, // The amount of BTC (in satoshis)
+  vaultKey: Vault.Veda, // The vault identifier, currently only "veda" is accepted.
+  chainId, // The chain id.
+  provider, // The EIP-1193 provider.
+  rpcUrl, // The optional RPC url.
+})
+```
+
+#### 3.3. Store the signature to the Lombard's systems.
+
+```javascript
+await storeStakeAndBakeSignature({
+  signature, // Pass here the signature form the previous step.
+  typedData, // Pass here the typed data from the previous step.
+})
+```
+
+It is recommended to verify if the signature has been stored.
+
+```javascript
+const data = await getUserStakeAndBakeSignature({
   userDestinationAddress: address,
   chainId,
-  env: 'prod',
-});
-console.log(response);
+})
 ```
 
-#### storeNetworkFeeSignature
+#### 3.4. Get or generate the BTC deposit address.
 
-`@returns Promise<IStoreNetworkFeeSignatureResponse>` Response promise with statuses
-
-Store authorize network fee
-
-## Parameters
-
-| name                     | type     | description                             |
-| ------------------------ | -------- | --------------------------------------- |
-| `signature`              | `string` | The signature of signNetworkFee method  |
-| `typedData`              | `string` | JSON typed data used for the signature  |
-| `address`                | `string` | Destination address                     |
-| `env`                    | `TEnv`   | Environment (e.g., 'prod', 'stage', etc.) |
-
-Usage
-
-```typescript
-import { storeNetworkFeeSignature } from '@lombard.finance/sdk';
-
-const status = await storeNetworkFeeSignature({
-  signature: '',
-  typedData: '',
-  address: '0x...',
-  env: 'prod',
-});
-console.log(status); // success
+```javascript
+let depositBtcAddress = await getDepositBtcAddress({ address, chainId });
+if (!depositBtcAddress) {
+  depositBtcAddress = await generateDepositBtcAddress({ 
+    address,
+    chainId,
+    signature, // Pass here the signature from step 2.
+    signatureData: typedData // Pass here the typed data from step 2.
+  });
+}
 ```
 
-#### getNetworkFeeSignature
+#### 3.5. Deposit BTC to the address. 
 
-`@returns Promise<IStoreNetworkFeeSignatureResponse>` Response promise with statuses
+Now you can deposit your BTC to the BTC deposit address from above. The funds will be automatically claimed and deposited to the DeFi vault.
 
-Store authorize network fee
+#### 3.6. Check the status of you deposit
 
-## Parameters
-
-| name                     | type     | description                             |
-| ------------------------ | -------- | --------------------------------------- |
-| `chainId`                | `number` | The chain ID                            |
-| `address`                | `string` | Destination address                     |
-| `env`                    | `TEnv`   | Environment (e.g., 'prod', 'stage', etc.) |
-
-Usage
-
-```typescript
-import { getNetworkFeeSignature } from '@lombard.finance/sdk';
-
-const signatureResponse = await getNetworkFeeSignature({
-  chainId: 1,
-  address: '0x...',
-  env: 'prod',
-});
-console.log(signatureResponse);
+```javascript
+const deposits = await getDepositsByAddress({ address });
 ```
 
-#### getStakeAndBakeVaults
+#### 3.7. Check the amount of shares acquired.
 
-`@returns IStakeAndBakeVault[]` A list of available vaults
-
-## Parameters
-
-| name      | type     | description  |
-| --------- | -------- | ------------ |
-| `chainId` | `string` | The chain ID |
-
-Usage
-
-```typescript
-import { getStakeAndBakeVaults } from '@lombard.finance/sdk';
-
-const vaults = getStakeAndBakeVaults(1);
-
-console.log(vaults);
+```javascript
+const { balance, exchangeRate, balanceLbtc } = await getSharesByAddress({
+  vaultKey: Vault.Veda, // The vault identifier.
+  address, // The account address.
+  chainId, // The chain id.
+  rpcUrl, // The optional RPC url
+});
 ```
 
-#### getStakeAndBakeFee
+The above code results with:
+* `balance` - The amount of LBTCv shares owned by the account,
+* `exchangeRate` - The current LBTCv to LBTC exchange rate,
+* `balanceLbtc` - The value of the owned shares is LBTC.
 
-`@returns Promise<string>` Promise that resolves stakeAndBake fee in satoshis
+### 4. Unstaking LBTC and getting BTC back.
 
-Get Stake and bake fee in satoshis
+Every LBTC is redeemable back to BTC, you can do that programmatically by following the steps:
 
-## Parameters
+#### 4.1. Unstake LBTC.
 
-| name           | type     | description           |
-| -------------- | -------- | --------------------- |
-| `vaultAddress` | `string` | The vault address     |
-| `chainId`      | `string` | The chain ID          |
-| `rpcUrl`       | `string` | Rpc url for the chain |
-
-Usage
-
-```typescript
-import { getStakeAndBakeFee } from '@lombard.finance/sdk';
-
-const response = await getStakeAndBakeFee({
-  chainId: OChainId.binanceSmartChain,
-  rpcUrl: 'https://rpc.ankr.com/bsc',
-  vaultAddress: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
+```javascript
+const txaHash = await unstakeLBTC({
+  btcAddress, // The address to which the funds will be redeemed.
+  amount, // The amount of LBTC to unstake.
+  account, // The account address.
+  chainId, // The chain id.
+  provider, // The EIP-1193 provider.
+  rpcUrl, // The optional RPC url.
 });
-console.log(response);
 ```
 
-#### signNetworkFee
+#### 4.2. Check the status of your unstakes.
 
-`@returns Promise<ISignNetworkFeeResponse>` A promise that resolves to the signature and typed data
+If you'd like to get the list of all unstaked made by an address, use this:
 
-Signs the network fee transaction in the current account.
-Signing is necessary for the auto-mint.
+```javascript
+const unstakes = await getUnstakesByAddress({ address });
+```
 
-## Parameters
+Every entry in the result of the above may consist of:
+* `txHash` - The unstake transaction hash,
+* `chainId`,
+* `blockHeight`,
+* `unstakeDate`,
+* `fromAddress` - The EVM source address,
+* `toAddress` - The BTC destination address of the funds,
+* `amount` - The amount unstaked,
+* `payoutTxHash` - The BTC transaction hash,
+* `payoutTxIndex` - The index of the actual payout transfer,
+* `sanctioned` - A flag indicating whether the unstake transaction has been sanctioned and flagged as suspicious.
 
-| name       | type        | description                                       |
-| ---------- | ----------- | ------------------------------------------------- |
-| `address`  | `string`    | The user address                                  |
-| `fee`      | `string`    | The Authorization fee                             |
-| `expiry`   | `number`    | Expiration time                                   |
-| `chainId`  | `string`    | The chain ID                                      |
-| `env`      | `TEnv`      | Environment (e.g., 'prod', 'stage', etc.)           |
-| `provider` | `IProvider` | Provider instance to interact with the blockchain |
+### 5. Depositing LBTC to the DeFi vault.
 
-Usage
+If a user already has LBTC depositing to the DeFi vault can be done via the `deposit` function.
 
-```typescript
-import { signNetworkFee } from '@lombard.finance/sdk';
+#### 5.1. Making a deposit to the DeFi vault.
 
-const response = await signNetworkFee({
-  chainId: OChainId.binanceSmartChain,
-  address: '0x...',
-  provider: window.ethereum,
-  fee: toSatoshi('0.0001'),
-  expiry: Math.floor(Date.now() / 1000) + NETWORK_FEE_EXPIRATION_TIME_SECONDS,
-  env: 'prod',
+```javascript
+const txHash = await deposit({
+  amount, // The deposit amount, e.g. 1.23 (LBTC)
+  approve = true, // The optional flag determining whether approval should be done within deposit execution.
+  token = 'LBTC', // The optional deposit token.
+  vaultKey = Vault.Veda, // The optional vault identifier.
+  account, // The account address.
+  chainId, // The chain id.
+  provider, // The EIP-1193 provider
+  rpcUrl, // The optional RPC url
+})
+```
+
+#### 5.2. Checking the deposit history.
+
+```javascript
+const deposits = await getVaultDeposits({
+  account, // The account address.
+  chainId, // The chain id.
+  vaultKey = Vault.Veda // The optional vault identifier.
 });
-console.log(response);
+```
+
+The above function returns an array of deposit data made by the specified user.
+Each entry contains:
+* `txHash` -  the transaction hash,
+* `blockNumber` -    the transaction's block number,
+* `chainId` -    the chain id,
+* `amount` -    the deposited amount,
+* `shareAmount` -    the amount of shares received,
+* `token` - the deposit token.
+
+#### 5.3. Checking the user's DeFi vault balance.
+
+In order to check the user's balance of the vault tokens, use this:
+
+```javascript
+const { balance, exchangeRate, balanceLbtc } = await getSharesByAddress({
+  vaultKey: Vault.Veda, // The vault identifier.
+  address, // The account address.
+  chainId, // The chain id.
+  rpcUrl, // The optional RPC url
+});
+```
+
+The above function returns the:
+* `balance` - balance of LBTCv,
+* `exchangeRate` - the current exchange rate between LBTCv and LBTC,
+* `balanceLbtc` - the value of LBTCv represented in LBTC.
+
+### 6. Withdrawing LBTC from the DeFi vault.
+
+#### 6.1. Requesting a withdrawal from the DeFi vault
+
+Requesting a withdrawal from the DeFi vault can be done via:
+```javascript
+const txHash = await withdraw({
+  amount, // The amount of shares.
+  approve = true, // The optional flag determining if approve action should be done within this execution.
+  token = 'LBTC', // The optional withdraw token.
+  vaultKey = Vault.Veda, // The optional vault identifier.
+  account, // The account address.
+  chainId, // The chain id.
+  provider, // The EIP-1192 provider.
+  rpcUrl, // The optional RPC url
+})
+```
+
+#### 6.2. Checking the withdrawal history (tracking the withdrawal request)
+
+In order to check the whole history or to track the particular withdrawal please use the following function:
+
+```javascript
+const withdrawals = await getVaultWithdrawals({
+  account, // The account address.
+  chainId, // The chain id.
+  vaultKey = Vault.Veda, // The optional vault identifier.
+  rpcUrl, // The optional RPC url
+})
+```
+
+The result of the above is an object with broken down withdrawals by their state:
+```javascript
+{
+  cancelled: [...], // The cancelled requests.
+  expired: [...], // The requests that expired.
+  fulfilled: [...], // The fulfilled requests (funds were transferred).
+  open: [...], // The open withdrawal requests (still to be processed).
+}
+```
+
+Each of the arrays from above consist of:
+* `token` - the withdrawal token (LBTC),
+* `shareAmount` - the amount of shares withdrawn,
+* `amount` - the amount of funds withdrawn,
+* `minPrice` - the min price of a share,
+* `deadline` - the expiration timestamp,
+* `timestamp` - the request timestamp,
+* `txHash` - the withdraw request transaction hash,
+* `blockNumber` - the request block number,
+* `fulfilledTimestamp` - the fulfilment timestamp,
+* `fulfilledTxHash` - the funds transfer transaction hash,
+* `fulfilledBlockNumber` - the fulfilment block number.
+
+#### 6.3. Cancelling the withdrawal
+
+If you wish to cancel you open withdrawal request use this:
+
+```javascript
+const txHash = await cancelWithdraw({
+  token = 'LBTC', // The optional withdrawal asset.
+  vaultKey = Vault.Veda, // The optional vault identifier.
+  account, // The account address.
+  chainId, // The chain id.
+  provider, // The EIP-1193 provider.
+  rpcUrl, // The optional RPC url.
+});
+```
+
+### 7. Getting the points earned by an address.
+
+If you'd like to check the amount of LUX points earned by an address then simply run the following function:
+
+```javascript
+const points = await getPointsByAddress({ address: "0x...YOUR_ADDRESS" })
+```
+
+The function returns the object of shape:
+```typescript
+  {
+    /**
+     * The number of points earned by holding LBTC.
+     */
+    holdingPoints: number;
+    /**
+     * The number of points earned by taking positions in DeFi vaults.
+     */
+    protocolPoints: number;
+    /**
+     * The number of points earned by your referrals.
+     */
+    referralPoints: number;
+    /**
+     * The number of points earned in the OKX campaign.
+     */
+    okxPoints: number;
+    /**
+     * The number of points earned by participating in the flash events.
+     */
+    flashEventPoints: number;
+    /**
+     * The total number of points.
+     */
+    totalPoints: number;
+    /**
+     * The breakdown of points earned from each protocol.
+     */
+    protocolPointsBreakdown: IProtocolPointsBreakdown;
+  }
+```
+
+### 8. Getting the DeFi vault points earned by an address.
+
+```javascript
+const { 
+  totalPoints, // The total points earned in the DeFi vault.
+  pointsBreakdown // The points breakdown by network (chain).
+} = await getVaultPoints({
+  account, // The account address.
+  vaultKey // The optional vault identifier.
+})
 ```

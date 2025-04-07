@@ -3,5 +3,6 @@
   "extends": ["../../biome.json"],
   "files": {
     "ignore": ["**/*.stories.tsx", "**/stories", "sdk-docs", "sdk-storybook"]
-  }
+  },
+  "organizeImports": { "enabled": true }
 }

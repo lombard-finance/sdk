@@ -1,6 +1,7 @@
 import './CodeBlockStyles.css';
 
 interface ICodeBlockProps {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   text?: any;
   withFormatting?: boolean;
 }

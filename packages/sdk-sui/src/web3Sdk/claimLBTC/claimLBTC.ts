@@ -2,7 +2,7 @@ import { Transaction } from '@mysten/sui/transactions';
 import { SuiChain, SuiSignTransactionFeature } from '@mysten/wallet-standard';
 import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
-import { defaultEnv, Env } from '@lombard.finance/sdk-common';
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import { SuiClient } from '@mysten/sui/client';
 import type { SuiTransactionBlockResponse } from '@mysten/sui/client';
 import { getConfig } from '../../const';
@@ -31,7 +31,7 @@ export async function claimLBTC({
   proof,
   walletAccount,
   client,
-  env = defaultEnv,
+  env = DEFAULT_ENV,
 }: IClaimLBTCParams): Promise<SuiTransactionBlockResponse> {
   const transaction = new Transaction();
 
@@ -74,7 +74,7 @@ export async function claimLBTC({
   transaction.setSender(walletAccount.address);
 
   const signedTransaction = await wallet.features[
-    // @ts-ignore The current wallet standard interface version doesn't support this type 
+    // @ts-ignore The current wallet standard interface version doesn't support this type
     'sui:signTransactionBlock'
   ].signTransactionBlock({
     chain: chainId,
