@@ -33,6 +33,9 @@ export {
   type GetVaultPointsParameters,
 } from './vaults/lib/get-vault-points';
 
+// Rewards:
+export * from './rewards';
+
 // Utils:
 export * from './common/api-config';
 export * from './common/blockchain-identifier';

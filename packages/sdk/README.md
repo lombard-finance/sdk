@@ -6,71 +6,81 @@ Read more about Lombard's mission: https://www.lombard.finance
 
 # Table of Contents
 
-1. [Installation](#installation)
+[Installation](#installation)
 
-   1.1. [Dependencies installation](#1-dependencies-installation)
+  1. [Dependencies installation](#1-dependencies-installation)
 
-   1.2. [SDK installation](#2-sdk-installation)
+  2. [SDK installation](#2-sdk-installation)
 
-2. [Usage](#usage)
+[Usage](#usage)
 
-   2.1. [Depositing BTC in order to get LBTC (aka staking)](#1-depositing-btc-in-order-to-get-lbtc-aka-staking)
+  1. [Depositing BTC in order to get LBTC (aka staking)](#1-depositing-btc-in-order-to-get-lbtc-aka-staking)
 
-      2.1.1. [Get the current minting fee](#11-get-the-current-minting-fee)
+     1.1. [Get the current minting fee](#11-get-the-current-minting-fee)
 
-      2.1.2. [Sign the network fee signature](#12-sign-the-network-fee-signature)
+     1.2. [Sign the network fee signature](#12-sign-the-network-fee-signature)
 
-      2.1.3. [Store the signature to the Lombard's systems](#13-store-the-signature-to-the-lombards-systems)
+     1.3. [Store the signature to the Lombard's systems](#13-store-the-signature-to-the-lombards-systems)
 
-      2.1.4. [Get or generate the BTC deposit address](#14-get-or-generate-the-btc-deposit-address)
+     1.4. [Get or generate the BTC deposit address](#14-get-or-generate-the-btc-deposit-address)
 
-      2.1.5. [Deposit BTC to the address](#15-deposit-btc-to-the-address)
+     1.5. [Deposit BTC to the address](#15-deposit-btc-to-the-address)
 
-      2.1.6. [Check the status of your deposit](#16-check-the-status-of-your-deposit)
+     1.6. [Check the status of your deposit](#16-check-the-status-of-your-deposit)
 
-   2.2. [Manually claiming LBTC](#2-manually-claiming-lbtc)
+  2. [Manually claiming LBTC](#2-manually-claiming-lbtc)
 
-   2.3. [Depositing BTC and automatically staking LBTC into the DeFi vault (aka stake and bake)](#3-depositing-btc-and-automatically-staking-lbtc-into-the-defi-vault-aka-stake-and-bake)
+  3. [Depositing BTC and automatically staking LBTC into the DeFi vault (aka stake and bake)](#3-depositing-btc-and-automatically-staking-lbtc-into-the-defi-vault-aka-stake-and-bake)
 
-      2.3.1. [See what's the current stake and bake fee](#31-see-whats-the-current-stake-and-bake-fee)
+     3.1. [See what's the current stake and bake fee](#31-see-whats-the-current-stake-and-bake-fee)
 
-      2.3.2. [Sign the stake and bake signature](#32-sign-the-stake-and-bake-signature)
+     3.2. [Sign the stake and bake signature](#32-sign-the-stake-and-bake-signature)
 
-      2.3.3. [Store the signature to the Lombard's systems](#33-store-the-signature-to-the-lombards-systems)
+     3.3. [Store the signature to the Lombard's systems](#33-store-the-signature-to-the-lombards-systems)
 
-      2.3.4. [Get or generate the BTC deposit address](#34-get-or-generate-the-btc-deposit-address)
+     3.4. [Get or generate the BTC deposit address](#34-get-or-generate-the-btc-deposit-address)
 
-      2.3.5. [Deposit BTC to the address](#35-deposit-btc-to-the-address)
+     3.5. [Deposit BTC to the address](#35-deposit-btc-to-the-address)
 
-      2.3.6. [Check the status of your deposit](#36-check-the-status-of-your-deposit)
+     3.6. [Check the status of your deposit](#36-check-the-status-of-your-deposit)
 
-      2.3.7. [Check the amount of shares acquired](#37-check-the-amount-of-shares-acquired)
+     3.7. [Check the amount of shares acquired](#37-check-the-amount-of-shares-acquired)
 
-   2.4. [Unstaking LBTC and getting BTC back](#4-unstaking-lbtc-and-getting-btc-back)
+  4. [Unstaking LBTC and getting BTC back](#4-unstaking-lbtc-and-getting-btc-back)
 
-      2.4.1. [Unstake LBTC](#41-unstake-lbtc)
+     4.1. [Unstake LBTC](#41-unstake-lbtc)
 
-      2.4.2. [Check the status of your unstakes](#42-check-the-status-of-your-unstakes)
+     4.2. [Check the status of your unstakes](#42-check-the-status-of-your-unstakes)
 
-   2.5. [Depositing LBTC to the DeFi vault](#5-depositing-lbtc-to-the-defi-vault)
+  5. [Depositing LBTC to the DeFi vault](#5-depositing-lbtc-to-the-defi-vault)
 
-      2.5.1. [Making a deposit to the DeFi vault](#51-making-a-deposit-to-the-defi-vault)
+     5.1. [Making a deposit to the DeFi vault](#51-making-a-deposit-to-the-defi-vault)
 
-      2.5.2. [Checking the deposit history](#52-checking-the-deposit-history)
+     5.2. [Checking the deposit history](#52-checking-the-deposit-history)
 
-      2.5.3. [Checking the user's DeFi vault balance](#53-checking-the-users-defi-vault-balance)
+     5.3. [Checking the user's DeFi vault balance](#53-checking-the-users-defi-vault-balance)
 
-   2.6. [Withdrawing LBTC from the DeFi vault](#6-withdrawing-lbtc-from-the-defi-vault)
+  6. [Withdrawing LBTC from the DeFi vault](#6-withdrawing-lbtc-from-the-defi-vault)
 
-      2.6.1. [Requesting a withdrawal from the DeFi vault](#61-requesting-a-withdrawal-from-the-defi-vault)
+     6.1. [Requesting a withdrawal from the DeFi vault](#61-requesting-a-withdrawal-from-the-defi-vault)
 
-      2.6.2. [Checking the withdrawal history (tracking the withdrawal request)](#62-checking-the-withdrawal-history-tracking-the-withdrawal-request)
+     6.2. [Checking the withdrawal history (tracking the withdrawal request)](#62-checking-the-withdrawal-history-tracking-the-withdrawal-request)
 
-      2.6.3. [Cancelling the withdrawal](#63-cancelling-the-withdrawal)
+     6.3. [Cancelling the withdrawal](#63-cancelling-the-withdrawal)
 
-   2.7. [Getting the points earned by an address](#7-getting-the-points-earned-by-an-address)
+  7. [Getting the points earned by an address](#7-getting-the-points-earned-by-an-address)
 
-   2.8. [Getting the DeFi vault points earned by an address](#8-getting-the-defi-vault-points-earned-by-an-address)
+  8. [Getting the DeFi vault points earned by an address](#8-getting-the-defi-vault-points-earned-by-an-address)
+
+  9. [Claiming rewards](#9-claiming-rewards)  
+
+     9.1. [Checking reward balances](#91-checking-reward-balances)  
+
+     9.2. [Claiming rewards](#92-claiming-rewards)  
+
+     9.3. [Checking the reward withdrawal fee](#93-checking-the-reward-withdrawal-fee)  
+
+     9.4. [Getting the withdrawal history (checking withdrawal status)](#94-getting-the-withdrawal-history-checking-withdrawal-status)
 
 
 ## Installation
@@ -511,3 +521,63 @@ const {
   vaultKey // The optional vault identifier.
 })
 ```
+
+### 9. Claiming rewards.
+
+#### 9.1. Checking reward balances.
+
+```javascript
+const rewards = await getRewardBalances({
+  address,
+  rewardToken: RewardToken.BABY
+});
+```
+
+The data returned by the above function contains:
+
+* `address` - the address of the reward earner (claimer),
+* `availableBalance` - the available balance of the reward token (ready to be withdrawn),
+* `lockedBalance` - the locked balance (in processing),
+* `pendingBalance` - the pending balance to be credited,
+* `rewardToken` - the reward token,
+* `timestamp` - the timestamp.
+
+#### 9.2. Claiming rewards.
+
+```javascript
+const withdrawal = await claimReward({
+  account, // The account address.
+  rewardToken, // The reward token, e.g. RewardToken.BABY
+  amount, // The amount to be claimed (withdrawn)
+  to, // The destination address, e.g. BABYLON chain address.
+  chainId, // The chain id
+  provider, // The EIP-1193 provider.
+});
+```
+
+The function will ask a user to sign a message that consists of the amount, destination address and also a withdrawal fee and after obtaining this signature it will request a reward withdrawal from the pool to the provided destination address.
+
+The function returns the `RewardWithdrawal` object.
+
+#### 9.3. Checking the reward withdrawal fee.
+
+```javascript
+const withdrawalFee = await getRewardWithdrawalFee({ address, rewardToken });
+```
+
+#### 9.4. Getting the withdrawal history (checking withdrawal status).
+
+```javascript
+const withdrawals = await getRewardWithdrawals({ address })
+```
+
+The function returns an array of:
+
+* `amount` - the withdrawn (claimed) amount of rewards token,
+* `rewardToken` - the reward token,
+* `fee` - the applied withdrawal fee,
+* `to` - the destination address,
+* `signature` - the signature used,
+* `status` - the withdrawal status,
+* `estimatedTimeSent` - the estimated time when the funds are sent,
+* `timestamp` - the timestamp.
