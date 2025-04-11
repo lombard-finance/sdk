@@ -1,0 +1,56 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import useQuery from '../../stories/hooks/useQuery';
+import {
+  getNetworkFeeSignature,
+  IGetNetworkFeeSignatureParams,
+} from './getNetworkFeeSignature';
+import { functionType } from '../../stories/components/decorators';
+import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
+import { ChainId } from '../../common/chains';
+
+const meta = {
+  title: 'api/getNetworkFeeSignature',
+  component: StoryView,
+  tags: ['autodocs'],
+  decorators: [functionType('api-get')],
+} satisfies Meta<typeof StoryView>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const WithParams: Story = {
+  args: {
+    address: EXAMPLE_EVM_ADDRESS,
+    chainId: ChainId.ethereum,
+    env: DEFAULT_ENV,
+  },
+};
+
+type GetNetworkFeeSignatureParamsProps = IGetNetworkFeeSignatureParams;
+
+export function StoryView(props: GetNetworkFeeSignatureParamsProps) {
+  const request = async () => {
+    return await getNetworkFeeSignature({
+      ...props,
+    });
+  };
+
+  const { data, error, isLoading, refetch } = useQuery(request, [], false);
+
+  return (
+    <>
+      <Button
+        onClick={refetch}
+        disabled={isLoading}
+        isLoading={isLoading}
+        actionName={getNetworkFeeSignature.name}
+      />
+
+      <CodeBlock text={error || data} />
+    </>
+  );
+}

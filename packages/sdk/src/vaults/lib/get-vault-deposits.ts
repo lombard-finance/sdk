@@ -1,3 +1,5 @@
+import { Address, Hash } from 'viem';
+import { ChainId } from '../../common/chains';
 import {
   isVedaVaultChain,
   NETWORK_TO_VEDA_VAULT_CHAIN_MAP,
@@ -5,24 +7,25 @@ import {
   VAULTS,
   VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
   VedaVaultChain,
-} from "..";
-import axios from "axios";
-import BigNumber from "bignumber.js";
-import { ensureHex } from "../../utils/hex";
-import { orderBy } from "../../utils/array";
-import { TChainId } from "../../common/types/types";
-import { fromSatoshi } from "../../common/utils/convertSatoshi";
-
-type Address = `0x${string}`;
-type Hash = `0x${string}`;
+} from '..';
+import axios from 'axios';
+import BigNumber from 'bignumber.js';
+import {
+  fromBaseDenomination,
+  getAssetInfo,
+  TokenInfo,
+} from '../../tokens/tokens';
+import { ensureHex } from '../../utils/hex';
+import { orderBy, unique } from '../../utils/array';
 
 const DEPOSITS_URL =
-  "https://api.sevenseas.capital/deposits/{network}/{vault}/{account}";
+  'https://api.sevenseas.capital/deposits/{network}/{vault}/{account}';
 
 export type GetVaultDepositsParameters = {
   account: Address;
-  chainId: TChainId;
+  chainId: ChainId;
   vaultKey?: Vault;
+  rpcUrl?: string;
 };
 
 type ResponseEntry = {
@@ -48,7 +51,7 @@ export type VaultDeposit = {
   /** The amount of shares received */
   shareAmount: BigNumber;
   /** The deposit token */
-  token?: string;
+  token?: Omit<TokenInfo, 'abi'>;
 };
 
 /**
@@ -57,6 +60,7 @@ export type VaultDeposit = {
  * @param parameters.account - The account address.
  * @param parameters.chainId - The chain id.
  * @param parameters.vaultKey - The optional vault identifier.
+ * @param parameters.rpcUrl - The optional RPC url.
  *
  * @returns {Promise<VaultDeposit[]>}
  */
@@ -64,6 +68,7 @@ export async function getVaultDeposits({
   account,
   chainId,
   vaultKey = Vault.Veda,
+  rpcUrl,
 }: GetVaultDepositsParameters) {
   const vault = VAULTS[vaultKey];
   if (!vault) {
@@ -72,21 +77,39 @@ export async function getVaultDeposits({
 
   if (!isVedaVaultChain(chainId)) {
     throw new Error(
-      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(", ")}`
+      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
   }
 
   const network = VEDA_VAULT_CHAIN_TO_NETWORK_MAP[chainId];
-  const url = DEPOSITS_URL.replace("{network}", network)
-    .replace("{vault}", vault.vaultContract.address)
-    .replace("{account}", account);
+  const url = DEPOSITS_URL.replace('{network}', network)
+    .replace('{vault}', vault.vaultContract.address)
+    .replace('{account}', account);
 
   const { data } = await axios.get<ResponseEntry[]>(url);
 
-  const deposits = data.map((d) => {
-    const token = ensureHex(d.deposit_asset);
-    const amount = fromSatoshi(d.deposit_amount);
-    const shareAmount = fromSatoshi(d.share_amount);
+  const depositAssetsAddresses = unique(
+    data.map(d => ensureHex(d.deposit_asset)),
+  );
+
+  const depositAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> = {};
+  for (const asset of depositAssetsAddresses) {
+    const assetInfo = await getAssetInfo(asset, chainId, rpcUrl);
+    if (assetInfo) {
+      depositAssets[asset] = {
+        address: assetInfo.address,
+        decimals: assetInfo.decimals,
+        symbol: assetInfo.symbol,
+      };
+    } else {
+      depositAssets[asset] = undefined;
+    }
+  }
+
+  const deposits = data.map(d => {
+    const token = depositAssets[ensureHex(d.deposit_asset)];
+    const amount = fromBaseDenomination(d.deposit_amount, token?.decimals || 0);
+    const shareAmount = fromBaseDenomination(d.share_amount, vault.decimals);
 
     const vaultDeposit: VaultDeposit = {
       txHash: ensureHex(d.tx_hash),
@@ -100,5 +123,5 @@ export async function getVaultDeposits({
     return vaultDeposit;
   });
 
-  return orderBy(deposits, (d) => d.blockNumber, "desc");
+  return orderBy(deposits, d => d.blockNumber, 'desc');
 }

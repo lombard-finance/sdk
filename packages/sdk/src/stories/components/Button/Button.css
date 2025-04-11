@@ -1,0 +1,10 @@
+.story-btn {
+  border: 1px solid var(--bs-gray-900);
+  background: var(--bs-gray-200);
+  color: var(--bs-gray-900);
+}
+
+.story-btn:hover {
+  background: var(--bs-gray-700);
+  color: var(--bs-gray-100);
+}

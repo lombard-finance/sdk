@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getErrorMessage } from '../../common/utils/getErrorMessage';
+import { getErrorMessage } from '../../utils/err';
 
 type QueryFn<T> = () => Promise<T>;
 
@@ -21,7 +21,7 @@ interface UseQueryResult<T> {
  */
 export function useQuery<T>(
   queryFn: QueryFn<T>,
-  dependencies: any[] = [],
+  dependencies: unknown[] = [],
   shouldFetch = true,
 ): UseQueryResult<T> {
   const [data, setData] = useState<T | null>(null);
