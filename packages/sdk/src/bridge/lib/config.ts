@@ -1,9 +1,10 @@
-import { Abi, Address } from 'viem';
+import { Abi } from 'viem';
 import { ChainId } from '../../common/chains';
 import CCIP_BRIDGE_ADAPTER_ABI from '../abi/CCIP_BRIDGE_ADAPTER_ABI.json';
 import OFT_BRIDGE_ADAPTER_ABI from '../abi/OFT_BRIDGE_ADAPTER_ABI.json';
 import { ContractInfo } from '../../common/contract-info';
 import BigNumber from 'bignumber.js';
+import { unique } from '../../utils/array';
 
 export const MIN_BRIDGE_AMOUNT = BigNumber(0.000001);
 
@@ -15,7 +16,7 @@ export enum BridgeType {
   OFT = 'OFT',
 }
 
-const BRIDGE_EXPLORER_URL_MAP = {
+export const BRIDGE_EXPLORER_URL_MAP = {
   [BridgeType.CCIP]: 'https://ccip.chain.link/tx/{txHash}',
   [BridgeType.OFT]: 'https://layerzeroscan.com/tx/{txHash}',
 };
@@ -43,6 +44,12 @@ export const OFT_BRIDGE_CHAINS = [
   ChainId.berachainBartioTestnet,
   ChainId.sepolia,
 ];
+
+export const BRIDGE_CHAINS = unique([
+  ...CCIP_BRIDGE_CHAINS,
+  ...OFT_BRIDGE_CHAINS,
+]);
+export type BridgeChain = CCIPBridgeChain | OFTBridgeChain;
 
 export const OFT_GAS_LIMIT = 90_000;
 export const OFT_HI_GAS_LIMIT = 200_000;
@@ -320,15 +327,12 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
   ],
 ];
 
-export const BRIDGES = new Map<
-  BridgeIdentifier<CCIPBridgeChain | OFTBridgeChain>,
-  BridgeInfo
->([...CCIP_BRIDGES, ...OFT_BRIDGES]);
+export const BRIDGES = new Map<BridgeIdentifier<BridgeChain>, BridgeInfo>([
+  ...CCIP_BRIDGES,
+  ...OFT_BRIDGES,
+]);
 
 /** Gets the bridge information */
-export const getBridgeInfo = (
-  from: CCIPBridgeChain | OFTBridgeChain,
-  to: CCIPBridgeChain | OFTBridgeChain,
-) => {
+export const getBridgeInfo = (from: BridgeChain, to: BridgeChain) => {
   return BRIDGES.get(bridgeIdentifier([from, to]));
 };

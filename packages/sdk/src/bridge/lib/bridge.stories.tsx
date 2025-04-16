@@ -13,11 +13,11 @@ import {
 } from '../../stories/components/decorators';
 import { ErrorBlock } from '../../stories/components/error-block';
 import { ChainId } from '../../common/chains';
-import { OFT_BRIDGE_CHAINS } from './config';
-import { bridgeOFT, BridgeOFTParameters } from './oft-bridge';
+import { BRIDGE_CHAINS, OFT_BRIDGE_CHAINS } from './config';
+import { bridge, BridgeParameters } from './bridge';
 
 const meta = {
-  title: 'bridge/bridgeOFT',
+  title: 'bridge/bridge',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
@@ -37,7 +37,7 @@ export const WithParams: Story = {
   argTypes: {
     to: {
       mapping: ChainId,
-      options: OFT_BRIDGE_CHAINS.map(
+      options: BRIDGE_CHAINS.map(
         ch => Object.entries(ChainId).find(([k, v]) => v === ch)?.[0],
       ),
       control: { type: 'select' },
@@ -45,7 +45,7 @@ export const WithParams: Story = {
   },
 };
 
-type Props = Omit<BridgeOFTParameters, 'account' | 'chainId' | 'provider'>;
+type Props = Omit<BridgeParameters, 'account' | 'chainId' | 'provider'>;
 
 export function StoryView(props: Props) {
   const connection = useConnection();
@@ -55,7 +55,7 @@ export function StoryView(props: Props) {
       return;
     }
 
-    return bridgeOFT({
+    return bridge({
       ...props,
 
       account: connection.account.address,
@@ -78,7 +78,7 @@ export function StoryView(props: Props) {
         onClick={refetch}
         disabled={isLoading || !canPerformAction(connection)}
         isLoading={isLoading}
-        actionName={bridgeOFT.name}
+        actionName={bridge.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

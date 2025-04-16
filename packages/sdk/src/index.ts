@@ -46,3 +46,14 @@ export * from './tokens/lbtc-addresses';
 // Re-exports:
 export type { Address, EIP1193Provider } from 'viem';
 export { Env } from '@lombard.finance/sdk-common';
+
+// Bridge:
+export {
+  getBridgeInfo,
+  bridge,
+  bridgeCCIP,
+  bridgeOFT,
+  type BridgeParameters,
+  type BridgeCCIPParameters,
+  type BridgeOFTParameters,
+} from './bridge';

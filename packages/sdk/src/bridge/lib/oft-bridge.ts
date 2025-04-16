@@ -6,6 +6,8 @@ import {
   MIN_BRIDGE_AMOUNT,
   OFT_BRIDGE_CHAINS,
   OFT_GAS_LIMIT,
+  OFT_HI_GAS_LIMIT,
+  OFT_HI_GAS_LIMIT_CHAINS,
   OFTBridgeChain,
 } from './config';
 import { makePublicClient } from '../../clients/public-client';
@@ -149,7 +151,9 @@ export async function bridgeOFT({
   }
 
   const extraOptions = Options.newOptions().addExecutorLzReceiveOption(
-    OFT_GAS_LIMIT,
+    (OFT_HI_GAS_LIMIT_CHAINS as number[]).includes(to)
+      ? OFT_HI_GAS_LIMIT
+      : OFT_GAS_LIMIT,
     0,
   );
 
@@ -203,4 +207,5 @@ export async function bridgeOFT({
   });
 
   const txHash = await walletClient.writeContract(request);
+  return txHash;
 }

@@ -17,7 +17,7 @@ import { ChainId } from '../../common/chains';
 import { CCIP_BRIDGE_CHAINS } from './config';
 
 const meta = {
-  title: 'bridge/ccip-bridge',
+  title: 'bridge/bridgeCCIP',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
@@ -46,12 +46,9 @@ export const WithParams: Story = {
   },
 };
 
-type SignNetworkFeeProps = Omit<
-  BridgeCCIPParameters,
-  'account' | 'chainId' | 'provider'
->;
+type Props = Omit<BridgeCCIPParameters, 'account' | 'chainId' | 'provider'>;
 
-export function StoryView(props: SignNetworkFeeProps) {
+export function StoryView(props: Props) {
   const connection = useConnection();
 
   const request = async () => {
@@ -80,7 +77,7 @@ export function StoryView(props: SignNetworkFeeProps) {
 
       <Button
         onClick={refetch}
-        disabled={isLoading || !connection.account.address}
+        disabled={isLoading || !canPerformAction(connection)}
         isLoading={isLoading}
         actionName={bridgeCCIP.name}
       />
