@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@lombard.finance/sdk-common": "^3.0.0",
-    "@lombard.finance/sdk": "file:../../packages/sdk",
+    "@lombard.finance/sdk": "^3.1.0",
     "@mysten/sui": "^1.21.1"
   },
   "devDependencies": {
