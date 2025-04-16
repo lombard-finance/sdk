@@ -1,7 +1,7 @@
 import { SuiChain, SuiSignTransactionFeature } from '@mysten/wallet-standard';
 import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
-import { defaultEnv, Env, getOutputScript } from '@lombard.finance/sdk-common';
+import { DEFAULT_ENV, Env, getOutputScript } from '@lombard.finance/sdk-common';
 import type { SuiTransactionBlockResponse } from '@mysten/sui/client';
 import { SuiClient } from '@mysten/sui/client';
 import BigNumber from 'bignumber.js';
@@ -28,7 +28,7 @@ export async function unstakeLBTC({
   client,
   btcAddress,
   amount,
-  env = defaultEnv,
+  env = DEFAULT_ENV,
 }: IUnstakeLBTCParams): Promise<SuiTransactionBlockResponse> {
   const config = getConfig(env);
 
