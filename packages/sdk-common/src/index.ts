@@ -1,3 +1,2 @@
-export * from './types/env';
-export * from './const/defaultEnv';
-export * from './btcSdk/utils/getOutputScript';
+export * from './env';
+export * from './utils/get-output-script';

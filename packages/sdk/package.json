@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "2.5.2",
+  "version": "3.1.0",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -29,11 +29,11 @@
   "peerDependencies": {
     "axios": "^1",
     "bignumber.js": "^9",
-    "web3": "^4",
     "bitcoinjs-lib": "6.1.5"
   },
   "dependencies": {
-    "@lombard.finance/sdk-common": "^1.0.0"
+    "@lombard.finance/sdk-common": "^3.0.0",
+    "viem": "^2.23.15"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "1.6.1",
@@ -45,6 +45,7 @@
     "@storybook/react": "^8.2.9",
     "@storybook/react-vite": "^8.2.9",
     "@storybook/test": "^8.2.9",
+    "@tanstack/react-query": "^5.71.1",
     "axios": "^1.7.4",
     "bignumber.js": "^9.1.2",
     "bootstrap": "^5.3.3",
@@ -52,7 +53,6 @@
     "storybook": "^8.2.9",
     "typedoc": "^0.26.6",
     "typescript": "^5.4.5",
-    "web3": "^4.11.1",
-    "web3-validator": "^2.0.6"
+    "wagmi": "^2.14.15"
   }
 }

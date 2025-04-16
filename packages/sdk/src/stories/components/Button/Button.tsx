@@ -1,9 +1,11 @@
 import React from 'react';
 import { Spinner } from '../Spinner';
+import './Button.css';
 
 export interface ButtonProps {
   disabled?: boolean;
   children?: React.ReactNode;
+  actionName?: string;
   primary?: boolean;
   size?: 'small' | 'medium' | 'large';
   isLoading?: boolean;
@@ -11,15 +13,24 @@ export interface ButtonProps {
 }
 
 /**
- * Primary UI component for user interaction
+ * Execute action button
  */
 export const Button = ({
   primary = true,
   size = 'medium',
+  actionName,
   children,
   isLoading,
   ...props
 }: ButtonProps) => {
+  const label = actionName ? (
+    <span>
+      Execute: <span style={{ fontFamily: 'monospace' }}>{actionName}</span>
+    </span>
+  ) : (
+    children
+  );
+
   return (
     <button
       type="button"
@@ -27,13 +38,13 @@ export const Button = ({
         'btn',
         size === 'small' ? 'btn-sm' : '',
         size === 'large' ? 'btn-lg' : '',
-        primary ? 'btn-primary' : 'btn-secondary',
+        'story-btn',
       ].join(' ')}
       {...props}
     >
-      {children}
+      {label}
 
-      {isLoading && <Spinner color="text-light" className="ms-2" />}
+      {isLoading && <Spinner color="text-primary" className="ms-2" />}
     </button>
   );
 };

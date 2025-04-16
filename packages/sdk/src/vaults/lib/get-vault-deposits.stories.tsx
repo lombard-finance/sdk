@@ -2,19 +2,24 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import useQuery from '../../stories/hooks/useQuery';
+import {
+  functionType,
+  wagmiDecorator,
+} from '../../stories/components/decorators';
 import { Vault } from '..';
+import { ErrorBlock } from '../../stories/components/error-block';
 import {
   getVaultDeposits,
   GetVaultDepositsParameters,
 } from './get-vault-deposits';
-import { exampleEvmAddress } from '../../stories/const';
-import { OChainId } from '../../common/types/types';
+import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
+import { ChainId } from '../../common/chains';
 
 const meta = {
   title: 'vault/getVaultDeposits',
   component: StoryView,
   tags: ['autodocs'],
-  
+  decorators: [wagmiDecorator, functionType('api-get')],
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -23,8 +28,8 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    account: exampleEvmAddress,
-    chainId: OChainId.ethereum,
+    account: EXAMPLE_EVM_ADDRESS,
+    chainId: ChainId.ethereum,
     vaultKey: Vault.Veda,
   },
 };
@@ -48,11 +53,12 @@ export function StoryView(props: SignNetworkFeeProps) {
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-      >
-        {getVaultDeposits.name}
-      </Button>
+        actionName={getVaultDeposits.name}
+      />
 
-      <CodeBlock text={error || data} />
+      <ErrorBlock>{error}</ErrorBlock>
+
+      <CodeBlock text={data} />
     </>
   );
 }

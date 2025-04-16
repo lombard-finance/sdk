@@ -1,7 +1,7 @@
-type Hex = `0x${string}`;
+import { Hex } from 'viem';
 
 export function isHex(input: string): input is Hex {
-  return input.startsWith("0x");
+  return input.startsWith('0x');
 }
 
 export function ensureHex(input: string): Hex {

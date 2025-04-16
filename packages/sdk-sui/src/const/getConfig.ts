@@ -1,4 +1,4 @@
-import { defaultEnv, Env } from '@lombard.finance/sdk-common';
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 
 interface IConfig {
   mint: {
@@ -89,7 +89,7 @@ const prodConfig: IConfig = {
   bascule: '0x138938cb496cf0900be970dde1407d86497b8c69182cb5aa22dc4767c92bedcc',
 } as const;
 
-export function getConfig(env: Env = defaultEnv): typeof prodConfig {
+export function getConfig(env: Env = DEFAULT_ENV): typeof prodConfig {
   switch (env) {
     case Env.prod:
       return prodConfig;

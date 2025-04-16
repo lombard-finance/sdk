@@ -1,0 +1,55 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import { ChainId } from '../../common/chains';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
+import useQuery from '../../stories/hooks/useQuery';
+import {
+  getDepositBtcAddresses,
+  IGetDepositBtcAddressesParameters,
+} from './getDepositBtcAddress';
+import { functionType } from '../../stories/components/decorators';
+
+const meta = {
+  title: 'api/getDepositBtcAddresses',
+  component: StoryView,
+  tags: ['autodocs'],
+  decorators: [functionType('api-get')],
+} satisfies Meta<typeof StoryView>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const WithParams: Story = {
+  args: {
+    address: EXAMPLE_EVM_ADDRESS,
+    chainId: ChainId.ethereum,
+    env: DEFAULT_ENV,
+    limit: 1,
+    offset: 0,
+    partnerId: 'lombard',
+  },
+};
+
+export function StoryView(props: IGetDepositBtcAddressesParameters) {
+  const { data, error, isLoading, refetch } = useQuery(
+    () => getDepositBtcAddresses(props),
+    [props],
+    false,
+  );
+
+  return (
+    <>
+      <Button
+        onClick={refetch}
+        disabled={isLoading}
+        isLoading={isLoading}
+        actionName={getDepositBtcAddresses.name}
+      />
+
+      <CodeBlock text={error || data} />
+    </>
+  );
+}
