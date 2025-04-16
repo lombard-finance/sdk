@@ -93,11 +93,12 @@ The SDK depends on the following packages:
 * bignumber.js@9
 * bitcoinjs-lib@6.1.5
 * @bitcoin-js/tiny-secp256k1-asmjs@2.2.3
+* @layerzerolabs/lz-v2-utilities@3.0.17
 
 You may install them by running the following command:
 
 ```bash
-npm i --save viem@^2.23.15 axios@^1 bignumber.js@^9 @bitcoin-js/tiny-secp256k1-asmjs@2.2.3 bitcoinjs-lib@6.1.5
+npm i --save viem@^2.23.15 axios@^1 bignumber.js@^9 @bitcoin-js/tiny-secp256k1-asmjs@2.2.3 bitcoinjs-lib@6.1.5 @layerzerolabs/lz-v2-utilities@3.0.17
 ```
 
 ### 2. SDK installation
