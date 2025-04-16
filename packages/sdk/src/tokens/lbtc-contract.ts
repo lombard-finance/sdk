@@ -85,5 +85,10 @@ export function getLBTCContractInfo(chainId: ChainId, env?: Env) {
       `Could not determine the LBTC contract address for given chain id: ${chainId} (env: ${env})`,
     );
   }
-  return { abi: LBTC_ABI, address: contractAddress };
+  return {
+    abi: LBTC_ABI,
+    address: contractAddress,
+    symbol: 'LBTC',
+    decimals: 8,
+  };
 }

@@ -6,13 +6,8 @@ import VEDA_VAULT_BASE_ASSET_ABI from './abi/VEDA_VAULT_BASE_ASSET_ABI.json';
 import VEDA_VAULT_SPENDER_ABI from './abi/VEDA_VAULT_SPENDER_ABI.json';
 import VEDA_VAULT_TELLER_ABI from './abi/VEDA_VAULT_TELLER_ABI.json';
 import VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI from './abi/VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI.json';
-import { Abi, Address } from 'viem';
-
-type ContractInfo = {
-  abi: Abi;
-  address: Address;
-  chainId: ChainId;
-};
+import { Abi } from 'viem';
+import { ContractInfo } from '../common/contract-info';
 
 export const VEDA_VAULT_CHAINS = [
   ChainId.ethereum,
