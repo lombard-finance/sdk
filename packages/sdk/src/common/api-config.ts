@@ -1,5 +1,4 @@
-import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { Env } from '@lombard.finance/sdk-common';
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 
 interface IApiConfig {
   baseApiUrl: string;

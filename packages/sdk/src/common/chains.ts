@@ -28,6 +28,15 @@ export type SuiChain =
   | typeof SUI_LOCALNET_CHAIN
   | typeof SUI_MAINNET_CHAIN;
 
+export const SOLANA_MAINNET_CHAIN = 'solana:mainnet-beta' as const;
+export const SOLANA_TESTNET_CHAIN = 'solana:testnet' as const;
+export const SOLANA_DEVNET_CHAIN = 'solana:devnet' as const;
+
+export type SolanaChain =
+  | typeof SOLANA_MAINNET_CHAIN
+  | typeof SOLANA_TESTNET_CHAIN
+  | typeof SOLANA_DEVNET_CHAIN;
+
 export const ChainId = {
   ethereum: 1,
   base: 8453,

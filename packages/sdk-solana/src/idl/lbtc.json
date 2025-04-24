@@ -1,0 +1,3403 @@
+{
+  "address": null,
+  "metadata": {
+    "name": "lbtc",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "accept_ownership",
+      "discriminator": [
+        172,
+        23,
+        43,
+        13,
+        238,
+        213,
+        85,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "add_claimer",
+      "discriminator": [
+        33,
+        50,
+        122,
+        167,
+        214,
+        239,
+        123,
+        116
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "claimer",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "add_pauser",
+      "discriminator": [
+        164,
+        101,
+        59,
+        65,
+        139,
+        178,
+        135,
+        187
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "pauser",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "change_mint_auth",
+      "discriminator": [
+        98,
+        59,
+        17,
+        150,
+        173,
+        118,
+        36,
+        101
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "current_auth",
+          "docs": [
+            "current authority is passed the function call will fail."
+          ]
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "token_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_auth",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "create_metadata",
+      "discriminator": [
+        30,
+        35,
+        117,
+        134,
+        196,
+        139,
+        44,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "metadata_program"
+        },
+        {
+          "name": "metadata_pda",
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "mint_authority",
+          "docs": [
+            "instruction will fail."
+          ]
+        },
+        {
+          "name": "token_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "sysvar_instructions"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_metadata_for_valset_payload",
+      "discriminator": [
+        189,
+        101,
+        231,
+        21,
+        186,
+        160,
+        249,
+        252
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "metadata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "hash"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_mint_payload",
+      "discriminator": [
+        205,
+        40,
+        45,
+        244,
+        160,
+        237,
+        72,
+        219
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payload",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "mint_payload_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint_payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "mint_payload",
+          "type": {
+            "array": [
+              "u8",
+              164
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_valset_payload",
+      "discriminator": [
+        231,
+        207,
+        246,
+        127,
+        211,
+        38,
+        71,
+        1
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "metadata",
+          "writable": true
+        },
+        {
+          "name": "payload",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "epoch",
+          "type": "u64"
+        },
+        {
+          "name": "weight_threshold",
+          "type": "u64"
+        },
+        {
+          "name": "height",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "disable_bascule",
+      "discriminator": [
+        57,
+        164,
+        60,
+        76,
+        249,
+        175,
+        240,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "disable_withdrawals",
+      "discriminator": [
+        150,
+        136,
+        206,
+        120,
+        173,
+        230,
+        137,
+        209
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "enable_bascule",
+      "discriminator": [
+        42,
+        184,
+        103,
+        55,
+        45,
+        231,
+        145,
+        180
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "enable_withdrawals",
+      "discriminator": [
+        97,
+        146,
+        76,
+        161,
+        177,
+        54,
+        109,
+        83
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "deployer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  5,
+                  18,
+                  233,
+                  181,
+                  134,
+                  159,
+                  8,
+                  194,
+                  99,
+                  45,
+                  239,
+                  95,
+                  15,
+                  59,
+                  4,
+                  50,
+                  169,
+                  234,
+                  230,
+                  162,
+                  95,
+                  98,
+                  2,
+                  56,
+                  42,
+                  26,
+                  72,
+                  208,
+                  172,
+                  11,
+                  245,
+                  81
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                2,
+                168,
+                246,
+                145,
+                78,
+                136,
+                161,
+                176,
+                226,
+                16,
+                21,
+                62,
+                247,
+                99,
+                174,
+                43,
+                0,
+                194,
+                185,
+                61,
+                22,
+                193,
+                36,
+                210,
+                192,
+                83,
+                122,
+                16,
+                4,
+                128,
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "treasury"
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "admin",
+          "type": "pubkey"
+        },
+        {
+          "name": "burn_commission",
+          "type": "u64"
+        },
+        {
+          "name": "dust_fee_rate",
+          "type": "u64"
+        },
+        {
+          "name": "mint_fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "mint_from_payload",
+      "discriminator": [
+        78,
+        44,
+        95,
+        232,
+        161,
+        7,
+        56,
+        178
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "mint_authority",
+          "docs": [
+            "instruction will fail."
+          ]
+        },
+        {
+          "name": "token_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payload",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "mint_payload_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bascule",
+          "optional": true,
+          "address": "E1p8P6TTe8QvKmSK7QZ3n7HtQY9hE1p9JrCwLrXnPUfn"
+        },
+        {
+          "name": "bascule_data",
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                193,
+                93,
+                55,
+                141,
+                121,
+                57,
+                63,
+                222,
+                176,
+                201,
+                79,
+                221,
+                101,
+                49,
+                120,
+                87,
+                228,
+                105,
+                19,
+                90,
+                252,
+                72,
+                35,
+                96,
+                106,
+                143,
+                169,
+                173,
+                71,
+                172,
+                57,
+                85
+              ]
+            }
+          }
+        },
+        {
+          "name": "deposit",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "system_program",
+          "optional": true,
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint_payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "mint_with_fee",
+      "discriminator": [
+        142,
+        93,
+        70,
+        12,
+        187,
+        19,
+        19,
+        154
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "recipient_auth"
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "mint_authority",
+          "docs": [
+            "instruction will fail."
+          ]
+        },
+        {
+          "name": "token_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "payload",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "mint_payload_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bascule",
+          "optional": true,
+          "address": "E1p8P6TTe8QvKmSK7QZ3n7HtQY9hE1p9JrCwLrXnPUfn"
+        },
+        {
+          "name": "bascule_data",
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                193,
+                93,
+                55,
+                141,
+                121,
+                57,
+                63,
+                222,
+                176,
+                201,
+                79,
+                221,
+                101,
+                49,
+                120,
+                87,
+                228,
+                105,
+                19,
+                90,
+                252,
+                72,
+                35,
+                96,
+                106,
+                143,
+                169,
+                173,
+                71,
+                172,
+                57,
+                85
+              ]
+            }
+          }
+        },
+        {
+          "name": "deposit",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "system_program",
+          "optional": true,
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint_payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "fee_payload",
+          "type": {
+            "array": [
+              "u8",
+              132
+            ]
+          }
+        },
+        {
+          "name": "fee_signature",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "pause",
+      "discriminator": [
+        211,
+        22,
+        221,
+        251,
+        74,
+        121,
+        193,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "post_metadata_for_valset_payload",
+      "discriminator": [
+        200,
+        60,
+        18,
+        229,
+        92,
+        163,
+        148,
+        119
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "metadata",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "validators",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        },
+        {
+          "name": "weights",
+          "type": {
+            "vec": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "post_mint_signatures",
+      "discriminator": [
+        224,
+        223,
+        208,
+        229,
+        215,
+        98,
+        206,
+        244
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payload",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "mint_payload_hash"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "mint_payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "signatures",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        },
+        {
+          "name": "indices",
+          "type": {
+            "vec": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "post_valset_signatures",
+      "discriminator": [
+        227,
+        35,
+        134,
+        32,
+        134,
+        86,
+        93,
+        76
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payload",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "signatures",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        },
+        {
+          "name": "indices",
+          "type": {
+            "vec": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "redeem",
+      "discriminator": [
+        184,
+        12,
+        86,
+        149,
+        70,
+        196,
+        97,
+        225
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "holder",
+          "writable": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "unstake_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "config.unstake_counter",
+                "account": "Config"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "script_pubkey",
+          "type": "bytes"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "remove_claimer",
+      "discriminator": [
+        152,
+        9,
+        18,
+        115,
+        56,
+        228,
+        139,
+        144
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "claimer",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "remove_pauser",
+      "discriminator": [
+        251,
+        114,
+        202,
+        18,
+        216,
+        118,
+        176,
+        86
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "pauser",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_burn_commission",
+      "discriminator": [
+        222,
+        166,
+        1,
+        25,
+        113,
+        177,
+        18,
+        103
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "commission",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "set_dust_fee_rate",
+      "discriminator": [
+        85,
+        132,
+        15,
+        39,
+        176,
+        199,
+        66,
+        119
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "rate",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "set_initial_valset",
+      "discriminator": [
+        171,
+        69,
+        132,
+        141,
+        206,
+        84,
+        175,
+        115
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "metadata",
+          "writable": true
+        },
+        {
+          "name": "payload",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "set_mint_fee",
+      "discriminator": [
+        52,
+        77,
+        178,
+        201,
+        245,
+        51,
+        250,
+        139
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "mint_fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "set_next_valset",
+      "discriminator": [
+        254,
+        186,
+        52,
+        223,
+        48,
+        163,
+        138,
+        51
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "metadata",
+          "writable": true
+        },
+        {
+          "name": "payload",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "set_operator",
+      "discriminator": [
+        238,
+        153,
+        101,
+        169,
+        243,
+        131,
+        36,
+        1
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "operator",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_treasury",
+      "discriminator": [
+        57,
+        97,
+        196,
+        95,
+        195,
+        206,
+        106,
+        136
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_ownership",
+      "discriminator": [
+        65,
+        177,
+        215,
+        73,
+        53,
+        45,
+        99,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unpause",
+      "discriminator": [
+        169,
+        144,
+        4,
+        38,
+        10,
+        141,
+        188,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  98,
+                  116,
+                  99,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BasculeData",
+      "discriminator": [
+        43,
+        219,
+        194,
+        55,
+        0,
+        135,
+        158,
+        67
+      ]
+    },
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "Metadata",
+      "discriminator": [
+        72,
+        11,
+        121,
+        26,
+        111,
+        181,
+        85,
+        93
+      ]
+    },
+    {
+      "name": "MintPayload",
+      "discriminator": [
+        182,
+        176,
+        206,
+        189,
+        220,
+        224,
+        214,
+        49
+      ]
+    },
+    {
+      "name": "UnstakeInfo",
+      "discriminator": [
+        35,
+        204,
+        218,
+        156,
+        35,
+        179,
+        155,
+        198
+      ]
+    },
+    {
+      "name": "ValsetPayload",
+      "discriminator": [
+        109,
+        13,
+        39,
+        81,
+        55,
+        143,
+        90,
+        72
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BasculeEnabled",
+      "discriminator": [
+        84,
+        223,
+        73,
+        187,
+        19,
+        208,
+        205,
+        93
+      ]
+    },
+    {
+      "name": "BurnCommissionSet",
+      "discriminator": [
+        18,
+        131,
+        170,
+        12,
+        202,
+        225,
+        50,
+        38
+      ]
+    },
+    {
+      "name": "ClaimerAdded",
+      "discriminator": [
+        150,
+        253,
+        36,
+        31,
+        52,
+        150,
+        16,
+        21
+      ]
+    },
+    {
+      "name": "ClaimerRemoved",
+      "discriminator": [
+        141,
+        26,
+        147,
+        25,
+        89,
+        23,
+        74,
+        210
+      ]
+    },
+    {
+      "name": "DustFeeRateSet",
+      "discriminator": [
+        156,
+        255,
+        129,
+        11,
+        222,
+        55,
+        84,
+        248
+      ]
+    },
+    {
+      "name": "MintAuthorityUpdated",
+      "discriminator": [
+        251,
+        56,
+        50,
+        229,
+        68,
+        227,
+        225,
+        225
+      ]
+    },
+    {
+      "name": "MintFeeSet",
+      "discriminator": [
+        19,
+        160,
+        65,
+        66,
+        12,
+        237,
+        135,
+        42
+      ]
+    },
+    {
+      "name": "MintPayloadPosted",
+      "discriminator": [
+        252,
+        192,
+        166,
+        176,
+        58,
+        104,
+        196,
+        152
+      ]
+    },
+    {
+      "name": "MintProofConsumed",
+      "discriminator": [
+        39,
+        6,
+        40,
+        221,
+        150,
+        118,
+        32,
+        59
+      ]
+    },
+    {
+      "name": "OperatorSet",
+      "discriminator": [
+        187,
+        242,
+        164,
+        221,
+        208,
+        246,
+        180,
+        178
+      ]
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "discriminator": [
+        181,
+        32,
+        40,
+        60,
+        60,
+        64,
+        235,
+        29
+      ]
+    },
+    {
+      "name": "OwnershipTransferred",
+      "discriminator": [
+        172,
+        61,
+        205,
+        183,
+        250,
+        50,
+        38,
+        98
+      ]
+    },
+    {
+      "name": "PauseEnabled",
+      "discriminator": [
+        4,
+        110,
+        17,
+        57,
+        220,
+        234,
+        137,
+        77
+      ]
+    },
+    {
+      "name": "PauserAdded",
+      "discriminator": [
+        231,
+        206,
+        109,
+        54,
+        239,
+        205,
+        234,
+        248
+      ]
+    },
+    {
+      "name": "PauserRemoved",
+      "discriminator": [
+        224,
+        157,
+        132,
+        185,
+        123,
+        96,
+        72,
+        220
+      ]
+    },
+    {
+      "name": "SignaturesAdded",
+      "discriminator": [
+        100,
+        152,
+        145,
+        89,
+        36,
+        109,
+        28,
+        103
+      ]
+    },
+    {
+      "name": "TreasuryChanged",
+      "discriminator": [
+        252,
+        2,
+        55,
+        56,
+        106,
+        205,
+        227,
+        47
+      ]
+    },
+    {
+      "name": "UnstakeRequest",
+      "discriminator": [
+        68,
+        183,
+        44,
+        101,
+        202,
+        120,
+        161,
+        227
+      ]
+    },
+    {
+      "name": "ValidatorSetUpdated",
+      "discriminator": [
+        234,
+        43,
+        30,
+        48,
+        204,
+        242,
+        119,
+        118
+      ]
+    },
+    {
+      "name": "ValsetMetadataCreated",
+      "discriminator": [
+        180,
+        48,
+        84,
+        47,
+        191,
+        69,
+        1,
+        228
+      ]
+    },
+    {
+      "name": "ValsetMetadataPosted",
+      "discriminator": [
+        128,
+        155,
+        30,
+        200,
+        28,
+        163,
+        50,
+        72
+      ]
+    },
+    {
+      "name": "ValsetPayloadCreated",
+      "discriminator": [
+        129,
+        29,
+        121,
+        180,
+        138,
+        90,
+        247,
+        6
+      ]
+    },
+    {
+      "name": "WithdrawalsEnabled",
+      "discriminator": [
+        248,
+        142,
+        36,
+        143,
+        24,
+        105,
+        24,
+        86
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized function call"
+    },
+    {
+      "code": 6001,
+      "name": "RecipientMismatch",
+      "msg": "Mismatch between mint payload and passed account"
+    },
+    {
+      "code": 6002,
+      "name": "MintPayloadUsed",
+      "msg": "Mint payload already used"
+    },
+    {
+      "code": 6003,
+      "name": "MintPayloadHashMismatch",
+      "msg": "Passed mint payload hash does not match computed hash"
+    },
+    {
+      "code": 6004,
+      "name": "ValsetPayloadHashMismatch",
+      "msg": "Passed valset payload hash does not match computed hash"
+    },
+    {
+      "code": 6005,
+      "name": "WithdrawalsDisabled",
+      "msg": "Withdrawals are disabled"
+    },
+    {
+      "code": 6006,
+      "name": "FeeGTEAmount",
+      "msg": "Fee is greater than or equal to amount"
+    },
+    {
+      "code": 6007,
+      "name": "FeeApprovalExpired",
+      "msg": "Fee approval expired"
+    },
+    {
+      "code": 6008,
+      "name": "UnsupportedRedeemAddress",
+      "msg": "Script pubkey is unsupported"
+    },
+    {
+      "code": 6009,
+      "name": "AmountBelowDustLimit",
+      "msg": "Redeemed amount is below the BTC dust limit"
+    },
+    {
+      "code": 6010,
+      "name": "NotEnoughSignatures",
+      "msg": "Not enough valid signatures"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidFeeSignature",
+      "msg": "Fee signature invalid"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidActionBytes",
+      "msg": "Invalid action bytes"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidChainID",
+      "msg": "Invalid chain ID"
+    },
+    {
+      "code": 6014,
+      "name": "U64TooLarge",
+      "msg": "Attempted to decode a u64, but leftover too large"
+    },
+    {
+      "code": 6015,
+      "name": "U32TooLarge",
+      "msg": "Attempted to decode a u32, but leftover too large"
+    },
+    {
+      "code": 6016,
+      "name": "CouldNotConvertToU64",
+      "msg": "Could not convert amount bytes to u64"
+    },
+    {
+      "code": 6017,
+      "name": "CouldNotConvertToU32",
+      "msg": "Could not convert vout bytes to u32"
+    },
+    {
+      "code": 6018,
+      "name": "LeftoverData",
+      "msg": "Leftover data in payload"
+    },
+    {
+      "code": 6019,
+      "name": "ValidatorSetAlreadySet",
+      "msg": "Validator set already set"
+    },
+    {
+      "code": 6020,
+      "name": "InvalidEpoch",
+      "msg": "Invalid epoch"
+    },
+    {
+      "code": 6021,
+      "name": "NoValidatorSet",
+      "msg": "No validator set exists"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidValidatorSetSize",
+      "msg": "Invalid validator set size"
+    },
+    {
+      "code": 6023,
+      "name": "InvalidWeightThreshold",
+      "msg": "Invalid weight threshold"
+    },
+    {
+      "code": 6024,
+      "name": "ValidatorsAndWeightsMismatch",
+      "msg": "Mismatch between validators length and weights length"
+    },
+    {
+      "code": 6025,
+      "name": "ZeroWeight",
+      "msg": "Weight for validator is zero"
+    },
+    {
+      "code": 6026,
+      "name": "WeightsBelowThreshold",
+      "msg": "Sum of weights is below the threshold"
+    },
+    {
+      "code": 6027,
+      "name": "Paused",
+      "msg": "LBTC contract is paused"
+    },
+    {
+      "code": 6028,
+      "name": "NotPaused",
+      "msg": "LBTC contract is not paused"
+    },
+    {
+      "code": 6029,
+      "name": "InvalidVerifyingcontract",
+      "msg": "Invalid verifying contract"
+    },
+    {
+      "code": 6030,
+      "name": "SignaturesIndicesMismatch",
+      "msg": "Mismatch between signatures and indices length"
+    },
+    {
+      "code": 6031,
+      "name": "FeeTooHigh",
+      "msg": "Selected fee is too high"
+    },
+    {
+      "code": 6032,
+      "name": "ClaimerExists",
+      "msg": "Claimer already exists"
+    },
+    {
+      "code": 6033,
+      "name": "PauserExists",
+      "msg": "Pauser already exists"
+    },
+    {
+      "code": 6034,
+      "name": "ClaimerNotFound",
+      "msg": "Claimer not found"
+    },
+    {
+      "code": 6035,
+      "name": "PauserNotFound",
+      "msg": "Pauser not found"
+    }
+  ],
+  "types": [
+    {
+      "name": "BasculeData",
+      "docs": [
+        "The bascule program state"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The account that has the \"admin\" capability.",
+              "",
+              "This account can grant other capabilities and update most of the properties of this data account.",
+              "Whoever calls the \"Initialize\" instruction becomes the admin; afterwards, the admin cannot be changed."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "docs": [
+              "The pending admin (which needs to explicitly accept before becoming the new admin)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "pauser",
+            "docs": [
+              "The account that has the \"pauser\" capability.",
+              "This account is allowed to pause and unpause the program.",
+              "Defaults to the program admin, but can be changed later."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "deposit_reporter",
+            "docs": [
+              "The account that is allowed to report deposits.",
+              "Must be explicitly set in a subsequent instruction."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "withdrawal_validators",
+            "docs": [
+              "The accounts that are allowed to validate withdrawals.",
+              "INVARIANT:",
+              "- this vector contains no duplicates"
+            ],
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "is_paused",
+            "docs": [
+              "Whether the program paused"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "validate_threshold",
+            "docs": [
+              "Bascule validates all withdrawals whose amounts are greater than or equal",
+              "to this threshold. The bascule allows all withdrawals below this threshold.",
+              "The program will still produce events that off-chain code can use to",
+              "monitor smaller withdrawals.",
+              "",
+              "When the threshold is zero (the default), the bascule validates all withdrawals."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Canonical bump for the program-derived address, set upon creation"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BasculeEnabled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "enabled",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BurnCommissionSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "burn_commission",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ClaimerAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "claimer",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ClaimerRemoved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "claimer",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "operator",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "claimers",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "pausers",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "burn_commission",
+            "type": "u64"
+          },
+          {
+            "name": "withdrawals_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "dust_fee_rate",
+            "type": "u64"
+          },
+          {
+            "name": "bascule_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "mint_fee",
+            "type": "u64"
+          },
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "validators",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  64
+                ]
+              }
+            }
+          },
+          {
+            "name": "weights",
+            "type": {
+              "vec": "u64"
+            }
+          },
+          {
+            "name": "weight_threshold",
+            "type": "u64"
+          },
+          {
+            "name": "unstake_counter",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DustFeeRateSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "rate",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Metadata",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "validators",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  64
+                ]
+              }
+            }
+          },
+          {
+            "name": "weights",
+            "type": {
+              "vec": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintAuthorityUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_auth",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintFeeSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint_fee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "payload",
+            "type": {
+              "array": [
+                "u8",
+                164
+              ]
+            }
+          },
+          {
+            "name": "signed",
+            "type": {
+              "vec": "bool"
+            }
+          },
+          {
+            "name": "weight",
+            "type": "u64"
+          },
+          {
+            "name": "minted",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintPayloadPosted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "payload",
+            "type": {
+              "array": [
+                "u8",
+                164
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintProofConsumed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OperatorSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "operator",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferred",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PauseEnabled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "enabled",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PauserAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PauserRemoved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SignaturesAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "signatures",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  64
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TreasuryChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UnstakeInfo",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "from",
+            "type": "pubkey"
+          },
+          {
+            "name": "script_pubkey",
+            "type": "bytes"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UnstakeRequest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "from",
+            "type": "pubkey"
+          },
+          {
+            "name": "script_pubkey",
+            "type": "bytes"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValidatorSetUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "validators",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  64
+                ]
+              }
+            }
+          },
+          {
+            "name": "weights",
+            "type": {
+              "vec": "u64"
+            }
+          },
+          {
+            "name": "weight_threshold",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValsetMetadataCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValsetMetadataPosted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "validators",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  64
+                ]
+              }
+            }
+          },
+          {
+            "name": "weights",
+            "type": {
+              "vec": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValsetPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "weight_threshold",
+            "type": "u64"
+          },
+          {
+            "name": "signed",
+            "type": {
+              "vec": "bool"
+            }
+          },
+          {
+            "name": "weight",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValsetPayloadCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "weight_threshold",
+            "type": "u64"
+          },
+          {
+            "name": "height",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawalsEnabled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "enabled",
+            "type": "bool"
+          }
+        ]
+      }
+    }
+  ]
+}

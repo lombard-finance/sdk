@@ -1,5 +1,14 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
-import { ChainId, SuiChain } from './chains';
+import {
+  ChainId,
+  SOLANA_DEVNET_CHAIN,
+  SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET_CHAIN,
+  SUI_MAINNET_CHAIN,
+  SUI_TESTNET_CHAIN,
+  SolanaChain,
+  SuiChain,
+} from './chains';
 
 export const BlockchainIdentifier = {
   eth: 'DESTINATION_BLOCKCHAIN_ETHEREUM',
@@ -16,13 +25,16 @@ export const BlockchainIdentifier = {
 
   sonic: 'DESTINATION_BLOCKCHAIN_SONIC',
   sonicOld: 'BLOCKCHAIN_SONIC',
+
+  solana: 'DESTINATION_BLOCKCHAIN_SOLANA',
+  solanaOld: 'BLOCKCHAIN_SOLANA',
 } as const;
 
 export type BlockchainIdentifier =
   (typeof BlockchainIdentifier)[keyof typeof BlockchainIdentifier];
 
 export function getChainNameById(
-  chainId: ChainId | SuiChain,
+  chainId: ChainId | SuiChain | SolanaChain,
 ): BlockchainIdentifier {
   if (
     chainId === ChainId.ethereum ||
@@ -47,8 +59,16 @@ export function getChainNameById(
     return BlockchainIdentifier.sonic;
   }
 
-  if (chainId === 'sui:testnet' || chainId === 'sui:mainnet') {
+  if (chainId === SUI_TESTNET_CHAIN || chainId === SUI_MAINNET_CHAIN) {
     return BlockchainIdentifier.sui;
+  }
+
+  if (
+    chainId === SOLANA_DEVNET_CHAIN ||
+    chainId === SOLANA_TESTNET_CHAIN ||
+    chainId === SOLANA_MAINNET_CHAIN
+  ) {
+    return BlockchainIdentifier.solana;
   }
 
   throw new Error(`Unknown chain ID: ${chainId}`);
@@ -66,10 +86,13 @@ export const getBaseNetworkByEnv = (env: Env) =>
   env === Env.prod ? ChainId.base : ChainId.baseSepoliaTestnet;
 
 export const getSuiNetworkByEnv = (env: Env) =>
-  env === Env.prod ? 'sui:mainnet' : 'sui:testnet';
+  env === Env.prod ? SUI_MAINNET_CHAIN : SUI_TESTNET_CHAIN;
 
 export const getSonicNetworkByEnv = (env: Env) =>
   env === Env.prod ? ChainId.sonic : ChainId.sonicBlazeTestnet;
+
+export const getSolanaNetworkByEnv = (env: Env) =>
+  env === Env.prod ? SOLANA_MAINNET_CHAIN : SOLANA_DEVNET_CHAIN;
 
 /**
  * @param chain the chain ID
@@ -79,7 +102,7 @@ export const getSonicNetworkByEnv = (env: Env) =>
 export function getChainIdByName(
   chain: string,
   env: Env = DEFAULT_ENV,
-): ChainId | SuiChain {
+): ChainId | SuiChain | SolanaChain {
   switch (chain as BlockchainIdentifier) {
     case BlockchainIdentifier.eth:
     case BlockchainIdentifier.ethOld:
@@ -100,6 +123,10 @@ export function getChainIdByName(
     case BlockchainIdentifier.sonic:
     case BlockchainIdentifier.sonicOld:
       return getSonicNetworkByEnv(env);
+
+    case BlockchainIdentifier.solana:
+    case BlockchainIdentifier.solanaOld:
+      return getSolanaNetworkByEnv(env);
 
     default:
       return ChainId.ethereum;

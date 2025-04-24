@@ -12,10 +12,10 @@ export {
 } from './vaults/lib/deposit';
 
 export {
-  queueWithdraw,
-  type QueueWithdrawParameters,
   cancelWithdraw,
+  queueWithdraw,
   type CancelWithdrawParameters,
+  type QueueWithdrawParameters,
 } from './vaults/lib/withdraw';
 
 export {
@@ -40,8 +40,18 @@ export * from './rewards';
 export * from './common/api-config';
 export * from './common/blockchain-identifier';
 export * from './common/chains';
-export * from './utils/satoshi';
+export {
+  SOLANA_DEVNET_CHAIN,
+  SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET_CHAIN,
+} from './common/chains';
+export {
+  SUI_DEVNET_CHAIN,
+  SUI_MAINNET_CHAIN,
+  SUI_TESTNET_CHAIN,
+} from './common/chains';
 export * from './tokens/lbtc-addresses';
+export * from './utils/satoshi';
 
 // Re-exports:
 export type { Address, EIP1193Provider } from 'viem';

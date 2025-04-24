@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { IEnvParam } from '../../common/parameters';
-import { SuiChain, ChainId } from '../../common/chains';
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
   getChainNameById,
 } from '../../common/blockchain-identifier';
+import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import { IEnvParam } from '../../common/parameters';
 
 export interface IDepositAddress {
   /**
@@ -72,7 +72,7 @@ export interface IGetDepositBtcAddressesParameters extends IEnvParam {
   /**
    * The destination chain where the `address` exists and where LBTC will be claimed.
    */
-  chainId: ChainId | SuiChain;
+  chainId: ChainId | SuiChain | SolanaChain;
   /**
    * The maximum number of items to return.
    * @default {number} 1
