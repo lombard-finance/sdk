@@ -28,6 +28,14 @@ export const WithParams: Story = {
     chainId: ChainId.ethereum,
     env: DEFAULT_ENV,
   },
+  argTypes: {
+    chainId: {
+      mapping: ChainId,
+      options: Object.keys(ChainId),
+      description: 'The chain',
+      control: { type: 'select' },
+    },
+  },
 };
 
 type GetUserStakeAndBakeSignatureProps = IGetUserStakeAndBakeSignatureParams;

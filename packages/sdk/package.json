@@ -11,10 +11,7 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "engines": {
     "node": ">= 22.14.0"
   },
@@ -23,6 +20,7 @@
     "build-storybook": "storybook build -o sdk-storybook",
     "build": "yarn types && vite build",
     "lint": "biome lint",
+    "format": "biome format",
     "storybook": "storybook dev -p 6006",
     "types": "tsc --noEmit"
   },

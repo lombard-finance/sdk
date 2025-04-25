@@ -37,6 +37,7 @@ export const NETWORK_TO_VEDA_VAULT_CHAIN_MAP: Record<string, VedaVaultChain> = {
 /** A list of chains where stake and bake is enabled */
 export const VEDA_VAULT_STAKE_AND_BAKE_CHAINS = [
   ChainId.ethereum,
+  ChainId.base,
   ChainId.binanceSmartChain,
   // Testnets:
   ChainId.binanceSmartChainTestnet,
@@ -93,7 +94,11 @@ export const VEDA_VAULT_SPENDER_CONTRACTS: Record<
     address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
     chainId: ChainId.ethereum,
   },
-
+  [ChainId.base]: {
+    abi: VEDA_VAULT_SPENDER_ABI as Abi,
+    address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
+    chainId: ChainId.base,
+  },
   [ChainId.binanceSmartChain]: {
     abi: VEDA_VAULT_SPENDER_ABI as Abi,
     address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
