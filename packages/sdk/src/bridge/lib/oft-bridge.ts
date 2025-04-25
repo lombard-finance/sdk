@@ -23,6 +23,7 @@ import { Address, numberToHex, pad, parseEther, toBytes, toHex } from 'viem';
 import { approveLBTC } from '../../contract-functions';
 import { ChainId } from '../../common/chains';
 import { Options } from '@layerzerolabs/lz-v2-utilities';
+import { Token } from '../../tokens/token-addresses';
 
 const DESTINATION_ENDPOINT_ID_MAP: Record<OFTBridgeChain, number> = {
   // Mainnets:
@@ -74,7 +75,7 @@ export async function bridgeOFT({
 
   const bridgeContract = bridgeInfo.contract;
 
-  const lbtcContract = await getTokenInfo('LBTC', from, env, rpcUrl);
+  const lbtcContract = await getTokenInfo(Token.LBTC, from, env, rpcUrl);
   if (!lbtcContract) {
     throw new Error('Could not retrieve LBTC contract info.');
   }

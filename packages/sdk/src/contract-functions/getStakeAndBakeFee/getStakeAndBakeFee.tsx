@@ -1,6 +1,10 @@
 import { getErrorMessage } from '../../utils/err';
 import { CommonParameters } from '../../common/parameters';
-import { isVedaVaultStakeAndBakeChain, Vault, VAULTS } from '../../vaults';
+import {
+  isVedaVaultStakeAndBakeChain,
+  Vault,
+  VAULTS,
+} from '../../vaults/lib/config';
 import { makePublicClient } from '../../clients/public-client';
 import { getContract } from 'viem';
 import { fromSatoshi } from '../../utils/satoshi';

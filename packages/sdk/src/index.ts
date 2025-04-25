@@ -5,33 +5,7 @@ export * from './api-functions';
 export * from './contract-functions';
 
 // Vault:
-export { Vault } from './vaults';
-export {
-  deposit,
-  type DepositParameters,
-} from './vaults/lib/deposit';
-
-export {
-  cancelWithdraw,
-  queueWithdraw,
-  type CancelWithdrawParameters,
-  type QueueWithdrawParameters,
-} from './vaults/lib/withdraw';
-
-export {
-  getVaultDeposits,
-  type GetVaultDepositsParameters,
-} from './vaults/lib/get-vault-deposits';
-
-export {
-  getVaultWithdrawals,
-  type GetVaultWithdrawalsParameters,
-} from './vaults/lib/get-vault-withdrawals';
-
-export {
-  getVaultPoints,
-  type GetVaultPointsParameters,
-} from './vaults/lib/get-vault-points';
+export * from './vaults';
 
 // Rewards:
 export * from './rewards';
@@ -52,6 +26,9 @@ export {
 } from './common/chains';
 export * from './tokens/lbtc-addresses';
 export * from './utils/satoshi';
+
+// Metrics:
+export { getLBTCStats } from './metrics/get-lbtc-stats';
 
 // Re-exports:
 export type { Address, EIP1193Provider } from 'viem';

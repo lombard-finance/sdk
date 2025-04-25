@@ -15,12 +15,12 @@ export interface SdkError {
   /**
    * Optional original error
    */
-  originalError?: any;
+  originalError?: unknown;
 
   /**
    * Optional additional data
    */
-  data?: any;
+  data?: unknown;
 }
 
 /**
@@ -53,5 +53,5 @@ export enum ErrorCode {
   INVALID_MESSAGE_ERROR = 'INVALID_MESSAGE_ERROR',
 
   // General errors
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }

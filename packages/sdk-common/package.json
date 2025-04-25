@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-common",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -11,10 +11,7 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "engines": {
     "node": ">= 22.14.0"
   },

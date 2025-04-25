@@ -3,10 +3,11 @@ import { CommonWriteParameters } from '../../common/parameters';
 import { toSatoshi } from '../../utils/satoshi';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { makePublicClient } from '../../clients/public-client';
-import { getLBTCContractInfo } from '../../tokens/lbtc-contract';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
 import { Hex } from 'viem';
 import BigNumber from 'bignumber.js';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { Token } from '../../tokens/token-addresses';
 
 /**
  * The unstake parameters.
@@ -45,7 +46,7 @@ export async function unstakeLBTC({
   const outputScript = getOutputScript(btcAddress, env);
   const amountSat = toSatoshi(amount).toNumber();
 
-  const lbtcContract = getLBTCContractInfo(chainId, env);
+  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
 
   const publicClient = makePublicClient({ chainId, rpcUrl });
   const walletClient = makeWalletClient({ provider, chainId });

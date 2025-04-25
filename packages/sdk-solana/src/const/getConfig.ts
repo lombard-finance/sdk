@@ -1,10 +1,6 @@
 import { SolanaNetwork } from '../types';
 import { RPC_URLS } from './rpcUrls';
-
-/**
- * Environment types
- */
-export type Env = 'prod' | 'testnet' | 'stage';
+import { Env } from '@lombard.finance/sdk-common';
 
 /**
  * Default environment
@@ -18,6 +14,7 @@ export const envToNetwork: Record<Env, SolanaNetwork> = {
   prod: SolanaNetwork.mainnet,
   testnet: SolanaNetwork.testnet,
   stage: SolanaNetwork.devnet,
+  dev: SolanaNetwork.devnet,
 };
 
 /**
@@ -159,7 +156,8 @@ export function getRpcEndpoint(envOrNetwork: Env | SolanaNetwork): string {
   const isEnv =
     envOrNetwork === 'prod' ||
     envOrNetwork === 'testnet' ||
-    envOrNetwork === 'stage';
+    envOrNetwork === 'stage' ||
+    envOrNetwork === 'dev';
 
   const network = isEnv ? envToNetwork[envOrNetwork] : envOrNetwork;
   return RPC_URLS[network];

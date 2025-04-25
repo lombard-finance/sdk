@@ -1,9 +1,10 @@
 import { CommonParameters } from '../../common/parameters';
-import { getErrorMessage } from '../../utils/err';
 import { determineEnv } from '../../utils/env';
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { getLBTCContract } from '../../tokens/lbtc-contract';
 import { Address } from 'viem';
+import { makePublicClient } from '../../clients/public-client';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { Token } from '../../tokens/token-addresses';
 
 export interface IGetPermitNonceParams extends CommonParameters {
   /**
@@ -28,12 +29,17 @@ export async function getPermitNonce({
   rpcUrl,
   env = DEFAULT_ENV,
 }: IGetPermitNonceParams): Promise<string> {
-  try {
-    const environment = env || determineEnv(chainId);
-    const lbtcContract = getLBTCContract({ chainId, rpcUrl, env: environment });
-    const nonce = await lbtcContract.read.nonces([owner]);
-    return String(nonce);
-  } catch (error) {
-    throw new Error(getErrorMessage(error));
-  }
+  const environment = env || determineEnv(chainId);
+
+  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, environment);
+
+  const nonce = await publicClient.readContract({
+    abi: lbtcContract.abi,
+    address: lbtcContract.address,
+    functionName: 'nonces',
+    args: [owner],
+  });
+
+  return String(nonce);
 }

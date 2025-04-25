@@ -1,18 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
-import useQuery from '../../stories/hooks/useQuery';
+import { Button } from '../../../stories/components/Button';
+import { CodeBlock } from '../../../stories/components/CodeBlock';
+import useQuery from '../../../stories/hooks/useQuery';
 import {
   functionType,
   wagmiDecorator,
-} from '../../stories/components/decorators';
-import { Vault } from '..';
-import { ErrorBlock } from '../../stories/components/error-block';
-import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
-import { getVaultPoints, GetVaultPointsParameters } from './get-vault-points';
+} from '../../../stories/components/decorators';
+import { Vault } from '../config';
+import { ErrorBlock } from '../../../stories/components/error-block';
+import { getVaultApy, GetVaultApyParameters } from './get-vault-apy';
 
 const meta = {
-  title: 'vault/getVaultPoints',
+  title: 'vault/metrics/getVaultApy',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('api-get')],
@@ -24,16 +23,15 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    account: EXAMPLE_EVM_ADDRESS,
     vaultKey: Vault.Veda,
   },
 };
 
-type SignNetworkFeeProps = GetVaultPointsParameters;
+type SignNetworkFeeProps = GetVaultApyParameters;
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getVaultPoints({
+    return getVaultApy({
       ...props,
     });
   };
@@ -42,13 +40,13 @@ export function StoryView(props: SignNetworkFeeProps) {
 
   return (
     <>
-      <p>This function gets the points earned by a user in the DeFi vault.</p>
+      <p>This function gets the APY entries of the DeFi vault.</p>
 
       <Button
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getVaultPoints.name}
+        actionName={getVaultApy.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

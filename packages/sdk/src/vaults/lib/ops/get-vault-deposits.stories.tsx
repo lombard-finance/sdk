@@ -1,22 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
-import useQuery from '../../stories/hooks/useQuery';
+import { Button } from '../../../stories/components/Button';
+import { CodeBlock } from '../../../stories/components/CodeBlock';
+import useQuery from '../../../stories/hooks/useQuery';
 import {
   functionType,
   wagmiDecorator,
-} from '../../stories/components/decorators';
-import { Vault } from '..';
-import { ErrorBlock } from '../../stories/components/error-block';
-import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
-import { ChainId } from '../../common/chains';
+} from '../../../stories/components/decorators';
+import { Vault } from '../config';
+import { ErrorBlock } from '../../../stories/components/error-block';
 import {
-  getVaultWithdrawals,
-  GetVaultWithdrawalsParameters,
-} from './get-vault-withdrawals';
+  getVaultDeposits,
+  GetVaultDepositsParameters,
+} from './get-vault-deposits';
+import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
+import { ChainId } from '../../../common/chains';
 
 const meta = {
-  title: 'vault/getVaultWithdrawals',
+  title: 'vault/ops/getVaultDeposits',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('api-get')],
@@ -34,11 +34,11 @@ export const WithParams: Story = {
   },
 };
 
-type SignNetworkFeeProps = GetVaultWithdrawalsParameters;
+type SignNetworkFeeProps = GetVaultDepositsParameters;
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getVaultWithdrawals({
+    return getVaultDeposits({
       ...props,
     });
   };
@@ -47,15 +47,13 @@ export function StoryView(props: SignNetworkFeeProps) {
 
   return (
     <>
-      <p>
-        This function gets the withdrawals made by a user from the DeFi vault.
-      </p>
+      <p>This function gets the deposits made by a user to the DeFi vault.</p>
 
       <Button
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getVaultWithdrawals.name}
+        actionName={getVaultDeposits.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

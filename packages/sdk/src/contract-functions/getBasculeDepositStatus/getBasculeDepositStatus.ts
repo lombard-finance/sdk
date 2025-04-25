@@ -1,10 +1,8 @@
 import { CommonOptionalWriteParameters } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
-import { getLBTCContract } from '../../tokens/lbtc-contract';
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import { IDeposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import {
-  Address,
   ByteArray,
   Client,
   getContract,
@@ -15,6 +13,8 @@ import {
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import LBTC_BASCULE_ABI from '../../tokens/abi/LBTC_BASCULE_ABI.json';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { Token } from '../../tokens/token-addresses';
 
 /**
  * The bascule drawbridge deposit status.
@@ -78,8 +78,14 @@ export async function getBasculeDepositStatus({
     );
   }
 
-  const lbtcContract = getLBTCContract({ chainId, rpcUrl, env });
-  const basculeContractAddress = (await lbtcContract.read.Bascule()) as Address;
+  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
+
+  const basculeContractAddress = await publicClient.readContract({
+    abi: lbtcContract.abi,
+    address: lbtcContract.address,
+    functionName: 'Bascule',
+  });
 
   // If there's no bascule contract address on the LBTC contract then return
   // the the deposit is ok (REPORTED).

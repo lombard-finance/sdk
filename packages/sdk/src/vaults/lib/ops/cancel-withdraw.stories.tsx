@@ -1,22 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
+import { Button } from '../../../stories/components/Button';
+import { CodeBlock } from '../../../stories/components/CodeBlock';
 import {
   canPerformAction,
   useConnection,
-} from '../../stories/hooks/useConnection';
-import useQuery from '../../stories/hooks/useQuery';
-import { ConnectButton } from '../../stories/components/ConnectButton';
+} from '../../../stories/hooks/useConnection';
+import useQuery from '../../../stories/hooks/useQuery';
+import { ConnectButton } from '../../../stories/components/ConnectButton';
 import {
   functionType,
   wagmiDecorator,
-} from '../../stories/components/decorators';
-import { Vault } from '..';
-import { ErrorBlock } from '../../stories/components/error-block';
-import { queueWithdraw, QueueWithdrawParameters } from './withdraw';
+} from '../../../stories/components/decorators';
+import { Vault } from '../config';
+import { ErrorBlock } from '../../../stories/components/error-block';
+import { CancelWithdrawParameters, cancelWithdraw } from './withdraw';
 
 const meta = {
-  title: 'vault/withdraw',
+  title: 'vault/ops/cancelWithdraw',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
@@ -29,13 +29,11 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     vaultKey: Vault.Veda,
-    amount: '0.0001',
-    approve: true,
   },
 };
 
 type SignNetworkFeeProps = Omit<
-  QueueWithdrawParameters,
+  CancelWithdrawParameters,
   'account' | 'chainId' | 'provider'
 >;
 
@@ -47,7 +45,7 @@ export function StoryView(props: SignNetworkFeeProps) {
       return;
     }
 
-    return queueWithdraw({
+    return cancelWithdraw({
       ...props,
 
       account: connection.account.address,
@@ -70,7 +68,7 @@ export function StoryView(props: SignNetworkFeeProps) {
         onClick={refetch}
         disabled={isLoading || !connection.account.address}
         isLoading={isLoading}
-        actionName={queueWithdraw.name}
+        actionName={cancelWithdraw.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

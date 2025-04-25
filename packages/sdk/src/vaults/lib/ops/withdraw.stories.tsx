@@ -1,22 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
+import { Button } from '../../../stories/components/Button';
+import { CodeBlock } from '../../../stories/components/CodeBlock';
 import {
   canPerformAction,
   useConnection,
-} from '../../stories/hooks/useConnection';
-import useQuery from '../../stories/hooks/useQuery';
-import { ConnectButton } from '../../stories/components/ConnectButton';
+} from '../../../stories/hooks/useConnection';
+import useQuery from '../../../stories/hooks/useQuery';
+import { ConnectButton } from '../../../stories/components/ConnectButton';
 import {
   functionType,
   wagmiDecorator,
-} from '../../stories/components/decorators';
-import { deposit, DepositParameters } from './deposit';
-import { Vault } from '..';
-import { ErrorBlock } from '../../stories/components/error-block';
+} from '../../../stories/components/decorators';
+import { Vault } from '../config';
+import { ErrorBlock } from '../../../stories/components/error-block';
+import { queueWithdraw, QueueWithdrawParameters } from './withdraw';
 
 const meta = {
-  title: 'vault/deposit',
+  title: 'vault/ops/withdraw',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
@@ -35,7 +35,7 @@ export const WithParams: Story = {
 };
 
 type SignNetworkFeeProps = Omit<
-  DepositParameters,
+  QueueWithdrawParameters,
   'account' | 'chainId' | 'provider'
 >;
 
@@ -47,7 +47,7 @@ export function StoryView(props: SignNetworkFeeProps) {
       return;
     }
 
-    return deposit({
+    return queueWithdraw({
       ...props,
 
       account: connection.account.address,
@@ -60,7 +60,7 @@ export function StoryView(props: SignNetworkFeeProps) {
 
   return (
     <>
-      <p>This method deposits funds to the chosen DeFi vault.</p>
+      <p>This method queues withdraw from the chosen DeFi vault.</p>
 
       <div className="mb-4">
         <ConnectButton />
@@ -70,7 +70,7 @@ export function StoryView(props: SignNetworkFeeProps) {
         onClick={refetch}
         disabled={isLoading || !connection.account.address}
         isLoading={isLoading}
-        actionName={deposit.name}
+        actionName={queueWithdraw.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

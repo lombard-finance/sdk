@@ -36,7 +36,7 @@ export class MintPayload {
   }
 
   hash(): string {
-    return sha256(this.bytes() as any);
+    return sha256(this.bytes() as unknown as Uint8Array);
   }
 
   hashAsBytes(): Buffer {
@@ -44,13 +44,13 @@ export class MintPayload {
   }
 
   recipientPubKey(): PublicKey {
-    let address = bs58.encode(
-      Buffer.from(this.destinationAddress, 'hex') as any,
+    const address = bs58.encode(
+      Buffer.from(this.destinationAddress, 'hex') as unknown as Uint8Array,
     );
     return new PublicKey(address);
   }
 
   amountBigInt(): bigint {
-    return BigInt('0x' + this.amount);
+    return BigInt(`0x${this.amount}`);
   }
 }

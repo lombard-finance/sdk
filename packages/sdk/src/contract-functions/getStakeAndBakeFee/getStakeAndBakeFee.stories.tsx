@@ -8,7 +8,10 @@ import {
   getStakeAndBakeFee,
   IGetStakeAndBakeFeeParams,
 } from './getStakeAndBakeFee';
-import { Vault, VEDA_VAULT_STAKE_AND_BAKE_CHAINS } from '../../vaults';
+import {
+  Vault,
+  VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
+} from '../../vaults/lib/config';
 import { functionType } from '../../stories/components/decorators';
 
 const meta = {

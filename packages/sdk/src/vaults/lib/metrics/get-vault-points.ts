@@ -1,5 +1,5 @@
 import { Address } from 'viem';
-import { Vault, VAULTS } from '..';
+import { Vault, VAULTS } from '../config';
 import axios from 'axios';
 
 export type GetVaultPointsParameters = {

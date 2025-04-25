@@ -4,17 +4,17 @@ import {
   Vault,
   VAULTS,
   VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
-} from '..';
-import { ChainId } from '../../common/chains';
+} from '../config';
+import { ChainId } from '../../../common/chains';
 import {
   fromBaseDenomination,
   getAssetInfo,
   TokenInfo,
-} from '../../tokens/tokens';
+} from '../../../tokens/tokens';
 import BigNumber from 'bignumber.js';
 import axios from 'axios';
-import { orderBy, unique } from '../../utils/array';
-import { ensureHex } from '../../utils/hex';
+import { orderBy, unique } from '../../../utils/array';
+import { ensureHex } from '../../../utils/hex';
 
 export type GetVaultWithdrawalsParameters = {
   account: Address;

@@ -1,10 +1,15 @@
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
-import { isVedaVaultStakeAndBakeChain, Vault, VAULTS } from '../../vaults';
-import { getLBTCContractInfo } from '../../tokens/lbtc-contract';
+import {
+  isVedaVaultStakeAndBakeChain,
+  Vault,
+  VAULTS,
+} from '../../vaults/lib/config';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
 import BigNumber from 'bignumber.js';
 import { DAY, now, toUnix } from '../../utils/time';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { Token } from '../../tokens/token-addresses';
 
 export interface ISignStakeAndBakeParams extends CommonWriteParameters {
   /**
@@ -74,7 +79,7 @@ export async function signStakeAndBake({
     );
   }
 
-  const lbtcContract = getLBTCContractInfo(chainId, env);
+  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
   const walletClient = makeWalletClient({ chainId, provider });
   const spenderContract = vault.spenderContracts[chainId];
 

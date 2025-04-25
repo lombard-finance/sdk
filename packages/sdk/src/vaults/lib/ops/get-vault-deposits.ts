@@ -1,5 +1,5 @@
 import { Address, Hash } from 'viem';
-import { ChainId } from '../../common/chains';
+import { ChainId } from '../../../common/chains';
 import {
   isVedaVaultChain,
   NETWORK_TO_VEDA_VAULT_CHAIN_MAP,
@@ -7,16 +7,16 @@ import {
   VAULTS,
   VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
   VedaVaultChain,
-} from '..';
+} from '../config';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import {
   fromBaseDenomination,
   getAssetInfo,
   TokenInfo,
-} from '../../tokens/tokens';
-import { ensureHex } from '../../utils/hex';
-import { orderBy, unique } from '../../utils/array';
+} from '../../../tokens/tokens';
+import { ensureHex } from '../../../utils/hex';
+import { orderBy, unique } from '../../../utils/array';
 
 const DEPOSITS_URL =
   'https://api.sevenseas.capital/deposits/{network}/{vault}/{account}';

@@ -18,6 +18,7 @@ import { getErrorMessage } from '../../utils/err';
 import toBigInt from '../../utils/numbers';
 import { Address, pad, parseEther, toBytes, toHex } from 'viem';
 import { approveLBTC } from '../../contract-functions';
+import { Token } from '../../tokens/token-addresses';
 
 export type BridgeCCIPParameters = {
   /** The destination chain id. */
@@ -56,7 +57,7 @@ export async function bridgeCCIP({
 
   const bridgeContract = bridgeInfo.contract;
 
-  const lbtcContract = await getTokenInfo('LBTC', from, env, rpcUrl);
+  const lbtcContract = await getTokenInfo(Token.LBTC, from, env, rpcUrl);
   if (!lbtcContract) {
     throw new Error('Could not retrieve LBTC contract info.');
   }

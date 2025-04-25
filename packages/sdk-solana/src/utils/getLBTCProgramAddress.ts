@@ -1,4 +1,5 @@
-import { Env, getConfig } from '../const/getConfig';
+import { Env } from '@lombard.finance/sdk-common';
+import { getConfig } from '../const/getConfig';
 import { SolanaNetwork } from '../types';
 
 export function getLBTCProgramAddress(env: Env): string;

@@ -17,12 +17,12 @@ export interface ErrorParams {
   /**
    * Optional original error
    */
-  cause?: any;
+  cause?: unknown;
 
   /**
    * Optional additional data
    */
-  data?: any;
+  data?: unknown;
 }
 
 /**

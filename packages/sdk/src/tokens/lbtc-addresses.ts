@@ -46,6 +46,7 @@ export function getLbtcContractAddresses(
   switch (env) {
     case Env.testnet:
       return TESTNET_LBTC_CONTRACTS;
+    case Env.dev:
     case Env.stage:
       return STAGE_LBTC_CONTRACTS;
     case Env.prod:

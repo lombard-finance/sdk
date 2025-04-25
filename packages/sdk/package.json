@@ -19,6 +19,7 @@
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
     "build-storybook": "storybook build -o sdk-storybook",
     "build": "yarn types && vite build",
+    "watch": "vite build --watch",
     "lint": "biome lint",
     "format": "biome format",
     "storybook": "storybook dev -p 6006",

@@ -1,18 +1,18 @@
 import BigNumber from 'bignumber.js';
-import { isVedaVaultChain, Vault, VAULTS } from '..';
-import { CommonWriteParameters } from '../../common/parameters';
-import { makePublicClient } from '../../clients/public-client';
-import { makeWalletClient } from '../../clients/wallet-client';
+import { isVedaVaultChain, Vault, VAULTS } from '../config';
+import { CommonWriteParameters } from '../../../common/parameters';
+import { makePublicClient } from '../../../clients/public-client';
+import { makeWalletClient } from '../../../clients/wallet-client';
 import {
   fromBaseDenomination,
   getTokenInfo,
   toBaseDenomination,
-  Token,
-} from '../../tokens/tokens';
-import toBigInt from '../../utils/numbers';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
-import { getErrorMessage } from '../../utils/err';
-import { DAY } from '../../utils/time';
+} from '../../../tokens/tokens';
+import toBigInt from '../../../utils/numbers';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../../common/chains';
+import { getErrorMessage } from '../../../utils/err';
+import { DAY } from '../../../utils/time';
+import { Token } from '../../../tokens/token-addresses';
 
 export type QueueWithdrawParameters = {
   /** The amount to be withdrawn from the DeFi vault. */
@@ -46,7 +46,7 @@ export type QueueWithdrawParameters = {
 export async function queueWithdraw({
   amount: amountRaw,
   approve = true,
-  token = 'LBTC',
+  token = Token.LBTC,
   vaultKey = Vault.Veda,
   account,
   chainId,
@@ -178,7 +178,7 @@ export type CancelWithdrawParameters = Pick<
  * @returns
  */
 export async function cancelWithdraw({
-  token = 'LBTC',
+  token = Token.LBTC,
   vaultKey = Vault.Veda,
   account,
   chainId,

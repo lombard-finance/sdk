@@ -51,6 +51,7 @@ export function extractErrorMessage(error: unknown): string {
   }
 
   // Check for data.message pattern
+  // biome-ignore lint/suspicious/noExplicitAny: unknown err
   const hasDataMessage = (err: any): err is { data: { message: string } } =>
     err?.data?.message && typeof err.data.message === 'string';
 
@@ -71,8 +72,8 @@ export function extractErrorMessage(error: unknown): string {
 
   // Handle generic objects with a message property
   if (error !== null && typeof error === 'object') {
-    if ('message' in error && typeof (error as any).message === 'string') {
-      return (error as any).message;
+    if ('message' in error && typeof error.message === 'string') {
+      return error.message;
     }
 
     // Try to convert object to a readable string
@@ -94,9 +95,13 @@ export function extractErrorMessage(error: unknown): string {
  */
 function extractAxiosErrorMessage(error: AxiosError): string {
   if (error.response) {
-    const responseData = error.response.data as any;
+    const responseData = error.response.data;
     if (responseData && typeof responseData === 'object') {
-      if (responseData.message && typeof responseData.message === 'string') {
+      if (
+        'message' in responseData &&
+        responseData.message &&
+        typeof responseData.message === 'string'
+      ) {
         return responseData.message;
       }
       try {
@@ -125,7 +130,7 @@ function extractAxiosErrorMessage(error: AxiosError): string {
 export function wrapError(
   error: unknown,
   defaultCode: ErrorCode | string = ErrorCode.UNKNOWN_ERROR,
-  defaultMessage: string = 'An unknown error occurred',
+  defaultMessage = 'An unknown error occurred',
 ): SdkError {
   if (isSdkError(error)) {
     return error;

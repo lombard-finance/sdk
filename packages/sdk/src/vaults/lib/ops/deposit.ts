@@ -1,17 +1,17 @@
 import BigNumber from 'bignumber.js';
-import { isVedaVaultChain, Vault, VAULTS } from '..';
-import { CommonWriteParameters } from '../../common/parameters';
-import { makePublicClient } from '../../clients/public-client';
-import { makeWalletClient } from '../../clients/wallet-client';
-import toBigInt from '../../utils/numbers';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
-import { getErrorMessage } from '../../utils/err';
+import { isVedaVaultChain, Vault, VAULTS } from '../config';
+import { CommonWriteParameters } from '../../../common/parameters';
+import { makePublicClient } from '../../../clients/public-client';
+import { makeWalletClient } from '../../../clients/wallet-client';
+import toBigInt from '../../../utils/numbers';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../../common/chains';
+import { getErrorMessage } from '../../../utils/err';
 import {
   fromBaseDenomination,
   getTokenInfo,
   toBaseDenomination,
-  Token,
-} from '../../tokens/tokens';
+} from '../../../tokens/tokens';
+import { Token } from '../../../tokens/token-addresses';
 
 export type DepositParameters = {
   /** The amount to be deposited into the DeFi vault. */
@@ -45,7 +45,7 @@ export type DepositParameters = {
 export async function deposit({
   amount: amountRaw,
   approve = true,
-  token = 'LBTC',
+  token = Token.LBTC,
   vaultKey = Vault.Veda,
   account,
   chainId,

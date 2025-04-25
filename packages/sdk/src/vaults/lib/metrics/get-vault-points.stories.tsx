@@ -1,22 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
-import useQuery from '../../stories/hooks/useQuery';
+import { Button } from '../../../stories/components/Button';
+import { CodeBlock } from '../../../stories/components/CodeBlock';
+import useQuery from '../../../stories/hooks/useQuery';
 import {
   functionType,
   wagmiDecorator,
-} from '../../stories/components/decorators';
-import { Vault } from '..';
-import { ErrorBlock } from '../../stories/components/error-block';
-import {
-  getVaultDeposits,
-  GetVaultDepositsParameters,
-} from './get-vault-deposits';
-import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
-import { ChainId } from '../../common/chains';
+} from '../../../stories/components/decorators';
+import { Vault } from '../config';
+import { ErrorBlock } from '../../../stories/components/error-block';
+import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
+import { getVaultPoints, GetVaultPointsParameters } from './get-vault-points';
 
 const meta = {
-  title: 'vault/getVaultDeposits',
+  title: 'vault/metrics/getVaultPoints',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('api-get')],
@@ -29,16 +25,15 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     account: EXAMPLE_EVM_ADDRESS,
-    chainId: ChainId.ethereum,
     vaultKey: Vault.Veda,
   },
 };
 
-type SignNetworkFeeProps = GetVaultDepositsParameters;
+type SignNetworkFeeProps = GetVaultPointsParameters;
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getVaultDeposits({
+    return getVaultPoints({
       ...props,
     });
   };
@@ -47,13 +42,13 @@ export function StoryView(props: SignNetworkFeeProps) {
 
   return (
     <>
-      <p>This function gets the deposits made by a user to the DeFi vault.</p>
+      <p>This function gets the points earned by a user in the DeFi vault.</p>
 
       <Button
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getVaultDeposits.name}
+        actionName={getVaultPoints.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

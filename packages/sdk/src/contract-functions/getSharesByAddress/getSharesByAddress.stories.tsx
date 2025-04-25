@@ -7,7 +7,7 @@ import {
   getSharesByAddress,
   IGetSharesByAddressParameters,
 } from './getSharesByAddress';
-import { Vault } from '../../vaults';
+import { Vault } from '../../vaults/lib/config';
 import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { functionType } from '../../stories/components/decorators';
