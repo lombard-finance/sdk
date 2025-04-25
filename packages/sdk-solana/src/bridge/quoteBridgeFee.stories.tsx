@@ -113,10 +113,12 @@ export const StoryView = ({
       <ConnectButton
         connect={connect}
         disconnect={disconnect}
-        data={connectionData}
+        isConnected={isConnected}
         isLoading={isConnecting}
         error={connectError}
         network={network}
+        walletName={connectionData?.walletName}
+        address={connectionData?.address}
       />
 
       {isConnected && (

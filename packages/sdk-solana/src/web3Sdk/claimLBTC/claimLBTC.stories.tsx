@@ -85,17 +85,17 @@ export const StoryView = ({ network }: ClaimLbtcStoryArgs) => {
     setTransactionLogs(null);
   }, [isConnected, address, network]);
 
-  console.log({ result, error });
-
   return (
     <>
       <ConnectButton
         connect={connect}
         disconnect={disconnect}
-        data={connectionData}
+        isConnected={isConnected}
         isLoading={isConnecting}
         error={connectError}
         network={network}
+        walletName={connectionData?.walletName}
+        address={connectionData?.address}
       />
 
       {isConnected && address && provider && (

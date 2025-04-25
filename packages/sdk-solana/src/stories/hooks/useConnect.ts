@@ -22,6 +22,7 @@ export const DEFAULT_WALLET = WalletType.phantom;
 
 export interface UseConnectResponse {
   data: ConnectionData | null;
+  isConnected: boolean;
   error: string | null;
   isLoading: boolean;
   connect: (request: ConnectRequest) => Promise<void>;
@@ -124,6 +125,7 @@ export function useConnect(): UseConnectResponse {
 
   return {
     data: connectionData,
+    isConnected: !!connectionData,
     error: error,
     isLoading,
     connect,

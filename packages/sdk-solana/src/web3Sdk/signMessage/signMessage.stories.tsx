@@ -62,9 +62,11 @@ export function StoryView(props: SignMessageProps) {
       <ConnectButton
         connect={connect}
         disconnect={disconnect}
-        data={connectionData}
+        isConnected={isConnected}
         isLoading={isConnecting}
         error={connectError}
+        walletName={connectionData?.walletName}
+        address={connectionData?.address}
       />
 
       <div className="d-grid gap-2 my-4">

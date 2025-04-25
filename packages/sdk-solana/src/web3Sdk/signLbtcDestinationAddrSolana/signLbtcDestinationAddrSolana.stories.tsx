@@ -56,10 +56,12 @@ export const StoryView = ({ network }: SignLbtcDestAddrStoryArgs) => {
       <ConnectButton
         connect={connect}
         disconnect={disconnect}
-        data={connectionData}
+        isConnected={isConnected}
         isLoading={isConnecting}
         error={connectError}
         network={network}
+        walletName={connectionData?.walletName}
+        address={connectionData?.address}
       />
 
       <p className="small text-muted mt-n2 mb-3 px-3">

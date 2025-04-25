@@ -95,10 +95,12 @@ export const StoryView = ({
       <ConnectButton
         connect={connect}
         disconnect={disconnect}
-        data={connectionData}
+        isConnected={isConnected}
         isLoading={isConnecting}
         error={connectError}
         network={network}
+        walletName={connectionData?.walletName}
+        address={connectionData?.address}
       />
 
       <div className="mb-3 p-3 border rounded bg-light small">

@@ -94,15 +94,24 @@ export function StoryView({
 
   const error = fetchError || connectError;
 
+  console.log({
+    isLoading,
+    isConnected,
+    balanceResult,
+    connectionData,
+  });
+
   return (
     <>
       <ConnectButton
         connect={connect}
         disconnect={disconnect}
-        data={connectionData}
+        isConnected={isConnected}
         isLoading={isConnecting}
         error={connectError}
         network={network}
+        walletName={connectionData?.walletName}
+        address={connectionData?.address}
       />
 
       <div className="d-grid gap-2 my-4">

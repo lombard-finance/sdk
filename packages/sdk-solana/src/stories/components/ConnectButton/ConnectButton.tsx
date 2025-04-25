@@ -8,24 +8,26 @@ import { SolanaNetwork } from '../../../types';
 export const ConnectButton = ({
   connect,
   disconnect,
-  data,
+  isConnected,
   isLoading,
   error,
+  walletName,
+  address,
   network = SolanaNetwork.mainnet,
-}: UseConnectResponse & { network?: SolanaNetwork }) => {
+}: Pick<
+  UseConnectResponse,
+  'connect' | 'disconnect' | 'isConnected' | 'isLoading' | 'error'
+> & {
+  walletName?: string;
+  address?: string;
+  network?: SolanaNetwork;
+}) => {
   const [selectedWallet, setSelectedWallet] =
     useState<WalletType>(DEFAULT_WALLET);
-
-  const isConnected = !!data;
 
   const handleConnect = () => {
     connect({ walletName: selectedWallet });
   };
-
-  const walletOptions = Object.values(WalletType).map(w => ({
-    value: w,
-    label: w.charAt(0).toUpperCase() + w.slice(1),
-  }));
 
   return (
     <SectionCard
@@ -43,9 +45,9 @@ export const ConnectButton = ({
                 value={selectedWallet}
                 disabled={isLoading}
               >
-                {walletOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                {Object.values(WalletType).map(opt => (
+                  <option key={opt} value={opt}>
+                    {opt}
                   </option>
                 ))}
               </select>
@@ -67,11 +69,11 @@ export const ConnectButton = ({
         <div className="container px-0">
           <div className="mb-3">
             <p className="mb-0">
-              <strong>Wallet:</strong> {data.walletName}
+              <strong>Wallet:</strong> {walletName}
             </p>
             <p className="mb-0">
               <strong>Address:</strong>{' '}
-              <span className="text-monospace small">{data.address}</span>
+              <span className="text-monospace small">{address}</span>
             </p>
             <p className="mb-0">
               <strong>Network:</strong>{' '}
