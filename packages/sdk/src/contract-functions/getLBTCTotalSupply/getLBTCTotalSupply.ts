@@ -1,9 +1,10 @@
 import { CommonParameters } from '../../common/parameters';
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { getLBTCContract } from '../../tokens/lbtc-contract';
-import { getErrorMessage } from '../../utils/err';
 import BigNumber from 'bignumber.js';
 import { fromSatoshi } from '../../utils/satoshi';
+import { makePublicClient } from '../../clients/public-client';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { Token } from '../../tokens/token-addresses';
 
 /**
  * Get the total supply of LBTC tokens.
@@ -20,11 +21,14 @@ export async function getLBTCTotalSupply({
   rpcUrl,
   env = DEFAULT_ENV,
 }: CommonParameters): Promise<BigNumber> {
-  try {
-    const lbtcContract = getLBTCContract({ chainId, rpcUrl, env });
-    const totalSupply = await lbtcContract.read.totalSupply();
-    return fromSatoshi(String(totalSupply));
-  } catch (err) {
-    throw new Error(getErrorMessage(err));
-  }
+  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
+
+  const totalSupplyRaw = await publicClient.readContract({
+    abi: lbtcContract.abi,
+    address: lbtcContract.address,
+    functionName: 'totalSupply',
+  });
+
+  return fromSatoshi(String(totalSupplyRaw));
 }

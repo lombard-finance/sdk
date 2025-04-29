@@ -1,9 +1,10 @@
 import BigNumber from 'bignumber.js';
 import { CommonParameters } from '../../common/parameters';
-import { getLBTCContract } from '../../tokens/lbtc-contract';
 import { determineEnv } from '../../utils/env';
-import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
+import { makePublicClient } from '../../clients/public-client';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { Token } from '../../tokens/token-addresses';
 
 /**
  * Gets LBTC minting fee amount.
@@ -20,15 +21,17 @@ export async function getLBTCMintingFee({
   rpcUrl,
   env,
 }: CommonParameters): Promise<BigNumber> {
-  try {
-    const environment = env || determineEnv(chainId);
+  const environment = env || determineEnv(chainId);
 
-    const lbtcContract = getLBTCContract({ chainId, rpcUrl, env: environment });
+  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, environment);
 
-    const rawFeeValue = await lbtcContract.read.getMintFee();
-    const lbtcMintFee = fromSatoshi(String(rawFeeValue));
-    return lbtcMintFee;
-  } catch (err) {
-    throw new Error(getErrorMessage(err));
-  }
+  const rawFeeValue = await publicClient.readContract({
+    abi: lbtcContract.abi,
+    address: lbtcContract.address,
+    functionName: 'getMintFee',
+  });
+
+  const lbtcMintFee = fromSatoshi(String(rawFeeValue));
+  return lbtcMintFee;
 }

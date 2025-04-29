@@ -1,5 +1,4 @@
-import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { Env } from '@lombard.finance/sdk-common';
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 
 interface IApiConfig {
   baseApiUrl: string;
@@ -21,8 +20,15 @@ const prodConfig: IApiConfig = {
   bffApiUrl: 'https://bff.prod.lombard.finance',
 };
 
+const devConfig: IApiConfig = {
+  baseApiUrl: 'https://staging.prod.lombard.finance',
+  bffApiUrl: 'http://localhost:8001',
+};
+
 export const getApiConfig = (env: Env = DEFAULT_ENV): IApiConfig => {
   switch (env) {
+    case Env.dev:
+      return devConfig;
     case Env.prod:
       return prodConfig;
     case Env.testnet:

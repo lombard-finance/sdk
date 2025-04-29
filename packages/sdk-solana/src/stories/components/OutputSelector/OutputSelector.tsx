@@ -1,0 +1,114 @@
+import React, { useEffect } from 'react';
+import { SolanaNetwork } from '../../../types';
+import { useFetchOutputs, IOutput } from '../../hooks/useFetchOutputs';
+import { Button } from '../Button/Button';
+import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
+import { SelectField } from '../SelectField/SelectField';
+import { Spinner } from '../Spinner';
+
+interface OutputSelectorProps {
+  address: string | undefined;
+  network: SolanaNetwork;
+  isConnected: boolean;
+  selectedOutput: IOutput | null;
+  onOutputSelect: (output: IOutput | null) => void;
+  className?: string;
+}
+
+export const OutputSelector: React.FC<OutputSelectorProps> = ({
+  address,
+  network,
+  isConnected,
+  selectedOutput,
+  onOutputSelect,
+  className = '',
+}) => {
+  const { outputs, isLoadingOutputs, outputsError, refetchOutputs } =
+    useFetchOutputs({
+      address: address,
+      environment: network,
+      isConnected: isConnected,
+    });
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally reset only on context change
+  useEffect(() => {
+    onOutputSelect(null);
+  }, [isConnected, address, network, onOutputSelect]);
+
+  const outputOptions = [
+    { value: '', label: '-- Select a Bitcoin transaction --' },
+    ...outputs.map(output => ({
+      value: output.txid,
+      label: `${output.txid.substring(0, 10)}... - ${
+        Number.parseFloat(output.value) / 10 ** 8
+      } BTC (${output.notarization_status})`,
+    })),
+  ];
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selected = outputs.find(o => o.txid === e.target.value);
+    onOutputSelect(selected || null);
+  };
+
+  return (
+    <div className={className}>
+      {isLoadingOutputs ? (
+        <div className="d-flex align-items-center">
+          <Spinner size="sm" />
+          <span className="ms-2">Loading available outputs...</span>
+        </div>
+      ) : outputsError ? (
+        <ErrorDisplay error={outputsError} title="Could not load outputs" />
+      ) : outputs.length === 0 ? (
+        <div className="alert alert-info">
+          No pending Bitcoin outputs found for your address (
+          {address?.substring(0, 6)}...) on {network}. You might need to stake
+          Bitcoin first or check the selected network.
+        </div>
+      ) : (
+        <>
+          <SelectField
+            id="output-select"
+            label="Select Output to Claim"
+            value={selectedOutput?.txid || ''}
+            onChange={handleSelectChange}
+            options={outputOptions}
+            aria-label="Select Bitcoin transaction to claim"
+          />
+
+          {selectedOutput && (
+            <div className="card bg-light mt-3">
+              <div className="card-body py-2 small">
+                <h6 className="mb-2">Selected Output Details:</h6>
+                <p className="mb-1">
+                  <strong>TxID:</strong> {selectedOutput.txid}
+                </p>
+                <p className="mb-1">
+                  <strong>Amount:</strong>{' '}
+                  {Number.parseFloat(selectedOutput.value) / 10 ** 8} BTC
+                </p>
+                <p className="mb-1">
+                  <strong>Block Height:</strong>{' '}
+                  {selectedOutput.block_height || 'N/A'}
+                </p>
+                <p className="mb-0">
+                  <strong>Status:</strong> {selectedOutput.notarization_status}
+                </p>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+      <div style={{ marginTop: '1rem' }}>
+        <Button
+          size="small"
+          onClick={refetchOutputs}
+          disabled={isLoadingOutputs}
+          isLoading={isLoadingOutputs}
+        >
+          Refresh Outputs
+        </Button>
+      </div>
+    </div>
+  );
+};

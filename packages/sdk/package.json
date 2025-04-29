@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -11,10 +11,7 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "engines": {
     "node": ">= 22.14.0"
   },
@@ -22,14 +19,17 @@
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
     "build-storybook": "storybook build -o sdk-storybook",
     "build": "yarn types && vite build",
+    "watch": "vite build --watch",
     "lint": "biome lint",
+    "format": "biome format",
     "storybook": "storybook dev -p 6006",
     "types": "tsc --noEmit"
   },
   "peerDependencies": {
     "axios": "^1",
     "bignumber.js": "^9",
-    "bitcoinjs-lib": "6.1.5"
+    "bitcoinjs-lib": "6.1.5",
+    "@layerzerolabs/lz-v2-utilities": "3.0.17"
   },
   "dependencies": {
     "@lombard.finance/sdk-common": "^3.0.0",

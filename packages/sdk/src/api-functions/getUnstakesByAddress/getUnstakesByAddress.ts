@@ -1,14 +1,14 @@
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { address, networks } from 'bitcoinjs-lib';
-import { IEnvParam } from '../../common/parameters';
-import { SuiChain, ChainId } from '../../common/chains';
-import { fromSatoshi } from '../../utils/satoshi';
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
   getChainIdByName,
 } from '../../common/blockchain-identifier';
-import BigNumber from 'bignumber.js';
+import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import { IEnvParam } from '../../common/parameters';
+import { fromSatoshi } from '../../utils/satoshi';
 
 interface IUnstakeResponse {
   tx_hash: string;
@@ -35,7 +35,7 @@ export interface IUnstake {
   /**
    * The chain id where unstake transaction happened.
    */
-  chainId: ChainId | SuiChain;
+  chainId: ChainId | SuiChain | SolanaChain;
   /**
    * The block height.
    */

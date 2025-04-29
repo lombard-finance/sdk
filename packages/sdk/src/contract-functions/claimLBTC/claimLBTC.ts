@@ -3,12 +3,13 @@ import {
   getBasculeDepositStatus,
 } from '../getBasculeDepositStatus';
 import { CommonWriteParameters } from '../../common/parameters';
-import { getLBTCContractInfo } from '../../tokens/lbtc-contract';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { ensureHex } from '../../utils/hex';
 import { Hash } from 'viem';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { Token } from '../../tokens/token-addresses';
 
 export interface IClaimLBTCParams extends CommonWriteParameters {
   /**
@@ -44,7 +45,7 @@ export async function claimLBTC({
   rpcUrl,
   env,
 }: IClaimLBTCParams): Promise<Hash> {
-  const lbtcContract = getLBTCContractInfo(chainId, env);
+  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
 
   // Check the deposit status against Bascule Drawbridge security.
   // Block any deposit that is not reported.

@@ -29,6 +29,14 @@ export const WithParams: Story = {
     env: DEFAULT_ENV,
     partnerId: 'lombard',
   },
+  argTypes: {
+    chainId: {
+      mapping: ChainId,
+      options: Object.keys(ChainId),
+      description: 'The chain',
+      control: { type: 'select' },
+    },
+  },
 };
 
 export function StoryView(props: IGetDepositBtcAddressParameters) {

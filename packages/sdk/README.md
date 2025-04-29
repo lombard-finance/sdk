@@ -82,6 +82,15 @@ Read more about Lombard's mission: https://www.lombard.finance
 
      9.4. [Getting the withdrawal history (checking withdrawal status)](#94-getting-the-withdrawal-history-checking-withdrawal-status)
 
+  10. [Metrics](#10-metrics)
+
+      10.1. [Getting the vault's TVL](#101-getting-the-vaults-tvl)
+
+      10.2. [Getting the vault's performance data](#102-getting-the-vaults-performance-data)
+      
+      10.3. [Getting the LBTC statistics](#103-getting-the-lbtc-statistics)
+
+
 
 ## Installation
 
@@ -93,11 +102,12 @@ The SDK depends on the following packages:
 * bignumber.js@9
 * bitcoinjs-lib@6.1.5
 * @bitcoin-js/tiny-secp256k1-asmjs@2.2.3
+* @layerzerolabs/lz-v2-utilities@3.0.17
 
 You may install them by running the following command:
 
 ```bash
-npm i --save viem@^2.23.15 axios@^1 bignumber.js@^9 @bitcoin-js/tiny-secp256k1-asmjs@2.2.3 bitcoinjs-lib@6.1.5
+npm i --save viem@^2.23.15 axios@^1 bignumber.js@^9 @bitcoin-js/tiny-secp256k1-asmjs@2.2.3 bitcoinjs-lib@6.1.5 @layerzerolabs/lz-v2-utilities@3.0.17
 ```
 
 ### 2. SDK installation
@@ -581,3 +591,51 @@ The function returns an array of:
 * `status` - the withdrawal status,
 * `estimatedTimeSent` - the estimated time when the funds are sent,
 * `timestamp` - the timestamp.
+
+### 10. Metrics
+
+#### 10.1. Getting the vault's TVL
+
+The vault's TVL can be obtained by calling the `getVaultTVL` function.
+
+```javascript
+const data = await getVaultTVL({ vaultKey: Vault.Veda });
+```
+
+The above returns:
+* `btcBalance` - the amount of BTC locked into the vault,
+* `btcPrice` - the current price of BTC,
+* `tvl` - the amount of USD locked into the vault.
+
+#### 10.2. Getting the vault's performance data.
+
+The performance of the vault can be checked via the `getVaultApy` function.
+As in the example below:
+
+```javascript
+const APYs = await getVaultApy({
+  aggregationPeriod: 7, // The aggregation period in days, only 7, 14, and 30 are allowed.
+  chainId: ChainId.ethereum, // The vault's chain - can be omitted, defaults to `Ethereum`.
+  vaultKey: Vault.Veda // The vault identifier - can be omitted, default to `Vault.Veda`
+});
+```
+
+The above returns an array of APY entries sorted in descending order (newest first).
+Each entry contains:
+
+* `apy` - the APY value,
+* `allocations` - the record of general allocations in protocols used by the vault,
+* `breakdown` - the detailed record of allocations and APY values broken down by chain and protocol,
+* `timestamp` - the timestamp of the entry.
+
+#### 10.3. Getting the LBTC statistics.
+
+The simple set of LBTC statistics is accessible via `getLBTCStats` function.
+
+The stats contain:
+
+* `historicalHolders` - the number of all-time LBTC holders,
+* `holders` - the number of current LBTC holders,
+* `price` - the current BTC price,
+* `supply` - the number of LBTC minted,
+* `tvl` - the Lombard's TVL in USD.

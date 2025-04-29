@@ -2,10 +2,11 @@ import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
 import { toSatoshi } from '../../utils/satoshi';
-import { getLBTCContractInfo } from '../../tokens/lbtc-contract';
 import { Address, Hash } from 'viem';
 import { makePublicClient } from '../../clients/public-client';
 import BigNumber from 'bignumber.js';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { Token } from '../../tokens/token-addresses';
 
 export interface IApproveLBTCParams extends CommonWriteParameters {
   /**
@@ -45,7 +46,7 @@ export async function approveLBTC({
   const publicClient = makePublicClient({ chainId, rpcUrl });
   const walletClient = makeWalletClient({ chainId, provider });
 
-  const lbtcContract = getLBTCContractInfo(chainId, env);
+  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
 
   const amountSat = toSatoshi(amount).toNumber();
 

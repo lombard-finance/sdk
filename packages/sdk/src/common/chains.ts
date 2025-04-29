@@ -6,6 +6,7 @@ import {
   bsc,
   bscTestnet,
   corn,
+  etherlink,
   holesky,
   mainnet,
   morph,
@@ -27,13 +28,22 @@ export type SuiChain =
   | typeof SUI_LOCALNET_CHAIN
   | typeof SUI_MAINNET_CHAIN;
 
+export const SOLANA_MAINNET_CHAIN = 'solana:mainnet-beta' as const;
+export const SOLANA_TESTNET_CHAIN = 'solana:testnet' as const;
+export const SOLANA_DEVNET_CHAIN = 'solana:devnet' as const;
+
+export type SolanaChain =
+  | typeof SOLANA_MAINNET_CHAIN
+  | typeof SOLANA_TESTNET_CHAIN
+  | typeof SOLANA_DEVNET_CHAIN;
+
 export const ChainId = {
   ethereum: 1,
   base: 8453,
   berachain: 80094,
   binanceSmartChain: 56,
   corn: 21000000,
-  holesky: 17000,
+  etherlink: 42793,
   morph: 2818,
   sonic: 146,
   swell: 1923,
@@ -41,6 +51,7 @@ export const ChainId = {
   baseSepoliaTestnet: 84532,
   berachainBartioTestnet: 80084,
   binanceSmartChainTestnet: 97,
+  holesky: 17000,
   morphHolesky: 2810,
   sepolia: 11155111,
   sonicBlazeTestnet: 57054,
@@ -54,6 +65,7 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.berachain]: berachain,
   [ChainId.binanceSmartChain]: bsc,
   [ChainId.corn]: corn,
+  [ChainId.etherlink]: etherlink,
   [ChainId.morph]: morph,
   [ChainId.sonic]: sonic,
   [ChainId.swell]: swellchain,

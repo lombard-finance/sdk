@@ -1,11 +1,11 @@
+import { Env } from '@lombard.finance/sdk-common';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { IEnvParam } from '../../common/parameters';
-import { SuiChain, ChainId } from '../../common/chains';
-import { fromSatoshi } from '../../utils/satoshi';
 import { getApiConfig } from '../../common/api-config';
-import { Env } from '@lombard.finance/sdk-common';
 import { getChainIdByName } from '../../common/blockchain-identifier';
+import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import { IEnvParam } from '../../common/parameters';
+import { fromSatoshi } from '../../utils/satoshi';
 
 type Address = string;
 type Seconds = number;
@@ -60,7 +60,7 @@ export interface IDeposit {
   blockTime?: number;
   value: BigNumber;
   address: Address;
-  chainId: ChainId | SuiChain;
+  chainId: ChainId | SuiChain | SolanaChain;
   isClaimed?: boolean;
   claimedTxId?: string;
   rawPayload?: string;
@@ -73,8 +73,8 @@ export interface IDeposit {
   sessionId: number;
   notarizationStatus: ENotarizationStatus;
   sessionState: ESessionState;
-  fromChainId?: ChainId;
-  toChainId?: ChainId;
+  fromChainId?: ChainId | SuiChain | SolanaChain;
+  toChainId?: ChainId | SuiChain | SolanaChain;
   status?: string;
 }
 

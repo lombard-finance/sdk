@@ -1,0 +1,1280 @@
+{
+  "address": "E1p8P6TTe8QvKmSK7QZ3n7HtQY9hE1p9JrCwLrXnPUfn",
+  "metadata": {
+    "name": "bascule",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "A Solana drawbridge that helps bridges mitigate hacks before they can be used to steal funds"
+  },
+  "instructions": [
+    {
+      "name": "add_withdrawal_validator",
+      "docs": [
+        "Authorize a validator"
+      ],
+      "discriminator": [
+        225,
+        62,
+        49,
+        209,
+        125,
+        184,
+        239,
+        88
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the account address equals to 'bascule_data.admin'"
+          ],
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "validator",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "grant_pauser",
+      "docs": [
+        "Authorize a pauser (unauthorizing any previously authorized pauser)"
+      ],
+      "discriminator": [
+        213,
+        74,
+        160,
+        205,
+        65,
+        29,
+        124,
+        6
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the account address equals to 'bascule_data.admin'"
+          ],
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "pauser",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "grant_reporter",
+      "docs": [
+        "Authorize a reporter (unauthorizing any previously authorized reporter)"
+      ],
+      "discriminator": [
+        135,
+        151,
+        222,
+        25,
+        238,
+        20,
+        118,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the account address equals to 'bascule_data.admin'"
+          ],
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "reporter",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Initialize the program"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "The system account paying for this instruction.",
+            "Must be the same as the program upgrade authority.",
+            "Automatically becomes the 'admin' of the created [BasculeData] account."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program",
+          "docs": [
+            "This program account.",
+            "",
+            "ASSERT:",
+            "- `program_data` account is provided if the program is upgradeable"
+          ],
+          "address": "E1p8P6TTe8QvKmSK7QZ3n7HtQY9hE1p9JrCwLrXnPUfn"
+        },
+        {
+          "name": "program_data",
+          "docs": [
+            "The program data account; must be provided if the program is upgradeable",
+            "(non-upgradable programs do not have a [ProgramData] account).",
+            "",
+            "ASSERT:",
+            "- the payer is equal to the upgrade authority, if the program is upgradeable"
+          ],
+          "optional": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "The system program (needed for the 'init' constraint of the 'data' account)"
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "pause",
+      "docs": [
+        "Pause the program"
+      ],
+      "discriminator": [
+        211,
+        22,
+        221,
+        251,
+        74,
+        121,
+        193,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "pauser",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the account address equals to 'bascule_data.pauser'"
+          ],
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "remove_withdrawal_validator",
+      "docs": [
+        "Unauthorize a validator"
+      ],
+      "discriminator": [
+        253,
+        138,
+        33,
+        169,
+        124,
+        28,
+        58,
+        68
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the account address equals to 'bascule_data.admin'"
+          ],
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "validator",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "report_deposit",
+      "docs": [
+        "Report a deposit"
+      ],
+      "discriminator": [
+        236,
+        16,
+        15,
+        78,
+        10,
+        232,
+        185,
+        68
+      ],
+      "accounts": [
+        {
+          "name": "reporter",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the signer is the 'bascule_data.reporter'",
+            "- the program is not paused"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "deposit",
+          "docs": [
+            "The deposit account"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  112,
+                  111,
+                  115,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "deposit_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "The system program (needed for the 'init_if_needed' constraint of the 'deposit' account)"
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "deposit_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "transfer_admin_accept",
+      "docs": [
+        "Accept the previously initiated admin transfer process"
+      ],
+      "discriminator": [
+        179,
+        31,
+        118,
+        203,
+        252,
+        96,
+        95,
+        215
+      ],
+      "accounts": [
+        {
+          "name": "pending_admin",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the account address equals to 'bascule_data.pending_admin'"
+          ],
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_admin_init",
+      "docs": [
+        "Start the admin transfer process"
+      ],
+      "discriminator": [
+        201,
+        147,
+        175,
+        184,
+        29,
+        86,
+        36,
+        71
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the account address equals to 'bascule_data.admin'"
+          ],
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unpause",
+      "docs": [
+        "Unpause the program"
+      ],
+      "discriminator": [
+        169,
+        144,
+        4,
+        38,
+        10,
+        141,
+        188,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "pauser",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the account address equals to 'bascule_data.pauser'"
+          ],
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update_validate_threshold",
+      "docs": [
+        "Set the validate threshold"
+      ],
+      "discriminator": [
+        24,
+        135,
+        10,
+        182,
+        198,
+        97,
+        174,
+        193
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The system account paying for this instruction",
+            "ASSERT:",
+            "- the account address equals to 'bascule_data.admin'"
+          ],
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_threshold",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "validate_withdrawal",
+      "docs": [
+        "Validate a withdrawal",
+        "",
+        "# Arguments",
+        "* `ctx` - validator context",
+        "* `deposit_id` - the id of the deposit to validate (this value must be derived from the rest of the arguments)",
+        "* `recipient` - the Solana address of the recipient",
+        "* `amount` - the bitcoin transaction amount in SAT",
+        "* `tx_id` - the bitcoin transaction id",
+        "* `tx_vout` - the bitcoin transaction output index"
+      ],
+      "discriminator": [
+        167,
+        3,
+        24,
+        2,
+        18,
+        89,
+        210,
+        246
+      ],
+      "accounts": [
+        {
+          "name": "validator",
+          "docs": [
+            "The account signing this instruction",
+            "ASSERT:",
+            "- the signer is allowlisted in 'bascule_data.withdrawal_validators'",
+            "- the program is not paused",
+            "- deposit_id is derived from the rest of the arguments"
+          ],
+          "signer": true
+        },
+        {
+          "name": "payer",
+          "docs": [
+            "Pays for the 'Deposit' account creation if the account does not already exist; can be any account"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "The program state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "deposit",
+          "docs": [
+            "The deposit account"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  112,
+                  111,
+                  115,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "deposit_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "deposit_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "recipient",
+          "type": "pubkey"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "tx_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "tx_vout",
+          "type": "u32"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BasculeData",
+      "discriminator": [
+        43,
+        219,
+        194,
+        55,
+        0,
+        135,
+        158,
+        67
+      ]
+    },
+    {
+      "name": "Deposit",
+      "discriminator": [
+        148,
+        146,
+        121,
+        66,
+        207,
+        173,
+        21,
+        227
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AdminTransferAccepted",
+      "discriminator": [
+        79,
+        229,
+        204,
+        202,
+        134,
+        43,
+        177,
+        26
+      ]
+    },
+    {
+      "name": "AdminTransferInitiated",
+      "discriminator": [
+        157,
+        255,
+        0,
+        92,
+        52,
+        106,
+        16,
+        156
+      ]
+    },
+    {
+      "name": "AlreadyReported",
+      "discriminator": [
+        110,
+        163,
+        105,
+        23,
+        59,
+        143,
+        91,
+        105
+      ]
+    },
+    {
+      "name": "DepositReported",
+      "discriminator": [
+        247,
+        2,
+        28,
+        54,
+        28,
+        50,
+        56,
+        246
+      ]
+    },
+    {
+      "name": "UpdateValidateThreshold",
+      "discriminator": [
+        89,
+        84,
+        72,
+        70,
+        190,
+        108,
+        131,
+        42
+      ]
+    },
+    {
+      "name": "WithdrawalNotValidated",
+      "discriminator": [
+        31,
+        66,
+        148,
+        192,
+        113,
+        20,
+        82,
+        59
+      ]
+    },
+    {
+      "name": "WithdrawalValidated",
+      "discriminator": [
+        148,
+        195,
+        225,
+        176,
+        184,
+        35,
+        87,
+        210
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ENotDeployer",
+      "msg": "The initialize method can only be called by the program upgrade authority"
+    },
+    {
+      "code": 6001,
+      "name": "ENotAdmin",
+      "msg": "This account is not allowed to perform admin operations"
+    },
+    {
+      "code": 6002,
+      "name": "ENotPendingAdmin",
+      "msg": "This account is not a pending admin"
+    },
+    {
+      "code": 6003,
+      "name": "ENotReporter",
+      "msg": "This account is not allowed to report deposits"
+    },
+    {
+      "code": 6004,
+      "name": "ENotPauser",
+      "msg": "This account is not allowed pause the program"
+    },
+    {
+      "code": 6005,
+      "name": "ENotValidator",
+      "msg": "This account is not allowed to validate withdrawals"
+    },
+    {
+      "code": 6006,
+      "name": "EPaused",
+      "msg": "Contract is paused"
+    },
+    {
+      "code": 6007,
+      "name": "EAlreadyWithdrawn",
+      "msg": "The deposit has already been withdrawn"
+    },
+    {
+      "code": 6008,
+      "name": "EWithdrawalFailedValidation",
+      "msg": "The withdrawal amount is not in the history above the non-zero validation threshold"
+    },
+    {
+      "code": 6009,
+      "name": "EMaxValidators",
+      "msg": "The program has reached the max number of withdrawal validators"
+    },
+    {
+      "code": 6010,
+      "name": "EInvalidDepositId",
+      "msg": "The deposit id does not match the deposit data"
+    }
+  ],
+  "types": [
+    {
+      "name": "AdminTransferAccepted",
+      "docs": [
+        "Event emitted when admin transfer is accepted"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "docs": [
+              "The new admin who has just accept the transfer"
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdminTransferInitiated",
+      "docs": [
+        "Event emitted when admin transfer is initiate"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "current_admin",
+            "docs": [
+              "The current admin"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "docs": [
+              "The new admin (who still has to accept the transfer)"
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AlreadyReported",
+      "docs": [
+        "Event emitted when reporting an already reported/withdrawn deposit."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "DepositState"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BasculeData",
+      "docs": [
+        "The bascule program state"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The account that has the \"admin\" capability.",
+              "",
+              "This account can grant other capabilities and update most of the properties of this data account.",
+              "Whoever calls the \"Initialize\" instruction becomes the admin; afterwards, the admin cannot be changed."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "docs": [
+              "The pending admin (which needs to explicitly accept before becoming the new admin)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "pauser",
+            "docs": [
+              "The account that has the \"pauser\" capability.",
+              "This account is allowed to pause and unpause the program.",
+              "Defaults to the program admin, but can be changed later."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "deposit_reporter",
+            "docs": [
+              "The account that is allowed to report deposits.",
+              "Must be explicitly set in a subsequent instruction."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "withdrawal_validators",
+            "docs": [
+              "The accounts that are allowed to validate withdrawals.",
+              "INVARIANT:",
+              "- this vector contains no duplicates"
+            ],
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "is_paused",
+            "docs": [
+              "Whether the program paused"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "validate_threshold",
+            "docs": [
+              "Bascule validates all withdrawals whose amounts are greater than or equal",
+              "to this threshold. The bascule allows all withdrawals below this threshold.",
+              "The program will still produce events that off-chain code can use to",
+              "monitor smaller withdrawals.",
+              "",
+              "When the threshold is zero (the default), the bascule validates all withdrawals."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Canonical bump for the program-derived address, set upon creation"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Deposit",
+      "docs": [
+        "The deposit account.",
+        "",
+        "The number of deposits that the Bascule program must keep track of is not bounded",
+        "ahead of time, which is why deposits are modeled as Solana accounts and not as",
+        "part of the [BasculeData] state."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "state",
+            "docs": [
+              "The state of the deposit"
+            ],
+            "type": {
+              "defined": {
+                "name": "DepositState"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Canonical bump for the program-derived address, set upon creation"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositReported",
+      "docs": [
+        "Event emitted when deposit was successfully reported."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositState",
+      "docs": [
+        "The state of a deposit"
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Unreported"
+          },
+          {
+            "name": "Reported"
+          },
+          {
+            "name": "Withdrawn"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateValidateThreshold",
+      "docs": [
+        "Event emitted when the validation threshold is updated."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "old_threshold",
+            "type": "u64"
+          },
+          {
+            "name": "new_threshold",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawalNotValidated",
+      "docs": [
+        "Event emitted when a withdrawal is allowed on this chain without validation."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawalValidated",
+      "docs": [
+        "Event emitted when a withdrawal is validated."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

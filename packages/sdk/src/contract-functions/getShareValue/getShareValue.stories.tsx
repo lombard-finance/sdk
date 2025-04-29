@@ -4,7 +4,7 @@ import { ChainId } from '../../common/chains';
 import { Button } from '../../stories/components/Button';
 import useQuery from '../../stories/hooks/useQuery';
 import { getShareValue, IGetShareValueParameters } from './getShareValue';
-import { Vault } from '../../vaults';
+import { Vault } from '../../vaults/lib/config';
 import { functionType } from '../../stories/components/decorators';
 
 const meta = {

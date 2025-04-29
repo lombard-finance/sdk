@@ -7,7 +7,7 @@ import {
 } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
 import { approveLBTC, IApproveLBTCParams } from './approveLBTC';
-import { Vault, VAULTS } from '../../vaults';
+import { Vault, VAULTS } from '../../vaults/lib/config';
 import { ChainId } from '../../common/chains';
 import { Env } from '@lombard.finance/sdk-common';
 import {

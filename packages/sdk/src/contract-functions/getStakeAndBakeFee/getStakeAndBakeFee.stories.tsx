@@ -8,7 +8,10 @@ import {
   getStakeAndBakeFee,
   IGetStakeAndBakeFeeParams,
 } from './getStakeAndBakeFee';
-import { Vault } from '../../vaults';
+import {
+  Vault,
+  VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
+} from '../../vaults/lib/config';
 import { functionType } from '../../stories/components/decorators';
 
 const meta = {
@@ -26,6 +29,16 @@ export const WithParams: Story = {
   args: {
     vaultKey: Vault.Veda,
     chainId: ChainId.ethereum,
+  },
+  argTypes: {
+    chainId: {
+      mapping: ChainId,
+      options: VEDA_VAULT_STAKE_AND_BAKE_CHAINS.map(
+        ch => Object.entries(ChainId).find(([_, v]) => v === ch)?.[0],
+      ),
+      description: 'The chain',
+      control: { type: 'select' },
+    },
   },
 };
 

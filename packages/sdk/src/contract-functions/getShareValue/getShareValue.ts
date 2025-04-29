@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { getErrorMessage } from '../../utils/err';
-import { isVedaVaultChain, Vault, VAULTS } from '../../vaults';
+import { isVedaVaultChain, Vault, VAULTS } from '../../vaults/lib/config';
 import { fromSatoshi } from '../../utils/satoshi';
 import { makePublicClient } from '../../clients/public-client';
 import { getContract } from 'viem';

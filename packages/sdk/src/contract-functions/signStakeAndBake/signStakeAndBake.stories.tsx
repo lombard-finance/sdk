@@ -12,6 +12,7 @@ import {
   functionType,
   wagmiDecorator,
 } from '../../stories/components/decorators';
+import { DAY, now, toUnix } from '../../utils/time';
 
 const { name } = signStakeAndBake;
 
@@ -29,7 +30,7 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     value: '20000',
-    expiry: 3600,
+    expiry: toUnix(now() + DAY),
   },
 };
 

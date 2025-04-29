@@ -19,7 +19,10 @@ type AddressType = 'p2tr' | 'p2wpkh' | 'p2wsh';
  *
  * @returns The output script.
  */
-export function getOutputScript(address: string, env: Env = Env.prod): string {
+export function getOutputScript(
+  address: string,
+  env: Env = Env.prod,
+): `0x${string}` {
   const addressType = getAddressType(address);
 
   const payment = payments[addressType]({
