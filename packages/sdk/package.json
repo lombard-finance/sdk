@@ -6,7 +6,9 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./src/index.ts"
-    }
+    },
+    "./clients/*": "./src/clients/*.ts",
+    "./utils/*": "./src/utils/*.ts"
   },
   "license": "MIT",
   "type": "module",
@@ -20,8 +22,8 @@
     "build-storybook": "storybook build -o sdk-storybook",
     "build": "yarn types && vite build",
     "watch": "vite build --watch",
-    "lint": "biome lint",
     "format": "biome format",
+    "lint": "biome lint --diagnostic-level=error",
     "storybook": "storybook dev -p 6006",
     "types": "tsc --noEmit"
   },

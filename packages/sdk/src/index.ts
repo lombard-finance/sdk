@@ -24,11 +24,14 @@ export {
   SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
 } from './common/chains';
-export * from './tokens/lbtc-addresses';
 export * from './utils/satoshi';
 
 // Metrics:
 export { getLBTCStats } from './metrics/get-lbtc-stats';
+
+// Tokens:
+export * from './tokens/lbtc-addresses';
+export * from './tokens/tokens';
 
 // Re-exports:
 export type { Address, EIP1193Provider } from 'viem';

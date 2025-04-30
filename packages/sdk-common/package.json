@@ -18,7 +18,7 @@
   "scripts": {
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
     "build": "yarn types && vite build",
-    "lint": "biome lint",
+    "lint": "biome lint --diagnostic-level=error",
     "types": "tsc --noEmit"
   },
   "peerDependencies": {
