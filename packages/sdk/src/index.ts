@@ -42,8 +42,6 @@ export {
   getBridgeInfo,
   bridge,
   bridgeCCIP,
-  bridgeOFT,
   type BridgeParameters,
   type BridgeCCIPParameters,
-  type BridgeOFTParameters,
 } from './bridge';
