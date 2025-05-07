@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -34,6 +34,7 @@
     "@layerzerolabs/lz-v2-utilities": "3.0.17"
   },
   "dependencies": {
+    "@lombard.finance/btc-deposit-addresses": "^1.0.0",
     "@lombard.finance/sdk-common": "^3.0.0",
     "viem": "^2.23.15"
   },
