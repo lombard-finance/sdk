@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WALLET_NOT_FOUND_ERROR } from '../../const/errors';
-import { WalletType } from '../../types/walletProviders';
 import {
   getWalletProvider,
   isWalletAvailable,
@@ -65,11 +64,11 @@ describe('detectWallet utilities', () => {
       const provider = getWalletProvider('phantom');
       expect(provider).toBeDefined();
       expect(provider.solana).toBeDefined();
-      expect((provider.solana as any).isPhantom).toBe(true);
+      expect(provider.solana.isPhantom).toBe(true);
     });
 
     it('should throw WALLET_NOT_FOUND_ERROR if wallet is not available', () => {
-      expect(() => getWalletProvider('okx' as WalletType)).toThrow(
+      expect(() => getWalletProvider('okx')).toThrow(
         WALLET_NOT_FOUND_ERROR.message,
       );
     });

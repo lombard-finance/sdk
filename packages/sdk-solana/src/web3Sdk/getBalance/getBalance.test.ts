@@ -72,12 +72,14 @@ describe('getBalance', () => {
 
   it('should return zero balance if no token accounts found', async () => {
     // Override the mock for this specific test
-    const connectionMock = {
+    const connectionMock: unknown = {
       getTokenAccountsByOwner: vi.fn().mockResolvedValue({
         value: [], // No token accounts
       }),
     };
-    vi.mocked(Connection).mockImplementationOnce(() => connectionMock as any);
+    vi.mocked(Connection).mockImplementationOnce(
+      () => connectionMock as Connection,
+    );
 
     const result = await getBalance({
       publicKey: 'valid-public-key',

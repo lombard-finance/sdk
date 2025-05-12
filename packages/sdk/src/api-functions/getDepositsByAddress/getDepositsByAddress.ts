@@ -76,6 +76,7 @@ export interface IDeposit {
   fromChainId?: ChainId | SuiChain | SolanaChain;
   toChainId?: ChainId | SuiChain | SolanaChain;
   status?: string;
+  toAddress?: string;
 }
 
 export interface IGetDepositsByAddressParams extends IEnvParam {
