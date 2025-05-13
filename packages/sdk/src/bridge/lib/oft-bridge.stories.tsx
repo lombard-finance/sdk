@@ -1,20 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { ChainId } from '../../common/chains';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
-import {
-  canPerformAction,
-  useConnection,
-} from '../../stories/hooks/useConnection';
-import useQuery from '../../stories/hooks/useQuery';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
   wagmiDecorator,
 } from '../../stories/components/decorators';
 import { ErrorBlock } from '../../stories/components/error-block';
-import { ChainId } from '../../common/chains';
+import {
+  canPerformAction,
+  useConnection,
+} from '../../stories/hooks/useConnection';
+import useQuery from '../../stories/hooks/useQuery';
 import { OFT_BRIDGE_CHAINS } from './config';
-import { bridgeOFT, BridgeOFTParameters } from './oft-bridge';
+import { BridgeOFTParameters, bridgeOFT } from './oft-bridge';
 
 const meta = {
   title: 'bridge/bridgeOFT',
@@ -29,7 +29,7 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    to: ChainId.sonic,
+    to: ChainId.corn,
     amount: '0.0001',
     approve: true,
     env: 'prod',
@@ -38,7 +38,7 @@ export const WithParams: Story = {
     to: {
       mapping: ChainId,
       options: OFT_BRIDGE_CHAINS.map(
-        ch => Object.entries(ChainId).find(([k, v]) => v === ch)?.[0],
+        ch => Object.entries(ChainId).find(([, v]) => v === ch)?.[0],
       ),
       control: { type: 'select' },
     },

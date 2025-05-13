@@ -1,17 +1,12 @@
+import { Options } from '@layerzerolabs/lz-v2-utilities';
 import BigNumber from 'bignumber.js';
-import { CommonWriteParameters } from '../../common/parameters';
-import {
-  BridgeType,
-  getBridgeInfo,
-  MIN_BRIDGE_AMOUNT,
-  OFT_BRIDGE_CHAINS,
-  OFT_GAS_LIMIT,
-  OFT_HI_GAS_LIMIT,
-  OFT_HI_GAS_LIMIT_CHAINS,
-  OFTBridgeChain,
-} from './config';
+import { Address, pad } from 'viem';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
+import { ChainId } from '../../common/chains';
+import { CommonWriteParameters } from '../../common/parameters';
+import { approveLBTC } from '../../contract-functions';
+import { Token } from '../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
@@ -19,11 +14,16 @@ import {
 } from '../../tokens/tokens';
 import { getErrorMessage } from '../../utils/err';
 import toBigInt from '../../utils/numbers';
-import { Address, numberToHex, pad, parseEther, toBytes, toHex } from 'viem';
-import { approveLBTC } from '../../contract-functions';
-import { ChainId } from '../../common/chains';
-import { Options } from '@layerzerolabs/lz-v2-utilities';
-import { Token } from '../../tokens/token-addresses';
+import {
+  BridgeType,
+  MIN_BRIDGE_AMOUNT,
+  OFTBridgeChain,
+  OFT_BRIDGE_CHAINS,
+  OFT_GAS_LIMIT,
+  OFT_HI_GAS_LIMIT,
+  OFT_HI_GAS_LIMIT_CHAINS,
+  getBridgeInfo,
+} from './config';
 
 const DESTINATION_ENDPOINT_ID_MAP: Record<OFTBridgeChain, number> = {
   // Mainnets:
@@ -31,7 +31,6 @@ const DESTINATION_ENDPOINT_ID_MAP: Record<OFTBridgeChain, number> = {
   [ChainId.berachain]: 30362,
   [ChainId.corn]: 30331,
   [ChainId.etherlink]: 30292,
-  [ChainId.sonic]: 30332,
   [ChainId.swell]: 30335,
   // Testnets:
   [ChainId.sepolia]: 40161,

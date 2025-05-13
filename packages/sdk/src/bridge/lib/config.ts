@@ -1,10 +1,10 @@
+import BigNumber from 'bignumber.js';
 import { Abi } from 'viem';
 import { ChainId } from '../../common/chains';
+import { ContractInfo } from '../../common/contract-info';
+import { unique } from '../../utils/array';
 import CCIP_BRIDGE_ADAPTER_ABI from '../abi/CCIP_BRIDGE_ADAPTER_ABI.json';
 import OFT_BRIDGE_ADAPTER_ABI from '../abi/OFT_BRIDGE_ADAPTER_ABI.json';
-import { ContractInfo } from '../../common/contract-info';
-import BigNumber from 'bignumber.js';
-import { unique } from '../../utils/array';
 
 export const MIN_BRIDGE_AMOUNT = BigNumber(0.000001);
 
@@ -26,6 +26,7 @@ export const CCIP_BRIDGE_CHAINS = [
   ChainId.ethereum,
   ChainId.base,
   ChainId.binanceSmartChain,
+  ChainId.sonic,
   // Testnets:
   ChainId.baseSepoliaTestnet,
   ChainId.holesky,
@@ -38,7 +39,6 @@ export const OFT_BRIDGE_CHAINS = [
   ChainId.berachain,
   ChainId.corn,
   ChainId.etherlink,
-  ChainId.sonic,
   ChainId.swell,
   // Testnets:
   ChainId.berachainBartioTestnet,
@@ -56,7 +56,6 @@ export const OFT_HI_GAS_LIMIT = 200_000;
 export const OFT_HI_GAS_LIMIT_CHAINS = [
   // Mainnets:
   ChainId.berachain,
-  ChainId.sonic,
   // Testnets:
   ChainId.berachainBartioTestnet,
 ];
@@ -150,6 +149,30 @@ const CCIP_BRIDGES: CCIPBridgesConfig[] = [
     },
   ],
 
+  [
+    bridgeIdentifier([ChainId.ethereum, ChainId.sonic]),
+    {
+      type: BridgeType.CCIP,
+      contract: {
+        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
+        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+        chainId: ChainId.ethereum,
+      },
+    },
+  ],
+
+  [
+    bridgeIdentifier([ChainId.sonic, ChainId.ethereum]),
+    {
+      type: BridgeType.CCIP,
+      contract: {
+        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
+        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+        chainId: ChainId.sonic,
+      },
+    },
+  ],
+
   // Testnets:
 
   [
@@ -218,17 +241,6 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
     },
   ],
   [
-    bridgeIdentifier([ChainId.ethereum, ChainId.sonic]),
-    {
-      type: BridgeType.OFT,
-      contract: {
-        address: '0xcFEAc622BC6464acC759ACd9741a6D78F8b0d3Cd',
-        abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum,
-      },
-    },
-  ],
-  [
     bridgeIdentifier([ChainId.ethereum, ChainId.swell]),
     {
       type: BridgeType.OFT,
@@ -272,18 +284,6 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
         address: '0xC832183d4d5fc5831daaC892a93dBBfd798034E3',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
         chainId: ChainId.etherlink,
-      },
-    },
-  ],
-
-  [
-    bridgeIdentifier([ChainId.sonic, ChainId.ethereum]),
-    {
-      type: BridgeType.OFT,
-      contract: {
-        address: '0x630e12D53D4E041b8C5451aD035Ea841E08391d7',
-        abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.sonic,
       },
     },
   ],
