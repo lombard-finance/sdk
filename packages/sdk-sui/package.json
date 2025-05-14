@@ -11,7 +11,10 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "engines": {
     "node": ">= 22.14.0"
   },
@@ -31,8 +34,8 @@
     "web3": "^4"
   },
   "dependencies": {
-    "@lombard.finance/sdk-common": "^3.0.0",
     "@lombard.finance/sdk": "^3.1.0",
+    "@lombard.finance/sdk-common": "^3.0.0",
     "@mysten/sui": "^1.21.1"
   },
   "devDependencies": {

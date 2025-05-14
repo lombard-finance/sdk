@@ -11,7 +11,10 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "engines": {
     "node": ">= 22.14.0"
   },
@@ -27,9 +30,9 @@
   },
   "devDependencies": {
     "@bitcoin-js/tiny-secp256k1-asmjs": "2.2.3",
+    "bitcoinjs-lib": "6.1.5",
     "rimraf": "^5",
     "typedoc": "^0.26.6",
-    "typescript": "^5.4.5",
-    "bitcoinjs-lib": "6.1.5"
+    "typescript": "^5.4.5"
   }
 }
