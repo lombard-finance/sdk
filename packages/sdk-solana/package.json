@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-solana",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -11,12 +11,9 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "engines": {
-    "node": ">= 20.18.0"
+    "node": ">= 22.14.0"
   },
   "scripts": {
     "types": "tsc --noEmit",
