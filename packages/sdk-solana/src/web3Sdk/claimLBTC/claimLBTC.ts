@@ -5,7 +5,7 @@ import { MintPayload } from '../../common/mintPayload';
 import { getConfig, networkToEnv } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';
 import { getLbtcIdl } from '../../idl/getLbtcIdl';
-import { SolanaNetwork, SolanaProviderInterface } from '../../types';
+import { SolanaNetwork, ISolanaWalletProvider } from '../../types';
 import { sendAndConfirmTransaction } from '../../utils';
 import { createDebugLogger } from '../../utils/createDebugLogger';
 import { verifyMatchingRecipient } from '../../utils/recipients';
@@ -62,7 +62,7 @@ export interface ClaimLBTCParams {
  * @returns Transaction signature
  */
 export async function claimLBTC(
-  provider: SolanaProviderInterface,
+  provider: ISolanaWalletProvider,
   params: ClaimLBTCParams,
 ): Promise<string> {
   const {

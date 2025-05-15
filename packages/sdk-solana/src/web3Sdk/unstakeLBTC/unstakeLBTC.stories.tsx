@@ -10,7 +10,6 @@ import { SolanaNetwork } from '../../types';
 import { unstakeLBTC } from './unstakeLBTC';
 import useQuery from '../../stories/hooks/useQuery';
 import { functionType } from '../../stories/decorators/function-type';
-import { errorToString } from '../../utils/errors';
 
 interface UnstakeLbtcStoryArgs {
   network: SolanaNetwork;
@@ -45,17 +44,12 @@ export const StoryView = ({
         'Amount must be a positive integer in satoshis (set in args).',
       );
 
-    try {
-      const result = await unstakeLBTC(provider, {
-        amount: amountSats,
-        btcAddress,
-        network: network,
-      });
-      return result;
-    } catch (err: unknown) {
-      console.error('Unstake Error:', err);
-      throw err instanceof Error ? err : new Error(errorToString(err));
-    }
+    const result = await unstakeLBTC(provider, {
+      amount: amountSats,
+      btcAddress,
+      network: network,
+    });
+    return result;
   };
 
   const {

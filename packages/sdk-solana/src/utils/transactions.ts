@@ -3,7 +3,7 @@ import {
   Transaction,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { SolanaProviderInterface } from '../types';
+import { ISolanaWalletProvider } from '../types';
 
 // Helper function to send and confirm transactions
 export async function sendAndConfirmTransaction({
@@ -14,7 +14,7 @@ export async function sendAndConfirmTransaction({
 }: {
   instruction: Transaction | TransactionInstruction;
   connection: Connection;
-  provider: SolanaProviderInterface;
+  provider: ISolanaWalletProvider;
   debugLabel?: string;
 }): Promise<{ signature: string; signedTransaction: Transaction }> {
   const transaction = new Transaction();

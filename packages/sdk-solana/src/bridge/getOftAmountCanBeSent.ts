@@ -4,7 +4,7 @@ import { PublicKey } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import { getConfig, getRpcEndpoint } from '../const/getConfig';
 import { getMinimalUmiInstance } from '../utils/bridgeUtils';
-import { wrapError } from '../utils/errors';
+import { ErrorCode, SolanaSdkError } from '../utils/errors';
 import { Env } from '@lombard.finance/sdk-common';
 
 // Constants
@@ -48,6 +48,10 @@ export async function getOftAmountCanBeSent({
       peerConfig.outboundRateLimiter.value.tokens.toString(),
     ).shiftedBy(-LBTC_DECIMALS);
   } catch (error) {
-    throw wrapError(error, 'Failed to fetch Solana OFT rate limit');
+    throw SolanaSdkError.wrap(
+      error,
+      ErrorCode.RPC_ERROR,
+      'Failed to fetch Solana OFT rate limit',
+    );
   }
 }

@@ -1,54 +1,47 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import {
-  SolanaProviderInterface,
-  WalletType,
+  ISolanaWalletProvider,
+  InjectedWallet,
 } from '../../types/walletProviders';
-import {
-  getSolanaWalletProvider,
-  isWalletAvailable,
-} from '../../web3Sdk/detectWallet/detectWallet';
+import { getSolanaWalletProvider } from '../../web3Sdk/detectWallet/detectWallet';
+import { ErrorCode, SolanaSdkError } from '../../utils';
 
 interface ConnectRequest {
-  walletName: WalletType;
+  walletName: InjectedWallet;
 }
 
 export interface ConnectionData {
   address: string;
-  walletName: WalletType;
-  provider: SolanaProviderInterface;
+  walletName: InjectedWallet;
+  provider: ISolanaWalletProvider;
 }
 
-export const DEFAULT_WALLET = WalletType.phantom;
+export const DEFAULT_WALLET = InjectedWallet.PHANTOM;
 
 export interface UseConnectResponse {
   data: ConnectionData | null;
   isConnected: boolean;
-  error: string | null;
+  error?: SolanaSdkError;
   isLoading: boolean;
   connect: (request: ConnectRequest) => Promise<void>;
   disconnect: () => Promise<void>;
 }
 
 export function useConnect(): UseConnectResponse {
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<SolanaSdkError | undefined>(undefined);
   const [connectionData, setConnectionData] = useState<ConnectionData | null>(
     null,
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [currentWalletName, setCurrentWalletName] = useState<WalletType | null>(
-    null,
-  );
+  const [currentWalletName, setCurrentWalletName] =
+    useState<InjectedWallet | null>(null);
 
   const requestConnect = useCallback(async (request: ConnectRequest) => {
     const { walletName } = request;
     setCurrentWalletName(walletName);
     setIsLoading(true);
-    setError(null);
+    setError(undefined);
     console.log(`Connecting to ${walletName}...`);
-
-    if (!isWalletAvailable(walletName)) {
-      throw new Error(`${walletName} wallet not found or not installed.`);
-    }
 
     const provider = getSolanaWalletProvider(walletName);
 
@@ -98,7 +91,7 @@ export function useConnect(): UseConnectResponse {
         console.error('Connection Hook Error:', err);
         setConnectionData(null);
         setCurrentWalletName(null);
-        setError(err instanceof Error ? err.message : String(err));
+        setError(SolanaSdkError.wrap(err, ErrorCode.CONNECTION_ERROR));
       } finally {
         setIsLoading(false);
       }
@@ -109,7 +102,7 @@ export function useConnect(): UseConnectResponse {
   const disconnect = useCallback(async () => {
     console.log(`Disconnecting ${currentWalletName}...`);
     setIsLoading(true);
-    setError(null);
+    setError(undefined);
     if (connectionData?.provider?.disconnect) {
       try {
         await connectionData.provider.disconnect();
@@ -132,5 +125,3 @@ export function useConnect(): UseConnectResponse {
     disconnect,
   };
 }
-
-export default useConnect;

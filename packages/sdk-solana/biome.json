@@ -7,7 +7,8 @@
       "**/*.stories.tsx",
       "**/stories",
       "**/*.test.ts",
-      "vitest.config.ts"
+      "vitest.config.ts",
+      "sdk-docs"
     ]
   }
 }

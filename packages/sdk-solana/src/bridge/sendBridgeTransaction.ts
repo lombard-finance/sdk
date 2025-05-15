@@ -21,7 +21,7 @@ import {
   getLBTCAddress,
   getRpcEndpoint,
 } from '../const/getConfig';
-import { SolanaProviderInterface } from '../types';
+import { ISolanaWalletProvider } from '../types';
 import {
   getMinimalUmiInstance,
   getRecipientBytes32,
@@ -34,8 +34,8 @@ const LBTC_DECIMALS = 8;
 const BRDIGE_COMPUTE_UNITS = 400000;
 
 interface SendBridgeTransactionParams {
-  /** Solana wallet provider conforming to SolanaProviderInterface */
-  provider: SolanaProviderInterface;
+  /** Solana wallet provider conforming to ISolanaWalletProvider */
+  provider: ISolanaWalletProvider;
   /** The LayerZero environment ('prod', 'stage', 'testnet') */
   env: Env;
   /** LayerZero Endpoint ID for the destination chain */

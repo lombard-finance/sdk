@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { errorToString } from '../../utils/errors';
+import { SolanaSdkError } from '../../utils/errors';
 
 type QueryFn<T> = () => Promise<T>;
 
 interface UseQueryResult<T> {
   data: T | null;
-  error: string | null;
+  error?: SolanaSdkError;
   isLoading: boolean;
   refetch: () => void;
 }
@@ -21,23 +21,23 @@ interface UseQueryResult<T> {
  */
 export function useQuery<T>(
   queryFn: QueryFn<T>,
-  dependencies: any[] = [],
+  dependencies: unknown[] = [],
   shouldFetch = true,
 ): UseQueryResult<T> {
   const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<SolanaSdkError | undefined>(undefined);
   const [isLoading, setLoading] = useState<boolean>(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError(undefined);
     setData(null);
     try {
       const result = await queryFn();
       setData(result);
     } catch (err) {
       console.error(err);
-      setError(errorToString(err));
+      setError(SolanaSdkError.wrap(err));
     } finally {
       setLoading(false);
     }

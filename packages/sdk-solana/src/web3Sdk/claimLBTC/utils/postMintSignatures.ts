@@ -1,6 +1,6 @@
 import { Program } from '@coral-xyz/anchor';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { SolanaProviderInterface } from 'types';
+import { ISolanaWalletProvider } from 'types';
 import { Lbtc } from '../../../idl/lbtc';
 import { sendAndConfirmTransaction } from '../../../utils';
 import { parseSignaturesFromProof } from './signatureUtils';
@@ -15,7 +15,7 @@ export const postMintSignatures = async ({
   proofSignature,
 }: {
   connection: Connection;
-  provider: SolanaProviderInterface;
+  provider: ISolanaWalletProvider;
   program: Program<Lbtc>;
   configPDA: PublicKey;
   mintPayloadPDA: PublicKey;

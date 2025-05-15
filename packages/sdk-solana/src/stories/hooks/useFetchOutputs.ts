@@ -2,6 +2,7 @@ import axios from 'axios';
 // packages/sdk-solana/src/stories/hooks/useFetchOutputs.ts
 import { useCallback, useEffect, useState } from 'react';
 import { SolanaNetwork } from '../../types'; // Adjust path as needed
+import { ErrorCode, SolanaSdkError } from '../../utils';
 
 // Interfaces (copied from story file)
 export interface IOutput {
@@ -35,7 +36,7 @@ interface UseFetchOutputsParams {
 interface UseFetchOutputsResult {
   outputs: IOutput[];
   isLoadingOutputs: boolean;
-  outputsError: string | null;
+  outputsError: SolanaSdkError | undefined;
   refetchOutputs: () => void;
 }
 
@@ -46,18 +47,20 @@ export function useFetchOutputs({
 }: UseFetchOutputsParams): UseFetchOutputsResult {
   const [outputs, setOutputs] = useState<IOutput[]>([]);
   const [isLoadingOutputs, setIsLoadingOutputs] = useState<boolean>(false);
-  const [outputsError, setOutputsError] = useState<string | null>(null);
+  const [outputsError, setOutputsError] = useState<SolanaSdkError | undefined>(
+    undefined,
+  );
 
   const fetchOutputs = useCallback(async () => {
     if (!address || !isConnected) {
       setOutputs([]);
-      setOutputsError(null);
+      setOutputsError(undefined);
       setIsLoadingOutputs(false);
       return;
     }
 
     setIsLoadingOutputs(true);
-    setOutputsError(null);
+    setOutputsError(undefined);
     setOutputs([]);
 
     try {
@@ -92,13 +95,20 @@ export function useFetchOutputs({
       setOutputs(pendingOutputs);
 
       if (pendingOutputs.length === 0) {
-        setOutputsError('No pending outputs available for this address.');
+        setOutputsError(
+          new SolanaSdkError(
+            'No pending outputs available for this address.',
+            ErrorCode.UNKNOWN_ERROR,
+          ),
+        );
       }
     } catch (error) {
       setOutputsError(
-        `Failed to fetch outputs: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
+        SolanaSdkError.wrap(
+          error,
+          ErrorCode.RPC_ERROR,
+          'Failed to fetch outputs',
+        ),
       );
     } finally {
       setIsLoadingOutputs(false);
