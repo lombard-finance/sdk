@@ -34,6 +34,7 @@ export const WithParams: Story = {
     to: EXAMPLE_BABYLON_ADDRESS,
     amount: '0.001',
     rewardToken: RewardToken.BABY,
+    signingDataVariant: 'json',
     chainId: ChainId.ethereum,
     env: Env.stage,
   },

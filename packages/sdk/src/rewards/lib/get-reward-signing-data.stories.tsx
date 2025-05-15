@@ -34,6 +34,7 @@ export const WithParams: Story = {
     amount: '0.001',
     fee: '0.00044',
     rewardToken: RewardToken.BABY,
+    variant: 'json',
     env: Env.stage,
   },
 };
