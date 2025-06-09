@@ -3,7 +3,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import { publicKey as umiPublicKey } from '@metaplex-foundation/umi';
 import BigNumber from 'bignumber.js';
 import { getConfig, getRpcEndpoint } from '../const/getConfig';
-import { SolanaProviderInterface } from '../types';
+import { ISolanaWalletProvider } from '../types';
 import {
   getMinimalUmiInstance,
   getRecipientBytes32,
@@ -12,7 +12,7 @@ import {
 
 interface QuoteBridgeFeeParams {
   env: Env;
-  provider: SolanaProviderInterface;
+  provider: ISolanaWalletProvider;
   sendParams: {
     dstEid?: number;
     to: string;

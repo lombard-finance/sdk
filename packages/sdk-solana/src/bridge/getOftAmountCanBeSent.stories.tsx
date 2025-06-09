@@ -1,11 +1,9 @@
 import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
-import React from 'react';
-import { getOftAmountCanBeSent } from './getOftAmountCanBeSent';
-import useQuery from '../stories/hooks/useQuery';
-import { functionType } from '../stories/decorators/function-type';
-import { errorToString } from '../utils/errors';
 import { Button, ErrorDisplay, ResultDisplay } from '../stories/components';
+import { functionType } from '../stories/decorators/function-type';
+import useQuery from '../stories/hooks/useQuery';
+import { getOftAmountCanBeSent } from './getOftAmountCanBeSent';
 
 interface GetOftAmountStoryArgs {
   env: Env;
@@ -52,7 +50,7 @@ export const StoryView = ({ env, destinationEid }: GetOftAmountStoryArgs) => {
           title="Amount Can Be Sent (base units)"
         />
       )}
-      {error && <ErrorDisplay error={errorToString(error)} title="Error" />}
+      {error && <ErrorDisplay error={error} title="Error" />}
     </>
   );
 };

@@ -7,13 +7,11 @@ import {
   RpcResponseAndContext,
 } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
-import { INVALID_ADDRESS_ERROR } from '../../const/errors';
-import { getRpcEndpoint } from '../../const/getConfig';
+import { INVALID_ADDRESS_ERROR } from '../../const/known-errors';
 import { DEFAULT_NETWORK, getConnection } from '../../const/rpcUrls';
 import { SOL_DECIMALS, SOL_SCALE } from '../../const/token';
-import { ErrorCode } from '../../types/errors';
 import { GetBalanceParams, GetBalanceResult } from '../../types/sdkTypes';
-import { errorToString, wrapError } from '../../utils/errors';
+import { ErrorCode, SolanaSdkError } from '../../utils/errors';
 
 const isParsedAccountData = (
   accountInfo: RpcResponseAndContext<AccountInfo<
@@ -143,7 +141,7 @@ export async function getBalance({
       try {
         new PublicKey(tokenAddress);
       } catch (error) {
-        throw wrapError(
+        throw SolanaSdkError.wrap(
           error,
           ErrorCode.INVALID_ADDRESS,
           `Invalid token address: ${tokenAddress}`,
@@ -168,16 +166,16 @@ export async function getBalance({
           'RPC access forbidden (HTTP 403). The public Solana RPC endpoints have strict rate limits ' +
           'and may block requests. For production use, please use a dedicated RPC provider.';
 
-        throw wrapError(error, ErrorCode.NETWORK_ERROR, errorMessage);
+        throw SolanaSdkError.wrap(error, ErrorCode.NETWORK_ERROR, errorMessage);
       }
 
-      throw wrapError(
+      throw SolanaSdkError.wrap(
         error,
         ErrorCode.RPC_ERROR,
-        `Failed to get balance: ${errorToString(error)}`,
+        `Failed to get balance for ${publicKey}`,
       );
     }
   } catch (error) {
-    throw wrapError(error);
+    throw SolanaSdkError.wrap(error);
   }
 }

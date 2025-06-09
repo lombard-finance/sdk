@@ -5,12 +5,12 @@ import {
   ErrorDisplay,
   ResultDisplay,
 } from '../../stories/components';
-import { useConnect } from '../../stories/hooks/useConnect';
-import { SolanaNetwork } from '../../types';
-import { signLbtcDestinationAddrSolana } from './signLbtcDestinationAddrSolana';
-import useQuery from '../../stories/hooks/useQuery';
 import { functionType } from '../../stories/decorators/function-type';
-import { errorToString } from '../../utils/errors';
+import { useConnect } from '../../stories/hooks/useConnect';
+import useQuery from '../../stories/hooks/useQuery';
+import { SolanaNetwork } from '../../types';
+import { SolanaSdkError } from '../../utils';
+import { signLbtcDestinationAddrSolana } from './signLbtcDestinationAddrSolana';
 
 interface SignLbtcDestAddrStoryArgs {
   network: SolanaNetwork;
@@ -38,7 +38,7 @@ export const StoryView = ({ network }: SignLbtcDestAddrStoryArgs) => {
       return result.signature;
     } catch (err: unknown) {
       console.error('Error signing destination address:', err);
-      throw err instanceof Error ? err : new Error(errorToString(err));
+      throw err instanceof Error ? err : SolanaSdkError.wrap(err);
     }
   };
 

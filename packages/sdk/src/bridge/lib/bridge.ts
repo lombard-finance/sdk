@@ -1,17 +1,17 @@
 import BigNumber from 'bignumber.js';
+import { Address } from 'viem';
+import { CommonWriteParameters } from '../../common/parameters';
 import { bridgeCCIP } from './ccip-bridge';
 import {
   BRIDGE_EXPLORER_URL_MAP,
   BridgeChain,
   BridgeType,
-  CCIP_BRIDGE_CHAINS,
   CCIPBridgeChain,
-  getBridgeInfo,
+  CCIP_BRIDGE_CHAINS,
   OFTBridgeChain,
+  getBridgeInfo,
 } from './config';
 import { bridgeOFT } from './oft-bridge';
-import { Address } from 'viem';
-import { CommonWriteParameters } from '../../common/parameters';
 
 export type BridgeParameters = {
   /** The destination chain id. */

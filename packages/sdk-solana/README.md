@@ -1,21 +1,12 @@
 # @lombard.finance/sdk-solana
 
-Solana SDK for the Lombard Finance platform, providing functionality to interact with Solana wallets and blockchain.
+The Lombard's Solana SDK package provides a set of function that allow interacting with the Lombard protocol and its features for Solana users.
 
-## Features
-
-- Connect to Solana wallets (Phantom, OKX)
-- Get SOL and SPL token balances
-- Send SOL and SPL tokens
-- Sign messages
-- Validate Solana addresses
-- Network configuration
-- Advanced error handling
 
 ## Installation
 
 ```bash
-npm install @lombard.finance/sdk-solana
+npm install @lombard.finance/sdk @lombard.finance/sdk-solana
 ```
 
 ## Usage
@@ -94,35 +85,60 @@ const { signature, publicKey } = await signMessage({
 console.log('Signature:', signature);
 ```
 
-### Error Handling
+### Generating BTC deposit address
 
-```typescript
-import { isSdkError, ErrorCode } from '@lombard.finance/sdk-solana';
+Similar to the EVM SDK (`@lombard.finance/sdk`) the generation of the deposit address requires a signature.
+To successfully generate a deposit address run `signLbtcDestinationAddrSolana` and then use the generated signature as a parameter of the EVM SDK's `generateDepositBtcAddress`.
 
-try {
-  // SDK operation
-} catch (error) {
-  if (isSdkError(error)) {
-    switch (error.code) {
-      case ErrorCode.WALLET_NOT_FOUND:
-        console.error('Wallet not found:', error.message);
-        break;
-      case ErrorCode.INVALID_ADDRESS:
-        console.error('Invalid address:', error.message);
-        break;
-      default:
-        console.error('Error:', error.message);
-    }
-  } else {
-    console.error('Unknown error:', error);
-  }
-}
+```javascript
+
+const { signature } = await signLbtcDestinationAddrSolana({
+  // The connected wallet provider:
+  provider: walletProvider,
+  // The chosen Solana chain (network):
+  network: 'mainnet-beta'
+});
+
+const depositAddress = await generateDepositBtcAddress({
+  // The connected address
+  address,
+  // The chosen Solana chain (network) - prefixed with `solana:`
+  chainId: 'solana:mainnet-beta',
+  // The generated signature:
+  signature,
+  // Optional env
+  env: Env.prod,
+  // Optional partnerId
+  partnerId,
+}),
+
 ```
 
-## API Reference
+### Claiming LBTC
 
-For detailed API documentation, see the [API Reference](./docs/api.md).
+This operation mints the deposited amount of BTC into LBTC and transfers that
+to the provided recipient address.
 
-## License
+```javascript
+const txHash = await claimLBTC(provider, {
+  recipientAddress: address,
+  amount: '10000',
+  network: 'mainnet-beta',
+  // The signatures (obtained from `getDepositsByAddress`)
+  proofSignature: selectedOutput.proof,
+  rawPayload: selectedOutput.raw_payload,
+});
+```
 
-MIT
+### Unstaking LBTC
+
+This operation burns given amount of LBTC and initiates transfer of BTC to the
+given BTC address.
+
+```javascript
+const txHash = await unstakeLBTC(provider, {
+  amount: '10000',
+  btcAddress,
+  network: 'mainnet-beta',
+});
+```

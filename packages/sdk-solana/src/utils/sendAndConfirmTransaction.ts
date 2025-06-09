@@ -1,12 +1,12 @@
 import { Connection, SendOptions, Transaction } from '@solana/web3.js';
-import { SolanaProviderInterface } from '../types'; // Assuming SolanaProviderInterface is defined here
+import { ISolanaWalletProvider } from '../types'; // Assuming ISolanaWalletProvider is defined here
 
 /**
  * Signs, sends, and confirms a transaction.
  *
  * @param connection Solana connection object
  * @param transaction Transaction to send
- * @param provider Wallet provider implementing SolanaProviderInterface
+ * @param provider Wallet provider implementing ISolanaWalletProvider
  * @param debugLog Optional debug logging function
  * @param options Optional SendOptions for sendRawTransaction
  * @returns Transaction signature
@@ -15,7 +15,7 @@ import { SolanaProviderInterface } from '../types'; // Assuming SolanaProviderIn
 export async function sendAndConfirmTransaction(
   connection: Connection,
   transaction: Transaction,
-  provider: SolanaProviderInterface,
+  provider: ISolanaWalletProvider,
   debugLog: (...args: unknown[]) => void = console.log, // Default to console.log
   options?: SendOptions,
 ): Promise<string> {

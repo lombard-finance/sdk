@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { SolanaNetwork } from '../../../types';
+import { InjectedWallet } from '../../../types/walletProviders';
 import { DEFAULT_WALLET, UseConnectResponse } from '../../hooks/useConnect';
 import { Button } from '../Button/Button';
 import { SectionCard } from '../index';
-import { WalletType } from '../../../types/walletProviders';
-import { SolanaNetwork } from '../../../types';
 
 export const ConnectButton = ({
   connect,
@@ -23,7 +23,7 @@ export const ConnectButton = ({
   network?: SolanaNetwork;
 }) => {
   const [selectedWallet, setSelectedWallet] =
-    useState<WalletType>(DEFAULT_WALLET);
+    useState<InjectedWallet>(DEFAULT_WALLET);
 
   const handleConnect = () => {
     connect({ walletName: selectedWallet });
@@ -41,11 +41,13 @@ export const ConnectButton = ({
               <select
                 title="Select Wallet"
                 className="form-select"
-                onChange={e => setSelectedWallet(e.target.value as WalletType)}
+                onChange={e =>
+                  setSelectedWallet(e.target.value as InjectedWallet)
+                }
                 value={selectedWallet}
                 disabled={isLoading}
               >
-                {Object.values(WalletType).map(opt => (
+                {Object.values(InjectedWallet).map(opt => (
                   <option key={opt} value={opt}>
                     {opt}
                   </option>
@@ -63,7 +65,9 @@ export const ConnectButton = ({
               </Button>
             </div>
           </div>
-          {error && <div className="alert alert-danger mt-2 mb-0">{error}</div>}
+          {error && (
+            <div className="alert alert-danger mt-2 mb-0">{error.message}</div>
+          )}
         </div>
       ) : (
         <div className="container px-0">
@@ -94,7 +98,9 @@ export const ConnectButton = ({
               Disconnect
             </Button>
           </div>
-          {error && <div className="alert alert-danger mt-2 mb-0">{error}</div>}
+          {error && (
+            <div className="alert alert-danger mt-2 mb-0">{error.message}</div>
+          )}
         </div>
       )}
     </SectionCard>

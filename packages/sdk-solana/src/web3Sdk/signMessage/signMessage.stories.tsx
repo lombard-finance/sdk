@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   ConnectButton,
   ErrorDisplay,
   ResultDisplay,
 } from '../../stories/components';
-import { useConnect } from '../../stories/hooks/useConnect';
-import { errorToString } from '../../utils/errors';
-import { signMessage } from './signMessage';
-import useQuery from '../../stories/hooks/useQuery';
 import { functionType } from '../../stories/decorators/function-type';
+import { useConnect } from '../../stories/hooks/useConnect';
+import useQuery from '../../stories/hooks/useQuery';
+import { SolanaSdkError } from '../../utils/errors';
+import { signMessage } from './signMessage';
 
 type SignMessageProps = {
   message: string;
@@ -43,7 +43,7 @@ export function StoryView(props: SignMessageProps) {
       return result.signature;
     } catch (err: unknown) {
       console.error('Sign Message Error:', err);
-      throw err instanceof Error ? err : new Error(errorToString(err));
+      throw err instanceof Error ? err : SolanaSdkError.wrap(err);
     }
   };
 

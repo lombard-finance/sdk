@@ -1,19 +1,15 @@
 import { PublicKey } from '@solana/web3.js';
 
-/**
- * Represents the wallet types supported for Solana
- */
-export const WalletType = {
-  phantom: 'phantom',
-  okx: 'okx',
-  coinbase: 'coinbase',
-} as const;
-export type WalletType = (typeof WalletType)[keyof typeof WalletType];
+export enum InjectedWallet {
+  PHANTOM = 'phantom',
+  OKX = 'okx',
+  COINBASE = 'coinbase',
+}
 
 /**
- * Interface for Solana wallet providers
+ * The Solana wallet interface.
  */
-export interface SolanaProviderInterface {
+export interface ISolanaWalletProvider {
   /**
    * Whether the wallet is connected
    */
@@ -62,29 +58,40 @@ export interface SolanaProviderInterface {
 /**
  * Interface for Phantom wallet provider
  */
-export interface PhantomProvider extends SolanaProviderInterface {
+export interface PhantomWalletProvider extends ISolanaWalletProvider {
   isPhantom?: boolean;
 }
 
 /**
  * Interface for OKX wallet provider
  */
-export interface OkxProvider extends SolanaProviderInterface {
+export interface OkxWalletProvider extends ISolanaWalletProvider {
   isOkxWallet?: boolean;
 }
 
 /**
  * Interface for Coinbase wallet provider
  */
-export interface CoinbaseProvider extends SolanaProviderInterface {
+export interface CoinbaseWalletProvider extends ISolanaWalletProvider {
   isCoinbaseWallet?: boolean;
 }
 
-/**
- * Extended Window interface with wallet providers
- */
-export interface WindowWithWallets extends Window {
-  phantom?: { solana: PhantomProvider };
-  okxwallet?: { solana: OkxProvider };
-  coinbaseSolana?: CoinbaseProvider;
+export type SolanaWalletProvider<T extends InjectedWallet> =
+  T extends InjectedWallet.COINBASE
+    ? CoinbaseWalletProvider
+    : T extends InjectedWallet.OKX
+      ? OkxWalletProvider
+      : T extends InjectedWallet.PHANTOM
+        ? PhantomWalletProvider
+        : undefined;
+
+export interface WindowWithSolanaInjectedWallets extends Window {
+  /** The injected PHANTOM wallet with Solana support */
+  phantom?: { solana?: PhantomWalletProvider };
+
+  /** The injected OKX wallet with Solana support */
+  okxwallet?: { solana?: OkxWalletProvider };
+
+  /** The injected COINBASE wallet with Solana support */
+  coinbaseSolana?: CoinbaseWalletProvider;
 }

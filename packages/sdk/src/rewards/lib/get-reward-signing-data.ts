@@ -21,6 +21,8 @@ export type GetRewardSigningDataParameters = {
   fee: BigNumber.Value;
   /** The reward token. */
   rewardToken: RewardToken;
+  /** The signing data variant */
+  variant?: 'json' | 'plain-text';
 } & IEnvParam;
 
 /** Retrieves the signing data (message) to be signed by the reward claimer. */
@@ -30,6 +32,7 @@ export async function getRewardSigningData({
   amount,
   fee,
   rewardToken,
+  variant = 'json',
   env,
 }: GetRewardSigningDataParameters) {
   if (!isRewardTokenSupported(rewardToken)) {
@@ -44,6 +47,7 @@ export async function getRewardSigningData({
       params: {
         amount: BigNumber(amount).toFixed(),
         fee: BigNumber(fee).toFixed(),
+        plain: variant === 'plain-text',
       },
     },
   );

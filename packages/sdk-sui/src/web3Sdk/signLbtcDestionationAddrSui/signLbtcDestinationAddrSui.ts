@@ -6,7 +6,6 @@ import {
 import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 import { getUnifiedChainId } from '../../getUnifiedChainId';
-import { PHANTOM_WALLET_NAME } from '../../const';
 
 export const SIGNATURE_SIZE = -132;
 
@@ -36,14 +35,10 @@ export async function signLbtcDestinationAddrSui({
   const message = Buffer.from(
     `destination chain id is ${getUnifiedChainId(chainId)}`,
     'utf8',
-  );
-
-  const isPhantomWallet = wallet.name === PHANTOM_WALLET_NAME;
+  ) as unknown as Uint8Array;
 
   return wallet.features['sui:signPersonalMessage'].signPersonalMessage({
-    message: (isPhantomWallet
-      ? message.toString('base64')
-      : message) as unknown as Uint8Array,
+    message,
     account,
   });
 }

@@ -22,6 +22,8 @@ export type ClaimRewardParameters = {
   amount: BigNumber.Value;
   /** The destination address. */
   to: string;
+  /** Signing data variant */
+  signingDataVariant?: Parameters<typeof getRewardSigningData>[0]['variant'];
 } & CommonWriteParameters;
 
 const REQUEST_WITHDRAW_URL =
@@ -33,6 +35,7 @@ export async function claimReward({
   rewardToken,
   amount,
   to,
+  signingDataVariant,
   chainId,
   provider,
   env,
@@ -57,6 +60,7 @@ export async function claimReward({
     amount,
     fee: withdrawalFee,
     rewardToken,
+    variant: signingDataVariant,
     env,
   });
 
@@ -69,6 +73,7 @@ export async function claimReward({
     amount: BigNumber(amount).toFixed(),
     fee: BigNumber(withdrawalFee).toFixed(),
     signature,
+    plain: signingDataVariant === 'plain-text',
   };
 
   const { baseApiUrl } = getApiConfig(env);

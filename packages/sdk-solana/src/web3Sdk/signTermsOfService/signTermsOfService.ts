@@ -1,11 +1,11 @@
 import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
-import { SolanaProviderInterface } from '../../types';
+import { ISolanaWalletProvider } from '../../types';
 
 const SIGN_MESSAGE =
   'I have read and agreed to the terms of service: https://docs.lombard.finance/legals/terms-of-service';
 
 interface SignTermsOfServiceParams {
-  provider: SolanaProviderInterface;
+  provider: ISolanaWalletProvider;
 }
 
 /**

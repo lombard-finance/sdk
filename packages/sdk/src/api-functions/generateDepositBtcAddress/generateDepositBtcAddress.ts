@@ -1,3 +1,7 @@
+import {
+  Blockchain,
+  verifyAddress,
+} from '@lombard.finance/btc-deposit-addresses';
 import axios from 'axios';
 import { getApiConfig } from '../../common/api-config';
 import { getChainNameById } from '../../common/blockchain-identifier';
@@ -5,13 +9,9 @@ import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 import {
-  getDepositBtcAddresses,
   VERIFIABLE_CHAINS,
+  getDepositBtcAddresses,
 } from '../getDepositBtcAddress';
-import {
-  Blockchain,
-  verifyAddress,
-} from '@lombard.finance/btc-deposit-addresses';
 
 /**
  * The address wich will be returned if the provided EVM address is sanctioned.

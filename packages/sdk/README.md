@@ -572,6 +572,7 @@ const withdrawal = await claimReward({
   rewardToken, // The reward token, e.g. RewardToken.BABY
   amount, // The amount to be claimed (withdrawn)
   to, // The destination address, e.g. BABYLON chain address.
+  signingDataVariant: 'json', // Optional signing data variant, available values: 'json', 'plain-text'
   chainId, // The chain id
   provider, // The EIP-1193 provider.
 });

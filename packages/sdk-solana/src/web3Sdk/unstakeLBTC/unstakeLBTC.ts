@@ -3,13 +3,15 @@ import { getOutputScript } from '@lombard.finance/sdk-common';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
 import { DEFAULT_ENV, getConfig, networkToEnv } from '../../const/getConfig';
-import { getLbtcIdl } from '../../idl/getLbtcIdl';
-import { SolanaNetwork, SolanaProviderInterface } from '../../types';
-import { ErrorCode } from '../../types/errors';
-import { sendAndConfirmTransaction } from '../../utils';
-import { wrapError } from '../../utils/errors';
-import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
 import { getConnection } from '../../const/rpcUrls';
+import { getLbtcIdl } from '../../idl/getLbtcIdl';
+import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
+import {
+  ErrorCode,
+  SolanaSdkError,
+  sendAndConfirmTransaction,
+} from '../../utils';
+import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
 
 export interface UnstakeLBTCParams {
   /**
@@ -40,7 +42,7 @@ export interface UnstakeLBTCParams {
  * @returns Transaction signature
  */
 export async function unstakeLBTC(
-  provider: SolanaProviderInterface,
+  provider: ISolanaWalletProvider,
   params: UnstakeLBTCParams,
 ): Promise<string> {
   try {
@@ -97,7 +99,7 @@ export async function unstakeLBTC(
 
     return signature;
   } catch (error: unknown) {
-    throw wrapError(
+    throw SolanaSdkError.wrap(
       error,
       ErrorCode.UNSTAKE_REJECTED,
       'LBTC unstake operation failed',

@@ -1,3 +1,7 @@
+import {
+  Blockchain,
+  verifyAddress,
+} from '@lombard.finance/btc-deposit-addresses';
 import axios from 'axios';
 import { getApiConfig } from '../../common/api-config';
 import {
@@ -6,15 +10,11 @@ import {
 } from '../../common/blockchain-identifier';
 import {
   ChainId,
-  SolanaChain,
   SUI_MAINNET_CHAIN,
+  SolanaChain,
   SuiChain,
 } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
-import {
-  verifyAddress,
-  Blockchain,
-} from '@lombard.finance/btc-deposit-addresses';
 import { orderBy } from '../../utils/array';
 
 export const VERIFIABLE_CHAINS: Partial<

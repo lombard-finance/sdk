@@ -18,8 +18,6 @@ export {
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
   SOLANA_TESTNET_CHAIN,
-} from './common/chains';
-export {
   SUI_DEVNET_CHAIN,
   SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
@@ -34,14 +32,14 @@ export * from './tokens/lbtc-addresses';
 export * from './tokens/tokens';
 
 // Re-exports:
-export type { Address, EIP1193Provider } from 'viem';
 export { Env } from '@lombard.finance/sdk-common';
+export type { Address, EIP1193Provider } from 'viem';
 
 // Bridge:
 export {
-  getBridgeInfo,
   bridge,
   bridgeCCIP,
-  type BridgeParameters,
+  getBridgeInfo,
   type BridgeCCIPParameters,
+  type BridgeParameters,
 } from './bridge';

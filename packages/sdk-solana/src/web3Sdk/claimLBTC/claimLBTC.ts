@@ -1,11 +1,11 @@
 import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
-import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { MintPayload } from '../../common/mintPayload';
 import { getConfig, networkToEnv } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';
 import { getLbtcIdl } from '../../idl/getLbtcIdl';
-import { SolanaNetwork, SolanaProviderInterface } from '../../types';
+import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import { sendAndConfirmTransaction } from '../../utils';
 import { createDebugLogger } from '../../utils/createDebugLogger';
 import { verifyMatchingRecipient } from '../../utils/recipients';
@@ -62,7 +62,7 @@ export interface ClaimLBTCParams {
  * @returns Transaction signature
  */
 export async function claimLBTC(
-  provider: SolanaProviderInterface,
+  provider: ISolanaWalletProvider,
   params: ClaimLBTCParams,
 ): Promise<string> {
   const {

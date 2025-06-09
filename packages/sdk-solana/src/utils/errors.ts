@@ -1,42 +1,61 @@
 import { AxiosError } from 'axios';
-import { ErrorCode, SdkError } from '../types/errors';
 
-/**
- * Creates a standardized SDK error object
- * @param code Error code from ErrorCode enum
- * @param message Human-readable error message
- * @param originalError Original error that was caught (if any)
- * @param data Additional data related to the error
- * @returns A standardized SdkError object
- */
-export function createSdkError(
-  code: ErrorCode | string,
-  message: string,
-  originalError?: unknown,
-  data?: Record<string, unknown>,
-): SdkError {
-  return {
-    code: typeof code === 'string' ? code : code,
-    message,
-    originalError,
-    data,
-  };
+export enum ErrorCode {
+  ALREADY_CONNECTED = 'ALREADY_CONNECTED',
+  CLAIM_REJECTED = 'CLAIM_REJECTED',
+  CONNECTION_ERROR = 'CONNECTION_ERROR',
+  CONNECTION_REJECTED = 'CONNECTION_REJECTED',
+  CONNECTION_TIMEOUT = 'CONNECTION_TIMEOUT',
+  INSUFFICIENT_FUNDS = 'INSUFFICIENT_FUNDS',
+  INVALID_ADDRESS = 'INVALID_ADDRESS',
+  INVALID_AMOUNT = 'INVALID_AMOUNT',
+  INVALID_MESSAGE_ERROR = 'INVALID_MESSAGE_ERROR',
+  INVALID_PARAMS = 'INVALID_PARAMS',
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  NO_ACCOUNT_ERROR = 'NO_ACCOUNT_ERROR',
+  RPC_ERROR = 'RPC_ERROR',
+  SIGNING_REJECTED = 'SIGNING_REJECTED',
+  TRANSACTION_FAILED = 'TRANSACTION_FAILED',
+  TRANSACTION_REJECTED = 'TRANSACTION_REJECTED',
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  UNSTAKE_REJECTED = 'UNSTAKE_REJECTED',
 }
 
-/**
- * Helper function to determine if an error is an SDK error
- * @param error Error to check
- * @returns Boolean indicating if the error is an SDK error
- */
-export function isSdkError(error: unknown): error is SdkError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    'message' in error &&
-    typeof (error as SdkError).code === 'string' &&
-    typeof (error as SdkError).message === 'string'
-  );
+interface CreateSdkErrorParameters {
+  code: ErrorCode | string;
+  message: string;
+  options?: ErrorOptions;
+}
+
+export class SolanaSdkError extends Error {
+  constructor(
+    /** The error message */
+    message: string,
+    /** The error code */
+    readonly code: ErrorCode | string,
+    /** The optional error options */
+    options?: ErrorOptions,
+  ) {
+    super(message, options);
+  }
+
+  static create({ code, message, options }: CreateSdkErrorParameters) {
+    return new SolanaSdkError(message, code, options);
+  }
+
+  static wrap(
+    error: unknown,
+    code = ErrorCode.UNKNOWN_ERROR,
+    customMessage = 'Unknown error occurred.',
+  ) {
+    if (error instanceof SolanaSdkError) return error;
+
+    const message = extractErrorMessage(error);
+    const options: ErrorOptions | undefined =
+      error instanceof Error ? { cause: error } : undefined;
+
+    return new SolanaSdkError(message || customMessage, code, options);
+  }
 }
 
 /**
@@ -44,7 +63,7 @@ export function isSdkError(error: unknown): error is SdkError {
  * @param error Error object to extract message from
  * @returns A readable error message string
  */
-export function extractErrorMessage(error: unknown): string {
+function extractErrorMessage(error: unknown): string {
   // If error is already a string, return it
   if (typeof error === 'string') {
     return error;
@@ -118,38 +137,4 @@ function extractAxiosErrorMessage(error: AxiosError): string {
   }
 
   return 'Network error';
-}
-
-/**
- * Wraps an error in an SDK error if it's not already one
- * @param error Error to wrap
- * @param defaultCode Default error code to use if not an SDK error
- * @param defaultMessage Default error message to use if not an SDK error
- * @returns An SDK error
- */
-export function wrapError(
-  error: unknown,
-  defaultCode: ErrorCode | string = ErrorCode.UNKNOWN_ERROR,
-  defaultMessage = 'An unknown error occurred',
-): SdkError {
-  if (isSdkError(error)) {
-    return error;
-  }
-
-  const message = extractErrorMessage(error) || defaultMessage;
-
-  return createSdkError(defaultCode, message, error);
-}
-
-/**
- * Convert an error to a readable string for display
- * @param error Error to convert to string
- * @returns A readable error message string
- */
-export function errorToString(error: unknown): string {
-  if (isSdkError(error)) {
-    return error.message;
-  }
-
-  return extractErrorMessage(error);
 }

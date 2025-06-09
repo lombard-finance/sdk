@@ -1,10 +1,10 @@
 import React from 'react';
-import { errorToString } from '../../../utils/errors'; // Assuming this utility exists
+import { SolanaSdkError } from '../../../utils/errors';
 
 interface ErrorDisplayProps {
-  error: string | Error | null | undefined;
+  error: SolanaSdkError | Error | undefined;
   title?: string;
-  children?: React.ReactNode; // Allow custom content for complex errors
+  children?: React.ReactNode;
 }
 
 export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
@@ -12,18 +12,21 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   title = 'Error',
   children,
 }) => {
-  const errorMessage = error ? errorToString(error) : null;
+  const errorCode = error instanceof SolanaSdkError ? error.code : undefined;
+  const errorMessage = error?.message;
 
-  if (!errorMessage && !children) {
+  const canDisplayError = errorCode || errorMessage;
+
+  if (!canDisplayError && !children) {
     return null; // Render nothing if no error and no children
   }
 
   return (
     <div className="alert alert-danger mt-3" role="alert">
-      <h5 className="alert-heading">{title}:</h5> {/* Use alert heading */}
-      {errorMessage && <p className="mb-0">{errorMessage}</p>}
-      {children && <div className="mt-2">{children}</div>}{' '}
-      {/* Render children if provided */}
+      <h5 className="alert-heading">{title}:</h5>
+      {errorCode && <p className="mt-2">{errorCode}</p>}
+      {errorMessage && <p className="mt-2">{errorMessage}</p>}
+      {children && <div className="mt-2">{children}</div>}
     </div>
   );
 };

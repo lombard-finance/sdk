@@ -6,7 +6,7 @@ import {
   getAssociatedTokenAddress,
 } from '@solana/spl-token';
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
-import { SolanaProviderInterface } from '../types';
+import { ISolanaWalletProvider } from '../types';
 
 /**
  * Create or get an associated token account for a given mint and owner
@@ -23,7 +23,7 @@ export async function createOrGetAssociatedTokenAccount({
   ownerAddress,
   mintAddress,
 }: {
-  provider: SolanaProviderInterface;
+  provider: ISolanaWalletProvider;
   connection: Connection;
   ownerAddress: string;
   mintAddress: string;
