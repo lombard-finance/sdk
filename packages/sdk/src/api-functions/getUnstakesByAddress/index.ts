@@ -1,1 +1,1 @@
-export { getUnstakesByAddress } from './getUnstakesByAddress';
+export { getUnstakesByAddress, PayoutTxStatus } from './getUnstakesByAddress';
