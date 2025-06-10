@@ -39,7 +39,10 @@
     "./clients/*": "./src/clients/*.ts",
     "./utils/*": "./src/utils/*.ts"
   },
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "license": "MIT",
   "name": "@lombard.finance/sdk",
   "peerDependencies": {
