@@ -7,7 +7,7 @@ import packageJson from './package.json';
 export default defineConfig({
   plugins: [],
   build: {
-    sourcemap: true,
+    sourcemap: false,
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
     },

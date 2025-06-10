@@ -14,14 +14,6 @@ export * from './rewards';
 export * from './common/api-config';
 export * from './common/blockchain-identifier';
 export * from './common/chains';
-export {
-  SOLANA_DEVNET_CHAIN,
-  SOLANA_MAINNET_CHAIN,
-  SOLANA_TESTNET_CHAIN,
-  SUI_DEVNET_CHAIN,
-  SUI_MAINNET_CHAIN,
-  SUI_TESTNET_CHAIN,
-} from './common/chains';
 export * from './utils/satoshi';
 
 // Metrics:
