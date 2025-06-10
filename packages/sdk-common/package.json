@@ -29,10 +29,12 @@
     "bitcoinjs-lib": "6.1.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@bitcoin-js/tiny-secp256k1-asmjs": "2.2.3",
     "bitcoinjs-lib": "6.1.5",
     "rimraf": "^5",
     "typedoc": "^0.26.6",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vite": "^6.3.5"
   }
 }
