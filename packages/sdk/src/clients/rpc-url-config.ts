@@ -7,7 +7,8 @@ export const RPC_URL = 'https://bff.prod.lombard.finance/multi-rpc/proxy';
 export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.ethereum]: `${RPC_URL}/eth`,
   [ChainId.base]: `${RPC_URL}/base`,
-  [ChainId.binanceSmartChain]: 'https://bsc-dataseed.bnbchain.org',
+  // [ChainId.binanceSmartChain]: 'https://bsc-dataseed.bnbchain.org',
+  [ChainId.binanceSmartChain]: `${RPC_URL}/bsc`,
   [ChainId.corn]: `${RPC_URL}/corn_maizenet`,
   [ChainId.sonic]: `${RPC_URL}/sonic_mainnet`,
   // Testnets:

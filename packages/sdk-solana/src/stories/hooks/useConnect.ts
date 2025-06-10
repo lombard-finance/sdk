@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ISolanaWalletProvider,
   InjectedWallet,
 } from '../../types/walletProviders';
-import { getSolanaWalletProvider } from '../../web3Sdk/detectWallet/detectWallet';
 import { ErrorCode, SolanaSdkError } from '../../utils';
+import { getSolanaWalletProvider } from '../../web3Sdk/detectWallet/detectWallet';
 
 interface ConnectRequest {
   walletName: InjectedWallet;

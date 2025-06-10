@@ -1,4 +1,4 @@
-import { SolanaNetwork, ISolanaWalletProvider } from '../../types';
+import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import { getUnifiedChainId } from '../getUnifiedChainId';
 import { signMessage } from '../signMessage';
 

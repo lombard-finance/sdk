@@ -3,15 +3,15 @@ import { getOutputScript } from '@lombard.finance/sdk-common';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
 import { DEFAULT_ENV, getConfig, networkToEnv } from '../../const/getConfig';
+import { getConnection } from '../../const/rpcUrls';
 import { getLbtcIdl } from '../../idl/getLbtcIdl';
-import { SolanaNetwork, ISolanaWalletProvider } from '../../types';
+import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import {
   ErrorCode,
-  sendAndConfirmTransaction,
   SolanaSdkError,
+  sendAndConfirmTransaction,
 } from '../../utils';
 import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
-import { getConnection } from '../../const/rpcUrls';
 
 export interface UnstakeLBTCParams {
   /**

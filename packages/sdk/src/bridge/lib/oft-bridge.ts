@@ -62,6 +62,10 @@ export async function bridgeOFT({
   env,
   rpcUrl,
 }: BridgeOFTParameters) {
+  console.warn(
+    'The "bridgeOFT" function is provided as is and it is not the recommended way of bridging tokens between chains. Please, use "bridgeCCIP" or the generic "bridge" function.',
+  );
+
   const amount = BigNumber(amountRaw);
   const recipient = optionalRecipient || account;
 

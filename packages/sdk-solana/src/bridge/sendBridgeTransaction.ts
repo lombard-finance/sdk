@@ -10,7 +10,6 @@ import { toWeb3JsInstruction } from '@metaplex-foundation/umi-web3js-adapters';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import {
   ComputeBudgetProgram,
-  Connection,
   Transaction,
   PublicKey as Web3PublicKey,
 } from '@solana/web3.js';
@@ -21,6 +20,7 @@ import {
   getLBTCAddress,
   getRpcEndpoint,
 } from '../const/getConfig';
+import { getConnection } from '../const/rpcUrls';
 import { ISolanaWalletProvider } from '../types';
 import {
   getMinimalUmiInstance,
@@ -28,7 +28,6 @@ import {
   validateBridgeAmount,
 } from '../utils/bridgeUtils';
 import { quoteBridgeFee } from './quoteBridgeFee';
-import { getConnection } from '../const/rpcUrls';
 
 const LBTC_DECIMALS = 8;
 const BRDIGE_COMPUTE_UNITS = 400000;
