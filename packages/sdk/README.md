@@ -506,9 +506,13 @@ The function returns the object of shape:
      */
     okxPoints: number;
     /**
-     * The number of points earned by participating in the flash events.
+     * The number of points earned by participating in the first flash event.
      */
-    flashEventPoints: number;
+    flashEvent1Points: number;
+    /**
+     * The number of points earned by participating in the second flash event.
+     */
+    flashEvent2Points: number;
     /**
      * The total number of points.
      */
@@ -517,6 +521,14 @@ The function returns the object of shape:
      * The breakdown of points earned from each protocol.
      */
     protocolPointsBreakdown: IProtocolPointsBreakdown;
+    /**
+     * The amount of LUX points earned from badges.
+     */
+    badgesPoints: number;
+    /**
+     * The total amount of LUX points (without badges points).
+     */
+    totalWithoutBadgesPoints: number;
   }
 ```
 

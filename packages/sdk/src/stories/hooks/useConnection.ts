@@ -1,4 +1,3 @@
-import { ChainId } from '../../common/chains';
 import {
   Config,
   Connector,
@@ -10,12 +9,17 @@ import {
 import { injected } from 'wagmi/connectors';
 import { useCallback, useEffect, useState } from 'react';
 import { Address, Chain, EIP1193Provider } from 'viem';
+import { ChainId } from '../../common/chains';
 
-type CanPerformAction = {
+type CanPerformAction<
+  config extends Config = Config,
+  ///
+  chain = Config extends config ? Chain : config['chains'][number],
+> = {
   account: {
     address: Address;
     addresses: readonly [Address, ...Address[]];
-    chain: Chain;
+    chain: chain | undefined;
     chainId: ChainId;
     connector: Connector;
     isConnected: true;
@@ -27,10 +31,10 @@ type CanPerformAction = {
   provider: EIP1193Provider;
 };
 
-export const canPerformAction = (arg: {
-  account: UseAccountReturnType<Config>;
+export const canPerformAction = <config extends Config = Config>(arg: {
+  account: UseAccountReturnType<config>;
   provider: EIP1193Provider | undefined;
-}): arg is CanPerformAction =>
+}): arg is CanPerformAction<config> =>
   Boolean(
     arg.account.status === 'connected' &&
       arg.account.connector &&

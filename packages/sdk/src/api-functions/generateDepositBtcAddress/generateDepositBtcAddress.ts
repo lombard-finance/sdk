@@ -1,9 +1,17 @@
+import {
+  Blockchain,
+  verifyAddress,
+} from '@lombard.finance/btc-deposit-addresses';
 import axios from 'axios';
 import { getApiConfig } from '../../common/api-config';
 import { getChainNameById } from '../../common/blockchain-identifier';
 import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import {
+  VERIFIABLE_CHAINS,
+  getDepositBtcAddresses,
+} from '../getDepositBtcAddress';
 
 /**
  * The address wich will be returned if the provided EVM address is sanctioned.
@@ -102,7 +110,45 @@ export async function generateDepositBtcAddress({
       { baseURL: baseApiUrl },
     );
 
-    return data.address;
+    const depositAddress = data.address;
+
+    const confirmed = (
+      await getDepositBtcAddresses({
+        address,
+        chainId,
+        env,
+        partnerId,
+      })
+    ).find(a => a.btc_address === depositAddress);
+
+    if (!confirmed) {
+      throw new Error(
+        `Unable to confirm the BTC deposits address: ${depositAddress}. Try again or check if the address exists via 'getDepositBtcAddress' function.`,
+      );
+    }
+
+    const canVerify = Object.keys(VERIFIABLE_CHAINS).includes(String(chainId));
+    if (canVerify) {
+      const blockchain = VERIFIABLE_CHAINS[chainId] as Blockchain;
+      const [verified, calculated] = verifyAddress(
+        confirmed.btc_address,
+        confirmed.deposit_metadata.nonce || 0,
+        confirmed.deposit_metadata.referral || '',
+        address,
+        blockchain,
+      );
+      if (!verified) {
+        throw new Error(
+          `The BTC deposit address ${confirmed.btc_address} is not valid. The deposit address is not the same as expected (${calculated})`,
+        );
+      }
+    } else {
+      console.warn(
+        `The BTC deposit address ${depositAddress} cannot be verified. Only the following destination chains are verifiable: ${Object.keys(VERIFIABLE_CHAINS).join(', ')}`,
+      );
+    }
+
+    return confirmed.btc_address;
   } catch (error) {
     const errorMsg = getErrorMessage(error);
 

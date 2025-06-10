@@ -1,7 +1,7 @@
 import {
   InjectedWallet,
-  WindowWithSolanaInjectedWallets,
   SolanaWalletProvider,
+  WindowWithSolanaInjectedWallets,
 } from '../../types/walletProviders';
 
 export function getSolanaWalletProvider<T extends InjectedWallet>(

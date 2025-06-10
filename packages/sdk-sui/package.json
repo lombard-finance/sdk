@@ -19,7 +19,7 @@
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
     "build-storybook": "storybook build -o sdk-storybook",
     "build": "yarn types && vite build",
-    "lint": "biome lint",
+    "lint": "biome lint --diagnostic-level=error",
     "storybook": "storybook dev -p 6006",
     "types": "tsc --noEmit"
   },
@@ -31,11 +31,12 @@
     "web3": "^4"
   },
   "dependencies": {
-    "@lombard.finance/sdk-common": "^3.0.0",
     "@lombard.finance/sdk": "^3.1.0",
+    "@lombard.finance/sdk-common": "^3.0.0",
     "@mysten/sui": "^1.21.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@chromatic-com/storybook": "1.6.1",
     "@storybook/addon-essentials": "^8.2.9",
     "@storybook/addon-interactions": "^8.2.9",
@@ -50,6 +51,7 @@
     "rimraf": "^5",
     "storybook": "^8.2.9",
     "typedoc": "^0.26.6",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vite": "^6.3.5"
   }
 }
