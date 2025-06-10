@@ -27,6 +27,13 @@ interface IGetUnstakesResponse {
   unstakes?: IUnstakeResponse[];
 }
 
+export enum PayoutTxStatus {
+  /** A payout transaction has been sent. The unstake is completed. */
+  Completed = 'Completed',
+  /** A payout transaction has not been sent. The unstake is pending. */
+  Pending = 'Pending',
+}
+
 export interface IUnstake {
   /**
    * The unstake transaction hash.
@@ -71,6 +78,10 @@ export interface IUnstake {
    * The index of the payout transaction corresponding to the unstake.
    */
   payoutTxIndex?: number;
+  /**
+   * A status of the payout transaction.
+   */
+  payoutTxStatus: PayoutTxStatus;
   /**
    * A flag indicating whether the unstake transaction has been sanctioned and
    * flagged as suspicious.
@@ -123,6 +134,10 @@ function mapResponse(data: IUnstakeResponse, env: IEnvParam['env']): IUnstake {
     env === 'prod' ? networks.bitcoin : networks.testnet,
   );
 
+  const status = data.payout_txid
+    ? PayoutTxStatus.Completed
+    : PayoutTxStatus.Pending;
+
   return {
     txHash: data.tx_hash,
     chainId: getChainIdByName(data.blockchain, env),
@@ -133,6 +148,7 @@ function mapResponse(data: IUnstakeResponse, env: IEnvParam['env']): IUnstake {
     amount: fromSatoshi(data.amount),
     payoutTxHash: data.payout_txid,
     payoutTxIndex: data.payout_index ? +data.payout_index : undefined,
+    payoutTxStatus: status,
     sanctioned: data.sanctioned,
   };
 }

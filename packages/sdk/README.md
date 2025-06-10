@@ -351,6 +351,7 @@ Every entry in the result of the above may consist of:
 * `amount` - The amount unstaked,
 * `payoutTxHash` - The BTC transaction hash,
 * `payoutTxIndex` - The index of the actual payout transfer,
+* `payoutTxStatus` - The status of the payout, available values: `PayoutTxStatus.Completed` or `PayoutTxStatus.Pending`,
 * `sanctioned` - A flag indicating whether the unstake transaction has been sanctioned and flagged as suspicious.
 
 ### 5. Depositing LBTC to the DeFi vault.
