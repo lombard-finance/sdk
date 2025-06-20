@@ -56,6 +56,7 @@ export const OFT_HI_GAS_LIMIT = 200_000;
 export const OFT_HI_GAS_LIMIT_CHAINS = [
   // Mainnets:
   ChainId.berachain,
+  ChainId.etherlink,
   // Testnets:
   ChainId.berachainBartioTestnet,
 ];
