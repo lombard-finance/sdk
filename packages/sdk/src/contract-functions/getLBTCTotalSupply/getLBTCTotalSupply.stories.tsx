@@ -6,12 +6,14 @@ import useQuery from '../../stories/hooks/useQuery';
 import { getLBTCTotalSupply } from './getLBTCTotalSupply';
 import { ChainId } from '../../common/chains';
 import { functionType } from '../../stories/components/decorators';
+import { chainSelector, envSelector } from '../../stories/arg-types';
 
 const meta = {
   title: 'read/getLBTCTotalSupply',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('read')],
+  argTypes: { ...chainSelector, ...envSelector },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -21,7 +23,7 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     chainId: ChainId.ethereum,
-    env: DEFAULT_ENV,
+    env: undefined,
   },
 };
 

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { Abi } from 'viem';
+import { Abi, Address } from 'viem';
 import { ChainId } from '../../common/chains';
 import { ContractInfo } from '../../common/contract-info';
 import { unique } from '../../utils/array';
@@ -26,10 +26,13 @@ export const CCIP_BRIDGE_CHAINS = [
   ChainId.ethereum,
   ChainId.base,
   ChainId.binanceSmartChain,
+  ChainId.katana,
   ChainId.sonic,
   // Testnets:
   ChainId.baseSepoliaTestnet,
   ChainId.holesky,
+  ChainId.katanaTatara,
+  ChainId.sepolia,
 ];
 export type CCIPBridgeChain = (typeof CCIP_BRIDGE_CHAINS)[number];
 
@@ -78,128 +81,139 @@ type CCIPBridgesConfig = [
   { type: BridgeType.CCIP; contract: ContractInfo },
 ];
 
+const CCIP_FROM_ETH = {
+  routes: [
+    bridgeIdentifier([ChainId.ethereum, ChainId.base]),
+    bridgeIdentifier([ChainId.ethereum, ChainId.binanceSmartChain]),
+    bridgeIdentifier([ChainId.ethereum, ChainId.sonic]),
+    bridgeIdentifier([ChainId.ethereum, ChainId.katana]),
+  ],
+  type: BridgeType.CCIP,
+  contract: {
+    address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b' as Address,
+    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+    chainId: ChainId.ethereum,
+  },
+};
+
+const CCIP_FROM_BASE = {
+  routes: [
+    bridgeIdentifier([ChainId.base, ChainId.ethereum]),
+    bridgeIdentifier([ChainId.base, ChainId.binanceSmartChain]),
+    bridgeIdentifier([ChainId.base, ChainId.katana]),
+  ],
+  type: BridgeType.CCIP,
+  contract: {
+    address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b' as Address,
+    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+    chainId: ChainId.base,
+  },
+};
+
+const CCIP_FROM_BSC = {
+  routes: [
+    bridgeIdentifier([ChainId.binanceSmartChain, ChainId.ethereum]),
+    bridgeIdentifier([ChainId.binanceSmartChain, ChainId.base]),
+    bridgeIdentifier([ChainId.binanceSmartChain, ChainId.katana]),
+  ],
+  type: BridgeType.CCIP,
+  contract: {
+    address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b' as Address,
+    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+    chainId: ChainId.binanceSmartChain,
+  },
+};
+
+const CCIP_FROM_KATANA = {
+  routes: [
+    bridgeIdentifier([ChainId.katana, ChainId.ethereum]),
+    bridgeIdentifier([ChainId.katana, ChainId.base]),
+    bridgeIdentifier([ChainId.katana, ChainId.binanceSmartChain]),
+    bridgeIdentifier([ChainId.katana, ChainId.sonic]),
+  ],
+  type: BridgeType.CCIP,
+  contract: {
+    address: '0xA869817b48b25EeE986bdF4bE04062e6fd2C418B' as Address,
+    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+    chainId: ChainId.katana,
+  },
+};
+
+const CCIP_FROM_SONIC = {
+  routes: [
+    bridgeIdentifier([ChainId.sonic, ChainId.ethereum]),
+    bridgeIdentifier([ChainId.sonic, ChainId.katana]),
+  ],
+  type: BridgeType.CCIP,
+  contract: {
+    address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b' as Address,
+    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+    chainId: ChainId.sonic,
+  },
+};
+
+const CCIP_FROM_BASE_SEPOLIA = {
+  routes: [bridgeIdentifier([ChainId.baseSepoliaTestnet, ChainId.holesky])],
+  type: BridgeType.CCIP,
+  contract: {
+    address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F' as Address,
+    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+    chainId: ChainId.baseSepoliaTestnet,
+  },
+};
+
+const CCIP_FROM_HOLESKY = {
+  routes: [bridgeIdentifier([ChainId.holesky, ChainId.baseSepoliaTestnet])],
+  type: BridgeType.CCIP,
+  contract: {
+    address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F' as Address,
+    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+    chainId: ChainId.holesky,
+  },
+};
+
+const CCIP_FROM_KATANA_TATARA = {
+  routes: [bridgeIdentifier([ChainId.katanaTatara, ChainId.sepolia])],
+  type: BridgeType.CCIP,
+  contract: {
+    address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F' as Address,
+    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+    chainId: ChainId.katanaTatara,
+  },
+};
+
+const CCIP_FROM_SEPOLIA = {
+  routes: [bridgeIdentifier([ChainId.sepolia, ChainId.katanaTatara])],
+  type: BridgeType.CCIP,
+  contract: {
+    address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F' as Address,
+    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
+    chainId: ChainId.sepolia,
+  },
+};
+
 const CCIP_BRIDGES: CCIPBridgesConfig[] = [
   // Mainnets:
-
-  [
-    bridgeIdentifier([ChainId.ethereum, ChainId.base]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum,
-      },
-    },
-  ],
-  [
-    bridgeIdentifier([ChainId.ethereum, ChainId.binanceSmartChain]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum,
-      },
-    },
-  ],
-
-  [
-    bridgeIdentifier([ChainId.base, ChainId.ethereum]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.base,
-      },
-    },
-  ],
-  [
-    bridgeIdentifier([ChainId.base, ChainId.binanceSmartChain]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.base,
-      },
-    },
-  ],
-
-  [
-    bridgeIdentifier([ChainId.binanceSmartChain, ChainId.ethereum]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.binanceSmartChain,
-      },
-    },
-  ],
-  [
-    bridgeIdentifier([ChainId.binanceSmartChain, ChainId.base]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.binanceSmartChain,
-      },
-    },
-  ],
-
-  [
-    bridgeIdentifier([ChainId.ethereum, ChainId.sonic]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum,
-      },
-    },
-  ],
-
-  [
-    bridgeIdentifier([ChainId.sonic, ChainId.ethereum]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.sonic,
-      },
-    },
-  ],
-
+  CCIP_FROM_ETH,
+  CCIP_FROM_BASE,
+  CCIP_FROM_BSC,
+  CCIP_FROM_KATANA,
+  CCIP_FROM_SONIC,
   // Testnets:
+  CCIP_FROM_BASE_SEPOLIA,
+  CCIP_FROM_HOLESKY,
+  CCIP_FROM_KATANA_TATARA,
+  CCIP_FROM_SEPOLIA,
+].reduce((acc, cur) => {
+  if (cur.type !== BridgeType.CCIP) return acc;
 
-  [
-    bridgeIdentifier([ChainId.baseSepoliaTestnet, ChainId.holesky]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.baseSepoliaTestnet,
-      },
-    },
-  ],
+  const c: CCIPBridgesConfig[] = cur.routes.map(route => [
+    route,
+    { type: BridgeType.CCIP, contract: cur.contract },
+  ]);
 
-  [
-    bridgeIdentifier([ChainId.holesky, ChainId.baseSepoliaTestnet]),
-    {
-      type: BridgeType.CCIP,
-      contract: {
-        address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F',
-        abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.holesky,
-      },
-    },
-  ],
-];
+  return acc.concat(c);
+}, [] as CCIPBridgesConfig[]);
 
 type OFTBridgeConfig = [
   BridgeIdentifier<OFTBridgeChain>,

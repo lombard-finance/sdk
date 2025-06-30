@@ -1,11 +1,12 @@
-import { Env } from '@lombard.finance/sdk-common';
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import { ChainId } from '../common/chains';
 import { makePublicClient } from '../clients/public-client';
 import BigNumber from 'bignumber.js';
 import { Abi, Address, erc20Abi, PublicClient } from 'viem';
 import { TOKEN_ADDRESSES, Token } from './token-addresses';
-import { getLbtcContractAddresses } from './lbtc-addresses';
 import { LBTC_ABI } from './abi/LBTC_ABI';
+import { TokenContractAddressNotFoundError } from '../utils/err';
+import BTCK_ABI from './abi/BTCK_ABI';
 
 export type TokenInfo = {
   address: Address;
@@ -14,31 +15,41 @@ export type TokenInfo = {
   decimals: number;
 };
 
-export function getTokenContractInfo(
-  token: Token,
+type AbiFor<TToken extends Token> = TToken extends Token.LBTC
+  ? typeof LBTC_ABI
+  : TToken extends Token.BTCK
+    ? typeof BTCK_ABI
+    : typeof erc20Abi;
+
+type TokenContractInfo<TToken extends Token> = {
+  abi: AbiFor<TToken>;
+  address: Address;
+  chainId: ChainId;
+};
+
+export function getTokenContractInfo<TToken extends Token>(
+  token: TToken,
   chainId: ChainId,
   env?: Env,
-) {
+): TokenContractInfo<TToken> {
+  const environment = env || DEFAULT_ENV;
+
+  let abi: AbiFor<TToken> | undefined = undefined;
   if (token === Token.LBTC) {
-    const addresses = getLbtcContractAddresses(env);
-    const contractAddress = addresses[chainId];
-    if (!contractAddress) {
-      throw new Error(
-        `Could not determine the LBTC contract address for given chain id: ${chainId} (env: ${env})`,
-      );
-    }
-    return { abi: LBTC_ABI, address: contractAddress, chainId };
+    abi = LBTC_ABI as AbiFor<TToken>;
+  } else if (token === Token.BTCK) {
+    abi = BTCK_ABI as AbiFor<TToken>;
+  } else {
+    abi = erc20Abi as AbiFor<TToken>;
   }
 
-  const address = TOKEN_ADDRESSES[token]?.[chainId];
+  const address = TOKEN_ADDRESSES[token]?.[environment]?.[chainId];
   if (!address) {
-    throw new Error(
-      `Could not determine the ${token} contract address for given chain id: ${chainId}`,
-    );
+    throw new TokenContractAddressNotFoundError(token, chainId, environment);
   }
 
   return {
-    abi: erc20Abi,
+    abi,
     address,
     chainId,
   };

@@ -10,12 +10,16 @@ import {
   IGetDepositBtcAddressesParameters,
 } from './getDepositBtcAddress';
 import { functionType } from '../../stories/components/decorators';
+import { chainSelector } from '../../stories/arg-types';
 
 const meta = {
   title: 'api/getDepositBtcAddresses',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('api-get')],
+  argTypes: {
+    ...chainSelector,
+  },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;

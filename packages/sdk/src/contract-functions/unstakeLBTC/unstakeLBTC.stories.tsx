@@ -3,7 +3,7 @@ import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import useQuery from '../../stories/hooks/useQuery';
-import { IUnstakeLBTCParams, unstakeLBTC } from './unstakeLBTC';
+import { redeemToken } from './unstakeLBTC';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   canPerformAction,
@@ -13,12 +13,17 @@ import {
   functionType,
   wagmiDecorator,
 } from '../../stories/components/decorators';
+import { Token } from '../../tokens/token-addresses';
+import { makeTokenSelector } from '../../stories/arg-types';
 
 const meta = {
   title: 'write/unstakeLBTC',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
+  argTypes: {
+    ...makeTokenSelector([Token.LBTC, Token.BTCK]),
+  },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -28,12 +33,16 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     amount: 0.00001,
+    token: Token.LBTC,
     btcAddress: '',
     env: DEFAULT_ENV,
   },
 };
 
-type ClaimLBTCProps = Pick<IUnstakeLBTCParams, 'btcAddress' | 'env' | 'amount'>;
+type ClaimLBTCProps = Omit<
+  Parameters<typeof redeemToken>[0],
+  'account' | 'chainId' | 'provider'
+>;
 
 export function StoryView(props: ClaimLBTCProps) {
   const connection = useConnection();
@@ -44,9 +53,11 @@ export function StoryView(props: ClaimLBTCProps) {
       return;
     }
 
-    return unstakeLBTC({
+    return redeemToken({
       amount: props.amount,
       btcAddress: props.btcAddress,
+      env: props.env,
+      token: props.token,
 
       account: connection.account.address,
       chainId: connection.account.chainId,
@@ -71,7 +82,7 @@ export function StoryView(props: ClaimLBTCProps) {
         onClick={refetch}
         disabled={isLoading || !connection.account.address}
         isLoading={isLoading}
-        actionName={unstakeLBTC.name}
+        actionName={redeemToken.name}
       />
 
       <CodeBlock text={error || data} />

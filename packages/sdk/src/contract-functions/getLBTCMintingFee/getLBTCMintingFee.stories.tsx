@@ -5,12 +5,15 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import { getLBTCMintingFee } from './getLBTCMintingFee';
+import { chainSelector, envSelector } from '../../stories/arg-types';
+import { Env } from '@lombard.finance/sdk-common';
 
 const meta = {
   title: 'read/getLBTCMintingFee',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('read')],
+  argTypes: { ...chainSelector, ...envSelector },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -20,23 +23,17 @@ type Story = StoryObj<typeof meta>;
 export const Holesky: Story = {
   args: {
     chainId: ChainId.holesky,
+    env: undefined,
   },
 };
 
-export const Ethereum: Story = {
-  args: {
-    chainId: ChainId.ethereum,
-  },
-};
+type Params = Parameters<typeof getLBTCMintingFee>[0];
 
-type GetLBTCMintingFeeProps = {
-  chainId: ChainId;
-};
-
-export function StoryView(props: GetLBTCMintingFeeProps) {
+export function StoryView(props: Params) {
   const request = async () => {
     return getLBTCMintingFee({
       chainId: props.chainId,
+      env: props.env,
     });
   };
 

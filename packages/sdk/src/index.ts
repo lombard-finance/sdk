@@ -25,6 +25,7 @@ export {
   SUI_TESTNET_CHAIN,
 } from './common/chains';
 export * from './tokens/lbtc-addresses';
+export * from './tokens/token-addresses';
 export * from './utils/satoshi';
 
 // Metrics:

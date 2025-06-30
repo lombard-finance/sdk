@@ -10,12 +10,18 @@ import {
   IGetDepositBtcAddressParameters,
 } from './getDepositBtcAddress';
 import { functionType } from '../../stories/components/decorators';
+import { Token } from '../../tokens/token-addresses';
+import { chainSelector, makeTokenSelector } from '../../stories/arg-types';
 
 const meta = {
   title: 'api/getDepositBtcAddress',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('api-get')],
+  argTypes: {
+    ...chainSelector,
+    ...makeTokenSelector([Token.LBTC, Token.BTCK]),
+  },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -24,18 +30,11 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
+    token: Token.LBTC,
     address: EXAMPLE_EVM_ADDRESS,
     chainId: ChainId.ethereum,
     env: DEFAULT_ENV,
     partnerId: 'lombard',
-  },
-  argTypes: {
-    chainId: {
-      mapping: ChainId,
-      options: Object.keys(ChainId),
-      description: 'The chain',
-      control: { type: 'select' },
-    },
   },
 };
 

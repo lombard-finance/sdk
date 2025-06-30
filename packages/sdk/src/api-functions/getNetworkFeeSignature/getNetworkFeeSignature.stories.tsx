@@ -10,12 +10,14 @@ import {
 import { functionType } from '../../stories/components/decorators';
 import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import { ChainId } from '../../common/chains';
+import { chainSelector } from '../../stories/arg-types';
 
 const meta = {
   title: 'api/getNetworkFeeSignature',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('api-get')],
+  argTypes: { ...chainSelector },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
