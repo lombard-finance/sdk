@@ -1,7 +1,5 @@
-import { ChainId } from '../../common/chains';
 import {
   Config,
-  Connector,
   useAccount,
   UseAccountReturnType,
   useConnect as useWagmiConnect,
@@ -9,20 +7,12 @@ import {
 } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 import { useCallback, useEffect, useState } from 'react';
-import { Address, Chain, EIP1193Provider } from 'viem';
+import { EIP1193Provider } from 'viem';
+import { ChainId } from '../../common/chains';
 
 type CanPerformAction = {
-  account: {
-    address: Address;
-    addresses: readonly [Address, ...Address[]];
-    chain: Chain;
+  account: Extract<UseAccountReturnType<Config>, { status: 'connected' }> & {
     chainId: ChainId;
-    connector: Connector;
-    isConnected: true;
-    isConnecting: false;
-    isDisconnected: false;
-    isReconnecting: false;
-    status: 'connected';
   };
   provider: EIP1193Provider;
 };

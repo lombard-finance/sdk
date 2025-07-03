@@ -4,12 +4,13 @@ import { CodeBlock } from '../stories/components/CodeBlock';
 import useQuery from '../stories/hooks/useQuery';
 import { functionType, wagmiDecorator } from '../stories/components/decorators';
 import { ErrorBlock } from '../stories/components/error-block';
-import { getLBTCStats } from './get-lbtc-stats';
+import { getRewardsInfo } from './get-rewards-info';
+import { EXAMPLE_EVM_ADDRESS } from '../stories/constants';
 import { envSelector } from '../stories/arg-types';
-import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import { Env } from '@lombard.finance/sdk-common';
 
 const meta = {
-  title: 'metrics/getLBTCStats',
+  title: 'metrics/getRewardsInfo',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('api-get')],
@@ -21,16 +22,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
-  args: {
-    env: DEFAULT_ENV,
-  },
+  args: { account: EXAMPLE_EVM_ADDRESS, env: Env.stage },
 };
 
-type SignNetworkFeeProps = Parameters<typeof getLBTCStats>[0];
+type SignNetworkFeeProps = Parameters<typeof getRewardsInfo>[0];
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getLBTCStats({
+    return getRewardsInfo({
       ...props,
     });
   };
@@ -39,13 +38,15 @@ export function StoryView(props: SignNetworkFeeProps) {
 
   return (
     <>
-      <p>This function returns the total supply of the LBTC.</p>
+      <p>
+        This function returns the rewards info for provided account address.
+      </p>
 
       <Button
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getLBTCStats.name}
+        actionName={getRewardsInfo.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

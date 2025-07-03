@@ -1,3 +1,5 @@
+import { JSX } from 'react';
+
 interface ISpinnerProps {
   color?: 'text-primary' | 'text-light';
   size?: 'sm' | 'md';

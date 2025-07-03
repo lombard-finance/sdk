@@ -16,7 +16,7 @@ import {
 } from '../../tokens/tokens';
 import { getErrorMessage } from '../../utils/err';
 import toBigInt from '../../utils/numbers';
-import { Address, pad, parseEther, toBytes, toHex } from 'viem';
+import { Address, pad, toHex } from 'viem';
 import { approveLBTC } from '../../contract-functions';
 import { Token } from '../../tokens/token-addresses';
 

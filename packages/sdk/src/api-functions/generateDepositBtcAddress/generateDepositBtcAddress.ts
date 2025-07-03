@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { getApiConfig } from '../../common/api-config';
 import { getChainNameById } from '../../common/blockchain-identifier';
-import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
-import { IEnvParam } from '../../common/parameters';
+import type { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import type { IEnvParam } from '../../common/parameters';
 import {
   getErrorMessage,
   TokenContractAddressNotFoundError,
@@ -21,8 +21,6 @@ interface IGenerateNewAddressResponse {
   address: string;
 }
 
-type DepositDestinationToken = Token.LBTC | Token.BTCK;
-
 export interface IGenerateDepositBtcAddressParams extends IEnvParam {
   /**
    * The destination EVM user address where LBTC will be claimed.
@@ -31,7 +29,7 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
   /**
    * The intended destination token, defaults to LBTC.
    */
-  token?: DepositDestinationToken;
+  token?: Token;
   /**
    * The destination chain ID where LBTC will be claimed.
    */
@@ -63,6 +61,7 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
 }
 
 const EXTRA_PARAMS_TOKENS = [Token.BTCK];
+const SUPPORTED_TOKENS = [Token.LBTC, Token.BTCK];
 
 /**
  * Generates a BTC deposit address.
@@ -97,27 +96,31 @@ export async function generateDepositBtcAddress({
   const { baseApiUrl } = getApiConfig(env);
   const toChain = getChainNameById(chainId);
 
-  // primaryType: 'feeApproval', - NETWORK FEE
-  // primaryType: 'Permit', - STAKE AND BAKE
-
-  type generationFrom =
-    | 'network-fee'
-    | 'stake-and-bake'
-    | 'destination-address';
-
-  let generation: generationFrom = 'destination-address';
-  if (signatureData != null) {
-    try {
-      const typedData = JSON.parse(signatureData);
-      if (typedData?.primaryType === 'feeApproval') {
-        generation = 'network-fee';
-      } else if (typedData?.primaryType === 'Permit') {
-        generation = 'stake-and-bake';
-      }
-    } catch {
-      // NOOP
-    }
+  if (!SUPPORTED_TOKENS.includes(token)) {
+    throw new Error(`Unsupported token: ${token}`);
   }
+
+  // TODO: Refactor
+  // //primaryType: 'feeApproval', - NETWORK FEE
+  // //primaryType: 'Permit', - STAKE AND BAKE
+  // type generationFrom =
+  //   | 'network-fee'
+  //   | 'stake-and-bake'
+  //   | 'destination-address';
+
+  // let generation: generationFrom = 'destination-address';
+  // if (signatureData != null) {
+  //   try {
+  //     const typedData = JSON.parse(signatureData);
+  //     if (typedData?.primaryType === 'feeApproval') {
+  //       generation = 'network-fee';
+  //     } else if (typedData?.primaryType === 'Permit') {
+  //       generation = 'stake-and-bake';
+  //     }
+  //   } catch {
+  //     // NOOP
+  //   }
+  // }
 
   /**
    * The deposit address generation requires additional fields for tokens other

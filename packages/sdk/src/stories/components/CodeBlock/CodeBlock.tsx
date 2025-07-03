@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import './CodeBlockStyles.css';
 
 interface ICodeBlockProps {

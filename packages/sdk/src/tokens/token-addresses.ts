@@ -13,6 +13,11 @@ export enum Token {
   wBTCN = 'wBTCN',
 }
 
+export type RatioToken = 'TOKEN_SYMBOL_STLBTC';
+export const RATIO_TOKEN_MAP: Record<RatioToken, Token> = {
+  TOKEN_SYMBOL_STLBTC: Token.LBTC,
+};
+
 type TokenAddresses = Partial<
   Record<
     Token,

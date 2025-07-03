@@ -5,6 +5,7 @@ import { getApiConfig } from '../common/api-config';
 export type TRpcUrlConfig = Record<number, string>;
 
 export const RPC_URL = 'https://bff.prod.lombard.finance/multi-rpc/proxy';
+// export const RPC_URL = 'http://localhost:8001/multi-rpc/proxy';
 
 export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.ethereum]: `${RPC_URL}/eth`,

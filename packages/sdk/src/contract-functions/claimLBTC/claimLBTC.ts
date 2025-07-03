@@ -2,15 +2,14 @@ import {
   BasculeDepositStatus,
   getBasculeDepositStatus,
 } from '../getBasculeDepositStatus';
-import { CommonWriteParameters } from '../../common/parameters';
+import type { CommonWriteParameters } from '../../common/parameters';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { ensureHex } from '../../utils/hex';
-import { Hash, parseGwei } from 'viem';
+import { type Hash, parseGwei } from 'viem';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { Token } from '../../tokens/token-addresses';
-import BigNumber from 'bignumber.js';
 import { estimateGasFees } from '../../utils/gas';
 
 export interface IClaimLBTCParams extends CommonWriteParameters {
@@ -68,7 +67,7 @@ export async function mintToken({
   rpcUrl,
   env,
   token = Token.LBTC,
-}: IClaimLBTCParams & { token?: Token.LBTC | Token.BTCK }) {
+}: IClaimLBTCParams & { token?: Token }) {
   if (![Token.LBTC, Token.BTCK].includes(token)) {
     throw new Error('Unsupported token');
   }

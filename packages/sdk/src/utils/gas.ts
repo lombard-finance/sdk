@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { parseGwei, PublicClient } from 'viem';
+import { PublicClient } from 'viem';
 
 export const estimateGasFees = async (
   publicClient: PublicClient,

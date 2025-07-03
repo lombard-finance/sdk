@@ -1,11 +1,11 @@
 import { getOutputScript } from '@lombard.finance/sdk-common';
-import { CommonWriteParameters } from '../../common/parameters';
+import type { CommonWriteParameters } from '../../common/parameters';
 import { toSatoshi } from '../../utils/satoshi';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { makePublicClient } from '../../clients/public-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
-import { Hex, parseGwei } from 'viem';
-import BigNumber from 'bignumber.js';
+import { type Hex, parseGwei } from 'viem';
+import type BigNumber from 'bignumber.js';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { Token } from '../../tokens/token-addresses';
 import { estimateGasFees } from '../../utils/gas';
@@ -65,7 +65,7 @@ export async function redeemToken({
   rpcUrl,
   env,
   token = Token.LBTC,
-}: IUnstakeLBTCParams & { token?: Token.LBTC | Token.BTCK }) {
+}: IUnstakeLBTCParams & { token?: Token }) {
   if (![Token.LBTC, Token.BTCK].includes(token)) {
     throw new Error('Unsupported token');
   }
