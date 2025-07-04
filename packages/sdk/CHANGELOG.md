@@ -1,3 +1,7 @@
+# 3.5.8
+
+* fixed exports for `getExchangeRatio`
+
 # 3.5.7
 
 * added `getRewardsInfo` function that retrieves the information about earned rewards (yield),
