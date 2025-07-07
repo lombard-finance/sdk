@@ -1,6 +1,6 @@
+import { Env } from '@lombard.finance/sdk-common';
 import { Address } from 'viem';
 import { ChainId } from '../common/chains';
-import { Env } from '@lombard.finance/sdk-common';
 
 export enum Token {
   LBTC = 'LBTC',
@@ -63,6 +63,13 @@ export const TOKEN_ADDRESSES: TokenAddresses = {
     },
     [Env.dev]: {
       // https://github.com/lombard-finance/smart-contracts/blob/2-token-model/devnet-bft.json
+      [ChainId.sepolia]: '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
+      [ChainId.baseSepoliaTestnet]:
+        '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
+      [ChainId.berachainBartioTestnet]:
+        '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
+      [ChainId.binanceSmartChainTestnet]:
+        '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
       [ChainId.katanaTatara]: '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
     },
   },

@@ -1,7 +1,7 @@
 import axios from 'axios';
+import { Address } from 'viem';
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
-import { Address } from 'viem';
 
 type Response = {
   type: 'BALANCE_TYPE_DEFI';
@@ -18,12 +18,11 @@ type Response = {
  */
 export async function getRewardsInfo({
   account,
-  partnerId,
   env,
-}: { account: Address; partnerId?: string } & IEnvParam) {
+}: { account: Address } & IEnvParam) {
   const { baseApiUrl } = getApiConfig(env);
 
-  const url = `${baseApiUrl}/api/v1/rewards/${account}?partnerId=${partnerId || ''}`;
+  const url = `${baseApiUrl}/api/v1/rewards/${account}`;
   const { data } = await axios.get<Response>(url);
 
   return {
