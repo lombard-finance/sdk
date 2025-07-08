@@ -1,5 +1,9 @@
-import { extractChain } from 'viem';
-import {
+import { defineChain, extractChain, type EIP1193Provider } from 'viem';
+import { addChain as viem_addChain } from 'viem/actions';
+import * as viem_chains from 'viem/chains';
+import { makeWalletClient } from '../clients/wallet-client';
+
+const {
   base,
   baseSepolia,
   berachain,
@@ -16,12 +20,7 @@ import {
   sonic,
   sonicBlazeTestnet,
   swellchain,
-} from 'viem/chains';
-import * as allChains from 'viem/chains';
-
-import { defineChain, EIP1193Provider } from 'viem';
-import { addChain as viem_addChain } from 'viem/actions';
-import { makeWalletClient } from '../clients/wallet-client';
+} = viem_chains;
 
 // FIXME: Remove this custom chain definition once katana is supported by viem
 export const katana = defineChain({
@@ -75,6 +74,12 @@ export const katanaTatara = defineChain({
     },
   },
 });
+
+export const allChains: Record<string, viem_chains.Chain> = {
+  ...viem_chains,
+  katana,
+  katanaTatara,
+};
 
 export const SUI_DEVNET_CHAIN = 'sui:devnet' as const;
 export const SUI_TESTNET_CHAIN = 'sui:testnet' as const;
