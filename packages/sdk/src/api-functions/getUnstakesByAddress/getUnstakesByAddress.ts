@@ -95,6 +95,13 @@ export interface IGetUnstakesByAddressParameters extends IEnvParam {
    * The address of an initiator of the unstake.
    */
   address: string;
+  /**
+   * The maximum number of unstakes to return.
+   */
+  options?: {
+    limit?: number;
+    offset?: number;
+  };
 }
 
 /**
@@ -109,6 +116,7 @@ export interface IGetUnstakesByAddressParameters extends IEnvParam {
 export async function getUnstakesByAddress({
   address,
   env = 'prod',
+  options,
 }: IGetUnstakesByAddressParameters): Promise<IUnstake[]> {
   const { baseApiUrl } = getApiConfig(env);
 
@@ -116,14 +124,19 @@ export async function getUnstakesByAddress({
     throw new Error('No address specified.');
   }
 
+  const url = new URL(`/api/v1/address/unstakes/${address}`, baseApiUrl);
+
+  if (options?.limit) {
+    url.searchParams.set('limit', options.limit.toString());
+  }
+
+  if (options?.offset) {
+    url.searchParams.set('offset', options.offset.toString());
+  }
+
   const {
     data: { unstakes = [] },
-  } = await axios.get<IGetUnstakesResponse>(
-    `/api/v1/address/unstakes/${address}`,
-    {
-      baseURL: baseApiUrl,
-    },
-  );
+  } = await axios.get<IGetUnstakesResponse>(url.toString());
 
   return unstakes.map(unstakeData => mapResponse(unstakeData, env));
 }

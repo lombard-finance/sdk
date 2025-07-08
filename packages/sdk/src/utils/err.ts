@@ -1,4 +1,7 @@
 import { AxiosError } from 'axios';
+import { Token } from '../tokens/token-addresses';
+import { ChainId } from '../common/chains';
+import { Env } from '@lombard.finance/sdk-common';
 
 /**
  * Retrieves the error message from the given error object.
@@ -53,4 +56,15 @@ function getErrorMessageFromObject(error: unknown): string {
   }
 
   return 'Unknown error';
+}
+
+export class TokenContractAddressNotFoundError extends Error {
+  constructor(
+    public readonly token: Token,
+    public readonly chainId: ChainId,
+    env?: Env,
+  ) {
+    const message = `Could not determine the ${token} contract address for given chain id: ${chainId} (env: ${env || 'undefined'})`;
+    super(message);
+  }
 }

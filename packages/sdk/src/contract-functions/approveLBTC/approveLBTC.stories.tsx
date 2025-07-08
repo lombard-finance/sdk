@@ -15,12 +15,14 @@ import {
   wagmiDecorator,
 } from '../../stories/components/decorators';
 import { ConnectButton } from '../../stories/components/ConnectButton';
+import { chainSelector } from '../../stories/arg-types';
 
 const meta = {
   title: 'write/approveLBTC',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
+  argTypes: { ...chainSelector },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;

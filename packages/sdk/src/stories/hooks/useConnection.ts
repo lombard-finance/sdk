@@ -1,32 +1,18 @@
 import {
-  Config,
-  Connector,
+  type Config,
   useAccount,
-  UseAccountReturnType,
+  type UseAccountReturnType,
   useConnect as useWagmiConnect,
   useDisconnect as useWagmiDisconnect,
 } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 import { useCallback, useEffect, useState } from 'react';
-import { Address, Chain, EIP1193Provider } from 'viem';
-import { ChainId } from '../../common/chains';
+import { type EIP1193Provider } from 'viem';
+import { type ChainId } from '../../common/chains';
 
-type CanPerformAction<
-  config extends Config = Config,
-  ///
-  chain = Config extends config ? Chain : config['chains'][number],
-> = {
-  account: {
-    address: Address;
-    addresses: readonly [Address, ...Address[]];
-    chain: chain | undefined;
+type CanPerformAction = {
+  account: Extract<UseAccountReturnType<Config>, { status: 'connected' }> & {
     chainId: ChainId;
-    connector: Connector;
-    isConnected: true;
-    isConnecting: false;
-    isDisconnected: false;
-    isReconnecting: false;
-    status: 'connected';
   };
   provider: EIP1193Provider;
 };
@@ -34,7 +20,7 @@ type CanPerformAction<
 export const canPerformAction = <config extends Config = Config>(arg: {
   account: UseAccountReturnType<config>;
   provider: EIP1193Provider | undefined;
-}): arg is CanPerformAction<config> =>
+}): arg is CanPerformAction =>
   Boolean(
     arg.account.status === 'connected' &&
       arg.account.connector &&

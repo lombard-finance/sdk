@@ -1,19 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { ChainId } from '../../common/chains';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import useQuery from '../../stories/hooks/useQuery';
-import {
-  getLBTCExchangeRate,
-  IgetLBTCExchangeRateParams,
-} from './getLBTCExchangeRate';
-import { toSatoshi } from '../../utils/satoshi';
+import { getExchangeRatio } from './get-exchange-ratio';
 import { functionType } from '../../stories/components/decorators';
 import { envSelector } from '../../stories/arg-types';
 
 const meta = {
-  title: 'api/getLBTCExchangeRate',
+  title: 'api/get-exchange-ratio',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('api-get')],
@@ -26,15 +21,13 @@ type Story = StoryObj<typeof meta>;
 
 export const WithDefaults: Story = {
   args: {
-    amount: toSatoshi(1).toNumber(),
-    chainId: ChainId.ethereum,
     env: DEFAULT_ENV,
   },
 };
 
-export function StoryView(props: IgetLBTCExchangeRateParams) {
+export function StoryView(props: Parameters<typeof getExchangeRatio>[0]) {
   const { data, error, isLoading, refetch } = useQuery(
-    async () => await getLBTCExchangeRate(props),
+    async () => await getExchangeRatio(props),
     [props],
     false,
   );
@@ -45,7 +38,7 @@ export function StoryView(props: IgetLBTCExchangeRateParams) {
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getLBTCExchangeRate.name}
+        actionName={getExchangeRatio.name}
       />
 
       <CodeBlock text={error || data} />

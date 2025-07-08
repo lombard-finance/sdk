@@ -1,5 +1,9 @@
-import { extractChain } from 'viem';
-import {
+import { defineChain, extractChain, type EIP1193Provider } from 'viem';
+import { addChain as viem_addChain } from 'viem/actions';
+import * as viem_chains from 'viem/chains';
+import { makeWalletClient } from '../clients/wallet-client';
+
+const {
   base,
   baseSepolia,
   berachain,
@@ -16,9 +20,66 @@ import {
   sonic,
   sonicBlazeTestnet,
   swellchain,
-} from 'viem/chains';
+} = viem_chains;
 
-import * as allChains from 'viem/chains';
+// FIXME: Remove this custom chain definition once katana is supported by viem
+export const katana = defineChain({
+  id: 747474,
+  name: 'Katana',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ether',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.katana.network'],
+      webSocket: ['wss://rpc.katana.network'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Katana Explorer', url: 'https://explorer.katanarpc.com' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1898013, // TODO: Confirm this
+    },
+  },
+});
+
+export const katanaTatara = defineChain({
+  id: 129399,
+  name: 'Tatara',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ether',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.tatara.katanarpc.com'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Tatara Explorer',
+      url: 'https://explorer.tatara.katana.network',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 7771207, // TODO: Confirm this
+    },
+  },
+});
+
+export const allChains: Record<string, viem_chains.Chain> = {
+  ...viem_chains,
+  katana,
+  katanaTatara,
+};
 
 export const SUI_DEVNET_CHAIN = 'sui:devnet' as const;
 export const SUI_TESTNET_CHAIN = 'sui:testnet' as const;
@@ -47,6 +108,7 @@ export const ChainId = {
   binanceSmartChain: 56,
   corn: 21000000,
   etherlink: 42793,
+  katana: 747474,
   morph: 2818,
   sonic: 146,
   swell: 1923,
@@ -55,6 +117,7 @@ export const ChainId = {
   berachainBartioTestnet: 80084,
   binanceSmartChainTestnet: 97,
   holesky: 17000,
+  katanaTatara: 129399,
   morphHolesky: 2810,
   sepolia: 11155111,
   sonicBlazeTestnet: 57054,
@@ -69,6 +132,7 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.binanceSmartChain]: bsc,
   [ChainId.corn]: corn,
   [ChainId.etherlink]: etherlink,
+  [ChainId.katana]: katana,
   [ChainId.morph]: morph,
   [ChainId.sonic]: sonic,
   [ChainId.swell]: swellchain,
@@ -77,11 +141,18 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.berachainBartioTestnet]: berachainTestnetbArtio,
   [ChainId.binanceSmartChainTestnet]: bscTestnet,
   [ChainId.holesky]: holesky,
+  [ChainId.katanaTatara]: katanaTatara,
   [ChainId.morphHolesky]: morphHolesky,
   [ChainId.sepolia]: sepolia,
   [ChainId.sonicBlazeTestnet]: sonicBlazeTestnet,
 };
 
+type KatanaChain = typeof ChainId.katana | typeof ChainId.katanaTatara;
+export const isKatanaChain = (chainId: unknown): chainId is KatanaChain => {
+  return ([ChainId.katana, ChainId.katanaTatara] as number[]).includes(
+    chainId as number,
+  );
+};
 export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.ethereum]: 'ethereum',
   [ChainId.base]: 'base',
@@ -100,6 +171,20 @@ export function isValidChain(chainId: number): chainId is ChainId {
   return Object.values(ChainId).includes(chainId as ChainId);
 }
 
+export type AddChainParameters = {
+  provider: EIP1193Provider;
+  chainId: ChainId;
+};
+
+export async function addChain({ provider, chainId }: AddChainParameters) {
+  const walletClient = makeWalletClient({
+    provider,
+    chainId: ChainId.ethereum,
+  });
+  await viem_addChain(walletClient, {
+    chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+  });
+}
 export const getLlamaChainName = (chainId: ChainId): LlamaChain | undefined => {
   const name =
     CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP[

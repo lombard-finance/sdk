@@ -4,17 +4,25 @@ import {
 } from '@lombard.finance/btc-deposit-addresses';
 import axios from 'axios';
 import { getApiConfig } from '../../common/api-config';
-import { getChainNameById } from '../../common/blockchain-identifier';
-import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
-import { IEnvParam } from '../../common/parameters';
-import { getErrorMessage } from '../../utils/err';
+import {
+  BlockchainIdentifier,
+  getChainNameById,
+} from '../../common/blockchain-identifier';
+import type { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import type { IEnvParam } from '../../common/parameters';
+import {
+  getErrorMessage,
+  TokenContractAddressNotFoundError,
+} from '../../utils/err';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
 import {
   VERIFIABLE_CHAINS,
   getDepositBtcAddresses,
 } from '../getDepositBtcAddress';
 
 /**
- * The address wich will be returned if the provided EVM address is sanctioned.
+ * The address which will be returned if the provided EVM address is sanctioned.
  */
 export const SANCTIONED_ADDRESS = 'sanctioned_address';
 const ADDRESS_URL = 'api/v1/address/generate';
@@ -29,6 +37,10 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
    * The destination EVM user address where LBTC will be claimed.
    */
   address: string;
+  /**
+   * The intended destination token, defaults to LBTC.
+   */
+  token?: Token;
   /**
    * The destination chain ID where LBTC will be claimed.
    */
@@ -59,6 +71,9 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
   signatureData?: string;
 }
 
+const EXTRA_PARAMS_TOKENS = [Token.LBTC, Token.BTCK];
+const SUPPORTED_TOKENS = [Token.LBTC, Token.BTCK];
+
 /**
  * Generates a BTC deposit address.
  *
@@ -79,6 +94,7 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
  */
 export async function generateDepositBtcAddress({
   address,
+  token = Token.LBTC,
   chainId,
   signature,
   eip712Data,
@@ -91,6 +107,80 @@ export async function generateDepositBtcAddress({
   const { baseApiUrl } = getApiConfig(env);
   const toChain = getChainNameById(chainId);
 
+  if (!SUPPORTED_TOKENS.includes(token)) {
+    throw new Error(`Unsupported token: ${token}`);
+  }
+
+  // TODO: Refactor
+  // //primaryType: 'feeApproval', - NETWORK FEE
+  // //primaryType: 'Permit', - STAKE AND BAKE
+  // type generationFrom =
+  //   | 'network-fee'
+  //   | 'stake-and-bake'
+  //   | 'destination-address';
+
+  // let generation: generationFrom = 'destination-address';
+  // if (signatureData != null) {
+  //   try {
+  //     const typedData = JSON.parse(signatureData);
+  //     if (typedData?.primaryType === 'feeApproval') {
+  //       generation = 'network-fee';
+  //     } else if (typedData?.primaryType === 'Permit') {
+  //       generation = 'stake-and-bake';
+  //     }
+  //   } catch {
+  //     // NOOP
+  //   }
+  // }
+
+  /**
+   * The deposit address generation requires additional fields for tokens other
+   * than LBTC.
+   */
+  let tokenDataParams = {};
+  try {
+    if (
+      EXTRA_PARAMS_TOKENS.includes(token) &&
+      // FIXME: Refactor in order to pull in all token addresses from all supported networks to the sdk-common package.
+      // FIXME: Then remove this clause prior two token model.
+      !(
+        [
+          BlockchainIdentifier.sui,
+          BlockchainIdentifier.solana,
+        ] as BlockchainIdentifier[]
+      ).includes(toChain)
+    ) {
+      const tokenContractInfo = getTokenContractInfo(
+        token,
+        chainId as ChainId,
+        env,
+      );
+      tokenDataParams = {
+        token_address: tokenContractInfo.address,
+      };
+    }
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      err instanceof TokenContractAddressNotFoundError &&
+      EXTRA_PARAMS_TOKENS.includes(token)
+    ) {
+      throw new Error(
+        `Unable to generate BTC deposit address for given token: ${token} in ${chainId}, reason: ${err.message}`,
+      );
+    }
+  }
+
+  // TODO: Refactor
+  // const signatureDataRequestParams =
+  //   generation === 'network-fee'
+  //     ? {
+  //         eip_712_data: signatureData,
+  //       }
+  //     : generation === 'stake-and-bake'
+  //       ? { sb_signature_data: signatureData }
+  //       : {};
+
   const requestParams = {
     to_address: address,
     to_address_signature: signature,
@@ -101,6 +191,7 @@ export async function generateDepositBtcAddress({
     referrer_code: referrerCode,
     eip_712_data: eip712Data,
     sb_signature_data: signatureData,
+    ...tokenDataParams,
   };
 
   try {

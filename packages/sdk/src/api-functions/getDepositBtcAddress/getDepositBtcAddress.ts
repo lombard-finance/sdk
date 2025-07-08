@@ -15,6 +15,8 @@ import {
   SuiChain,
 } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
 import { orderBy } from '../../utils/array';
 
 export const VERIFIABLE_CHAINS: Partial<
@@ -70,6 +72,14 @@ export interface IDepositAddress {
      * The destination blockchain corresponding to the `to_address`
      */
     to_blockchain: BlockchainIdentifier;
+    /**
+     * The destination token address
+     */
+    token_address?: string;
+    /**
+     * The aux version (paired with the token_address)
+     */
+    aux_version?: number;
     /** Nonce */
     nonce?: number;
   };
@@ -90,7 +100,6 @@ export interface IGetDepositBtcAddressesParameters extends IEnvParam {
    * The destination address where LBTC will be claimed.
    */
   address: string;
-
   /**
    * The destination chain where the `address` exists and where LBTC will be claimed.
    */
@@ -158,7 +167,7 @@ async function makeRequest({
   }
 }
 
-export type IGetDepositBtcAddressParameters = Pick<
+export type IGetDepositBtcAddressParameters = { token?: Token } & Pick<
   IGetDepositBtcAddressesParameters,
   'address' | 'chainId' | 'env' | 'partnerId'
 >;
@@ -179,15 +188,84 @@ export async function getDepositBtcAddress({
   chainId,
   env,
   partnerId,
+  token = Token.LBTC,
 }: IGetDepositBtcAddressParameters) {
-  const addresses = await makeRequest({
+  const _addresses = await makeRequest({
     address,
     chainId,
     env,
     partnerId,
   });
 
-  if (!addresses || addresses.length === 0) {
+  let depositAddress: string | undefined = undefined;
+
+  if (![Token.LBTC, Token.BTCK].includes(token)) {
+    throw new Error('Unsupported token');
+  }
+
+  // Filter deposit addresses by the destination token
+  let tokenAddressFilter:
+    | { token_address: string; aux_version?: number }
+    | undefined = undefined;
+  try {
+    if (chainId === ChainId.katana || chainId === ChainId.katanaTatara) {
+      const tokenContractInfo = getTokenContractInfo(token, chainId, env);
+
+      if (token === Token.BTCK) {
+        tokenAddressFilter = {
+          token_address: tokenContractInfo.address.toLowerCase(),
+          aux_version: 1,
+        };
+      } else {
+        tokenAddressFilter = {
+          token_address: tokenContractInfo.address.toLowerCase(),
+        };
+      }
+    }
+  } catch {
+    // NOOP
+  }
+
+  const addresses = (_addresses || []).filter(a => {
+    if (!tokenAddressFilter) {
+      // Get only the non token specific deposit addresses.
+      return !a.deposit_metadata.token_address;
+    }
+
+    // check if token addresses are matched
+    let isForToken =
+      a.deposit_metadata.token_address?.toLowerCase() ===
+      tokenAddressFilter.token_address;
+    // check if aux version is matched (if provided)
+    if (tokenAddressFilter.aux_version != null) {
+      isForToken =
+        isForToken &&
+        a.deposit_metadata.aux_version === tokenAddressFilter.aux_version;
+    }
+
+    // token_address can also be empty (null) when the address is for LBTC.
+    if (token === Token.LBTC) {
+      isForToken = isForToken || !a.deposit_metadata.token_address;
+    }
+
+    // Get only the addresses for the specified token.
+    return isForToken;
+  });
+
+  if (addresses && addresses.length > 0) {
+    const mostRecentAddress = addresses.reduce((mostRecent, cur) => {
+      if (cur.created_at > mostRecent.created_at) {
+        return cur;
+      }
+      return mostRecent;
+    }, addresses[0]);
+
+    if (!mostRecentAddress.deprecated) {
+      depositAddress = mostRecentAddress.btc_address;
+    }
+  }
+
+  if (!depositAddress) {
     throw new Error(
       `No deposit address found for ${address} on chain ${chainId}`,
     );

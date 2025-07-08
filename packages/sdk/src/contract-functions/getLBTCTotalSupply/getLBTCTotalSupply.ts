@@ -1,10 +1,10 @@
 import { CommonParameters } from '../../common/parameters';
-import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import { fromSatoshi } from '../../utils/satoshi';
 import { makePublicClient } from '../../clients/public-client';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { Token } from '../../tokens/token-addresses';
+import { determineEnv } from '../../utils/env';
 
 /**
  * Get the total supply of LBTC tokens.
@@ -19,10 +19,11 @@ import { Token } from '../../tokens/token-addresses';
 export async function getLBTCTotalSupply({
   chainId,
   rpcUrl,
-  env = DEFAULT_ENV,
+  env,
 }: CommonParameters): Promise<BigNumber> {
-  const publicClient = makePublicClient({ chainId, rpcUrl });
-  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
+  const environment = env || determineEnv(chainId);
+  const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
+  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, environment);
 
   const totalSupplyRaw = await publicClient.readContract({
     abi: lbtcContract.abi,

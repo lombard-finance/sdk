@@ -20,6 +20,9 @@ export const BlockchainIdentifier = {
   bsc: 'DESTINATION_BLOCKCHAIN_BSC',
   bscOld: 'BLOCKCHAIN_BSC',
 
+  katana: 'DESTINATION_BLOCKCHAIN_KATANA',
+  katanaOld: 'BLOCKCHAIN_KATANA',
+
   sui: 'DESTINATION_BLOCKCHAIN_SUI',
   suiOld: 'BLOCKCHAIN_SUI',
 
@@ -53,6 +56,10 @@ export function getChainNameById(
     chainId === ChainId.binanceSmartChainTestnet
   ) {
     return BlockchainIdentifier.bsc;
+  }
+
+  if (chainId === ChainId.katana || chainId === ChainId.katanaTatara) {
+    return BlockchainIdentifier.katana;
   }
 
   if (chainId === ChainId.sonic || chainId === ChainId.sonicBlazeTestnet) {
@@ -115,6 +122,10 @@ export function getChainIdByName(
     case BlockchainIdentifier.bsc:
     case BlockchainIdentifier.bscOld:
       return getBscNetworkByEnv(env);
+
+    case BlockchainIdentifier.katana:
+    case BlockchainIdentifier.katanaOld:
+      return env === 'prod' ? ChainId.katana : ChainId.katanaTatara;
 
     case BlockchainIdentifier.sui:
     case BlockchainIdentifier.suiOld:

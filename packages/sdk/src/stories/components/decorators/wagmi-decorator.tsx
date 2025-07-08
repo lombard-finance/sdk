@@ -19,6 +19,7 @@ import {
   swellchain,
 } from 'wagmi/chains';
 import { createConfig, http, WagmiProvider } from 'wagmi';
+import { katana, katanaTatara } from '../../../common/chains';
 
 const config = createConfig({
   chains: [
@@ -27,6 +28,7 @@ const config = createConfig({
     berachain,
     bsc,
     corn,
+    katana,
     morph,
     sonic,
     swellchain,
@@ -35,6 +37,7 @@ const config = createConfig({
     berachainTestnetbArtio,
     bscTestnet,
     holesky,
+    katanaTatara,
     morphHolesky,
     sepolia,
     sonicBlazeTestnet,
@@ -45,6 +48,7 @@ const config = createConfig({
     [berachain.id]: http(rpcUrlConfig[berachain.id]),
     [bsc.id]: http(rpcUrlConfig[bsc.id]),
     [corn.id]: http(rpcUrlConfig[corn.id]),
+    [katana.id]: http(rpcUrlConfig[katana.id]),
     [morph.id]: http(rpcUrlConfig[morph.id]),
     [sonic.id]: http(rpcUrlConfig[sonic.id]),
     [swellchain.id]: http(rpcUrlConfig[swellchain.id]),
@@ -53,6 +57,7 @@ const config = createConfig({
     [berachainTestnetbArtio.id]: http(rpcUrlConfig[berachainTestnetbArtio.id]),
     [bscTestnet.id]: http(rpcUrlConfig[bscTestnet.id]),
     [holesky.id]: http(rpcUrlConfig[holesky.id]),
+    [katanaTatara.id]: http(rpcUrlConfig[katanaTatara.id]),
     [morphHolesky.id]: http(rpcUrlConfig[morphHolesky.id]),
     [sepolia.id]: http(rpcUrlConfig[sepolia.id]),
     [sonicBlazeTestnet.id]: http(rpcUrlConfig[sonicBlazeTestnet.id]),

@@ -1,1 +1,5 @@
-export { getUnstakesByAddress, PayoutTxStatus } from './getUnstakesByAddress';
+export {
+  getUnstakesByAddress,
+  PayoutTxStatus,
+  type IUnstake,
+} from './getUnstakesByAddress';

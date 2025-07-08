@@ -48,6 +48,7 @@ export interface IGetBasculeDepositStatusParameters
    * You can omit `deposit` parameter if `rawPayload` is provided.
    */
   rawPayload?: string;
+  token?: Token;
 }
 
 /**
@@ -69,6 +70,7 @@ export async function getBasculeDepositStatus({
   chainId,
   rpcUrl,
   env = DEFAULT_ENV,
+  token = Token.LBTC,
 }: IGetBasculeDepositStatusParameters) {
   const payload = deposit?.rawPayload || rawPayload;
 
@@ -78,12 +80,12 @@ export async function getBasculeDepositStatus({
     );
   }
 
-  const publicClient = makePublicClient({ chainId, rpcUrl });
-  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
+  const publicClient = makePublicClient({ chainId, rpcUrl, env });
+  const tokenContractInfo = getTokenContractInfo(token, chainId, env);
 
   const basculeContractAddress = await publicClient.readContract({
-    abi: lbtcContract.abi,
-    address: lbtcContract.address,
+    abi: tokenContractInfo.abi,
+    address: tokenContractInfo.address,
     functionName: 'Bascule',
   });
 

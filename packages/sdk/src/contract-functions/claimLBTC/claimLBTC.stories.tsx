@@ -7,18 +7,23 @@ import {
   useConnection,
 } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
-import { claimLBTC, IClaimLBTCParams } from './claimLBTC';
+import { mintToken } from './claimLBTC';
 import {
   functionType,
   wagmiDecorator,
 } from '../../stories/components/decorators';
 import { ConnectButton } from '../../stories/components/ConnectButton';
+import { Token } from '../../tokens/token-addresses';
+import { makeTokenSelector } from '../../stories/arg-types';
 
 const meta = {
   title: 'write/claimLBTC',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
+  argTypes: {
+    ...makeTokenSelector([Token.LBTC, Token.BTCK]),
+  },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -30,10 +35,14 @@ export const WithParams: Story = {
     proofSignature: '',
     data: '',
     env: DEFAULT_ENV,
+    token: Token.LBTC,
   },
 };
 
-type ClaimLBTCProps = Pick<IClaimLBTCParams, 'data' | 'env' | 'proofSignature'>;
+type ClaimLBTCProps = Omit<
+  Parameters<typeof mintToken>[0],
+  'account' | 'chainId' | 'provider'
+>;
 
 export function StoryView(props: ClaimLBTCProps) {
   const connection = useConnection();
@@ -43,7 +52,7 @@ export function StoryView(props: ClaimLBTCProps) {
       return;
     }
 
-    return claimLBTC({
+    return mintToken({
       ...props,
       account: connection.account.address,
       chainId: connection.account.chainId,
@@ -63,7 +72,7 @@ export function StoryView(props: ClaimLBTCProps) {
         onClick={refetch}
         disabled={isLoading || !connection.account.address}
         isLoading={isLoading}
-        actionName={claimLBTC.name}
+        actionName={mintToken.name}
       />
 
       <CodeBlock text={error || data} />

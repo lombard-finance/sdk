@@ -4,93 +4,6 @@ The Lombard's SDK package provides a set of functions that allow interacting wit
 
 Read more about Lombard's mission: https://www.lombard.finance
 
-# Table of Contents
-
-[Installation](#installation)
-
-  1. [Dependencies installation](#1-dependencies-installation)
-
-  2. [SDK installation](#2-sdk-installation)
-
-[Usage](#usage)
-
-  1. [Depositing BTC in order to get LBTC (aka staking)](#1-depositing-btc-in-order-to-get-lbtc-aka-staking)
-
-     1.1. [Get the current minting fee](#11-get-the-current-minting-fee)
-
-     1.2. [Sign the network fee signature](#12-sign-the-network-fee-signature)
-
-     1.3. [Store the signature to the Lombard's systems](#13-store-the-signature-to-the-lombards-systems)
-
-     1.4. [Get or generate the BTC deposit address](#14-get-or-generate-the-btc-deposit-address)
-
-     1.5. [Deposit BTC to the address](#15-deposit-btc-to-the-address)
-
-     1.6. [Check the status of your deposit](#16-check-the-status-of-your-deposit)
-
-  2. [Manually claiming LBTC](#2-manually-claiming-lbtc)
-
-  3. [Depositing BTC and automatically staking LBTC into the DeFi vault (aka stake and bake)](#3-depositing-btc-and-automatically-staking-lbtc-into-the-defi-vault-aka-stake-and-bake)
-
-     3.1. [See what's the current stake and bake fee](#31-see-whats-the-current-stake-and-bake-fee)
-
-     3.2. [Sign the stake and bake signature](#32-sign-the-stake-and-bake-signature)
-
-     3.3. [Store the signature to the Lombard's systems](#33-store-the-signature-to-the-lombards-systems)
-
-     3.4. [Get or generate the BTC deposit address](#34-get-or-generate-the-btc-deposit-address)
-
-     3.5. [Deposit BTC to the address](#35-deposit-btc-to-the-address)
-
-     3.6. [Check the status of your deposit](#36-check-the-status-of-your-deposit)
-
-     3.7. [Check the amount of shares acquired](#37-check-the-amount-of-shares-acquired)
-
-  4. [Unstaking LBTC and getting BTC back](#4-unstaking-lbtc-and-getting-btc-back)
-
-     4.1. [Unstake LBTC](#41-unstake-lbtc)
-
-     4.2. [Check the status of your unstakes](#42-check-the-status-of-your-unstakes)
-
-  5. [Depositing LBTC to the DeFi vault](#5-depositing-lbtc-to-the-defi-vault)
-
-     5.1. [Making a deposit to the DeFi vault](#51-making-a-deposit-to-the-defi-vault)
-
-     5.2. [Checking the deposit history](#52-checking-the-deposit-history)
-
-     5.3. [Checking the user's DeFi vault balance](#53-checking-the-users-defi-vault-balance)
-
-  6. [Withdrawing LBTC from the DeFi vault](#6-withdrawing-lbtc-from-the-defi-vault)
-
-     6.1. [Requesting a withdrawal from the DeFi vault](#61-requesting-a-withdrawal-from-the-defi-vault)
-
-     6.2. [Checking the withdrawal history (tracking the withdrawal request)](#62-checking-the-withdrawal-history-tracking-the-withdrawal-request)
-
-     6.3. [Cancelling the withdrawal](#63-cancelling-the-withdrawal)
-
-  7. [Getting the points earned by an address](#7-getting-the-points-earned-by-an-address)
-
-  8. [Getting the DeFi vault points earned by an address](#8-getting-the-defi-vault-points-earned-by-an-address)
-
-  9. [Claiming rewards](#9-claiming-rewards)  
-
-     9.1. [Checking reward balances](#91-checking-reward-balances)  
-
-     9.2. [Claiming rewards](#92-claiming-rewards)  
-
-     9.3. [Checking the reward withdrawal fee](#93-checking-the-reward-withdrawal-fee)  
-
-     9.4. [Getting the withdrawal history (checking withdrawal status)](#94-getting-the-withdrawal-history-checking-withdrawal-status)
-
-  10. [Metrics](#10-metrics)
-
-      10.1. [Getting the vault's TVL](#101-getting-the-vaults-tvl)
-
-      10.2. [Getting the vault's performance data](#102-getting-the-vaults-performance-data)
-      
-      10.3. [Getting the LBTC statistics](#103-getting-the-lbtc-statistics)
-
-
 
 ## Installation
 
@@ -224,7 +137,7 @@ const txHash = await claimLBTC({
 
 The successful execution of the above will result with the transaction id.
 
-### 3. Depositing BTC and automatically staking LBTC into the DeFi vault (aka stake and bake)
+### 3. Depositing BTC and automatically staking LBTC into the DeFi vault
 
 You can read more about the DeFi vaults here: https://docs.lombard.finance/lbtc-liquid-bitcoin/defi-vaults/lombard-defi-vault
 
@@ -545,70 +458,9 @@ const {
 })
 ```
 
-### 9. Claiming rewards.
+### 9. Metrics
 
-#### 9.1. Checking reward balances.
-
-```javascript
-const rewards = await getRewardBalances({
-  address,
-  rewardToken: RewardToken.BABY
-});
-```
-
-The data returned by the above function contains:
-
-* `address` - the address of the reward earner (claimer),
-* `availableBalance` - the available balance of the reward token (ready to be withdrawn),
-* `lockedBalance` - the locked balance (in processing),
-* `pendingBalance` - the pending balance to be credited,
-* `rewardToken` - the reward token,
-* `timestamp` - the timestamp.
-
-#### 9.2. Claiming rewards.
-
-```javascript
-const withdrawal = await claimReward({
-  account, // The account address.
-  rewardToken, // The reward token, e.g. RewardToken.BABY
-  amount, // The amount to be claimed (withdrawn)
-  to, // The destination address, e.g. BABYLON chain address.
-  signingDataVariant: 'json', // Optional signing data variant, available values: 'json', 'plain-text'
-  chainId, // The chain id
-  provider, // The EIP-1193 provider.
-});
-```
-
-The function will ask a user to sign a message that consists of the amount, destination address and also a withdrawal fee and after obtaining this signature it will request a reward withdrawal from the pool to the provided destination address.
-
-The function returns the `RewardWithdrawal` object.
-
-#### 9.3. Checking the reward withdrawal fee.
-
-```javascript
-const withdrawalFee = await getRewardWithdrawalFee({ address, rewardToken });
-```
-
-#### 9.4. Getting the withdrawal history (checking withdrawal status).
-
-```javascript
-const withdrawals = await getRewardWithdrawals({ address })
-```
-
-The function returns an array of:
-
-* `amount` - the withdrawn (claimed) amount of rewards token,
-* `rewardToken` - the reward token,
-* `fee` - the applied withdrawal fee,
-* `to` - the destination address,
-* `signature` - the signature used,
-* `status` - the withdrawal status,
-* `estimatedTimeSent` - the estimated time when the funds are sent,
-* `timestamp` - the timestamp.
-
-### 10. Metrics
-
-#### 10.1. Getting the vault's TVL
+#### 9.1. Getting the vault's TVL
 
 The vault's TVL can be obtained by calling the `getVaultTVL` function.
 
@@ -621,7 +473,7 @@ The above returns:
 * `btcPrice` - the current price of BTC,
 * `tvl` - the amount of USD locked into the vault.
 
-#### 10.2. Getting the vault's performance data.
+#### 9.2. Getting the vault's performance data.
 
 The performance of the vault can be checked via the `getVaultApy` function.
 As in the example below:
@@ -642,9 +494,16 @@ Each entry contains:
 * `breakdown` - the detailed record of allocations and APY values broken down by chain and protocol,
 * `timestamp` - the timestamp of the entry.
 
-#### 10.3. Getting the LBTC statistics.
+#### 9.3. Getting the LBTC statistics.
 
 The simple set of LBTC statistics is accessible via `getLBTCStats` function.
+
+```javascript
+const stats = await getLBTCStats({
+  partnerId, // The partner id - passing the partnerId will ensure relevant stats are returned
+  env // Optional env flag
+})
+```
 
 The stats contain:
 
@@ -653,3 +512,47 @@ The stats contain:
 * `price` - the current BTC price,
 * `supply` - the number of LBTC minted,
 * `tvl` - the Lombard's TVL in USD.
+* `apr` - staking APR
+
+
+#### 9.4. Getting the LBTC exchange ratio.
+
+LBTC is a yield-bearing token and its exchange rate to BTC is not guaranteed to be 1:1.
+
+In order to check the current exchange rate use:
+
+```javascript
+const ratioData = await getExchangeRatio();
+
+// returns:
+//
+// ratioData = {
+//     [Token.LBTC]: {
+//         tokenBTCRatio: BigNumber(1)
+//         BTCTokenRatio: BigNumber(1)
+//     }
+// }
+```
+
+The result of the above function is an object which contains:
+* `tokenBTCRatio` - The Token:BTC ratio answering the question of how many tokens will I get for 1 BTC.
+* `BTCTokenRatio` - The BTC:Token ratio (1 / tokenBTCRatio) answering the question of how many BTC will I get for 1 Token.
+
+
+#### 9.5. Getting the rewards info
+
+The information about the rewards acquired by an account can be obtained via the `getRewardsInfo` function as shown below:
+
+```javascript
+const rewardsInfo = await getRewardsInfo({
+  account, // The account address
+  partnerId, // The partner id - passing the partnerId will ensure relevant stats are returned
+  env // Optional env flag
+});
+```
+The results of the includes:
+
+* `type` - the type of a reward,
+* `totalLbtcBalance` - the total LBTC balance,
+* `totalRewards` - the amount of total rewards earned,
+* `totalRewardsCost` - the amount of cost associated with the earned rewards

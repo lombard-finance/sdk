@@ -40,6 +40,7 @@ export async function getVaultBtcHolding({
   for (const [token, chainIds] of Object.entries(vault.tokens)) {
     for (const chainId of chainIds) {
       const tokenContract = getTokenContractInfo(token as Token, chainId);
+
       const publicClient = clients[chainId];
       if (!publicClient) continue;
 

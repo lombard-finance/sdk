@@ -13,6 +13,7 @@ import {
   functionType,
   wagmiDecorator,
 } from '../../stories/components/decorators';
+import { Env } from '@lombard.finance/sdk-common';
 
 const meta = {
   title: 'write/signNetworkFee',
@@ -29,6 +30,7 @@ export const WithParams: Story = {
   args: {
     fee: '1100',
     expiry: toUnix(now() + DAY),
+    env: Env.prod,
   },
 };
 

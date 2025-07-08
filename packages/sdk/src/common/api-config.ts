@@ -12,7 +12,7 @@ const stageConfig: IApiConfig = {
 
 const testnetConfig: IApiConfig = {
   baseApiUrl: 'https://gastald-testnet.prod.lombard.finance',
-  bffApiUrl: undefined,
+  bffApiUrl: 'https://bff.stage.lombard.finance',
 };
 
 const prodConfig: IApiConfig = {
@@ -21,8 +21,9 @@ const prodConfig: IApiConfig = {
 };
 
 const devConfig: IApiConfig = {
-  baseApiUrl: 'https://staging.prod.lombard.finance',
-  bffApiUrl: 'http://localhost:8001',
+  baseApiUrl: 'https://bft-dev.stage.lombard.finance',
+  // Note, bff on localhost works on 8001
+  bffApiUrl: 'https://bff.stage.lombard.finance',
 };
 
 export const getApiConfig = (env: Env = DEFAULT_ENV): IApiConfig => {

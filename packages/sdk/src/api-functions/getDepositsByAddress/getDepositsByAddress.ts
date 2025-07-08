@@ -43,7 +43,8 @@ interface IDepositResponse {
   block_height?: string;
   block_time?: string;
   sanctioned?: boolean;
-
+  token_address?: string;
+  aux_version?: number;
   session_id: number;
   notarization_status: ENotarizationStatus;
   session_state: ESessionState;
@@ -77,6 +78,7 @@ export interface IDeposit {
   toChainId?: ChainId | SuiChain | SolanaChain;
   status?: string;
   toAddress?: string;
+  tokenAddress?: string;
 }
 
 export interface IGetDepositsByAddressParams extends IEnvParam {
@@ -119,7 +121,6 @@ function mapResponse(env?: Env) {
     address: data.address,
     chainId: getChainIdByName(data.to_chain, env),
     claimedTxId: data.claim_tx,
-    // todo: return claiming tx from the API when it's available
     isClaimed: !!data.claim_tx,
     rawPayload: data.raw_payload,
     signature: data.proof,
@@ -131,5 +132,6 @@ function mapResponse(env?: Env) {
     sessionId: data.session_id,
     notarizationStatus: data.notarization_status,
     sessionState: data.session_state,
+    tokenAddress: data.token_address,
   });
 }

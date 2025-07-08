@@ -1,13 +1,14 @@
 import { getOutputScript } from '@lombard.finance/sdk-common';
-import { CommonWriteParameters } from '../../common/parameters';
+import type { CommonWriteParameters } from '../../common/parameters';
 import { toSatoshi } from '../../utils/satoshi';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { makePublicClient } from '../../clients/public-client';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
-import { Hex } from 'viem';
-import BigNumber from 'bignumber.js';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
+import { type Hex, parseGwei } from 'viem';
+import type BigNumber from 'bignumber.js';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { Token } from '../../tokens/token-addresses';
+import { estimateGasFees } from '../../utils/gas';
 
 /**
  * The unstake parameters.
@@ -43,24 +44,65 @@ export async function unstakeLBTC({
   rpcUrl,
   env,
 }: IUnstakeLBTCParams): Promise<Hex> {
+  return redeemToken({
+    btcAddress,
+    amount,
+    account,
+    chainId,
+    provider,
+    rpcUrl,
+    env,
+    token: Token.LBTC,
+  });
+}
+
+export async function redeemToken({
+  btcAddress,
+  amount,
+  account,
+  chainId,
+  provider,
+  rpcUrl,
+  env,
+  token = Token.LBTC,
+}: IUnstakeLBTCParams & { token?: Token }) {
+  if (![Token.LBTC, Token.BTCK].includes(token)) {
+    throw new Error('Unsupported token');
+  }
+
+  if (token === Token.BTCK && !isKatanaChain(chainId)) {
+    throw new Error('Operation not permitted');
+  }
+
   const outputScript = getOutputScript(btcAddress, env);
+
   const amountSat = toSatoshi(amount).toNumber();
 
-  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
-
-  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const publicClient = makePublicClient({ chainId, rpcUrl, env });
   const walletClient = makeWalletClient({ provider, chainId });
 
-  const { request } = await publicClient.simulateContract({
-    address: lbtcContract.address,
+  const tokenContract = getTokenContractInfo(token, chainId, env);
+
+  const callData = {
+    abi: tokenContract.abi,
+    address: tokenContract.address,
     account,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
-    abi: lbtcContract.abi,
-    functionName: 'redeem',
+    functionName: 'redeem', // FIXME: both LBTC and Native LBTC have the same redeem method, change this if Native LBTC ABI changes.
     args: [outputScript, BigInt(amountSat)],
-  });
+  } as const;
 
-  const txHash = await walletClient.writeContract(request);
+  // Katana Tatara requires tip TODO: Recheck if this is needed or is it just OKX wallet issue
+  const gasEstimationData = isKatanaChain(chainId)
+    ? await estimateGasFees(publicClient, callData, parseGwei('1'))
+    : {};
+
+  const { request } = await publicClient.simulateContract(callData);
+
+  const txHash = await walletClient.writeContract({
+    ...request,
+    ...gasEstimationData,
+  });
 
   return txHash;
 }
