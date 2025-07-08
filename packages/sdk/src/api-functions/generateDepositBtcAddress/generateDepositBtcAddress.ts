@@ -1,6 +1,9 @@
 import axios from 'axios';
 import { getApiConfig } from '../../common/api-config';
-import { getChainNameById } from '../../common/blockchain-identifier';
+import {
+  BlockchainIdentifier,
+  getChainNameById,
+} from '../../common/blockchain-identifier';
 import type { ChainId, SolanaChain, SuiChain } from '../../common/chains';
 import type { IEnvParam } from '../../common/parameters';
 import {
@@ -60,7 +63,7 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
   signatureData?: string;
 }
 
-const EXTRA_PARAMS_TOKENS = [Token.BTCK];
+const EXTRA_PARAMS_TOKENS = [Token.LBTC, Token.BTCK];
 const SUPPORTED_TOKENS = [Token.LBTC, Token.BTCK];
 
 /**
@@ -128,7 +131,17 @@ export async function generateDepositBtcAddress({
    */
   let tokenDataParams = {};
   try {
-    if (EXTRA_PARAMS_TOKENS.includes(token)) {
+    if (
+      EXTRA_PARAMS_TOKENS.includes(token) &&
+      // FIXME: Refactor in order to pull in all token addresses from all supported networks to the sdk-common package.
+      // FIXME: Then remove this clause prior two token model.
+      !(
+        [
+          BlockchainIdentifier.sui,
+          BlockchainIdentifier.solana,
+        ] as BlockchainIdentifier[]
+      ).includes(toChain)
+    ) {
       const tokenContractInfo = getTokenContractInfo(
         token,
         chainId as ChainId,
@@ -136,7 +149,6 @@ export async function generateDepositBtcAddress({
       );
       tokenDataParams = {
         token_address: tokenContractInfo.address,
-        aux_version: 1,
       };
     }
   } catch (err) {
