@@ -1,9 +1,12 @@
 {
   "dependencies": {
+    "@lombard.finance/btc-deposit-addresses": "^1.0.0",
     "@lombard.finance/sdk-common": "^3.0.0",
-    "viem": "^2.23.15"
+    "isows": "^1.0.7",
+    "viem": "^2.30.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@chromatic-com/storybook": "1.6.1",
     "@storybook/addon-essentials": "^8.2.9",
     "@storybook/addon-interactions": "^8.2.9",
@@ -21,6 +24,7 @@
     "storybook": "^8.2.9",
     "typedoc": "^0.26.6",
     "typescript": "^5.4.5",
+    "vite": "^6.3.5",
     "wagmi": "^2.14.15"
   },
   "engines": {

@@ -1,5 +1,9 @@
 import { getRpcUrlConfig } from './rpc-url-config';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from '../common/chains';
+import {
+  CHAIN_ID_TO_VIEM_CHAIN_MAP,
+  ChainId,
+  getChain,
+} from '../common/chains';
 import { createPublicClient, http, PublicClient } from 'viem';
 import { determineEnv } from '../utils/env';
 import { Env } from '@lombard.finance/sdk-common';
@@ -28,7 +32,15 @@ export function makePublicClient({
 
   const rpcUrls = { ...rpcUrlConfig, ...override };
 
-  const chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
+  let chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
+  if (!chain) {
+    chain = getChain(chainId);
+  }
+
+  console.info(
+    `Creating a public client for ${chainId} with RPC: ${rpcUrls[chainId]}`,
+  );
+
   const transport = http(rpcUrls[chainId]);
 
   const publicClient = createPublicClient({

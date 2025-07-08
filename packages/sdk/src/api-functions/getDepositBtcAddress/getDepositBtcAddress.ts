@@ -1,13 +1,33 @@
+import {
+  Blockchain,
+  verifyAddress,
+} from '@lombard.finance/btc-deposit-addresses';
 import axios from 'axios';
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
   getChainNameById,
 } from '../../common/blockchain-identifier';
-import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import {
+  ChainId,
+  SUI_MAINNET_CHAIN,
+  SolanaChain,
+  SuiChain,
+} from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
+import { orderBy } from '../../utils/array';
+
+export const VERIFIABLE_CHAINS: Partial<
+  Record<ChainId | SuiChain | SolanaChain, Blockchain>
+> = {
+  [ChainId.ethereum]: Blockchain.Ethereum,
+  [ChainId.base]: Blockchain.Base,
+  [ChainId.binanceSmartChain]: Blockchain.BSC,
+  [ChainId.sonic]: Blockchain.Sonic,
+  [SUI_MAINNET_CHAIN]: Blockchain.Sui,
+};
 
 export interface IDepositAddress {
   /**
@@ -60,6 +80,8 @@ export interface IDepositAddress {
      * The aux version (paired with the token_address)
      */
     aux_version?: number;
+    /** Nonce */
+    nonce?: number;
   };
 }
 
@@ -135,7 +157,8 @@ async function makeRequest({
       params,
     });
 
-    return data.addresses || [];
+    const addresses = data?.addresses ? data.addresses : [];
+    return addresses.filter(a => !a.deprecated);
   } catch (err) {
     if (axios.isAxiosError<IApiError>(err)) {
       const message = err.response?.data.message;
@@ -248,7 +271,35 @@ export async function getDepositBtcAddress({
     );
   }
 
-  return depositAddress;
+  const mostRecentAddress = addresses.reduce((mostRecent, cur) => {
+    if (Number(cur.created_at) > Number(mostRecent.created_at)) {
+      return cur;
+    }
+    return mostRecent;
+  }, addresses[0]);
+
+  const canVerify = Object.keys(VERIFIABLE_CHAINS).includes(String(chainId));
+  if (canVerify) {
+    const blockchain = VERIFIABLE_CHAINS[chainId] as Blockchain;
+    const [verified, calculated] = verifyAddress(
+      mostRecentAddress.btc_address,
+      mostRecentAddress.deposit_metadata.nonce || 0,
+      mostRecentAddress.deposit_metadata.referral || '',
+      address,
+      blockchain,
+    );
+    if (!verified) {
+      throw new Error(
+        `The BTC deposit address ${mostRecentAddress.btc_address} is not valid. The deposit address is not the same as expected (${calculated})`,
+      );
+    }
+  } else {
+    console.warn(
+      `The BTC deposit address ${mostRecentAddress.btc_address} cannot be verified. Only the following destination chains are verifiable: ${Object.keys(VERIFIABLE_CHAINS).join(', ')}`,
+    );
+  }
+
+  return mostRecentAddress.btc_address;
 }
 
 /**
@@ -259,5 +310,5 @@ export async function getDepositBtcAddresses(
   parameters: IGetDepositBtcAddressesParameters,
 ) {
   const addresses = await makeRequest(parameters);
-  return addresses;
+  return orderBy(addresses || [], a => Number(a.created_at), 'desc');
 }

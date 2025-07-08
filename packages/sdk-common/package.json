@@ -11,14 +11,17 @@
   "license": "MIT",
   "type": "module",
   "types": "./src/index.ts",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "engines": {
     "node": ">= 22.14.0"
   },
   "scripts": {
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
     "build": "yarn types && vite build",
-    "lint": "biome lint",
+    "lint": "biome lint --diagnostic-level=error",
     "types": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -26,10 +29,12 @@
     "bitcoinjs-lib": "6.1.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@bitcoin-js/tiny-secp256k1-asmjs": "2.2.3",
+    "bitcoinjs-lib": "6.1.5",
     "rimraf": "^5",
     "typedoc": "^0.26.6",
     "typescript": "^5.4.5",
-    "bitcoinjs-lib": "6.1.5"
+    "vite": "^6.3.5"
   }
 }

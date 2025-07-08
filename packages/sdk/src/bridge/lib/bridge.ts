@@ -1,17 +1,17 @@
 import BigNumber from 'bignumber.js';
+import { Address } from 'viem';
+import { CommonWriteParameters } from '../../common/parameters';
 import { bridgeCCIP } from './ccip-bridge';
 import {
-  BRIDGE_CHAINS,
   BRIDGE_EXPLORER_URL_MAP,
   BridgeChain,
   BridgeType,
   CCIPBridgeChain,
-  getBridgeInfo,
+  CCIP_BRIDGE_CHAINS,
   OFTBridgeChain,
+  getBridgeInfo,
 } from './config';
 import { bridgeOFT } from './oft-bridge';
-import { Address } from 'viem';
-import { CommonWriteParameters } from '../../common/parameters';
 
 export type BridgeParameters = {
   /** The destination chain id. */
@@ -26,7 +26,13 @@ export type BridgeParameters = {
   approve?: boolean;
   /** The destination address. If omitted the same as the account address. */
   recipient?: Address;
-} & CommonWriteParameters;
+} & CommonWriteParameters & {
+    /**
+     * A flag indicating whether the OFT bridge should be allowed.
+     * Use at your onw risk!
+     */
+    experimentalAllowOFT?: boolean;
+  };
 
 /**
  * Bridges funds (`amount`) from the connected chain (`chainId`) to the provided
@@ -42,12 +48,19 @@ export async function bridge({
   recipient,
   rpcUrl,
   env,
+  experimentalAllowOFT = false,
 }: BridgeParameters) {
   const bridgeInfo = getBridgeInfo(chainId as BridgeChain, to);
 
-  if (!bridgeInfo) {
+  if (
+    !bridgeInfo ||
+    (!experimentalAllowOFT && bridgeInfo.type === BridgeType.OFT)
+  ) {
+    // The OFT bridges are disabled for now in this generic function as we're
+    // working on moving all bridges to the CCIP method. OFT bridging shouldn't
+    // be exposed.
     throw new Error(
-      `Unsupported bridge from ${chainId} to ${to}. Please switch to the supported chains: ${BRIDGE_CHAINS.join(', ')}`,
+      `Unsupported bridge from ${chainId} to ${to}. Please switch to the supported chains: ${CCIP_BRIDGE_CHAINS.join(', ')}`,
     );
   }
 

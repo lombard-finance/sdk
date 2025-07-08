@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   ConnectButton,
   ErrorDisplay,
   ResultDisplay,
 } from '../../stories/components';
+import { functionType } from '../../stories/decorators/function-type';
 import { useConnect } from '../../stories/hooks/useConnect';
+import useQuery from '../../stories/hooks/useQuery';
 import { SolanaSdkError } from '../../utils/errors';
 import { signMessage } from './signMessage';
-import useQuery from '../../stories/hooks/useQuery';
-import { functionType } from '../../stories/decorators/function-type';
 
 type SignMessageProps = {
   message: string;

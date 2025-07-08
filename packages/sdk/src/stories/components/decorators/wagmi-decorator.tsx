@@ -17,7 +17,7 @@ import {
   sonic,
   sonicBlazeTestnet,
   swellchain,
-} from 'viem/chains';
+} from 'wagmi/chains';
 import { createConfig, http, WagmiProvider } from 'wagmi';
 import { katana, katanaTatara } from '../../../common/chains';
 
