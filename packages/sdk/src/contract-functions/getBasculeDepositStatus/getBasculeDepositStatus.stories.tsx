@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { ChainId } from '../../common/chains';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
+import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import {
-  getBasculeDepositStatus,
   IGetBasculeDepositStatusParameters,
+  getBasculeDepositStatus,
 } from './getBasculeDepositStatus';
-import { ChainId } from '../../common/chains';
-import { functionType } from '../../stories/components/decorators';
 
 const meta = {
   title: 'read/getBasculeDepositStatus',

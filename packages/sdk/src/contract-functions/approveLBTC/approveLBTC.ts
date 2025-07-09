@@ -1,12 +1,12 @@
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
-import { makeWalletClient } from '../../clients/wallet-client';
-import { CommonWriteParameters } from '../../common/parameters';
-import { toSatoshi } from '../../utils/satoshi';
+import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
 import { makePublicClient } from '../../clients/public-client';
-import BigNumber from 'bignumber.js';
-import { getTokenContractInfo } from '../../tokens/tokens';
+import { makeWalletClient } from '../../clients/wallet-client';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
+import { CommonWriteParameters } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { toSatoshi } from '../../utils/satoshi';
 
 export interface IApproveLBTCParams extends CommonWriteParameters {
   /**

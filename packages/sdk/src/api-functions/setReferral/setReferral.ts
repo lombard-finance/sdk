@@ -1,7 +1,7 @@
 import axios from 'axios';
+import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
-import { getApiConfig } from '../../common/api-config';
 
 const URL = 'api/v1/referral-system/referrer/';
 

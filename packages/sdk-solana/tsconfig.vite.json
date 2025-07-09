@@ -12,8 +12,5 @@
     "sourceMap": true,
     "strict": true
   },
-  "include": [
-    "vite.config.ts",
-    "package.json"
-  ]
+  "include": ["vite.config.ts", "package.json"]
 }

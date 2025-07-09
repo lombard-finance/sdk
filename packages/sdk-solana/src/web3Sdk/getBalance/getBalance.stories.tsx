@@ -5,11 +5,11 @@ import {
   ErrorDisplay,
   ResultDisplay,
 } from '../../stories/components';
+import { functionType } from '../../stories/decorators/function-type';
 import { useConnect } from '../../stories/hooks/useConnect';
+import useQuery from '../../stories/hooks/useQuery';
 import { SolanaNetwork } from '../../types';
 import { getBalance } from './getBalance';
-import useQuery from '../../stories/hooks/useQuery';
-import { functionType } from '../../stories/decorators/function-type';
 
 const meta: Meta<typeof StoryView> = {
   title: 'read/getBalance',

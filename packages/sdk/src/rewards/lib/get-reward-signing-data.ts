@@ -1,8 +1,8 @@
-import BigNumber from 'bignumber.js';
-import { IEnvParam } from '../../common/parameters';
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { getApiConfig } from '../../common/api-config';
-import { isRewardTokenSupported, RewardToken } from './reward-tokens';
+import { IEnvParam } from '../../common/parameters';
+import { RewardToken, isRewardTokenSupported } from './reward-tokens';
 
 const SIGNING_DATA_URL =
   '/api/v1/distribution/account/{from}/withdrawals/{to}/signing-data';

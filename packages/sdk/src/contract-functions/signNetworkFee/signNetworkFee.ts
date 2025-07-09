@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js';
+import { Hex } from 'viem';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
-import { DAY, now, toUnix } from '../../utils/time';
-import { Hex } from 'viem';
-import { getTokenContractInfo } from '../../tokens/tokens';
 import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { DAY, now, toUnix } from '../../utils/time';
 
 export interface ISignNetworkFeeParams extends CommonWriteParameters {
   /**

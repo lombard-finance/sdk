@@ -1,20 +1,20 @@
+import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
-import {
-  isVedaVaultChain,
-  Vault,
-  VAULTS,
-  VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
-} from '../config';
 import { ChainId } from '../../../common/chains';
 import {
+  TokenInfo,
   fromBaseDenomination,
   getAssetInfo,
-  TokenInfo,
 } from '../../../tokens/tokens';
-import BigNumber from 'bignumber.js';
-import axios from 'axios';
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
+import {
+  VAULTS,
+  VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
+  Vault,
+  isVedaVaultChain,
+} from '../config';
 
 export type GetVaultWithdrawalsParameters = {
   account: Address;

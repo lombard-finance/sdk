@@ -1,20 +1,20 @@
-import { CommonOptionalWriteParameters } from '../../common/parameters';
-import { getErrorMessage } from '../../utils/err';
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { IDeposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import {
   ByteArray,
   Client,
+  PublicClient,
   getContract,
   keccak256,
-  PublicClient,
   zeroAddress,
 } from 'viem';
+import { IDeposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
+import { CommonOptionalWriteParameters } from '../../common/parameters';
 import LBTC_BASCULE_ABI from '../../tokens/abi/LBTC_BASCULE_ABI.json';
-import { getTokenContractInfo } from '../../tokens/tokens';
 import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { getErrorMessage } from '../../utils/err';
 
 /**
  * The bascule drawbridge deposit status.

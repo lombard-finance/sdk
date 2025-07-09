@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js';
+import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
 import { determineEnv } from '../../utils/env';
 import { fromSatoshi } from '../../utils/satoshi';
-import { makePublicClient } from '../../clients/public-client';
-import { getTokenContractInfo } from '../../tokens/tokens';
-import { Token } from '../../tokens/token-addresses';
 
 /**
  * Gets LBTC minting fee amount.

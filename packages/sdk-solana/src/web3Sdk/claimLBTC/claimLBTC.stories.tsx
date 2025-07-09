@@ -9,13 +9,13 @@ import {
   ResultDisplay,
   SectionCard,
 } from '../../stories/components';
+import { functionType } from '../../stories/decorators/function-type';
 import { useConnect } from '../../stories/hooks/useConnect';
 import { IOutput, useFetchOutputs } from '../../stories/hooks/useFetchOutputs';
+import useQuery from '../../stories/hooks/useQuery';
 import { SolanaNetwork } from '../../types';
 import { claimLBTC } from './claimLBTC';
 import { parseTransactionLogs } from './utils/parseTransactionLogs';
-import useQuery from '../../stories/hooks/useQuery';
-import { functionType } from '../../stories/decorators/function-type';
 
 interface ClaimLbtcStoryArgs {
   network: SolanaNetwork;

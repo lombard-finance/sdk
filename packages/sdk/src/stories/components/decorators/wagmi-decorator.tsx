@@ -1,5 +1,4 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { rpcUrlConfig } from '../../../clients/rpc-url-config';
 import { ReactNode } from 'react';
 import {
   base,
@@ -19,6 +18,7 @@ import {
   swellchain,
 } from 'wagmi/chains';
 import { createConfig, http, WagmiProvider } from 'wagmi';
+import { rpcUrlConfig } from '../../../clients/rpc-url-config';
 import { katana, katanaTatara } from '../../../common/chains';
 
 const config = createConfig({

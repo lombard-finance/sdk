@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { SolanaNetwork } from '../../../types';
-import { useFetchOutputs, IOutput } from '../../hooks/useFetchOutputs';
+import { IOutput, useFetchOutputs } from '../../hooks/useFetchOutputs';
 import { Button } from '../Button/Button';
 import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
 import { SelectField } from '../SelectField/SelectField';

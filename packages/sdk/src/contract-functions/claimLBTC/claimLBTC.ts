@@ -1,16 +1,16 @@
+import { Hash, parseGwei } from 'viem';
+import { makePublicClient } from '../../clients/public-client';
+import { makeWalletClient } from '../../clients/wallet-client';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
+import { CommonWriteParameters } from '../../common/parameters';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { estimateGasFees } from '../../utils/gas';
+import { ensureHex } from '../../utils/hex';
 import {
   BasculeDepositStatus,
   getBasculeDepositStatus,
 } from '../getBasculeDepositStatus';
-import type { CommonWriteParameters } from '../../common/parameters';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
-import { makePublicClient } from '../../clients/public-client';
-import { makeWalletClient } from '../../clients/wallet-client';
-import { ensureHex } from '../../utils/hex';
-import { type Hash, parseGwei } from 'viem';
-import { getTokenContractInfo } from '../../tokens/tokens';
-import { Token } from '../../tokens/token-addresses';
-import { estimateGasFees } from '../../utils/gas';
 
 export interface IClaimLBTCParams extends CommonWriteParameters {
   /**

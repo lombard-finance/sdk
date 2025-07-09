@@ -1,10 +1,10 @@
-import { CommonParameters } from '../../common/parameters';
-import { determineEnv } from '../../utils/env';
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import { Address } from 'viem';
 import { makePublicClient } from '../../clients/public-client';
-import { getTokenContractInfo } from '../../tokens/tokens';
+import { CommonParameters } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { determineEnv } from '../../utils/env';
 
 export interface IGetPermitNonceParams extends CommonParameters {
   /**

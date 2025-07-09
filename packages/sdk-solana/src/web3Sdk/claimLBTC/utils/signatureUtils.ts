@@ -1,5 +1,5 @@
-import { BN } from '@coral-xyz/anchor';
 import { Buffer } from 'node:buffer';
+import { BN } from '@coral-xyz/anchor';
 
 /**
  * Result of parsing signatures from a proof

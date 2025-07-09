@@ -1,11 +1,11 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { IEnvParam } from '../../common/parameters';
-import { ChainId } from '../../common/chains';
-import { toSatoshi } from '../../utils/satoshi';
 import { getApiConfig } from '../../common/api-config';
-import { MIN_STAKE_AMOUNT_BTC } from '../../common/constants';
 import { getChainNameById } from '../../common/blockchain-identifier';
+import { ChainId } from '../../common/chains';
+import { MIN_STAKE_AMOUNT_BTC } from '../../common/constants';
+import { IEnvParam } from '../../common/parameters';
+import { toSatoshi } from '../../utils/satoshi';
 
 type ExchangeRateResponse = {
   amount_out: string;

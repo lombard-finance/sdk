@@ -1,16 +1,16 @@
-import BigNumber from 'bignumber.js';
-import axios from 'axios';
-import { CommonWriteParameters } from '../../common/parameters';
-import { SuiSignPersonalMessageFeature } from '@mysten/wallet-standard';
 import {
+  RewardToken,
+  RewardWithdrawal,
+  RewardWithdrawalStatus,
   getApiConfig,
   getRewardSigningData,
   getRewardWithdrawalFee,
   isRewardTokenSupported,
-  RewardToken,
-  RewardWithdrawal,
-  RewardWithdrawalStatus,
 } from '@lombard.finance/sdk';
+import { SuiSignPersonalMessageFeature } from '@mysten/wallet-standard';
+import axios from 'axios';
+import BigNumber from 'bignumber.js';
+import { CommonWriteParameters } from '../../common/parameters';
 
 type Response = {
   withdrawal: {

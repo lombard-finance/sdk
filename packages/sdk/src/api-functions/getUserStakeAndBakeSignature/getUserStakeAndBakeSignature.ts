@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { IEnvParam } from '../../common/parameters';
-import { ChainId } from '../../common/chains';
-import { getErrorMessage } from '../../utils/err';
 import { getApiConfig } from '../../common/api-config';
+import { ChainId } from '../../common/chains';
+import { IEnvParam } from '../../common/parameters';
+import { getErrorMessage } from '../../utils/err';
 
 export interface IGetUserStakeAndBakeSignatureParams extends IEnvParam {
   /**

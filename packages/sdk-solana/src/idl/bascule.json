@@ -9,19 +9,8 @@
   "instructions": [
     {
       "name": "add_withdrawal_validator",
-      "docs": [
-        "Authorize a validator"
-      ],
-      "discriminator": [
-        225,
-        62,
-        49,
-        209,
-        125,
-        184,
-        239,
-        88
-      ],
+      "docs": ["Authorize a validator"],
+      "discriminator": [225, 62, 49, 209, 125, 184, 239, 88],
       "accounts": [
         {
           "name": "admin",
@@ -34,23 +23,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -68,16 +47,7 @@
       "docs": [
         "Authorize a pauser (unauthorizing any previously authorized pauser)"
       ],
-      "discriminator": [
-        213,
-        74,
-        160,
-        205,
-        65,
-        29,
-        124,
-        6
-      ],
+      "discriminator": [213, 74, 160, 205, 65, 29, 124, 6],
       "accounts": [
         {
           "name": "admin",
@@ -90,23 +60,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -124,16 +84,7 @@
       "docs": [
         "Authorize a reporter (unauthorizing any previously authorized reporter)"
       ],
-      "discriminator": [
-        135,
-        151,
-        222,
-        25,
-        238,
-        20,
-        118,
-        255
-      ],
+      "discriminator": [135, 151, 222, 25, 238, 20, 118, 255],
       "accounts": [
         {
           "name": "admin",
@@ -146,23 +97,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -177,19 +118,8 @@
     },
     {
       "name": "initialize",
-      "docs": [
-        "Initialize the program"
-      ],
-      "discriminator": [
-        175,
-        175,
-        109,
-        31,
-        13,
-        152,
-        155,
-        237
-      ],
+      "docs": ["Initialize the program"],
+      "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
       "accounts": [
         {
           "name": "payer",
@@ -224,23 +154,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -257,19 +177,8 @@
     },
     {
       "name": "pause",
-      "docs": [
-        "Pause the program"
-      ],
-      "discriminator": [
-        211,
-        22,
-        221,
-        251,
-        74,
-        121,
-        193,
-        47
-      ],
+      "docs": ["Pause the program"],
+      "discriminator": [211, 22, 221, 251, 74, 121, 193, 47],
       "accounts": [
         {
           "name": "pauser",
@@ -282,23 +191,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -308,19 +207,8 @@
     },
     {
       "name": "remove_withdrawal_validator",
-      "docs": [
-        "Unauthorize a validator"
-      ],
-      "discriminator": [
-        253,
-        138,
-        33,
-        169,
-        124,
-        28,
-        58,
-        68
-      ],
+      "docs": ["Unauthorize a validator"],
+      "discriminator": [253, 138, 33, 169, 124, 28, 58, 68],
       "accounts": [
         {
           "name": "admin",
@@ -333,23 +221,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -364,19 +242,8 @@
     },
     {
       "name": "report_deposit",
-      "docs": [
-        "Report a deposit"
-      ],
-      "discriminator": [
-        236,
-        16,
-        15,
-        78,
-        10,
-        232,
-        185,
-        68
-      ],
+      "docs": ["Report a deposit"],
+      "discriminator": [236, 16, 15, 78, 10, 232, 185, 68],
       "accounts": [
         {
           "name": "reporter",
@@ -391,45 +258,25 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
         },
         {
           "name": "deposit",
-          "docs": [
-            "The deposit account"
-          ],
+          "docs": ["The deposit account"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  100,
-                  101,
-                  112,
-                  111,
-                  115,
-                  105,
-                  116
-                ]
+                "value": [100, 101, 112, 111, 115, 105, 116]
               },
               {
                 "kind": "arg",
@@ -450,29 +297,15 @@
         {
           "name": "deposit_id",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
     },
     {
       "name": "transfer_admin_accept",
-      "docs": [
-        "Accept the previously initiated admin transfer process"
-      ],
-      "discriminator": [
-        179,
-        31,
-        118,
-        203,
-        252,
-        96,
-        95,
-        215
-      ],
+      "docs": ["Accept the previously initiated admin transfer process"],
+      "discriminator": [179, 31, 118, 203, 252, 96, 95, 215],
       "accounts": [
         {
           "name": "pending_admin",
@@ -485,23 +318,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -511,19 +334,8 @@
     },
     {
       "name": "transfer_admin_init",
-      "docs": [
-        "Start the admin transfer process"
-      ],
-      "discriminator": [
-        201,
-        147,
-        175,
-        184,
-        29,
-        86,
-        36,
-        71
-      ],
+      "docs": ["Start the admin transfer process"],
+      "discriminator": [201, 147, 175, 184, 29, 86, 36, 71],
       "accounts": [
         {
           "name": "admin",
@@ -536,23 +348,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -567,19 +369,8 @@
     },
     {
       "name": "unpause",
-      "docs": [
-        "Unpause the program"
-      ],
-      "discriminator": [
-        169,
-        144,
-        4,
-        38,
-        10,
-        141,
-        188,
-        255
-      ],
+      "docs": ["Unpause the program"],
+      "discriminator": [169, 144, 4, 38, 10, 141, 188, 255],
       "accounts": [
         {
           "name": "pauser",
@@ -592,23 +383,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -618,19 +399,8 @@
     },
     {
       "name": "update_validate_threshold",
-      "docs": [
-        "Set the validate threshold"
-      ],
-      "discriminator": [
-        24,
-        135,
-        10,
-        182,
-        198,
-        97,
-        174,
-        193
-      ],
+      "docs": ["Set the validate threshold"],
+      "discriminator": [24, 135, 10, 182, 198, 97, 174, 193],
       "accounts": [
         {
           "name": "admin",
@@ -643,23 +413,13 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
@@ -685,16 +445,7 @@
         "* `tx_id` - the bitcoin transaction id",
         "* `tx_vout` - the bitcoin transaction output index"
       ],
-      "discriminator": [
-        167,
-        3,
-        24,
-        2,
-        18,
-        89,
-        210,
-        246
-      ],
+      "discriminator": [167, 3, 24, 2, 18, 89, 210, 246],
       "accounts": [
         {
           "name": "validator",
@@ -717,46 +468,26 @@
         },
         {
           "name": "bascule_data",
-          "docs": [
-            "The program state"
-          ],
+          "docs": ["The program state"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  98,
-                  97,
-                  115,
-                  99,
-                  117,
-                  108,
-                  101
-                ]
+                "value": [98, 97, 115, 99, 117, 108, 101]
               }
             ]
           }
         },
         {
           "name": "deposit",
-          "docs": [
-            "The deposit account"
-          ],
+          "docs": ["The deposit account"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  100,
-                  101,
-                  112,
-                  111,
-                  115,
-                  105,
-                  116
-                ]
+                "value": [100, 101, 112, 111, 115, 105, 116]
               },
               {
                 "kind": "arg",
@@ -774,10 +505,7 @@
         {
           "name": "deposit_id",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         },
         {
@@ -791,10 +519,7 @@
         {
           "name": "tx_id",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         },
         {
@@ -807,122 +532,41 @@
   "accounts": [
     {
       "name": "BasculeData",
-      "discriminator": [
-        43,
-        219,
-        194,
-        55,
-        0,
-        135,
-        158,
-        67
-      ]
+      "discriminator": [43, 219, 194, 55, 0, 135, 158, 67]
     },
     {
       "name": "Deposit",
-      "discriminator": [
-        148,
-        146,
-        121,
-        66,
-        207,
-        173,
-        21,
-        227
-      ]
+      "discriminator": [148, 146, 121, 66, 207, 173, 21, 227]
     }
   ],
   "events": [
     {
       "name": "AdminTransferAccepted",
-      "discriminator": [
-        79,
-        229,
-        204,
-        202,
-        134,
-        43,
-        177,
-        26
-      ]
+      "discriminator": [79, 229, 204, 202, 134, 43, 177, 26]
     },
     {
       "name": "AdminTransferInitiated",
-      "discriminator": [
-        157,
-        255,
-        0,
-        92,
-        52,
-        106,
-        16,
-        156
-      ]
+      "discriminator": [157, 255, 0, 92, 52, 106, 16, 156]
     },
     {
       "name": "AlreadyReported",
-      "discriminator": [
-        110,
-        163,
-        105,
-        23,
-        59,
-        143,
-        91,
-        105
-      ]
+      "discriminator": [110, 163, 105, 23, 59, 143, 91, 105]
     },
     {
       "name": "DepositReported",
-      "discriminator": [
-        247,
-        2,
-        28,
-        54,
-        28,
-        50,
-        56,
-        246
-      ]
+      "discriminator": [247, 2, 28, 54, 28, 50, 56, 246]
     },
     {
       "name": "UpdateValidateThreshold",
-      "discriminator": [
-        89,
-        84,
-        72,
-        70,
-        190,
-        108,
-        131,
-        42
-      ]
+      "discriminator": [89, 84, 72, 70, 190, 108, 131, 42]
     },
     {
       "name": "WithdrawalNotValidated",
-      "discriminator": [
-        31,
-        66,
-        148,
-        192,
-        113,
-        20,
-        82,
-        59
-      ]
+      "discriminator": [31, 66, 148, 192, 113, 20, 82, 59]
     },
     {
       "name": "WithdrawalValidated",
-      "discriminator": [
-        148,
-        195,
-        225,
-        176,
-        184,
-        35,
-        87,
-        210
-      ]
+      "discriminator": [148, 195, 225, 176, 184, 35, 87, 210]
     }
   ],
   "errors": [
@@ -985,17 +629,13 @@
   "types": [
     {
       "name": "AdminTransferAccepted",
-      "docs": [
-        "Event emitted when admin transfer is accepted"
-      ],
+      "docs": ["Event emitted when admin transfer is accepted"],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "new_admin",
-            "docs": [
-              "The new admin who has just accept the transfer"
-            ],
+            "docs": ["The new admin who has just accept the transfer"],
             "type": "pubkey"
           }
         ]
@@ -1003,24 +643,18 @@
     },
     {
       "name": "AdminTransferInitiated",
-      "docs": [
-        "Event emitted when admin transfer is initiate"
-      ],
+      "docs": ["Event emitted when admin transfer is initiate"],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "current_admin",
-            "docs": [
-              "The current admin"
-            ],
+            "docs": ["The current admin"],
             "type": "pubkey"
           },
           {
             "name": "pending_admin",
-            "docs": [
-              "The new admin (who still has to accept the transfer)"
-            ],
+            "docs": ["The new admin (who still has to accept the transfer)"],
             "type": "pubkey"
           }
         ]
@@ -1037,10 +671,7 @@
           {
             "name": "deposit_id",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -1056,9 +687,7 @@
     },
     {
       "name": "BasculeData",
-      "docs": [
-        "The bascule program state"
-      ],
+      "docs": ["The bascule program state"],
       "type": {
         "kind": "struct",
         "fields": [
@@ -1109,9 +738,7 @@
           },
           {
             "name": "is_paused",
-            "docs": [
-              "Whether the program paused"
-            ],
+            "docs": ["Whether the program paused"],
             "type": "bool"
           },
           {
@@ -1150,9 +777,7 @@
         "fields": [
           {
             "name": "state",
-            "docs": [
-              "The state of the deposit"
-            ],
+            "docs": ["The state of the deposit"],
             "type": {
               "defined": {
                 "name": "DepositState"
@@ -1171,19 +796,14 @@
     },
     {
       "name": "DepositReported",
-      "docs": [
-        "Event emitted when deposit was successfully reported."
-      ],
+      "docs": ["Event emitted when deposit was successfully reported."],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "deposit_id",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           }
         ]
@@ -1191,9 +811,7 @@
     },
     {
       "name": "DepositState",
-      "docs": [
-        "The state of a deposit"
-      ],
+      "docs": ["The state of a deposit"],
       "type": {
         "kind": "enum",
         "variants": [
@@ -1211,9 +829,7 @@
     },
     {
       "name": "UpdateValidateThreshold",
-      "docs": [
-        "Event emitted when the validation threshold is updated."
-      ],
+      "docs": ["Event emitted when the validation threshold is updated."],
       "type": {
         "kind": "struct",
         "fields": [
@@ -1239,10 +855,7 @@
           {
             "name": "deposit_id",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -1254,19 +867,14 @@
     },
     {
       "name": "WithdrawalValidated",
-      "docs": [
-        "Event emitted when a withdrawal is validated."
-      ],
+      "docs": ["Event emitted when a withdrawal is validated."],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "deposit_id",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {

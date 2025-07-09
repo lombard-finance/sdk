@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { ChainId } from '../../common/chains';
 import { Button } from '../../stories/components/Button';
-import useQuery from '../../stories/hooks/useQuery';
-import { getShareValue, IGetShareValueParameters } from './getShareValue';
-import { Vault } from '../../vaults/lib/config';
 import { functionType } from '../../stories/components/decorators';
+import useQuery from '../../stories/hooks/useQuery';
+import { Vault } from '../../vaults/lib/config';
+import { IGetShareValueParameters, getShareValue } from './getShareValue';
 
 const meta = {
   title: 'read/getShareValue',

@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { IEnvParam } from '../../common/parameters';
-import { getApiConfig } from '../../common/api-config';
+import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { getApiConfig } from '../../common/api-config';
+import { IEnvParam } from '../../common/parameters';
 
 export interface IGetPointsByAddressParameters extends IEnvParam {
   /**
