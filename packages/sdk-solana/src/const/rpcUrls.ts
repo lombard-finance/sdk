@@ -1,13 +1,14 @@
 import { Commitment, Connection } from '@solana/web3.js';
 import { SolanaNetwork } from '../types/network';
 
+// TODO: Get this from the sdk
 export const BFF_BASE_URL_PROD =
-  'https://bff.prod.lombard.finance/multi-rpc/proxy';
+  'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
 export const BFF_BASE_URL_STAGE =
-  'https://bff.stage.lombard.finance/multi-rpc/proxy';
-export const BFF_WS_URL_PROD = 'wss://bff.prod.lombard.finance/multi-rpc/proxy';
+  'https://bff.stage.lombard-fi.com/multi-rpc/proxy';
+export const BFF_WS_URL_PROD = 'wss://bff.prod.lombard-fi.com/multi-rpc/proxy';
 export const BFF_WS_URL_STAGE =
-  'wss://bff.stage.lombard.finance/multi-rpc/proxy';
+  'wss://bff.stage.lombard-fi.com/multi-rpc/proxy';
 
 export const RPC_URLS: Record<SolanaNetwork, string> = {
   [SolanaNetwork.mainnet]: `${BFF_BASE_URL_PROD}/solana`,

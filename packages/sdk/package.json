@@ -1,4 +1,6 @@
 {
+  "name": "@lombard.finance/sdk",
+  "version": "3.5.11",
   "dependencies": {
     "@lombard.finance/sdk-common": "^3.0.0",
     "viem": "^2.23.15"
@@ -40,7 +42,6 @@
     "src"
   ],
   "license": "MIT",
-  "name": "@lombard.finance/sdk",
   "peerDependencies": {
     "@layerzerolabs/lz-v2-utilities": "3.0.17",
     "axios": "^1",
@@ -58,6 +59,5 @@
     "watch": "vite build --watch"
   },
   "type": "module",
-  "types": "./src/index.ts",
-  "version": "3.5.10"
+  "types": "./src/index.ts"
 }
