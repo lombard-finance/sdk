@@ -68,7 +68,7 @@ export async function mintToken({
   env,
   token = Token.LBTC,
 }: IClaimLBTCParams & { token?: Token }) {
-  if (![Token.LBTC, Token.BTCK].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
     throw new Error('Unsupported token');
   }
 
@@ -109,7 +109,8 @@ export async function mintToken({
     account,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: tokenContract.abi,
-    functionName: token === Token.BTCK ? 'mintV1' : 'mint', // FIXME: mintV1 is the equivalent on Native LBTC contract of mint on LBTC contract, change if contract ABI changes.
+    functionName:
+      token === Token.BTCK || token === Token.NativeLBTC ? 'mintV1' : 'mint', // FIXME: mintV1 is the equivalent on Native LBTC contract of mint on LBTC contract, change if contract ABI changes.
     args: [ensureHex(data), ensureHex(proofSignature)],
   } as const;
 

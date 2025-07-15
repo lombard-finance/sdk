@@ -63,8 +63,8 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
   signatureData?: string;
 }
 
-const EXTRA_PARAMS_TOKENS = [Token.LBTC, Token.BTCK];
-const SUPPORTED_TOKENS = [Token.LBTC, Token.BTCK];
+const EXTRA_PARAMS_TOKENS = [Token.LBTC, Token.BTCK, Token.NativeLBTC];
+const SUPPORTED_TOKENS = [Token.LBTC, Token.BTCK, Token.NativeLBTC];
 
 /**
  * Generates a BTC deposit address.

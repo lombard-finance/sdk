@@ -4,7 +4,12 @@ import {
   BlockchainIdentifier,
   getChainNameById,
 } from '../../common/blockchain-identifier';
-import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import {
+  ChainId,
+  isValidChain,
+  SolanaChain,
+  SuiChain,
+} from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
@@ -176,7 +181,7 @@ export async function getDepositBtcAddress({
 
   let depositAddress: string | undefined = undefined;
 
-  if (![Token.LBTC, Token.BTCK].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
     throw new Error('Unsupported token');
   }
 
@@ -185,19 +190,13 @@ export async function getDepositBtcAddress({
     | { token_address: string; aux_version?: number }
     | undefined = undefined;
   try {
-    if (chainId === ChainId.katana || chainId === ChainId.katanaTatara) {
+    if (isValidChain(chainId)) {
       const tokenContractInfo = getTokenContractInfo(token, chainId, env);
 
-      if (token === Token.BTCK) {
-        tokenAddressFilter = {
-          token_address: tokenContractInfo.address.toLowerCase(),
-          aux_version: 1,
-        };
-      } else {
-        tokenAddressFilter = {
-          token_address: tokenContractInfo.address.toLowerCase(),
-        };
-      }
+      tokenAddressFilter = {
+        token_address: tokenContractInfo.address.toLowerCase(),
+        aux_version: token === Token.BTCK ? 1 : undefined,
+      };
     }
   } catch {
     // NOOP

@@ -168,7 +168,7 @@ export const isKatanaChain = (chainId: unknown): chainId is KatanaChain => {
   );
 };
 
-export function isValidChain(chainId: number): chainId is ChainId {
+export function isValidChain(chainId: unknown): chainId is ChainId {
   return Object.values(ChainId).includes(chainId as ChainId);
 }
 

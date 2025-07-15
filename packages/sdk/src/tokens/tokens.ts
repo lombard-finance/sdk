@@ -2,11 +2,18 @@ import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import { ChainId } from '../common/chains';
 import { makePublicClient } from '../clients/public-client';
 import BigNumber from 'bignumber.js';
-import { Abi, Address, erc20Abi, PublicClient } from 'viem';
-import { TOKEN_ADDRESSES, Token } from './token-addresses';
+import { type Abi, Address, erc20Abi, PublicClient } from 'viem';
+import {
+  STLBTC_CHAINS,
+  STLBTC_ENVS,
+  TOKEN_ADDRESSES,
+  Token,
+} from './token-addresses';
 import { LBTC_ABI } from './abi/LBTC_ABI';
 import { TokenContractAddressNotFoundError } from '../utils/err';
 import BTCK_ABI from './abi/BTCK_ABI';
+import STLBTC_ABI from './abi/STLBTC_ABI';
+import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
 
 export type TokenInfo = {
   address: Address;
@@ -15,32 +22,55 @@ export type TokenInfo = {
   decimals: number;
 };
 
-type AbiFor<TToken extends Token> = TToken extends Token.LBTC
-  ? typeof LBTC_ABI
+type AbiFor<
+  TToken extends Token,
+  TChainId = ChainId,
+> = TToken extends Token.LBTC
+  ? TChainId extends typeof ChainId.sepolia // FIXME: Remove chain clause when all updated
+    ? typeof STLBTC_ABI
+    : typeof LBTC_ABI
   : TToken extends Token.BTCK
     ? typeof BTCK_ABI
-    : typeof erc20Abi;
+    : TToken extends Token.NativeLBTC
+      ? typeof NATIVE_LBTC_ABI
+      : typeof erc20Abi;
 
-type TokenContractInfo<TToken extends Token> = {
-  abi: AbiFor<TToken>;
+type TokenContractInfo<TToken extends Token, TChainId = ChainId> = {
+  abi: AbiFor<TToken, TChainId>;
   address: Address;
-  chainId: ChainId;
+  chainId: TChainId;
 };
 
-export function getTokenContractInfo<TToken extends Token>(
+export const isSTLBTCAbi = (abi: Abi): abi is typeof STLBTC_ABI => {
+  const redeemForBtcAbi = abi.find(
+    a => a.type === 'function' && a.name === 'redeemForBtc',
+  );
+  return redeemForBtcAbi != null;
+};
+
+export function getTokenContractInfo<
+  TToken extends Token,
+  TChainId extends ChainId,
+>(
   token: TToken,
-  chainId: ChainId,
+  chainId: TChainId,
   env?: Env,
-): TokenContractInfo<TToken> {
+): TokenContractInfo<TToken, TChainId> {
   const environment = env || DEFAULT_ENV;
 
-  let abi: AbiFor<TToken> | undefined = undefined;
+  let abi: AbiFor<TToken, TChainId> | undefined = undefined;
   if (token === Token.LBTC) {
-    abi = LBTC_ABI as AbiFor<TToken>;
+    if (STLBTC_CHAINS.includes(chainId) && STLBTC_ENVS.includes(environment)) {
+      abi = STLBTC_ABI as AbiFor<TToken, TChainId>;
+    } else {
+      abi = LBTC_ABI as AbiFor<TToken, TChainId>;
+    }
   } else if (token === Token.BTCK) {
-    abi = BTCK_ABI as AbiFor<TToken>;
+    abi = BTCK_ABI as AbiFor<TToken, TChainId>;
+  } else if (token === Token.NativeLBTC) {
+    abi = NATIVE_LBTC_ABI as AbiFor<TToken>;
   } else {
-    abi = erc20Abi as AbiFor<TToken>;
+    abi = erc20Abi as AbiFor<TToken, TChainId>;
   }
 
   const address = TOKEN_ADDRESSES[token]?.[environment]?.[chainId];
