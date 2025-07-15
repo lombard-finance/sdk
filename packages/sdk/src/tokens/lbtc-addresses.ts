@@ -41,6 +41,7 @@ const LBTC_CONTRACTS = {
   [ChainId.morph]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
   [ChainId.sonic]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
   [ChainId.swell]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+  [ChainId.tac]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
 } as const;
 
 /**

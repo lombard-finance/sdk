@@ -14,6 +14,7 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.corn]: `${RPC_URL}/corn_maizenet`,
   [ChainId.katana]: `${RPC_URL}/katana`,
   [ChainId.sonic]: `${RPC_URL}/sonic_mainnet`,
+  [ChainId.tac]: `${RPC_URL}/tac`,
   // Testnets:
   [ChainId.baseSepoliaTestnet]: `${RPC_URL}/base_sepolia`,
   [ChainId.binanceSmartChainTestnet]:
@@ -36,6 +37,7 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.corn]: `${proxy}/corn_maizenet`,
     [ChainId.katana]: `${proxy}/katana`,
     [ChainId.sonic]: `${proxy}/sonic_mainnet`,
+    [ChainId.tac]: `${proxy}/tac`,
     // Testnets:
     [ChainId.baseSepoliaTestnet]: `${proxy}/base_sepolia`,
     [ChainId.binanceSmartChainTestnet]:
