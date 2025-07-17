@@ -1,19 +1,19 @@
+import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
 import {
   functionType,
   wagmiDecorator,
 } from '../../stories/components/decorators';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
 import { ErrorBlock } from '../../stories/components/error-block';
 import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
 import {
-  getRewardBalances,
   GetRewardBalancesParameters,
+  getRewardBalances,
 } from './get-reward-balances';
 import { RewardToken } from './reward-tokens';
-import { Env } from '@lombard.finance/sdk-common';
 
 const meta = {
   title: 'rewards/getRewardBalances',

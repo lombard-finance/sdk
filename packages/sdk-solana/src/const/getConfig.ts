@@ -1,6 +1,6 @@
+import { Env } from '@lombard.finance/sdk-common';
 import { SolanaNetwork } from '../types';
 import { RPC_URLS } from './rpcUrls';
-import { Env } from '@lombard.finance/sdk-common';
 
 /**
  * Default environment

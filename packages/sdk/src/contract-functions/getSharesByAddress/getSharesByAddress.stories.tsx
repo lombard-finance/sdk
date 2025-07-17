@@ -2,15 +2,15 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { ChainId } from '../../common/chains';
 import { Button } from '../../stories/components/Button';
-import useQuery from '../../stories/hooks/useQuery';
-import {
-  getSharesByAddress,
-  IGetSharesByAddressParameters,
-} from './getSharesByAddress';
-import { Vault } from '../../vaults/lib/config';
-import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { functionType } from '../../stories/components/decorators';
+import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
+import useQuery from '../../stories/hooks/useQuery';
+import { Vault } from '../../vaults/lib/config';
+import {
+  IGetSharesByAddressParameters,
+  getSharesByAddress,
+} from './getSharesByAddress';
 
 const meta = {
   title: 'read/getSharesByAddress',

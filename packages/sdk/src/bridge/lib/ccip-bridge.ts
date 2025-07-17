@@ -1,14 +1,10 @@
 import BigNumber from 'bignumber.js';
-import { CommonWriteParameters } from '../../common/parameters';
-import {
-  BridgeType,
-  CCIP_BRIDGE_CHAINS,
-  CCIPBridgeChain,
-  getBridgeInfo,
-  MIN_BRIDGE_AMOUNT,
-} from './config';
+import { Address, pad, toHex } from 'viem';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
+import { CommonWriteParameters } from '../../common/parameters';
+import { approveLBTC } from '../../contract-functions';
+import { Token } from '../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
@@ -16,9 +12,13 @@ import {
 } from '../../tokens/tokens';
 import { getErrorMessage } from '../../utils/err';
 import toBigInt from '../../utils/numbers';
-import { Address, pad, toHex } from 'viem';
-import { approveLBTC } from '../../contract-functions';
-import { Token } from '../../tokens/token-addresses';
+import {
+  BridgeType,
+  CCIPBridgeChain,
+  CCIP_BRIDGE_CHAINS,
+  MIN_BRIDGE_AMOUNT,
+  getBridgeInfo,
+} from './config';
 
 export type BridgeCCIPParameters = {
   /** The destination chain id. */

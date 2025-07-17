@@ -3,16 +3,16 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { ChainId } from '../../common/chains';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
+import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import {
-  getStakeAndBakeFee,
-  IGetStakeAndBakeFeeParams,
-} from './getStakeAndBakeFee';
-import {
-  Vault,
   VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
+  Vault,
 } from '../../vaults/lib/config';
-import { functionType } from '../../stories/components/decorators';
+import {
+  IGetStakeAndBakeFeeParams,
+  getStakeAndBakeFee,
+} from './getStakeAndBakeFee';
 
 const meta = {
   title: 'read/getStakeAndBakeFee',

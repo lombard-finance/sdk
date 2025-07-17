@@ -21,6 +21,7 @@ import {
   getLBTCAddress,
   getRpcEndpoint,
 } from '../const/getConfig';
+import { getConnection } from '../const/rpcUrls';
 import { ISolanaWalletProvider } from '../types';
 import {
   getMinimalUmiInstance,
@@ -28,7 +29,6 @@ import {
   validateBridgeAmount,
 } from '../utils/bridgeUtils';
 import { quoteBridgeFee } from './quoteBridgeFee';
-import { getConnection } from '../const/rpcUrls';
 
 const LBTC_DECIMALS = 8;
 const BRDIGE_COMPUTE_UNITS = 400000;

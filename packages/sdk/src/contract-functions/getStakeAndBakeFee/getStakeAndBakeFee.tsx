@@ -1,14 +1,14 @@
-import { getErrorMessage } from '../../utils/err';
-import { CommonParameters } from '../../common/parameters';
-import {
-  isVedaVaultStakeAndBakeChain,
-  Vault,
-  VAULTS,
-} from '../../vaults/lib/config';
-import { makePublicClient } from '../../clients/public-client';
-import { getContract } from 'viem';
-import { fromSatoshi } from '../../utils/satoshi';
 import BigNumber from 'bignumber.js';
+import { getContract } from 'viem';
+import { makePublicClient } from '../../clients/public-client';
+import { CommonParameters } from '../../common/parameters';
+import { getErrorMessage } from '../../utils/err';
+import { fromSatoshi } from '../../utils/satoshi';
+import {
+  VAULTS,
+  Vault,
+  isVedaVaultStakeAndBakeChain,
+} from '../../vaults/lib/config';
 
 export interface IGetStakeAndBakeFeeParams
   extends Omit<CommonParameters, 'env'> {

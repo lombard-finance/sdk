@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useState } from 'react';
+import { EIP1193Provider } from 'viem';
 import {
   Config,
   useAccount,
@@ -6,8 +8,6 @@ import {
   useDisconnect as useWagmiDisconnect,
 } from 'wagmi';
 import { injected } from 'wagmi/connectors';
-import { useCallback, useEffect, useState } from 'react';
-import { EIP1193Provider } from 'viem';
 import { ChainId } from '../../common/chains';
 
 type CanPerformAction = {

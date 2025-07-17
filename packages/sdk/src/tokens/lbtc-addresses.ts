@@ -1,7 +1,7 @@
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import { Address } from 'viem';
 import { ChainId } from '../common/chains';
-import { Env, DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { Token, TOKEN_ADDRESSES } from './token-addresses';
+import { TOKEN_ADDRESSES, Token } from './token-addresses';
 
 type LbtcContractAddresses = Partial<Record<ChainId, Address>>;
 

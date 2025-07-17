@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
+import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import {
   IStoreStakeAndBakeSignatureParams,
   storeStakeAndBakeSignature,
 } from './storeStakeAndBakeSignature';
-import { functionType } from '../../stories/components/decorators';
 
 const meta = {
   title: 'api/storeStakeAndBakeSignature',

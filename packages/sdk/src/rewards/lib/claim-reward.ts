@@ -1,15 +1,15 @@
-import BigNumber from 'bignumber.js';
-import { CommonWriteParameters } from '../../common/parameters';
 import axios from 'axios';
-import { getApiConfig } from '../../common/api-config';
+import BigNumber from 'bignumber.js';
 import { makeWalletClient } from '../../clients/wallet-client';
-import { getRewardWithdrawalFee } from './get-reward-withdrawal-fee';
+import { getApiConfig } from '../../common/api-config';
+import { CommonWriteParameters } from '../../common/parameters';
 import { getRewardSigningData } from './get-reward-signing-data';
+import { getRewardWithdrawalFee } from './get-reward-withdrawal-fee';
 import {
-  mapDataToRewardWithdrawal,
   WithdrawalData,
+  mapDataToRewardWithdrawal,
 } from './get-reward-withdrawals';
-import { isRewardTokenSupported, RewardToken } from './reward-tokens';
+import { RewardToken, isRewardTokenSupported } from './reward-tokens';
 
 type Response = {
   withdrawal: WithdrawalData;

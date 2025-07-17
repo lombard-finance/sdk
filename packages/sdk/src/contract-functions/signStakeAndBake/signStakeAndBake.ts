@@ -1,15 +1,15 @@
+import BigNumber from 'bignumber.js';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { DAY, now, toUnix } from '../../utils/time';
 import {
-  isVedaVaultStakeAndBakeChain,
-  Vault,
   VAULTS,
+  Vault,
+  isVedaVaultStakeAndBakeChain,
 } from '../../vaults/lib/config';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
-import BigNumber from 'bignumber.js';
-import { DAY, now, toUnix } from '../../utils/time';
-import { getTokenContractInfo } from '../../tokens/tokens';
-import { Token } from '../../tokens/token-addresses';
 
 export interface ISignStakeAndBakeParams extends CommonWriteParameters {
   /**

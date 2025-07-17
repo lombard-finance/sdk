@@ -1,10 +1,10 @@
-import { CommonParameters } from '../../common/parameters';
 import BigNumber from 'bignumber.js';
-import { fromSatoshi } from '../../utils/satoshi';
 import { makePublicClient } from '../../clients/public-client';
-import { getTokenContractInfo } from '../../tokens/tokens';
+import { CommonParameters } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
 import { determineEnv } from '../../utils/env';
+import { fromSatoshi } from '../../utils/satoshi';
 
 /**
  * Get the total supply of LBTC tokens.

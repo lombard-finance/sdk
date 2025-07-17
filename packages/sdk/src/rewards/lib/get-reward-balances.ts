@@ -1,9 +1,9 @@
-import { Address } from 'viem';
-import { IEnvParam } from '../../common/parameters';
-import { getApiConfig } from '../../common/api-config';
 import axios from 'axios';
-import { isRewardTokenSupported, RewardToken } from './reward-tokens';
 import BigNumber from 'bignumber.js';
+import { Address } from 'viem';
+import { getApiConfig } from '../../common/api-config';
+import { IEnvParam } from '../../common/parameters';
+import { RewardToken, isRewardTokenSupported } from './reward-tokens';
 
 export enum RewardBlockchainType {
   Undefined = 'BLOCKCHAIN_TYPE_UNDEFINED',

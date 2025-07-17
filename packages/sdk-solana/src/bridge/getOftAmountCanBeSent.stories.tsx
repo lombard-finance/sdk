@@ -1,9 +1,9 @@
 import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
-import { getOftAmountCanBeSent } from './getOftAmountCanBeSent';
-import useQuery from '../stories/hooks/useQuery';
-import { functionType } from '../stories/decorators/function-type';
 import { Button, ErrorDisplay, ResultDisplay } from '../stories/components';
+import { functionType } from '../stories/decorators/function-type';
+import useQuery from '../stories/hooks/useQuery';
+import { getOftAmountCanBeSent } from './getOftAmountCanBeSent';
 
 interface GetOftAmountStoryArgs {
   env: Env;

@@ -5,12 +5,12 @@ import {
   ErrorDisplay,
   ResultDisplay,
 } from '../../stories/components';
-import { useConnect } from '../../stories/hooks/useConnect';
-import { SolanaNetwork } from '../../types';
-import { signLbtcDestinationAddrSolana } from './signLbtcDestinationAddrSolana';
-import useQuery from '../../stories/hooks/useQuery';
 import { functionType } from '../../stories/decorators/function-type';
+import { useConnect } from '../../stories/hooks/useConnect';
+import useQuery from '../../stories/hooks/useQuery';
+import { SolanaNetwork } from '../../types';
 import { SolanaSdkError } from '../../utils';
+import { signLbtcDestinationAddrSolana } from './signLbtcDestinationAddrSolana';
 
 interface SignLbtcDestAddrStoryArgs {
   network: SolanaNetwork;

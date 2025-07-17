@@ -1,16 +1,16 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 import { ChainId } from '../../common/chains';
+import { chainSelector } from '../../stories/arg-types';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
+import { functionType } from '../../stories/components/decorators';
 import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
 import {
-  getDepositBtcAddresses,
   IGetDepositBtcAddressesParameters,
+  getDepositBtcAddresses,
 } from './getDepositBtcAddress';
-import { functionType } from '../../stories/components/decorators';
-import { chainSelector } from '../../stories/arg-types';
 
 const meta = {
   title: 'api/getDepositBtcAddresses',

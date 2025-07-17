@@ -1,17 +1,17 @@
 import BigNumber from 'bignumber.js';
-import { isVedaVaultChain, Vault, VAULTS } from '../config';
-import { CommonWriteParameters } from '../../../common/parameters';
 import { makePublicClient } from '../../../clients/public-client';
 import { makeWalletClient } from '../../../clients/wallet-client';
-import toBigInt from '../../../utils/numbers';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../../common/chains';
-import { getErrorMessage } from '../../../utils/err';
+import { CommonWriteParameters } from '../../../common/parameters';
+import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
   toBaseDenomination,
 } from '../../../tokens/tokens';
-import { Token } from '../../../tokens/token-addresses';
+import { getErrorMessage } from '../../../utils/err';
+import toBigInt from '../../../utils/numbers';
+import { VAULTS, Vault, isVedaVaultChain } from '../config';
 
 export type DepositParameters = {
   /** The amount to be deposited into the DeFi vault. */

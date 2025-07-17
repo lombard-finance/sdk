@@ -1,13 +1,13 @@
+import { Abi, Address } from 'viem';
 import { ChainId } from '../../common/chains';
+import { Token } from '../../tokens/token-addresses';
 import VEDA_VAULT_ABI from '../abi/VEDA_VAULT_ABI.json';
 import VEDA_VAULT_ACCOUNTANT_ABI from '../abi/VEDA_VAULT_ACCOUNTANT_ABI.json';
-import VEDA_VAULT_LENS_ABI from '../abi/VEDA_VAULT_LENS_ABI.json';
 import VEDA_VAULT_BASE_ASSET_ABI from '../abi/VEDA_VAULT_BASE_ASSET_ABI.json';
+import VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI from '../abi/VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI.json';
+import VEDA_VAULT_LENS_ABI from '../abi/VEDA_VAULT_LENS_ABI.json';
 import VEDA_VAULT_SPENDER_ABI from '../abi/VEDA_VAULT_SPENDER_ABI.json';
 import VEDA_VAULT_TELLER_ABI from '../abi/VEDA_VAULT_TELLER_ABI.json';
-import VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI from '../abi/VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI.json';
-import { Abi, Address } from 'viem';
-import { Token } from '../../tokens/token-addresses';
 
 type ContractInfo = {
   abi: Abi;

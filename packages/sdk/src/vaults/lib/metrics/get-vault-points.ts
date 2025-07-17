@@ -1,6 +1,6 @@
-import { Address } from 'viem';
-import { Vault, VAULTS } from '../config';
 import axios from 'axios';
+import { Address } from 'viem';
+import { VAULTS, Vault } from '../config';
 
 export type GetVaultPointsParameters = {
   /** The account address. */

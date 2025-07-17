@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { ChainId } from '../../../common/chains';
-import { isVedaVaultChain, Vault, VAULTS, VedaVaultChain } from '../config';
 import BigNumber from 'bignumber.js';
+import { ChainId } from '../../../common/chains';
 import { orderBy } from '../../../utils/array';
+import { VAULTS, Vault, VedaVaultChain, isVedaVaultChain } from '../config';
 
 export type GetVaultApyParameters = {
   aggregationPeriod?: 7 | 14 | 30;

@@ -1,6 +1,6 @@
+import { Buffer } from 'node:buffer'; // Use buffer package for cross-platform compatibility
 import { PublicKey } from '@solana/web3.js';
 import { keccak256 } from 'js-sha3';
-import { Buffer } from 'node:buffer'; // Use buffer package for cross-platform compatibility
 
 /**
  * Represents the unique identifier for a deposit, derived from transaction details.

@@ -1,17 +1,17 @@
+import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { PublicClient, extractChain } from 'viem';
+import * as chains from 'viem/chains';
 import { makePublicClient } from '../../../clients/public-client';
-import { Vault, VAULTS, VedaVaultChain } from '../config';
+import { getApiConfig } from '../../../common/api-config';
+import { IEnvParam } from '../../../common/parameters';
+import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenContractInfo,
   retrieveTokenProperties,
 } from '../../../tokens/tokens';
-import { Token } from '../../../tokens/token-addresses';
-import { extractChain, PublicClient } from 'viem';
-import * as chains from 'viem/chains';
-import { IEnvParam } from '../../../common/parameters';
-import { getApiConfig } from '../../../common/api-config';
-import axios from 'axios';
+import { VAULTS, Vault, VedaVaultChain } from '../config';
 
 export type GetVaultBtcHolding = {
   vaultKey?: Vault;

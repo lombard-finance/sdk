@@ -1,14 +1,14 @@
 import { getOutputScript } from '@lombard.finance/sdk-common';
-import type { CommonWriteParameters } from '../../common/parameters';
-import { toSatoshi } from '../../utils/satoshi';
-import { makeWalletClient } from '../../clients/wallet-client';
+import BigNumber from 'bignumber.js';
+import { Hex, parseGwei } from 'viem';
 import { makePublicClient } from '../../clients/public-client';
+import { makeWalletClient } from '../../clients/wallet-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
-import { type Hex, parseGwei } from 'viem';
-import type BigNumber from 'bignumber.js';
-import { getTokenContractInfo, isSTLBTCAbi } from '../../tokens/tokens';
+import { CommonWriteParameters } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo, isSTLBTCAbi } from '../../tokens/tokens';
 import { estimateGasFees } from '../../utils/gas';
+import { toSatoshi } from '../../utils/satoshi';
 
 /**
  * The unstake parameters.

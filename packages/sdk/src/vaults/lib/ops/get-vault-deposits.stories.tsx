@@ -1,19 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { ChainId } from '../../../common/chains';
 import { Button } from '../../../stories/components/Button';
 import { CodeBlock } from '../../../stories/components/CodeBlock';
-import useQuery from '../../../stories/hooks/useQuery';
 import {
   functionType,
   wagmiDecorator,
 } from '../../../stories/components/decorators';
-import { Vault } from '../config';
 import { ErrorBlock } from '../../../stories/components/error-block';
-import {
-  getVaultDeposits,
-  GetVaultDepositsParameters,
-} from './get-vault-deposits';
 import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
-import { ChainId } from '../../../common/chains';
+import useQuery from '../../../stories/hooks/useQuery';
+import { Vault } from '../config';
+import {
+  GetVaultDepositsParameters,
+  getVaultDeposits,
+} from './get-vault-deposits';
 
 const meta = {
   title: 'vault/ops/getVaultDeposits',

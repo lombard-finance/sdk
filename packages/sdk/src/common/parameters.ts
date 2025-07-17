@@ -1,6 +1,6 @@
 import { Env } from '@lombard.finance/sdk-common';
-import { ChainId } from './chains';
 import { Address, EIP1193Provider } from 'viem';
+import { ChainId } from './chains';
 
 export interface IEnvParam {
   /**

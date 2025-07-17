@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
-import {
-  canPerformAction,
-  useConnection,
-} from '../../stories/hooks/useConnection';
-import useQuery from '../../stories/hooks/useQuery';
-import { signStakeAndBake, ISignStakeAndBakeParams } from './signStakeAndBake';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
   wagmiDecorator,
 } from '../../stories/components/decorators';
+import {
+  canPerformAction,
+  useConnection,
+} from '../../stories/hooks/useConnection';
+import useQuery from '../../stories/hooks/useQuery';
 import { DAY, now, toUnix } from '../../utils/time';
+import { ISignStakeAndBakeParams, signStakeAndBake } from './signStakeAndBake';
 
 const { name } = signStakeAndBake;
 

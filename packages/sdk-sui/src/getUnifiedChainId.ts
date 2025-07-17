@@ -1,7 +1,7 @@
 import {
-  SuiChain,
-  SUI_TESTNET_CHAIN,
   SUI_MAINNET_CHAIN,
+  SUI_TESTNET_CHAIN,
+  SuiChain,
 } from '@mysten/wallet-standard';
 
 const ERROR_NOT_FOUND_UNIFIED_ID = new Error("Unified ID hasn't been found");

@@ -1,8 +1,8 @@
-import { Address } from 'viem';
-import { IEnvParam } from '../../common/parameters';
-import { getApiConfig } from '../../common/api-config';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { Address } from 'viem';
+import { getApiConfig } from '../../common/api-config';
+import { IEnvParam } from '../../common/parameters';
 import { ensureHex } from '../../utils/hex';
 import { RewardToken } from './reward-tokens';
 

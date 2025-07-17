@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { SolanaNetwork } from '../../../types';
+import { InjectedWallet } from '../../../types/walletProviders';
 import { DEFAULT_WALLET, UseConnectResponse } from '../../hooks/useConnect';
 import { Button } from '../Button/Button';
 import { SectionCard } from '../index';
-import { InjectedWallet } from '../../../types/walletProviders';
-import { SolanaNetwork } from '../../../types';
 
 export const ConnectButton = ({
   connect,

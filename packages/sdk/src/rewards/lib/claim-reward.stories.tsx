@@ -1,22 +1,22 @@
+import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
+import { ChainId } from '../../common/chains';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
   wagmiDecorator,
 } from '../../stories/components/decorators';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
 import { ErrorBlock } from '../../stories/components/error-block';
-import useQuery from '../../stories/hooks/useQuery';
-import { RewardToken } from './reward-tokens';
-import { Env } from '@lombard.finance/sdk-common';
-import { claimReward, ClaimRewardParameters } from './claim-reward';
-import { ConnectButton } from '../../stories/components/ConnectButton';
+import { EXAMPLE_BABYLON_ADDRESS } from '../../stories/constants';
 import {
   canPerformAction,
   useConnection,
 } from '../../stories/hooks/useConnection';
-import { ChainId } from '../../common/chains';
-import { EXAMPLE_BABYLON_ADDRESS } from '../../stories/constants';
+import useQuery from '../../stories/hooks/useQuery';
+import { ClaimRewardParameters, claimReward } from './claim-reward';
+import { RewardToken } from './reward-tokens';
 
 const meta = {
   title: 'rewards/claimReward',

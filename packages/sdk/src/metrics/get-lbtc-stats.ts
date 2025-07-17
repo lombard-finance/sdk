@@ -1,7 +1,7 @@
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
-import BigNumber from 'bignumber.js';
 
 type LBTCStatsResponse = { price: number; supply: number; tvl: number }[];
 

@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js';
+import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
+import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo, isSTLBTCAbi } from '../../tokens/tokens';
 import { determineEnv } from '../../utils/env';
 import { fromSatoshi } from '../../utils/satoshi';
-import { makePublicClient } from '../../clients/public-client';
-import { getTokenContractInfo, isSTLBTCAbi } from '../../tokens/tokens';
-import { Token } from '../../tokens/token-addresses';
-import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 
 /**
  * Gets LBTC minting fee amount.
