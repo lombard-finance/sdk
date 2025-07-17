@@ -394,7 +394,7 @@ const txHash = await cancelWithdraw({
 
 ### 7. Getting the points earned by an address.
 
-If you'd like to check the amount of LUX points earned by an address then simply run the following function:
+If you'd like to check the amount of Lux points earned by an address then simply run the following function:
 
 ```javascript
 const points = await getPointsByAddress({ address: "0x...YOUR_ADDRESS" })
