@@ -1,15 +1,20 @@
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
+import { BlockchainIdentifier } from '../common/blockchain-identifier';
 
 type Response = {
-  type: 'BALANCE_TYPE_DEFI' | 'BALANCE_TYPE_HOLDING';
-  total_lbtc_balance: number;
-  total_lbtc_balance_cost: number;
-  total_rewards: number;
-  total_rewards_cost: number;
-  chains: { lbtc_balance: number; chain: string }[];
+  btc_price_usd: { price: number; timestamp: string };
+  staked_balance: number;
+  rewards: number;
+  chain_breakdown: {
+    staked_balance: number;
+    rewards: number;
+    chain: BlockchainIdentifier;
+  }[];
+  last_updated: string;
 };
 
 /**
@@ -23,32 +28,45 @@ export async function getRewardsInfo({
 }: { account: Address } & IEnvParam) {
   const { baseApiUrl } = getApiConfig(env);
 
-  const url = `${baseApiUrl}/api/v1/rewards/summary/${account}`;
+  const url = `${baseApiUrl}/api/v1/accounts/${account}/summary`;
   const { data } = await axios.get<Response>(url);
 
-  return {
-    type: data.type,
-    totalLbtcBalance: data.total_lbtc_balance,
-    totalRewards: data.total_rewards,
-    totalRewardsCost: data.total_rewards_cost,
-    chains: data.chains?.map(cd => ({
-      balance: cd.lbtc_balance,
-      chain: cd.chain, // TODO: Map this to chain id.
+  const info = {
+    btcPrice: {
+      price: BigNumber(data.btc_price_usd.price || 0),
+      timestamp: new Date(data.btc_price_usd.timestamp),
+    },
+    stakedBalance: BigNumber(data.staked_balance || 0),
+    totalRewards: BigNumber(data.rewards || 0),
+    chainBreakdown: data.chain_breakdown?.map(cd => ({
+      stakedBalance: BigNumber(cd.staked_balance || 0),
+      rewards: BigNumber(cd.rewards || 0),
+      chain: cd.chain,
     })),
+    lastUpdated: new Date(data.last_updated),
   };
+
+  return info;
 }
+
 // Response example:
+// url: https://bft-dev.stage.lombard.finance/api/v1/accounts/0x2513196b4fD01Ed5888d1dB49AB9a42208E9fF90/summary
 //
 // {
-//   "type":"BALANCE_TYPE_HOLDING",
-//   "total_lbtc_balance":0.00030997,
-//   "total_lbtc_balance_cost":36.906438563500004,
-//   "total_rewards":3.278178613395223e-8,
-//   "total_rewards_cost":0.0039031486142352624,
-//   "chains":[
+//   btc_price_usd: { price: 118597.502311, timestamp: '2025-07-22T14:17:23Z' },
+//   staked_balance: 0.00038944,
+//   rewards: 8.716900890527854e-8,
+//   chain_breakdown: [
 //     {
-//       "lbtc_balance":0.00030997,
-//       "chain":"ethereum"
-//     }
-//   ]
+//       staked_balance: 0.00018844,
+//       rewards: 4.217884151117165e-8,
+//       chain: 'DESTINATION_BLOCKCHAIN_BSC',
+//     },
+//     {
+//       staked_balance: 0.000201,
+//       rewards: 4.4990167394106886e-8,
+//       chain: 'DESTINATION_BLOCKCHAIN_ETHEREUM',
+//     },
+//   ],
+//   last_updated: '2025-07-22T15:07:20.502595933Z',
 // }

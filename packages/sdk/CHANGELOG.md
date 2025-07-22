@@ -1,3 +1,8 @@
+# 3.6.2
+
+* updated rewards API urls for `getRewardsInfo`,
+* 
+
 # 3.6.1
 
 * changed configuration for upgraded LBTC and BTCK (Native LBTC) on Tatara chain
