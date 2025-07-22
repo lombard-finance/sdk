@@ -76,7 +76,7 @@ export async function mintToken({
     throw new Error('Operation not permitted');
   }
 
-  const tokenContract = getTokenContractInfo(token, chainId, env);
+  const tokenContract = await getTokenContractInfo(token, chainId, env);
   const basculeStatus = await getBasculeDepositStatus({
     chainId,
     rawPayload: data,
@@ -110,11 +110,10 @@ export async function mintToken({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: tokenContract.abi,
     functionName:
-      token === Token.BTCK || token === Token.NativeLBTC ? 'mintV1' : 'mint', // FIXME: mintV1 is the equivalent on Native LBTC contract of mint on LBTC contract, change if contract ABI changes.
+      token === Token.BTCK || token === Token.NativeLBTC ? 'mintV1' : 'mint',
     args: [ensureHex(data), ensureHex(proofSignature)],
   } as const;
 
-  // Katana Tatara requires tip TODO: Recheck this part
   const gasEstimationData = isKatanaChain(chainId)
     ? await estimateGasFees(publicClient, callData, parseGwei('1'))
     : {};

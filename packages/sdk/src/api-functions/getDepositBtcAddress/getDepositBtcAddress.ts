@@ -191,7 +191,7 @@ export async function getDepositBtcAddress({
     | undefined = undefined;
   try {
     if (isValidChain(chainId)) {
-      const tokenContractInfo = getTokenContractInfo(token, chainId, env);
+      const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
 
       tokenAddressFilter = {
         token_address: tokenContractInfo.address.toLowerCase(),

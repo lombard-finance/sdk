@@ -1,6 +1,16 @@
+# 3.6.1
+
+* changed configuration for upgraded LBTC and BTCK (Native LBTC) on Tatara chain
+  (stage and testnet),
+* added auto-detection for upgraded LBTC and BTCK contracts,
+* updated redeem fee logic based on the recent ABI changes,
+* `getTokenContractInfo` in now an async function,
+* refactored the internal `AbiFor` type and upgraded contracts logic,
+* added `accountAddress` and `partnerId` params to the `getLBTCStats` function.
+
 # 3.6.0
 
-* `Token.LBTC` ABI changes to `stLBTC` for specified chains: `Sepolia`, ...
+* `Token.LBTC` ABI changes to `stLBTC` for specified chains: `Sepolia`,
 * added new `Token.NativeLBTC`,
 * changed `getLBTCMintingFee` and `getMintingFee` so it either takes the value
   from the token contract (old version) or `AssetRouter` contract (new version),

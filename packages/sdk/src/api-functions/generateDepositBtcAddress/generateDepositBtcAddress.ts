@@ -142,7 +142,7 @@ export async function generateDepositBtcAddress({
         ] as BlockchainIdentifier[]
       ).includes(toChain)
     ) {
-      const tokenContractInfo = getTokenContractInfo(
+      const tokenContractInfo = await getTokenContractInfo(
         token,
         chainId as ChainId,
         env,

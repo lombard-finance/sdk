@@ -682,7 +682,10 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'newVal', type: 'address' }],
+    inputs: [
+      { internalType: 'address', name: 'token', type: 'address' },
+      { internalType: 'address', name: 'newVal', type: 'address' },
+    ],
     name: 'changeOracle',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -723,7 +726,10 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint64', name: 'newValue', type: 'uint64' }],
+    inputs: [
+      { internalType: 'address', name: 'token', type: 'address' },
+      { internalType: 'uint64', name: 'newValue', type: 'uint64' },
+    ],
     name: 'changeToNativeCommission',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -741,6 +747,28 @@ export default [
       { internalType: 'bool', name: 'redeemEnabled', type: 'bool' },
     ],
     name: 'changeTokenConfig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: 'token', type: 'address' },
+      { internalType: 'uint256', name: 'redeemFee', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'redeemForBtcMinAmount',
+        type: 'uint256',
+      },
+      { internalType: 'address', name: 'oracle_', type: 'address' },
+      {
+        internalType: 'uint256',
+        name: 'maximumMintCommission_',
+        type: 'uint256',
+      },
+      { internalType: 'uint64', name: 'toNativeCommission_', type: 'uint64' },
+    ],
+    name: 'changeTokenConfigExt',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -870,9 +898,7 @@ export default [
       { internalType: 'bytes32', name: 'ledgerChainId_', type: 'bytes32' },
       { internalType: 'bytes32', name: 'bitcoinChainId_', type: 'bytes32' },
       { internalType: 'address', name: 'mailbox_', type: 'address' },
-      { internalType: 'address', name: 'oracle_', type: 'address' },
       { internalType: 'address', name: 'bascule_', type: 'address' },
-      { internalType: 'uint64', name: 'toNativeCommission_', type: 'uint64' },
     ],
     name: 'initialize',
     outputs: [],
@@ -887,7 +913,7 @@ export default [
     type: 'function',
   },
   {
-    inputs: [],
+    inputs: [{ internalType: 'address', name: 'token', type: 'address' }],
     name: 'maxMintCommission',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
@@ -923,7 +949,7 @@ export default [
     type: 'function',
   },
   {
-    inputs: [],
+    inputs: [{ internalType: 'address', name: 'token', type: 'address' }],
     name: 'oracle',
     outputs: [{ internalType: 'contract IOracle', name: '', type: 'address' }],
     stateMutability: 'view',
@@ -1040,7 +1066,10 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'fee', type: 'uint256' }],
+    inputs: [
+      { internalType: 'address', name: 'token', type: 'address' },
+      { internalType: 'uint256', name: 'fee', type: 'uint256' },
+    ],
     name: 'setMaxMintCommission',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -1071,7 +1100,7 @@ export default [
     type: 'function',
   },
   {
-    inputs: [],
+    inputs: [{ internalType: 'address', name: 'token', type: 'address' }],
     name: 'toNativeCommission',
     outputs: [{ internalType: 'uint64', name: '', type: 'uint64' }],
     stateMutability: 'view',

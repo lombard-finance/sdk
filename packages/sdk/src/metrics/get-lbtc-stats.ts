@@ -28,10 +28,11 @@ type Stats = {
 
 /** Gets the Lombard's TVL. */
 export async function getLBTCStats(
-  parameters?: { partnerId?: string } & IEnvParam,
+  parameters?: { partnerId?: string; accountAddress?: string } & IEnvParam,
 ) {
   const env = parameters?.env;
   const partnerId = parameters?.partnerId;
+  const accountAddress = parameters?.accountAddress;
 
   const { bffApiUrl } = getApiConfig(env);
   if (!bffApiUrl) {
@@ -55,7 +56,7 @@ export async function getLBTCStats(
   let apr = undefined;
   try {
     const { data: stakingStats } = await axios.get<StakingStatsResponse>(
-      `${bffApiUrl}/lombard-sdk/staking-stats?partnerId=${partnerId || ''}`,
+      `${bffApiUrl}/lombard-sdk/staking-stats?partnerId=${partnerId || ''}&accountAddress=${accountAddress}&env=${env}`,
     );
     apr = stakingStats.apr;
   } catch (_err) {

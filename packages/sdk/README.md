@@ -488,8 +488,9 @@ The simple set of LBTC statistics is accessible via `getLBTCStats` function.
 
 ```javascript
 const stats = await getLBTCStats({
-  partnerId, // The partner id - passing the partnerId will ensure relevant stats are returned
-  env // Optional env flag
+  accountAddress, // The (optional) account address - passing the accountAddress ensures the relevant stats are returned
+  partnerId, // The (optional) partner id - passing the partnerId will ensures the relevant stats are returned
+  env // The optional environment flag
 })
 ```
 
@@ -534,7 +535,6 @@ The information about the rewards acquired by an account can be obtained via the
 ```javascript
 const rewardsInfo = await getRewardsInfo({
   account, // The account address
-  partnerId, // The partner id - passing the partnerId will ensure relevant stats are returned
   env // Optional env flag
 });
 ```

@@ -79,7 +79,7 @@ export async function signStakeAndBake({
     );
   }
 
-  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
+  const lbtcContract = await getTokenContractInfo(Token.LBTC, chainId, env);
   const walletClient = makeWalletClient({ chainId, provider });
   const spenderContract = vault.spenderContracts[chainId];
 

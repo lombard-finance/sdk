@@ -3,7 +3,7 @@ import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
 import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 import { Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo, isSTLBTCAbi } from '../../tokens/tokens';
+import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
 import { determineEnv } from '../../utils/env';
 import { fromSatoshi } from '../../utils/satoshi';
 
@@ -41,12 +41,14 @@ export async function getMintingFee({
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
-  const tokenContract = getTokenContractInfo(token, chainId, environment);
+  const tokenContract = await getTokenContractInfo(token, chainId, environment);
   const tokenContractAbi = tokenContract.abi;
 
   let rawFeeValue = 0n;
 
-  if (isSTLBTCAbi(tokenContractAbi) || token === Token.NativeLBTC) {
+  console.log('mint fee', tokenContract);
+
+  if (isUpgradedAbi(tokenContractAbi) || token === Token.NativeLBTC) {
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContractAbi,
       address: tokenContract.address,
@@ -62,6 +64,7 @@ export async function getMintingFee({
       abi: assetRouter.abi,
       address: assetRouter.address,
       functionName: 'maxMintCommission',
+      args: [tokenContract.address],
     });
   } else {
     rawFeeValue = await publicClient.readContract({
@@ -87,19 +90,10 @@ export async function getRedeemFee({
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
-  const tokenContract = getTokenContractInfo(token, chainId, environment);
+  const tokenContract = await getTokenContractInfo(token, chainId, environment);
 
   let rawFeeValue = 0n;
-  if (
-    (token === Token.LBTC && isSTLBTCAbi(tokenContract.abi)) ||
-    token === Token.NativeLBTC
-  ) {
-    const nativeTokenContract = getTokenContractInfo(
-      Token.NativeLBTC,
-      chainId,
-      environment,
-    );
-
+  if (isUpgradedAbi(tokenContract.abi) || token === Token.NativeLBTC) {
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
@@ -111,25 +105,24 @@ export async function getRedeemFee({
       address: assetRouterAddress,
     };
 
+    // 1.
     const toNativeCommissionValue = await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
       functionName: 'toNativeCommission',
+      args: [tokenContract.address],
     });
 
+    // 2.
     const [redeemFeeValue /* redeemForBtcMinAmountValue, isRedeemEnabled */] =
       await publicClient.readContract({
         abi: assetRouter.abi,
         address: assetRouter.address,
         functionName: 'tokenConfig',
-        args: [nativeTokenContract.address],
+        args: [tokenContract.address],
       });
 
-    if (token === Token.LBTC) {
-      rawFeeValue = toNativeCommissionValue + redeemFeeValue;
-    } else {
-      rawFeeValue = redeemFeeValue;
-    }
+    rawFeeValue = toNativeCommissionValue + redeemFeeValue;
   } else {
     // legacy (and BTCK v1)
     rawFeeValue = await publicClient.readContract({

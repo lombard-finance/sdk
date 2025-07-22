@@ -81,7 +81,7 @@ export async function getBasculeDepositStatus({
   }
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
-  const tokenContractInfo = getTokenContractInfo(token, chainId, env);
+  const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
 
   const basculeContractAddress = await publicClient.readContract({
     abi: tokenContractInfo.abi,

@@ -129,11 +129,3 @@ export const TOKEN_ADDRESSES: TokenAddresses = {
     },
   },
 };
-
-// TODO: Add additional chains and envs once new LBTC contract is deployed
-// on them, remove this logic when all chains are updated.
-export const STLBTC_CHAINS: ChainId[] = [
-  ChainId.sepolia,
-  ChainId.binanceSmartChainTestnet,
-];
-export const STLBTC_ENVS: Env[] = [Env.dev];

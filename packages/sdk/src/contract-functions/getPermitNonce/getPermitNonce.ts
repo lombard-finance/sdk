@@ -32,7 +32,11 @@ export async function getPermitNonce({
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl });
-  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, environment);
+  const lbtcContract = await getTokenContractInfo(
+    Token.LBTC,
+    chainId,
+    environment,
+  );
 
   const nonce = await publicClient.readContract({
     abi: lbtcContract.abi,

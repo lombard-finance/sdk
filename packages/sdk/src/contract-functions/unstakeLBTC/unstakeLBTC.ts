@@ -6,7 +6,7 @@ import { makeWalletClient } from '../../clients/wallet-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
 import { CommonWriteParameters } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo, isSTLBTCAbi } from '../../tokens/tokens';
+import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
 import { estimateGasFees } from '../../utils/gas';
 import { toSatoshi } from '../../utils/satoshi';
 
@@ -81,7 +81,7 @@ export async function redeemToken({
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
   const walletClient = makeWalletClient({ provider, chainId });
 
-  const tokenContract = getTokenContractInfo(token, chainId, env);
+  const tokenContract = await getTokenContractInfo(token, chainId, env);
 
   const callData = {
     abi: tokenContract.abi,
@@ -89,9 +89,9 @@ export async function redeemToken({
     account,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     functionName:
-      isSTLBTCAbi(tokenContract.abi) || token === Token.NativeLBTC
-        ? 'redeemForBtc'
-        : 'redeem', // FIXME: Change this to `redeemForBtc` once all contracts are updated.
+      isUpgradedAbi(tokenContract.abi) || token === Token.NativeLBTC
+        ? 'redeemForBtc' // upgraded
+        : 'redeem', // legacy
     args: [outputScript, BigInt(amountSat)],
   } as const;
 

@@ -1,19 +1,14 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
-import { Abi, Address, PublicClient, erc20Abi } from 'viem';
-import { makePublicClient } from '../clients/public-client';
-import { ChainId } from '../common/chains';
+import { type Abi, Address, erc20Abi, PublicClient, zeroAddress } from 'viem';
+import { TOKEN_ADDRESSES, Token } from './token-addresses';
+import { LBTC_ABI } from './abi/LBTC_ABI';
 import { TokenContractAddressNotFoundError } from '../utils/err';
 import BTCK_ABI from './abi/BTCK_ABI';
-import { LBTC_ABI } from './abi/LBTC_ABI';
-import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
 import STLBTC_ABI from './abi/STLBTC_ABI';
-import {
-  STLBTC_CHAINS,
-  STLBTC_ENVS,
-  TOKEN_ADDRESSES,
-  Token,
-} from './token-addresses';
+import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
+import { ChainId } from '../common/chains';
+import { makePublicClient } from '../clients/public-client';
 
 export type TokenInfo = {
   address: Address;
@@ -22,55 +17,98 @@ export type TokenInfo = {
   decimals: number;
 };
 
-type AbiFor<
-  TToken extends Token,
-  TChainId = ChainId,
-> = TToken extends Token.LBTC
-  ? TChainId extends typeof ChainId.sepolia // FIXME: Remove chain clause when all updated
-    ? typeof STLBTC_ABI
-    : typeof LBTC_ABI
+const MAYBE_UPGRADED_CONTRACT_ABI = [
+  {
+    inputs: [],
+    name: 'getAssetRouter',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const;
+const UPGRADED_CONTRACT_POINTER = MAYBE_UPGRADED_CONTRACT_ABI[0].name;
+
+export async function isUpgradedContract(
+  token: Token.LBTC | Token.BTCK,
+  chainId: ChainId,
+  env?: Env,
+  rpcUrl?: string,
+) {
+  const environment = env || DEFAULT_ENV;
+  const address = TOKEN_ADDRESSES[token]?.[environment]?.[chainId];
+  if (!address) {
+    throw new TokenContractAddressNotFoundError(token, chainId, environment);
+  }
+
+  const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
+  try {
+    const assetRouter = await publicClient.readContract({
+      abi: MAYBE_UPGRADED_CONTRACT_ABI,
+      address,
+      functionName: UPGRADED_CONTRACT_POINTER,
+    });
+    return assetRouter !== zeroAddress;
+  } catch (_err) {
+    return false;
+  }
+}
+
+type AbiForLBTC =
+  | typeof STLBTC_ABI // upgraded
+  | typeof LBTC_ABI; // legacy
+
+type AbiForBTCK =
+  | typeof NATIVE_LBTC_ABI // upgraded
+  | typeof BTCK_ABI; // legacy
+
+type AbiForNativeLBTC = typeof NATIVE_LBTC_ABI;
+
+type AbiFor<TToken extends Token> = TToken extends Token.LBTC
+  ? AbiForLBTC
   : TToken extends Token.BTCK
-    ? typeof BTCK_ABI
+    ? AbiForBTCK
     : TToken extends Token.NativeLBTC
-      ? typeof NATIVE_LBTC_ABI
+      ? AbiForNativeLBTC
       : typeof erc20Abi;
 
-type TokenContractInfo<TToken extends Token, TChainId = ChainId> = {
-  abi: AbiFor<TToken, TChainId>;
+type TokenContractInfo<TToken extends Token> = {
+  abi: AbiFor<TToken>;
   address: Address;
-  chainId: TChainId;
+  chainId: ChainId;
 };
 
-export const isSTLBTCAbi = (abi: Abi): abi is typeof STLBTC_ABI => {
+export const isUpgradedAbi = (
+  abi: Abi,
+): abi is typeof STLBTC_ABI | typeof NATIVE_LBTC_ABI => {
   const redeemForBtcAbi = abi.find(
-    a => a.type === 'function' && a.name === 'redeemForBtc',
+    a => a.type === 'function' && a.name === UPGRADED_CONTRACT_POINTER,
   );
   return redeemForBtcAbi != null;
 };
 
-export function getTokenContractInfo<
-  TToken extends Token,
-  TChainId extends ChainId,
->(
+export async function getTokenContractInfo<TToken extends Token>(
   token: TToken,
-  chainId: TChainId,
+  chainId: ChainId,
   env?: Env,
-): TokenContractInfo<TToken, TChainId> {
+): Promise<TokenContractInfo<TToken>> {
   const environment = env || DEFAULT_ENV;
 
-  let abi: AbiFor<TToken, TChainId> | undefined = undefined;
+  let abi: AbiFor<TToken> | undefined = undefined;
   if (token === Token.LBTC) {
-    if (STLBTC_CHAINS.includes(chainId) && STLBTC_ENVS.includes(environment)) {
-      abi = STLBTC_ABI as AbiFor<TToken, TChainId>;
+    if (await isUpgradedContract(Token.LBTC, chainId, environment)) {
+      abi = STLBTC_ABI as AbiFor<TToken>;
     } else {
-      abi = LBTC_ABI as AbiFor<TToken, TChainId>;
+      abi = LBTC_ABI as AbiFor<TToken>;
     }
   } else if (token === Token.BTCK) {
-    abi = BTCK_ABI as AbiFor<TToken, TChainId>;
+    abi = BTCK_ABI as AbiFor<TToken>;
+    if (await isUpgradedContract(Token.BTCK, chainId, environment)) {
+      abi = NATIVE_LBTC_ABI as AbiFor<TToken>;
+    }
   } else if (token === Token.NativeLBTC) {
     abi = NATIVE_LBTC_ABI as AbiFor<TToken>;
   } else {
-    abi = erc20Abi as AbiFor<TToken, TChainId>;
+    abi = erc20Abi as AbiFor<TToken>;
   }
 
   const address = TOKEN_ADDRESSES[token]?.[environment]?.[chainId];
@@ -121,7 +159,7 @@ export async function getTokenInfo(
   env?: Env,
   rpcUrl?: string,
 ): Promise<TokenInfo | undefined> {
-  const tokenContractInfo = getTokenContractInfo(token, chainId, env);
+  const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
   if (!tokenContractInfo) return;
 
   const publicClient = makePublicClient({ chainId, rpcUrl });
