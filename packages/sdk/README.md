@@ -501,7 +501,6 @@ The stats contain:
 * `price` - the current BTC price,
 * `supply` - the number of LBTC minted,
 * `tvl` - the Lombard's TVL in USD.
-* `apr` - staking APR
 
 
 #### 9.4. Getting the LBTC exchange ratio.
@@ -528,19 +527,73 @@ The result of the above function is an object which contains:
 * `BTCTokenRatio` - The BTC:Token ratio (1 / tokenBTCRatio) answering the question of how many BTC will I get for 1 Token.
 
 
-#### 9.5. Getting the rewards info
+#### 9.5. Getting the positions (yield) summary
 
-The information about the rewards acquired by an account can be obtained via the `getRewardsInfo` function as shown below:
+The information about the yield acquired by an account can be obtained via the `getPositionsSummary` function as shown below:
 
 ```javascript
-const rewardsInfo = await getRewardsInfo({
+const rewardsInfo = await getPositionsSummary({
   account, // The account address
   env // Optional env flag
 });
 ```
-The results of the includes:
+The results of the above includes:
 
-* `type` - the type of a reward,
-* `totalLbtcBalance` - the total LBTC balance,
-* `totalRewards` - the amount of total rewards earned,
-* `totalRewardsCost` - the amount of cost associated with the earned rewards
+* **`btcPrice: { price: BigNumber; timestamp: Date; }`**  
+  Contains the current price of BTC in USD and the time it was last fetched.
+  * **`price`** (`BigNumber`): The price of 1 BTC in USD.  
+  * **`timestamp`** (`Date`): The timestamp when the price was last updated.
+* **`btcValue: BigNumber`**  
+  The total value of all holdings, expressed in BTC.
+* **`btcPnl: BigNumber`**  
+  The total profit or loss across all positions, represented in BTC.
+* **`snapshot: Array<{ token, type, balance, pnl, rate }>`**  
+  A list of individual positions used in PnL calculations. Each entry includes:
+  * **`token`** (`Token | undefined`): The token associated with the position (e.g., `Token.LBTC`). May be `undefined` if unspecified.
+  * **`type`** (`PositionType`): The classification or source of the position (e.g., staking, trading).
+  * **`balance`** (`BigNumber`): The quantity of the token held.
+  * **`pnl`** (`BigNumber`): The profit or loss for this specific position, in BTC.
+  * **`rate`** (`BigNumber`): The conversion rate from token to BTC.  
+    _Formula: `balance * rate = BTC equivalent`_
+* **`lastUpdated: Date`**  
+  The timestamp when the position summary was last updated.
+
+#### 9.6. Getting the LBTC APY
+
+To retrieve the current APY (annual percentage yield) for LBTC, call this function:
+
+```javascript
+const apy = await getApy({
+  account, // The optional account address. Pass it for more accurate APY data.
+  env, // Optional env flag
+})
+```
+The above returns:
+
+* **`baseApy: BigNumber`**  
+  The base APY for LBTC, representing the nominal yield without any bonuses or adjustments.
+* **`effectiveApy: BigNumber`**  
+  The effective APY for LBTC, including any additional rewards, compounding effects, or protocol-specific incentives.
+
+#### 9.7. Getting the additional rewards data
+
+In order to retrieve the additional rewards that have been distributed or are pending use the below function:
+
+```javascript
+const rewards = await getAdditionalRewards({
+  account,
+  env,
+});
+```
+
+The above returns:
+
+* **`distributed: Array<{ name: string; amount: BigNumber }>`**  
+  A list of campaigns where BTC rewards have already been distributed.
+  * **`name`** (`string`): Name of the reward campaign.  
+  * **`amount`** (`BigNumber`): Amount of BTC distributed for the campaign.
+
+* **`undistributed: Array<{ name: string; amount: BigNumber }>`**  
+  A list of campaigns where BTC rewards are still pending distribution.
+  * **`name`** (`string`): Name of the reward campaign.  
+  * **`amount`** (`BigNumber`): Amount of BTC yet to be distributed.

@@ -30,7 +30,16 @@ export * from './utils/satoshi';
 
 // Metrics:
 export { getLBTCStats } from './metrics/get-lbtc-stats';
-export { getRewardsInfo } from './metrics/get-rewards-info';
+
+export {
+  getPositionsSummary,
+  type PositionsSummary,
+} from './metrics/get-positions-summary';
+export { getApy, type LbtcApy } from './metrics/get-lbtc-apy';
+export {
+  getAdditionalRewards,
+  type RewardsDistribution,
+} from './metrics/get-additional-rewards';
 
 // Re-exports:
 export type { Address, EIP1193Provider } from 'viem';

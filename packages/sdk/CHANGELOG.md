@@ -1,7 +1,13 @@
+# 3.6.3
+
+* updated rewards API url and schema for `getRewardsInfo`,
+* renamed `getRewardsInfo` to `getPositionsSummary`,
+* added `getApy` function and remove `apr` from `getLBTCStats`,
+* added `getAdditionalRewards` function.
+
 # 3.6.2
 
-* updated rewards API urls for `getRewardsInfo`,
-* 
+* updated rewards API urls for `getRewardsInfo`.
 
 # 3.6.1
 
