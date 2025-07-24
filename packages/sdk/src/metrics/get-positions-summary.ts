@@ -22,6 +22,7 @@ type Response = {
     },
   ];
   last_updated: string;
+  in_progress: boolean;
 };
 
 function mapRewardAssetToToken(asset: PositionAsset) {
@@ -83,6 +84,19 @@ export type PositionsSummary = {
    * The timestamp when the PnL data was last updated.
    */
   lastUpdated: Date;
+  /**
+   * Indicates whether the backend is currently processing the PnL calculation.
+   *
+   * - `true`: A new calculation request was received, but the backend is experiencing high load
+   *   or processing is not yet complete. The latest data is not yet available.
+   *
+   * - `false`: The most recent calculation has been completed and cached.
+   *   Use `lastUpdated` to understand how fresh the data is:
+   *   - If `lastUpdated` is recent (e.g., within the last few seconds), you're seeing the latest data.
+   *   - If `lastUpdated` is up to 30 minutes old, you're seeing cached data from a recent request.
+   *     The backend avoids recalculating within this caching window.
+   */
+  inProgress: boolean;
 };
 
 /** Retrieves the yield positions summary for the specified account address. */
@@ -110,25 +124,8 @@ export async function getPositionsSummary({
       rate: BigNumber(ds.rate || 0),
     })),
     lastUpdated: new Date(data.last_updated),
+    inProgress: Boolean(data.in_progress),
   };
 
   return info;
 }
-
-// Response example:
-// url: https://bft-dev.stage.lombard.finance/api/v1/analytics/0x2513196b4fD01Ed5888d1dB49AB9a42208E9fF90/summary
-// {
-//   btc_price_usd: { price: 118395.552997, timestamp: '2025-07-23T11:01:59Z' },
-//   btc_value: 0.0003895271690089053,
-//   btc_pnl: 8.716900890527854e-8,
-//   snapshot: [
-//     {
-//       asset: 'ASSET_LBTC',
-//       type: 'BALANCE_TYPE_HOLDING',
-//       balance: 0.00038944,
-//       pnl: 8.716900890527854e-8,
-//       rate: 1.0002238316785776,
-//     },
-//   ],
-//   last_updated: '2025-07-23T11:38:52.516364988Z',
-// }

@@ -557,6 +557,16 @@ The results of the above includes:
     _Formula: `balance * rate = BTC equivalent`_
 * **`lastUpdated: Date`**  
   The timestamp when the position summary was last updated.
+* **`inProgress: boolean`**
+  Indicates whether the backend is currently processing the PnL calculation.  
+  - `true`: A new calculation request was received, but the backend is experiencing high load
+    or processing is not yet complete. The latest data is not yet available.  
+  - `false`: The most recent calculation has been completed and cached.
+    Use `lastUpdated` to understand how fresh the data is:
+    - If `lastUpdated` is recent (e.g., within the last few seconds), you're seeing the latest data.
+    - If `lastUpdated` is up to 30 minutes old, you're seeing cached data from a recent request.
+      The backend avoids recalculating within this caching window.
+
 
 #### 9.6. Getting the LBTC APY
 
@@ -574,6 +584,22 @@ The above returns:
   The base APY for LBTC, representing the nominal yield without any bonuses or adjustments.
 * **`effectiveApy: BigNumber`**  
   The effective APY for LBTC, including any additional rewards, compounding effects, or protocol-specific incentives.
+
+To retrieve the estimated APY (annual percentage yield) for LBTC in the context of a specific partner integration, use the `getEstimatedApy` function:
+
+```javascript
+const estimated = await getEstimatedApy({
+  partnerId, // Optional partner identifier. Influences the estimated APY.
+  env,       // Optional env flag
+});
+```
+
+The above returns:
+
+* **`estimatedApy: BigNumber`**
+  The estimated APY for LBTC, taking into account partner-specific incentives, compounding assumptions, and projected rewards. This value may differ from the effective APY depending on the partner context.
+
+> **Note**: If no `partnerId` is provided, the function returns a default estimate based on global assumptions.
 
 #### 9.7. Getting the additional rewards data
 

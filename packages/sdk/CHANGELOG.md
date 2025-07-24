@@ -1,3 +1,8 @@
+# 3.6.4
+
+* added `getEstimatedApy` function,
+* added new `inProgress` field to `PositionsSummary` type of `getPositionsSummary`.
+
 # 3.6.3
 
 * updated rewards API url and schema for `getRewardsInfo`,

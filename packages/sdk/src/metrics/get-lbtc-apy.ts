@@ -43,5 +43,31 @@ export async function getApy({
   return apy;
 }
 
-// url: https://bft-dev.stage.lombard.finance/api/v1/analytics/0x2513196b4fD01Ed5888d1dB49AB9a42208E9fF90/apy
-// {"lbtc_base_apy":0.18849167223827507, "lbtc_effective_apy":0.6828761605761976}
+type EstimatedApyResponse = { lbtc_estimated_apy: number };
+export type LbtcEstimatedApy = {
+  /**
+   * The estimated APY for LBTC based on the specified partner context.
+   *
+   * This value reflects a projected annual percentage yield that may vary
+   * depending on the `partnerId`, taking into account potential partner-specific
+   * incentives, compounding assumptions, or estimated future rewards.
+   */
+  estimatedApy: BigNumber;
+};
+
+/** Returns the estimated APY for LBTC. */
+export async function getEstimatedApy({
+  partnerId,
+  env,
+}: { partnerId?: string } & IEnvParam) {
+  const { baseApiUrl } = getApiConfig(env);
+
+  const url = `${baseApiUrl}/api/v1/analytics/estimated-apy?partner_id=${partnerId || ''}`;
+  const { data } = await axios.get<EstimatedApyResponse>(url);
+
+  const apy: LbtcEstimatedApy = {
+    estimatedApy: BigNumber(data.lbtc_estimated_apy),
+  };
+
+  return apy;
+}

@@ -35,7 +35,12 @@ export {
   getPositionsSummary,
   type PositionsSummary,
 } from './metrics/get-positions-summary';
-export { getApy, type LbtcApy } from './metrics/get-lbtc-apy';
+export {
+  getApy,
+  type LbtcApy,
+  getEstimatedApy,
+  type LbtcEstimatedApy,
+} from './metrics/get-lbtc-apy';
 export {
   getAdditionalRewards,
   type RewardsDistribution,
