@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "3.6.4",
+  "version": "3.6.5",
   "dependencies": {
     "@lombard.finance/sdk-common": "^3.0.0",
     "viem": "^2.23.15",

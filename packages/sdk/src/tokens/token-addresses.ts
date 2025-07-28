@@ -39,6 +39,7 @@ export const TOKEN_ADDRESSES: TokenAddresses = {
       [ChainId.berachain]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.binanceSmartChain]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.corn]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+      [ChainId.etherlink]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.katana]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.morph]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.sonic]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',

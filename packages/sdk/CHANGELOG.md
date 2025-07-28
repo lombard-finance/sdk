@@ -1,3 +1,7 @@
+# 3.6.5
+
+* fixed issue with the LBTC token contract address on Etherlink.
+
 # 3.6.4
 
 * added `getEstimatedApy` function,
