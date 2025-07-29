@@ -1,8 +1,9 @@
 import BigNumber from 'bignumber.js';
 import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
+import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 import { Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../tokens/tokens';
+import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
 import { determineEnv } from '../../utils/env';
 import { fromSatoshi } from '../../utils/satoshi';
 
@@ -24,7 +25,7 @@ export async function getLBTCMintingFee(
 
 /** Gets LBTC burn commission (fee) amount. */
 export async function getLBTCBurningFee(props: CommonParameters) {
-  return getBurningFee({ token: Token.LBTC, ...props });
+  return getRedeemFee({ token: Token.LBTC, ...props });
 }
 
 export async function getMintingFee({
@@ -33,44 +34,103 @@ export async function getMintingFee({
   rpcUrl,
   env,
 }: { token: Token } & CommonParameters) {
-  if (![Token.LBTC, Token.BTCK].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
     throw new Error(`Unsupported token: ${token}`);
   }
 
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
-  const lbtcContract = getTokenContractInfo(token, chainId, environment);
+  const tokenContract = await getTokenContractInfo(token, chainId, environment);
+  const tokenContractAbi = tokenContract.abi;
 
-  const rawFeeValue = await publicClient.readContract({
-    abi: lbtcContract.abi,
-    address: lbtcContract.address,
-    functionName: 'getMintFee',
-  });
+  let rawFeeValue = 0n;
+
+  console.log('mint fee', tokenContract);
+
+  if (isUpgradedAbi(tokenContractAbi) || token === Token.NativeLBTC) {
+    const assetRouterAddress = await publicClient.readContract({
+      abi: tokenContractAbi,
+      address: tokenContract.address,
+      functionName: 'getAssetRouter',
+    });
+
+    const assetRouter = {
+      abi: ASSET_ROUTER_ABI,
+      address: assetRouterAddress,
+    };
+
+    rawFeeValue = await publicClient.readContract({
+      abi: assetRouter.abi,
+      address: assetRouter.address,
+      functionName: 'maxMintCommission',
+      args: [tokenContract.address],
+    });
+  } else {
+    rawFeeValue = await publicClient.readContract({
+      abi: tokenContract.abi,
+      address: tokenContract.address,
+      functionName: 'getMintFee',
+    });
+  }
 
   return fromSatoshi(String(rawFeeValue));
 }
 
-export async function getBurningFee({
+export async function getRedeemFee({
   token,
   chainId,
   rpcUrl,
   env,
 }: { token: Token } & CommonParameters) {
-  if (![Token.LBTC, Token.BTCK].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
     throw new Error(`Unsupported token: ${token}`);
   }
 
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
-  const lbtcContract = getTokenContractInfo(token, chainId, environment);
+  const tokenContract = await getTokenContractInfo(token, chainId, environment);
 
-  const rawFeeValue = await publicClient.readContract({
-    abi: lbtcContract.abi,
-    address: lbtcContract.address,
-    functionName: 'getBurnCommission',
-  });
+  let rawFeeValue = 0n;
+  if (isUpgradedAbi(tokenContract.abi) || token === Token.NativeLBTC) {
+    const assetRouterAddress = await publicClient.readContract({
+      abi: tokenContract.abi,
+      address: tokenContract.address,
+      functionName: 'getAssetRouter',
+    });
+
+    const assetRouter = {
+      abi: ASSET_ROUTER_ABI,
+      address: assetRouterAddress,
+    };
+
+    // 1.
+    const toNativeCommissionValue = await publicClient.readContract({
+      abi: assetRouter.abi,
+      address: assetRouter.address,
+      functionName: 'toNativeCommission',
+      args: [tokenContract.address],
+    });
+
+    // 2.
+    const [redeemFeeValue /* redeemForBtcMinAmountValue, isRedeemEnabled */] =
+      await publicClient.readContract({
+        abi: assetRouter.abi,
+        address: assetRouter.address,
+        functionName: 'tokenConfig',
+        args: [tokenContract.address],
+      });
+
+    rawFeeValue = toNativeCommissionValue + redeemFeeValue;
+  } else {
+    // legacy (and BTCK v1)
+    rawFeeValue = await publicClient.readContract({
+      abi: tokenContract.abi,
+      address: tokenContract.address,
+      functionName: 'getBurnCommission',
+    });
+  }
 
   return fromSatoshi(String(rawFeeValue));
 }

@@ -22,7 +22,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
   argTypes: {
-    ...makeTokenSelector([Token.LBTC, Token.BTCK]),
+    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.NativeLBTC]),
   },
 } satisfies Meta<typeof StoryView>;
 

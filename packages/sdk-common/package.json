@@ -34,7 +34,9 @@
     "bitcoinjs-lib": "6.1.5",
     "rimraf": "^5",
     "typedoc": "^0.26.6",
-    "typescript": "^5.4.5",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
     "vite": "^6.3.5"
   }
 }

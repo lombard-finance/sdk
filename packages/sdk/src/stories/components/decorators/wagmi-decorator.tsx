@@ -19,7 +19,7 @@ import {
 } from 'wagmi/chains';
 import { createConfig, http, WagmiProvider } from 'wagmi';
 import { rpcUrlConfig } from '../../../clients/rpc-url-config';
-import { katana, katanaTatara } from '../../../common/chains';
+import { katana, katanaTatara, tac } from '../../../common/chains';
 
 const config = createConfig({
   chains: [
@@ -32,6 +32,7 @@ const config = createConfig({
     morph,
     sonic,
     swellchain,
+    tac,
     // Testnets:
     baseSepolia,
     berachainTestnetbArtio,
@@ -52,6 +53,7 @@ const config = createConfig({
     [morph.id]: http(rpcUrlConfig[morph.id]),
     [sonic.id]: http(rpcUrlConfig[sonic.id]),
     [swellchain.id]: http(rpcUrlConfig[swellchain.id]),
+    [tac.id]: http(rpcUrlConfig[tac.id]),
     // Testnets:
     [baseSepolia.id]: http(rpcUrlConfig[baseSepolia.id]),
     [berachainTestnetbArtio.id]: http(rpcUrlConfig[berachainTestnetbArtio.id]),

@@ -23,7 +23,11 @@ export async function getLBTCTotalSupply({
 }: CommonParameters): Promise<BigNumber> {
   const environment = env || determineEnv(chainId);
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
-  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, environment);
+  const lbtcContract = await getTokenContractInfo(
+    Token.LBTC,
+    chainId,
+    environment,
+  );
 
   const totalSupplyRaw = await publicClient.readContract({
     abi: lbtcContract.abi,

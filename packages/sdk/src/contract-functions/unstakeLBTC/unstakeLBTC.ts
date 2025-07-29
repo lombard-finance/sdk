@@ -6,7 +6,7 @@ import { makeWalletClient } from '../../clients/wallet-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
 import { CommonWriteParameters } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../tokens/tokens';
+import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
 import { estimateGasFees } from '../../utils/gas';
 import { toSatoshi } from '../../utils/satoshi';
 
@@ -66,7 +66,7 @@ export async function redeemToken({
   env,
   token = Token.LBTC,
 }: IUnstakeLBTCParams & { token?: Token }) {
-  if (![Token.LBTC, Token.BTCK].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
     throw new Error('Unsupported token');
   }
 
@@ -81,18 +81,20 @@ export async function redeemToken({
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
   const walletClient = makeWalletClient({ provider, chainId });
 
-  const tokenContract = getTokenContractInfo(token, chainId, env);
+  const tokenContract = await getTokenContractInfo(token, chainId, env);
 
   const callData = {
     abi: tokenContract.abi,
     address: tokenContract.address,
     account,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
-    functionName: 'redeem', // FIXME: both LBTC and Native LBTC have the same redeem method, change this if Native LBTC ABI changes.
+    functionName:
+      isUpgradedAbi(tokenContract.abi) || token === Token.NativeLBTC
+        ? 'redeemForBtc' // upgraded
+        : 'redeem', // legacy
     args: [outputScript, BigInt(amountSat)],
   } as const;
 
-  // Katana Tatara requires tip TODO: Recheck if this is needed or is it just OKX wallet issue
   const gasEstimationData = isKatanaChain(chainId)
     ? await estimateGasFees(publicClient, callData, parseGwei('1'))
     : {};

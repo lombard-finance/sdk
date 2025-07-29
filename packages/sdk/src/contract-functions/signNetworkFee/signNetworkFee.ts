@@ -52,7 +52,7 @@ export async function signNetworkFee({
   provider,
   env,
 }: ISignNetworkFeeParams): Promise<ISignNetworkFeeResponse> {
-  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
+  const lbtcContract = await getTokenContractInfo(Token.LBTC, chainId, env);
   const walletClient = makeWalletClient({
     chainId,
     provider,

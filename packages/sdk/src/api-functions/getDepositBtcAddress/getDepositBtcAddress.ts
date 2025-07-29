@@ -10,7 +10,7 @@ import {
 } from '../../common/blockchain-identifier';
 import {
   ChainId,
-  SUI_MAINNET_CHAIN,
+  isValidChain,
   SolanaChain,
   SuiChain,
 } from '../../common/chains';
@@ -19,15 +19,11 @@ import { Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { orderBy } from '../../utils/array';
 
+// FIXME: Disabled verification for now as the `btc-deposit-addresses` is
+// not compatible with the changes made on the API side.
 export const VERIFIABLE_CHAINS: Partial<
   Record<ChainId | SuiChain | SolanaChain, Blockchain>
-> = {
-  [ChainId.ethereum]: Blockchain.Ethereum,
-  [ChainId.base]: Blockchain.Base,
-  [ChainId.binanceSmartChain]: Blockchain.BSC,
-  [ChainId.sonic]: Blockchain.Sonic,
-  [SUI_MAINNET_CHAIN]: Blockchain.Sui,
-};
+> = {};
 
 export interface IDepositAddress {
   /**
@@ -199,7 +195,7 @@ export async function getDepositBtcAddress({
 
   let depositAddress: string | undefined = undefined;
 
-  if (![Token.LBTC, Token.BTCK].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
     throw new Error('Unsupported token');
   }
 
@@ -208,19 +204,13 @@ export async function getDepositBtcAddress({
     | { token_address: string; aux_version?: number }
     | undefined = undefined;
   try {
-    if (chainId === ChainId.katana || chainId === ChainId.katanaTatara) {
-      const tokenContractInfo = getTokenContractInfo(token, chainId, env);
+    if (isValidChain(chainId)) {
+      const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
 
-      if (token === Token.BTCK) {
-        tokenAddressFilter = {
-          token_address: tokenContractInfo.address.toLowerCase(),
-          aux_version: 1,
-        };
-      } else {
-        tokenAddressFilter = {
-          token_address: tokenContractInfo.address.toLowerCase(),
-        };
-      }
+      tokenAddressFilter = {
+        token_address: tokenContractInfo.address.toLowerCase(),
+        aux_version: token === Token.BTCK ? 1 : undefined,
+      };
     }
   } catch {
     // NOOP

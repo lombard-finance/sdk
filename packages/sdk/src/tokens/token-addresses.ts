@@ -3,10 +3,16 @@ import { Address } from 'viem';
 import { ChainId } from '../common/chains';
 
 export enum Token {
+  // Lombard tokens:
+  /** LBTC: the yield-bearing token */
   LBTC = 'LBTC',
-  BTCB = 'BTCB',
-  /** BTCK aka Native LBTC */
+  /** BTCK: the native LBTC token on Katana chain */
   BTCK = 'BTCK',
+  /** (name pending): the native LBTC token */
+  NativeLBTC = 'NativeLBTC',
+
+  // Supporting tokens:
+  BTCB = 'BTCB',
   cbBTC = 'cbBTC',
   eBTC = 'eBTC',
   wBTC = 'wBTC',
@@ -33,10 +39,12 @@ export const TOKEN_ADDRESSES: TokenAddresses = {
       [ChainId.berachain]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.binanceSmartChain]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.corn]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+      [ChainId.etherlink]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.katana]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.morph]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.sonic]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.swell]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+      [ChainId.tac]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     },
     [Env.stage]: {
       [ChainId.baseSepoliaTestnet]:
@@ -63,7 +71,7 @@ export const TOKEN_ADDRESSES: TokenAddresses = {
     },
     [Env.dev]: {
       // https://github.com/lombard-finance/smart-contracts/blob/2-token-model/devnet-bft.json
-      [ChainId.sepolia]: '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
+      [ChainId.sepolia]: '0x93283b6B889C591893dB0dc93baD71656D5d8923',
       [ChainId.baseSepoliaTestnet]:
         '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
       [ChainId.berachainBartioTestnet]:
@@ -76,6 +84,16 @@ export const TOKEN_ADDRESSES: TokenAddresses = {
   [Token.BTCB]: {
     [Env.prod]: {
       [ChainId.binanceSmartChain]: '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c',
+    },
+  },
+  [Token.NativeLBTC]: {
+    [Env.dev]: {
+      [ChainId.binanceSmartChainTestnet]:
+        '0xea3F66E5f2928dB9673103BfA01a2153A57a8050',
+      [ChainId.sepolia]: '0x195219A262423d209E126BD21cf4F4F9AA796927',
+    },
+    [Env.stage]: {
+      [ChainId.sepolia]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
     },
   },
   [Token.BTCK]: {
@@ -112,20 +130,3 @@ export const TOKEN_ADDRESSES: TokenAddresses = {
     },
   },
 };
-
-// export const TOKEN_ADDRESSES: Partial<
-//   Record<Token, Partial<Record<ChainId, Address>>>
-// > = {
-//   [Token.BTCB]: {
-//     [ChainId.binanceSmartChain]: '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c',
-//   },
-//   [Token.eBTC]: {
-//     [ChainId.ethereum]: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
-//   },
-//   [Token.wBTC]: {
-//     [ChainId.ethereum]: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-//   },
-//   [Token.wBTCN]: {
-//     [ChainId.corn]: '0xda5dDd7270381A7C2717aD10D1c0ecB19e3CDFb2',
-//   },
-// };

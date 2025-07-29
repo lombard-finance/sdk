@@ -1,12 +1,14 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
-import { Abi, Address, PublicClient, erc20Abi } from 'viem';
-import { makePublicClient } from '../clients/public-client';
-import { ChainId } from '../common/chains';
+import { type Abi, Address, erc20Abi, PublicClient, zeroAddress } from 'viem';
+import { TOKEN_ADDRESSES, Token } from './token-addresses';
+import { LBTC_ABI } from './abi/LBTC_ABI';
 import { TokenContractAddressNotFoundError } from '../utils/err';
 import BTCK_ABI from './abi/BTCK_ABI';
-import { LBTC_ABI } from './abi/LBTC_ABI';
-import { TOKEN_ADDRESSES, Token } from './token-addresses';
+import STLBTC_ABI from './abi/STLBTC_ABI';
+import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
+import { ChainId } from '../common/chains';
+import { makePublicClient } from '../clients/public-client';
 
 export type TokenInfo = {
   address: Address;
@@ -15,11 +17,59 @@ export type TokenInfo = {
   decimals: number;
 };
 
+const MAYBE_UPGRADED_CONTRACT_ABI = [
+  {
+    inputs: [],
+    name: 'getAssetRouter',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const;
+const UPGRADED_CONTRACT_POINTER = MAYBE_UPGRADED_CONTRACT_ABI[0].name;
+
+export async function isUpgradedContract(
+  token: Token.LBTC | Token.BTCK,
+  chainId: ChainId,
+  env?: Env,
+  rpcUrl?: string,
+) {
+  const environment = env || DEFAULT_ENV;
+  const address = TOKEN_ADDRESSES[token]?.[environment]?.[chainId];
+  if (!address) {
+    throw new TokenContractAddressNotFoundError(token, chainId, environment);
+  }
+
+  const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
+  try {
+    const assetRouter = await publicClient.readContract({
+      abi: MAYBE_UPGRADED_CONTRACT_ABI,
+      address,
+      functionName: UPGRADED_CONTRACT_POINTER,
+    });
+    return assetRouter !== zeroAddress;
+  } catch (_err) {
+    return false;
+  }
+}
+
+type AbiForLBTC =
+  | typeof STLBTC_ABI // upgraded
+  | typeof LBTC_ABI; // legacy
+
+type AbiForBTCK =
+  | typeof NATIVE_LBTC_ABI // upgraded
+  | typeof BTCK_ABI; // legacy
+
+type AbiForNativeLBTC = typeof NATIVE_LBTC_ABI;
+
 type AbiFor<TToken extends Token> = TToken extends Token.LBTC
-  ? typeof LBTC_ABI
+  ? AbiForLBTC
   : TToken extends Token.BTCK
-    ? typeof BTCK_ABI
-    : typeof erc20Abi;
+    ? AbiForBTCK
+    : TToken extends Token.NativeLBTC
+      ? AbiForNativeLBTC
+      : typeof erc20Abi;
 
 type TokenContractInfo<TToken extends Token> = {
   abi: AbiFor<TToken>;
@@ -27,18 +77,36 @@ type TokenContractInfo<TToken extends Token> = {
   chainId: ChainId;
 };
 
-export function getTokenContractInfo<TToken extends Token>(
+export const isUpgradedAbi = (
+  abi: Abi,
+): abi is typeof STLBTC_ABI | typeof NATIVE_LBTC_ABI => {
+  const redeemForBtcAbi = abi.find(
+    a => a.type === 'function' && a.name === UPGRADED_CONTRACT_POINTER,
+  );
+  return redeemForBtcAbi != null;
+};
+
+export async function getTokenContractInfo<TToken extends Token>(
   token: TToken,
   chainId: ChainId,
   env?: Env,
-): TokenContractInfo<TToken> {
+): Promise<TokenContractInfo<TToken>> {
   const environment = env || DEFAULT_ENV;
 
   let abi: AbiFor<TToken> | undefined = undefined;
   if (token === Token.LBTC) {
-    abi = LBTC_ABI as AbiFor<TToken>;
+    if (await isUpgradedContract(Token.LBTC, chainId, environment)) {
+      abi = STLBTC_ABI as AbiFor<TToken>;
+    } else {
+      abi = LBTC_ABI as AbiFor<TToken>;
+    }
   } else if (token === Token.BTCK) {
     abi = BTCK_ABI as AbiFor<TToken>;
+    if (await isUpgradedContract(Token.BTCK, chainId, environment)) {
+      abi = NATIVE_LBTC_ABI as AbiFor<TToken>;
+    }
+  } else if (token === Token.NativeLBTC) {
+    abi = NATIVE_LBTC_ABI as AbiFor<TToken>;
   } else {
     abi = erc20Abi as AbiFor<TToken>;
   }
@@ -91,7 +159,7 @@ export async function getTokenInfo(
   env?: Env,
   rpcUrl?: string,
 ): Promise<TokenInfo | undefined> {
-  const tokenContractInfo = getTokenContractInfo(token, chainId, env);
+  const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
   if (!tokenContractInfo) return;
 
   const publicClient = makePublicClient({ chainId, rpcUrl });

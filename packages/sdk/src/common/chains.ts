@@ -75,10 +75,29 @@ export const katanaTatara = defineChain({
   },
 });
 
+// FIXME: Remove this custom chain definition once TAC is supported by viem
+export const tac = defineChain({
+  id: 239,
+  name: 'TAC',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'TAC',
+    symbol: 'TAC',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.tac.build'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'TAC Explorer', url: 'https://explorer.tac.build' },
+  },
+});
 export const allChains: Record<string, viem_chains.Chain> = {
   ...viem_chains,
   katana,
   katanaTatara,
+  tac,
 };
 
 export const SUI_DEVNET_CHAIN = 'sui:devnet' as const;
@@ -112,6 +131,7 @@ export const ChainId = {
   morph: 2818,
   sonic: 146,
   swell: 1923,
+  tac: 239,
   // Testnets:
   baseSepoliaTestnet: 84532,
   berachainBartioTestnet: 80084,
@@ -136,6 +156,7 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.morph]: morph,
   [ChainId.sonic]: sonic,
   [ChainId.swell]: swellchain,
+  [ChainId.tac]: tac,
   // Testnets:
   [ChainId.baseSepoliaTestnet]: baseSepolia,
   [ChainId.berachainBartioTestnet]: berachainTestnetbArtio,
@@ -167,7 +188,7 @@ export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
 type LlamaChain =
   (typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP)[keyof typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP];
 
-export function isValidChain(chainId: number): chainId is ChainId {
+export function isValidChain(chainId: unknown): chainId is ChainId {
   return Object.values(ChainId).includes(chainId as ChainId);
 }
 

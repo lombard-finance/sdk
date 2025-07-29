@@ -8,7 +8,7 @@ import {
   useDisconnect as useWagmiDisconnect,
 } from 'wagmi';
 import { injected } from 'wagmi/connectors';
-import { type ChainId } from '../../common/chains';
+import { ChainId } from '../../common/chains';
 
 type CanPerformAction = {
   account: Extract<UseAccountReturnType<Config>, { status: 'connected' }> & {

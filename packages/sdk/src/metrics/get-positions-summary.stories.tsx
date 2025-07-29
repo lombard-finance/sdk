@@ -4,13 +4,13 @@ import { CodeBlock } from '../stories/components/CodeBlock';
 import useQuery from '../stories/hooks/useQuery';
 import { functionType, wagmiDecorator } from '../stories/components/decorators';
 import { ErrorBlock } from '../stories/components/error-block';
-import { getRewardsInfo } from './get-rewards-info';
+import { getPositionsSummary } from './get-positions-summary';
 import { EXAMPLE_EVM_ADDRESS } from '../stories/constants';
 import { envSelector } from '../stories/arg-types';
 import { Env } from '@lombard.finance/sdk-common';
 
 const meta = {
-  title: 'metrics/getRewardsInfo',
+  title: 'metrics/getPositionsSummary',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('api-get')],
@@ -25,11 +25,11 @@ export const WithParams: Story = {
   args: { account: EXAMPLE_EVM_ADDRESS, env: Env.stage },
 };
 
-type SignNetworkFeeProps = Parameters<typeof getRewardsInfo>[0];
+type SignNetworkFeeProps = Parameters<typeof getPositionsSummary>[0];
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getRewardsInfo({
+    return getPositionsSummary({
       ...props,
     });
   };
@@ -46,7 +46,7 @@ export function StoryView(props: SignNetworkFeeProps) {
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getRewardsInfo.name}
+        actionName={getPositionsSummary.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

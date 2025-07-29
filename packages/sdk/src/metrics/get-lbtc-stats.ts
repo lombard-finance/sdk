@@ -7,10 +7,6 @@ type LBTCStatsResponse = { price: number; supply: number; tvl: number }[];
 
 type LBTCHoldersResponse = number;
 
-type StakingStatsResponse = {
-  apr: number;
-};
-
 type Stats = {
   /** The BTC price  */
   price: BigNumber;
@@ -22,13 +18,11 @@ type Stats = {
   holders: BigNumber;
   /** The total (historical) number of LBTC holders */
   historicalHolders: BigNumber;
-  /** The staking APR */
-  apr: BigNumber | undefined;
 };
 
 /** Gets the Lombard's TVL. */
 export async function getLBTCStats(
-  parameters?: { partnerId?: string } & IEnvParam,
+  parameters?: { partnerId?: string; accountAddress?: string } & IEnvParam,
 ) {
   const env = parameters?.env;
   const partnerId = parameters?.partnerId;
@@ -52,23 +46,12 @@ export async function getLBTCStats(
     `${bffApiUrl}/dune-api/query/getTotalLBTCUsers?partnerId=${partnerId || ''}`,
   );
 
-  let apr = undefined;
-  try {
-    const { data: stakingStats } = await axios.get<StakingStatsResponse>(
-      `${bffApiUrl}/lombard-sdk/staking-stats?partnerId=${partnerId || ''}`,
-    );
-    apr = stakingStats.apr;
-  } catch (_err) {
-    // NOOP
-  }
-
   const stats: Stats = {
     price: BigNumber(data[0].price),
     supply: BigNumber(data[0].supply),
     tvl: BigNumber(data[0].tvl),
     holders: BigNumber(holders),
     historicalHolders: BigNumber(historicalHolders),
-    apr: apr ? BigNumber(apr) : undefined,
   };
 
   return stats;

@@ -46,7 +46,7 @@ export async function approveLBTC({
   const publicClient = makePublicClient({ chainId, rpcUrl });
   const walletClient = makeWalletClient({ chainId, provider });
 
-  const lbtcContract = getTokenContractInfo(Token.LBTC, chainId, env);
+  const lbtcContract = await getTokenContractInfo(Token.LBTC, chainId, env);
 
   const amountSat = toSatoshi(amount).toNumber();
 

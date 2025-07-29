@@ -1,9 +1,12 @@
 {
+  "name": "@lombard.finance/sdk",
+  "version": "3.6.5",
   "dependencies": {
     "@lombard.finance/btc-deposit-addresses": "^1.0.0",
     "@lombard.finance/sdk-common": "^3.0.0",
     "isows": "^1.0.7",
-    "viem": "^2.30.0"
+    "viem": "^2.23.15",
+    "vite": "^6.3.5"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -44,7 +47,6 @@
     "src"
   ],
   "license": "MIT",
-  "name": "@lombard.finance/sdk",
   "peerDependencies": {
     "@layerzerolabs/lz-v2-utilities": "3.0.17",
     "axios": "^1",
@@ -62,6 +64,5 @@
     "watch": "vite build --watch"
   },
   "type": "module",
-  "types": "./src/index.ts",
-  "version": "3.5.10"
+  "types": "./src/index.ts"
 }

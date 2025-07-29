@@ -4,7 +4,7 @@ import { getApiConfig } from '../common/api-config';
 
 export type TRpcUrlConfig = Record<number, string>;
 
-export const RPC_URL = 'https://bff.prod.lombard.finance/multi-rpc/proxy';
+export const RPC_URL = 'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
 // export const RPC_URL = 'http://localhost:8001/multi-rpc/proxy';
 
 export const rpcUrlConfig: TRpcUrlConfig = {
@@ -15,6 +15,7 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.corn]: `${RPC_URL}/corn_maizenet`,
   [ChainId.katana]: `${RPC_URL}/katana`,
   [ChainId.sonic]: `${RPC_URL}/sonic_mainnet`,
+  [ChainId.tac]: `${RPC_URL}/tac`,
   // Testnets:
   [ChainId.baseSepoliaTestnet]: `${RPC_URL}/base_sepolia`,
   [ChainId.binanceSmartChainTestnet]:
@@ -37,6 +38,7 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.corn]: `${proxy}/corn_maizenet`,
     [ChainId.katana]: `${proxy}/katana`,
     [ChainId.sonic]: `${proxy}/sonic_mainnet`,
+    [ChainId.tac]: `${proxy}/tac`,
     // Testnets:
     [ChainId.baseSepoliaTestnet]: `${proxy}/base_sepolia`,
     [ChainId.binanceSmartChainTestnet]:
