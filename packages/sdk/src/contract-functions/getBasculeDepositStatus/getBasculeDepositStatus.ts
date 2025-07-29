@@ -10,6 +10,7 @@ import {
 import { IDeposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
+import { ChainId } from '../../common/chains';
 import { CommonOptionalWriteParameters } from '../../common/parameters';
 import LBTC_BASCULE_ABI from '../../tokens/abi/LBTC_BASCULE_ABI.json';
 import { Token } from '../../tokens/token-addresses';
@@ -78,6 +79,14 @@ export async function getBasculeDepositStatus({
     throw new Error(
       "No 'rawPayload' or 'deposit' data provided. Please provide 'rawPayload' or 'deposit' parameter.",
     );
+  }
+
+  // Skip Bascule validation for Katana networks
+  if (
+    token === Token.LBTC &&
+    (chainId === ChainId.katana || chainId === ChainId.katanaTatara)
+  ) {
+    return BasculeDepositStatus.REPORTED;
   }
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
