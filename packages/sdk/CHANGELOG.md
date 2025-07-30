@@ -1,3 +1,7 @@
+# 3.6.8
+
+* reverted changes from 3.6.6 - the Bascule address has been fixed in the contract.
+
 # 3.6.7
 
 * added new `getMinRedeemAmount` function that return the min redeem amount.

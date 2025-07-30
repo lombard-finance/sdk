@@ -8,12 +8,23 @@ import {
   IGetBasculeDepositStatusParameters,
   getBasculeDepositStatus,
 } from './getBasculeDepositStatus';
+import {
+  chainSelector,
+  envSelector,
+  makeTokenSelector,
+} from '../../stories/arg-types';
+import { Token } from '../../tokens/token-addresses';
 
 const meta = {
   title: 'read/getBasculeDepositStatus',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('read')],
+  argTypes: {
+    ...chainSelector,
+    ...envSelector,
+    ...makeTokenSelector([Token.LBTC, Token.NativeLBTC, Token.BTCK]),
+  },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
