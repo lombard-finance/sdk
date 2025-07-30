@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "3.6.6",
+  "version": "3.6.7",
   "dependencies": {
     "@lombard.finance/sdk-common": "^3.0.0",
     "viem": "^2.23.15",
@@ -39,7 +39,10 @@
     "./clients/*": "./src/clients/*.ts",
     "./utils/*": "./src/utils/*.ts"
   },
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "license": "MIT",
   "peerDependencies": {
     "@layerzerolabs/lz-v2-utilities": "3.0.17",

@@ -143,7 +143,7 @@ export async function getUnstakesByAddress({
 
 function mapResponse(data: IUnstakeResponse, env: IEnvParam['env']): IUnstake {
   const btcAddress = address.fromOutputScript(
-    Buffer.from(data.output_script, 'hex'),
+    Buffer.from(data.output_script.replace(/^0x/, ''), 'hex'),
     env === 'prod' ? networks.bitcoin : networks.testnet,
   );
 

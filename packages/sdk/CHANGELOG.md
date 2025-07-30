@@ -1,3 +1,11 @@
+# 3.6.7
+
+* added new `getMinRedeemAmount` function that return the min redeem amount.
+
+# 3.6.6
+
+* disabled Bascule check for Katana
+
 # 3.6.5
 
 * fixed issue with the LBTC token contract address on Etherlink.
