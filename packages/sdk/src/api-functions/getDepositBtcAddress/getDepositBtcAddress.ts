@@ -10,12 +10,18 @@ import {
 } from '../../common/blockchain-identifier';
 import {
   ChainId,
+  isSolanaChain,
+  isSuiChain,
   isValidChain,
   SolanaChain,
   SuiChain,
 } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
-import { Token } from '../../tokens/token-addresses';
+import {
+  getSolanaTokenAddress,
+  getSuiTokenAddress,
+  Token,
+} from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { orderBy } from '../../utils/array';
 
@@ -212,13 +218,31 @@ export async function getDepositBtcAddress({
         aux_version: token === Token.BTCK ? 1 : undefined,
       };
     }
+
+    if (isSuiChain(chainId)) {
+      const tokenAddress = getSuiTokenAddress(chainId, env);
+      if (tokenAddress) {
+        tokenAddressFilter = {
+          token_address: tokenAddress.toLowerCase(),
+        };
+      }
+    }
+
+    if (isSolanaChain(chainId)) {
+      const tokenAddress = getSolanaTokenAddress(chainId, env);
+      if (tokenAddress) {
+        tokenAddressFilter = {
+          token_address: tokenAddress.toLowerCase(),
+        };
+      }
+    }
   } catch {
     // NOOP
   }
 
   const addresses = (_addresses || []).filter(a => {
     if (!tokenAddressFilter) {
-      // Get only the non token specific deposit addresses.
+      // Get only the non token specific deposit addresses (legacy)
       return !a.deposit_metadata.token_address;
     }
 

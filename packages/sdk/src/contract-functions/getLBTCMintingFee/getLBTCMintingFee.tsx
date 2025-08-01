@@ -46,8 +46,6 @@ export async function getMintingFee({
 
   let rawFeeValue = 0n;
 
-  console.log('mint fee', tokenContract);
-
   if (isUpgradedAbi(tokenContractAbi) || token === Token.NativeLBTC) {
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContractAbi,
@@ -133,4 +131,48 @@ export async function getRedeemFee({
   }
 
   return fromSatoshi(String(rawFeeValue));
+}
+
+export async function getMinRedeemAmount({
+  token,
+  chainId,
+  rpcUrl,
+  env,
+}: { token: Token } & CommonParameters) {
+  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
+    throw new Error(`Unsupported token: ${token}`);
+  }
+
+  const environment = env || determineEnv(chainId);
+
+  const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
+  const tokenContract = await getTokenContractInfo(token, chainId, environment);
+
+  let value = 0n;
+  if (isUpgradedAbi(tokenContract.abi) || token === Token.NativeLBTC) {
+    const assetRouterAddress = await publicClient.readContract({
+      abi: tokenContract.abi,
+      address: tokenContract.address,
+      functionName: 'getAssetRouter',
+    });
+
+    const assetRouter = {
+      abi: ASSET_ROUTER_ABI,
+      address: assetRouterAddress,
+    };
+
+    const [, redeemForBtcMinAmountValue] = await publicClient.readContract({
+      abi: assetRouter.abi,
+      address: assetRouter.address,
+      functionName: 'tokenConfig',
+      args: [tokenContract.address],
+    });
+
+    value = redeemForBtcMinAmountValue;
+  } else {
+    // legacy (and BTCK v1)
+    value = 2000n; // 0.00002
+  }
+
+  return fromSatoshi(String(value));
 }

@@ -1,3 +1,19 @@
+# 3.6.9
+
+* fixed issue with getting the deposit address on Sui and Solana networks.
+
+# 3.6.8
+
+* reverted changes from 3.6.6 - the Bascule address has been fixed in the contract.
+
+# 3.6.7
+
+* added new `getMinRedeemAmount` function that return the min redeem amount.
+
+# 3.6.6
+
+* disabled Bascule check for Katana
+
 # 3.6.5
 
 * fixed issue with the LBTC token contract address on Etherlink.
