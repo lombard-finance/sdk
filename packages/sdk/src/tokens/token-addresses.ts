@@ -1,6 +1,15 @@
-import { Env } from '@lombard.finance/sdk-common';
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import { Address } from 'viem';
-import { ChainId } from '../common/chains';
+import {
+  ChainId,
+  SOLANA_DEVNET_CHAIN,
+  SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET_CHAIN,
+  SolanaChain,
+  SUI_MAINNET_CHAIN,
+  SUI_TESTNET_CHAIN,
+  SuiChain,
+} from '../common/chains';
 
 export enum Token {
   // Lombard tokens:
@@ -24,14 +33,26 @@ export const RATIO_TOKEN_MAP: Record<RatioToken, Token> = {
   TOKEN_SYMBOL_STLBTC: Token.LBTC,
 };
 
-type TokenAddresses = Partial<
+type TokenAddresses<
+  chain extends string | number | symbol = ChainId | SuiChain | SolanaChain,
+> = Partial<
   Record<
     Token,
-    Partial<Record<Env, Partial<Record<ChainId, Address | undefined>>>>
+    Partial<
+      Record<
+        Env,
+        Partial<
+          Record<
+            chain,
+            (chain extends ChainId | SuiChain ? Address : string) | undefined
+          >
+        >
+      >
+    >
   >
 >;
 
-export const TOKEN_ADDRESSES: TokenAddresses = {
+export const TOKEN_ADDRESSES: TokenAddresses<ChainId> = {
   [Token.LBTC]: {
     [Env.prod]: {
       [ChainId.ethereum]: '0x8236a87084f8b84306f72007f36f2618a5634494',
@@ -129,4 +150,49 @@ export const TOKEN_ADDRESSES: TokenAddresses = {
       [ChainId.corn]: '0xda5dDd7270381A7C2717aD10D1c0ecB19e3CDFb2',
     },
   },
+};
+
+export const SUI_TOKEN_ADDRESSES: TokenAddresses<SuiChain> = {
+  [Token.LBTC]: {
+    [Env.prod]: {
+      [SUI_MAINNET_CHAIN]:
+        '0x3e8e9423d80e1774a7ca128fccd8bf5f1f7753be658c5e645929037f7c819040',
+    },
+    [Env.stage]: {
+      [SUI_TESTNET_CHAIN]:
+        '0x2d66430a27565b912f21be970e5ae1e8c0359f0b518c3235b751c75976791ce0',
+    },
+    [Env.testnet]: {
+      [SUI_TESTNET_CHAIN]:
+        '0x50454d0b0fbad1288a6ab74f2e8ce0905a3317870673ab7787ebcf6f322b45fa',
+    },
+  },
+};
+
+export const getSuiTokenAddress = (
+  chainId: SuiChain,
+  env = DEFAULT_ENV,
+): Address | undefined => {
+  return SUI_TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId] || undefined;
+};
+
+export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<SolanaChain> = {
+  [Token.LBTC]: {
+    [Env.prod]: {
+      [SOLANA_MAINNET_CHAIN]: 'LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek',
+    },
+    [Env.testnet]: {
+      [SOLANA_TESTNET_CHAIN]: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
+    },
+    [Env.stage]: {
+      [SOLANA_DEVNET_CHAIN]: 'HEY7PCJe3GB27UWdopuYb1xDbB5SNtTcYPxRjntvfBSA',
+    },
+  },
+};
+
+export const getSolanaTokenAddress = (
+  chainId: SolanaChain,
+  env = DEFAULT_ENV,
+): string | undefined => {
+  return SOLANA_TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId] || undefined;
 };
