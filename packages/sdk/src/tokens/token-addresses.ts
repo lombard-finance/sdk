@@ -33,24 +33,42 @@ export const RATIO_TOKEN_MAP: Record<RatioToken, Token> = {
   TOKEN_SYMBOL_STLBTC: Token.LBTC,
 };
 
-type TokenAddresses<
+type TokenAddressesPerEnv<
   chain extends string | number | symbol = ChainId | SuiChain | SolanaChain,
 > = Partial<
   Record<
-    Token,
+    Env,
     Partial<
       Record<
-        Env,
-        Partial<
-          Record<
-            chain,
-            (chain extends ChainId | SuiChain ? Address : string) | undefined
-          >
-        >
+        chain,
+        (chain extends ChainId | SuiChain ? Address : string) | undefined
       >
     >
   >
 >;
+
+type TokenAddresses<
+  chain extends string | number | symbol = ChainId | SuiChain | SolanaChain,
+> = Partial<Record<Token, TokenAddressesPerEnv<chain>>>;
+
+const EVM_NATIVE_LBTC_ADDRESSES: TokenAddressesPerEnv<ChainId> = {
+  [Env.prod]: {
+    [ChainId.katana]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
+  },
+  [Env.dev]: {
+    [ChainId.binanceSmartChainTestnet]:
+      '0xea3F66E5f2928dB9673103BfA01a2153A57a8050',
+    [ChainId.sepolia]: '0x195219A262423d209E126BD21cf4F4F9AA796927',
+    [ChainId.katanaTatara]: '0xA74D838817f3098166d74a141b7d241efB15F42c',
+  },
+  [Env.stage]: {
+    [ChainId.sepolia]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
+    [ChainId.katanaTatara]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
+  },
+  [Env.testnet]: {
+    [ChainId.katanaTatara]: '0x20eA7b8ABb4B583788F1DFC738C709a2d9675681',
+  },
+};
 
 export const TOKEN_ADDRESSES: TokenAddresses<ChainId> = {
   [Token.LBTC]: {
@@ -107,34 +125,8 @@ export const TOKEN_ADDRESSES: TokenAddresses<ChainId> = {
       [ChainId.binanceSmartChain]: '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c',
     },
   },
-  [Token.NativeLBTC]: {
-    [Env.dev]: {
-      [ChainId.binanceSmartChainTestnet]:
-        '0xea3F66E5f2928dB9673103BfA01a2153A57a8050',
-      [ChainId.sepolia]: '0x195219A262423d209E126BD21cf4F4F9AA796927',
-    },
-    [Env.stage]: {
-      [ChainId.sepolia]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
-    },
-  },
-  [Token.BTCK]: {
-    [Env.prod]: {
-      [ChainId.katana]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
-      [ChainId.katanaTatara]: undefined,
-    },
-    [Env.stage]: {
-      [ChainId.katana]: undefined,
-      [ChainId.katanaTatara]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
-    },
-    [Env.testnet]: {
-      [ChainId.katana]: undefined,
-      [ChainId.katanaTatara]: '0x20eA7b8ABb4B583788F1DFC738C709a2d9675681',
-    },
-    [Env.dev]: {
-      [ChainId.katana]: undefined,
-      [ChainId.katanaTatara]: '0xA74D838817f3098166d74a141b7d241efB15F42c',
-    },
-  },
+  [Token.NativeLBTC]: EVM_NATIVE_LBTC_ADDRESSES,
+  [Token.BTCK]: EVM_NATIVE_LBTC_ADDRESSES, // alias for NativeLBTC, TODO: Remove once apps are moved to the Token.NativeLBTC
   [Token.eBTC]: {
     [Env.prod]: {
       [ChainId.ethereum]: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',

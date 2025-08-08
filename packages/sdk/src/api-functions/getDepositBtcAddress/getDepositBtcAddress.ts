@@ -1,173 +1,19 @@
-import axios from 'axios';
-import { getApiConfig } from '../../common/api-config';
-import {
-  BlockchainIdentifier,
-  getChainNameById,
-} from '../../common/blockchain-identifier';
-import {
-  ChainId,
-  isSolanaChain,
-  isSuiChain,
-  isValidChain,
-  SolanaChain,
-  SuiChain,
-} from '../../common/chains';
-import { IEnvParam } from '../../common/parameters';
+import { isSolanaChain, isSuiChain, isValidChain } from '../../common/chains';
 import {
   getSolanaTokenAddress,
   getSuiTokenAddress,
   Token,
 } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
-
-export interface IDepositAddress {
-  /**
-   * The deposit address for BTC.
-   */
-  btc_address: string;
-  /**
-   * The address creation timestamp.
-   */
-  created_at: string;
-  /**
-   * A flag determining whether an address is deprecated (no longer valid for depositing BTC).
-   */
-  deprecated?: boolean;
-  /**
-   * Type of an address.
-   * @constant {string} - ADDRESS_TYPE_DEPOSIT
-   */
-  type: string;
-  /**
-   * A flag determining whether an address has been used.
-   */
-  used?: boolean;
-
-  /**
-   * The deposit address metadata
-   */
-  deposit_metadata: {
-    /**
-     * The partner (referral) id.
-     */
-    referral: string;
-    /**
-     * The partner (referral) id.
-     */
-    partner_id: string;
-    /**
-     * The destination address.
-     */
-    to_address: string;
-    /**
-     * The destination blockchain corresponding to the `to_address`
-     */
-    to_blockchain: BlockchainIdentifier;
-    /**
-     * The destination token address
-     */
-    token_address?: string;
-    /**
-     * The aux version (paired with the token_address)
-     */
-    aux_version?: number;
-  };
-}
-
-interface IDepositAddressesResponse {
-  addresses: IDepositAddress[];
-  has_more?: boolean;
-}
-
-interface IApiError {
-  code: number;
-  message?: string;
-}
-
-export interface IGetDepositBtcAddressesParameters extends IEnvParam {
-  /**
-   * The destination address where LBTC will be claimed.
-   */
-  address: string;
-  /**
-   * The destination chain where the `address` exists and where LBTC will be claimed.
-   */
-  chainId: ChainId | SuiChain | SolanaChain;
-  /**
-   * The maximum number of items to return.
-   * @default {number} 1
-   */
-  limit?: number;
-
-  /**
-   * The number of items to skip before starting to return the items.
-   * @default {number} 0
-   */
-  offset?: number;
-
-  /**
-   * The partner (referral) id.
-   * @default {string} "lombard"
-   */
-  partnerId?: string;
-}
-
-async function makeRequest({
-  address,
-  chainId,
-  env,
-  limit,
-  offset,
-  partnerId,
-}: IGetDepositBtcAddressesParameters) {
-  const { baseApiUrl } = getApiConfig(env);
-
-  // throws an error if `chainId` is unknown
-  const destinationBlockchain = getChainNameById(chainId);
-
-  const params = {
-    asc: false,
-    limit,
-    offset,
-    referralId: partnerId || 'lombard',
-  };
-
-  // remove undefined fields, undefined limit and offset params cause error
-  for (const [k, v] of Object.entries(params)) {
-    if (v === undefined) {
-      delete params[k as keyof typeof params];
-    }
-  }
-
-  const url = `api/v1/address/destination/${destinationBlockchain}/${address}`;
-  try {
-    const { data } = await axios.get<IDepositAddressesResponse>(url, {
-      baseURL: baseApiUrl,
-      params,
-    });
-
-    return data.addresses || [];
-  } catch (err) {
-    if (axios.isAxiosError<IApiError>(err)) {
-      const message = err.response?.data.message;
-      throw new Error(message);
-    }
-  }
-}
-
-export type IGetDepositBtcAddressParameters = { token?: Token } & Pick<
+import type {
   IGetDepositBtcAddressesParameters,
-  'address' | 'chainId' | 'env' | 'partnerId'
->;
+  IGetDepositBtcAddressParameters,
+} from './types';
+import { makeRequest } from './make-request';
+import { getChainNameById } from '../../common/blockchain-identifier';
 
 /**
  * Returns the current address for depositing BTC by given parameters.
- *
- * @param {IGetDepositBtcAddressParameters} parameters - The parameters.
- * @param {string} parameters.address - The account address.
- * @param {ChainId} parameters.chainId - The chain id.
- * @param {Env} parameters.env - The optional environment identifier.
- * @param {string} parameters.partnerId - The partner (referral) id.
  *
  * @throws {Error} - Throws an error if no address found or the provided chain id is not supported.
  */
@@ -198,10 +44,8 @@ export async function getDepositBtcAddress({
   try {
     if (isValidChain(chainId)) {
       const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
-
       tokenAddressFilter = {
         token_address: tokenContractInfo.address.toLowerCase(),
-        aux_version: token === Token.BTCK ? 1 : undefined,
       };
     }
 
@@ -226,31 +70,39 @@ export async function getDepositBtcAddress({
     // NOOP
   }
 
-  const addresses = (_addresses || []).filter(a => {
-    if (!tokenAddressFilter) {
-      // Get only the non token specific deposit addresses (legacy)
-      return !a.deposit_metadata.token_address;
-    }
+  const addresses = (_addresses || [])
+    .filter(
+      a =>
+        // filter by chain id
+        a.deposit_metadata.to_blockchain.toLowerCase() ===
+          getChainNameById(chainId).toLowerCase() &&
+        // filter by address
+        a.deposit_metadata.to_address.toLowerCase() === address.toLowerCase(),
+    )
+    .filter(a => {
+      if (!tokenAddressFilter) {
+        return false;
+      }
 
-    // check if token addresses are matched
-    let isForToken =
-      a.deposit_metadata.token_address?.toLowerCase() ===
-      tokenAddressFilter.token_address;
-    // check if aux version is matched (if provided)
-    if (tokenAddressFilter.aux_version != null) {
-      isForToken =
-        isForToken &&
-        a.deposit_metadata.aux_version === tokenAddressFilter.aux_version;
-    }
+      // check if token addresses are matched
+      let isForToken =
+        a.deposit_metadata.token_address?.toLowerCase() ===
+        tokenAddressFilter.token_address;
+      // check if aux version is matched (if provided)
+      if (tokenAddressFilter.aux_version != null) {
+        isForToken =
+          isForToken &&
+          a.deposit_metadata.aux_version === tokenAddressFilter.aux_version;
+      }
 
-    // token_address can also be empty (null) when the address is for LBTC.
-    if (token === Token.LBTC) {
-      isForToken = isForToken || !a.deposit_metadata.token_address;
-    }
+      // token_address can also be empty (null) when the address is for LBTC.
+      if (token === Token.LBTC) {
+        isForToken = isForToken || !a.deposit_metadata.token_address;
+      }
 
-    // Get only the addresses for the specified token.
-    return isForToken;
-  });
+      // Get only the addresses for the specified token.
+      return isForToken;
+    });
 
   if (addresses && addresses.length > 0) {
     const mostRecentAddress = addresses.reduce((mostRecent, cur) => {
