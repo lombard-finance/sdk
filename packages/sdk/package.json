@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "3.6.9",
+  "version": "3.6.10",
   "dependencies": {
     "@lombard.finance/btc-deposit-addresses": "^1.0.0",
     "@lombard.finance/sdk-common": "^3.0.0",
@@ -27,7 +27,7 @@
     "storybook": "^8.2.9",
     "typedoc": "^0.26.6",
     "typescript": "^5.4.5",
-    "vite": "^6.3.5",
+    "vitest": "^3.2.4",
     "wagmi": "^2.14.15"
   },
   "engines": {
@@ -60,6 +60,7 @@
     "format": "biome format",
     "lint": "biome lint --diagnostic-level=error",
     "storybook": "storybook dev -p 6006",
+    "test": "vitest run",
     "types": "tsc --noEmit",
     "watch": "vite build --watch"
   },

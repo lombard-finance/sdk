@@ -1,3 +1,7 @@
+# 3.6.10
+
+* `Token.BTCK` is now an alias of `Token.NativeLBTC` (recommended).
+
 # 3.6.9
 
 * fixed issue with getting the deposit address on Sui and Solana networks.

@@ -7,10 +7,8 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { functionType } from '../../stories/components/decorators';
 import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
-import {
-  IGetDepositBtcAddressesParameters,
-  getDepositBtcAddresses,
-} from './getDepositBtcAddress';
+import { getDepositBtcAddresses } from './getDepositBtcAddress';
+import { IGetDepositBtcAddressesParameters } from './types';
 
 const meta = {
   title: 'api/getDepositBtcAddresses',
