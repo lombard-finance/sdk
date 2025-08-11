@@ -22,7 +22,7 @@
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
     "build-storybook": "storybook build -o sdk-storybook",
     "build": "yarn types && vite build",
-    "lint": "biome lint",
+    "lint": "biome lint --diagnostic-level=error",
     "storybook": "storybook dev -p 6006",
     "types": "tsc --noEmit"
   },
@@ -55,6 +55,7 @@
     "rimraf": "^5",
     "storybook": "^8.2.9",
     "typedoc": "^0.26.6",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vite": "^6.3.5"
   }
 }

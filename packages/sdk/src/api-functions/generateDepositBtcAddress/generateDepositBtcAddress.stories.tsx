@@ -28,14 +28,22 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+const d = {
+  signature:
+    '0x9ca1c54532b42da150d7e1c87a55d2601a245d2a34f5c442e40d2793e2e7b739095cd1213aadd45db96d8459dd3a612daa01a08f661a5d67290bd806e4862f101c',
+  typedData:
+    '{"account":"0x659579F1460c38C3ce3288b47b074646CEF855fc","domain":{"name":"Lombard Staked Bitcoin","version":"1","chainId":1,"verifyingContract":"0x8236a87084f8b84306f72007f36f2618a5634494"},"message":{"chainId":1,"fee":"1100","expiry":1746119680},"primaryType":"feeApproval","types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"feeApproval":[{"name":"chainId","type":"uint256"},{"name":"fee","type":"uint256"},{"name":"expiry","type":"uint256"}]}}',
+};
+
 export const WithParams: Story = {
   args: {
     address: EXAMPLE_EVM_ADDRESS,
     token: Token.LBTC,
     chainId: ChainId.ethereum,
-    signature: '',
+    signature: d.signature,
+    eip712Data: d.typedData,
     env: DEFAULT_ENV,
-    referrerCode: 'lombard',
+    referrerCode: '',
     partnerId: 'lombard',
   },
 };
