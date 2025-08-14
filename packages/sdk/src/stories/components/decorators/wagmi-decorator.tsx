@@ -16,7 +16,7 @@ import {
   sonic,
   sonicBlazeTestnet,
   swellchain,
-} from 'viem/chains';
+} from 'wagmi/chains';
 import { createConfig, http, WagmiProvider } from 'wagmi';
 import { rpcUrlConfig } from '../../../clients/rpc-url-config';
 import { katana, katanaTatara, tac } from '../../../common/chains';

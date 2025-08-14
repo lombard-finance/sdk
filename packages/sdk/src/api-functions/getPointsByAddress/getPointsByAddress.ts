@@ -1,5 +1,6 @@
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 
@@ -32,9 +33,13 @@ export interface IPointsByAddress {
    */
   okxPoints: number;
   /**
-   * The number of points earned by participating in the flash events.
+   * The number of points earned by participating in the first flash event.
    */
-  flashEventPoints: number;
+  flashEvent1Points: number;
+  /**
+   * The number of points earned by participating in the second flash event.
+   */
+  flashEvent2Points: number;
   /**
    * The total number of points.
    */
@@ -43,6 +48,14 @@ export interface IPointsByAddress {
    * The breakdown of points earned from each protocol.
    */
   protocolPointsBreakdown: IProtocolPointsBreakdown;
+  /**
+   * The amount of LUX points earned from badges.
+   */
+  badgesPoints: number;
+  /**
+   * The total amount of LUX points (without badges points).
+   */
+  totalWithoutBadgesPoints: number;
 }
 
 interface IPointsResponse {
@@ -52,6 +65,8 @@ interface IPointsResponse {
   referrals_points?: number;
   total?: number;
   protocol_points_map?: IProtocolPointsBreakdown;
+  badges?: number;
+  total_without_badges?: number;
 }
 
 interface IOkxPointsResponse {
@@ -125,42 +140,50 @@ export async function getPointsByAddress({
   const flashEvent2Points = parse(
     flashEventPointsData?.flashEvent2Points?.result?.rows?.[0]?.totalPoints,
   );
-  const flashEventPoints = flashEvent1Points + flashEvent2Points;
 
   const holdingPoints = parse(lombardPointsData.holding_points);
   const protocolPoints = parse(lombardPointsData.protocol_points);
-  const referralPoints =
-    parse(lombardPointsData.referee_points) +
-    parse(lombardPointsData.referrals_points);
+  const referralPoints = parse(lombardPointsData.referee_points).plus(
+    parse(lombardPointsData.referrals_points),
+  );
 
-  const totalPoints =
-    holdingPoints +
-    protocolPoints +
-    referralPoints +
-    okxPoints +
-    flashEventPoints;
+  const badgesPoints = parse(lombardPointsData.badges);
 
-  const protocolPointsBreakdown = Object.entries(
-    lombardPointsData.protocol_points_map || {},
-  ).reduce((acc, [k, v]) => {
-    acc[k] = parse(v);
-    return acc;
-  }, {} as IProtocolPointsBreakdown);
-
-  return {
+  const totalWithoutBadgesPoints = BigNumber.sum.apply(null, [
     holdingPoints,
     protocolPoints,
     referralPoints,
     okxPoints,
-    flashEventPoints,
-    totalPoints,
+    flashEvent1Points,
+    flashEvent2Points,
+  ]);
+
+  const totalPoints = totalWithoutBadgesPoints.plus(badgesPoints);
+
+  const protocolPointsBreakdown = Object.entries(
+    lombardPointsData.protocol_points_map || {},
+  ).reduce((acc, [k, v]) => {
+    acc[k] = parse(v).toNumber();
+    return acc;
+  }, {} as IProtocolPointsBreakdown);
+
+  return {
+    holdingPoints: holdingPoints.toNumber(),
+    protocolPoints: protocolPoints.toNumber(),
+    referralPoints: referralPoints.toNumber(),
+    okxPoints: okxPoints.toNumber(),
+    flashEvent1Points: flashEvent1Points.toNumber(),
+    flashEvent2Points: flashEvent2Points.toNumber(),
+    totalPoints: totalPoints.toNumber(),
     protocolPointsBreakdown,
+    badgesPoints: badgesPoints.toNumber(),
+    totalWithoutBadgesPoints: totalWithoutBadgesPoints.toNumber(),
   };
 }
 
 function parse(
   input: string | number | null | undefined,
   defaultValue = 0,
-): number {
-  return Number(input) || defaultValue;
+): BigNumber {
+  return BigNumber(Number(input) || defaultValue);
 }

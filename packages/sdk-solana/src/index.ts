@@ -1,15 +1,13 @@
 // Export types
-
 export * from './types/network';
 export * from './types/walletProviders';
 
 // Export constants
-export * from './const/known-errors';
 export { getConfig, getLBTCAddress } from './const/getConfig';
+export * from './const/known-errors';
 export * from './const/rpcUrls';
 
 // Export utility functions
-
 export { getLBTCProgramAddress } from './utils/getLBTCProgramAddress';
 
 // Web3 SDK functions

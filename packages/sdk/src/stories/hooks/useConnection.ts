@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { EIP1193Provider } from 'viem';
 import {
-  Config,
+  type Config,
+  type UseAccountReturnType,
   useAccount,
-  UseAccountReturnType,
   useConnect as useWagmiConnect,
   useDisconnect as useWagmiDisconnect,
 } from 'wagmi';
@@ -17,8 +17,8 @@ type CanPerformAction = {
   provider: EIP1193Provider;
 };
 
-export const canPerformAction = (arg: {
-  account: UseAccountReturnType<Config>;
+export const canPerformAction = <config extends Config = Config>(arg: {
+  account: UseAccountReturnType<config>;
   provider: EIP1193Provider | undefined;
 }): arg is CanPerformAction =>
   Boolean(
