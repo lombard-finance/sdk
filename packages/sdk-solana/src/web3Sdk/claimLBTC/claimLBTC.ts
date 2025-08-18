@@ -1,6 +1,6 @@
 import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
-import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { MintPayload } from '../../common/mintPayload';
 import { getConfig, networkToEnv } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';

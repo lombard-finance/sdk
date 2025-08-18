@@ -1,6 +1,6 @@
 import { Program } from '@coral-xyz/anchor';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { ISolanaWalletProvider } from 'types';
+import { ISolanaWalletProvider } from '../../../types';
 import { Lbtc } from '../../../idl/lbtc';
 import { sendAndConfirmTransaction } from '../../../utils';
 import { parseSignaturesFromProof } from './signatureUtils';
