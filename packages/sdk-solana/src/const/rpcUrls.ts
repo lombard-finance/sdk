@@ -5,7 +5,7 @@ import { SolanaNetwork } from '../types/network';
 export const BFF_BASE_URL_PROD =
   'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
 export const BFF_BASE_URL_STAGE =
-  'https://bff.stage.lombard-fi.com/multi-rpc/proxy';
+  'http://localhost:8001/multi-rpc/proxy';
 export const BFF_WS_URL_PROD = 'wss://bff.prod.lombard-fi.com/multi-rpc/proxy';
 export const BFF_WS_URL_STAGE =
   'wss://bff.stage.lombard-fi.com/multi-rpc/proxy';
