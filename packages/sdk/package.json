@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "3.6.10",
+  "version": "3.6.11",
   "dependencies": {
     "@lombard.finance/btc-deposit-addresses": "^1.0.0",
     "@lombard.finance/sdk-common": "^3.0.0",
@@ -44,7 +44,8 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "CHANGELOG.md"
   ],
   "license": "MIT",
   "peerDependencies": {

@@ -1,3 +1,7 @@
+# 3.6.11
+
+* Add CHANGELOG.md to published package.
+
 # 3.6.10
 
 * `Token.BTCK` is now an alias of `Token.NativeLBTC` (recommended).
