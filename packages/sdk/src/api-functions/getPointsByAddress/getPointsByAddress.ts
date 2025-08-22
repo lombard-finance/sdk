@@ -146,19 +146,9 @@ export async function getPointsByAddress({
   const referralPoints = parse(lombardPointsData.referee_points).plus(
     parse(lombardPointsData.referrals_points),
   );
-
   const badgesPoints = parse(lombardPointsData.badges);
-
-  const totalWithoutBadgesPoints = BigNumber.sum.apply(null, [
-    holdingPoints,
-    protocolPoints,
-    referralPoints,
-    okxPoints,
-    flashEvent1Points,
-    flashEvent2Points,
-  ]);
-
-  const totalPoints = totalWithoutBadgesPoints.plus(badgesPoints);
+  const totalWithoutBadgesPoints = parse(lombardPointsData.total_without_badges);
+  const totalPoints = parse(lombardPointsData.total);
 
   const protocolPointsBreakdown = Object.entries(
     lombardPointsData.protocol_points_map || {},
