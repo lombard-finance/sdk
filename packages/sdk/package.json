@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "3.6.12",
+  "version": "3.6.13",
   "dependencies": {
     "@lombard.finance/btc-deposit-addresses": "^1.0.0",
     "@lombard.finance/sdk-common": "^3.0.0",
@@ -42,11 +42,7 @@
     "./clients/*": "./src/clients/*.ts",
     "./utils/*": "./src/utils/*.ts"
   },
-  "files": [
-    "dist",
-    "src",
-    "CHANGELOG.md"
-  ],
+  "files": ["dist", "src", "CHANGELOG.md"],
   "license": "MIT",
   "peerDependencies": {
     "@layerzerolabs/lz-v2-utilities": "3.0.17",
