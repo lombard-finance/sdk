@@ -42,7 +42,11 @@
     "./clients/*": "./src/clients/*.ts",
     "./utils/*": "./src/utils/*.ts"
   },
-  "files": ["dist", "src", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "src",
+    "CHANGELOG.md"
+  ],
   "license": "MIT",
   "peerDependencies": {
     "@layerzerolabs/lz-v2-utilities": "3.0.17",
