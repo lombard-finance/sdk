@@ -24,6 +24,16 @@ export function getSolanaWalletProvider<T extends InjectedWallet>(
         walletProvider = WINDOW.phantom?.solana;
         break;
       }
+
+      case InjectedWallet.BACKPACK: {
+        walletProvider = WINDOW.backpack?.solana;
+        break;
+      }
+
+      case InjectedWallet.SOLFLARE: {
+        walletProvider = WINDOW.solflare;
+        break;
+      }
     }
   }
 
