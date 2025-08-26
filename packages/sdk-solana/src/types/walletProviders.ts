@@ -4,6 +4,8 @@ export enum InjectedWallet {
   PHANTOM = 'phantom',
   OKX = 'okx',
   COINBASE = 'coinbase',
+  BACKPACK = 'backpack',
+  SOLFLARE = 'solflare',
 }
 
 /**
@@ -76,6 +78,20 @@ export interface CoinbaseWalletProvider extends ISolanaWalletProvider {
   isCoinbaseWallet?: boolean;
 }
 
+/**
+ * Interface for Backpack wallet provider
+ */
+export interface BackpackWalletProvider extends ISolanaWalletProvider {
+  isBackpack?: boolean;
+}
+
+/**
+ * Interface for Solflare wallet provider
+ */
+export interface SolflareWalletProvider extends ISolanaWalletProvider {
+  isSolflare?: boolean;
+}
+
 export type SolanaWalletProvider<T extends InjectedWallet> =
   T extends InjectedWallet.COINBASE
     ? CoinbaseWalletProvider
@@ -83,6 +99,10 @@ export type SolanaWalletProvider<T extends InjectedWallet> =
       ? OkxWalletProvider
       : T extends InjectedWallet.PHANTOM
         ? PhantomWalletProvider
+        : T extends InjectedWallet.BACKPACK
+          ? BackpackWalletProvider
+        : T extends InjectedWallet.SOLFLARE
+          ? SolflareWalletProvider
         : undefined;
 
 export interface WindowWithSolanaInjectedWallets extends Window {
@@ -94,4 +114,10 @@ export interface WindowWithSolanaInjectedWallets extends Window {
 
   /** The injected COINBASE wallet with Solana support */
   coinbaseSolana?: CoinbaseWalletProvider;
+
+  /** The injected BACKPACK wallet with Solana support */
+  backpack?: { solana?: BackpackWalletProvider };
+
+  /** The injected SOLFLARE wallet with Solana support */
+  solflare?: SolflareWalletProvider;
 }
