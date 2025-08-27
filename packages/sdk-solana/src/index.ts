@@ -9,6 +9,7 @@ export * from './const/rpcUrls';
 
 // Export utility functions
 export { getLBTCProgramAddress } from './utils/getLBTCProgramAddress';
+export { parseOFTRecipient } from './utils/bridgeUtils';
 
 // Web3 SDK functions
 export * from './web3Sdk';
