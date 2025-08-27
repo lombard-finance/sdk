@@ -157,19 +157,38 @@ const expectedLBTCAmount = BigNumber(amountToBeDeposited).minus(fee);
 ```
 The fee amount will be deducted from the claimed LBTC automatically.
 
-#### 3.2. Sign the stake and bake signature.
+#### 3.2. Sign the stake and bake signature
 
 ```javascript
 const { signature, typedData } = await signStakeAndBake({
-  account, // The connected account address,
-  expiry, // The optional expiration unix timestamp. This parameter can be omitted, it default to 24h from now. We recommend to set this to at least 8h from now.
-  value, // The amount of BTC (in satoshis)
-  vaultKey: Vault.Veda, // The vault identifier, currently only "veda" is accepted.
-  chainId, // The chain id.
-  provider, // The EIP-1193 provider.
-  rpcUrl, // The optional RPC url.
+  account,   // The connected account address.
+  expiry,    // Optional expiration timestamp (unix). Defaults to 24h from now. Recommended: at least 8h from now.
+  value,     // The amount of the token (see `token` param).
+  token,     // The token to sign with. Defaults to "BTC": the value is converted to LBTC using the current ratio. 
+             // If "LBTC" is chosen, no conversion is applied.
+  vaultKey: Vault.Veda, // The vault identifier. Currently only "veda" is accepted.
+  chainId,   // The chain ID.
+  provider,  // The EIP-1193 provider.
+  rpcUrl,    // Optional RPC URL.
 })
 ```
+
+| Param      | Type                | Required | Description                                                                                                                                                                      |
+| ---------- | ------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `account`  | `string`            | ✅        | The connected account address.                                                                                                                                                   |
+| `expiry`   | `number`            | ❌        | Optional expiration time (Unix timestamp). Defaults to 24h from now. Recommended: set at least 8h from now.                                                                      |
+| `value`    | `string`/`number`   | ✅        | The token amount (interpreted based on the `token` param).                                                                                                                       |
+| `token`    | `"BTC"` \| `"LBTC"` | ❌        | The token to sign with. Defaults to `"BTC"`. If `"BTC"`, the amount is converted to LBTC using the current exchange ratio. If `"LBTC"`, the value is used as-is (no conversion). |
+| `vaultKey` | `Vault`             | ❌        | The vault identifier. Currently only `"veda"` is accepted.                                                                                                                       |
+| `chainId`  | `number`            | ✅        | The target chain ID.                                                                                                                                                             |
+| `provider` | `EIP-1193 provider` | ✅        | The connected Web3 provider.                                                                                                                                                     |
+| `rpcUrl`   | `string`            | ❌        | Optional RPC URL override.                                                                                                                                                       |
+
+
+**Note:**
+- If token is `"BTC"`, the function automatically converts the value to the corresponding **LBTC** amount using the current exchange ratio.
+- If token is `"LBTC"`, the value is used as-is (no conversion).
+
 
 #### 3.3. Store the signature to the Lombard's systems.
 

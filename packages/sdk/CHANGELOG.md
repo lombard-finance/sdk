@@ -1,3 +1,13 @@
+# 3.6.13
+
+* added new `token` parameter to the `signStakeAndBake` function,
+* by default, `token` is set to `"BTC"`, and the value is automatically converted to LBTC using the current exchange ratio,
+* if `token` is explicitly set to `"LBTC"`, the value is used as-is (no conversion).
+
+# 3.6.12
+
+* total points earned by address are taken from the API and not calculated any more.
+
 # 3.6.11
 
 * Add CHANGELOG.md to published package.

@@ -10,11 +10,15 @@ import {
   isVedaVaultStakeAndBakeChain,
 } from '../../vaults/lib/config';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
+import { getExchangeRatio } from '../../api-functions/getLBTCExchangeRate/get-exchange-ratio';
+import { Env } from '@lombard.finance/sdk-common';
+
+export type StakeAndBakeToken = Token.LBTC | 'BTC';
 
 export interface ISignStakeAndBakeParams extends CommonWriteParameters {
   /**
-   * The approved value that will be automatically claimed and deposited
-   * to the chosen vault.
+   * The approved BTC value that will be automatically claimed and deposited
+   * to the chosen vault. The function will internally calculate the correct LBTC amount using the current ratio.
    */
   value: BigNumber.Value;
   /**
@@ -26,6 +30,13 @@ export interface ISignStakeAndBakeParams extends CommonWriteParameters {
    * The chosen DeFi vault to which the funds will be deposited.
    */
   vaultKey?: Vault;
+  /**
+   * The token for which the signature is generated.
+   * - Defaults to **BTC**: the amount will be converted to the corresponding
+   *   **LBTC** value based on the current ratio.
+   * - If **LBTC** is chosen: no conversion is performed.
+   */
+  token?: StakeAndBakeToken;
 }
 
 export interface ISignStakeAndBakeResult {
@@ -41,14 +52,14 @@ export interface ISignStakeAndBakeResult {
 
 /**
  * Signs the "stake and bake" signature that allows Lombard to claim specified
- * amount of BTC (LBTC) and deposit that amount directly to the specified DeFi
+ * amount of BTC (converted to LBTC using current ratio) and deposit that amount directly to the specified DeFi
  * vault.
  *
  * In order for the "stake and bake" process to work a user has to store the
  * signature to the Lombard's system, see: `storeStakeAndBakeSignature`
  *
  * @param {ISignStakeAndBakeParams} parameters - The parameters.
- * @param {BigNumber.Value} parameters.value - The amount of BTC that's going to be claimed and deposited to the DeFi vault.
+ * @param {BigNumber.Value} parameters.value - The amount of BTC that will be converted to LBTC using current ratio and deposited to the DeFi vault.
  * @param {number} parameters.expiry = The optional expiration UNIX time of the signature.
  * @param {Vault} parameters.vaultKey - The optional DeFi vault identifier.
  * @param {Address} parameters.account - The EVM account address.
@@ -63,6 +74,7 @@ export async function signStakeAndBake({
   expiry = toUnix(now() + DAY),
   value,
   vaultKey = Vault.Veda,
+  token = 'BTC',
   chainId,
   provider,
   rpcUrl,
@@ -79,6 +91,10 @@ export async function signStakeAndBake({
     );
   }
 
+  const lbtcAmount =
+    !token || token === 'BTC'
+      ? await calculateStakeAndBakeLBTCAmount(value, env)
+      : BigNumber(value);
   const lbtcContract = await getTokenContractInfo(Token.LBTC, chainId, env);
   const walletClient = makeWalletClient({ chainId, provider });
   const spenderContract = vault.spenderContracts[chainId];
@@ -128,7 +144,7 @@ export async function signStakeAndBake({
     message: {
       owner: account,
       spender: spenderContract.address,
-      value: BigInt(BigNumber(value).toFixed()),
+      value: BigInt(lbtcAmount.toFixed(0, BigNumber.ROUND_DOWN)),
       nonce: BigInt(nonce),
       deadline: BigInt(expiry),
     },
@@ -142,4 +158,27 @@ export async function signStakeAndBake({
       typeof v === 'bigint' ? v.toString() : v,
     ),
   };
+}
+
+/**
+ * Helper function to calculate the correct LBTC amount for stake and bake
+ * based on the current BTC to LBTC ratio.
+ *
+ * @param btcAmount - The original BTC amount entered by the user
+ * @param env - The environment for fetching the exchange ratio
+ * @returns The calculated LBTC amount that should be used in the permit signature
+ */
+export async function calculateStakeAndBakeLBTCAmount(
+  btcAmount: BigNumber.Value,
+  env?: Env,
+): Promise<BigNumber> {
+  try {
+    const ratios = await getExchangeRatio({ env });
+    const btcTokenRatio = ratios.LBTC?.BTCTokenRatio || new BigNumber(1);
+    const lbtcAmount = new BigNumber(btcAmount).dividedBy(btcTokenRatio);
+
+    return lbtcAmount;
+  } catch (error) {
+    throw new Error('Failed to get exchange ratio for stake and bake');
+  }
 }

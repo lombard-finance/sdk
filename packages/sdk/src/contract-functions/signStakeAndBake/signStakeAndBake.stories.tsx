@@ -13,14 +13,23 @@ import {
 import useQuery from '../../stories/hooks/useQuery';
 import { DAY, now, toUnix } from '../../utils/time';
 import { ISignStakeAndBakeParams, signStakeAndBake } from './signStakeAndBake';
-
-const { name } = signStakeAndBake;
+import { Token } from '../../tokens/token-addresses';
 
 const meta = {
   title: 'write/signStakeAndBake',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
+  argTypes: {
+    token: {
+      mappping: {
+        BTC: 'BTC',
+        [Token.LBTC]: 'LBTC',
+      },
+      options: ['BTC', Token.LBTC],
+      control: { type: 'select' },
+    },
+  },
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -31,6 +40,7 @@ export const WithParams: Story = {
   args: {
     value: '20000',
     expiry: toUnix(now() + DAY),
+    token: 'BTC',
   },
 };
 
@@ -51,6 +61,7 @@ export function StoryView(props: SignStakeAndBakeParams) {
     return signStakeAndBake({
       value: props.value,
       expiry: props.expiry,
+      token: props.token,
 
       account: connection.account.address,
       chainId: connection.account.chainId,
@@ -64,8 +75,13 @@ export function StoryView(props: SignStakeAndBakeParams) {
     <>
       <p>
         This function generates a signature that allows Lombard to claim
-        specified amount of BTC deposited to the personal account and deposit
-        that amount automatically to the DeFi vault.
+        specified amount of BTC and deposit the equivalent LBTC amount
+        (calculated using current ratio) automatically to the DeFi vault.
+      </p>
+      <p>
+        <strong>Note:</strong> You should pass the original BTC amount directly.
+        The function automatically calculates the correct LBTC amount using the
+        current exchange ratio.
       </p>
 
       <div className="mb-4">
