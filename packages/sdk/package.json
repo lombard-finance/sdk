@@ -1,8 +1,7 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "3.6.13",
+  "version": "3.6.14",
   "dependencies": {
-    "@lombard.finance/btc-deposit-addresses": "^1.0.0",
     "@lombard.finance/sdk-common": "^3.0.0",
     "isows": "^1.0.7",
     "viem": "^2.23.15",
