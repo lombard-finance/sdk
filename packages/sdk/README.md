@@ -455,11 +455,11 @@ The function returns the object of shape:
      */
     protocolPointsBreakdown: IProtocolPointsBreakdown;
     /**
-     * The amount of LUX points earned from badges.
+     * The amount of Lux points earned from badges.
      */
     badgesPoints: number;
     /**
-     * The total amount of LUX points (without badges points).
+     * The total amount of Lux points (without badges points).
      */
     totalWithoutBadgesPoints: number;
   }

@@ -94,13 +94,6 @@ export function StoryView({
 
   const error = fetchError || connectError;
 
-  console.log({
-    isLoading,
-    isConnected,
-    balanceResult,
-    connectionData,
-  });
-
   return (
     <>
       <ConnectButton
