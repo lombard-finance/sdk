@@ -1,4 +1,4 @@
-import { defineChain, extractChain, type EIP1193Provider } from 'viem';
+import { type EIP1193Provider, defineChain, extractChain } from 'viem';
 import { addChain as viem_addChain } from 'viem/actions';
 import * as viem_chains from 'viem/chains';
 import { makeWalletClient } from '../clients/wallet-client';
@@ -93,6 +93,46 @@ export const tac = defineChain({
     default: { name: 'TAC Explorer', url: 'https://explorer.tac.build' },
   },
 });
+
+export const bob = defineChain({
+  id: 60808,
+  name: 'BOB',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ether',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.gobob.xyz'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'BOB Explorer', url: 'https://explorer.gobob.xyz' },
+  },
+});
+
+export const bobSepolia = defineChain({
+  id: 808813,
+  name: 'BOB Sepolia',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ether',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://bob-sepolia.rpc.gobob.xyz'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'BOB Sepolia Explorer',
+      url: 'https://bob-sepolia.explorer.gobob.xyz/',
+    },
+  },
+});
+
 export const allChains: Record<string, viem_chains.Chain> = {
   ...viem_chains,
   katana,
@@ -153,6 +193,7 @@ export const ChainId = {
   sonic: 146,
   swell: 1923,
   tac: 239,
+  bob: 60808,
   // Testnets:
   baseSepoliaTestnet: 84532,
   berachainBartioTestnet: 80084,
@@ -178,6 +219,7 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.sonic]: sonic,
   [ChainId.swell]: swellchain,
   [ChainId.tac]: tac,
+  [ChainId.bob]: bob,
   // Testnets:
   [ChainId.baseSepoliaTestnet]: baseSepolia,
   [ChainId.berachainBartioTestnet]: berachainTestnetbArtio,

@@ -1,3 +1,7 @@
+# 3.6.14
+
+* fixed the issue with unused and unpublished dependencies.
+
 # 3.6.13
 
 * added new `token` parameter to the `signStakeAndBake` function,

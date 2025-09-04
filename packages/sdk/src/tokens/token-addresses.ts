@@ -5,9 +5,9 @@ import {
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
   SOLANA_TESTNET_CHAIN,
-  SolanaChain,
   SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
+  SolanaChain,
   SuiChain,
 } from '../common/chains';
 
@@ -84,6 +84,7 @@ export const TOKEN_ADDRESSES: TokenAddresses<ChainId> = {
       [ChainId.sonic]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.swell]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
       [ChainId.tac]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+      [ChainId.bob]: '0xA45d4121b3D47719FF57a947A9d961539Ba33204',
     },
     [Env.stage]: {
       [ChainId.baseSepoliaTestnet]:
