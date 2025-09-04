@@ -66,6 +66,7 @@ export function StoryView(props: SignStakeAndBakeParams) {
       account: connection.account.address,
       chainId: connection.account.chainId,
       provider: connection.provider,
+      env: 'stage'
     });
   };
 
