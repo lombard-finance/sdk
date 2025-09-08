@@ -59,32 +59,19 @@ export interface IPointsByAddress {
 }
 
 interface IPointsResponse {
-  holding_points?: number;
-  protocol_points?: number;
-  referee_points?: number;
-  referrals_points?: number;
-  total?: number;
+  holding_points: number;
+  protocol_points: number;
+  referee_points: number;
+  referrals_points: number;
+  total: number;
+  flash_event: number;
+  badges: number;
+  total_without_badges: number;
+  okx_campaign: number;
+  flash_event2: number;
+  etherfi_points: number;
+  sale_points: number;
   protocol_points_map?: IProtocolPointsBreakdown;
-  badges?: number;
-  total_without_badges?: number;
-}
-
-interface IOkxPointsResponse {
-  data: boolean;
-  points?: string | number;
-}
-
-interface IFlashEventPointsResponse {
-  flashEvent1Points?: {
-    result?: {
-      rows?: { points?: string }[]; // take first entry
-    };
-  };
-  flashEvent2Points?: {
-    result?: {
-      rows?: { totalPoints?: string }[]; // take first entry
-    };
-  };
 }
 
 /**
@@ -114,40 +101,22 @@ export async function getPointsByAddress({
    * Change this once it is implemented on the backend.
    */
 
-  const okxPointsUrl = `${baseApiUrl}/api/v1/task/okx/user-task-verification?address=${address}&chain=1`;
-  const flashEventsPointsUrl = `${bffApiUrl}/sentio-api/flash-event-points/${address}`;
-
   const lombardPointsRequest = axios.get<IPointsResponse>(lombardPointsUrl);
-  const okxPointsRequest = axios.get<IOkxPointsResponse>(okxPointsUrl);
-  const flashEventPointsRequest =
-    axios.get<IFlashEventPointsResponse>(flashEventsPointsUrl);
 
-  const [
-    { data: lombardPointsData },
-    { data: okxPointsData },
-    { data: flashEventPointsData },
-  ] = await Promise.all([
-    lombardPointsRequest,
-    okxPointsRequest,
-    flashEventPointsRequest,
-  ]);
+  const { data: lombardPointsData } = await lombardPointsRequest;
 
-  const okxPoints = parse(okxPointsData?.points);
-
-  const flashEvent1Points = parse(
-    flashEventPointsData?.flashEvent1Points?.result?.rows?.[0]?.points,
-  );
-  const flashEvent2Points = parse(
-    flashEventPointsData?.flashEvent2Points?.result?.rows?.[0]?.totalPoints,
-  );
-
+  const okxPoints = parse(lombardPointsData.okx_campaign);
+  const flashEvent1Points = parse(lombardPointsData.flash_event);
+  const flashEvent2Points = parse(lombardPointsData.flash_event2);
   const holdingPoints = parse(lombardPointsData.holding_points);
   const protocolPoints = parse(lombardPointsData.protocol_points);
   const referralPoints = parse(lombardPointsData.referee_points).plus(
     parse(lombardPointsData.referrals_points),
   );
   const badgesPoints = parse(lombardPointsData.badges);
-  const totalWithoutBadgesPoints = parse(lombardPointsData.total_without_badges);
+  const totalWithoutBadgesPoints = parse(
+    lombardPointsData.total_without_badges,
+  );
   const totalPoints = parse(lombardPointsData.total);
 
   const protocolPointsBreakdown = Object.entries(
