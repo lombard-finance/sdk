@@ -103,6 +103,7 @@ export async function signStakeAndBake({
     owner: account,
     chainId,
     rpcUrl,
+    env,
   });
 
   const typedData: Parameters<typeof walletClient.signTypedData>[0] = {

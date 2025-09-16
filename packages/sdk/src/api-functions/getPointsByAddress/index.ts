@@ -2,5 +2,7 @@ export {
   getPointsByAddress,
   type IGetPointsByAddressParameters,
   type IPointsByAddress,
-  type IProtocolPointsBreakdown,
+  type IPointsByAddressSeason2,
+  type IProtocolPointsBreakdown
 } from './getPointsByAddress';
+
