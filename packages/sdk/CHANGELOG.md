@@ -1,3 +1,36 @@
+# 3.6.18
+
+* removed deprecated rewards (BABY) logic,
+* introduced `IPointsBase` interface to capture **common fields** shared across all seasons.
+* added `IPointsByAddressSeason1` interface for Season 1 specific points:
+  * `okxPoints`
+  * `flashEvent1Points`
+  * `flashEvent2Points`
+* added `IPointsByAddressSeason2` interface for Season 2 specific points:
+  * `refereePoints`
+  * `checkinPoints`
+* made `totalWithoutBadgesPoints` optional in the base interface but required in Season 1.
+* `getPointsByAddress` function now accepts a `season` parameter (`1 | 2`) and returns the correct typed object based on season.
+* added convenience wrappers:
+  * `getLuxSeason1Points()` → returns `IPointsByAddressSeason1`
+  * `getLuxSeason2Points()` → returns `IPointsByAddressSeason2`
+* improved type safety to prevent access to season-specific fields incorrectly.
+* default season is now 2 when no `season` is provided.
+* updated README.md.
+
+# 3.6.17
+
+* added support for season 2 points - added `season` parameter to the `getPoinstByAddress`.
+
+# 3.6.16
+
+* season 1 points API changes (removed campaign requests, now part of the same API).
+
+# 3.6.15
+
+* added `bob` chain,
+* added token contract address on `bob`.
+
 # 3.6.14
 
 * fixed the issue with unused and unpublished dependencies.
