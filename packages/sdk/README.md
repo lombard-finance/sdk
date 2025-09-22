@@ -35,66 +35,61 @@ npm i --save @lombard.finance/sdk
 
 All functions are documented with JSDoc comments. You can use your IDE's autocomplete feature to see the available methods and their parameters.
 
-### 1. Depositing BTC in order to get LBTC (aka staking).
+### 1. Depositing BTC in order to get LBTC (aka staking)
 
-You can read more about LBTC here: https://docs.lombard.finance/lbtc-liquid-bitcoin/introduction-to-lbtc
+You can read more about LBTC here: [Introduction to LBTC](https://docs.lombard.finance/lbtc-liquid-bitcoin/introduction-to-lbtc)
 
-If you'd wish to stake your BTC and get LBTC follow the below steps:
+If you'd like to stake your BTC and get LBTC, follow the steps below.
 
-#### 1.1 Get the current minting fee.
+#### 1.1. Generate the BTC deposit address
 
-```javascript
-const fee = await getLBTCMintingFee({ chainId: ChainId.ethereum }); // The fee represented in satoshis (BigNumber)
-```
+Use `signLbtcDestinationAddr` to generate a signature for the destination address and generate the deposit address:
 
-#### 1.2. Sign the network fee signature.
-
-```javascript
-const expiry = Math.round((Date.now() + 24 * 60 * 60 * 1000) / 1000);
-const { signature, typedData } = await signNetworkFee({
-  fee, // The fee from step 1
-  expiry, // The optional expiration unix timestamp. This parameter can be omitted, it default to 24h from now. We recommend to set this to at least 8h from now.
-  account, // The destination account address from the connected wallet.
-  chainId: ChainId.ethereum // The destination chain id.
-  provider, // The EIP-1193 provider, e.g. the injected provider: window.ethereum
+```ts
+const signature = await signLbtcDestinationAddr({
+  account,
+  chainId: ChainId.ethereum,
+  provider,
 });
-```
 
-#### 1.3. Store the signature to the Lombard's systems.
-
-```javascript
-await storeNetworkFeeSignature({ signature, typedData, address }); // Pass the signature and typed data from step 2.
-```
-
-It is recommended to verify that the signature has been stored. Please use `getNetworkFeeSignature`.
-
-```javascript
-const { expirationData, hasSignature, isDelayed } = await getNetworkFeeSignature({ address, chainId });
-```
-
-`isDelayed` is a flag determining whether the execution of auto-claimer using the stored signature is delayed due to the higher gas costs.
-
-#### 1.4. Get or generate the BTC deposit address.
-
-```javascript
 let depositBtcAddress = await getDepositBtcAddress({ address, chainId });
 if (!depositBtcAddress) {
-  depositBtcAddress = await generateDepositBtcAddress({ 
+  depositBtcAddress = await generateDepositBtcAddress({
     address,
     chainId,
-    signature, // Pass here the signature from step 2.
-    eip712Data: typedData // Pass here the typed data from step 2.
+    signature,
+    partnerId: "YOUR_PARTNER_ID",
   });
 }
 ```
 
-#### 1.5. Deposit BTC to the address.
+#### 1.2. Check and store the network fee (if fee > 0)
 
-Now you can deposit your BTC to the generated in the previous step BTC address.
-The funds will be claimed automatically by Lombard's claimer and transferred to
-the account (`address`).
+If the network fee is greater than 0, sign the fee and store the signature so the funds can be auto-minted:
 
-#### 1.6. Check the status of your deposit.
+```ts
+const fee = await getLBTCMintingFee({ chainId: ChainId.ethereum }); // Fee in satoshis (BigNumber)
+
+if (fee.gt(0)) {
+  const expiry = Math.round((Date.now() + 24 * 60 * 60 * 1000) / 1000);
+  const { signature, typedData } = await signNetworkFee({
+    fee,
+    expiry,
+    account,
+    chainId: ChainId.ethereum,
+    provider,
+  });
+
+  await storeNetworkFeeSignature({ signature, typedData, address });
+}
+```
+
+#### 1.3. Deposit BTC to the address
+
+Deposit your BTC to the generated address. Funds will be claimed automatically by Lombard’s claimer and credited to your account (`address`).
+
+
+#### 1.4. Check the status of your deposit.
 
 If you'd like to check the status of your deposit use `getDepositsByAddress` function.
 
@@ -120,6 +115,8 @@ Every entry in the result of the above function may consist of the following pro
 * `notarizationStatus` - the notarization status of the deposit (pending, submitted, approved or failed),
 * `sessionState` - the state of the session (pending, completed, expired)
 
+---
+
 ### 2. Manually claiming LBTC.
 
 In case when a user deposited BTC to the BTC deposit address but the transaction has not been claimed automatically (due to expired signature or any other issue), you may want to claim LBTC manually as in the example below:
@@ -136,6 +133,8 @@ const txHash = await claimLBTC({
 ```
 
 The successful execution of the above will result with the transaction id.
+
+---
 
 ### 3. Depositing BTC and automatically staking LBTC into the DeFi vault
 
@@ -248,6 +247,8 @@ The above code results with:
 * `exchangeRate` - The current LBTCv to LBTC exchange rate,
 * `balanceLbtc` - The value of the owned shares is LBTC.
 
+---
+
 ### 4. Unstaking LBTC and getting BTC back.
 
 Every LBTC is redeemable back to BTC, you can do that programmatically by following the steps:
@@ -285,6 +286,8 @@ Every entry in the result of the above may consist of:
 * `payoutTxIndex` - The index of the actual payout transfer,
 * `payoutTxStatus` - The status of the payout, available values: `PayoutTxStatus.Completed` or `PayoutTxStatus.Pending`,
 * `sanctioned` - A flag indicating whether the unstake transaction has been sanctioned and flagged as suspicious.
+
+---
 
 ### 5. Depositing LBTC to the DeFi vault.
 
@@ -341,6 +344,8 @@ The above function returns the:
 * `balance` - balance of LBTCv,
 * `exchangeRate` - the current exchange rate between LBTCv and LBTC,
 * `balanceLbtc` - the value of LBTCv represented in LBTC.
+
+---
 
 ### 6. Withdrawing LBTC from the DeFi vault.
 
@@ -411,59 +416,90 @@ const txHash = await cancelWithdraw({
 });
 ```
 
-### 7. Getting the points earned by an address.
+---
 
-If you'd like to check the amount of Lux points earned by an address then simply run the following function:
+### 7. Getting the points earned by an address
 
-```javascript
-const points = await getPointsByAddress({ address: "0x...YOUR_ADDRESS" })
+You can check the amount of Lux points earned by an address with:
+
+```ts
+import { getPointsByAddress } from "@lombard.finance/sdk";
+
+// Fetch **current season** points (defaults to Season 2)
+const points = await getPointsByAddress({ address: "0x...YOUR_ADDRESS" });
 ```
 
-The function returns the object of shape:
-```typescript
-  {
-    /**
-     * The number of points earned by holding LBTC.
-     */
-    holdingPoints: number;
-    /**
-     * The number of points earned by taking positions in DeFi vaults.
-     */
-    protocolPoints: number;
-    /**
-     * The number of points earned by your referrals.
-     */
-    referralPoints: number;
-    /**
-     * The number of points earned in the OKX campaign.
-     */
-    okxPoints: number;
-    /**
-     * The number of points earned by participating in the first flash event.
-     */
-    flashEvent1Points: number;
-    /**
-     * The number of points earned by participating in the second flash event.
-     */
-    flashEvent2Points: number;
-    /**
-     * The total number of points.
-     */
-    totalPoints: number;
-    /**
-     * The breakdown of points earned from each protocol.
-     */
-    protocolPointsBreakdown: IProtocolPointsBreakdown;
-    /**
-     * The amount of Lux points earned from badges.
-     */
-    badgesPoints: number;
-    /**
-     * The total amount of Lux points (without badges points).
-     */
-    totalWithoutBadgesPoints: number;
-  }
+> 💡 **Tip:** If you already know which season you need,
+> you can use the **season-specific wrappers** for cleaner, type-safe results:
+>
+> ```ts
+> import { getLuxSeason1Points, getLuxSeason2Points } from "@lombard.finance/sdk";
+>
+> const s1 = await getLuxSeason1Points({ address: "0x...YOUR_ADDRESS" }); // Season 1 only
+> const s2 = await getLuxSeason2Points({ address: "0x...YOUR_ADDRESS" }); // Season 2 only
+> ```
+
+#### Returned Object
+
+The shape of the returned object depends on the **season**:
+
+##### **Season 1**
+
+```ts
+{
+  /** Points earned by holding LBTC. */
+  holdingPoints: number;
+  /** Points earned by taking positions in DeFi vaults. */
+  protocolPoints: number;
+  /** Total referral points (referees + referrals). */
+  referralPoints: number;
+  /** Points earned in the OKX campaign. */
+  okxPoints: number;
+  /** Points earned in the first flash event. */
+  flashEvent1Points: number;
+  /** Points earned in the second flash event. */
+  flashEvent2Points: number;
+  /** Total points earned. */
+  totalPoints: number;
+  /** Breakdown of points earned from each protocol. */
+  protocolPointsBreakdown: IProtocolPointsBreakdown;
+  /** Lux points earned from badges. */
+  badgesPoints: number;
+  /** Total Lux points excluding badge points. */
+  totalWithoutBadgesPoints: number;
+}
 ```
+
+##### **Season 2**
+
+```ts
+{
+  /** Points earned by holding LBTC. */
+  holdingPoints: number;
+  /** Points earned by taking positions in DeFi vaults. */
+  protocolPoints: number;
+  /** Points earned from referrals. */
+  referralPoints: number;
+  /** Points earned from referees. */
+  refereePoints: number;
+  /** Points earned by checking in. */
+  checkinPoints: number;
+  /** Total points earned. */
+  totalPoints: number;
+  /** Breakdown of points earned from each protocol. */
+  protocolPointsBreakdown: IProtocolPointsBreakdown;
+  /** Lux points earned from badges. */
+  badgesPoints: number;
+  /** Total Lux points excluding badge points (same as total in Season 2). */
+  totalWithoutBadgesPoints: number;
+}
+```
+
+✅ Use `getPointsByAddress` when you want to dynamically select a season,
+or `getLuxSeason1Points` / `getLuxSeason2Points` when you want **strong typing**
+and guarantees for a specific season’s fields.
+
+---
 
 ### 8. Getting the DeFi vault points earned by an address.
 
@@ -476,6 +512,8 @@ const {
   vaultKey // The optional vault identifier.
 })
 ```
+
+---
 
 ### 9. Metrics
 
@@ -654,3 +692,5 @@ The above returns:
   A list of campaigns where BTC rewards are still pending distribution.
   * **`name`** (`string`): Name of the reward campaign.  
   * **`amount`** (`BigNumber`): Amount of BTC yet to be distributed.
+
+---

@@ -5,99 +5,73 @@ import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 
 const CURRENT_SEASON = 2;
+
+/* -------------------------------------------------------------------------- */
+/*                                   Types                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Parameters for fetching points by address.
+ */
 export interface IGetPointsByAddressParameters extends IEnvParam {
-  /**
-   * The address of the points earner.
-   */
+  /** The address of the points earner. */
   address: string;
-  /**
-   * The season of the points.
-   */
+  /** The season to fetch (defaults to CURRENT_SEASON). */
   season?: number;
 }
 
+/**
+ * Breakdown of points earned from each supported DeFi protocol.
+ */
 export interface IProtocolPointsBreakdown {
-  [protocolIdentifier: string]: number;
+  [protocolName: string]: number;
 }
 
-export interface IPointsByAddress {
-  /**
-   * The number of points earned by holding LBTC.
-   */
+/**
+ * Core points shared across all seasons.
+ */
+export interface IPointsBase {
+  /** Points earned by holding LBTC. */
   holdingPoints: number;
-  /**
-   * The number of points earned by taking positions in DeFi vaults.
-   */
+  /** Points earned by taking positions in DeFi vaults. */
   protocolPoints: number;
-  /**
-   * The number of points earned by your referrals.
-   */
+  /** Points earned from referrals. */
   referralPoints: number;
-  /**
-   * The number of points earned in the OKX campaign.
-   */
+  /** Total points earned. */
+  totalPoints: number;
+  /** Detailed breakdown of protocol-specific points. */
+  protocolPointsBreakdown: IProtocolPointsBreakdown;
+  /** Lux points earned from badges. */
+  badgesPoints: number;
+  /** Total Lux points excluding badges (only required in some seasons). */
+  totalWithoutBadgesPoints?: number;
+}
+
+/**
+ * Points specific to Season 1.
+ */
+export interface IPointsByAddressSeason1 extends IPointsBase {
+  /** Points earned in the OKX campaign. */
   okxPoints: number;
-  /**
-   * The number of points earned by participating in the first flash event.
-   */
+  /** Points earned in the first flash event. */
   flashEvent1Points: number;
-  /**
-   * The number of points earned by participating in the second flash event.
-   */
+  /** Points earned in the second flash event. */
   flashEvent2Points: number;
-  /**
-   * The total number of points.
-   */
-  totalPoints: number;
-  /**
-   * The breakdown of points earned from each protocol.
-   */
-  protocolPointsBreakdown: IProtocolPointsBreakdown;
-  /**
-   * The amount of Lux points earned from badges.
-   */
-  badgesPoints: number;
-  /**
-   * The total amount of Lux points (without badges points).
-   */
-  totalWithoutBadgesPoints: number;
 }
 
-export interface IPointsByAddressSeason2 extends IPointsByAddress {
-  /**
-   * The number of points earned by holding LBTC.
-   */
-  holdingPoints: number;
-  /**
-   * The number of points earned by taking positions in DeFi vaults.
-   */
-  protocolPoints: number;
-  /**
-   * The number of points earned by your referrals.
-   */
-  referralPoints: number;
-  /**
-   * The number of referee points.
-   */
+/**
+ * Points specific to Season 2.
+ */
+export interface IPointsByAddressSeason2 extends IPointsBase {
+  /** Points earned from referees. */
   refereePoints: number;
-  /**
-   * The total number of points.
-   */
-  totalPoints: number;
-  /**
-   * The breakdown of points earned from each protocol.
-   */
-  protocolPointsBreakdown: IProtocolPointsBreakdown;
-  /**
-   * The amount of Lux points earned from badges.
-   */
-  badgesPoints: number;
-  /**
-   * The number of points earned by checking in.
-   */
+  /** Points earned by checking in. */
   checkinPoints: number;
 }
 
+/**
+ * Raw API response format for Season 1.
+ */
 interface IPointsResponseSeason1 {
   holding_points: number;
   protocol_points: number;
@@ -109,11 +83,12 @@ interface IPointsResponseSeason1 {
   total_without_badges: number;
   okx_campaign: number;
   flash_event2: number;
-  etherfi_points: number;
-  sale_points: number;
   protocol_points_map?: IProtocolPointsBreakdown;
 }
 
+/**
+ * Raw API response format for Season 2.
+ */
 interface IPointsResponseSeason2 {
   holding_points: number;
   protocol_points: number;
@@ -125,111 +100,17 @@ interface IPointsResponseSeason2 {
   checkin_points: number;
 }
 
-const getLombardPointsUrl = (season: number, address: string, env: Env = DEFAULT_ENV) => {
-  const { baseApiUrl } = getApiConfig(env);
-  if (!baseApiUrl) {
-    throw new Error(
-      `Could not determine the API endpoint for the provided environment: ${env || DEFAULT_ENV}`,
-    );
-  }
-  if (season === 1) {
-    return `${baseApiUrl}/api/v1/referral-system/season-1/points/${address}`;
-  }
-  
-  if (season === 2) {
-    return `${baseApiUrl}/api/v1/referral-system/season-2/points/${address}`;
-  } 
-    
-  throw new Error(`Invalid lux season: ${season}`);
-};
+/* -------------------------------------------------------------------------- */
+/*                                  Helpers                                   */
+/* -------------------------------------------------------------------------- */
 
 /**
- * Fetches Season 1 points data
+ * Parses a number-like input into a BigNumber.
+ *
+ * @param input - The value to parse.
+ * @param defaultValue - Value to use if input is invalid or undefined.
+ * @returns A BigNumber representing the parsed value.
  */
-async function fetchPointsSeason1({
-  address,
-  env,
-}: Omit<IGetPointsByAddressParameters, 'season'>): Promise<IPointsByAddress> {
-  const lombardPointsUrl = getLombardPointsUrl(1, address, env);
-  const lombardPointsRequest = axios.get<IPointsResponseSeason1>(lombardPointsUrl);
-  const { data: lombardPointsData } = await lombardPointsRequest;
-
-  const okxPoints = parse(lombardPointsData.okx_campaign);
-  const flashEvent1Points = parse(lombardPointsData.flash_event);
-  const flashEvent2Points = parse(lombardPointsData.flash_event2);
-  const holdingPoints = parse(lombardPointsData.holding_points);
-  const protocolPoints = parse(lombardPointsData.protocol_points);
-  const referralPoints = parse(lombardPointsData.referee_points).plus(
-    parse(lombardPointsData.referrals_points),
-  );
-  const badgesPoints = parse(lombardPointsData.badges);
-  const totalWithoutBadgesPoints = parse(lombardPointsData.total_without_badges);
-  const totalPoints = parse(lombardPointsData.total);
-
-  const protocolPointsBreakdown = Object.entries(
-    lombardPointsData.protocol_points_map || {},
-  ).reduce((acc, [k, v]) => {
-    acc[k] = parse(v).toNumber();
-    return acc;
-  }, {} as IProtocolPointsBreakdown);
-
-  return {
-    holdingPoints: holdingPoints.toNumber(),
-    protocolPoints: protocolPoints.toNumber(),
-    referralPoints: referralPoints.toNumber(),
-    okxPoints: okxPoints.toNumber(),
-    flashEvent1Points: flashEvent1Points.toNumber(),
-    flashEvent2Points: flashEvent2Points.toNumber(),
-    totalPoints: totalPoints.toNumber(),
-    protocolPointsBreakdown,
-    badgesPoints: badgesPoints.toNumber(),
-    totalWithoutBadgesPoints: totalWithoutBadgesPoints.toNumber(),
-  };
-}
-
-/**
- * Fetches Season 2 points data
- */
-async function fetchPointsSeason2({
-  address,
-  env,
-}: Omit<IGetPointsByAddressParameters, 'season'>): Promise<IPointsByAddressSeason2> {
-  const lombardPointsUrl = getLombardPointsUrl(2, address, env);
-  const lombardPointsRequest = axios.get<IPointsResponseSeason2>(lombardPointsUrl);
-  const { data: lombardPointsData } = await lombardPointsRequest;
-
-  const holdingPoints = parse(lombardPointsData.holding_points);
-  const protocolPoints = parse(lombardPointsData.protocol_points);
-  const refereePoints = parse(lombardPointsData.referee_points);
-  const referralPoints = parse(lombardPointsData.referrals_points);
-  const badgePoints = parse(lombardPointsData.badge_points);
-  const checkinPoints = parse(lombardPointsData.checkin_points);
-  const totalPoints = parse(lombardPointsData.total);
-
-  const protocolPointsBreakdown = Object.entries(
-    lombardPointsData.protocol_points_map || {},
-  ).reduce((acc, [k, v]) => {
-    acc[k] = parse(v).toNumber();
-    return acc;
-  }, {} as IProtocolPointsBreakdown);
-
-  return {
-    holdingPoints: holdingPoints.toNumber(),
-    protocolPoints: protocolPoints.toNumber(),
-    referralPoints: referralPoints.toNumber(),
-    refereePoints: refereePoints.toNumber(),
-    badgesPoints: badgePoints.toNumber(), // Map badge_points to badgesPoints
-    checkinPoints: checkinPoints.toNumber(),
-    totalPoints: totalPoints.toNumber(),
-    protocolPointsBreakdown,
-    // Season 1 fields with defaults for compatibility
-    okxPoints: 0,
-    flashEvent1Points: 0,
-    flashEvent2Points: 0,
-    totalWithoutBadgesPoints: totalPoints.toNumber(), // Use total as fallback
-  };
-}
-
 function parse(
   input: string | number | null | undefined,
   defaultValue = 0,
@@ -238,52 +119,185 @@ function parse(
 }
 
 /**
- * Retrieves the points earned by the provided address for Season 1.
- * @param parameters - The parameters object
- * @param parameters.address - The account address
- * @param parameters.env - The optional environment identifier
- * @param parameters.season - The season (1)
- * @throws {Error} - Throws an error when the API endpoints cannot be determined or any of the API calls fail.
+ * Converts a protocol points map to a strongly typed breakdown object.
+ *
+ * @param map - Optional protocol points map from the API.
+ * @returns A normalized breakdown object with numeric values.
  */
-export async function getPointsByAddress(
-  parameters: IGetPointsByAddressParameters & { season: 1 }
-): Promise<IPointsByAddress>;
+function toProtocolBreakdown(
+  map: IProtocolPointsBreakdown | undefined,
+): IProtocolPointsBreakdown {
+  return Object.entries(map || {}).reduce((acc, [k, v]) => {
+    acc[k] = parse(v).toNumber();
+    return acc;
+  }, {} as IProtocolPointsBreakdown);
+}
 
 /**
- * Retrieves the points earned by the provided address for Season 2.
- * @param parameters - The parameters object
- * @param parameters.address - The account address
- * @param parameters.env - The optional environment identifier
- * @param parameters.season - The season (2)
- * @throws {Error} - Throws an error when the API endpoints cannot be determined or any of the API calls fail.
+ * Constructs the Lombard points API endpoint for the given season and address.
+ *
+ * @param season - The Lux points season (e.g., 1 or 2).
+ * @param address - Wallet address to query.
+ * @param env - Target environment (defaults to DEFAULT_ENV).
+ * @throws If the API endpoint cannot be determined or the season is invalid.
+ */
+function getLombardPointsUrl(
+  season: number,
+  address: string,
+  env: Env = DEFAULT_ENV,
+): string {
+  const { baseApiUrl } = getApiConfig(env);
+  if (!baseApiUrl) {
+    throw new Error(
+      `Could not determine the API endpoint for the provided environment: ${
+        env || DEFAULT_ENV
+      }`,
+    );
+  }
+
+  switch (season) {
+    case 1:
+      return `${baseApiUrl}/api/v1/referral-system/season-1/points/${address}`;
+    case 2:
+      return `${baseApiUrl}/api/v1/referral-system/season-2/points/${address}`;
+    default:
+      throw new Error(`Invalid Lux season: ${season}`);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                Fetchers                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Fetches and parses Season 1 points for a given address.
+ *
+ * @param params - Address and environment parameters.
+ * @returns A typed object containing all Season 1 point metrics.
+ */
+async function fetchPointsSeason1({
+  address,
+  env,
+}: Omit<
+  IGetPointsByAddressParameters,
+  'season'
+>): Promise<IPointsByAddressSeason1> {
+  const { data } = await axios.get<IPointsResponseSeason1>(
+    getLombardPointsUrl(1, address, env),
+  );
+
+  const referralPoints = parse(data.referee_points).plus(
+    parse(data.referrals_points),
+  );
+
+  return {
+    holdingPoints: parse(data.holding_points).toNumber(),
+    protocolPoints: parse(data.protocol_points).toNumber(),
+    referralPoints: referralPoints.toNumber(),
+    okxPoints: parse(data.okx_campaign).toNumber(),
+    flashEvent1Points: parse(data.flash_event).toNumber(),
+    flashEvent2Points: parse(data.flash_event2).toNumber(),
+    totalPoints: parse(data.total).toNumber(),
+    protocolPointsBreakdown: toProtocolBreakdown(data.protocol_points_map),
+    badgesPoints: parse(data.badges).toNumber(),
+    totalWithoutBadgesPoints: parse(data.total_without_badges).toNumber(),
+  };
+}
+
+/**
+ * Fetches and parses Season 2 points for a given address.
+ *
+ * @param params - Address and environment parameters.
+ * @returns A typed object containing all Season 2 point metrics.
+ */
+async function fetchPointsSeason2({
+  address,
+  env,
+}: Omit<
+  IGetPointsByAddressParameters,
+  'season'
+>): Promise<IPointsByAddressSeason2> {
+  const { data } = await axios.get<IPointsResponseSeason2>(
+    getLombardPointsUrl(2, address, env),
+  );
+
+  return {
+    holdingPoints: parse(data.holding_points).toNumber(),
+    protocolPoints: parse(data.protocol_points).toNumber(),
+    referralPoints: parse(data.referrals_points).toNumber(),
+    refereePoints: parse(data.referee_points).toNumber(),
+    badgesPoints: parse(data.badge_points).toNumber(),
+    checkinPoints: parse(data.checkin_points).toNumber(),
+    totalPoints: parse(data.total).toNumber(),
+    protocolPointsBreakdown: toProtocolBreakdown(data.protocol_points_map),
+    totalWithoutBadgesPoints: parse(data.total).toNumber(),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               Public API                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Retrieves Season 1 points for a given address.
+ *
+ * @param parameters - Address and environment parameters.
+ * @returns A Season 1 points object.
  */
 export async function getPointsByAddress(
-  parameters: IGetPointsByAddressParameters & { season: 2 }
+  parameters: IGetPointsByAddressParameters & { season: 1 },
+): Promise<IPointsByAddressSeason1>;
+
+/**
+ * Retrieves Season 2 points for a given address.
+ *
+ * @param parameters - Address and environment parameters.
+ * @returns A Season 2 points object.
+ */
+export async function getPointsByAddress(
+  parameters: IGetPointsByAddressParameters & { season: 2 },
 ): Promise<IPointsByAddressSeason2>;
 
 /**
- * Retrieves the points earned by the provided address (defaults to Season 1).
- * @param parameters - The parameters object
- * @param parameters.address - The account address
- * @param parameters.env - The optional environment identifier
- * @param parameters.season - The optional season (defaults to 1)
- * @throws {Error} - Throws an error when the API endpoints cannot be determined or any of the API calls fail.
+ * Retrieves points for the given address.
+ * Defaults to the current season if none is specified.
+ *
+ * @param parameters - Address and optional environment/season parameters.
+ * @returns A points object matching the requested or current season.
  */
 export async function getPointsByAddress(
-  parameters: IGetPointsByAddressParameters
-): Promise<IPointsByAddress>;
+  parameters: IGetPointsByAddressParameters,
+): Promise<IPointsByAddressSeason1 | IPointsByAddressSeason2>;
 
 /**
- * Implementation of getPointsByAddress function.
+ * Implementation of getPointsByAddress with overloads.
  */
 export async function getPointsByAddress({
   address,
   env,
   season = CURRENT_SEASON,
-}: IGetPointsByAddressParameters): Promise<IPointsByAddress | IPointsByAddressSeason2> {
-  if (season === 2) {
-    return fetchPointsSeason2({ address, env });
-  }
-  
-  return fetchPointsSeason1({ address, env });
+}: IGetPointsByAddressParameters): Promise<
+  IPointsByAddressSeason1 | IPointsByAddressSeason2
+> {
+  return season === 2
+    ? fetchPointsSeason2({ address, env })
+    : fetchPointsSeason1({ address, env });
 }
+
+/**
+ * Convenience wrapper for fetching Season 1 points.
+ *
+ * @param params - Address and environment parameters.
+ */
+export const getLuxSeason1Points = (
+  params: Omit<IGetPointsByAddressParameters, 'season'>,
+) => getPointsByAddress({ ...params, season: 1 });
+
+/**
+ * Convenience wrapper for fetching Season 2 points.
+ *
+ * @param params - Address and environment parameters.
+ */
+export const getLuxSeason2Points = (
+  params: Omit<IGetPointsByAddressParameters, 'season'>,
+) => getPointsByAddress({ ...params, season: 2 });
