@@ -7,9 +7,6 @@ export * from './contract-functions';
 // Vault:
 export * from './vaults';
 
-// Rewards:
-export * from './rewards';
-
 // Utils:
 export * from './common/api-config';
 export * from './common/blockchain-identifier';
