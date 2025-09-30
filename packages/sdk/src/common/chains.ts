@@ -181,6 +181,21 @@ export const isSolanaChain = (chainId: unknown): chainId is SolanaChain => {
   ).includes(chainId as string);
 };
 
+// Starknet chain identifiers:
+export const STARKNET_MAINNET_CHAIN = '0x534e5f4d41494e' as const;
+export const STARKNET_SEPOLIA_CHAIN = '0x534e5f5345504f4c4941' as const;
+export type StarknetChainId =
+  | typeof STARKNET_MAINNET_CHAIN
+  | typeof STARKNET_SEPOLIA_CHAIN;
+
+export const isStarknetChainId = (
+  chainId: unknown,
+): chainId is StarknetChainId => {
+  return (
+    chainId === STARKNET_MAINNET_CHAIN || chainId === STARKNET_SEPOLIA_CHAIN
+  );
+};
+
 export const ChainId = {
   ethereum: 1,
   base: 8453,

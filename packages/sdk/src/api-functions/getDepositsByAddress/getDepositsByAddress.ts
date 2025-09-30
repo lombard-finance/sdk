@@ -3,7 +3,12 @@ import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { getApiConfig } from '../../common/api-config';
 import { getChainIdByName } from '../../common/blockchain-identifier';
-import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import {
+  ChainId,
+  SolanaChain,
+  StarknetChainId,
+  SuiChain,
+} from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { fromSatoshi } from '../../utils/satoshi';
 
@@ -31,7 +36,7 @@ export enum ESessionState {
 
 interface IDepositResponse {
   txid: string;
-  value: number;
+  value: string;
   address: Address;
   to_chain: string;
   notarization_wait_dur?: string | number;
@@ -48,6 +53,7 @@ interface IDepositResponse {
   session_id: number;
   notarization_status: ENotarizationStatus;
   session_state: ESessionState;
+  token_amount?: string;
 }
 
 interface IDepositsByAddressResponse {
@@ -61,7 +67,7 @@ export interface IDeposit {
   blockTime?: number;
   value: BigNumber;
   address: Address;
-  chainId: ChainId | SuiChain | SolanaChain;
+  chainId: ChainId | SuiChain | SolanaChain | StarknetChainId;
   isClaimed?: boolean;
   claimedTxId?: string;
   rawPayload?: string;
@@ -79,6 +85,7 @@ export interface IDeposit {
   status?: string;
   toAddress?: string;
   tokenAddress?: string;
+  tokenAmount?: string;
 }
 
 export interface IGetDepositsByAddressParams extends IEnvParam {
@@ -100,6 +107,11 @@ export async function getDepositsByAddress({
   env,
 }: IGetDepositsByAddressParams): Promise<IDeposit[]> {
   const { baseApiUrl } = getApiConfig(env);
+
+  // pad address to 64 characters if needed
+  if (address.startsWith('0x') && address.slice(2).length === 63) {
+    address = `0x0${address.slice(2)}`;
+  }
 
   const { data } = await axios.get<IDepositsByAddressResponse | undefined>(
     `api/v1/address/outputs-v2/${address}`,
@@ -133,5 +145,6 @@ function mapResponse(env?: Env) {
     notarizationStatus: data.notarization_status,
     sessionState: data.session_state,
     tokenAddress: data.token_address,
+    tokenAmount: data.token_amount,
   });
 }

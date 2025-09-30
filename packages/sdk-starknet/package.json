@@ -1,15 +1,12 @@
 {
-  "name": "@lombard.finance/sdk",
-  "version": "3.6.20",
   "dependencies": {
-    "@lombard.finance/sdk-common": "^3.0.0",
-    "isows": "^1.0.7",
-    "viem": "^2.23.15",
-    "vite": "^6.3.5"
+    "@lombard.finance/sdk": "^3.6.1",
+    "@lombard.finance/sdk-common": "^3.3.0",
+    "starknet": "^6.24.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
     "@chromatic-com/storybook": "1.6.1",
+    "@starknet-io/get-starknet": "^4.0.7",
     "@storybook/addon-essentials": "^8.2.9",
     "@storybook/addon-interactions": "^8.2.9",
     "@storybook/addon-links": "^8.2.9",
@@ -26,32 +23,28 @@
     "storybook": "^8.2.9",
     "typedoc": "^0.26.6",
     "typescript": "^5.4.5",
-    "vitest": "^3.2.4",
-    "wagmi": "^2.14.15"
+    "vite": "^6.3.5"
   },
   "engines": {
     "node": ">= 22.14.0"
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./clients/*": "./src/clients/*.ts",
-    "./utils/*": "./src/utils/*.ts"
+      "require": "./dist/index.cjs",
+      "types": "./src/index.ts"
+    }
   },
   "files": [
     "dist",
-    "src",
-    "CHANGELOG.md"
+    "src"
   ],
   "license": "MIT",
+  "name": "@lombard.finance/sdk-starknet",
   "peerDependencies": {
-    "@layerzerolabs/lz-v2-utilities": "3.0.17",
+    "@noble/hashes": "^1.7.2",
     "axios": "^1",
-    "bignumber.js": "^9",
-    "bitcoinjs-lib": "6.1.5"
+    "bignumber.js": "^9"
   },
   "scripts": {
     "build": "yarn types && vite build",
@@ -60,10 +53,10 @@
     "format": "biome format",
     "lint": "biome lint --diagnostic-level=error",
     "storybook": "storybook dev -p 6006",
-    "test": "vitest run",
     "types": "tsc --noEmit",
     "watch": "vite build --watch"
   },
   "type": "module",
-  "types": "./src/index.ts"
+  "types": "./src/index.ts",
+  "version": "0.2.0"
 }

@@ -1,11 +1,15 @@
 import axios from 'axios';
 import { getApiConfig } from '../../common/api-config';
-import { getChainNameById } from '../../common/blockchain-identifier';
+import {
+  BlockchainIdentifier,
+  getChainNameById,
+} from '../../common/blockchain-identifier';
 import {
   IApiError,
   IDepositAddressesResponse,
   IGetDepositBtcAddressesParameters,
 } from './types';
+import { Address, pad } from 'viem';
 
 export async function makeRequest({
   address,
@@ -19,6 +23,9 @@ export async function makeRequest({
 
   // throws an error if `chainId` is unknown
   const destinationBlockchain = getChainNameById(chainId);
+  if (destinationBlockchain === BlockchainIdentifier.starknet) {
+    address = pad(address as Address, { size: 32 });
+  }
 
   const params = {
     asc: false,
