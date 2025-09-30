@@ -6,7 +6,12 @@ import {
   BlockchainIdentifier,
   getChainIdByName,
 } from '../../common/blockchain-identifier';
-import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import {
+  ChainId,
+  SolanaChain,
+  StarknetChainId,
+  SuiChain,
+} from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { fromSatoshi } from '../../utils/satoshi';
 
@@ -42,7 +47,7 @@ export interface IUnstake {
   /**
    * The chain id where unstake transaction happened.
    */
-  chainId: ChainId | SuiChain | SolanaChain;
+  chainId: ChainId | SuiChain | SolanaChain | StarknetChainId;
   /**
    * The block height.
    */
@@ -122,6 +127,11 @@ export async function getUnstakesByAddress({
 
   if (!address) {
     throw new Error('No address specified.');
+  }
+
+  // pad address to 64 characters if needed
+  if (address.startsWith('0x') && address.slice(2).length === 63) {
+    address = `0x0${address.slice(2)}`;
   }
 
   const url = new URL(`/api/v1/address/unstakes/${address}`, baseApiUrl);

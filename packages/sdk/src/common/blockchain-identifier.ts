@@ -4,9 +4,12 @@ import {
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
   SOLANA_TESTNET_CHAIN,
+  STARKNET_MAINNET_CHAIN,
+  STARKNET_SEPOLIA_CHAIN,
   SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
   SolanaChain,
+  StarknetChainId,
   SuiChain,
 } from './chains';
 
@@ -31,13 +34,16 @@ export const BlockchainIdentifier = {
 
   solana: 'DESTINATION_BLOCKCHAIN_SOLANA',
   solanaOld: 'BLOCKCHAIN_SOLANA',
+
+  starknet: 'DESTINATION_BLOCKCHAIN_STARKNET',
+  starknetOld: 'BLOCKCHAIN_STARKNET',
 } as const;
 
 export type BlockchainIdentifier =
   (typeof BlockchainIdentifier)[keyof typeof BlockchainIdentifier];
 
 export function getChainNameById(
-  chainId: ChainId | SuiChain | SolanaChain,
+  chainId: ChainId | SuiChain | SolanaChain | StarknetChainId,
 ): BlockchainIdentifier {
   if (
     chainId === ChainId.ethereum ||
@@ -78,6 +84,13 @@ export function getChainNameById(
     return BlockchainIdentifier.solana;
   }
 
+  if (
+    chainId === STARKNET_MAINNET_CHAIN ||
+    chainId === STARKNET_SEPOLIA_CHAIN
+  ) {
+    return BlockchainIdentifier.starknet;
+  }
+
   throw new Error(`Unknown chain ID: ${chainId}`);
 }
 
@@ -101,6 +114,9 @@ export const getSonicNetworkByEnv = (env: Env) =>
 export const getSolanaNetworkByEnv = (env: Env) =>
   env === Env.prod ? SOLANA_MAINNET_CHAIN : SOLANA_DEVNET_CHAIN;
 
+export const getStarknetNetworkByEnv = (env: Env) =>
+  env === Env.prod ? STARKNET_MAINNET_CHAIN : STARKNET_SEPOLIA_CHAIN;
+
 /**
  * @param chain the chain ID
  * @param env
@@ -109,7 +125,7 @@ export const getSolanaNetworkByEnv = (env: Env) =>
 export function getChainIdByName(
   chain: string,
   env: Env = DEFAULT_ENV,
-): ChainId | SuiChain | SolanaChain {
+): ChainId | SuiChain | SolanaChain | StarknetChainId {
   switch (chain as BlockchainIdentifier) {
     case BlockchainIdentifier.eth:
     case BlockchainIdentifier.ethOld:
@@ -138,6 +154,10 @@ export function getChainIdByName(
     case BlockchainIdentifier.solana:
     case BlockchainIdentifier.solanaOld:
       return getSolanaNetworkByEnv(env);
+
+    case BlockchainIdentifier.starknet:
+    case BlockchainIdentifier.starknetOld:
+      return getStarknetNetworkByEnv(env);
 
     default:
       return ChainId.ethereum;

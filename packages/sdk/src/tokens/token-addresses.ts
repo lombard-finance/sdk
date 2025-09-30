@@ -9,6 +9,9 @@ import {
   SUI_TESTNET_CHAIN,
   SolanaChain,
   SuiChain,
+  StarknetChainId,
+  STARKNET_SEPOLIA_CHAIN,
+  STARKNET_MAINNET_CHAIN,
 } from '../common/chains';
 
 export enum Token {
@@ -41,7 +44,10 @@ type TokenAddressesPerEnv<
     Partial<
       Record<
         chain,
-        (chain extends ChainId | SuiChain ? Address : string) | undefined
+        | (chain extends ChainId | SuiChain | StarknetChainId
+            ? Address
+            : string)
+        | undefined
       >
     >
   >
@@ -188,4 +194,70 @@ export const getSolanaTokenAddress = (
   env = DEFAULT_ENV,
 ): string | undefined => {
   return SOLANA_TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId] || undefined;
+};
+
+// Starknet token addresses
+// See: packages/sdk-starknet/src/tokens/lib/tokens.ts
+export const STARKNET_TOKEN_ADDRESSES: TokenAddresses<StarknetChainId> = {
+  [Token.LBTC]: {
+    [Env.prod]: {
+      [STARKNET_SEPOLIA_CHAIN]: undefined,
+      [STARKNET_MAINNET_CHAIN]:
+        '0x036834a40984312f7f7de8d31e3f6305b325389eaeea5b1c0664b2fb936461a4',
+    },
+    [Env.stage]: {
+      [STARKNET_SEPOLIA_CHAIN]:
+        '0x00b442f5420860e937a99659326e81a97e07bfd538b3cee65b90029c9da38a5f',
+      [STARKNET_MAINNET_CHAIN]: undefined,
+    },
+    [Env.testnet]: {
+      [STARKNET_SEPOLIA_CHAIN]:
+        '0x00456a829ab75ba5e97534dc70d7fc617cfda244f8dcda47b11624de67c6e70c',
+      [STARKNET_MAINNET_CHAIN]: undefined,
+    },
+    [Env.dev]: {
+      [STARKNET_SEPOLIA_CHAIN]:
+        '0x0723de0c550b7bfbb5051dade72966d71a08bef952c0197462a5244497eb57c1',
+      [STARKNET_MAINNET_CHAIN]: undefined,
+    },
+  },
+} as const;
+
+export const STARKNET_ASSET_ROUTER_ADDRESSES: TokenAddresses<StarknetChainId> =
+  {
+    [Token.LBTC]: {
+      [Env.prod]: {
+        [STARKNET_SEPOLIA_CHAIN]: undefined,
+        [STARKNET_MAINNET_CHAIN]:
+          '0x05b1886d0f844ab930fc0ee066f1655a873437f15a5d2c41ee3e884fd5299976',
+      },
+      [Env.stage]: {
+        [STARKNET_SEPOLIA_CHAIN]:
+          '0x01d27f156092746d0d7cd9d9deec5e937f27c3c7c1c28365e9e5efac459880b3',
+        [STARKNET_MAINNET_CHAIN]: undefined,
+      },
+      [Env.testnet]: {
+        [STARKNET_SEPOLIA_CHAIN]:
+          '0x063b7b5c8b114ebd5b9602fbd5d0ffd2cc3a598f1d91c6904cc0997cd8fea760',
+        [STARKNET_MAINNET_CHAIN]: undefined,
+      },
+      [Env.dev]: {
+        [STARKNET_SEPOLIA_CHAIN]:
+          '0x04838a05c798dc57e01e85526979841c84f1f3c732a525cff53adb3e8bee3d24',
+        [STARKNET_MAINNET_CHAIN]: undefined,
+      },
+    },
+  } as const;
+
+export const getStarknetTokenAddress = (
+  chainId: StarknetChainId,
+  env = DEFAULT_ENV,
+  variant: 'token' | 'assetRouter' = 'token',
+): Address | undefined => {
+  return (
+    (variant === 'token'
+      ? STARKNET_TOKEN_ADDRESSES
+      : STARKNET_ASSET_ROUTER_ADDRESSES)[Token.LBTC]?.[env]?.[chainId] ||
+    undefined
+  );
 };

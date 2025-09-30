@@ -1,3 +1,8 @@
+# 3.6.19
+
+* added Starknet-specific logic for BTC deposit address generation.
+* added token contract addresses for Starknet Sepolia.
+
 # 3.6.18
 
 * removed deprecated rewards (BABY) logic,

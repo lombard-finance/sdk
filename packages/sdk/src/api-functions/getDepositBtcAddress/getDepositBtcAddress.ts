@@ -1,6 +1,12 @@
-import { isSolanaChain, isSuiChain, isValidChain } from '../../common/chains';
+import {
+  isSolanaChain,
+  isStarknetChainId,
+  isSuiChain,
+  isValidChain,
+} from '../../common/chains';
 import {
   getSolanaTokenAddress,
+  getStarknetTokenAddress,
   getSuiTokenAddress,
   Token,
 } from '../../tokens/token-addresses';
@@ -11,6 +17,7 @@ import type {
 } from './types';
 import { makeRequest } from './make-request';
 import { getChainNameById } from '../../common/blockchain-identifier';
+import { Address, pad } from 'viem';
 
 /**
  * Returns the current address for depositing BTC by given parameters.
@@ -66,8 +73,22 @@ export async function getDepositBtcAddress({
         };
       }
     }
+
+    if (isStarknetChainId(chainId)) {
+      // api returns the address of the asset router contract
+      const tokenAddress = getStarknetTokenAddress(chainId, env, 'assetRouter');
+      if (tokenAddress) {
+        tokenAddressFilter = {
+          token_address: tokenAddress.toLowerCase(),
+        };
+      }
+    }
   } catch {
     // NOOP
+  }
+
+  if (isStarknetChainId(chainId)) {
+    address = pad(address as Address, { size: 32 }).toLowerCase();
   }
 
   const addresses = (_addresses || [])

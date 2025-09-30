@@ -1,5 +1,10 @@
 import { BlockchainIdentifier } from '../../common/blockchain-identifier';
-import { ChainId, SolanaChain, SuiChain } from '../../common/chains';
+import {
+  ChainId,
+  SolanaChain,
+  StarknetChainId,
+  SuiChain,
+} from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
 
@@ -75,7 +80,7 @@ export interface IGetDepositBtcAddressesParameters extends IEnvParam {
   /**
    * The destination chain where the `address` exists and where LBTC will be claimed.
    */
-  chainId: ChainId | SuiChain | SolanaChain;
+  chainId: ChainId | SuiChain | SolanaChain | StarknetChainId;
   /**
    * The maximum number of items to return.
    * @default {number} 1
