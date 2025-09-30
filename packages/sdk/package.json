@@ -19,7 +19,7 @@
     "@storybook/react-vite": "^8.2.9",
     "@storybook/test": "^8.2.9",
     "@tanstack/react-query": "^5.71.1",
-    "axios": "^1.7.4",
+    "axios": "1.12.0",
     "bignumber.js": "^9.1.2",
     "bootstrap": "^5.3.3",
     "rimraf": "^5",
