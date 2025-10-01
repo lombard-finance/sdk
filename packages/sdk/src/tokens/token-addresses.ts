@@ -102,7 +102,7 @@ export const TOKEN_ADDRESSES: TokenAddresses<ChainId> = {
       [ChainId.holesky]: '0xED7bfd5C1790576105Af4649817f6d35A75CD818',
       // https://github.com/lombard-finance/smart-contracts/blob/2-token-model/devnet.json
       [ChainId.katanaTatara]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
-      [ChainId.sepolia]: '0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30',
+      [ChainId.sepolia]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
       [ChainId.sonicBlazeTestnet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
     },
     [Env.testnet]: {
