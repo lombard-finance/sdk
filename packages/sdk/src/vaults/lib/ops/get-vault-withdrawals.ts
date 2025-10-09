@@ -1,7 +1,9 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
+import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
+import { IEnvParam } from '../../../common/parameters';
 import {
   TokenInfo,
   fromBaseDenomination,
@@ -16,7 +18,7 @@ import {
   isVedaVaultChain,
 } from '../config';
 
-export type GetVaultWithdrawalsParameters = {
+export type GetVaultWithdrawalsParameters = IEnvParam & {
   account: Address;
   chainId: ChainId;
   vaultKey?: Vault;
@@ -77,17 +79,42 @@ type FulfilledRequest = {
   Request: WithdrawRequest;
 };
 
-type Response = {
-  Response: {
-    cancelled_requests: WithdrawRequest[];
-    expired_requests: WithdrawRequest[];
-    fulfilled_requests: FulfilledRequest[];
-    open_requests: WithdrawRequest[];
-  };
+type SevenSeasWithdrawRequests = {
+  cancelled_requests?: WithdrawRequest[];
+  expired_requests?: WithdrawRequest[];
+  fulfilled_requests?: FulfilledRequest[];
+  open_requests?: WithdrawRequest[];
 };
 
-const WITHDRAWALS_URL =
-  'https://api.sevenseas.capital/withdrawRequests/{network}/{vault}/{account}?historical=true';
+type WithdrawalsPayload =
+  | SevenSeasWithdrawRequests
+  | { Response: SevenSeasWithdrawRequests };
+
+const EMPTY_WITHDRAW_REQUESTS: SevenSeasWithdrawRequests = {
+  cancelled_requests: [],
+  expired_requests: [],
+  fulfilled_requests: [],
+  open_requests: [],
+};
+
+const normalizeSevenSeasWithdrawRequests = (
+  payload?: WithdrawalsPayload,
+): SevenSeasWithdrawRequests => {
+  if (!payload) {
+    return EMPTY_WITHDRAW_REQUESTS;
+  }
+
+  if ('Response' in payload) {
+    return normalizeSevenSeasWithdrawRequests(payload.Response);
+  }
+
+  return {
+    cancelled_requests: payload.cancelled_requests ?? [],
+    expired_requests: payload.expired_requests ?? [],
+    fulfilled_requests: payload.fulfilled_requests ?? [],
+    open_requests: payload.open_requests ?? [],
+  };
+};
 
 /**
  * Retrieves the withdrawals made by specified address.
@@ -104,6 +131,7 @@ export async function getVaultWithdrawals({
   chainId,
   vaultKey = Vault.Veda,
   rpcUrl,
+  env,
 }: GetVaultWithdrawalsParameters) {
   const vault = VAULTS[vaultKey];
   if (!vault) {
@@ -117,19 +145,32 @@ export async function getVaultWithdrawals({
   }
 
   const network = VEDA_VAULT_CHAIN_TO_NETWORK_MAP[chainId];
-  const url = WITHDRAWALS_URL.replace('{network}', network)
-    .replace('{vault}', vault.vaultContract.address)
-    .replace('{account}', account);
+  const { bffApiUrl } = getApiConfig(env);
+  if (!bffApiUrl) {
+    throw new Error(
+      `Could not determine API endpoint for provided environment: ${env}`,
+    );
+  }
 
-  const { data } = await axios.get<Response>(url);
+  const endpoint = `${bffApiUrl}/sevenseas-api/withdraw-requests/${network}/${vault.vaultContract.address}/${account}`;
+  const searchParams = new URLSearchParams({
+    historical: 'true',
+  });
+  const url = `${endpoint}?${searchParams.toString()}`;
+
+  const { data } = await axios.get<WithdrawalsPayload>(url);
+  const response = normalizeSevenSeasWithdrawRequests(data);
+
+  const cancelledRequests = response.cancelled_requests ?? [];
+  const expiredRequests = response.expired_requests ?? [];
+  const fulfilledRequests = response.fulfilled_requests ?? [];
+  const openRequests = response.open_requests ?? [];
 
   const withdrawAssetsAddresses = unique([
-    ...data.Response.cancelled_requests.map(a => ensureHex(a.wantToken)),
-    ...data.Response.expired_requests.map(a => ensureHex(a.wantToken)),
-    ...data.Response.fulfilled_requests.map(a =>
-      ensureHex(a.Request.wantToken),
-    ),
-    ...data.Response.open_requests.map(a => ensureHex(a.wantToken)),
+    ...cancelledRequests.map(a => ensureHex(a.wantToken)),
+    ...expiredRequests.map(a => ensureHex(a.wantToken)),
+    ...fulfilledRequests.map(a => ensureHex(a.Request.wantToken)),
+    ...openRequests.map(a => ensureHex(a.wantToken)),
   ]);
 
   const withdrawAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> =
@@ -147,7 +188,7 @@ export async function getVaultWithdrawals({
     }
   }
 
-  const cancelled = data.Response.cancelled_requests.map(w => {
+  const cancelled = cancelledRequests.map(w => {
     const token = withdrawAssets[ensureHex(w.wantToken)];
     const withdrawal: VaultWithdrawal = {
       amount: undefined,
@@ -160,7 +201,7 @@ export async function getVaultWithdrawals({
     };
     return withdrawal;
   });
-  const expired = data.Response.expired_requests.map(w => {
+  const expired = expiredRequests.map(w => {
     const token = withdrawAssets[ensureHex(w.wantToken)];
     const withdrawal: VaultWithdrawal = {
       amount: undefined,
@@ -173,7 +214,7 @@ export async function getVaultWithdrawals({
     };
     return withdrawal;
   });
-  const fulfilled = data.Response.fulfilled_requests.map(w => {
+  const fulfilled = fulfilledRequests.map(w => {
     const token = withdrawAssets[ensureHex(w.Request.wantToken)];
     const withdrawal: VaultWithdrawal = {
       amount: fromBaseDenomination(
@@ -196,7 +237,7 @@ export async function getVaultWithdrawals({
     };
     return withdrawal;
   });
-  const open = data.Response.open_requests.map(w => {
+  const open = openRequests.map(w => {
     const token = withdrawAssets[ensureHex(w.wantToken)];
     const withdrawal: VaultWithdrawal = {
       amount: undefined,

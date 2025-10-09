@@ -1,7 +1,9 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
+import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
+import { IEnvParam } from '../../../common/parameters';
 import {
   TokenInfo,
   fromBaseDenomination,
@@ -18,17 +20,7 @@ import {
   isVedaVaultChain,
 } from '../config';
 
-const DEPOSITS_URL =
-  'https://api.sevenseas.capital/deposits/{network}/{vault}/{account}';
-
-export type GetVaultDepositsParameters = {
-  account: Address;
-  chainId: ChainId;
-  vaultKey?: Vault;
-  rpcUrl?: string;
-};
-
-type ResponseEntry = {
+type SevenSeasDepositEntry = {
   block_number: number;
   chain: string;
   deposit_amount: number;
@@ -37,6 +29,44 @@ type ResponseEntry = {
   tx_hash: string;
   user: string;
   vault_address: string;
+};
+
+type SevenSeasDepositsPayload =
+  | SevenSeasDepositEntry
+  | SevenSeasDepositEntry[]
+  | { Response: SevenSeasDepositEntry }
+  | { Response: SevenSeasDepositEntry[] };
+
+const normalizeSevenSeasDeposits = (
+  payload: SevenSeasDepositsPayload | undefined,
+): SevenSeasDepositEntry[] => {
+  if (!payload) {
+    return [];
+  }
+
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if ('Response' in payload) {
+    const response = payload.Response;
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response) {
+      return [response];
+    }
+    return [];
+  }
+
+  return [payload];
+};
+
+export type GetVaultDepositsParameters = IEnvParam & {
+  account: Address;
+  chainId: ChainId;
+  vaultKey?: Vault;
+  rpcUrl?: string;
 };
 
 export type VaultDeposit = {
@@ -69,6 +99,7 @@ export async function getVaultDeposits({
   chainId,
   vaultKey = Vault.Veda,
   rpcUrl,
+  env,
 }: GetVaultDepositsParameters) {
   const vault = VAULTS[vaultKey];
   if (!vault) {
@@ -82,14 +113,19 @@ export async function getVaultDeposits({
   }
 
   const network = VEDA_VAULT_CHAIN_TO_NETWORK_MAP[chainId];
-  const url = DEPOSITS_URL.replace('{network}', network)
-    .replace('{vault}', vault.vaultContract.address)
-    .replace('{account}', account);
+  const { bffApiUrl } = getApiConfig(env);
+  if (!bffApiUrl) {
+    throw new Error(
+      `Could not determine API endpoint for provided environment: ${env}`,
+    );
+  }
+  const url = `${bffApiUrl}/sevenseas-api/deposits/${network}/${vault.vaultContract.address}/${account}`;
 
-  const { data } = await axios.get<ResponseEntry[]>(url);
+  const { data } = await axios.get<SevenSeasDepositsPayload>(url);
+  const entries = normalizeSevenSeasDeposits(data);
 
   const depositAssetsAddresses = unique(
-    data.map(d => ensureHex(d.deposit_asset)),
+    entries.map(d => ensureHex(d.deposit_asset)),
   );
 
   const depositAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> = {};
@@ -106,7 +142,7 @@ export async function getVaultDeposits({
     }
   }
 
-  const deposits = data.map(d => {
+  const deposits = entries.map(d => {
     const token = depositAssets[ensureHex(d.deposit_asset)];
     const amount = fromBaseDenomination(d.deposit_amount, token?.decimals || 0);
     const shareAmount = fromBaseDenomination(d.share_amount, vault.decimals);

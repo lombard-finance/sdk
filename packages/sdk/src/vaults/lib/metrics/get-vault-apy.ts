@@ -1,10 +1,58 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
+import { IEnvParam } from '../../../common/parameters';
 import { orderBy } from '../../../utils/array';
 import { VAULTS, Vault, VedaVaultChain, isVedaVaultChain } from '../config';
 
-export type GetVaultApyParameters = {
+type PerformanceEntry = {
+  aggregation_period: string;
+  apy: number;
+  chain_allocation: { [network: string]: number };
+  fees: number;
+  real_apy_breakdown: {
+    allocation: number;
+    apy: number;
+    /** network */
+    chain: string;
+    protocol: string;
+  }[];
+  timestamp: string;
+};
+
+type PerformancePayload =
+  | PerformanceEntry
+  | PerformanceEntry[]
+  | { Response: PerformanceEntry }
+  | { Response: PerformanceEntry[] };
+
+const normalizeSevenSeasPerformance = (
+  payload: PerformancePayload | undefined,
+): PerformanceEntry[] => {
+  if (!payload) {
+    return [];
+  }
+
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if ('Response' in payload) {
+    const response = payload.Response;
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response) {
+      return [response];
+    }
+    return [];
+  }
+
+  return [payload];
+};
+
+export type GetVaultApyParameters = IEnvParam & {
   aggregationPeriod?: 7 | 14 | 30;
   chainId?: ChainId;
   vaultKey?: Vault;
@@ -15,14 +63,16 @@ export async function getVaultApy({
   aggregationPeriod = 7,
   chainId = ChainId.ethereum,
   vaultKey = Vault.Veda,
+  env,
 }: GetVaultApyParameters) {
   const response = await getVaultPerformance({
     aggregationPeriod,
     chainId,
     vaultKey,
+    env,
   });
 
-  const apys = response.Response.map(r => {
+  const apys = response.map(r => {
     const allocations = Object.entries(r.chain_allocation)
       .map(([network, value]) => [
         NETWORK_TO_CHAIN_ID_MAP[network],
@@ -59,26 +109,7 @@ type GetVaultPerformanceParameters = {
   aggregationPeriod?: 7 | 14 | 30;
   chainId: ChainId;
   vaultKey?: Vault;
-};
-
-type Response = {
-  Response: {
-    aggregation_period: string;
-    apy: number;
-    chain_allocation: { [network: string]: number };
-    fees: number;
-    // omitted prop: global_apy_breakdown
-    // omitted prop: maturity_apy_breakdown
-    real_apy_breakdown: {
-      allocation: number;
-      apy: number;
-      /** network */
-      chain: string;
-      protocol: string;
-    }[];
-    timestamp: string;
-  }[];
-};
+} & IEnvParam;
 
 const CHAIN_ID_TO_NETWORK_MAP: Record<VedaVaultChain, string> = {
   // NOTE: For now only `ethereum` is supported by the API.
@@ -105,6 +136,7 @@ async function getVaultPerformance({
   aggregationPeriod = 7,
   chainId,
   vaultKey = Vault.Veda,
+  env,
 }: GetVaultPerformanceParameters) {
   const vault = VAULTS[vaultKey];
   if (!vault) {
@@ -124,9 +156,20 @@ async function getVaultPerformance({
     );
   }
 
-  const url = `https://api.sevenseas.capital/performance/${network}/${vault.vaultContract.address}?historical=true&aggregation_period=${aggregationPeriod}`;
+  const { bffApiUrl } = getApiConfig(env);
+  if (!bffApiUrl) {
+    throw new Error(
+      `Could not determine API endpoint for provided environment: ${env}`,
+    );
+  }
 
-  const { data } = await axios.get<Response>(url);
+  const params = new URLSearchParams({
+    aggregation_period: String(aggregationPeriod),
+    historical: 'true',
+  });
+  const url = `${bffApiUrl}/sevenseas-api/performance/${network}/${vault.vaultContract.address}?${params.toString()}`;
 
-  return data;
+  const { data } = await axios.get<PerformancePayload>(url);
+
+  return normalizeSevenSeasPerformance(data);
 }
