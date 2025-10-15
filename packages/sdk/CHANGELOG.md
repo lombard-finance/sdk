@@ -1,3 +1,11 @@
+# 3.6.21
+
+* changed sevenseas api requests to proxy through bff
+
+# 3.6.20
+
+* updated LBTC token contract addresses for staging environment.
+
 # 3.6.19
 
 * added Starknet-specific logic for BTC deposit address generation.
