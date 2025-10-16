@@ -21,7 +21,7 @@ const prodConfig: IApiConfig = {
 };
 
 const devConfig: IApiConfig = {
-  baseApiUrl: 'https://bft-dev.stage.lombard.finance',
+  baseApiUrl: 'https://bft-dev.stage.lombard-fi.com',
   // Note, bff on localhost works on 8001
   bffApiUrl: 'https://bff.stage.lombard-fi.com',
 };
