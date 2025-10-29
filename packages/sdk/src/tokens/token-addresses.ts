@@ -114,6 +114,8 @@ export const TOKEN_ADDRESSES: TokenAddresses<ChainId> = {
       [ChainId.sepolia]: '0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30',
       [ChainId.sonicBlazeTestnet]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
       [ChainId.katanaTatara]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
+      [ChainId.baseSepoliaTestnet]:
+        '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
     },
     [Env.dev]: {
       // https://github.com/lombard-finance/smart-contracts/blob/2-token-model/devnet-bft.json

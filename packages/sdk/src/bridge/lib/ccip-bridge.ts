@@ -1,5 +1,10 @@
 import BigNumber from 'bignumber.js';
-import { Address, pad, toHex } from 'viem';
+import {
+  Address,
+  encodeAbiParameters,
+  encodePacked,
+  parseAbiParameters,
+} from 'viem';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
@@ -19,6 +24,8 @@ import {
   MIN_BRIDGE_AMOUNT,
   getBridgeInfo,
 } from './config';
+import { getCCIPConfig } from './ccip-config';
+import CCIP_ROUTER_ABI from '../abi/CCIP_ROUTER_ABI.json';
 
 export type BridgeCCIPParameters = {
   /** The destination chain id. */
@@ -34,6 +41,28 @@ export type BridgeCCIPParameters = {
   /** The destination address. If omitted the same as the account address. */
   recipient?: Address;
 } & CommonWriteParameters;
+
+/**
+ * Encodes extraArgs for CCIP according to version 1
+ * Format: EVMExtraArgsV1 { gasLimit: uint256 }
+ *
+ * @see https://github.com/smartcontractkit/smart-contract-examples/blob/main/ccip/offchain/javascript/src/transfer-tokens.js
+ */
+function encodeExtraArgs(gasLimit: bigint): `0x${string}` {
+  // Tag for EVMExtraArgsV1
+  const tag = '0x97a657c9';
+
+  // Encode gasLimit as uint256
+  const encodedGasLimit = encodePacked(['uint256'], [gasLimit]);
+
+  return `${tag}${encodedGasLimit.slice(2)}` as `0x${string}`;
+}
+
+/**
+ * Transfers tokens via CCIP using direct Router contract calls
+ * Based on Chainlink example:
+ * @see https://github.com/smartcontractkit/smart-contract-examples/blob/main/ccip/offchain/javascript/src/transfer-tokens.js
+ */
 export async function bridgeCCIP({
   to,
   amount: amountRaw,
@@ -55,7 +84,15 @@ export async function bridgeCCIP({
     );
   }
 
-  const bridgeContract = bridgeInfo.contract;
+  // Get CCIP Router configuration
+  const sourceChainConfig = getCCIPConfig(from);
+  const destinationChainConfig = getCCIPConfig(to);
+
+  if (!sourceChainConfig || !destinationChainConfig) {
+    throw new Error(`CCIP configuration not found for chains ${from} -> ${to}`);
+  }
+
+  const routerAddress = sourceChainConfig.routerAddress;
 
   const lbtcContract = await getTokenInfo(Token.LBTC, from, env, rpcUrl);
   if (!lbtcContract) {
@@ -97,7 +134,7 @@ export async function bridgeCCIP({
     address: lbtcContract.address,
     abi: lbtcContract.abi,
     functionName: 'allowance',
-    args: [account, bridgeContract.address],
+    args: [account, routerAddress],
   });
   const allowance = fromBaseDenomination(
     String(allowanceRaw),
@@ -111,12 +148,12 @@ export async function bridgeCCIP({
       throw new Error(exceededMessage);
     }
 
-    // try to approve new amount
+    // try to approve new amount for Router
     console.info(exceededMessage);
     try {
       const txHash = await approveLBTC({
         account,
-        spender: bridgeContract.address,
+        spender: routerAddress,
         amount,
         chainId: from,
         provider,
@@ -124,38 +161,51 @@ export async function bridgeCCIP({
         env,
       });
       console.info(`Approve tx hash: ${txHash}`);
-      console.info(`Approved ${amountBase} for ${bridgeContract.address}`);
+      console.info(`Approved ${amountBase} for ${routerAddress}`);
     } catch (err) {
       const msg = getErrorMessage(err);
       throw new Error(
-        `Could not approve ${amountBase} for ${bridgeContract.address}. \nReason: ${msg}`,
+        `Could not approve ${amountBase} for ${routerAddress}. \nReason: ${msg}`,
       );
     }
   }
 
-  const bridgeArgs = [
-    /** toChain - bytes32 */
-    toHex(to, { size: 32 }),
-    /** toAddress - bytes32 */
-    pad(recipient),
-    /** amount - uint64 */
-    amountBase,
-  ];
+  // Build CCIP message (EVM2AnyMessage)
+  // IMPORTANT: receiver must be abi.encode(address) for EVM chains, not encodePacked
+  const receiverBytes = encodeAbiParameters(parseAbiParameters('address'), [
+    recipient,
+  ]);
+  const extraArgs = encodeExtraArgs(0n);
 
-  const adapterFee = (await publicClient.readContract({
-    abi: bridgeContract.abi,
-    address: bridgeContract.address,
-    functionName: 'getAdapterFee',
-    args: bridgeArgs,
+  const message = {
+    receiver: receiverBytes,
+    data: '0x' as `0x${string}`,
+    tokenAmounts: [
+      {
+        token: lbtcContract.address,
+        amount: amountBase,
+      },
+    ],
+    feeToken: '0x0000000000000000000000000000000000000000' as Address, // address(0) means payment in native currency
+    extraArgs, // 0 = automatic gas limit calculation
+  };
+
+  // Get fee for sending the message
+  const fee = (await publicClient.readContract({
+    address: routerAddress,
+    abi: CCIP_ROUTER_ABI,
+    functionName: 'getFee',
+    args: [BigInt(destinationChainConfig.chainSelector), message],
   })) as bigint;
 
+  // Send CCIP message
   const { request } = await publicClient.simulateContract({
-    abi: bridgeContract.abi,
-    address: bridgeContract.address,
+    address: routerAddress,
+    abi: CCIP_ROUTER_ABI,
     account,
-    functionName: 'deposit',
-    args: bridgeArgs,
-    value: adapterFee,
+    functionName: 'ccipSend',
+    args: [BigInt(destinationChainConfig.chainSelector), message],
+    value: fee,
   });
 
   const txHash = await walletClient.writeContract(request);
