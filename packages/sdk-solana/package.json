@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-solana",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "exports": {
     ".": {
       "types": "./src/index.ts",
