@@ -1,8 +1,37 @@
 {
+  "name": "@lombard.finance/sdk-starknet",
+  "version": "0.2.0",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "license": "MIT",
+  "type": "module",
+  "types": "./src/index.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">= 22.14.0"
+  },
+  "scripts": {
+    "build": "yarn types && vite build",
+    "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
+    "build-storybook": "storybook build -o sdk-storybook",
+    "format": "biome format",
+    "lint": "biome lint --diagnostic-level=error",
+    "storybook": "storybook dev -p 6006",
+    "types": "tsc --noEmit",
+    "watch": "vite build --watch"
+  },
   "dependencies": {
     "@lombard.finance/sdk": "^3.6.1",
     "@lombard.finance/sdk-common": "^3.3.0",
-    "starknet": "^6.24.1"
+    "starknet": "~6.24.1"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "1.6.1",
@@ -25,38 +54,12 @@
     "typescript": "^5.4.5",
     "vite": "^6.3.5"
   },
-  "engines": {
-    "node": ">= 22.14.0"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./src/index.ts"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "license": "MIT",
-  "name": "@lombard.finance/sdk-starknet",
   "peerDependencies": {
     "@noble/hashes": "^1.7.2",
     "axios": "^1",
     "bignumber.js": "^9"
   },
-  "scripts": {
-    "build": "yarn types && vite build",
-    "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
-    "build-storybook": "storybook build -o sdk-storybook",
-    "format": "biome format",
-    "lint": "biome lint --diagnostic-level=error",
-    "storybook": "storybook dev -p 6006",
-    "types": "tsc --noEmit",
-    "watch": "vite build --watch"
-  },
-  "type": "module",
-  "types": "./src/index.ts",
-  "version": "0.2.0"
+  "resolutions": {
+    "starknet": "~6.24.1"
+  }
 }
