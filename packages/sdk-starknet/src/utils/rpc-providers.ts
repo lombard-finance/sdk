@@ -2,10 +2,8 @@ import { RpcProvider, WalletAccount } from 'starknet';
 import { StarknetChainId } from './chains';
 
 const RPC_PROVIDERS = {
-  [StarknetChainId.SN_MAIN]:
-    'https://starknet-mainnet.public.blastapi.io/rpc/v0_8',
-  [StarknetChainId.SN_SEPOLIA]:
-    'https://starknet-sepolia.public.blastapi.io/rpc/v0_8',
+  [StarknetChainId.SN_MAIN]: 'https://rpc.starknet.lava.build:443',
+  [StarknetChainId.SN_SEPOLIA]: 'https://rpc.starknet-testnet.lava.build:443',
 };
 
 const providers = new Map<StarknetChainId, RpcProvider>();

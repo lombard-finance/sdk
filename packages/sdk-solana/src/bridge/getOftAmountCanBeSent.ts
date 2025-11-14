@@ -44,9 +44,28 @@ export async function getOftAmountCanBeSent({
       return new BigNumber(0);
     }
 
-    return new BigNumber(
+    const tokens = new BigNumber(
       peerConfig.outboundRateLimiter.value.tokens.toString(),
-    ).shiftedBy(-LBTC_DECIMALS);
+    );
+    const refillRate = new BigNumber(
+      peerConfig.outboundRateLimiter.value.refillPerSecond.toString(),
+    );
+    const availableTokens = new BigNumber(
+      new BigNumber(Date.now() / 1000).minus(
+        new BigNumber(
+          peerConfig.outboundRateLimiter.value.lastRefillTime.toString(),
+        ),
+      ),
+    )
+      .multipliedBy(refillRate)
+      .plus(tokens);
+
+    const capacity = new BigNumber(
+      peerConfig.outboundRateLimiter.value.capacity.toString(),
+    );
+
+    // Return the minimum of available tokens and capacity
+    return BigNumber.min(availableTokens, capacity).shiftedBy(-LBTC_DECIMALS);
   } catch (error) {
     throw SolanaSdkError.wrap(
       error,
