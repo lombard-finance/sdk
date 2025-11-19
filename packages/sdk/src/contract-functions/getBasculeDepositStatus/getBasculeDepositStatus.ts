@@ -154,19 +154,19 @@ export async function getBasculeDepositStatus({
   try {
     // For Katana chains, use proper GMP payload decoding to calculate mintID
     if (isKatanaChain(chainId)) {
-      const decoded = decodeGmpMintPayload(payload);
+      const prefixedPayload = payload.startsWith('0x')
+        ? payload
+        : `0x${payload}`;
+      const decoded = decodeGmpMintPayload(prefixedPayload);
       const mintId = calcMintIDFromDecoded(decoded, chainId);
 
-      const basculeContract = getContract({
+      const [, status] = (await publicClient.readContract({
         abi: KATANA_BASCULE_ABI,
         address: basculeContractAddress,
-        client,
-      });
+        functionName: 'mintHistory',
+        args: [mintId],
+      })) as [unknown, BasculeDepositStatus];
 
-      const [, status] = (await basculeContract.read.mintHistory([mintId])) as [
-        unknown,
-        BasculeDepositStatus,
-      ];
       return status;
     }
 
@@ -178,7 +178,7 @@ export async function getBasculeDepositStatus({
     const basculeContract = getContract({
       abi: LBTC_BASCULE_ABI,
       address: basculeContractAddress,
-      client,
+      client: publicClient,
     });
 
     const status = await basculeContract.read.depositHistory([
