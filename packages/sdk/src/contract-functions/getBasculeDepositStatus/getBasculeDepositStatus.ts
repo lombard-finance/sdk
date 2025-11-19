@@ -1,5 +1,6 @@
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import {
+  Address,
   ByteArray,
   Client,
   PublicClient,
@@ -10,11 +11,18 @@ import {
 import { IDeposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
+import { isKatanaChain } from '../../common/chains';
 import { CommonOptionalWriteParameters } from '../../common/parameters';
+import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 import LBTC_BASCULE_ABI from '../../tokens/abi/LBTC_BASCULE_ABI.json';
 import { Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../tokens/tokens';
+import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
 import { getErrorMessage } from '../../utils/err';
+import {
+  calcMintIDFromDecoded,
+  decodeGmpMintPayload,
+} from './decodeBasculeDepositStatus';
+import KATANA_BASCULE_ABI from '../../tokens/abi/KATANA_BASCULE_ABI';
 
 /**
  * The bascule drawbridge deposit status.
@@ -53,10 +61,23 @@ export interface IGetBasculeDepositStatusParameters
 
 /**
  * Gets the Bascule drawbridge deposit status for given deposit.
+ *
+ * **Multiple Bascule Interfaces:**
+ * This function supports two different bascule contract interfaces:
+ * - **Asset Router (upgraded)**: Uses `bascule()` getter - for StakedLBTC and upgraded contracts
+ * - **Bridge Token Adapter**: Uses `getBascule()` getter - for BTCb on Avalanche
+ * - **Legacy NativeLBTC**: Uses `Bascule()` getter - for old LBTC contracts
+ *
+ * **MintID Calculation:**
+ * For Katana chains, this function uses proper GMP payload decoding to calculate
+ * the mintID, which matches the Solidity implementation. For other chains, it uses
+ * a simplified method.
+ *
  * @param {IGetBasculeDepositStatusParameters} parameters - The parameters.
  * @param {IDeposit} parameters.deposit - The deposit for which the bascule status will be checked. You can omit `rawPayload` parameter if `deposit` is provided.
  * @param {string} parameters.rawPayload - The `rawPayload` of the deposit for which the bascule status will be checked. You can omit `deposit` parameter if `rawPayload` is provided.
- * @param {ChainId} parameters.chainId - The chain id.
+ * @param {ChainId} parameters.chainId - The chain id. For Katana chains (Katana mainnet or Katana Tatara testnet), GMP payload decoding is used.
+ * @param {Token} parameters.token - The token for which to check bascule status. Defaults to Token.LBTC.
  * @param {EIP1193Provider} parameters.provider - The optional EIP1193 provider.
  * @param {string} parameters.rpcUrl - The optional rpc url.
  * @param {Env} parameters.env - The optional environment identifier.
@@ -83,11 +104,33 @@ export async function getBasculeDepositStatus({
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
   const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
 
-  const basculeContractAddress = await publicClient.readContract({
-    abi: tokenContractInfo.abi,
-    address: tokenContractInfo.address,
-    functionName: 'Bascule',
-  });
+  // Determine which bascule getter function to use based on the contract type
+  // There are two different approaches:
+  // 1. Upgraded contracts (Asset Router): token.getAssetRouter() -> assetRouter.bascule()
+  // 2. Legacy contracts (NativeLBTC): Bascule()
+
+  let basculeContractAddress: Address;
+
+  if (isUpgradedAbi(tokenContractInfo.abi)) {
+    // Upgraded contract - get bascule from Asset Router
+    const assetRouterAddress = (await publicClient.readContract({
+      abi: tokenContractInfo.abi,
+      address: tokenContractInfo.address,
+      functionName: 'getAssetRouter',
+    })) as Address;
+
+    basculeContractAddress = (await publicClient.readContract({
+      abi: ASSET_ROUTER_ABI,
+      address: assetRouterAddress,
+      functionName: 'bascule',
+    })) as Address;
+  } else {
+    basculeContractAddress = (await publicClient.readContract({
+      abi: tokenContractInfo.abi,
+      address: tokenContractInfo.address,
+      functionName: 'Bascule',
+    })) as Address;
+  }
 
   // If there's no bascule contract address on the LBTC contract then return
   // the the deposit is ok (REPORTED).
@@ -109,15 +152,34 @@ export async function getBasculeDepositStatus({
   }
 
   try {
+    // For Katana chains, use proper GMP payload decoding to calculate mintID
+    if (isKatanaChain(chainId)) {
+      const decoded = decodeGmpMintPayload(payload);
+      const mintId = calcMintIDFromDecoded(decoded, chainId);
+
+      const basculeContract = getContract({
+        abi: KATANA_BASCULE_ABI,
+        address: basculeContractAddress,
+        client,
+      });
+
+      const [, status] = (await basculeContract.read.mintHistory([mintId])) as [
+        unknown,
+        BasculeDepositStatus,
+      ];
+      return status;
+    }
+
+    // For non-Katana chains, use the simple method
+    const basculeDepositId = keccak256(
+      Buffer.from(payload.slice(8), 'hex') as unknown as ByteArray,
+    );
+
     const basculeContract = getContract({
       abi: LBTC_BASCULE_ABI,
       address: basculeContractAddress,
       client,
     });
-
-    const basculeDepositId = keccak256(
-      Buffer.from(payload.slice(8), 'hex') as unknown as ByteArray,
-    );
 
     const status = await basculeContract.read.depositHistory([
       basculeDepositId,
