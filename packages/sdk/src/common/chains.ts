@@ -256,6 +256,13 @@ type MonadChain = 143;
 export const isMonadChain = (chainId: unknown): chainId is MonadChain => {
   return chainId === 143;
 };
+type EthereumChain = typeof ChainId.ethereum;
+export const isEthereumChain = (chainId: unknown): chainId is EthereumChain => {
+  return ([ChainId.ethereum] as number[]).includes(
+    chainId as number,
+  );
+};
+
 export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.ethereum]: 'ethereum',
   [ChainId.base]: 'base',
