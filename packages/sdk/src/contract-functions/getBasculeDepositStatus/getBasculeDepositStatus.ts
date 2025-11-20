@@ -11,9 +11,10 @@ import {
 import { IDeposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
-import { isKatanaChain } from '../../common/chains';
+import { isKatanaChain, isMonadChain } from '../../common/chains';
 import { CommonOptionalWriteParameters } from '../../common/parameters';
 import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
+import KATANA_BASCULE_ABI from '../../tokens/abi/KATANA_BASCULE_ABI';
 import LBTC_BASCULE_ABI from '../../tokens/abi/LBTC_BASCULE_ABI.json';
 import { Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
@@ -22,7 +23,6 @@ import {
   calcMintIDFromDecoded,
   decodeGmpMintPayload,
 } from './decodeBasculeDepositStatus';
-import KATANA_BASCULE_ABI from '../../tokens/abi/KATANA_BASCULE_ABI';
 
 /**
  * The bascule drawbridge deposit status.
@@ -153,7 +153,7 @@ export async function getBasculeDepositStatus({
 
   try {
     // For Katana chains, use proper GMP payload decoding to calculate mintID
-    if (isKatanaChain(chainId)) {
+    if (isKatanaChain(chainId) || isMonadChain(chainId)) {
       const prefixedPayload = payload.startsWith('0x')
         ? payload
         : `0x${payload}`;

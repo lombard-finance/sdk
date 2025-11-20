@@ -252,6 +252,10 @@ export const isKatanaChain = (chainId: unknown): chainId is KatanaChain => {
     chainId as number,
   );
 };
+type MonadChain = 143;
+export const isMonadChain = (chainId: unknown): chainId is MonadChain => {
+  return chainId === 143;
+};
 export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.ethereum]: 'ethereum',
   [ChainId.base]: 'base',
