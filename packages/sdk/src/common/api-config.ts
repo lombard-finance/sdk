@@ -11,7 +11,7 @@ const stageConfig: IApiConfig = {
 };
 
 const testnetConfig: IApiConfig = {
-  baseApiUrl: 'https://gastald-testnet.prod.lombard.finance',
+  baseApiUrl: 'https://gastald-testnet.prod.lombard-fi.com',
   bffApiUrl: 'https://bff.stage.lombard-fi.com',
 };
 

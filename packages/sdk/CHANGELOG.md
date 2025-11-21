@@ -1,3 +1,7 @@
+# 3.6.23
+
+* added Katana chain support to `getBasculeDepositStatus` with proper GMP payload decoding and mintID calculation.
+
 # 3.6.21
 
 * changed sevenseas api requests to proxy through bff

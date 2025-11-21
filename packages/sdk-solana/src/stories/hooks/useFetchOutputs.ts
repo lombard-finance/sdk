@@ -70,7 +70,7 @@ export function useFetchOutputs({
           baseApiUrl = 'https://mainnet.prod.lombard.finance';
           break;
         case SolanaNetwork.testnet:
-          baseApiUrl = 'https://gastald-testnet.prod.lombard.finance';
+          baseApiUrl = 'https://gastald-testnet.prod.lombard-fi.com';
           break;
         default: // Devnet/Staging
           baseApiUrl = 'https://staging.prod.lombard.finance';
