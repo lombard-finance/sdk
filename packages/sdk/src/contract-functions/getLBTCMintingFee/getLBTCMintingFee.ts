@@ -89,7 +89,6 @@ export async function getRedeemFee({
   if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error(`Unsupported token: ${token}`);
   }
-
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
