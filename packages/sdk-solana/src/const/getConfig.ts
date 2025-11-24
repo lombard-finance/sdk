@@ -15,6 +15,7 @@ export const envToNetwork: Record<Env, SolanaNetwork> = {
   testnet: SolanaNetwork.testnet,
   stage: SolanaNetwork.devnet,
   dev: SolanaNetwork.devnet,
+  ibc: SolanaNetwork.devnet,
 };
 
 /**
@@ -157,7 +158,8 @@ export function getRpcEndpoint(envOrNetwork: Env | SolanaNetwork): string {
     envOrNetwork === 'prod' ||
     envOrNetwork === 'testnet' ||
     envOrNetwork === 'stage' ||
-    envOrNetwork === 'dev';
+    envOrNetwork === 'dev' ||
+    envOrNetwork === 'ibc';
 
   const network = isEnv ? envToNetwork[envOrNetwork] : envOrNetwork;
   return RPC_URLS[network];

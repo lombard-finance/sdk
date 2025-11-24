@@ -18,7 +18,7 @@ const meta = {
   decorators: [functionType('api-get')],
   argTypes: {
     ...chainSelector,
-    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.NativeLBTC]),
+    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]),
   },
 } satisfies Meta<typeof StoryView>;
 

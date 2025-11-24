@@ -1,5 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { avalanche, avalancheFuji } from '@wagmi/core/chains';
 import { ReactNode } from 'react';
+import { createConfig, http, WagmiProvider } from 'wagmi';
 import {
   base,
   baseSepolia,
@@ -17,7 +19,6 @@ import {
   sonicBlazeTestnet,
   swellchain,
 } from 'wagmi/chains';
-import { createConfig, http, WagmiProvider } from 'wagmi';
 import { rpcUrlConfig } from '../../../clients/rpc-url-config';
 import { katana, katanaTatara, tac } from '../../../common/chains';
 
@@ -33,6 +34,7 @@ const config = createConfig({
     sonic,
     swellchain,
     tac,
+    avalanche,
     // Testnets:
     baseSepolia,
     berachainTestnetbArtio,
@@ -42,6 +44,7 @@ const config = createConfig({
     morphHolesky,
     sepolia,
     sonicBlazeTestnet,
+    avalancheFuji,
   ],
   transports: {
     [mainnet.id]: http(rpcUrlConfig[mainnet.id]),
@@ -54,6 +57,7 @@ const config = createConfig({
     [sonic.id]: http(rpcUrlConfig[sonic.id]),
     [swellchain.id]: http(rpcUrlConfig[swellchain.id]),
     [tac.id]: http(rpcUrlConfig[tac.id]),
+    [avalanche.id]: http(rpcUrlConfig[avalanche.id]),
     // Testnets:
     [baseSepolia.id]: http(rpcUrlConfig[baseSepolia.id]),
     [berachainTestnetbArtio.id]: http(rpcUrlConfig[berachainTestnetbArtio.id]),
@@ -63,6 +67,7 @@ const config = createConfig({
     [morphHolesky.id]: http(rpcUrlConfig[morphHolesky.id]),
     [sepolia.id]: http(rpcUrlConfig[sepolia.id]),
     [sonicBlazeTestnet.id]: http(rpcUrlConfig[sonicBlazeTestnet.id]),
+    [avalancheFuji.id]: http(rpcUrlConfig[avalancheFuji.id]),
   },
 });
 

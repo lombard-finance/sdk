@@ -12,6 +12,9 @@ export {
 export {
   getVaultDeposits,
   type GetVaultDepositsParameters,
+  getVaultDepositsAllChains,
+  type GetVaultDepositsAllChainsParameters,
+  type VaultDeposit,
 } from './lib/ops/get-vault-deposits';
 
 // Ops - Withdraw:
@@ -26,6 +29,10 @@ export {
 export {
   getVaultWithdrawals,
   type GetVaultWithdrawalsParameters,
+  getVaultWithdrawalsAllChains,
+  type GetVaultWithdrawalsAllChainsParameters,
+  type VaultWithdrawals,
+  type VaultWithdrawal,
 } from './lib/ops/get-vault-withdrawals';
 
 // Metrics - Vault points:

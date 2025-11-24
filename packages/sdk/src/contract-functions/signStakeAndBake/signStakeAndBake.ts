@@ -1,19 +1,21 @@
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
-import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
-import { Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../tokens/tokens';
-import { DAY, now, toUnix } from '../../utils/time';
 import {
-  VAULTS,
-  Vault,
-  isVedaVaultStakeAndBakeChain,
-} from '../../vaults/lib/config';
+    ApprovalMode,
+    DefiProtocol,
+    StakeAndBakeToken,
+} from '../../defi/defi-registry';
+import { DAY, now, toUnix } from '../../utils/time';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
-import { getExchangeRatio } from '../../api-functions/getLBTCExchangeRate/get-exchange-ratio';
-import { Env } from '@lombard.finance/sdk-common';
-
-export type StakeAndBakeToken = Token.LBTC | 'BTC';
+import { handleApproveFlow } from './handleApprove';
+import { handlePermitFlow } from './handlePermit';
+import { buildTypedData } from './typed-data-builder';
+import {
+    calculateStakeAndBakeLBTCAmount,
+    getStakeAndBakeTokenContract,
+} from './utils';
+import { getStakeAndBakeConfig } from './validation';
 
 export interface ISignStakeAndBakeParams extends CommonWriteParameters {
   /**
@@ -29,7 +31,7 @@ export interface ISignStakeAndBakeParams extends CommonWriteParameters {
   /**
    * The chosen DeFi vault to which the funds will be deposited.
    */
-  vaultKey?: Vault;
+  vaultKey?: DefiProtocol;
   /**
    * The token for which the signature is generated.
    * - Defaults to **BTC**: the amount will be converted to the corresponding
@@ -41,13 +43,30 @@ export interface ISignStakeAndBakeParams extends CommonWriteParameters {
 
 export interface ISignStakeAndBakeResult {
   /**
+   * The approval mode used for this signature.
+   * - `permit`: Off-chain signature (EIP-2612), can be used directly by backend
+   * - `approve`: On-chain approval transaction was submitted
+   */
+  mode: ApprovalMode;
+
+  /**
    * The signature.
+   * - For permit mode: Contains the EIP-2612 signature
+   * - For approve mode: Empty string (approval was done on-chain)
    */
   signature: string;
+
   /**
    * The typed data used to generate the signature.
+   * Contains the full EIP-712 structure for both permit and approve modes.
    */
   typedData: string;
+
+  /**
+   * Transaction hash for approve mode (when allowance was set).
+   * Only present when mode is 'approve' and a transaction was submitted.
+   */
+  approvalTxHash?: string;
 }
 
 /**
@@ -61,7 +80,7 @@ export interface ISignStakeAndBakeResult {
  * @param {ISignStakeAndBakeParams} parameters - The parameters.
  * @param {BigNumber.Value} parameters.value - The amount of BTC that will be converted to LBTC using current ratio and deposited to the DeFi vault.
  * @param {number} parameters.expiry = The optional expiration UNIX time of the signature.
- * @param {Vault} parameters.vaultKey - The optional DeFi vault identifier.
+ * @param {DefiProtocol} parameters.vaultKey - The optional DeFi vault identifier.
  * @param {Address} parameters.account - The EVM account address.
  * @param {ChainId} parameters.chainId - The chain id.
  * @param {EIP1193Provider} parameters.provider - The EIP1193 provider.
@@ -73,113 +92,70 @@ export async function signStakeAndBake({
   account,
   expiry = toUnix(now() + DAY),
   value,
-  vaultKey = Vault.Veda,
+  vaultKey = DefiProtocol.Veda,
   token = 'BTC',
   chainId,
   provider,
   rpcUrl,
-  env,
+  env = DEFAULT_ENV,
 }: ISignStakeAndBakeParams): Promise<ISignStakeAndBakeResult> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultStakeAndBakeChain(chainId)) {
-    throw new Error(
-      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.stakeAndBakeChains.join(', ')}`,
-    );
-  }
-
-  const lbtcAmount =
-    !token || token === 'BTC'
-      ? await calculateStakeAndBakeLBTCAmount(value, env)
-      : BigNumber(value);
-  const lbtcContract = await getTokenContractInfo(Token.LBTC, chainId, env);
-  const walletClient = makeWalletClient({ chainId, provider });
-  const spenderContract = vault.spenderContracts[chainId];
-
-  const nonce = await getPermitNonce({
-    owner: account,
+  const strategy = getStakeAndBakeConfig(
+    vaultKey,
+    token,
     chainId,
-    rpcUrl,
     env,
+  );
+
+  const spenderAddress = strategy.spenderContract.address;
+
+  // Calculate permit value (with conversion if needed)
+  const permitValue = strategy.amountStrategy === 'btcToLbtc'
+    ? await calculateStakeAndBakeLBTCAmount(value, env)
+    : new BigNumber(value);
+
+  // Get token contract (always use Token address for permits/approves, not adapter)
+  const tokenContract = await getStakeAndBakeTokenContract(token, chainId, env);
+  const tokenAddress = tokenContract.address;
+  const tokenAbi = tokenContract.abi;
+
+  // Calculate deadline based on expiry behavior
+  const deadline =
+    strategy.approval.deadlineStrategy === 'zero' ? 0n : BigInt(expiry);
+
+  // Get nonce if required
+  const nonce = strategy.approval.nonceStrategy === 'chain'
+    ? BigInt(await getPermitNonce({ owner: account, chainId, rpcUrl, env }))
+    : 0n;
+
+  // Build typed data using config
+  const typedData = buildTypedData({
+    mode: strategy.approval.mode,
+    account,
+    chainId,
+    verifyingContract: tokenAddress,
+    domainName: strategy.approval.domainName,
+    domainVersion: strategy.approval.domainVersion,
+    spender: spenderAddress,
+    value: BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN)),
+    nonce,
+    deadline,
   });
 
-  const typedData: Parameters<typeof walletClient.signTypedData>[0] = {
-    account,
-    domain: {
-      name: 'Lombard Staked Bitcoin',
-      version: '1',
-      chainId: BigInt(chainId),
-      verifyingContract: lbtcContract.address,
-    },
-    types: {
-      EIP712Domain: [
-        {
-          name: 'name',
-          type: 'string',
-        },
-        {
-          name: 'version',
-          type: 'string',
-        },
-        {
-          name: 'chainId',
-          type: 'uint256',
-        },
-        {
-          name: 'verifyingContract',
-          type: 'address',
-        },
-      ],
-      Permit: [
-        { name: 'owner', type: 'address' },
-        { name: 'spender', type: 'address' },
-        { name: 'value', type: 'uint256' },
-        { name: 'nonce', type: 'uint256' },
-        { name: 'deadline', type: 'uint256' },
-      ],
-    },
-    primaryType: 'Permit',
-    message: {
-      owner: account,
-      spender: spenderContract.address,
-      value: BigInt(lbtcAmount.toFixed(0, BigNumber.ROUND_DOWN)),
-      nonce: BigInt(nonce),
-      deadline: BigInt(expiry),
-    },
-  };
-
-  const signature = await walletClient.signTypedData(typedData);
-
-  return {
-    signature,
-    typedData: JSON.stringify(typedData, (_, v) =>
-      typeof v === 'bigint' ? v.toString() : v,
-    ),
-  };
-}
-
-/**
- * Helper function to calculate the correct LBTC amount for stake and bake
- * based on the current BTC to LBTC ratio.
- *
- * @param btcAmount - The original BTC amount entered by the user
- * @param env - The environment for fetching the exchange ratio
- * @returns The calculated LBTC amount that should be used in the permit signature
- */
-export async function calculateStakeAndBakeLBTCAmount(
-  btcAmount: BigNumber.Value,
-  env?: Env,
-): Promise<BigNumber> {
-  try {
-    const ratios = await getExchangeRatio({ env });
-    const btcTokenRatio = ratios.LBTC?.BTCTokenRatio || new BigNumber(1);
-    const lbtcAmount = new BigNumber(btcAmount).dividedBy(btcTokenRatio);
-
-    return lbtcAmount;
-  } catch (error) {
-    throw new Error('Failed to get exchange ratio for stake and bake');
+  // Delegate to appropriate handler based on mode
+  if (strategy.approval.mode === 'approve') {
+    return handleApproveFlow({
+      account,
+      chainId,
+      provider,
+      rpcUrl,
+      tokenAddress,
+      tokenAbi,
+      spenderAddress,
+      typedData,
+      requiredAmount: BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN)),
+    });
   }
+
+  // Permit mode
+  return handlePermitFlow({ chainId, provider, typedData });
 }

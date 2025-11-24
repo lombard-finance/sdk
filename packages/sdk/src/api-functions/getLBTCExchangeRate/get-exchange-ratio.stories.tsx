@@ -1,14 +1,14 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
+import { envSelector } from '../../stories/arg-types';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
+import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import { getExchangeRatio } from './get-exchange-ratio';
-import { functionType } from '../../stories/components/decorators';
-import { envSelector } from '../../stories/arg-types';
 
 const meta = {
-  title: 'api/get-exchange-ratio',
+  title: 'api/getExchangeRatio',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('api-get')],

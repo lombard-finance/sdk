@@ -71,6 +71,7 @@ const LBTC_TOKEN_CONFIG = {
       abi: LBTC_ABI,
     },
   },
+  [Env.ibc]: undefined,
 } as const;
 
 const LBTC_BRIDGE_CONFIG = {
@@ -113,6 +114,7 @@ const LBTC_BRIDGE_CONFIG = {
       abi: LBTC_BRIDGE_ABI,
     },
   },
+  [Env.ibc]: undefined,
 } as const;
 
 const LBTC_BASCULE_CONFIG = {
@@ -155,6 +157,7 @@ const LBTC_BASCULE_CONFIG = {
       abi: LBTC_BASCULE_ABI,
     },
   },
+  [Env.ibc]: undefined,
 } as const;
 
 const STRK_TOKEN_CONFIG = {

@@ -6,7 +6,6 @@ import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import { getLBTCMintingFee } from './getLBTCMintingFee';
 import { chainSelector, envSelector } from '../../stories/arg-types';
-import { Env } from '@lombard.finance/sdk-common';
 
 const meta = {
   title: 'read/getLBTCMintingFee',

@@ -3,3 +3,6 @@ sdk-docs
 
 # Storybook static folder
 sdk-storybook
+
+*.tsbuildinfo
+*.build.tsbuildinfo

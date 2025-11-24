@@ -19,8 +19,11 @@ export const envSelector: Partial<ArgTypes> = {
   },
 };
 
-export const makeTokenSelector = (tokens?: Token[]): Partial<ArgTypes> => ({
-  token: {
+export const makeTokenSelector = (
+  tokens?: Token[],
+  fieldName = 'token',
+): Partial<ArgTypes> => ({
+  [fieldName]: {
     mapping: Token,
     options: Object.keys(Token).filter(tk => {
       if (!tokens) return true;

@@ -3,7 +3,7 @@ import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
 import { CommonWriteParameters } from '../../common/parameters';
-import { Token } from '../../tokens/token-addresses';
+import { AddressKind, Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { estimateGasFees } from '../../utils/gas';
 import { ensureHex } from '../../utils/hex';
@@ -14,50 +14,45 @@ import {
 
 export interface IClaimLBTCParams extends CommonWriteParameters {
   /**
-   * Raw payload from deposit notarization.
+   * The raw payload from deposit notarization, see `Deposit.rawPayload`.
    */
   data: string;
   /**
-   * Signature from deposit notarization.
+   * The proof signature from deposit notarization, see `Deposit.proof`.
    */
   proofSignature: string;
 }
 
 /**
- * Claims LBTC.
+ * Mints a specified token (LBTC or NativeLBTC) from a notarized deposit.
  *
- * @param {IClaimLBTCParams} parameters - The parameters.
- * @param {string} data - The raw payload from the deposit, see `IDeposit.rawPayload`
- * @param {string} proofSignature - The signature from the deposit, see `IDeposit.signature`
- * @param {Address} parameters.account - The EVM account address.
- * @param {ChainId} parameters.chainId - The chain id.
- * @param {EIP1193Provider} parameters.provider - The EIP1193 provider.
- * @param {string} parameters.rpcUrl - The optional rpc url.
- * @param {Env} parameters.env - The optional environment identifier.
+ * This is the primary function for claiming tokens from a deposit notarization.
  *
- * @returns {Promise<Hash>} transaction promise
+ * It performs the following steps:
+ * 1. Validates that the token is supported.
+ * 2. Checks chain restrictions.
+ * 3. Fetches the token contract information.
+ * 4. Checks the deposit status via Bascule.
+ * 5. Prepares the transaction call data and estimates gas fees if on Katana.
+ * 6. Simulates the contract call and executes the transaction via the provided wallet.
+ *
+ * @param {Object} params - The parameters.
+ * @param {string} params.data - Raw payload from the deposit notarization (`Deposit.rawPayload`).
+ * @param {string} params.proofSignature - Signature from the deposit notarization (`Deposit.proof`).
+ * @param {Address} params.account - The EVM account address that will receive the tokens.
+ * @param {ChainId} params.chainId - The chain ID of the target blockchain network.
+ * @param {EIP1193Provider} params.provider - The connected wallet provider.
+ * @param {string} [params.rpcUrl] - Optional RPC URL for the blockchain network.
+ * @param {Env} [params.env] - Optional environment identifier (e.g., `prod`, `staging`).
+ * @param {Token} [params.token=Token.LBTC] - The token to mint. Defaults to LBTC.
+ *
+ * @returns {Promise<Hash>} Resolves with the transaction hash of the mint operation.
+ *
+ * @throws Will throw an error if:
+ * - The token is unsupported.
+ * - BTCK minting is attempted on a non-Katana chain.
+ * - The deposit is unreported, withdrawn, or blocked by bridge security.
  */
-export async function claimLBTC({
-  data,
-  proofSignature,
-  account,
-  chainId,
-  provider,
-  rpcUrl,
-  env,
-}: IClaimLBTCParams): Promise<Hash> {
-  return mintToken({
-    data,
-    proofSignature,
-    account,
-    chainId,
-    provider,
-    rpcUrl,
-    env,
-    token: Token.LBTC,
-  });
-}
-
 export async function mintToken({
   data,
   proofSignature,
@@ -68,7 +63,7 @@ export async function mintToken({
   env,
   token = Token.LBTC,
 }: IClaimLBTCParams & { token?: Token }) {
-  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error('Unsupported token');
   }
 
@@ -76,7 +71,12 @@ export async function mintToken({
     throw new Error('Operation not permitted');
   }
 
-  const tokenContract = await getTokenContractInfo(token, chainId, env);
+  const tokenContract = await getTokenContractInfo(
+    token,
+    chainId,
+    env,
+    AddressKind.Adapter,
+  );
   const basculeStatus = await getBasculeDepositStatus({
     chainId,
     rawPayload: data,
@@ -110,7 +110,7 @@ export async function mintToken({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: tokenContract.abi,
     functionName:
-      token === Token.BTCK || token === Token.NativeLBTC ? 'mintV1' : 'mint',
+      token === Token.BTCK || token === Token.BTCb ? 'mintV1' : 'mint',
     args: [ensureHex(data), ensureHex(proofSignature)],
   } as const;
 
@@ -126,4 +126,33 @@ export async function mintToken({
   const txHash = await walletClient.writeContract(request);
 
   return txHash;
+}
+
+/**
+ * Convenience wrapper for minting LBTC from a deposit notarization.
+ *
+ * Internally calls `mintToken` with the `Token.LBTC` argument.
+ *
+ * @param {IClaimLBTCParams} params - The parameters for claiming LBTC.
+ * @returns {Promise<Hash>} Resolves with the transaction hash of the LBTC mint operation.
+ */
+export async function claimLBTC({
+  data,
+  proofSignature,
+  account,
+  chainId,
+  provider,
+  rpcUrl,
+  env,
+}: IClaimLBTCParams): Promise<Hash> {
+  return mintToken({
+    data,
+    proofSignature,
+    account,
+    chainId,
+    provider,
+    rpcUrl,
+    env,
+    token: Token.LBTC,
+  });
 }

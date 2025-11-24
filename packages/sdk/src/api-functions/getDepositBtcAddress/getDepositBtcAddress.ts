@@ -1,3 +1,5 @@
+import { Address, pad } from 'viem';
+import { getChainNameById } from '../../common/blockchain-identifier';
 import {
   isSolanaChain,
   isStarknetChainId,
@@ -5,19 +7,18 @@ import {
   isValidChain,
 } from '../../common/chains';
 import {
+  AddressKind,
+  Token,
   getSolanaTokenAddress,
   getStarknetTokenAddress,
   getSuiTokenAddress,
-  Token,
 } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
-import type {
-  IGetDepositBtcAddressesParameters,
-  IGetDepositBtcAddressParameters,
-} from './types';
 import { makeRequest } from './make-request';
-import { getChainNameById } from '../../common/blockchain-identifier';
-import { Address, pad } from 'viem';
+import type {
+  IGetDepositBtcAddressParameters,
+  IGetDepositBtcAddressesParameters,
+} from './types';
 
 /**
  * Returns the current address for depositing BTC by given parameters.
@@ -40,7 +41,7 @@ export async function getDepositBtcAddress({
 
   let depositAddress: string | undefined = undefined;
 
-  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error('Unsupported token');
   }
 
@@ -50,7 +51,12 @@ export async function getDepositBtcAddress({
     | undefined = undefined;
   try {
     if (isValidChain(chainId)) {
-      const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
+      const tokenContractInfo = await getTokenContractInfo(
+        token,
+        chainId,
+        env,
+        AddressKind.Adapter,
+      );
       tokenAddressFilter = {
         token_address: tokenContractInfo.address.toLowerCase(),
       };

@@ -2,6 +2,7 @@ import { num, RpcProvider, WalletAccount } from 'starknet';
 import { Address } from './common';
 import { ERR_NO_PUBKEY } from './err';
 import { NormalizedSignature } from './signature';
+import { StarknetChainId } from './chains';
 
 /** The list of entrypoints that could be the public key getters */
 const PUBLIC_KEY_GETTERS = [
@@ -22,7 +23,7 @@ export async function getPublicKey(
 ) {
   let pubkey: string | undefined = undefined;
 
-  const chainId = await provider.getChainId();
+  const chainId = (await provider.getChainId()) as StarknetChainId;
 
   for (const entrypoint of PUBLIC_KEY_GETTERS) {
     try {

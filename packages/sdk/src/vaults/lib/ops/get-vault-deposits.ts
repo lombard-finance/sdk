@@ -82,6 +82,8 @@ export type VaultDeposit = {
   shareAmount: BigNumber;
   /** The deposit token */
   token?: Omit<TokenInfo, 'abi'>;
+  /** The user wallet address that made the deposit */
+  toAddress: Address;
 };
 
 /**
@@ -154,10 +156,53 @@ export async function getVaultDeposits({
       amount,
       shareAmount,
       token,
+      toAddress: ensureHex(d.user),
     };
 
     return vaultDeposit;
   });
 
   return orderBy(deposits, d => d.blockNumber, 'desc');
+}
+
+export type GetVaultDepositsAllChainsParameters = {
+  account: Address;
+  vaultKey?: Vault;
+  rpcUrl?: string;
+};
+
+/**
+ * Retrieves the deposits made by specified address across all supported chains for a vault.
+ * This is useful for getting a complete view of all deposits regardless of the currently connected chain.
+ * 
+ * @param parameters - The parameters.
+ * @param parameters.account - The account address.
+ * @param parameters.vaultKey - The optional vault identifier (defaults to Veda).
+ * @param parameters.rpcUrl - The optional RPC url.
+ *
+ * @returns {Promise<VaultDeposit[]>} All deposits across all supported chains, sorted by block number (newest first)
+ */
+export async function getVaultDepositsAllChains({
+  account,
+  vaultKey = Vault.Veda,
+  rpcUrl,
+}: GetVaultDepositsAllChainsParameters): Promise<VaultDeposit[]> {
+  const vault = VAULTS[vaultKey];
+  if (!vault) {
+    throw new Error(`Unknown vault key: ${vaultKey}`);
+  }
+
+  // Fetch deposits from all supported chains in parallel
+  const depositsPromises = vault.chains.map(chainId =>
+    getVaultDeposits({ account, chainId, vaultKey, rpcUrl }).catch(error => {
+      console.error(`Failed to fetch deposits for chain ${chainId}:`, error);
+      return []; // Return empty array on error to not break the entire query
+    }),
+  );
+
+  const depositsArrays = await Promise.all(depositsPromises);
+  
+  // Flatten and sort all deposits by block number (newest first)
+  const allDeposits = depositsArrays.flat();
+  return orderBy(allDeposits, d => d.blockNumber, 'desc');
 }

@@ -20,7 +20,7 @@ export function ConnectButton({ desiredChainId, label }: ConnectButtonProps) {
     }
 
     async () => {
-      const connectedChainId = await account.getChainId();
+      const connectedChainId = (await account.getChainId()) as StarknetChainId;
 
       if (chainId !== connectedChainId) {
         setChainId(connectedChainId);

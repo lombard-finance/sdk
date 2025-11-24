@@ -23,7 +23,7 @@ const meta = {
   argTypes: {
     ...chainSelector,
     ...envSelector,
-    ...makeTokenSelector([Token.LBTC, Token.NativeLBTC, Token.BTCK]),
+    ...makeTokenSelector([Token.LBTC, Token.BTCb, Token.BTCK]),
   },
 } satisfies Meta<typeof StoryView>;
 

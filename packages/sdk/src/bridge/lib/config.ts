@@ -29,6 +29,7 @@ export const CCIP_BRIDGE_CHAINS = [
   ChainId.katana,
   ChainId.sonic,
   // Testnets:
+  ChainId.avalancheFuji,
   ChainId.baseSepoliaTestnet,
   ChainId.holesky,
   ChainId.katanaTatara,

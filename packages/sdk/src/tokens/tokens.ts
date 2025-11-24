@@ -1,7 +1,7 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import { type Abi, Address, erc20Abi, PublicClient, zeroAddress } from 'viem';
-import { TOKEN_ADDRESSES, Token } from './token-addresses';
+import { AddressKind, TOKEN_ADDRESSES, Token } from './token-addresses';
 import { LBTC_ABI } from './abi/LBTC_ABI';
 import { TokenContractAddressNotFoundError } from '../utils/err';
 import BTCK_ABI from './abi/BTCK_ABI';
@@ -9,6 +9,7 @@ import STLBTC_ABI from './abi/STLBTC_ABI';
 import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
 import { ChainId } from '../common/chains';
 import { makePublicClient } from '../clients/public-client';
+import BRIDGE_TOKEN_ADAPTER_ABI from './abi/BRIDGE_TOKEN_ADAPTER_ABI';
 
 export type TokenInfo = {
   address: Address;
@@ -36,6 +37,7 @@ export async function isUpgradedContract(
 ) {
   const environment = env || DEFAULT_ENV;
   const address = TOKEN_ADDRESSES[token]?.[environment]?.[chainId];
+
   if (!address) {
     throw new TokenContractAddressNotFoundError(token, chainId, environment);
   }
@@ -44,7 +46,7 @@ export async function isUpgradedContract(
   try {
     const assetRouter = await publicClient.readContract({
       abi: MAYBE_UPGRADED_CONTRACT_ABI,
-      address,
+      address: typeof address === 'string' ? address : address.adapter,
       functionName: UPGRADED_CONTRACT_POINTER,
     });
     return assetRouter !== zeroAddress;
@@ -62,53 +64,81 @@ type AbiForBTCK =
   | typeof BTCK_ABI; // legacy
 
 type AbiForNativeLBTC = typeof NATIVE_LBTC_ABI;
+export type AbiForBridgeTokenAdapter = typeof BRIDGE_TOKEN_ADAPTER_ABI;
 
-type AbiFor<TToken extends Token> = TToken extends Token.LBTC
+type AbiFor<
+  TToken extends Token,
+  chain = ChainId,
+  addressKind extends AddressKind = AddressKind.Token,
+> = TToken extends Token.LBTC
   ? AbiForLBTC
   : TToken extends Token.BTCK
     ? AbiForBTCK
-    : TToken extends Token.NativeLBTC
-      ? AbiForNativeLBTC
+    : TToken extends Token.BTCb
+      ? chain extends typeof ChainId.avalanche | typeof ChainId.avalancheFuji
+        ? addressKind extends AddressKind.Adapter
+          ? AbiForBridgeTokenAdapter
+          : typeof erc20Abi // <-- AddressKind.Token - ERC-20 Token Contract
+        : AbiForNativeLBTC
       : typeof erc20Abi;
 
-type TokenContractInfo<TToken extends Token> = {
-  abi: AbiFor<TToken>;
+type TokenContractInfo<
+  TToken extends Token,
+  chain extends ChainId,
+  TAddressKind extends AddressKind,
+> = {
+  abi: AbiFor<TToken, chain, TAddressKind>;
   address: Address;
-  chainId: ChainId;
+  chainId: chain;
 };
 
 export const isUpgradedAbi = (
-  abi: Abi,
+  abi: unknown,
 ): abi is typeof STLBTC_ABI | typeof NATIVE_LBTC_ABI => {
-  const redeemForBtcAbi = abi.find(
+  const redeemForBtcAbi = (abi as Abi).find(
     a => a.type === 'function' && a.name === UPGRADED_CONTRACT_POINTER,
   );
   return redeemForBtcAbi != null;
 };
 
-export async function getTokenContractInfo<TToken extends Token>(
+export async function getTokenContractInfo<
+  TToken extends Token,
+  chain extends ChainId,
+  TAddressKind extends AddressKind = AddressKind.Token,
+>(
   token: TToken,
-  chainId: ChainId,
+  chainId: chain,
   env?: Env,
-): Promise<TokenContractInfo<TToken>> {
+  _addressKind?: TAddressKind,
+): Promise<TokenContractInfo<TToken, chain, TAddressKind>> {
   const environment = env || DEFAULT_ENV;
+  const addressKind = _addressKind || AddressKind.Token;
 
-  let abi: AbiFor<TToken> | undefined = undefined;
+  let abi: AbiFor<TToken, chain, TAddressKind> | undefined = undefined;
+
   if (token === Token.LBTC) {
     if (await isUpgradedContract(Token.LBTC, chainId, environment)) {
-      abi = STLBTC_ABI as AbiFor<TToken>;
+      abi = STLBTC_ABI as AbiFor<TToken, chain, TAddressKind>;
     } else {
-      abi = LBTC_ABI as AbiFor<TToken>;
+      abi = LBTC_ABI as AbiFor<TToken, chain, TAddressKind>;
     }
   } else if (token === Token.BTCK) {
-    abi = BTCK_ABI as AbiFor<TToken>;
+    abi = BTCK_ABI as AbiFor<TToken, chain, TAddressKind>;
     if (await isUpgradedContract(Token.BTCK, chainId, environment)) {
-      abi = NATIVE_LBTC_ABI as AbiFor<TToken>;
+      abi = NATIVE_LBTC_ABI as AbiFor<TToken, chain, TAddressKind>;
     }
-  } else if (token === Token.NativeLBTC) {
-    abi = NATIVE_LBTC_ABI as AbiFor<TToken>;
+  } else if (token === Token.BTCb) {
+    if (chainId === ChainId.avalanche || chainId === ChainId.avalancheFuji) {
+      if (addressKind === AddressKind.Adapter) {
+        abi = BRIDGE_TOKEN_ADAPTER_ABI as AbiFor<TToken, chain, TAddressKind>;
+      } else {
+        abi = erc20Abi as AbiFor<TToken, chain, TAddressKind>;
+      }
+    } else {
+      abi = NATIVE_LBTC_ABI as AbiFor<TToken, chain, TAddressKind>;
+    }
   } else {
-    abi = erc20Abi as AbiFor<TToken>;
+    abi = erc20Abi as AbiFor<TToken, chain, TAddressKind>;
   }
 
   const address = TOKEN_ADDRESSES[token]?.[environment]?.[chainId];
@@ -118,23 +148,28 @@ export async function getTokenContractInfo<TToken extends Token>(
 
   return {
     abi,
-    address,
+    address: typeof address === 'string' ? address : address[addressKind],
     chainId,
   };
 }
 
-export const retrieveTokenProperties = async (
+export const retrieveTokenProperties = async <
+  TToken extends Token,
+  chain extends ChainId,
+>(
   publicClient: PublicClient,
-  tokenContractInfo: { abi: Abi; address: Address; chainId: ChainId },
+  tokenContractInfo: TokenContractInfo<TToken, chain, AddressKind.Token>,
 ) => {
   const [symbolResult, decimalsResult] = await publicClient.multicall({
     contracts: [
       {
-        ...tokenContractInfo,
+        address: tokenContractInfo.address,
+        abi: tokenContractInfo.abi as Abi,
         functionName: 'symbol',
       },
       {
-        ...tokenContractInfo,
+        address: tokenContractInfo.address,
+        abi: tokenContractInfo.abi as Abi,
         functionName: 'decimals',
       },
     ],
@@ -146,7 +181,7 @@ export const retrieveTokenProperties = async (
   ) {
     return {
       address: tokenContractInfo.address,
-      abi: tokenContractInfo.abi as Abi,
+      abi: tokenContractInfo.abi,
       symbol: String(symbolResult.result),
       decimals: Number(decimalsResult.result),
     };
@@ -158,7 +193,7 @@ export async function getTokenInfo(
   chainId: ChainId,
   env?: Env,
   rpcUrl?: string,
-): Promise<TokenInfo | undefined> {
+) {
   const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
   if (!tokenContractInfo) return;
 
@@ -170,7 +205,7 @@ export async function getAssetInfo(
   address: Address,
   chainId: ChainId,
   rpcUrl?: string,
-): Promise<TokenInfo | undefined> {
+) {
   const publicClient = makePublicClient({ chainId, rpcUrl });
   return retrieveTokenProperties(publicClient, {
     abi: erc20Abi,

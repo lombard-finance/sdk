@@ -8,7 +8,7 @@ import {
   keccak256,
   zeroAddress,
 } from 'viem';
-import { IDeposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
+import { Deposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { isEthereumChain, isKatanaChain, isMonadChain } from '../../common/chains';
@@ -16,7 +16,7 @@ import { CommonOptionalWriteParameters } from '../../common/parameters';
 import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 import KATANA_BASCULE_ABI from '../../tokens/abi/KATANA_BASCULE_ABI';
 import LBTC_BASCULE_ABI from '../../tokens/abi/LBTC_BASCULE_ABI.json';
-import { Token } from '../../tokens/token-addresses';
+import { AddressKind, Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
 import { getErrorMessage } from '../../utils/err';
 import {
@@ -49,7 +49,7 @@ export interface IGetBasculeDepositStatusParameters
    * The deposit for which the bascule status will be checked.
    * You can omit `rawPayload` parameter if `deposit` is provided.
    */
-  deposit?: IDeposit;
+  deposit?: Deposit;
   /**
    * The `rawPayload` of the deposit for which the bascule status
    * will be checked.
@@ -74,7 +74,7 @@ export interface IGetBasculeDepositStatusParameters
  * a simplified method.
  *
  * @param {IGetBasculeDepositStatusParameters} parameters - The parameters.
- * @param {IDeposit} parameters.deposit - The deposit for which the bascule status will be checked. You can omit `rawPayload` parameter if `deposit` is provided.
+ * @param {Deposit} parameters.deposit - The deposit for which the bascule status will be checked. You can omit `rawPayload` parameter if `deposit` is provided.
  * @param {string} parameters.rawPayload - The `rawPayload` of the deposit for which the bascule status will be checked. You can omit `deposit` parameter if `rawPayload` is provided.
  * @param {ChainId} parameters.chainId - The chain id. For Katana chains (Katana mainnet or Katana Tatara testnet), GMP payload decoding is used.
  * @param {Token} parameters.token - The token for which to check bascule status. Defaults to Token.LBTC.
@@ -102,7 +102,12 @@ export async function getBasculeDepositStatus({
   }
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
-  const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
+  const tokenContractInfo = await getTokenContractInfo(
+    token,
+    chainId,
+    env,
+    AddressKind.Adapter,
+  );
 
   // Determine which bascule getter function to use based on the contract type
   // There are two different approaches:

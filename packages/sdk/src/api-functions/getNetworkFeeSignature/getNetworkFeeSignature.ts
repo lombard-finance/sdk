@@ -14,6 +14,10 @@ export interface IGetNetworkFeeSignatureParams extends IEnvParam {
    * Destination address
    */
   address: string;
+  /**
+   * Token address (optional, required for BTC.b)
+   */
+  tokenAddress?: string;
 }
 
 interface IGetNetworkFeeSignatureResponse {
@@ -60,17 +64,24 @@ export async function getNetworkFeeSignature({
   address,
   chainId,
   env,
+  tokenAddress,
 }: IGetNetworkFeeSignatureParams): Promise<IGetNetworkFeeSignatureMappedResponse> {
   const { baseApiUrl } = getApiConfig(env);
 
   try {
+    const params: Record<string, string | number> = {
+      user_destination_address: address,
+      chain_id: chainId,
+    };
+
+    if (tokenAddress) {
+      params.token_address = tokenAddress;
+    }
+
     const { data } = await axios.get<IGetNetworkFeeSignatureResponse>(
       `${baseApiUrl}/api/v1/claimer/get-user-signature`,
       {
-        params: {
-          user_destination_address: address,
-          chain_id: chainId,
-        },
+        params,
       },
     );
 

@@ -17,6 +17,9 @@ export const BlockchainIdentifier = {
   eth: 'DESTINATION_BLOCKCHAIN_ETHEREUM',
   ethOld: 'BLOCKCHAIN_ETHEREUM',
 
+  avalanche: 'DESTINATION_BLOCKCHAIN_AVALANCHE',
+  avalancheOld: 'BLOCKCHAIN_AVALANCHE',
+
   base: 'DESTINATION_BLOCKCHAIN_BASE',
   baseOld: 'BLOCKCHAIN_BASE',
 
@@ -37,6 +40,9 @@ export const BlockchainIdentifier = {
 
   starknet: 'DESTINATION_BLOCKCHAIN_STARKNET',
   starknetOld: 'BLOCKCHAIN_STARKNET',
+
+  monad: 'DESTINATION_BLOCKCHAIN_MONAD',
+  monadOld: 'BLOCKCHAIN_MONAD',
 } as const;
 
 export type BlockchainIdentifier =
@@ -51,6 +57,10 @@ export function getChainNameById(
     chainId === ChainId.sepolia
   ) {
     return BlockchainIdentifier.eth;
+  }
+
+  if (chainId === ChainId.avalanche || chainId === ChainId.avalancheFuji) {
+    return BlockchainIdentifier.avalanche;
   }
 
   if (chainId === ChainId.base || chainId === ChainId.baseSepoliaTestnet) {
@@ -70,6 +80,10 @@ export function getChainNameById(
 
   if (chainId === ChainId.sonic || chainId === ChainId.sonicBlazeTestnet) {
     return BlockchainIdentifier.sonic;
+  }
+
+  if (chainId === ChainId.monad) {
+    return BlockchainIdentifier.monad;
   }
 
   if (chainId === SUI_TESTNET_CHAIN || chainId === SUI_MAINNET_CHAIN) {
@@ -95,7 +109,7 @@ export function getChainNameById(
 }
 
 export const getEthNetworkByEnv = (env: Env) =>
-  env === Env.prod ? ChainId.ethereum : ChainId.holesky;
+  env === Env.prod ? ChainId.ethereum : ChainId.sepolia;
 
 export const getBscNetworkByEnv = (env: Env) =>
   env === Env.prod
@@ -131,6 +145,10 @@ export function getChainIdByName(
     case BlockchainIdentifier.ethOld:
       return getEthNetworkByEnv(env);
 
+    case BlockchainIdentifier.avalanche:
+    case BlockchainIdentifier.avalancheOld:
+      return env === Env.prod ? ChainId.avalanche : ChainId.avalancheFuji;
+
     case BlockchainIdentifier.base:
     case BlockchainIdentifier.baseOld:
       return getBaseNetworkByEnv(env);
@@ -141,7 +159,7 @@ export function getChainIdByName(
 
     case BlockchainIdentifier.katana:
     case BlockchainIdentifier.katanaOld:
-      return env === 'prod' ? ChainId.katana : ChainId.katanaTatara;
+      return env === Env.prod ? ChainId.katana : ChainId.katanaTatara;
 
     case BlockchainIdentifier.sui:
     case BlockchainIdentifier.suiOld:
@@ -158,6 +176,10 @@ export function getChainIdByName(
     case BlockchainIdentifier.starknet:
     case BlockchainIdentifier.starknetOld:
       return getStarknetNetworkByEnv(env);
+
+    case BlockchainIdentifier.monad:
+    case BlockchainIdentifier.monadOld:
+      return ChainId.monad;
 
     default:
       return ChainId.ethereum;

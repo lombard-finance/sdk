@@ -1,5 +1,5 @@
 import { Env } from '@lombard.finance/sdk-common';
-import { createPublicClient, http, PublicClient } from 'viem';
+import { Chain, createPublicClient, http, PublicClient } from 'viem';
 import {
   CHAIN_ID_TO_VIEM_CHAIN_MAP,
   ChainId,
@@ -32,7 +32,7 @@ export function makePublicClient({
 
   const rpcUrls = { ...rpcUrlConfig, ...override };
 
-  let chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
+  let chain: Chain | undefined = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
   if (!chain) {
     chain = getChain(chainId);
   }
