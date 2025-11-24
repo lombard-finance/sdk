@@ -44,6 +44,7 @@ export const NETWORK_TO_VEDA_VAULT_CHAIN_MAP: Record<string, VedaVaultChain> = {
 export const VEDA_VAULT_STAKE_AND_BAKE_CHAINS = [
   ChainId.ethereum,
   ChainId.binanceSmartChain,
+  ChainId.base,
   // Testnets:
   ChainId.binanceSmartChainTestnet,
   ChainId.holesky,
@@ -104,6 +105,11 @@ export const VEDA_VAULT_SPENDER_CONTRACTS: Record<
     abi: VEDA_VAULT_SPENDER_ABI as Abi,
     address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
     chainId: ChainId.binanceSmartChain,
+  },
+  [ChainId.base]: {
+    abi: VEDA_VAULT_SPENDER_ABI as Abi,
+    address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
+    chainId: ChainId.base,
   },
   // Testnets:
   [ChainId.holesky]: {
@@ -166,7 +172,7 @@ export const VAULTS = {
     chains: VEDA_VAULT_CHAINS,
     tokens: {
       [Token.LBTC]: VEDA_VAULT_CHAINS,
-      [Token.BTCB]: [ChainId.binanceSmartChain],
+      [Token.BTCBinance]: [ChainId.binanceSmartChain],
       [Token.cbBTC]: [ChainId.ethereum, ChainId.base],
       [Token.eBTC]: [ChainId.ethereum],
       [Token.wBTC]: [ChainId.ethereum],

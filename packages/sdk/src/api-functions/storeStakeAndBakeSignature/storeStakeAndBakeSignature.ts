@@ -9,6 +9,8 @@ interface IStoreStakeAndBakeSignatureResponse {
   status: IStoreStakeAndBakeSignatureStatus;
 }
 
+const EMPTY_SIGNATURE = '0x00';
+
 export interface IStoreStakeAndBakeSignatureParams extends IEnvParam {
   /**
    * signature
@@ -44,7 +46,7 @@ export async function storeStakeAndBakeSignature({
       {
         params: {
           typed_data: typedData,
-          signature,
+          signature: signature || EMPTY_SIGNATURE,
         },
       },
     );

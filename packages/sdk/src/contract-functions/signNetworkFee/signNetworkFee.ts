@@ -17,6 +17,11 @@ export interface ISignNetworkFeeParams extends CommonWriteParameters {
    * Defaults to 24h from now.
    */
   expiry?: number;
+  /**
+   * The token to use for signing.
+   * Defaults to Token.LBTC for backwards compatibility.
+   */
+  token?: Token;
 }
 
 export interface ISignNetworkFeeResponse {
@@ -51,8 +56,9 @@ export async function signNetworkFee({
   chainId,
   provider,
   env,
+  token = Token.LBTC,
 }: ISignNetworkFeeParams): Promise<ISignNetworkFeeResponse> {
-  const lbtcContract = await getTokenContractInfo(Token.LBTC, chainId, env);
+  const tokenContract = await getTokenContractInfo(token, chainId, env);
   const walletClient = makeWalletClient({
     chainId,
     provider,
@@ -62,10 +68,10 @@ export async function signNetworkFee({
   const typedData: TypedData = {
     account,
     domain: {
-      name: 'Lombard Staked Bitcoin',
+      name: token === Token.BTCb ? 'Bitcoin' : 'Lombard Staked Bitcoin',
       version: '1',
       chainId,
-      verifyingContract: lbtcContract.address,
+      verifyingContract: tokenContract.address,
     },
     message: {
       chainId,

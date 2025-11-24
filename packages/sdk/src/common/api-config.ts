@@ -26,6 +26,12 @@ const devConfig: IApiConfig = {
   bffApiUrl: 'https://bff.stage.lombard-fi.com',
 };
 
+// IBC environment configuration for Avalanche BTC.b testing
+const ibcConfig: IApiConfig = {
+  baseApiUrl: 'https://ibc.stage.lombard-fi.com',
+  bffApiUrl: 'https://bff.stage.lombard-fi.com',
+};
+
 export const getApiConfig = (env: Env = DEFAULT_ENV): IApiConfig => {
   switch (env) {
     case Env.dev:
@@ -34,6 +40,8 @@ export const getApiConfig = (env: Env = DEFAULT_ENV): IApiConfig => {
       return prodConfig;
     case Env.testnet:
       return testnetConfig;
+    case Env.ibc:
+      return ibcConfig;
     default:
       return stageConfig;
   }

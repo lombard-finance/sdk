@@ -20,7 +20,7 @@ const meta = {
   decorators: [functionType('api-post')],
   argTypes: {
     ...chainSelector,
-    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.NativeLBTC]),
+    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]),
   },
 } satisfies Meta<typeof StoryView>;
 

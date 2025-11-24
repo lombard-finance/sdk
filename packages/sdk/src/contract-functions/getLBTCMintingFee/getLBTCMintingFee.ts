@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
 import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
-import { Token } from '../../tokens/token-addresses';
+import { AddressKind, Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
 import { determineEnv } from '../../utils/env';
 import { fromSatoshi } from '../../utils/satoshi';
@@ -34,19 +34,24 @@ export async function getMintingFee({
   rpcUrl,
   env,
 }: { token: Token } & CommonParameters) {
-  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error(`Unsupported token: ${token}`);
   }
 
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
-  const tokenContract = await getTokenContractInfo(token, chainId, environment);
+  const tokenContract = await getTokenContractInfo(
+    token,
+    chainId,
+    environment,
+    AddressKind.Adapter,
+  );
   const tokenContractAbi = tokenContract.abi;
 
   let rawFeeValue = 0n;
 
-  if (isUpgradedAbi(tokenContractAbi) || token === Token.NativeLBTC) {
+  if (isUpgradedAbi(tokenContractAbi) || token === Token.BTCb) {
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContractAbi,
       address: tokenContract.address,
@@ -58,12 +63,12 @@ export async function getMintingFee({
       address: assetRouterAddress,
     };
 
-    rawFeeValue = await publicClient.readContract({
+    rawFeeValue = (await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
       functionName: 'maxMintCommission',
       args: [tokenContract.address],
-    });
+    })) as bigint;
   } else {
     rawFeeValue = await publicClient.readContract({
       abi: tokenContract.abi,
@@ -81,17 +86,21 @@ export async function getRedeemFee({
   rpcUrl,
   env,
 }: { token: Token } & CommonParameters) {
-  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error(`Unsupported token: ${token}`);
   }
-
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
-  const tokenContract = await getTokenContractInfo(token, chainId, environment);
+  const tokenContract = await getTokenContractInfo(
+    token,
+    chainId,
+    environment,
+    AddressKind.Adapter,
+  );
 
   let rawFeeValue = 0n;
-  if (isUpgradedAbi(tokenContract.abi) || token === Token.NativeLBTC) {
+  if (isUpgradedAbi(tokenContract.abi) || token === Token.BTCb) {
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
@@ -104,21 +113,21 @@ export async function getRedeemFee({
     };
 
     // 1.
-    const toNativeCommissionValue = await publicClient.readContract({
+    const toNativeCommissionValue = (await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
       functionName: 'toNativeCommission',
       args: [tokenContract.address],
-    });
+    })) as bigint;
 
     // 2.
     const [redeemFeeValue /* redeemForBtcMinAmountValue, isRedeemEnabled */] =
-      await publicClient.readContract({
+      (await publicClient.readContract({
         abi: assetRouter.abi,
         address: assetRouter.address,
         functionName: 'tokenConfig',
         args: [tokenContract.address],
-      });
+      })) as [bigint];
 
     rawFeeValue = toNativeCommissionValue + redeemFeeValue;
   } else {
@@ -139,17 +148,22 @@ export async function getMinRedeemAmount({
   rpcUrl,
   env,
 }: { token: Token } & CommonParameters) {
-  if (![Token.LBTC, Token.BTCK, Token.NativeLBTC].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error(`Unsupported token: ${token}`);
   }
 
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
-  const tokenContract = await getTokenContractInfo(token, chainId, environment);
+  const tokenContract = await getTokenContractInfo(
+    token,
+    chainId,
+    environment,
+    AddressKind.Adapter,
+  );
 
   let value = 0n;
-  if (isUpgradedAbi(tokenContract.abi) || token === Token.NativeLBTC) {
+  if (isUpgradedAbi(tokenContract.abi) || token === Token.BTCb) {
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
@@ -161,12 +175,12 @@ export async function getMinRedeemAmount({
       address: assetRouterAddress,
     };
 
-    const [, redeemForBtcMinAmountValue] = await publicClient.readContract({
+    const [, redeemForBtcMinAmountValue] = (await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
       functionName: 'tokenConfig',
       args: [tokenContract.address],
-    });
+    })) as [undefined, bigint];
 
     value = redeemForBtcMinAmountValue;
   } else {

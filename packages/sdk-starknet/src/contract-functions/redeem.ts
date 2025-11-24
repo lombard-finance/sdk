@@ -31,7 +31,7 @@ export async function redeem({
   walletAccount,
   env,
 }: RedeemParameters) {
-  const chainId = await walletAccount.getChainId();
+  const chainId = (await walletAccount.getChainId()) as StarknetChainId;
 
   const tokenParams = {
     token,

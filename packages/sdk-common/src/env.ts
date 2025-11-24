@@ -3,6 +3,7 @@ export const Env = {
   testnet: 'testnet',
   stage: 'stage',
   dev: 'dev',
+  ibc: 'ibc',
 } as const;
 
 export type Env = (typeof Env)[keyof typeof Env];

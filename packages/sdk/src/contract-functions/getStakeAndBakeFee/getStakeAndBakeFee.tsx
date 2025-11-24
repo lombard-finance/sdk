@@ -1,65 +1,100 @@
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import { getContract } from 'viem';
 import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
+import {
+  DefiProtocol,
+  DefiProtocols,
+  StakeAndBakeToken,
+} from '../../defi/defi-registry';
+import { Token } from '../../tokens/token-addresses';
 import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
-import {
-  VAULTS,
-  Vault,
-  isVedaVaultStakeAndBakeChain,
-} from '../../vaults/lib/config';
+import { getStakeAndBakeConfig } from '../signStakeAndBake/validation';
 
-export interface IGetStakeAndBakeFeeParams
-  extends Omit<CommonParameters, 'env'> {
+/**
+ * Default token mapping for each protocol.
+ * Used when token is not explicitly provided.
+ */
+const PROTOCOL_DEFAULT_TOKENS: Record<DefiProtocol, StakeAndBakeToken> = {
+  [DefiProtocol.Veda]: Token.LBTC,
+  [DefiProtocol.Silo]: Token.BTCb,
+};
+
+export interface IGetStakeAndBakeFeeParams extends CommonParameters {
   /**
-   * The DeFi vault identifier.
+   * The DeFi protocol identifier (e.g., Veda, Silo).
    */
-  vaultKey?: Vault;
+  protocol?: DefiProtocol;
+  /**
+   * The token to query the fee for (optional).
+   * If not provided, defaults to the protocol's primary token:
+   * - Veda: LBTC
+   * - Silo: BTCb
+   */
+  token?: StakeAndBakeToken;
 }
 
 /**
- * Get Stake and bake fee.
+ * Get Stake and bake fee for a specific DeFi protocol and token.
+ *
+ * If token is not provided, uses the default token for the protocol:
+ * - Veda: LBTC
+ * - Silo: BTCb
  *
  * @param {IGetStakeAndBakeFeeParams} parameters - The parameters.
- * @param {Vault} parameters.vaultKey - The optional DeFi vault identifier.
+ * @param {DefiProtocol} parameters.protocol - The optional DeFi protocol identifier (defaults to Veda).
+ * @param {StakeAndBakeToken} parameters.token - The optional token (defaults to protocol's primary token).
  * @param {ChainId} parameters.chainId - The chain id.
+ * @param {Env} parameters.env - The environment (prod, testnet, etc.).
  * @param {string} parameters.rpcUrl - The optional rpc url.
  *
  * @returns Stake and bake fee amount.
  */
 export async function getStakeAndBakeFee({
-  vaultKey = Vault.Veda,
+  protocol = DefiProtocol.Veda,
+  token,
   chainId,
+  env = DEFAULT_ENV,
   rpcUrl,
 }: IGetStakeAndBakeFeeParams): Promise<BigNumber> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
+  const protocolInfo = DefiProtocols[protocol];
+  if (!protocolInfo) {
+    throw new Error(`Unknown protocol: ${protocol}`);
   }
 
-  if (!isVedaVaultStakeAndBakeChain(chainId)) {
-    throw new Error(
-      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.stakeAndBakeChains.join(', ')}`,
-    );
-  }
+  // Use provided token or default to protocol's primary token
+  const selectedToken = token ?? PROTOCOL_DEFAULT_TOKENS[protocol];
 
-  const spender = vault.spenderContracts[chainId];
-  if (!spender) {
-    throw new Error('Could not retrieve the stake and bake contract.');
-  }
-
+  // We use getStakeAndBakeConfig to ensure chain/env compatibility
   try {
+    const strategy = getStakeAndBakeConfig(
+      protocol,
+      selectedToken,
+      chainId,
+      env,
+    );
+
+    const spenderContract = strategy.spenderContract;
+    if (!spenderContract) {
+      throw new Error(
+        `Could not retrieve the stake and bake contract for ${protocol} on chain ${chainId}.`,
+      );
+    }
+
     const client = makePublicClient({ chainId, rpcUrl });
-    const spenderContract = getContract({
-      abi: spender.abi,
-      address: spender.address,
+    const contract = getContract({
+      abi: spenderContract.abi,
+      address: spenderContract.address,
       client,
     });
-    const fee = await spenderContract.read.getStakeAndBakeFee();
+    const fee = await contract.read.getStakeAndBakeFee();
     return fromSatoshi(String(fee));
   } catch (error) {
     const errorMessage = getErrorMessage(error);
-    throw new Error(errorMessage);
+    throw new Error(
+      `Failed to get stake and bake fee for ${protocolInfo.name}: ${errorMessage}`,
+    );
   }
 }

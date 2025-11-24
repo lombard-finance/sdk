@@ -1,4 +1,4 @@
-import { makeDestinationChainId } from '../utils/chains';
+import { makeDestinationChainId, StarknetChainId } from '../utils/chains';
 import { Address } from '../utils/common';
 import { WalletAccountParameters } from '../utils/wallet-account';
 import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
@@ -39,7 +39,7 @@ export async function mint({
   recipientAddress,
   env,
 }: MintParameters) {
-  const chainId = await walletAccount.getChainId();
+  const chainId = (await walletAccount.getChainId()) as StarknetChainId;
 
   const btcTxIdBytes = (
     depositTxId.startsWith('0x') ? depositTxId.slice(2) : depositTxId

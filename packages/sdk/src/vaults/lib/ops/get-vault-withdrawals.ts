@@ -15,6 +15,7 @@ import {
   VAULTS,
   VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
   Vault,
+  VedaVaultChain,
   isVedaVaultChain,
 } from '../config';
 
@@ -47,6 +48,10 @@ export type VaultWithdrawal = {
   fulfilledTxHash?: Hash;
   /** The fulfilment block number */
   fulfilledBlockNumber?: number;
+  /** The chain id */
+  chainId?: VedaVaultChain;
+  /** The user wallet address that made the withdrawal */
+  toAddress?: Address;
 };
 
 export type VaultWithdrawals = {
@@ -198,6 +203,8 @@ export async function getVaultWithdrawals({
       timestamp: w.timestamp,
       txHash: ensureHex(w.transactionHash),
       token,
+      chainId,
+      toAddress: account,
     };
     return withdrawal;
   });
@@ -211,6 +218,8 @@ export async function getVaultWithdrawals({
       timestamp: w.timestamp,
       txHash: ensureHex(w.transactionHash),
       token,
+      chainId,
+      toAddress: account,
     };
     return withdrawal;
   });
@@ -234,6 +243,8 @@ export async function getVaultWithdrawals({
       fulfilledTimestamp: w.Fulfillment.timestamp,
       fulfilledTxHash: ensureHex(w.Fulfillment.transactionHash),
       minPrice: fromBaseDenomination(w.Request.minPrice, token?.decimals || 0),
+      chainId,
+      toAddress: account,
     };
     return withdrawal;
   });
@@ -248,6 +259,8 @@ export async function getVaultWithdrawals({
       txHash: ensureHex(w.transactionHash),
       token,
       minPrice: fromBaseDenomination(w.minPrice, token?.decimals || 0),
+      chainId,
+      toAddress: account,
     };
     return withdrawal;
   });
@@ -264,4 +277,72 @@ export async function getVaultWithdrawals({
   };
 
   return wihdrawals;
+}
+
+export type GetVaultWithdrawalsAllChainsParameters = {
+  account: Address;
+  vaultKey?: Vault;
+  rpcUrl?: string;
+};
+
+/**
+ * Retrieves the withdrawals made by specified address across all supported chains for a vault.
+ * This is useful for getting a complete view of all withdrawals regardless of the currently connected chain.
+ * 
+ * @param parameters - The parameters.
+ * @param parameters.account - The account address.
+ * @param parameters.vaultKey - The optional vault identifier (defaults to Veda).
+ * @param parameters.rpcUrl - The optional RPC url.
+ *
+ * @returns {Promise<VaultWithdrawals>} All withdrawals across all supported chains, categorized and sorted
+ */
+export async function getVaultWithdrawalsAllChains({
+  account,
+  vaultKey = Vault.Veda,
+  rpcUrl,
+}: GetVaultWithdrawalsAllChainsParameters): Promise<VaultWithdrawals> {
+  const vault = VAULTS[vaultKey];
+  if (!vault) {
+    throw new Error(`Unknown vault key: ${vaultKey}`);
+  }
+
+  // Fetch withdrawals from all supported chains in parallel
+  const withdrawalsPromises = vault.chains.map(chainId =>
+    getVaultWithdrawals({ account, chainId, vaultKey, rpcUrl }).catch(error => {
+      console.error(`Failed to fetch withdrawals for chain ${chainId}:`, error);
+      return {
+        cancelled: [],
+        expired: [],
+        fulfilled: [],
+        open: [],
+      }; // Return empty withdrawals on error to not break the entire query
+    }),
+  );
+
+  const withdrawalsArrays = await Promise.all(withdrawalsPromises);
+  
+  // Combine all withdrawals from all chains
+  const allCancelled: VaultWithdrawal[] = [];
+  const allExpired: VaultWithdrawal[] = [];
+  const allFulfilled: VaultWithdrawal[] = [];
+  const allOpen: VaultWithdrawal[] = [];
+
+  for (const withdrawals of withdrawalsArrays) {
+    allCancelled.push(...withdrawals.cancelled);
+    allExpired.push(...withdrawals.expired);
+    allFulfilled.push(...withdrawals.fulfilled);
+    allOpen.push(...withdrawals.open);
+  }
+
+  // Sort each category by timestamp (newest first)
+  return {
+    cancelled: orderBy(allCancelled, a => a.timestamp, 'desc'),
+    expired: orderBy(allExpired, a => a.timestamp, 'desc'),
+    fulfilled: orderBy(
+      allFulfilled,
+      a => a.fulfilledTimestamp || a.timestamp,
+      'desc',
+    ),
+    open: orderBy(allOpen, a => a.timestamp, 'desc'),
+  };
 }

@@ -15,7 +15,7 @@ import {
   getErrorMessage,
   TokenContractAddressNotFoundError,
 } from '../../utils/err';
-import { Token } from '../../tokens/token-addresses';
+import { AddressKind, Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { Address, pad } from 'viem';
 
@@ -72,8 +72,8 @@ export interface IGenerateDepositBtcAddressParams extends IEnvParam {
   pubKey?: string;
 }
 
-const EXTRA_PARAMS_TOKENS = [Token.LBTC, Token.BTCK, Token.NativeLBTC];
-const SUPPORTED_TOKENS = [Token.LBTC, Token.BTCK, Token.NativeLBTC];
+const EXTRA_PARAMS_TOKENS = [Token.LBTC, Token.BTCK, Token.BTCb];
+const SUPPORTED_TOKENS = [Token.LBTC, Token.BTCK, Token.BTCb];
 
 /**
  * Generates a BTC deposit address.
@@ -169,6 +169,7 @@ export async function generateDepositBtcAddress({
         token,
         chainId as ChainId,
         env,
+        AddressKind.Adapter,
       );
       tokenDataParams = {
         token_address: tokenContractInfo.address,

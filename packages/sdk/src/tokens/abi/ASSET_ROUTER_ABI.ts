@@ -1,132 +1,348 @@
 export default [
-  { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
-  { inputs: [], name: 'AccessControlBadConfirmation', type: 'error' },
   {
-    inputs: [{ internalType: 'uint48', name: 'schedule', type: 'uint48' }],
+    inputs: [],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  {
+    inputs: [],
+    name: 'AccessControlBadConfirmation',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint48',
+        name: 'schedule',
+        type: 'uint48',
+      },
+    ],
     name: 'AccessControlEnforcedDefaultAdminDelay',
     type: 'error',
   },
-  { inputs: [], name: 'AccessControlEnforcedDefaultAdminRules', type: 'error' },
+  {
+    inputs: [],
+    name: 'AccessControlEnforcedDefaultAdminRules',
+    type: 'error',
+  },
   {
     inputs: [
-      { internalType: 'address', name: 'defaultAdmin', type: 'address' },
+      {
+        internalType: 'address',
+        name: 'defaultAdmin',
+        type: 'address',
+      },
     ],
     name: 'AccessControlInvalidDefaultAdmin',
     type: 'error',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'account', type: 'address' },
-      { internalType: 'bytes32', name: 'neededRole', type: 'bytes32' },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'neededRole',
+        type: 'bytes32',
+      },
     ],
     name: 'AccessControlUnauthorizedAccount',
     type: 'error',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'dustLimit', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'dustLimit',
+        type: 'uint256',
+      },
+    ],
     name: 'AmountBelowMinLimit',
     type: 'error',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'fee', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
+      },
+    ],
     name: 'AmountLessThanCommission',
     type: 'error',
   },
-  { inputs: [], name: 'AssertRouter_UnauthorizedAccount', type: 'error' },
+  {
+    inputs: [],
+    name: 'AssertRouter_UnauthorizedAccount',
+    type: 'error',
+  },
   {
     inputs: [],
     name: 'AssertRouter_WrongRedeemDestinationChain',
     type: 'error',
   },
-  { inputs: [], name: 'AssertRouter_WrongRouteType', type: 'error' },
-  { inputs: [], name: 'AssertRouter_WrongToken', type: 'error' },
-  { inputs: [], name: 'AssetOperation_DepositNotAllowed', type: 'error' },
-  { inputs: [], name: 'AssetOperation_RedeemNotAllowed', type: 'error' },
-  { inputs: [], name: 'AssetRouter_FeeGreaterThanAmount', type: 'error' },
-  { inputs: [], name: 'AssetRouter_MailboxExpected', type: 'error' },
-  { inputs: [], name: 'AssetRouter_MintProcessingError', type: 'error' },
-  { inputs: [], name: 'AssetRouter_PayloadAlreadyUsed', type: 'error' },
-  { inputs: [], name: 'AssetRouter_Unauthorized', type: 'error' },
-  { inputs: [], name: 'AssetRouter_WrongNativeToken', type: 'error' },
-  { inputs: [], name: 'AssetRouter_WrongOperation', type: 'error' },
-  { inputs: [], name: 'AssetRouter_WrongSender', type: 'error' },
-  { inputs: [], name: 'AssetRouter_ZeroAddress', type: 'error' },
-  { inputs: [], name: 'AssetRouter_ZeroMailbox', type: 'error' },
+  {
+    inputs: [],
+    name: 'AssertRouter_WrongRouteType',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssertRouter_WrongToken',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetOperation_DepositNotAllowed',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetOperation_RedeemNotAllowed',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_FeeGreaterThanAmount',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_MailboxExpected',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_MintProcessingError',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_PayloadAlreadyUsed',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_Unauthorized',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_WrongNativeToken',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_WrongOperation',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_WrongSender',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_ZeroAddress',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'AssetRouter_ZeroMailbox',
+    type: 'error',
+  },
   {
     inputs: [
-      { internalType: 'uint256', name: 'expected', type: 'uint256' },
-      { internalType: 'uint256', name: 'actual', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'expected',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'actual',
+        type: 'uint256',
+      },
     ],
     name: 'Assets_InvalidPayloadSize',
     type: 'error',
   },
   {
     inputs: [
-      { internalType: 'bytes4', name: 'expected', type: 'bytes4' },
-      { internalType: 'bytes4', name: 'actual', type: 'bytes4' },
+      {
+        internalType: 'bytes4',
+        name: 'expected',
+        type: 'bytes4',
+      },
+      {
+        internalType: 'bytes4',
+        name: 'actual',
+        type: 'bytes4',
+      },
     ],
     name: 'Assets_InvalidSelector',
     type: 'error',
   },
-  { inputs: [], name: 'Assets_ZeroAmount', type: 'error' },
-  { inputs: [], name: 'Assets_ZeroRecipient', type: 'error' },
-  { inputs: [], name: 'Assets_ZeroToToken', type: 'error' },
-  { inputs: [], name: 'ECDSAInvalidSignature', type: 'error' },
   {
-    inputs: [{ internalType: 'uint256', name: 'length', type: 'uint256' }],
+    inputs: [],
+    name: 'Assets_ZeroAmount',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'Assets_ZeroRecipient',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'Assets_ZeroToToken',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'ECDSAInvalidSignature',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'length',
+        type: 'uint256',
+      },
+    ],
     name: 'ECDSAInvalidSignatureLength',
     type: 'error',
   },
   {
-    inputs: [{ internalType: 'bytes32', name: 's', type: 'bytes32' }],
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 's',
+        type: 'bytes32',
+      },
+    ],
     name: 'ECDSAInvalidSignatureS',
     type: 'error',
   },
-  { inputs: [], name: 'GMP_InvalidAddess', type: 'error' },
+  {
+    inputs: [],
+    name: 'GMP_InvalidAddess',
+    type: 'error',
+  },
   {
     inputs: [
-      { internalType: 'bytes4', name: 'expected', type: 'bytes4' },
-      { internalType: 'bytes4', name: 'actual', type: 'bytes4' },
+      {
+        internalType: 'bytes4',
+        name: 'expected',
+        type: 'bytes4',
+      },
+      {
+        internalType: 'bytes4',
+        name: 'actual',
+        type: 'bytes4',
+      },
     ],
     name: 'InvalidAction',
     type: 'error',
   },
-  { inputs: [], name: 'InvalidFeeApprovalSignature', type: 'error' },
-  { inputs: [], name: 'InvalidInitialization', type: 'error' },
+  {
+    inputs: [],
+    name: 'InvalidFeeApprovalSignature',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidInitialization',
+    type: 'error',
+  },
   {
     inputs: [
-      { internalType: 'uint256', name: 'expected', type: 'uint256' },
-      { internalType: 'uint256', name: 'actual', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'expected',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'actual',
+        type: 'uint256',
+      },
     ],
     name: 'InvalidPayloadSize',
     type: 'error',
   },
   {
     inputs: [
-      { internalType: 'uint256', name: 'a', type: 'uint256' },
-      { internalType: 'uint256', name: 'b', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'a',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'b',
+        type: 'uint256',
+      },
     ],
     name: 'NonEqualLength',
     type: 'error',
   },
-  { inputs: [], name: 'NotInitializing', type: 'error' },
-  { inputs: [], name: 'NotStakingToken', type: 'error' },
-  { inputs: [], name: 'ReentrancyGuardReentrantCall', type: 'error' },
+  {
+    inputs: [],
+    name: 'NotInitializing',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'NotStakingToken',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'ReentrancyGuardReentrantCall',
+    type: 'error',
+  },
   {
     inputs: [
-      { internalType: 'uint8', name: 'bits', type: 'uint8' },
-      { internalType: 'uint256', name: 'value', type: 'uint256' },
+      {
+        internalType: 'uint8',
+        name: 'bits',
+        type: 'uint8',
+      },
+      {
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
+      },
     ],
     name: 'SafeCastOverflowedUintDowncast',
     type: 'error',
   },
-  { inputs: [], name: 'ScriptPubkeyUnsupported', type: 'error' },
   {
-    inputs: [{ internalType: 'uint256', name: 'expiry', type: 'uint256' }],
+    inputs: [],
+    name: 'ScriptPubkeyUnsupported',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'expiry',
+        type: 'uint256',
+      },
+    ],
     name: 'UserSignatureExpired',
     type: 'error',
   },
-  { inputs: [], name: 'ZeroFee', type: 'error' },
+  {
+    inputs: [],
+    name: 'ZeroFee',
+    type: 'error',
+  },
   {
     anonymous: false,
     inputs: [
@@ -193,7 +409,12 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'uint256', name: 'fee', type: 'uint256' },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
+      },
       {
         indexed: false,
         internalType: 'bytes',
@@ -289,7 +510,12 @@ export default [
         name: 'token',
         type: 'address',
       },
-      { indexed: false, internalType: 'bool', name: 'enabled', type: 'bool' },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'enabled',
+        type: 'bool',
+      },
     ],
     name: 'AssetRouter_RedeemEnabled',
     type: 'event',
@@ -497,7 +723,12 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'bytes32', name: 'role', type: 'bytes32' },
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
       {
         indexed: true,
         internalType: 'bytes32',
@@ -517,7 +748,12 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'bytes32', name: 'role', type: 'bytes32' },
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
       {
         indexed: true,
         internalType: 'address',
@@ -537,7 +773,12 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: 'bytes32', name: 'role', type: 'bytes32' },
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
       {
         indexed: true,
         internalType: 'address',
@@ -557,28 +798,52 @@ export default [
   {
     inputs: [],
     name: 'CALLER_ROLE',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'CLAIMER_ROLE',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'DEFAULT_ADMIN_ROLE',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'OPERATOR_ROLE',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -592,14 +857,28 @@ export default [
   {
     inputs: [],
     name: 'bascule',
-    outputs: [{ internalType: 'contract IBascule', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'contract IBascule',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'bytes[]', name: 'payload', type: 'bytes[]' },
-      { internalType: 'bytes[]', name: 'proof', type: 'bytes[]' },
+      {
+        internalType: 'bytes[]',
+        name: 'payload',
+        type: 'bytes[]',
+      },
+      {
+        internalType: 'bytes[]',
+        name: 'proof',
+        type: 'bytes[]',
+      },
     ],
     name: 'batchMint',
     outputs: [],
@@ -608,10 +887,26 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'bytes[]', name: 'mintPayload', type: 'bytes[]' },
-      { internalType: 'bytes[]', name: 'proof', type: 'bytes[]' },
-      { internalType: 'bytes[]', name: 'feePayload', type: 'bytes[]' },
-      { internalType: 'bytes[]', name: 'userSignature', type: 'bytes[]' },
+      {
+        internalType: 'bytes[]',
+        name: 'mintPayload',
+        type: 'bytes[]',
+      },
+      {
+        internalType: 'bytes[]',
+        name: 'proof',
+        type: 'bytes[]',
+      },
+      {
+        internalType: 'bytes[]',
+        name: 'feePayload',
+        type: 'bytes[]',
+      },
+      {
+        internalType: 'bytes[]',
+        name: 'userSignature',
+        type: 'bytes[]',
+      },
     ],
     name: 'batchMintWithFee',
     outputs: [],
@@ -619,7 +914,13 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'newAdmin', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newAdmin',
+        type: 'address',
+      },
+    ],
     name: 'beginDefaultAdminTransfer',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -628,20 +929,46 @@ export default [
   {
     inputs: [],
     name: 'bitcoinChainId',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'bytes', name: 'scriptPubkey', type: 'bytes' },
-      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: 'scriptPubkey',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
     ],
     name: 'calcUnstakeRequestAmount',
     outputs: [
-      { internalType: 'uint256', name: 'amountAfterFee', type: 'uint256' },
-      { internalType: 'bool', name: 'isAboveMinLimit', type: 'bool' },
+      {
+        internalType: 'uint256',
+        name: 'amountAfterFee',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'isAboveMinLimit',
+        type: 'bool',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -654,28 +981,52 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'newVal', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newVal',
+        type: 'address',
+      },
+    ],
     name: 'changeBascule',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint48', name: 'newDelay', type: 'uint48' }],
+    inputs: [
+      {
+        internalType: 'uint48',
+        name: 'newDelay',
+        type: 'uint48',
+      },
+    ],
     name: 'changeDefaultAdminDelay',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'newVal', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newVal',
+        type: 'address',
+      },
+    ],
     name: 'changeMailbox',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'newValue', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newValue',
+        type: 'address',
+      },
+    ],
     name: 'changeNativeToken',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -683,8 +1034,16 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'address', name: 'newVal', type: 'address' },
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'newVal',
+        type: 'address',
+      },
     ],
     name: 'changeOracle',
     outputs: [],
@@ -693,8 +1052,16 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'uint256', name: 'fee', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
+      },
     ],
     name: 'changeRedeemFee',
     outputs: [],
@@ -702,7 +1069,13 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'fee', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
+      },
+    ],
     name: 'changeRedeemFee',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -710,8 +1083,16 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'uint256', name: 'minAmount', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'minAmount',
+        type: 'uint256',
+      },
     ],
     name: 'changeRedeemForBtcMinAmount',
     outputs: [],
@@ -719,7 +1100,13 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'minAmount', type: 'uint256' }],
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'minAmount',
+        type: 'uint256',
+      },
+    ],
     name: 'changeRedeemForBtcMinAmount',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -727,8 +1114,16 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'uint64', name: 'newValue', type: 'uint64' },
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint64',
+        name: 'newValue',
+        type: 'uint64',
+      },
     ],
     name: 'changeToNativeCommission',
     outputs: [],
@@ -737,14 +1132,26 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'uint256', name: 'redeemFee', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'redeemFee',
+        type: 'uint256',
+      },
       {
         internalType: 'uint256',
         name: 'redeemForBtcMinAmount',
         type: 'uint256',
       },
-      { internalType: 'bool', name: 'redeemEnabled', type: 'bool' },
+      {
+        internalType: 'bool',
+        name: 'redeemEnabled',
+        type: 'bool',
+      },
     ],
     name: 'changeTokenConfig',
     outputs: [],
@@ -753,20 +1160,36 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'uint256', name: 'redeemFee', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'redeemFee',
+        type: 'uint256',
+      },
       {
         internalType: 'uint256',
         name: 'redeemForBtcMinAmount',
         type: 'uint256',
       },
-      { internalType: 'address', name: 'oracle_', type: 'address' },
+      {
+        internalType: 'address',
+        name: 'oracle_',
+        type: 'address',
+      },
       {
         internalType: 'uint256',
         name: 'maximumMintCommission_',
         type: 'uint256',
       },
-      { internalType: 'uint64', name: 'toNativeCommission_', type: 'uint64' },
+      {
+        internalType: 'uint64',
+        name: 'toNativeCommission_',
+        type: 'uint64',
+      },
     ],
     name: 'changeTokenConfigExt',
     outputs: [],
@@ -776,29 +1199,59 @@ export default [
   {
     inputs: [],
     name: 'defaultAdmin',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'defaultAdminDelay',
-    outputs: [{ internalType: 'uint48', name: '', type: 'uint48' }],
+    outputs: [
+      {
+        internalType: 'uint48',
+        name: '',
+        type: 'uint48',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'defaultAdminDelayIncreaseWait',
-    outputs: [{ internalType: 'uint48', name: '', type: 'uint48' }],
+    outputs: [
+      {
+        internalType: 'uint48',
+        name: '',
+        type: 'uint48',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'fromAddress', type: 'address' },
-      { internalType: 'address', name: 'toToken', type: 'address' },
-      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'fromAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'toToken',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
     ],
     name: 'deposit',
     outputs: [],
@@ -807,10 +1260,26 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'bytes32', name: 'tolChainId', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'toToken', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'recipient', type: 'bytes32' },
-      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      {
+        internalType: 'bytes32',
+        name: 'tolChainId',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'toToken',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'recipient',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
     ],
     name: 'deposit',
     outputs: [],
@@ -818,37 +1287,89 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'token', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+    ],
     name: 'getRate',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'bytes32', name: 'role', type: 'bytes32' }],
-    name: 'getRoleAdmin',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'bytes32', name: 'fromToken', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'fromChainId', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'toChainId', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'toToken', type: 'bytes32' },
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+    ],
+    name: 'getRoleAdmin',
+    outputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'fromToken',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'fromChainId',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'toChainId',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'toToken',
+        type: 'bytes32',
+      },
     ],
     name: 'getRouteType',
     outputs: [
-      { internalType: 'enum IAssetRouter.RouteType', name: '', type: 'uint8' },
+      {
+        internalType: 'enum IAssetRouter.RouteType',
+        name: '',
+        type: 'uint8',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'bytes32', name: 'role', type: 'bytes32' },
-      { internalType: 'address', name: 'account', type: 'address' },
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
     ],
     name: 'grantRole',
     outputs: [],
@@ -859,17 +1380,41 @@ export default [
     inputs: [
       {
         components: [
-          { internalType: 'bytes32', name: 'id', type: 'bytes32' },
-          { internalType: 'bytes32', name: 'msgPath', type: 'bytes32' },
-          { internalType: 'uint256', name: 'msgNonce', type: 'uint256' },
-          { internalType: 'bytes32', name: 'msgSender', type: 'bytes32' },
-          { internalType: 'address', name: 'msgRecipient', type: 'address' },
+          {
+            internalType: 'bytes32',
+            name: 'id',
+            type: 'bytes32',
+          },
+          {
+            internalType: 'bytes32',
+            name: 'msgPath',
+            type: 'bytes32',
+          },
+          {
+            internalType: 'uint256',
+            name: 'msgNonce',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bytes32',
+            name: 'msgSender',
+            type: 'bytes32',
+          },
+          {
+            internalType: 'address',
+            name: 'msgRecipient',
+            type: 'address',
+          },
           {
             internalType: 'address',
             name: 'msgDestinationCaller',
             type: 'address',
           },
-          { internalType: 'bytes', name: 'msgBody', type: 'bytes' },
+          {
+            internalType: 'bytes',
+            name: 'msgBody',
+            type: 'bytes',
+          },
         ],
         internalType: 'struct GMPUtils.Payload',
         name: 'payload',
@@ -877,28 +1422,72 @@ export default [
       },
     ],
     name: 'handlePayload',
-    outputs: [{ internalType: 'bytes', name: '', type: 'bytes' }],
+    outputs: [
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'bytes32', name: 'role', type: 'bytes32' },
-      { internalType: 'address', name: 'account', type: 'address' },
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
     ],
     name: 'hasRole',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'owner_', type: 'address' },
-      { internalType: 'uint48', name: 'initialOwnerDelay_', type: 'uint48' },
-      { internalType: 'bytes32', name: 'ledgerChainId_', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'bitcoinChainId_', type: 'bytes32' },
-      { internalType: 'address', name: 'mailbox_', type: 'address' },
-      { internalType: 'address', name: 'bascule_', type: 'address' },
+      {
+        internalType: 'address',
+        name: 'owner_',
+        type: 'address',
+      },
+      {
+        internalType: 'uint48',
+        name: 'initialOwnerDelay_',
+        type: 'uint48',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'ledgerChainId_',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'bitcoinChainId_',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'mailbox_',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'bascule_',
+        type: 'address',
+      },
     ],
     name: 'initialize',
     outputs: [],
@@ -908,33 +1497,81 @@ export default [
   {
     inputs: [],
     name: 'mailbox',
-    outputs: [{ internalType: 'contract IMailbox', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: 'token', type: 'address' }],
-    name: 'maxMintCommission',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'contract IMailbox',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'bytes', name: 'rawPayload', type: 'bytes' },
-      { internalType: 'bytes', name: 'proof', type: 'bytes' },
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+    ],
+    name: 'maxMintCommission',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes',
+        name: 'rawPayload',
+        type: 'bytes',
+      },
+      {
+        internalType: 'bytes',
+        name: 'proof',
+        type: 'bytes',
+      },
     ],
     name: 'mint',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'bytes', name: 'mintPayload', type: 'bytes' },
-      { internalType: 'bytes', name: 'proof', type: 'bytes' },
-      { internalType: 'bytes', name: 'feePayload', type: 'bytes' },
-      { internalType: 'bytes', name: 'userSignature', type: 'bytes' },
+      {
+        internalType: 'bytes',
+        name: 'mintPayload',
+        type: 'bytes',
+      },
+      {
+        internalType: 'bytes',
+        name: 'proof',
+        type: 'bytes',
+      },
+      {
+        internalType: 'bytes',
+        name: 'feePayload',
+        type: 'bytes',
+      },
+      {
+        internalType: 'bytes',
+        name: 'userSignature',
+        type: 'bytes',
+      },
     ],
     name: 'mintWithFee',
     outputs: [],
@@ -944,21 +1581,45 @@ export default [
   {
     inputs: [],
     name: 'nativeToken',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'token', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+    ],
     name: 'oracle',
-    outputs: [{ internalType: 'contract IOracle', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'contract IOracle',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
     name: 'owner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -966,8 +1627,16 @@ export default [
     inputs: [],
     name: 'pendingDefaultAdmin',
     outputs: [
-      { internalType: 'address', name: 'newAdmin', type: 'address' },
-      { internalType: 'uint48', name: 'schedule', type: 'uint48' },
+      {
+        internalType: 'address',
+        name: 'newAdmin',
+        type: 'address',
+      },
+      {
+        internalType: 'uint48',
+        name: 'schedule',
+        type: 'uint48',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -976,24 +1645,56 @@ export default [
     inputs: [],
     name: 'pendingDefaultAdminDelay',
     outputs: [
-      { internalType: 'uint48', name: 'newDelay', type: 'uint48' },
-      { internalType: 'uint48', name: 'schedule', type: 'uint48' },
+      {
+        internalType: 'uint48',
+        name: 'newDelay',
+        type: 'uint48',
+      },
+      {
+        internalType: 'uint48',
+        name: 'schedule',
+        type: 'uint48',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'token', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+    ],
     name: 'ratio',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: 'fromAddress', type: 'address' },
-      { internalType: 'address', name: 'fromToken', type: 'address' },
-      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'fromAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'fromToken',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
     ],
     name: 'redeem',
     outputs: [],
@@ -1002,12 +1703,36 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'fromAddress', type: 'address' },
-      { internalType: 'bytes32', name: 'tolChainId', type: 'bytes32' },
-      { internalType: 'address', name: 'fromToken', type: 'address' },
-      { internalType: 'bytes32', name: 'toToken', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'recipient', type: 'bytes32' },
-      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'fromAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'tolChainId',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'fromToken',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'toToken',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'recipient',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
     ],
     name: 'redeem',
     outputs: [],
@@ -1016,10 +1741,26 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'fromAddress', type: 'address' },
-      { internalType: 'address', name: 'fromToken', type: 'address' },
-      { internalType: 'bytes', name: 'recipient', type: 'bytes' },
-      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'fromAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'fromToken',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: 'recipient',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
     ],
     name: 'redeemForBtc',
     outputs: [],
@@ -1028,10 +1769,26 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'bytes32', name: 'fromToken', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'fromChainId', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'toToken', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'toChainId', type: 'bytes32' },
+      {
+        internalType: 'bytes32',
+        name: 'fromToken',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'fromChainId',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'toToken',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'toChainId',
+        type: 'bytes32',
+      },
     ],
     name: 'removeRoute',
     outputs: [],
@@ -1040,8 +1797,16 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'bytes32', name: 'role', type: 'bytes32' },
-      { internalType: 'address', name: 'account', type: 'address' },
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
     ],
     name: 'renounceRole',
     outputs: [],
@@ -1050,8 +1815,16 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'bytes32', name: 'role', type: 'bytes32' },
-      { internalType: 'address', name: 'account', type: 'address' },
+      {
+        internalType: 'bytes32',
+        name: 'role',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
     ],
     name: 'revokeRole',
     outputs: [],
@@ -1067,8 +1840,16 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'uint256', name: 'fee', type: 'uint256' },
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
+      },
     ],
     name: 'setMaxMintCommission',
     outputs: [],
@@ -1077,10 +1858,26 @@ export default [
   },
   {
     inputs: [
-      { internalType: 'bytes32', name: 'fromToken', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'fromChainId', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'toToken', type: 'bytes32' },
-      { internalType: 'bytes32', name: 'toChainId', type: 'bytes32' },
+      {
+        internalType: 'bytes32',
+        name: 'fromToken',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'fromChainId',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'toToken',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'toChainId',
+        type: 'bytes32',
+      },
       {
         internalType: 'enum IAssetRouter.RouteType',
         name: 'routeType',
@@ -1093,16 +1890,40 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'bytes4', name: 'interfaceId', type: 'bytes4' }],
+    inputs: [
+      {
+        internalType: 'bytes4',
+        name: 'interfaceId',
+        type: 'bytes4',
+      },
+    ],
     name: 'supportsInterface',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'token', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+    ],
     name: 'toNativeCommission',
-    outputs: [{ internalType: 'uint64', name: '', type: 'uint64' }],
+    outputs: [
+      {
+        internalType: 'uint64',
+        name: '',
+        type: 'uint64',
+      },
+    ],
     stateMutability: 'view',
     type: 'function',
   },
@@ -1114,18 +1935,32 @@ export default [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: 'token', type: 'address' }],
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+    ],
     name: 'tokenConfig',
     outputs: [
-      { internalType: 'uint256', name: 'redeemFee', type: 'uint256' },
+      {
+        internalType: 'uint256',
+        name: 'redeemFee',
+        type: 'uint256',
+      },
       {
         internalType: 'uint256',
         name: 'redeemForBtcMinAmount',
         type: 'uint256',
       },
-      { internalType: 'bool', name: 'isRedeemEnabled', type: 'bool' },
+      {
+        internalType: 'bool',
+        name: 'isRedeemEnabled',
+        type: 'bool',
+      },
     ],
     stateMutability: 'view',
     type: 'function',
   },
-] as const;
+];

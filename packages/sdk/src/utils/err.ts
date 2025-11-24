@@ -68,3 +68,15 @@ export class TokenContractAddressNotFoundError extends Error {
     super(message);
   }
 }
+
+export class UnsupportedTokenFlow extends Error {
+  constructor(
+    public readonly tokenIn: Token,
+    public readonly tokenOut: Token | string,
+    public readonly chainId: ChainId,
+    env?: Env,
+  ) {
+    const message = `The flow of ${tokenIn} to ${tokenOut} on ${chainId} (env: ${env || 'undefined'}) is not supported`;
+    super(message);
+  }
+}

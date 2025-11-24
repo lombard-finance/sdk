@@ -3,6 +3,7 @@ import { Address } from '../utils/common';
 import { WalletAccountParameters } from '../utils/wallet-account';
 import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
 import { EnvParameters } from '../utils/env';
+import { StarknetChainId } from '../utils/chains';
 
 type ApproveParameters = {
   /** The approved amount. */
@@ -20,7 +21,7 @@ export async function approve({
   walletAccount,
   env,
 }: ApproveParameters) {
-  const chainId = await walletAccount.getChainId();
+  const chainId = (await walletAccount.getChainId()) as StarknetChainId;
 
   const tokenContract = getTokenContract({
     chainId,

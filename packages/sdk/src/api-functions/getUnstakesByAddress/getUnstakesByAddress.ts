@@ -1,6 +1,5 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { address, networks } from 'bitcoinjs-lib';
+import * as bitcoin from 'bitcoinjs-lib';
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
@@ -8,170 +7,349 @@ import {
 } from '../../common/blockchain-identifier';
 import {
   ChainId,
+  isSolanaChain,
+  isStarknetChainId,
+  isSuiChain,
+  isValidChain,
   SolanaChain,
   StarknetChainId,
   SuiChain,
 } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { fromSatoshi } from '../../utils/satoshi';
+import { Hex, trim } from 'viem';
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import { fetchAllPaginated } from '../../utils/pagination';
+import {
+  AddressKind,
+  getSolanaTokenAddress,
+  getStarknetTokenAddress,
+  getSuiTokenAddress,
+  Token,
+  TOKEN_ADDRESSES,
+} from '../../tokens/token-addresses';
+import {
+  ENotarizationStatus,
+  ESessionState,
+} from '../getDepositsByAddress/getDepositsByAddress';
 
-interface IUnstakeResponse {
-  tx_hash: string;
-  blockchain: BlockchainIdentifier;
-  block_height: string;
-  block_time: string;
-  from_address: string;
-  output_script: string;
-  amount: string;
-  payout_txid?: string;
-  payout_index?: string;
-  sanctioned?: boolean;
-}
+/* -------------------------------------------------------------------------- */
+/*                                   Types                                    */
+/* -------------------------------------------------------------------------- */
 
-interface IGetUnstakesResponse {
-  unstakes?: IUnstakeResponse[];
-}
-
+/**
+ * Status of a payout transaction corresponding to an unstake.
+ */
 export enum PayoutTxStatus {
-  /** A payout transaction has been sent. The unstake is completed. */
+  /** The payout transaction has been sent; unstake completed */
   Completed = 'Completed',
-  /** A payout transaction has not been sent. The unstake is pending. */
+
+  /** The payout transaction has not been sent; unstake pending */
   Pending = 'Pending',
 }
 
-export interface IUnstake {
-  /**
-   * The unstake transaction hash.
-   */
-  txHash: string;
-  /**
-   * The chain id where unstake transaction happened.
-   */
-  chainId: ChainId | SuiChain | SolanaChain | StarknetChainId;
-  /**
-   * The block height.
-   */
-  blockHeight: number;
-  /**
-   * The timestamp of the unstake transaction.
-   */
-  unstakeDate: Date;
-  /**
-   * The initiator of the unstake transaction.
-   */
-  fromAddress: string;
-  /**
-   * The destination address to which the funds (BTC) will be transferred.
-   */
-  toAddress: string;
-  /**
-   * The amount of BTC unstaked.
-   */
-  amount: BigNumber;
-  /**
-   * The BTC payout transaction hash.
-   *
-   * If empty then the unstake is still pending. The payout tx hash is only
-   * present for the completed unstake transactions.
-   *
-   * A withdrawal period of 9 days is required by Lombard — daily rebalancing
-   * cycle — and Babylon — 7 days unbonding period. After that the payout
-   * should be completed.
-   */
-  payoutTxHash?: string;
-  /**
-   * The index of the payout transaction corresponding to the unstake.
-   */
-  payoutTxIndex?: number;
-  /**
-   * A status of the payout transaction.
-   */
-  payoutTxStatus: PayoutTxStatus;
-  /**
-   * A flag indicating whether the unstake transaction has been sanctioned and
-   * flagged as suspicious.
-   * See: https://docs.lombard.finance/technical-documentation/sanctions-and-risk-monitoring
-   */
+/**
+ * Response object for a single unstake record from the API.
+ */
+interface UnstakeEntry {
+  /** Transaction hash of the unstake on the source blockchain. */
+  tx_hash: string;
+
+  /** Source blockchain identifier (e.g., BLOCKCHAIN_BSC, BLOCKCHAIN_ETHEREUM). */
+  blockchain: BlockchainIdentifier;
+
+  /** Block height where the unstake was confirmed. */
+  block_height: string;
+
+  /** Block time of the unstake transaction (as a string timestamp). */
+  block_time: string;
+
+  /** Address of the initiator of the unstake. */
+  from_address: string;
+
+  /** Destination address for the payout. */
+  to_address?: string;
+
+  /** Destination blockchain identifier for the payout. */
+  to_chain?: string;
+
+  /** Output script used to derive BTC address, present for BTC unstakes. */
+  output_script?: string;
+
+  /** Amount unstaked (string to preserve precision). */
+  amount: string;
+
+  /** Payout transaction hash on the destination chain, if already completed. */
+  payout_txid?: string;
+
+  /** Index of the payout transaction, if applicable. */
+  payout_index?: string;
+
+  /** True if the unstake transaction has been sanctioned or flagged as suspicious. */
   sanctioned?: boolean;
+
+  /** Cryptographic proof (hex-encoded) */
+  proof?: string;
+
+  /** Raw payload bytes (hex-encoded) */
+  payload?: string;
+
+  /** Current notarization status (for native chain redemptions) */
+  notarization_status?: ENotarizationStatus;
+
+  /** Current session state (for native chain redemptions) */
+  session_state?: ESessionState;
+
+  /** Claim transaction hash on the destination chain, if claimed (for native chain redemptions) */
+  claim_tx?: string;
 }
 
+/**
+ * Top-level API response for unstakes.
+ */
+interface UnstakesResponse {
+  unstakes?: UnstakeEntry[];
+
+  /** True if there are more unstakes available */
+  has_more: boolean;
+}
+
+/**
+ * Parameters for fetching unstakes by address.
+ */
 export interface IGetUnstakesByAddressParameters extends IEnvParam {
-  /**
-   * The address of an initiator of the unstake.
-   */
+  /** Address of the unstake initiator */
   address: string;
-  /**
-   * The maximum number of unstakes to return.
-   */
+
+  /** Optional filtering */
   options?: {
-    limit?: number;
-    offset?: number;
+    /** Show only direct BTC unstakes */
+    show_unstakes?: boolean;
+    /** Show only native chain redemptions */
+    show_redeems?: boolean;
+    /** Show only redeems to native chain (LBTC -> BTC.b) */
+    to_native?: boolean;
   };
 }
 
 /**
- * Gets all unstakes initiated by the specified address.
- *
- * @param {IGetUnstakesByAddressParameters} parameters - The parameters.
- * @param {string} parameters.address - The account address.
- * @param {Env} parameters.env - The optional environment identifier.
- *
- * @throws {Error} - Throws an error when there's no address specified.
+ * A unified unstake record returned from either
+ * direct BTC unstakes or native blockchain redemptions.
  */
-export async function getUnstakesByAddress({
-  address,
-  env = 'prod',
-  options,
-}: IGetUnstakesByAddressParameters): Promise<IUnstake[]> {
-  const { baseApiUrl } = getApiConfig(env);
+export interface Unstake {
+  /** True if the record originates from the native blockchain redemption. */
+  isNative: boolean;
 
-  if (!address) {
-    throw new Error('No address specified.');
-  }
+  /** Transaction hash of the unstake. */
+  txHash: string;
+
+  /** Source chain identifier (where the unstake originated). */
+  fromChainId: ChainId | SuiChain | SolanaChain | StarknetChainId;
+
+  /** Destination chain identifier (undefined for BTC unstakes). */
+  toChainId?: ChainId | SuiChain | SolanaChain | StarknetChainId;
+
+  /** Block height where the unstake was confirmed. */
+  blockHeight: number;
+
+  /** Block time (as epoch seconds) of the unstake. */
+  blockTime: number;
+
+  /** Initiator of the unstake transaction. */
+  fromAddress: string;
+
+  /** Destination address (BTC, EVM, or Solana). */
+  toAddress?: string;
+
+  /** Amount unstaked (normalized to satoshis / smallest unit). */
+  amount: BigNumber;
+
+  /** Payout transaction hash on the destination chain, if claimed. */
+  payoutTxHash?: string;
+
+  /** Payout transaction index, if applicable. */
+  payoutTxIndex?: number;
+
+  /** Status of the payout transaction. */
+  payoutTxStatus: PayoutTxStatus;
+
+  /** True if the unstake transaction has been sanctioned. */
+  sanctioned?: boolean;
+
+  /** Raw payload bytes (hex-encoded). */
+  rawPayload?: string;
+
+  /** Merkle/cryptographic proof (hex-encoded). */
+  proof?: string;
+
+  /** The output token. */
+  toToken?: Token;
+
+  /** The output token address. */
+  toTokenAddress?: string;
+
+  /** Current notarization status (for native chain redemptions). */
+  notarizationStatus?: ENotarizationStatus;
+
+  /** Current session state (for native chain redemptions). */
+  sessionState?: ESessionState;
+
+  /** Claim transaction hash on the destination chain, if claimed (for native chain redemptions). */
+  claimTxHash?: string;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                Fetchers                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Fetches all unstakes initiated by a given address.
+ *
+ * @param {IGetUnstakesByAddressParameters} params - Parameters for fetching unstakes.
+ * @param {string} params.address - Address of the unstake initiator.
+ * @param {Env} [params.env='prod'] - Environment to use (prod/testnet).
+ * @param {object} [params.options] - Optional pagination and filter options.
+ *
+ * @returns {Promise<Unstake[]>} - List of mapped unstakes.
+ *
+ * @throws {Error} - Throws if no address is specified.
+ */
+export async function fetchUnstakesByAddress({
+  address,
+  env = DEFAULT_ENV,
+  options,
+}: IGetUnstakesByAddressParameters): Promise<Unstake[]> {
+  if (!address) throw new Error('No address specified.');
+
+  const { baseApiUrl } = getApiConfig(env);
 
   // pad address to 64 characters if needed
   if (address.startsWith('0x') && address.slice(2).length === 63) {
     address = `0x0${address.slice(2)}`;
   }
 
-  const url = new URL(`/api/v1/address/unstakes/${address}`, baseApiUrl);
+  const endpoint = new URL(`/api/v1/address/unstakes/${address}`, baseApiUrl);
 
-  if (options?.limit) {
-    url.searchParams.set('limit', options.limit.toString());
-  }
+  const unstakes = await fetchAllPaginated({
+    endpoint,
+    extractItems: data => (data as UnstakesResponse)?.unstakes ?? [],
+    query: {
+      show_redeems: options?.show_redeems ? 'true' : undefined,
+      show_unstakes: options?.show_unstakes ? 'true' : undefined,
+      to_native: options?.to_native ? 'true' : undefined,
+    },
+  });
 
-  if (options?.offset) {
-    url.searchParams.set('offset', options.offset.toString());
-  }
-
-  const {
-    data: { unstakes = [] },
-  } = await axios.get<IGetUnstakesResponse>(url.toString());
-
-  return unstakes.map(unstakeData => mapResponse(unstakeData, env));
+  return unstakes.map(d => mapUnstakeEntry(d, env));
 }
 
-function mapResponse(data: IUnstakeResponse, env: IEnvParam['env']): IUnstake {
-  const btcAddress = address.fromOutputScript(
-    Buffer.from(data.output_script.replace(/^0x/, ''), 'hex'),
-    env === 'prod' ? networks.bitcoin : networks.testnet,
-  );
+/* -------------------------------------------------------------------------- */
+/*                                 Helpers                                    */
+/* -------------------------------------------------------------------------- */
 
-  const status = data.payout_txid
+/**
+ * Maps a raw API unstake response to the unified `Unstake` object.
+ *
+ * @param {UnstakeEntry} d - Raw unstake data from API
+ * @param {Env} env - Environment to use for chain/network resolution
+ *
+ * @returns {Unstake} - Unified unstake object
+ */
+function mapUnstakeEntry(
+  d: UnstakeEntry,
+  env: IEnvParam['env'] = DEFAULT_ENV,
+): Unstake {
+  const isNative = Boolean(d.to_chain && d.to_address);
+
+  let toAddress: string | undefined = d.to_address;
+  if (!isNative && d.output_script) {
+    try {
+      toAddress = bitcoin.address.fromOutputScript(
+        Buffer.from(d.output_script.replace(/^0x/, ''), 'hex'),
+        env === 'prod' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet,
+      );
+    } catch {
+      toAddress = undefined;
+    }
+  } else if (toAddress?.startsWith('0x')) {
+    toAddress = trim(toAddress as Hex);
+  }
+
+  const payoutTxStatus = d.payout_txid
     ? PayoutTxStatus.Completed
     : PayoutTxStatus.Pending;
 
+  const toToken = isNative ? Token.BTCb : undefined;
+  const toChainId = d.to_chain ? getChainIdByName(d.to_chain, env) : undefined;
+
+  let toTokenAddress: string | undefined = undefined;
+  if (toToken) {
+    if (isValidChain(toChainId)) {
+      let address = TOKEN_ADDRESSES?.[toToken]?.[env]?.[toChainId];
+      if (address) {
+        address =
+          typeof address === 'string' ? address : address[AddressKind.Adapter];
+      }
+      toTokenAddress = address;
+    }
+
+    if (isSolanaChain(toChainId)) {
+      toTokenAddress = getSolanaTokenAddress(toChainId, env);
+    }
+
+    if (isSuiChain(toChainId)) {
+      toTokenAddress = getSuiTokenAddress(toChainId, env);
+    }
+
+    if (isStarknetChainId(toChainId)) {
+      toTokenAddress = getStarknetTokenAddress(toChainId, env);
+    }
+  }
+
   return {
-    txHash: data.tx_hash,
-    chainId: getChainIdByName(data.blockchain, env),
-    blockHeight: +data.block_height,
-    unstakeDate: new Date(+data.block_time * 1000),
-    fromAddress: data.from_address,
-    toAddress: btcAddress,
-    amount: fromSatoshi(data.amount),
-    payoutTxHash: data.payout_txid,
-    payoutTxIndex: data.payout_index ? +data.payout_index : undefined,
-    payoutTxStatus: status,
-    sanctioned: data.sanctioned,
+    isNative,
+    txHash: d.tx_hash,
+    fromChainId: getChainIdByName(d.blockchain, env),
+    toChainId: toChainId,
+    blockHeight: Number(d.block_height),
+    blockTime: Number(d.block_time),
+    fromAddress: d.from_address,
+    toAddress,
+    amount: fromSatoshi(d.amount),
+    payoutTxHash: d.payout_txid,
+    payoutTxIndex: d.payout_index ? Number(d.payout_index) : undefined,
+    payoutTxStatus,
+    sanctioned: d.sanctioned,
+    proof: d.proof,
+    rawPayload: d.payload,
+    toToken,
+    toTokenAddress,
+    notarizationStatus: d.notarization_status,
+    sessionState: d.session_state,
+    claimTxHash: d.claim_tx,
   };
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               Public API                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Returns all unstakes (direct BTC or native chain redemptions) for a given address.
+ *
+ * @param {IGetUnstakesByAddressParameters} params - Parameters for fetching unstakes.
+ * @param {string} params.address - Address of the unstake initiator.
+ * @param {Env} [params.env=DEFAULT_ENV] - Environment to use.
+ * @param {object} [params.options] - Optional pagination and filter options.
+ *
+ * @returns {Promise<Unstake[]>} - Array of unified unstake records.
+ *
+ * @throws {Error} - Throws if no address is specified.
+ */
+export async function getUnstakesByAddress({
+  address,
+  env = DEFAULT_ENV,
+  options,
+}: IGetUnstakesByAddressParameters): Promise<Unstake[]> {
+  return fetchUnstakesByAddress({ address, env, options });
 }

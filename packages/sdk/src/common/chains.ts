@@ -4,6 +4,8 @@ import * as viem_chains from 'viem/chains';
 import { makeWalletClient } from '../clients/wallet-client';
 
 const {
+  avalanche,
+  avalancheFuji,
   base,
   baseSepolia,
   berachain,
@@ -49,6 +51,7 @@ export const katana = defineChain({
 });
 
 export const katanaTatara = defineChain({
+  testnet: true,
   id: 129399,
   name: 'Tatara',
   nativeCurrency: {
@@ -133,11 +136,43 @@ export const bobSepolia = defineChain({
   },
 });
 
+export const monad = defineChain({
+  id: 143,
+  name: 'Monad',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Monad',
+    symbol: 'MONAD',
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        // TODO: Update with the correct RPC URL once the monad network is live
+        'https://rpc-mainnet.monadinfra.com/rpc/hvdhVu9RcRR51qvLIYMX6CUKcjHtoRS5',
+      ],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Monad Explorer',
+      // TODO: Update with the correct explorer URL once the monad network is live
+      url: 'https://monadvision.com/',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 9248132,
+    },
+  },
+});
+
 export const allChains: Record<string, viem_chains.Chain> = {
   ...viem_chains,
   katana,
   katanaTatara,
   tac,
+  monad,
 };
 
 export const SUI_DEVNET_CHAIN = 'sui:devnet' as const;
@@ -198,18 +233,21 @@ export const isStarknetChainId = (
 
 export const ChainId = {
   ethereum: 1,
+  avalanche: 43114,
   base: 8453,
   berachain: 80094,
   binanceSmartChain: 56,
   corn: 21000000,
   etherlink: 42793,
   katana: 747474,
+  monad: 143,
   morph: 2818,
   sonic: 146,
   swell: 1923,
   tac: 239,
   bob: 60808,
   // Testnets:
+  avalancheFuji: 43113,
   baseSepoliaTestnet: 84532,
   berachainBartioTestnet: 80084,
   binanceSmartChainTestnet: 97,
@@ -224,18 +262,21 @@ export type ChainId = (typeof ChainId)[keyof typeof ChainId];
 
 export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.ethereum]: mainnet,
+  [ChainId.avalanche]: avalanche,
   [ChainId.base]: base,
   [ChainId.berachain]: berachain,
   [ChainId.binanceSmartChain]: bsc,
   [ChainId.corn]: corn,
   [ChainId.etherlink]: etherlink,
   [ChainId.katana]: katana,
+  [ChainId.monad]: monad,
   [ChainId.morph]: morph,
   [ChainId.sonic]: sonic,
   [ChainId.swell]: swellchain,
   [ChainId.tac]: tac,
   [ChainId.bob]: bob,
   // Testnets:
+  [ChainId.avalancheFuji]: avalancheFuji,
   [ChainId.baseSepoliaTestnet]: baseSepolia,
   [ChainId.berachainBartioTestnet]: berachainTestnetbArtio,
   [ChainId.binanceSmartChainTestnet]: bscTestnet,
@@ -265,6 +306,7 @@ export const isEthereumChain = (chainId: unknown): chainId is EthereumChain => {
 
 export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.ethereum]: 'ethereum',
+  [ChainId.avalanche]: 'avalanche',
   [ChainId.base]: 'base',
   [ChainId.berachain]: 'berachain',
   [ChainId.binanceSmartChain]: 'bsc',
@@ -303,5 +345,5 @@ export const getLlamaChainName = (chainId: ChainId): LlamaChain | undefined => {
   return name;
 };
 
-export const getChain = (chainId: number) =>
+export const getChain = (chainId: number): viem_chains.Chain | undefined =>
   extractChain({ chains: Object.values(allChains), id: chainId as ChainId });

@@ -22,7 +22,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
   argTypes: {
-    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.NativeLBTC]),
+    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]),
   },
 } satisfies Meta<typeof StoryView>;
 
@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     amount: 0.00001,
-    token: Token.LBTC,
+    tokenIn: Token.LBTC,
     btcAddress: '',
     env: DEFAULT_ENV,
   },
@@ -57,7 +57,7 @@ export function StoryView(props: ClaimLBTCProps) {
       amount: props.amount,
       btcAddress: props.btcAddress,
       env: props.env,
-      token: props.token,
+      tokenIn: props.tokenIn,
 
       account: connection.account.address,
       chainId: connection.account.chainId,

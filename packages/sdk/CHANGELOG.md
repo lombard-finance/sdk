@@ -1,3 +1,34 @@
+# 3.7.0
+
+* **added custom signer support for flexible transaction signing:**
+  * introduced `SignerAdapter` interface for custom transaction signing logic,
+  * `redeemToken` and `unstakeLBTC` now accept either `provider` (legacy) or `signer` (custom) parameter,
+  * backward compatible - existing provider-based code continues to work unchanged.
+* added `depositToken` function that triggers the deposit method on the LBTC contract,
+* replaced `token` parameter of `redeemToken` function with a pair of new parameters `tokenIn` (the token that is being redeemed) and `tokenOut` (the token received after redemption, defaults to `undefined` [**BTC**]),
+* introduced `fetchAllPaginated` utility to handle pagination across all endpoints,
+* added unified deposits support:
+  * introduced `Deposit` interface to unify Direct BTC Deposits and Native Deposits APIs.  
+  * added `isNative` flag to distinguish between deposit types.  
+  * added fetchers: `fetchDirectDeposits` and `fetchNativeDeposits` (now uses `fetchAllPaginated` internally).
+  * added unified `getDepositsByAddress` function to fetch and combine deposits from both APIs.  
+  * improved mapping helpers: `mapDirectBtcDeposit` and `mapNativeDeposit` to normalize fields such as `txHash`, `eventIndex`, `amount`, `blockTime`, `fromChainId`, `toChainId`, `toTokenAddress`, `toToken`, `sanctioned`, `claimTxHash`, and `notarizationWaitDur`.  
+  * added JSDoc for all deposit types and fetchers.
+  * ensured robust error handling: failure of one API does not prevent fetching from the other.
+  * renamed `signature` property to `proof`.
+* refactored unstakes fetching:
+  * `fetchUnstakesByAddress` now uses `fetchAllPaginated` internally,
+  * removed `unstakeDate` property from `Unstake` interface,
+  * added `blockTime` property to `Unstake` to retain original timestamp,
+  * added `isNative` flag to distinguish between unstakes (directly to BTC) and redemptions (to native chain).
+  * `fromChainId` and `toChainId` clearly separated; `toChainId` is undefined for BTC unstakes,
+  * fully typed JSDoc added for `Unstake`, `UnstakeEntry`, and fetchers,
+  * public API `getUnstakesByAddress` added as a wrapper over the fetcher.
+* renamed tokens:
+  * `Token.NativeLBTC` to `Token.BTCb` (`BTC.b`)
+  * `Token.BTCB` to `Token.BTCBinance` (`BTCB` - Binance BTC wrapper)
+  * deprecated `Token.BTCK` which will be sunset as soon as the Katana contracts are updated.
+
 # 3.6.23
 
 * added Katana chain support to `getBasculeDepositStatus` with proper GMP payload decoding and mintID calculation.
