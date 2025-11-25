@@ -28,7 +28,7 @@ export const getStakeAndBakeTokenContract = async (
   token: StakeAndBakeToken,
   chainId: ISignStakeAndBakeParams['chainId'],
   env: Env,
-) => {
+): Promise<Awaited<ReturnType<typeof getTokenContractInfo>>> => {
   if (!token || token === 'BTC' || token === Token.LBTC) {
     return await getTokenContractInfo(Token.LBTC, chainId, env);
   }
