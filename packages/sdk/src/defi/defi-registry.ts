@@ -7,6 +7,7 @@
 
 import { Env } from '@lombard.finance/sdk-common';
 import { Abi } from 'viem';
+
 import { ChainId } from '../common/chains';
 import { ContractInfo } from '../common/contract-info';
 import { Token } from '../tokens/token-addresses';
@@ -93,7 +94,7 @@ function getVedaSpenderContract(
   return contract;
 }
 
-const DefiRegistryTokens = {
+export const DefiRegistryTokens = {
   LBTC: Token.LBTC,
   BTCb: Token.BTCb,
   BTC: 'BTC',

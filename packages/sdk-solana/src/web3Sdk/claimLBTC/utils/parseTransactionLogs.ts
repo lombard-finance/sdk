@@ -20,7 +20,7 @@ export const parseTransactionLogs = (
             errorLogs = JSON.parse(logsText);
 
             return { errorMessage, errorLogs };
-          } catch (jsonError) {
+          } catch {
             logsText = logsText.replace(/^\[|\]$/g, '');
             errorLogs = logsText
               .split(/",?\s*"/)

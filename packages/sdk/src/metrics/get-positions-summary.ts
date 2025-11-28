@@ -1,6 +1,7 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
+
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
 import { Token } from '../tokens/token-addresses';
@@ -116,7 +117,7 @@ export async function getPositionsSummary({
     },
     btcValue: BigNumber(data.btc_value || 0),
     btcPnl: BigNumber(data.btc_pnl || 0),
-    snapshot: data?.snapshot?.map(ds => ({
+    snapshot: data.snapshot?.map(ds => ({
       token: mapRewardAssetToToken(ds.asset),
       type: ds.type,
       balance: BigNumber(ds.balance || 0),

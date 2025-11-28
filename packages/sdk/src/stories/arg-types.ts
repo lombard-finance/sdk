@@ -1,6 +1,6 @@
+import { Env } from '@lombard.finance/sdk-common';
 import { ArgTypes } from 'storybook/internal/types';
 import { ChainId } from '../common/chains';
-import { Env } from '@lombard.finance/sdk-common';
 import { Token } from '../tokens/token-addresses';
 
 export const chainSelector: Partial<ArgTypes> = {

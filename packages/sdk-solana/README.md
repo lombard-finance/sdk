@@ -2,7 +2,6 @@
 
 The Lombard's Solana SDK package provides a set of function that allow interacting with the Lombard protocol and its features for Solana users.
 
-
 ## Installation
 
 ```bash

@@ -1,13 +1,14 @@
 import { ec, Signature, typedData, WalletAccount } from 'starknet';
+
+import { getPublicKey, recoverFullPublicKeys } from '../utils/account';
 import {
   ChainParameters,
   makeDestinationChainId,
   StarknetChainId,
 } from '../utils/chains';
-import { getPublicKey, recoverFullPublicKeys } from '../utils/account';
 import { Address } from '../utils/common';
-import { normalizeSignature } from '../utils/signature';
 import { getRpcProvider } from '../utils/rpc-providers';
+import { normalizeSignature } from '../utils/signature';
 import { SIGN_MESSAGE_TYPED_DATA } from '../utils/typed-data';
 import { WalletName } from '../utils/wallet-account';
 

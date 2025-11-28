@@ -1,5 +1,8 @@
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
+import { Hex, trim } from 'viem';
+
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
@@ -16,10 +19,6 @@ import {
   SuiChain,
 } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
-import { fromSatoshi } from '../../utils/satoshi';
-import { Hex, trim } from 'viem';
-import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { fetchAllPaginated } from '../../utils/pagination';
 import {
   AddressKind,
   getSolanaTokenAddress,
@@ -28,6 +27,8 @@ import {
   Token,
   TOKEN_ADDRESSES,
 } from '../../tokens/token-addresses';
+import { fetchAllPaginated } from '../../utils/pagination';
+import { fromSatoshi } from '../../utils/satoshi';
 import {
   ENotarizationStatus,
   ESessionState,

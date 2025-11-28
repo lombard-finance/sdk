@@ -48,7 +48,7 @@ export function isWalletAvailable(injectedWallet: InjectedWallet) {
   try {
     const provider = getSolanaWalletProvider(injectedWallet);
     return Boolean(provider);
-  } catch (err) {
+  } catch {
     console.info(`The ${injectedWallet} Solana wallet is not available.`);
   }
 

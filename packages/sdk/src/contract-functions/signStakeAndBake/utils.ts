@@ -1,5 +1,6 @@
 import { Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
+
 import { getExchangeRatio } from '../../api-functions/getLBTCExchangeRate/get-exchange-ratio';
 import { StakeAndBakeToken } from '../../defi/defi-registry';
 import { AddressKind, Token } from '../../tokens/token-addresses';
@@ -54,7 +55,7 @@ export async function calculateStakeAndBakeLBTCAmount(
     const lbtcAmount = new BigNumber(btcAmount).dividedBy(btcTokenRatio);
 
     return lbtcAmount;
-  } catch (error) {
+  } catch {
     throw new Error('Failed to get exchange ratio for stake and bake');
   }
 }

@@ -1,15 +1,16 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
+
 import {
   ChainId,
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
   SOLANA_TESTNET_CHAIN,
+  SolanaChain,
   STARKNET_MAINNET_CHAIN,
   STARKNET_SEPOLIA_CHAIN,
+  StarknetChainId,
   SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
-  SolanaChain,
-  StarknetChainId,
   SuiChain,
 } from './chains';
 

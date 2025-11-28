@@ -1,5 +1,6 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it, vi } from 'vitest';
+
 import { ChainId } from '../../../common/chains';
 import { DefiProtocol } from '../../../defi/defi-registry';
 import { Token } from '../../../tokens/token-addresses';
@@ -10,7 +11,7 @@ vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn(() => ({})),
 }));
 
-vi.mock('viem', async (importOriginal) => {
+vi.mock('viem', async importOriginal => {
   const actual = await importOriginal<typeof import('viem')>();
   return {
     ...actual,
@@ -125,7 +126,9 @@ describe('getStakeAndBakeFee', () => {
           chainId: ChainId.ethereum,
           env: Env.prod,
         }),
-      ).rejects.toThrow('Token BTC.b is not supported for stake and bake on vault Veda');
+      ).rejects.toThrow(
+        'Token BTC.b is not supported for stake and bake on vault Veda',
+      );
     });
 
     it('should throw error when using LBTC with Silo (explicit)', async () => {
@@ -136,7 +139,9 @@ describe('getStakeAndBakeFee', () => {
           chainId: ChainId.avalancheFuji,
           env: Env.testnet,
         }),
-      ).rejects.toThrow('Token LBTC is not supported for stake and bake on vault Silo');
+      ).rejects.toThrow(
+        'Token LBTC is not supported for stake and bake on vault Silo',
+      );
     });
   });
 
@@ -160,4 +165,3 @@ describe('getStakeAndBakeFee', () => {
     });
   });
 });
-

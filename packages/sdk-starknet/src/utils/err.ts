@@ -1,6 +1,7 @@
 import { extractErrorMessage } from '@lombard.finance/sdk-common/utils/err';
-import { StarknetChainId } from './chains';
+
 import { Token } from '../tokens/lib/tokens';
+import { StarknetChainId } from './chains';
 
 enum ErrorCode {
   NO_PROVIDER = 'NO_PROVIDER',

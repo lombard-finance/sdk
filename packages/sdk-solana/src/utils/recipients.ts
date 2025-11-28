@@ -1,5 +1,6 @@
-import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
+import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
+
 import { MintPayload } from '../common/mintPayload';
 
 export const verifyMatchingRecipient = async (

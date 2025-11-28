@@ -46,17 +46,17 @@ interface StoryViewProps {
 
 /**
  * Get all LBTC contract addresses for a specific environment.
- * 
+ *
  * This function returns a complete mapping of LBTC contract addresses
  * across all supported EVM chains for a given environment (prod, testnet, dev).
- * 
+ *
  * **Environments:**
  * - `prod`: Production/mainnet addresses
  * - `testnet`: Public testnet addresses
  * - `stage`: Staging environment
  * - `dev`: Development environment
  * - `ibc`: IBC environment
- * 
+ *
  * **Supported Chains:**
  * - Ethereum
  * - Base
@@ -72,13 +72,13 @@ interface StoryViewProps {
  * - Swell
  * - TAC
  * - And their testnets
- * 
+ *
  * **Use Cases:**
  * - Display all deployment addresses
  * - Validate contract addresses
  * - Multi-chain integration setup
  * - Configuration management
- * 
+ *
  * **Returns:**
  * Object mapping ChainId to contract Address
  */
@@ -135,8 +135,8 @@ export function StoryView(props: StoryViewProps) {
                     return (
                       <tr key={chainId}>
                         <td>
-                          <strong>{chain?.name || 'Unknown'}</strong> (
-                          {chainId})
+                          <strong>{chain?.name || 'Unknown'}</strong> ({chainId}
+                          )
                         </td>
                         <td>
                           <code className="text-break">{address}</code>
@@ -155,4 +155,3 @@ export function StoryView(props: StoryViewProps) {
     </div>
   );
 }
-

@@ -5,6 +5,7 @@ import {
   encodePacked,
   parseAbiParameters,
 } from 'viem';
+
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
@@ -17,15 +18,15 @@ import {
 } from '../../tokens/tokens';
 import { getErrorMessage } from '../../utils/err';
 import toBigInt from '../../utils/numbers';
+import CCIP_ROUTER_ABI from '../abi/CCIP_ROUTER_ABI.json';
+import { getCCIPConfig } from './ccip-config';
 import {
   BridgeType,
-  CCIPBridgeChain,
   CCIP_BRIDGE_CHAINS,
-  MIN_BRIDGE_AMOUNT,
+  CCIPBridgeChain,
   getBridgeInfo,
+  MIN_BRIDGE_AMOUNT,
 } from './config';
-import { getCCIPConfig } from './ccip-config';
-import CCIP_ROUTER_ABI from '../abi/CCIP_ROUTER_ABI.json';
 
 export type BridgeCCIPParameters = {
   /** The destination chain id. */

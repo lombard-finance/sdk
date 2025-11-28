@@ -1,27 +1,28 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import { Address } from 'viem';
+
 import {
   ChainId,
-  SOLANA_DEVNET_CHAIN,
-  SOLANA_MAINNET_CHAIN,
-  SOLANA_TESTNET_CHAIN,
-  STARKNET_MAINNET_CHAIN,
-  STARKNET_SEPOLIA_CHAIN,
-  SUI_MAINNET_CHAIN,
-  SUI_TESTNET_CHAIN,
-  SolanaChain,
-  StarknetChainId,
-  SuiChain,
   isSolanaChain,
   isStarknetChainId,
   isSuiChain,
   isValidChain,
+  SOLANA_DEVNET_CHAIN,
+  SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET_CHAIN,
+  SolanaChain,
+  STARKNET_MAINNET_CHAIN,
+  STARKNET_SEPOLIA_CHAIN,
+  StarknetChainId,
+  SUI_MAINNET_CHAIN,
+  SUI_TESTNET_CHAIN,
+  SuiChain,
 } from '../common/chains';
 import { AddressKind, BridgeTokenAddresses } from './types';
 
 // Re-export for backward compatibility
-export { AddressKind } from './types';
 export type { BridgeTokenAddresses } from './types';
+export { AddressKind } from './types';
 
 export enum Token {
   // Lombard tokens:

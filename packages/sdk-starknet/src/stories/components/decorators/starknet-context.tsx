@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { StarknetContext } from '../../hooks/use-connection';
 import { WalletAccount } from 'starknet';
+import { StarknetContext } from '../../hooks/use-connection';
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const starknetContext = () => (Story: any) => {
+export const starknetContext = () => (Story: React.ComponentType) => {
   const [walletAccount, setWalletAccount] = useState<WalletAccount | undefined>(
     undefined,
   );

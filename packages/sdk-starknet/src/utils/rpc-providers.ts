@@ -1,4 +1,5 @@
 import { RpcProvider, WalletAccount } from 'starknet';
+
 import { StarknetChainId } from './chains';
 
 const RPC_PROVIDERS = {
@@ -7,7 +8,9 @@ const RPC_PROVIDERS = {
 };
 
 const providers = new Map<StarknetChainId, RpcProvider>();
-export const getRpcProvider = (chainId = StarknetChainId.SN_MAIN) => {
+export const getRpcProvider = (
+  chainId: StarknetChainId = StarknetChainId.SN_MAIN,
+) => {
   let provider = providers.get(chainId);
   if (!provider) {
     provider = new RpcProvider({ nodeUrl: RPC_PROVIDERS[chainId] });

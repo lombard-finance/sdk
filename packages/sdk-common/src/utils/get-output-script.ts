@@ -1,5 +1,5 @@
-import { bitcoin } from './bitcoin';
 import { Env } from '../env';
+import { bitcoin } from './bitcoin';
 
 /**
  * Get output script from address.

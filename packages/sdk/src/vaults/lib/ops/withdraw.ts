@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+
 import { makePublicClient } from '../../../clients/public-client';
 import { makeWalletClient } from '../../../clients/wallet-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../../common/chains';
@@ -12,7 +13,7 @@ import {
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
 import { DAY } from '../../../utils/time';
-import { VAULTS, Vault, isVedaVaultChain } from '../config';
+import { isVedaVaultChain, Vault, VAULTS } from '../config';
 
 export type QueueWithdrawParameters = {
   /** The amount to be withdrawn from the DeFi vault. */

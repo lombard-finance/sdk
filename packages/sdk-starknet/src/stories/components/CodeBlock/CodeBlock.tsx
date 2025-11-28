@@ -1,8 +1,7 @@
 import './CodeBlockStyles.css';
 
 interface ICodeBlockProps {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  text?: any;
+  text?: unknown;
   withFormatting?: boolean;
 }
 
@@ -10,12 +9,13 @@ export function CodeBlock({
   text,
   withFormatting = true,
 }: ICodeBlockProps): JSX.Element | null {
-  const formattedCode =
-    text && withFormatting ? JSON.stringify(text, null, 2) : text;
-
   if (text === undefined || text === null) {
     return null;
   }
+
+  const formattedCode: string = withFormatting
+    ? JSON.stringify(text, null, 2)
+    : String(text);
 
   const isError = text instanceof Error;
 

@@ -1,6 +1,7 @@
-import { type EIP1193Provider, defineChain, extractChain } from 'viem';
+import { defineChain, type EIP1193Provider, extractChain } from 'viem';
 import { addChain as viem_addChain } from 'viem/actions';
 import * as viem_chains from 'viem/chains';
+
 import { makeWalletClient } from '../clients/wallet-client';
 
 const {
@@ -299,9 +300,7 @@ export const isMonadChain = (chainId: unknown): chainId is MonadChain => {
 };
 type EthereumChain = typeof ChainId.ethereum;
 export const isEthereumChain = (chainId: unknown): chainId is EthereumChain => {
-  return ([ChainId.ethereum] as number[]).includes(
-    chainId as number,
-  );
+  return ([ChainId.ethereum] as number[]).includes(chainId as number);
 };
 
 export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {

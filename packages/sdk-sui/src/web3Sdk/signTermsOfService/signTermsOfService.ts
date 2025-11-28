@@ -1,5 +1,4 @@
 import { SuiSignPersonalMessageFeature } from '@mysten/wallet-standard';
-
 import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 

@@ -1,8 +1,9 @@
 import { num, RpcProvider, WalletAccount } from 'starknet';
+
+import { StarknetChainId } from './chains';
 import { Address } from './common';
 import { ERR_NO_PUBKEY } from './err';
 import { NormalizedSignature } from './signature';
-import { StarknetChainId } from './chains';
 
 /** The list of entrypoints that could be the public key getters */
 const PUBLIC_KEY_GETTERS = [
@@ -38,7 +39,7 @@ export async function getPublicKey(
           `Retrieved pubKey from ${accountAddress} via ${entrypoint}: ${pubkey}`,
         );
       }
-    } catch (err) {
+    } catch {
       // NOOP
     }
   }
@@ -68,7 +69,7 @@ export function recoverFullPublicKeys(
         .toHex(false);
       keys.push(`0x${recovered}`);
     }
-  } catch (err) {
+  } catch {
     // NOOP
   }
 

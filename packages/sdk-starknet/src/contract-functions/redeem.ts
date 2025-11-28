@@ -3,13 +3,14 @@ import {
   BtcAddressType,
   getBtcAddressType,
 } from '@lombard.finance/sdk-common/utils/btc-address-type';
-import { StarknetChainId } from '../utils/chains';
-import { WalletAccountParameters } from '../utils/wallet-account';
-import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
 import { toBaseDenomination } from '@lombard.finance/sdk-common/utils/numbers';
 import { ByteArray, CallData, uint256 } from 'starknet';
-import { ERR_UNEXPECTED_OUTPUT_SCRIPT } from '../utils/err';
+
+import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
+import { StarknetChainId } from '../utils/chains';
 import { EnvParameters } from '../utils/env';
+import { ERR_UNEXPECTED_OUTPUT_SCRIPT } from '../utils/err';
+import { WalletAccountParameters } from '../utils/wallet-account';
 
 export type RedeemParameters = TokenParameters &
   WalletAccountParameters &

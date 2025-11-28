@@ -4,6 +4,7 @@
  */
 
 import type { Address } from 'viem';
+
 import type { ChainId } from '../../common/chains';
 import type { ApprovalMode } from '../../defi/defi-registry';
 
@@ -64,10 +65,10 @@ export interface TypedDataParams {
 
 /**
  * Builds EIP-712 typed data structure for signatures.
- * 
+ *
  * @param params - Typed data parameters
  * @returns EIP-712 typed data structure ready for signing
- * 
+ *
  * @example
  * ```typescript
  * const typedData = buildTypedData({
@@ -82,7 +83,7 @@ export interface TypedDataParams {
  *   nonce: 0n,
  *   deadline: 1234567890n,
  * });
- * 
+ *
  * const signature = await walletClient.signTypedData(typedData);
  * ```
  */
@@ -116,10 +117,10 @@ export function buildTypedData(params: TypedDataParams) {
 /**
  * Serializes typed data to JSON string.
  * Handles BigInt serialization by converting to strings.
- * 
+ *
  * @param typedData - Typed data structure from buildTypedData
  * @returns JSON string representation
- * 
+ *
  * @example
  * ```typescript
  * const typedData = buildTypedData(params);
@@ -134,4 +135,3 @@ export function serializeTypedData(
     typeof v === 'bigint' ? v.toString() : v,
   );
 }
-

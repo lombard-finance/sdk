@@ -101,9 +101,9 @@ export type SolanaWalletProvider<T extends InjectedWallet> =
         ? PhantomWalletProvider
         : T extends InjectedWallet.BACKPACK
           ? BackpackWalletProvider
-        : T extends InjectedWallet.SOLFLARE
-          ? SolflareWalletProvider
-        : undefined;
+          : T extends InjectedWallet.SOLFLARE
+            ? SolflareWalletProvider
+            : undefined;
 
 export interface WindowWithSolanaInjectedWallets extends Window {
   /** The injected PHANTOM wallet with Solana support */

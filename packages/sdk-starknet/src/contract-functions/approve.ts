@@ -1,9 +1,10 @@
 import { toBaseDenomination } from '@lombard.finance/sdk-common/utils/numbers';
-import { Address } from '../utils/common';
-import { WalletAccountParameters } from '../utils/wallet-account';
+
 import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
-import { EnvParameters } from '../utils/env';
 import { StarknetChainId } from '../utils/chains';
+import { Address } from '../utils/common';
+import { EnvParameters } from '../utils/env';
+import { WalletAccountParameters } from '../utils/wallet-account';
 
 type ApproveParameters = {
   /** The approved amount. */

@@ -1,10 +1,11 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
+
 import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
 import { orderBy } from '../../../utils/array';
-import { VAULTS, Vault, VedaVaultChain, isVedaVaultChain } from '../config';
+import { isVedaVaultChain, Vault, VAULTS, VedaVaultChain } from '../config';
 
 type PerformanceEntry = {
   aggregation_period: string;

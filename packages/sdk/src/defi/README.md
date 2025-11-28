@@ -29,6 +29,7 @@ DEFI_REGISTRY
    - `'approve'` - On-chain ERC-20 approval transaction (user pays gas)
 
 2. **`TokenApprovalConfig`** - Defines approval behavior:
+
    ```typescript
    {
      mode: 'permit' | 'approve',
@@ -59,10 +60,10 @@ The `getStakeAndBakeConfig()` function queries the registry:
 import { getStakeAndBakeConfig } from './validation';
 
 const { tokenConfig, spenderContract } = getStakeAndBakeConfig(
-  'Veda',              // Protocol
-  Token.LBTC,          // Token
-  ChainId.ethereum,    // Chain
-  Env.prod,            // Environment
+  'Veda', // Protocol
+  Token.LBTC, // Token
+  ChainId.ethereum, // Chain
+  Env.prod, // Environment
 );
 
 // Returns:
@@ -80,14 +81,14 @@ The main function uses the registry to determine behavior:
 export async function signStakeAndBake(params) {
   // 1. Get config from registry
   const { tokenConfig, spenderContract } = getStakeAndBakeConfig(...);
-  
+
   // 2. Build typed data based on config
   const typedData = buildTypedData({
     mode: tokenConfig.mode,              // permit or approve
     domainName: tokenConfig.eip712Domain.name,
     // ...
   });
-  
+
   // 3. Route to appropriate handler
   if (tokenConfig.mode === 'approve') {
     return handleApproveFlow({ ... });   // Submit transaction
@@ -110,7 +111,7 @@ export async function signStakeAndBake(params) {
 const VEDA_STAKE_AND_BAKE_CHAINS = [
   ChainId.ethereum,
   ChainId.binanceSmartChain,
-  ChainId.base,  // ← ADD THIS
+  ChainId.base, // ← ADD THIS
   // Testnets:
   ChainId.binanceSmartChainTestnet,
   ChainId.holesky,
@@ -121,6 +122,7 @@ const VEDA_STAKE_AND_BAKE_CHAINS = [
 ```
 
 **What Happens:**
+
 - `forChains()` automatically creates registry entries for all chains
 - LBTC inherits the same `LBTC_PERMIT_CONFIG` on Base
 - Uses the correct spender contract from `VEDA_VAULT_SPENDER_CONTRACTS[ChainId.base]`
@@ -138,7 +140,7 @@ const VEDA_STAKE_AND_BAKE_CHAINS = [
 const WBTC_PERMIT_CONFIG: TokenApprovalConfig = {
   mode: 'permit',
   eip712Domain: {
-    name: 'Wrapped Bitcoin',  // Check wBTC contract
+    name: 'Wrapped Bitcoin', // Check wBTC contract
     version: '1',
   },
   requiresNonce: true,
@@ -148,12 +150,16 @@ const WBTC_PERMIT_CONFIG: TokenApprovalConfig = {
 // 2. Add to DEFI_REGISTRY
 export const DEFI_REGISTRY = {
   Veda: {
-    [Token.LBTC]: { /* existing */ },
-    BTC: { /* existing */ },
-    
+    [Token.LBTC]: {
+      /* existing */
+    },
+    BTC: {
+      /* existing */
+    },
+
     // Add wBTC
-    [Token.wBTC]: forEnvs([Env.prod, Env.testnet], (env) => {
-      return forChains([ChainId.ethereum, ChainId.base], (chain) => ({
+    [Token.wBTC]: forEnvs([Env.prod, Env.testnet], env => {
+      return forChains([ChainId.ethereum, ChainId.base], chain => ({
         approvalConfig: WBTC_PERMIT_CONFIG,
         spenderContract: VEDA_VAULT_SPENDER_CONTRACTS[chain],
       }));
@@ -176,13 +182,17 @@ export const DEFI_REGISTRY = {
 export const DefiProtocol = {
   Veda: 'Veda',
   Silo: 'Silo',
-  Aave: 'Aave',  // ← ADD THIS
+  Aave: 'Aave', // ← ADD THIS
 } as const;
 
 // 2. Add protocol metadata
 export const DefiProtocols = {
-  [DefiProtocol.Veda]: { /* existing */ },
-  [DefiProtocol.Silo]: { /* existing */ },
+  [DefiProtocol.Veda]: {
+    /* existing */
+  },
+  [DefiProtocol.Silo]: {
+    /* existing */
+  },
   [DefiProtocol.Aave]: {
     name: 'Aave v3',
     url: 'https://aave.com',
@@ -206,12 +216,12 @@ const AAVE_SPENDER_CONTRACTS = {
 // 4. Add to registry
 export const DEFI_REGISTRY = {
   // ... existing protocols
-  
+
   Aave: {
     // LBTC uses standard permit
     [Token.LBTC]: forEnvs([Env.prod], () => {
-      return forChains([ChainId.ethereum, ChainId.base], (chain) => ({
-        approvalConfig: LBTC_PERMIT_CONFIG,  // Reuse existing config
+      return forChains([ChainId.ethereum, ChainId.base], chain => ({
+        approvalConfig: LBTC_PERMIT_CONFIG, // Reuse existing config
         spenderContract: AAVE_SPENDER_CONTRACTS[chain],
       }));
     }),
@@ -220,6 +230,7 @@ export const DEFI_REGISTRY = {
 ```
 
 **That's it!** Now you can call:
+
 ```typescript
 await signStakeAndBake({
   vaultKey: 'Aave',
@@ -240,12 +251,12 @@ await signStakeAndBake({
 
 // 1. Define approval config for USDC
 const USDC_APPROVE_CONFIG: TokenApprovalConfig = {
-  mode: 'approve',  // On-chain transaction
+  mode: 'approve', // On-chain transaction
   eip712Domain: {
     name: 'USD Coin',
     version: '2',
   },
-  requiresNonce: false,   // Approve doesn't use nonce
+  requiresNonce: false, // Approve doesn't use nonce
   expiryBehavior: 'zero', // Approve uses zero deadline
 };
 
@@ -253,8 +264,10 @@ const USDC_APPROVE_CONFIG: TokenApprovalConfig = {
 export const DEFI_REGISTRY = {
   // ...
   Silo: {
-    [Token.BTCb]: { /* existing */ },
-    
+    [Token.BTCb]: {
+      /* existing */
+    },
+
     // Add USDC
     [Token.USDC]: forEnvs([Env.testnet], () => {
       return forChains([ChainId.avalancheFuji], () => ({
@@ -280,7 +293,7 @@ The registry automatically validates:
 // Example: Unsupported token
 await signStakeAndBake({
   vaultKey: 'Veda',
-  token: Token.BTCb,  // BTCb not configured for Veda
+  token: Token.BTCb, // BTCb not configured for Veda
   chainId: ChainId.ethereum,
 });
 // Throws: StakeAndBakeValidationError
@@ -289,6 +302,7 @@ await signStakeAndBake({
 ```
 
 **Error Codes:**
+
 - `UNSUPPORTED_VAULT` - Protocol not in registry
 - `UNSUPPORTED_CHAIN` - Chain not in vault's `stakeAndBakeChains`
 - `UNSUPPORTED_TOKEN` - Token not configured for protocol
@@ -300,13 +314,14 @@ await signStakeAndBake({
 ## 🛠️ Helper Functions
 
 ### `forChains()`
+
 Generate config for multiple chains with same settings:
 
 ```typescript
-forChains([ChainId.ethereum, ChainId.base, ChainId.bsc], (chain) => ({
+forChains([ChainId.ethereum, ChainId.base, ChainId.bsc], chain => ({
   approvalConfig: LBTC_PERMIT_CONFIG,
   spenderContract: SPENDER_CONTRACTS[chain],
-}))
+}));
 
 // Generates:
 // {
@@ -317,12 +332,13 @@ forChains([ChainId.ethereum, ChainId.base, ChainId.bsc], (chain) => ({
 ```
 
 ### `forEnvs()`
+
 Generate config for multiple environments:
 
 ```typescript
-forEnvs([Env.prod, Env.testnet], (env) => ({
+forEnvs([Env.prod, Env.testnet], env => ({
   // Config for this env
-}))
+}));
 
 // Generates:
 // {
@@ -343,6 +359,7 @@ defi/
 ```
 
 **Related Files:**
+
 ```
 contract-functions/signStakeAndBake/
 ├── signStakeAndBake.ts    ← Main function (uses registry)
@@ -358,7 +375,9 @@ contract-functions/signStakeAndBake/
 ## 🎯 Best Practices
 
 ### 1. **Reuse Approval Configs**
+
 Don't duplicate configs for the same token behavior:
+
 ```typescript
 // ✅ Good: Reuse
 [Token.LBTC]: forEnvs(..., () => ({
@@ -378,9 +397,10 @@ Don't duplicate configs for the same token behavior:
 ```
 
 ### 2. **Use forChains() for Multi-Chain Support**
+
 ```typescript
 // ✅ Good: DRY with forChains()
-[Token.LBTC]: forEnvs([Env.prod], () => 
+[Token.LBTC]: forEnvs([Env.prod], () =>
   forChains([ChainId.ethereum, ChainId.base], (chain) => ({
     approvalConfig: LBTC_PERMIT_CONFIG,
     spenderContract: SPENDER_CONTRACTS[chain],
@@ -397,7 +417,9 @@ Don't duplicate configs for the same token behavior:
 ```
 
 ### 3. **Define Spender Contracts Once**
+
 Store spender contracts in a map:
+
 ```typescript
 // At top of file
 const VEDA_VAULT_SPENDER_CONTRACTS = {
@@ -407,11 +429,13 @@ const VEDA_VAULT_SPENDER_CONTRACTS = {
 };
 
 // Then reference them
-spenderContract: VEDA_VAULT_SPENDER_CONTRACTS[chain]
+spenderContract: VEDA_VAULT_SPENDER_CONTRACTS[chain];
 ```
 
 ### 4. **Document Token-Specific Behavior**
+
 Use comments for special cases:
+
 ```typescript
 // BTC is a virtual token that converts to LBTC via exchange ratio
 BTC: forEnvs(Object.values(Env), () => {
@@ -427,7 +451,9 @@ BTC: forEnvs(Object.values(Env), () => {
 ## 🧪 Testing New Integrations
 
 ### 1. **Unit Tests**
+
 Add test cases in `signStakeAndBake.test.ts`:
+
 ```typescript
 it('should handle NewToken on NewProtocol', async () => {
   const result = await signStakeAndBake({
@@ -436,14 +462,16 @@ it('should handle NewToken on NewProtocol', async () => {
     chainId: ChainId.ethereum,
     // ...
   });
-  
-  expect(result.mode).toBe('permit');  // or 'approve'
+
+  expect(result.mode).toBe('permit'); // or 'approve'
   expect(result.signature).toBeTruthy();
 });
 ```
 
 ### 2. **Storybook Testing**
+
 Test in Storybook UI:
+
 ```bash
 yarn storybook
 # Navigate to: write/signStakeAndBake
@@ -451,7 +479,9 @@ yarn storybook
 ```
 
 ### 3. **Integration Testing**
+
 Use the verification script:
+
 ```bash
 yarn verify:stake-and-bake
 ```
@@ -469,4 +499,3 @@ Adding a new integration? Follow these steps:
 - [ ] Add test case(s)
 - [ ] Test in Storybook
 - [ ] Update exports in `index.ts` if adding new protocol
-

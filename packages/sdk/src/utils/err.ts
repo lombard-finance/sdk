@@ -1,7 +1,8 @@
-import { AxiosError } from 'axios';
-import { Token } from '../tokens/token-addresses';
-import { ChainId } from '../common/chains';
 import { Env } from '@lombard.finance/sdk-common';
+import { AxiosError } from 'axios';
+
+import { ChainId } from '../common/chains';
+import { Token } from '../tokens/token-addresses';
 
 /**
  * Retrieves the error message from the given error object.

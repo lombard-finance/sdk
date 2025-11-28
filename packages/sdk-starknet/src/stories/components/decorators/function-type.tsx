@@ -1,44 +1,44 @@
 type FuncType = 'api-get' | 'api-post' | 'read' | 'write' | 'flow';
 
-// biome-ignore lint/suspicious/noExplicitAny: Story element
-export const functionType = (type: FuncType) => (Story: any) => {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        gap: '5px',
-        flexDirection: 'column',
-        border: `1px solid ${colors[type]}`,
-        borderRadius: '5px',
-        overflow: 'hidden',
-      }}
-    >
+export const functionType =
+  (type: FuncType) => (Story: React.ComponentType) => {
+    return (
       <div
         style={{
-          display: 'inline-flex',
-          flexDirection: 'row',
+          display: 'flex',
           gap: '5px',
-          fontSize: '0.8em',
-          background: colors[type],
-          color: 'var(--bs-white)',
-          padding: '2px 5px',
-          //   borderRadius: '5px',
+          flexDirection: 'column',
+          border: `1px solid ${colors[type]}`,
+          borderRadius: '5px',
+          overflow: 'hidden',
         }}
       >
-        <span style={{ fontWeight: '800 ' }}>{labels[type]}</span>
-        <span style={{ opacity: '0.8' }}>{descriptions[type]}</span>
-      </div>
+        <div
+          style={{
+            display: 'inline-flex',
+            flexDirection: 'row',
+            gap: '5px',
+            fontSize: '0.8em',
+            background: colors[type],
+            color: 'var(--bs-white)',
+            padding: '2px 5px',
+            //   borderRadius: '5px',
+          }}
+        >
+          <span style={{ fontWeight: '800 ' }}>{labels[type]}</span>
+          <span style={{ opacity: '0.8' }}>{descriptions[type]}</span>
+        </div>
 
-      <div
-        style={{
-          padding: '20px',
-        }}
-      >
-        <Story />
+        <div
+          style={{
+            padding: '20px',
+          }}
+        >
+          <Story />
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 const labels: Record<FuncType, string> = {
   'api-get': 'API (get)',

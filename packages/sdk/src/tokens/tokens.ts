@@ -1,15 +1,16 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import { type Abi, Address, erc20Abi, PublicClient, zeroAddress } from 'viem';
-import { AddressKind, TOKEN_ADDRESSES, Token } from './token-addresses';
-import { LBTC_ABI } from './abi/LBTC_ABI';
-import { TokenContractAddressNotFoundError } from '../utils/err';
-import BTCK_ABI from './abi/BTCK_ABI';
-import STLBTC_ABI from './abi/STLBTC_ABI';
-import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
-import { ChainId } from '../common/chains';
+
 import { makePublicClient } from '../clients/public-client';
+import { ChainId } from '../common/chains';
+import { TokenContractAddressNotFoundError } from '../utils/err';
 import BRIDGE_TOKEN_ADAPTER_ABI from './abi/BRIDGE_TOKEN_ADAPTER_ABI';
+import BTCK_ABI from './abi/BTCK_ABI';
+import { LBTC_ABI } from './abi/LBTC_ABI';
+import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
+import STLBTC_ABI from './abi/STLBTC_ABI';
+import { AddressKind, Token, TOKEN_ADDRESSES } from './token-addresses';
 
 export type TokenInfo = {
   address: Address;
@@ -50,7 +51,7 @@ export async function isUpgradedContract(
       functionName: UPGRADED_CONTRACT_POINTER,
     });
     return assetRouter !== zeroAddress;
-  } catch (_err) {
+  } catch {
     return false;
   }
 }

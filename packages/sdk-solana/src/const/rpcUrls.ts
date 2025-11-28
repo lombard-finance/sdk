@@ -1,4 +1,5 @@
 import { Commitment, Connection } from '@solana/web3.js';
+
 import { SolanaNetwork } from '../types/network';
 
 // TODO: Get this from the sdk

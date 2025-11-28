@@ -1,4 +1,5 @@
 import { TypedData, TypedDataRevision } from 'starknet';
+
 import { StarknetChainId } from './chains';
 
 export const SIGN_MESSAGE_TYPED_DATA = (

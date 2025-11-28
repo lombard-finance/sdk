@@ -3,15 +3,20 @@ import {
   Address,
   ByteArray,
   Client,
-  PublicClient,
   getContract,
   keccak256,
+  PublicClient,
   zeroAddress,
 } from 'viem';
+
 import { Deposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
-import { isEthereumChain, isKatanaChain, isMonadChain } from '../../common/chains';
+import {
+  isEthereumChain,
+  isKatanaChain,
+  isMonadChain,
+} from '../../common/chains';
 import { CommonOptionalWriteParameters } from '../../common/parameters';
 import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 import KATANA_BASCULE_ABI from '../../tokens/abi/KATANA_BASCULE_ABI';
@@ -158,7 +163,11 @@ export async function getBasculeDepositStatus({
 
   try {
     // For Katana chains, use proper GMP payload decoding to calculate mintID
-    if (isKatanaChain(chainId) || isMonadChain(chainId) || isEthereumChain(chainId)) {
+    if (
+      isKatanaChain(chainId) ||
+      isMonadChain(chainId) ||
+      isEthereumChain(chainId)
+    ) {
       const prefixedPayload = payload.startsWith('0x')
         ? payload
         : `0x${payload}`;

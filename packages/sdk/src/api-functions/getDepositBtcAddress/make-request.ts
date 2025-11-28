@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { Address, pad } from 'viem';
+
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
@@ -9,7 +11,6 @@ import {
   IDepositAddressesResponse,
   IGetDepositBtcAddressesParameters,
 } from './types';
-import { Address, pad } from 'viem';
 
 export async function makeRequest({
   address,

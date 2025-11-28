@@ -1,11 +1,12 @@
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   getAccount,
   getAssociatedTokenAddress,
+  TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+
 import { ISolanaWalletProvider } from '../types';
 
 /**
@@ -51,7 +52,7 @@ export async function createOrGetAssociatedTokenAccount({
     );
 
     return tokenAccount.address.toBase58();
-  } catch (error) {
+  } catch {
     // Create token account transaction
     const transaction = new Transaction();
 

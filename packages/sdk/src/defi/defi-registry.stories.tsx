@@ -285,7 +285,9 @@ function DefiRegistryViewer() {
                     toggleProtocol(protocol);
                   }}
                 >
-                  <span className="me-2">{isProtocolExpanded ? '▼' : '▶'}</span>
+                  <span className="me-2">
+                    {isProtocolExpanded ? '▼' : '▶'}
+                  </span>
                   <strong>
                     {DefiProtocols[protocol as DefiProtocol]?.name || protocol}
                   </strong>

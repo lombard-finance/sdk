@@ -1,10 +1,11 @@
 import BigNumber from 'bignumber.js';
 import { getContract } from 'viem';
+
 import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
-import { VAULTS, Vault, isVedaVaultChain } from '../../vaults/lib/config';
+import { isVedaVaultChain, Vault, VAULTS } from '../../vaults/lib/config';
 import { getShareValue } from '../getShareValue';
 
 export interface IGetSharesByAddressParameters extends CommonParameters {

@@ -7,6 +7,7 @@ import {
   RpcResponseAndContext,
 } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
+
 import { INVALID_ADDRESS_ERROR } from '../../const/known-errors';
 import { DEFAULT_NETWORK, getConnection } from '../../const/rpcUrls';
 import { SOL_DECIMALS, SOL_SCALE } from '../../const/token';
@@ -132,7 +133,7 @@ export async function getBalance({
     let pubKey: PublicKey;
     try {
       pubKey = new PublicKey(publicKey);
-    } catch (error) {
+    } catch {
       throw INVALID_ADDRESS_ERROR;
     }
 

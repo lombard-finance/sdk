@@ -1,4 +1,5 @@
 import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+
 import { ISolanaWalletProvider } from '../../types';
 
 const SIGN_MESSAGE =

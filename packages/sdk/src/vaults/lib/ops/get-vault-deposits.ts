@@ -1,23 +1,24 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
+
 import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
 import {
-  TokenInfo,
   fromBaseDenomination,
   getAssetInfo,
+  TokenInfo,
 } from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
 import {
+  isVedaVaultChain,
   NETWORK_TO_VEDA_VAULT_CHAIN_MAP,
+  Vault,
   VAULTS,
   VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
-  Vault,
   VedaVaultChain,
-  isVedaVaultChain,
 } from '../config';
 
 type SevenSeasDepositEntry = {
@@ -174,7 +175,7 @@ export type GetVaultDepositsAllChainsParameters = {
 /**
  * Retrieves the deposits made by specified address across all supported chains for a vault.
  * This is useful for getting a complete view of all deposits regardless of the currently connected chain.
- * 
+ *
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
  * @param parameters.vaultKey - The optional vault identifier (defaults to Veda).
@@ -201,7 +202,7 @@ export async function getVaultDepositsAllChains({
   );
 
   const depositsArrays = await Promise.all(depositsPromises);
-  
+
   // Flatten and sort all deposits by block number (newest first)
   const allDeposits = depositsArrays.flat();
   return orderBy(allDeposits, d => d.blockNumber, 'desc');

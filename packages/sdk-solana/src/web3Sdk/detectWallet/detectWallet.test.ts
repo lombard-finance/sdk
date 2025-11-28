@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { InjectedWallet } from '../../types/walletProviders';
 import { getSolanaWalletProvider } from './detectWallet';
 

@@ -5,12 +5,13 @@ vi.mock('./make-request', async () => {
   };
 });
 
-import { getDepositBtcAddress } from './getDepositBtcAddress';
-import { ChainId } from '../../common/chains';
 import { Env } from '@lombard.finance/sdk-common';
+
 import { getChainNameById } from '../../common/blockchain-identifier';
+import { ChainId } from '../../common/chains';
 import { Token, TOKEN_ADDRESSES } from '../../tokens/token-addresses';
 import { DAY, now, toUnix } from '../../utils/time';
+import { getDepositBtcAddress } from './getDepositBtcAddress';
 import { makeRequest } from './make-request';
 import { IDepositAddress, IGetDepositBtcAddressesParameters } from './types';
 

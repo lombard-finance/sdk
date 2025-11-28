@@ -1,6 +1,7 @@
 import { Connection } from '@solana/web3.js';
 import BigNumber from 'bignumber.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { INVALID_ADDRESS_ERROR } from '../../const/known-errors';
 import { getBalance } from './getBalance';
 

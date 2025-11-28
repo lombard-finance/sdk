@@ -1,6 +1,7 @@
 import { Env } from '@lombard.finance/sdk-common';
-import { ChainId } from '../common/chains';
+
 import { getApiConfig } from '../common/api-config';
+import { ChainId } from '../common/chains';
 
 export type TRpcUrlConfig = Record<number, string>;
 
@@ -16,7 +17,8 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.katana]: `${RPC_URL}/katana`,
   [ChainId.sonic]: `${RPC_URL}/sonic_mainnet`,
   [ChainId.tac]: `${RPC_URL}/tac`,
-  [ChainId.monad]: 'https://rpc-mainnet.monadinfra.com/rpc/hvdhVu9RcRR51qvLIYMX6CUKcjHtoRS5', // TODO: Update with the correct RPC URL once the monad network is live
+  [ChainId.monad]:
+    'https://rpc-mainnet.monadinfra.com/rpc/hvdhVu9RcRR51qvLIYMX6CUKcjHtoRS5', // TODO: Update with the correct RPC URL once the monad network is live
   // Testnets:
   [ChainId.baseSepoliaTestnet]: `${RPC_URL}/base_sepolia`,
   [ChainId.binanceSmartChainTestnet]:

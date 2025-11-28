@@ -1,5 +1,6 @@
-import { ChainId } from '../../common/chains';
 import { Address } from 'viem';
+
+import { ChainId } from '../../common/chains';
 
 export type CCIPChainConfig = {
   routerAddress: Address;

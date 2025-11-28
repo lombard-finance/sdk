@@ -71,8 +71,15 @@ function extractErrorMessage(error: unknown): string {
 
   // Check for data.message pattern
   // biome-ignore lint/suspicious/noExplicitAny: unknown err
-  const hasDataMessage = (err: any): err is { data: { message: string } } =>
-    err?.data?.message && typeof err.data.message === 'string';
+  const hasDataMessage = (
+    err: unknown,
+  ): err is { data: { message: string } } => {
+    const error = err as { data?: { message?: string } };
+
+    return Boolean(
+      error?.data?.message && typeof error.data.message === 'string',
+    );
+  };
 
   if (hasDataMessage(error)) {
     return error.data.message;

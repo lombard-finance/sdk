@@ -19,6 +19,7 @@ import BigNumber from 'bignumber.js';
 import type { EIP1193Provider } from 'viem';
 import type { Mock } from 'vitest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { ChainId } from '../../../common/chains';
 import { DefiProtocol } from '../../../defi/defi-registry';
 import { Token } from '../../../tokens/token-addresses';
@@ -29,11 +30,11 @@ import { StakeAndBakeValidationError } from '../validation';
 // Mock dependencies
 vi.mock('../../../clients/wallet-client', () => ({
   makeWalletClient: vi.fn(() => ({
-    signTypedData: vi.fn(async typedData => {
+    signTypedData: vi.fn(async _typedData => {
       // Return a mock signature - can't JSON.stringify BigInt values
       return '0xmocksignature1234567890abcdef';
     }),
-    writeContract: vi.fn(async params => {
+    writeContract: vi.fn(async _params => {
       // Return a mock transaction hash for approve transactions
       return '0xapprovetxhash1234567890abcdef';
     }),
@@ -42,7 +43,7 @@ vi.mock('../../../clients/wallet-client', () => ({
 
 vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn(() => ({
-    readContract: vi.fn(async ({ functionName, args }) => {
+    readContract: vi.fn(async ({ functionName }) => {
       // Mock nonce response
       if (functionName === 'nonces') {
         return 5n; // Mock nonce value
@@ -66,7 +67,7 @@ vi.mock('../../../clients/public-client', () => ({
 }));
 
 vi.mock('../../../tokens/tokens', () => ({
-  getTokenContractInfo: vi.fn(async (token, chainId, env, addressKind) => {
+  getTokenContractInfo: vi.fn(async (token, chainId, _env, _addressKind) => {
     // Return mock contract info based on token
     if (token === Token.LBTC) {
       return {

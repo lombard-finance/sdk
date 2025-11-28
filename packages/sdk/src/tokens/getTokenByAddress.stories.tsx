@@ -76,28 +76,28 @@ interface StoryViewProps {
 
 /**
  * Reverse lookup: find which token a contract address belongs to.
- * 
+ *
  * This function searches through all known token addresses to identify
  * which Lombard token matches the given address on a specific chain.
- * 
+ *
  * **Supported Tokens:**
  * - LBTC
  * - BTCb
- * 
+ *
  * **Address Kinds:**
  * - `Token`: The token contract address (default)
  * - `Adapter`: The bridge adapter address (for BTCb on Avalanche)
- * 
+ *
  * **Use Cases:**
  * - Identify tokens from transaction logs
  * - Validate if an address is a known Lombard token
  * - Display token metadata based on contract address
  * - Parse events from smart contracts
- * 
+ *
  * **Returns:**
  * - Token enum if found (e.g., `Token.LBTC`)
  * - `undefined` if address is not a known token
- * 
+ *
  * **Note:** The comparison is case-insensitive
  */
 export function StoryView(props: StoryViewProps) {
@@ -169,4 +169,3 @@ export function StoryView(props: StoryViewProps) {
     </div>
   );
 }
-
