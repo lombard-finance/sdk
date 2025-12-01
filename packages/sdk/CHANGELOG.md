@@ -28,6 +28,8 @@
   * `Token.NativeLBTC` to `Token.BTCb` (`BTC.b`)
   * `Token.BTCB` to `Token.BTCBinance` (`BTCB` - Binance BTC wrapper)
   * deprecated `Token.BTCK` which will be sunset as soon as the Katana contracts are updated.
+* btc.b support
+  - katana, megaETH
 
 # 3.6.23
 

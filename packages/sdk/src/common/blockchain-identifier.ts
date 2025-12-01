@@ -12,6 +12,7 @@ import {
   StarknetChainId,
   SuiChain,
 } from './chains';
+import { featureConfig } from './feature-config';
 
 export const BlockchainIdentifier = {
   eth: 'DESTINATION_BLOCKCHAIN_ETHEREUM',
@@ -43,6 +44,9 @@ export const BlockchainIdentifier = {
 
   monad: 'DESTINATION_BLOCKCHAIN_MONAD',
   monadOld: 'BLOCKCHAIN_MONAD',
+
+  megaeth: 'DESTINATION_BLOCKCHAIN_MEGAETH',
+  megaethOld: 'BLOCKCHAIN_MEGAETH',
 } as const;
 
 export type BlockchainIdentifier =
@@ -59,7 +63,10 @@ export function getChainNameById(
     return BlockchainIdentifier.eth;
   }
 
-  if (chainId === ChainId.avalanche || chainId === ChainId.avalancheFuji) {
+  if (
+    featureConfig.isAvalancheEnabled &&
+    (chainId === ChainId.avalanche || chainId === ChainId.avalancheFuji)
+  ) {
     return BlockchainIdentifier.avalanche;
   }
 
@@ -82,7 +89,7 @@ export function getChainNameById(
     return BlockchainIdentifier.sonic;
   }
 
-  if (chainId === ChainId.monad) {
+  if (featureConfig.isMonadEnabled && chainId === ChainId.monad) {
     return BlockchainIdentifier.monad;
   }
 
@@ -103,6 +110,10 @@ export function getChainNameById(
     chainId === STARKNET_SEPOLIA_CHAIN
   ) {
     return BlockchainIdentifier.starknet;
+  }
+
+  if (chainId === ChainId.megaeth) {
+    return BlockchainIdentifier.megaeth;
   }
 
   throw new Error(`Unknown chain ID: ${chainId}`);
@@ -180,6 +191,10 @@ export function getChainIdByName(
     case BlockchainIdentifier.monad:
     case BlockchainIdentifier.monadOld:
       return ChainId.monad;
+
+    case BlockchainIdentifier.megaeth:
+    case BlockchainIdentifier.megaethOld:
+      return ChainId.megaeth;
 
     default:
       return ChainId.ethereum;

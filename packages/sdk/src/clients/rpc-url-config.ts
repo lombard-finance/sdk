@@ -14,9 +14,12 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.binanceSmartChain]: `${RPC_URL}/bsc`,
   [ChainId.corn]: `${RPC_URL}/corn_maizenet`,
   [ChainId.katana]: `${RPC_URL}/katana`,
+  [ChainId.megaeth]:
+    'https://alpha.megaeth.com/rpc?user=lombard+v1&token=1763427229-%2Bx6HFUDu9OhJwV%2FTCFOL0xTt%2FPJRAXPeirIcuytvnes%3D',
   [ChainId.sonic]: `${RPC_URL}/sonic_mainnet`,
   [ChainId.tac]: `${RPC_URL}/tac`,
-  [ChainId.monad]: 'https://rpc-mainnet.monadinfra.com/rpc/hvdhVu9RcRR51qvLIYMX6CUKcjHtoRS5', // TODO: Update with the correct RPC URL once the monad network is live
+  [ChainId.monad]:
+    'https://rpc-mainnet.monadinfra.com/rpc/hvdhVu9RcRR51qvLIYMX6CUKcjHtoRS5', // TODO: Update with the correct RPC URL once the monad network is live
   // Testnets:
   [ChainId.baseSepoliaTestnet]: `${RPC_URL}/base_sepolia`,
   [ChainId.binanceSmartChainTestnet]:

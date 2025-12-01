@@ -192,6 +192,14 @@ export async function executeContractTransaction({
     try {
       const chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[params.chainId];
 
+      if (!chain) {
+        throw new SignerError(
+          'UNSUPPORTED_CHAIN',
+          `Chain ${params.chainId} not supported`,
+          { chainId: params.chainId },
+        );
+      }
+
       // Encode the contract call data from the original simulation args
       // (using simulateArgs.abi instead of request.abi to avoid type narrowing issues)
       const callData = encodeFunctionData({
