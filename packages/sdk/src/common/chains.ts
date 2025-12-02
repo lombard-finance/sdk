@@ -147,17 +147,13 @@ export const monad = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        // TODO: Update with the correct RPC URL once the monad network is live
-        'https://rpc-mainnet.monadinfra.com/rpc/hvdhVu9RcRR51qvLIYMX6CUKcjHtoRS5',
-      ],
+      http: ['https://monad-mainnet.drpc.org'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Monad Explorer',
-      // TODO: Update with the correct explorer URL once the monad network is live
-      url: 'https://monadvision.com/',
+      url: 'https://monadvision.com',
     },
   },
   contracts: {

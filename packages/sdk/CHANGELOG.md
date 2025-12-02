@@ -1,3 +1,6 @@
+# 3.7.1
+* **added monad support**
+
 # 3.7.0
 
 * **added custom signer support for flexible transaction signing:**

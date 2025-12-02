@@ -13,6 +13,6 @@ export interface FeatureConfig {
 }
 
 export const featureConfig: FeatureConfig = {
-  isMonadEnabled: false,
+  isMonadEnabled: true,
   isAvalancheEnabled: false,
 };
