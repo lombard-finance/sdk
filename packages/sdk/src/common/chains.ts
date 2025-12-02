@@ -3,6 +3,7 @@ import { addChain as viem_addChain } from 'viem/actions';
 import * as viem_chains from 'viem/chains';
 
 import { makeWalletClient } from '../clients/wallet-client';
+import { featureConfig } from './feature-config';
 
 const {
   avalanche,
@@ -147,17 +148,13 @@ export const monad = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        // TODO: Update with the correct RPC URL once the monad network is live
-        'https://rpc-mainnet.monadinfra.com/rpc/hvdhVu9RcRR51qvLIYMX6CUKcjHtoRS5',
-      ],
+      http: ['https://monad-mainnet.drpc.org'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Monad Explorer',
-      // TODO: Update with the correct explorer URL once the monad network is live
-      url: 'https://monadvision.com/',
+      url: 'https://monadvision.com',
     },
   },
   contracts: {
@@ -168,12 +165,42 @@ export const monad = defineChain({
   },
 });
 
+export const megaeth = defineChain({
+  id: 4326,
+  name: 'MegaETH',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ether',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        'https://alpha.megaeth.com/rpc?user=lombard+v1&token=1763427229-%2Bx6HFUDu9OhJwV%2FTCFOL0xTt%2FPJRAXPeirIcuytvnes%3D',
+      ],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'MegaETH Explorer',
+      url: 'http://megaeth-testnet-v3.blockscout.com',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+});
+
 export const allChains: Record<string, viem_chains.Chain> = {
   ...viem_chains,
   katana,
   katanaTatara,
   tac,
   monad,
+  megaeth,
 };
 
 export const SUI_DEVNET_CHAIN = 'sui:devnet' as const;
@@ -247,6 +274,7 @@ export const ChainId = {
   swell: 1923,
   tac: 239,
   bob: 60808,
+  megaeth: 4326,
   // Testnets:
   avalancheFuji: 43113,
   baseSepoliaTestnet: 84532,
@@ -263,21 +291,26 @@ export type ChainId = (typeof ChainId)[keyof typeof ChainId];
 
 export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.ethereum]: mainnet,
-  [ChainId.avalanche]: avalanche,
+  ...(featureConfig.isAvalancheEnabled
+    ? { [ChainId.avalanche]: avalanche }
+    : {}),
   [ChainId.base]: base,
   [ChainId.berachain]: berachain,
   [ChainId.binanceSmartChain]: bsc,
   [ChainId.corn]: corn,
   [ChainId.etherlink]: etherlink,
   [ChainId.katana]: katana,
-  [ChainId.monad]: monad,
+  ...(featureConfig.isMonadEnabled ? { [ChainId.monad]: monad } : {}),
   [ChainId.morph]: morph,
   [ChainId.sonic]: sonic,
   [ChainId.swell]: swellchain,
   [ChainId.tac]: tac,
   [ChainId.bob]: bob,
+  [ChainId.megaeth]: megaeth,
   // Testnets:
-  [ChainId.avalancheFuji]: avalancheFuji,
+  ...(featureConfig.isAvalancheEnabled
+    ? { [ChainId.avalancheFuji]: avalancheFuji }
+    : {}),
   [ChainId.baseSepoliaTestnet]: baseSepolia,
   [ChainId.berachainBartioTestnet]: berachainTestnetbArtio,
   [ChainId.binanceSmartChainTestnet]: bscTestnet,
@@ -302,10 +335,15 @@ type EthereumChain = typeof ChainId.ethereum;
 export const isEthereumChain = (chainId: unknown): chainId is EthereumChain => {
   return ([ChainId.ethereum] as number[]).includes(chainId as number);
 };
-
+type MegaethChain = typeof ChainId.megaeth;
+export const isMegaethChain = (chainId: unknown): chainId is MegaethChain => {
+  return ([ChainId.megaeth] as number[]).includes(chainId as number);
+};
 export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.ethereum]: 'ethereum',
-  [ChainId.avalanche]: 'avalanche',
+  ...(featureConfig.isAvalancheEnabled
+    ? { [ChainId.avalanche]: 'avalanche' }
+    : {}),
   [ChainId.base]: 'base',
   [ChainId.berachain]: 'berachain',
   [ChainId.binanceSmartChain]: 'bsc',
@@ -314,6 +352,8 @@ export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.morph]: 'morph',
   [ChainId.sonic]: 'sonic',
   [ChainId.swell]: 'swellchain',
+  [ChainId.megaeth]: 'megaeth',
+  [ChainId.monad]: 'monad',
 } as const;
 type LlamaChain =
   (typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP)[keyof typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP];
@@ -332,8 +372,15 @@ export async function addChain({ provider, chainId }: AddChainParameters) {
     provider,
     chainId: ChainId.ethereum,
   });
+
+  const chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
+
+  if (!chain) {
+    throw new Error(`Chain ${chainId} not found`);
+  }
+
   await viem_addChain(walletClient, {
-    chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+    chain,
   });
 }
 export const getLlamaChainName = (chainId: ChainId): LlamaChain | undefined => {

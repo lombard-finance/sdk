@@ -15,6 +15,7 @@ import { makeWalletClient } from '../../clients/wallet-client';
 import {
   isEthereumChain,
   isKatanaChain,
+  isMegaethChain,
   isMonadChain,
 } from '../../common/chains';
 import { CommonOptionalWriteParameters } from '../../common/parameters';
@@ -166,7 +167,8 @@ export async function getBasculeDepositStatus({
     if (
       isKatanaChain(chainId) ||
       isMonadChain(chainId) ||
-      isEthereumChain(chainId)
+      isEthereumChain(chainId) ||
+      isMegaethChain(chainId)
     ) {
       const prefixedPayload = payload.startsWith('0x')
         ? payload

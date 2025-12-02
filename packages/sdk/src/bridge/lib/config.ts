@@ -3,6 +3,7 @@ import { Abi, Address } from 'viem';
 
 import { ChainId } from '../../common/chains';
 import { ContractInfo } from '../../common/contract-info';
+import { featureConfig } from '../../common/feature-config';
 import { unique } from '../../utils/array';
 import CCIP_BRIDGE_ADAPTER_ABI from '../abi/CCIP_BRIDGE_ADAPTER_ABI.json';
 import OFT_BRIDGE_ADAPTER_ABI from '../abi/OFT_BRIDGE_ADAPTER_ABI.json';
@@ -30,7 +31,7 @@ export const CCIP_BRIDGE_CHAINS = [
   ChainId.katana,
   ChainId.sonic,
   // Testnets:
-  ChainId.avalancheFuji,
+  ...(featureConfig.isAvalancheEnabled ? [ChainId.avalancheFuji] : []),
   ChainId.baseSepoliaTestnet,
   ChainId.holesky,
   ChainId.katanaTatara,
