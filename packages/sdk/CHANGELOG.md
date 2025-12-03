@@ -1,4 +1,8 @@
+# 3.7.2
+* **added stable support**
+
 # 3.7.1
+
 * **added monad support**
 
 # 3.7.0

@@ -165,6 +165,35 @@ export const monad = defineChain({
   },
 });
 
+export const stable = defineChain({
+  id: 988,
+  name: 'Stable',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'gUSDT',
+    symbol: 'gUSDT',
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf',
+      ],
+    }, // TODO: Update with the correct RPC URL once the stable network is live
+  },
+  blockExplorers: {
+    default: {
+      name: 'Stable Explorer',
+      url: 'https://stablescan.xyz',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+});
+
 export const megaeth = defineChain({
   id: 4326,
   name: 'MegaETH',
@@ -189,7 +218,7 @@ export const megaeth = defineChain({
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 1,
+      blockCreated: 2591807, // TODO: Confirm this
     },
   },
 });
@@ -200,6 +229,7 @@ export const allChains: Record<string, viem_chains.Chain> = {
   katanaTatara,
   tac,
   monad,
+  stable,
   megaeth,
 };
 
@@ -271,6 +301,7 @@ export const ChainId = {
   monad: 143,
   morph: 2818,
   sonic: 146,
+  stable: 988,
   swell: 1923,
   tac: 239,
   bob: 60808,
@@ -303,6 +334,7 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   ...(featureConfig.isMonadEnabled ? { [ChainId.monad]: monad } : {}),
   [ChainId.morph]: morph,
   [ChainId.sonic]: sonic,
+  [ChainId.stable]: stable,
   [ChainId.swell]: swellchain,
   [ChainId.tac]: tac,
   [ChainId.bob]: bob,
@@ -327,14 +359,21 @@ export const isKatanaChain = (chainId: unknown): chainId is KatanaChain => {
     chainId as number,
   );
 };
-type MonadChain = 143;
+type MonadChain = typeof ChainId.monad;
 export const isMonadChain = (chainId: unknown): chainId is MonadChain => {
-  return chainId === 143;
+  return chainId === ChainId.monad;
 };
+
 type EthereumChain = typeof ChainId.ethereum;
 export const isEthereumChain = (chainId: unknown): chainId is EthereumChain => {
   return ([ChainId.ethereum] as number[]).includes(chainId as number);
 };
+
+type StableChain = typeof ChainId.stable;
+export const isStableChain = (chainId: unknown): chainId is StableChain => {
+  return chainId === ChainId.stable;
+};
+
 type MegaethChain = typeof ChainId.megaeth;
 export const isMegaethChain = (chainId: unknown): chainId is MegaethChain => {
   return ([ChainId.megaeth] as number[]).includes(chainId as number);

@@ -46,6 +46,9 @@ export const BlockchainIdentifier = {
   monad: 'DESTINATION_BLOCKCHAIN_MONAD',
   monadOld: 'BLOCKCHAIN_MONAD',
 
+  stable: 'DESTINATION_BLOCKCHAIN_STABLE',
+  stableOld: 'BLOCKCHAIN_STABLE',
+
   megaeth: 'DESTINATION_BLOCKCHAIN_MEGAETH',
   megaethOld: 'BLOCKCHAIN_MEGAETH',
 } as const;
@@ -92,6 +95,10 @@ export function getChainNameById(
 
   if (featureConfig.isMonadEnabled && chainId === ChainId.monad) {
     return BlockchainIdentifier.monad;
+  }
+
+  if (chainId === ChainId.stable) {
+    return BlockchainIdentifier.stable;
   }
 
   if (chainId === SUI_TESTNET_CHAIN || chainId === SUI_MAINNET_CHAIN) {
@@ -192,6 +199,10 @@ export function getChainIdByName(
     case BlockchainIdentifier.monad:
     case BlockchainIdentifier.monadOld:
       return ChainId.monad;
+
+    case BlockchainIdentifier.stable:
+    case BlockchainIdentifier.stableOld:
+      return ChainId.stable;
 
     case BlockchainIdentifier.megaeth:
     case BlockchainIdentifier.megaethOld:

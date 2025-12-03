@@ -126,6 +126,7 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
         }
       : {}),
     [ChainId.megaeth]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
+    [ChainId.stable]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
   },
   [Env.ibc]: {
     ...(featureConfig.isAvalancheEnabled
@@ -185,6 +186,7 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
     [ChainId.katana]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.morph]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.sonic]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+    [ChainId.stable]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.swell]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.tac]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.bob]: '0xA45d4121b3D47719FF57a947A9d961539Ba33204',
