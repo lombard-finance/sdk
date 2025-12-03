@@ -1,6 +1,7 @@
 import { Env } from '@lombard.finance/sdk-common';
-import { ChainId } from '../common/chains';
+
 import { getApiConfig } from '../common/api-config';
+import { ChainId } from '../common/chains';
 
 export type TRpcUrlConfig = Record<number, string>;
 
@@ -17,6 +18,8 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.megaeth]:
     'https://alpha.megaeth.com/rpc?user=lombard+v1&token=1763427229-%2Bx6HFUDu9OhJwV%2FTCFOL0xTt%2FPJRAXPeirIcuytvnes%3D',
   [ChainId.sonic]: `${RPC_URL}/sonic_mainnet`,
+  [ChainId.stable]:
+    'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf', // TODO: Update with the correct RPC URL once the stable network is live
   [ChainId.tac]: `${RPC_URL}/tac`,
   [ChainId.monad]: `${RPC_URL}/monad_mainnet`,
   // Testnets:

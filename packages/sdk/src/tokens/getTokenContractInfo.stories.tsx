@@ -2,9 +2,9 @@ import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
 import { ChainId } from '../common/chains';
 import {
-    chainSelector,
-    envSelector,
-    makeTokenSelector,
+  chainSelector,
+  envSelector,
+  makeTokenSelector,
 } from '../stories/arg-types';
 import { Button } from '../stories/components/Button';
 import { CodeBlock } from '../stories/components/CodeBlock';
@@ -69,20 +69,20 @@ interface StoryViewProps {
 
 /**
  * Get token contract information with the appropriate ABI.
- * 
+ *
  * This function returns the contract address, ABI, and chain ID for a token.
  * It automatically selects the correct ABI based on whether the contract has
  * been upgraded to the new version.
- * 
+ *
  * **Address Kinds:**
  * - `Token`: The token contract address (default)
  * - `Adapter`: The bridge adapter address (for BTCb on Avalanche)
- * 
+ *
  * **Use Cases:**
  * - Prepare contract calls with the correct ABI
  * - Get bridge adapter addresses for cross-chain operations
  * - Verify contract addresses before transactions
- * 
+ *
  * **Contract Upgrades:**
  * - LBTC: May use either LBTC_ABI or STLBTC_ABI
  * - BTCK: May use either BTCK_ABI or NATIVE_LBTC_ABI
@@ -109,8 +109,8 @@ export function StoryView(props: StoryViewProps) {
       <div className="mb-3">
         <h3>Token Contract Information</h3>
         <p className="text-muted">
-          Retrieves contract address, ABI, and chain ID. Supports both token
-          and adapter addresses for bridge operations.
+          Retrieves contract address, ABI, and chain ID. Supports both token and
+          adapter addresses for bridge operations.
         </p>
       </div>
 
@@ -145,4 +145,3 @@ export function StoryView(props: StoryViewProps) {
     </div>
   );
 }
-

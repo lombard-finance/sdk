@@ -4,12 +4,13 @@
  */
 
 import { Env } from '@lombard.finance/sdk-common';
+
 import type { ChainId } from '../../common/chains';
 import {
-    DEFI_REGISTRY,
-    DefiProtocol,
-    StakeAndBakeStrategy,
-    StakeAndBakeToken,
+  DEFI_REGISTRY,
+  DefiProtocol,
+  StakeAndBakeStrategy,
+  StakeAndBakeToken,
 } from '../../defi/defi-registry';
 
 /**

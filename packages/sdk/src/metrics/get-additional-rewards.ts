@@ -1,8 +1,9 @@
-import { Address } from 'viem';
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
+import { Address } from 'viem';
+
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
-import BigNumber from 'bignumber.js';
 
 type Response = {
   btc_distributed: { name: string; amount: number }[];

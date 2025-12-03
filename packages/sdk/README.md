@@ -4,18 +4,18 @@ The Lombard's SDK package provides a set of functions that allow interacting wit
 
 Read more about Lombard's mission: https://www.lombard.finance
 
-
 ## Installation
 
 ### 1. Dependencies installation
 
 The SDK depends on the following packages:
-* axios
-* viem@2.23
-* bignumber.js@9
-* @bitcoinerlab/secp256k1@1.2.0
-* bitcoinjs-lib@6.1.5
-* @layerzerolabs/lz-v2-utilities@3.0.17
+
+- axios
+- viem@2.23
+- bignumber.js@9
+- @bitcoinerlab/secp256k1@1.2.0
+- bitcoinjs-lib@6.1.5
+- @layerzerolabs/lz-v2-utilities@3.0.17
 
 You may install them by running the following command:
 
@@ -58,7 +58,7 @@ if (!depositBtcAddress) {
     address,
     chainId,
     signature,
-    partnerId: "YOUR_PARTNER_ID",
+    partnerId: 'YOUR_PARTNER_ID',
   });
 }
 ```
@@ -92,19 +92,18 @@ If you hold `BTC.b` and want to deposit it to Lombard in order to receive `LBTC`
 
 ```ts
 const txHash = await depositToken({
-  account: accountAddress,    // Your account address
-  chainId,                    // The chain ID
-  amount,                     // Amount of tokens to deposit (human-readable format)
+  account: accountAddress, // Your account address
+  chainId, // The chain ID
+  amount, // Amount of tokens to deposit (human-readable format)
   tokenIn = Token.BTCb, // Input token to deposit (default: `Token.BTCb`)
-  tokenOut = Token.LBTC,      // Output token to be minted (default: `Token.LBTC`)
-  provider,                   // Instance of an `EIP1193Provider`
-  env,                        // Optional environment setting
-  rpcUrl,                     // Optional RPC endpoint URL
+  tokenOut = Token.LBTC, // Output token to be minted (default: `Token.LBTC`)
+  provider, // Instance of an `EIP1193Provider`
+  env, // Optional environment setting
+  rpcUrl, // Optional RPC endpoint URL
 });
 ```
 
 > **Note**: If you are using the `BTC.b` deposit flow, you can skip generating a BTC deposit address. The `depositToken` function handles the deposit and conversion automatically.
-
 
 #### 1.4. Check the status of your deposit
 
@@ -152,12 +151,12 @@ If a deposit has not been automatically claimed (e.g., expired signature), you c
 
 ```ts
 const txHash = await mintToken({
-  data: rawPayload,              // The rawPayload from the notarized deposit.
+  data: rawPayload, // The rawPayload from the notarized deposit.
   proofSignature: deposit.proof, // The proof signature of a notarized deposit.
-  account,                       // The account address/
-  chainId,                       // The chain id.
-  provider,                      // The EIP-1193 provider,
-  token: Token.LBTC,             // The token to be minted, defaults to `Token.LBTC`
+  account, // The account address/
+  chainId, // The chain id.
+  provider, // The EIP-1193 provider,
+  token: Token.LBTC, // The token to be minted, defaults to `Token.LBTC`
 });
 ```
 
@@ -183,25 +182,26 @@ To check the current stake and bake fee you may use the following function:
 ```javascript
 const fee = await getStakeAndBakeFee({
   protocol: DefiProtocol.Veda, // The DeFi protocol (Veda or Silo).
-  token: Token.LBTC,            // Optional: The token to query fee for. Defaults to protocol's primary token.
-  chainId,                      // The chain id.
-  env,                          // Optional: Environment (prod, testnet, etc.).
-  rpcUrl,                       // Optional: RPC url.
+  token: Token.LBTC, // Optional: The token to query fee for. Defaults to protocol's primary token.
+  chainId, // The chain id.
+  env, // Optional: Environment (prod, testnet, etc.).
+  rpcUrl, // Optional: RPC url.
 });
 const expectedLBTCAmount = BigNumber(amountToBeDeposited).minus(fee);
 ```
 
 **Parameters:**
 
-| Param      | Type           | Required | Description                                                                                           |
-| ---------- | -------------- | -------- | ----------------------------------------------------------------------------------------------------- |
-| `protocol` | `DefiProtocol` | ❌        | The DeFi protocol identifier. Defaults to `DefiProtocol.Veda`.                                        |
-| `token`    | `StakeAndBakeToken` | ❌        | The token to query fee for. If not provided, defaults to the protocol's primary token (see below).   |
-| `chainId`  | `number`       | ✅        | The target chain ID.                                                                                  |
-| `env`      | `Env`          | ❌        | Optional environment (prod, testnet, etc.). Defaults to production.                                   |
-| `rpcUrl`   | `string`       | ❌        | Optional RPC URL override.                                                                            |
+| Param      | Type                | Required | Description                                                                                        |
+| ---------- | ------------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| `protocol` | `DefiProtocol`      | ❌       | The DeFi protocol identifier. Defaults to `DefiProtocol.Veda`.                                     |
+| `token`    | `StakeAndBakeToken` | ❌       | The token to query fee for. If not provided, defaults to the protocol's primary token (see below). |
+| `chainId`  | `number`            | ✅       | The target chain ID.                                                                               |
+| `env`      | `Env`               | ❌       | Optional environment (prod, testnet, etc.). Defaults to production.                                |
+| `rpcUrl`   | `string`            | ❌       | Optional RPC URL override.                                                                         |
 
 **Protocol Default Tokens:**
+
 - `DefiProtocol.Veda` → `Token.LBTC` (also supports `'BTC'`)
 - `DefiProtocol.Silo` → `Token.BTCb`
 
@@ -222,31 +222,31 @@ The fee amount will be deducted from the claimed token automatically during stak
 
 ```javascript
 const { signature, typedData } = await signStakeAndBake({
-  account,   // The connected account address.
-  expiry,    // Optional expiration timestamp (unix). Defaults to 24h from now. Recommended: at least 8h from now.
-  value,     // The amount of the token (see `token` param).
-  token,     // The token to sign with. Defaults to "BTC": the value is converted to LBTC using the current ratio.
-             // If "LBTC" is chosen, no conversion is applied.
+  account, // The connected account address.
+  expiry, // Optional expiration timestamp (unix). Defaults to 24h from now. Recommended: at least 8h from now.
+  value, // The amount of the token (see `token` param).
+  token, // The token to sign with. Defaults to "BTC": the value is converted to LBTC using the current ratio.
+  // If "LBTC" is chosen, no conversion is applied.
   vaultKey: DefiProtocol.Veda, // Choose the DeFi protocol (e.g. Veda or Silo Finance).
-  chainId,   // The chain ID.
-  provider,  // The EIP-1193 provider.
-  rpcUrl,    // Optional RPC URL.
-})
+  chainId, // The chain ID.
+  provider, // The EIP-1193 provider.
+  rpcUrl, // Optional RPC URL.
+});
 ```
 
 | Param      | Type                | Required | Description                                                                                                                                                                      |
 | ---------- | ------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `account`  | `string`            | ✅        | The connected account address.                                                                                                                                                   |
-| `expiry`   | `number`            | ❌        | Optional expiration time (Unix timestamp). Defaults to 24h from now. Recommended: set at least 8h from now.                                                                      |
-| `value`    | `string`/`number`   | ✅        | The token amount (interpreted based on the `token` param).                                                                                                                       |
-| `token`    | `"BTC"` \| `"LBTC"` | ❌        | The token to sign with. Defaults to `"BTC"`. If `"BTC"`, the amount is converted to LBTC using the current exchange ratio. If `"LBTC"`, the value is used as-is (no conversion). |
-| `vaultKey` | `DefiProtocol`      | ❌        | The DeFi protocol identifier. Use `DefiProtocol.Veda` for Lombard's vault or `DefiProtocol.Silo` for the Silo Finance integration.                                                |
-| `chainId`  | `number`            | ✅        | The target chain ID.                                                                                                                                                             |
-| `provider` | `EIP-1193 provider` | ✅        | The connected Web3 provider.                                                                                                                                                     |
-| `rpcUrl`   | `string`            | ❌        | Optional RPC URL override.                                                                                                                                                       |
-
+| `account`  | `string`            | ✅       | The connected account address.                                                                                                                                                   |
+| `expiry`   | `number`            | ❌       | Optional expiration time (Unix timestamp). Defaults to 24h from now. Recommended: set at least 8h from now.                                                                      |
+| `value`    | `string`/`number`   | ✅       | The token amount (interpreted based on the `token` param).                                                                                                                       |
+| `token`    | `"BTC"` \| `"LBTC"` | ❌       | The token to sign with. Defaults to `"BTC"`. If `"BTC"`, the amount is converted to LBTC using the current exchange ratio. If `"LBTC"`, the value is used as-is (no conversion). |
+| `vaultKey` | `DefiProtocol`      | ❌       | The DeFi protocol identifier. Use `DefiProtocol.Veda` for Lombard's vault or `DefiProtocol.Silo` for the Silo Finance integration.                                               |
+| `chainId`  | `number`            | ✅       | The target chain ID.                                                                                                                                                             |
+| `provider` | `EIP-1193 provider` | ✅       | The connected Web3 provider.                                                                                                                                                     |
+| `rpcUrl`   | `string`            | ❌       | Optional RPC URL override.                                                                                                                                                       |
 
 **Note:**
+
 - If token is `"BTC"`, the function automatically converts the value to the corresponding **LBTC** amount using the current exchange ratio.
 - If token is `"LBTC"`, the value is used as-is (no conversion).
 - `DefiProtocol.Veda` supports BTC/LBTC stake-and-bake on Ethereum, BSC, and Holesky. `DefiProtocol.Silo` currently targets the Silo Finance vault with BTCb on Avalanche Fuji (testnet) using the approval flow defined in the DeFi registry.
@@ -271,14 +271,13 @@ const { signature, typedData } = await signStakeAndBake({
 });
 ```
 
-
 #### 3.3. Store the signature to the Lombard's systems.
 
 ```javascript
 await storeStakeAndBakeSignature({
   signature, // Pass here the signature form the previous step.
   typedData, // Pass here the typed data from the previous step.
-})
+});
 ```
 
 It is recommended to verify if the signature has been stored.
@@ -287,7 +286,7 @@ It is recommended to verify if the signature has been stored.
 const data = await getUserStakeAndBakeSignature({
   userDestinationAddress: address,
   chainId,
-})
+});
 ```
 
 #### 3.4. Get or generate the BTC deposit address.
@@ -295,16 +294,16 @@ const data = await getUserStakeAndBakeSignature({
 ```javascript
 let depositBtcAddress = await getDepositBtcAddress({ address, chainId });
 if (!depositBtcAddress) {
-  depositBtcAddress = await generateDepositBtcAddress({ 
+  depositBtcAddress = await generateDepositBtcAddress({
     address,
     chainId,
     signature, // Pass here the signature from step 2.
-    signatureData: typedData // Pass here the typed data from step 2.
+    signatureData: typedData, // Pass here the typed data from step 2.
   });
 }
 ```
 
-#### 3.5. Deposit BTC to the address. 
+#### 3.5. Deposit BTC to the address.
 
 Now you can deposit your BTC to the BTC deposit address from above. The funds will be automatically claimed and deposited to the DeFi vault.
 
@@ -326,9 +325,10 @@ const { balance, exchangeRate, balanceLbtc } = await getSharesByAddress({
 ```
 
 The above code results with:
-* `balance` - The amount of LBTCv shares owned by the account,
-* `exchangeRate` - The current LBTCv to LBTC exchange rate,
-* `balanceLbtc` - The value of the owned shares is LBTC.
+
+- `balance` - The amount of LBTCv shares owned by the account,
+- `exchangeRate` - The current LBTCv to LBTC exchange rate,
+- `balanceLbtc` - The value of the owned shares is LBTC.
 
 ---
 
@@ -346,26 +346,25 @@ import { redeemToken, Token } from '@lombard.finance/sdk';
 
 // Redeem LBTC into BTC
 const txHash = await redeemToken({
-  btcAddress,       // The BTC address to receive the redeemed funds.
-  amount,           // Amount of LBTC to redeem (e.g. "1.23").
-  account,          // Your EVM account address.
-  chainId,          // The chain ID where LBTC is deployed.
-  provider,         // The EIP-1193 provider (e.g. from MetaMask).
-  rpcUrl,           // (Optional) Custom RPC URL.
+  btcAddress, // The BTC address to receive the redeemed funds.
+  amount, // Amount of LBTC to redeem (e.g. "1.23").
+  account, // Your EVM account address.
+  chainId, // The chain ID where LBTC is deployed.
+  provider, // The EIP-1193 provider (e.g. from MetaMask).
+  rpcUrl, // (Optional) Custom RPC URL.
   tokenIn: Token.LBTC, // The token you are redeeming.
 });
 
 // Redeem LBTC into BTC.b
 const txHash = await redeemToken({
-  amount,           // Amount of LBTC to redeem (e.g. "1.23")
-  account,          // Your EVM account address
-  chainId,          // The chain ID where LBTC is deployed
-  provider,         // The EIP-1193 provider (e.g. from MetaMask)
-  rpcUrl,           // (Optional) Custom RPC URL
-  tokenIn: Token.LBTC,        // The token you are redeeming
+  amount, // Amount of LBTC to redeem (e.g. "1.23")
+  account, // Your EVM account address
+  chainId, // The chain ID where LBTC is deployed
+  provider, // The EIP-1193 provider (e.g. from MetaMask)
+  rpcUrl, // (Optional) Custom RPC URL
+  tokenIn: Token.LBTC, // The token you are redeeming
   tokenOut: Token.BTCb, // The token to receive
 });
-
 ```
 
 #### 4.3. Check the status of your redemptions (unstakes).
@@ -378,22 +377,21 @@ const unstakes = await getUnstakesByAddress({ address });
 
 Every entry in the result of the above may consist of:
 
-| Field              | Type                                              | Description                                                                                                                      |
-| ------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **isNative**       | `boolean`                                         | `true` if the record originates from a **native-chain redemption** (e.g. BTC.b), `false` if it’s a direct BTC unstake.           |
-| **txHash**         | `string`                                          | Transaction hash of the unstake/redemption on the source chain.                                                                  |
-| **fromChainId**    | `ChainId \| SuiChain \| SolanaChain`              | Identifier of the **source chain** where the unstake was initiated.                                                              |
-| **toChainId**      | `ChainId \| SuiChain \| SolanaChain` *(optional)* | Destination chain identifier (undefined for BTC unstakes).                                                                       |
-| **blockHeight**    | `number`                                          | Block height on the source chain where the unstake was confirmed.                                                                |
-| **blockTime**      | `number` (epoch seconds)                          | Timestamp (in epoch seconds) of the confirmation block.                                                                          |
-| **fromAddress**    | `string`                                          | Address of the initiator of the unstake transaction.                                                                             |
-| **toAddress**      | `string` *(optional)*                             | Destination address receiving the redeemed funds (BTC, EVM, or Solana).                                                          |
-| **amount**         | `BigNumber`                                       | Amount unstaked, normalized to **satoshis / smallest unit**.                                                                     |
-| **payoutTxHash**   | `string` *(optional)*                             | Transaction hash of the payout on the **destination chain**, if the claim/payout has occurred.                                   |
-| **payoutTxIndex**  | `number` *(optional)*                             | Transaction index of the payout within the destination block, if applicable.                                                     |
-| **payoutTxStatus** | `PayoutTxStatus`                                  | Current status of the payout transaction (e.g. *pending*, *confirmed*, *failed*).                                                |
-| **sanctioned**     | `boolean` *(optional)*                            | `true` if the unstake transaction has been sanctioned or flagged.                                                                |
-
+| Field              | Type                                              | Description                                                                                                            |
+| ------------------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **isNative**       | `boolean`                                         | `true` if the record originates from a **native-chain redemption** (e.g. BTC.b), `false` if it’s a direct BTC unstake. |
+| **txHash**         | `string`                                          | Transaction hash of the unstake/redemption on the source chain.                                                        |
+| **fromChainId**    | `ChainId \| SuiChain \| SolanaChain`              | Identifier of the **source chain** where the unstake was initiated.                                                    |
+| **toChainId**      | `ChainId \| SuiChain \| SolanaChain` _(optional)_ | Destination chain identifier (undefined for BTC unstakes).                                                             |
+| **blockHeight**    | `number`                                          | Block height on the source chain where the unstake was confirmed.                                                      |
+| **blockTime**      | `number` (epoch seconds)                          | Timestamp (in epoch seconds) of the confirmation block.                                                                |
+| **fromAddress**    | `string`                                          | Address of the initiator of the unstake transaction.                                                                   |
+| **toAddress**      | `string` _(optional)_                             | Destination address receiving the redeemed funds (BTC, EVM, or Solana).                                                |
+| **amount**         | `BigNumber`                                       | Amount unstaked, normalized to **satoshis / smallest unit**.                                                           |
+| **payoutTxHash**   | `string` _(optional)_                             | Transaction hash of the payout on the **destination chain**, if the claim/payout has occurred.                         |
+| **payoutTxIndex**  | `number` _(optional)_                             | Transaction index of the payout within the destination block, if applicable.                                           |
+| **payoutTxStatus** | `PayoutTxStatus`                                  | Current status of the payout transaction (e.g. _pending_, _confirmed_, _failed_).                                      |
+| **sanctioned**     | `boolean` _(optional)_                            | `true` if the unstake transaction has been sanctioned or flagged.                                                      |
 
 ---
 
@@ -428,12 +426,13 @@ const deposits = await getVaultDeposits({
 
 The above function returns an array of deposit data made by the specified user.
 Each entry contains:
-* `txHash` -  the transaction hash,
-* `blockNumber` -    the transaction's block number,
-* `chainId` -    the chain id,
-* `amount` -    the deposited amount,
-* `shareAmount` -    the amount of shares received,
-* `token` - the deposit token.
+
+- `txHash` - the transaction hash,
+- `blockNumber` - the transaction's block number,
+- `chainId` - the chain id,
+- `amount` - the deposited amount,
+- `shareAmount` - the amount of shares received,
+- `token` - the deposit token.
 
 #### 5.3. Checking the user's DeFi vault balance.
 
@@ -449,9 +448,10 @@ const { balance, exchangeRate, balanceLbtc } = await getSharesByAddress({
 ```
 
 The above function returns the:
-* `balance` - balance of LBTCv,
-* `exchangeRate` - the current exchange rate between LBTCv and LBTC,
-* `balanceLbtc` - the value of LBTCv represented in LBTC.
+
+- `balance` - balance of LBTCv,
+- `exchangeRate` - the current exchange rate between LBTCv and LBTC,
+- `balanceLbtc` - the value of LBTCv represented in LBTC.
 
 ---
 
@@ -460,6 +460,7 @@ The above function returns the:
 #### 6.1. Requesting a withdrawal from the DeFi vault
 
 Requesting a withdrawal from the DeFi vault can be done via:
+
 ```javascript
 const txHash = await withdraw({
   amount, // The amount of shares.
@@ -487,6 +488,7 @@ const withdrawals = await getVaultWithdrawals({
 ```
 
 The result of the above is an object with broken down withdrawals by their state:
+
 ```javascript
 {
   cancelled: [...], // The cancelled requests.
@@ -497,17 +499,18 @@ The result of the above is an object with broken down withdrawals by their state
 ```
 
 Each of the arrays from above consist of:
-* `token` - the withdrawal token (LBTC),
-* `shareAmount` - the amount of shares withdrawn,
-* `amount` - the amount of funds withdrawn,
-* `minPrice` - the min price of a share,
-* `deadline` - the expiration timestamp,
-* `timestamp` - the request timestamp,
-* `txHash` - the withdraw request transaction hash,
-* `blockNumber` - the request block number,
-* `fulfilledTimestamp` - the fulfilment timestamp,
-* `fulfilledTxHash` - the funds transfer transaction hash,
-* `fulfilledBlockNumber` - the fulfilment block number.
+
+- `token` - the withdrawal token (LBTC),
+- `shareAmount` - the amount of shares withdrawn,
+- `amount` - the amount of funds withdrawn,
+- `minPrice` - the min price of a share,
+- `deadline` - the expiration timestamp,
+- `timestamp` - the request timestamp,
+- `txHash` - the withdraw request transaction hash,
+- `blockNumber` - the request block number,
+- `fulfilledTimestamp` - the fulfilment timestamp,
+- `fulfilledTxHash` - the funds transfer transaction hash,
+- `fulfilledBlockNumber` - the fulfilment block number.
 
 #### 6.3. Cancelling the withdrawal
 
@@ -531,8 +534,8 @@ const txHash = await cancelWithdraw({
 You can check the amount of Lux points earned by an address with:
 
 ```ts
-import { getLuxSeason2Points } from "@lombard.finance/sdk";
-const points = await getLuxSeason2Points({ address: "0x...YOUR_ADDRESS" });
+import { getLuxSeason2Points } from '@lombard.finance/sdk';
+const points = await getLuxSeason2Points({ address: '0x...YOUR_ADDRESS' });
 ```
 
 #### Returned Object
@@ -565,13 +568,13 @@ const points = await getLuxSeason2Points({ address: "0x...YOUR_ADDRESS" });
 ### 8. Getting the DeFi vault points earned by an address.
 
 ```javascript
-const { 
+const {
   totalPoints, // The total points earned in the DeFi vault.
-  pointsBreakdown // The points breakdown by network (chain).
+  pointsBreakdown, // The points breakdown by network (chain).
 } = await getVaultPoints({
   account, // The account address.
-  vaultKey // The optional vault identifier.
-})
+  vaultKey, // The optional vault identifier.
+});
 ```
 
 ---
@@ -587,9 +590,10 @@ const data = await getVaultTVL({ vaultKey: Vault.Veda });
 ```
 
 The above returns:
-* `btcBalance` - the amount of BTC locked into the vault,
-* `btcPrice` - the current price of BTC,
-* `tvl` - the amount of USD locked into the vault.
+
+- `btcBalance` - the amount of BTC locked into the vault,
+- `btcPrice` - the current price of BTC,
+- `tvl` - the amount of USD locked into the vault.
 
 #### 9.2. Getting the vault's performance data.
 
@@ -600,17 +604,17 @@ As in the example below:
 const APYs = await getVaultApy({
   aggregationPeriod: 7, // The aggregation period in days, only 7, 14, and 30 are allowed.
   chainId: ChainId.ethereum, // The vault's chain - can be omitted, defaults to `Ethereum`.
-  vaultKey: Vault.Veda // The vault identifier - can be omitted, default to `Vault.Veda`
+  vaultKey: Vault.Veda, // The vault identifier - can be omitted, default to `Vault.Veda`
 });
 ```
 
 The above returns an array of APY entries sorted in descending order (newest first).
 Each entry contains:
 
-* `apy` - the APY value,
-* `allocations` - the record of general allocations in protocols used by the vault,
-* `breakdown` - the detailed record of allocations and APY values broken down by chain and protocol,
-* `timestamp` - the timestamp of the entry.
+- `apy` - the APY value,
+- `allocations` - the record of general allocations in protocols used by the vault,
+- `breakdown` - the detailed record of allocations and APY values broken down by chain and protocol,
+- `timestamp` - the timestamp of the entry.
 
 #### 9.3. Getting the LBTC statistics.
 
@@ -620,18 +624,17 @@ The simple set of LBTC statistics is accessible via `getLBTCStats` function.
 const stats = await getLBTCStats({
   accountAddress, // The (optional) account address - passing the accountAddress ensures the relevant stats are returned
   partnerId, // The (optional) partner id - passing the partnerId will ensures the relevant stats are returned
-  env // The optional environment flag
-})
+  env, // The optional environment flag
+});
 ```
 
 The stats contain:
 
-* `historicalHolders` - the number of all-time LBTC holders,
-* `holders` - the number of current LBTC holders,
-* `price` - the current BTC price,
-* `supply` - the number of LBTC minted,
-* `tvl` - the Lombard's TVL in USD.
-
+- `historicalHolders` - the number of all-time LBTC holders,
+- `holders` - the number of current LBTC holders,
+- `price` - the current BTC price,
+- `supply` - the number of LBTC minted,
+- `tvl` - the Lombard's TVL in USD.
 
 #### 9.4. Getting the LBTC exchange ratio.
 
@@ -653,9 +656,9 @@ const ratioData = await getExchangeRatio();
 ```
 
 The result of the above function is an object which contains:
-* `tokenBTCRatio` - The Token:BTC ratio answering the question of how many tokens will I get for 1 BTC.
-* `BTCTokenRatio` - The BTC:Token ratio (1 / tokenBTCRatio) answering the question of how many BTC will I get for 1 Token.
 
+- `tokenBTCRatio` - The Token:BTC ratio answering the question of how many tokens will I get for 1 BTC.
+- `BTCTokenRatio` - The BTC:Token ratio (1 / tokenBTCRatio) answering the question of how many BTC will I get for 1 Token.
 
 #### 9.5. Getting the positions (yield) summary
 
@@ -664,39 +667,39 @@ The information about the yield acquired by an account can be obtained via the `
 ```javascript
 const rewardsInfo = await getPositionsSummary({
   account, // The account address
-  env // Optional env flag
+  env, // Optional env flag
 });
 ```
+
 The results of the above includes:
 
-* **`btcPrice: { price: BigNumber; timestamp: Date; }`**  
+- **`btcPrice: { price: BigNumber; timestamp: Date; }`**  
   Contains the current price of BTC in USD and the time it was last fetched.
-  * **`price`** (`BigNumber`): The price of 1 BTC in USD.  
-  * **`timestamp`** (`Date`): The timestamp when the price was last updated.
-* **`btcValue: BigNumber`**  
+  - **`price`** (`BigNumber`): The price of 1 BTC in USD.
+  - **`timestamp`** (`Date`): The timestamp when the price was last updated.
+- **`btcValue: BigNumber`**  
   The total value of all holdings, expressed in BTC.
-* **`btcPnl: BigNumber`**  
+- **`btcPnl: BigNumber`**  
   The total profit or loss across all positions, represented in BTC.
-* **`snapshot: Array<{ token, type, balance, pnl, rate }>`**  
+- **`snapshot: Array<{ token, type, balance, pnl, rate }>`**  
   A list of individual positions used in PnL calculations. Each entry includes:
-  * **`token`** (`Token | undefined`): The token associated with the position (e.g., `Token.LBTC`). May be `undefined` if unspecified.
-  * **`type`** (`PositionType`): The classification or source of the position (e.g., staking, trading).
-  * **`balance`** (`BigNumber`): The quantity of the token held.
-  * **`pnl`** (`BigNumber`): The profit or loss for this specific position, in BTC.
-  * **`rate`** (`BigNumber`): The conversion rate from token to BTC.  
+  - **`token`** (`Token | undefined`): The token associated with the position (e.g., `Token.LBTC`). May be `undefined` if unspecified.
+  - **`type`** (`PositionType`): The classification or source of the position (e.g., staking, trading).
+  - **`balance`** (`BigNumber`): The quantity of the token held.
+  - **`pnl`** (`BigNumber`): The profit or loss for this specific position, in BTC.
+  - **`rate`** (`BigNumber`): The conversion rate from token to BTC.  
     _Formula: `balance * rate = BTC equivalent`_
-* **`lastUpdated: Date`**  
+- **`lastUpdated: Date`**  
   The timestamp when the position summary was last updated.
-* **`inProgress: boolean`**
-  Indicates whether the backend is currently processing the PnL calculation.  
+- **`inProgress: boolean`**
+  Indicates whether the backend is currently processing the PnL calculation.
   - `true`: A new calculation request was received, but the backend is experiencing high load
-    or processing is not yet complete. The latest data is not yet available.  
+    or processing is not yet complete. The latest data is not yet available.
   - `false`: The most recent calculation has been completed and cached.
     Use `lastUpdated` to understand how fresh the data is:
     - If `lastUpdated` is recent (e.g., within the last few seconds), you're seeing the latest data.
     - If `lastUpdated` is up to 30 minutes old, you're seeing cached data from a recent request.
       The backend avoids recalculating within this caching window.
-
 
 #### 9.6. Getting the LBTC APY
 
@@ -706,13 +709,14 @@ To retrieve the current APY (annual percentage yield) for LBTC, call this functi
 const apy = await getApy({
   account, // The optional account address. Pass it for more accurate APY data.
   env, // Optional env flag
-})
+});
 ```
+
 The above returns:
 
-* **`baseApy: BigNumber`**  
+- **`baseApy: BigNumber`**  
   The base APY for LBTC, representing the nominal yield without any bonuses or adjustments.
-* **`effectiveApy: BigNumber`**  
+- **`effectiveApy: BigNumber`**  
   The effective APY for LBTC, including any additional rewards, compounding effects, or protocol-specific incentives.
 
 To retrieve the estimated APY (annual percentage yield) for LBTC in the context of a specific partner integration, use the `getEstimatedApy` function:
@@ -720,13 +724,13 @@ To retrieve the estimated APY (annual percentage yield) for LBTC in the context 
 ```javascript
 const estimated = await getEstimatedApy({
   partnerId, // Optional partner identifier. Influences the estimated APY.
-  env,       // Optional env flag
+  env, // Optional env flag
 });
 ```
 
 The above returns:
 
-* **`estimatedApy: BigNumber`**
+- **`estimatedApy: BigNumber`**
   The estimated APY for LBTC, taking into account partner-specific incentives, compounding assumptions, and projected rewards. This value may differ from the effective APY depending on the partner context.
 
 > **Note**: If no `partnerId` is provided, the function returns a default estimate based on global assumptions.
@@ -744,14 +748,14 @@ const rewards = await getAdditionalRewards({
 
 The above returns:
 
-* **`distributed: Array<{ name: string; amount: BigNumber }>`**  
+- **`distributed: Array<{ name: string; amount: BigNumber }>`**  
   A list of campaigns where BTC rewards have already been distributed.
-  * **`name`** (`string`): Name of the reward campaign.  
-  * **`amount`** (`BigNumber`): Amount of BTC distributed for the campaign.
+  - **`name`** (`string`): Name of the reward campaign.
+  - **`amount`** (`BigNumber`): Amount of BTC distributed for the campaign.
 
-* **`undistributed: Array<{ name: string; amount: BigNumber }>`**  
+- **`undistributed: Array<{ name: string; amount: BigNumber }>`**  
   A list of campaigns where BTC rewards are still pending distribution.
-  * **`name`** (`string`): Name of the reward campaign.  
-  * **`amount`** (`BigNumber`): Amount of BTC yet to be distributed.
+  - **`name`** (`string`): Name of the reward campaign.
+  - **`amount`** (`BigNumber`): Amount of BTC yet to be distributed.
 
 ---

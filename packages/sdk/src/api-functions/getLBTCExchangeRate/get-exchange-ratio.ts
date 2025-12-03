@@ -1,5 +1,6 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
+
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import {
@@ -49,7 +50,7 @@ export async function getExchangeRatio({ env }: IEnvParam) {
     .filter(r => (enabledTokens as unknown as Token[]).includes(r.token));
 
   const result: RatioResult = ratios.reduce((acc, cur) => {
-    const { token, ...ratios } = cur;
+    const { token: _token, ...ratios } = cur;
     acc[cur.token as EnabledTokens] = ratios;
     return acc;
   }, {} as RatioResult);

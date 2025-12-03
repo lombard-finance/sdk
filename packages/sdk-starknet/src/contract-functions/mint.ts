@@ -1,11 +1,11 @@
-import { makeDestinationChainId, StarknetChainId } from '../utils/chains';
-import { Address } from '../utils/common';
-import { WalletAccountParameters } from '../utils/wallet-account';
-import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
 import { keccak_256 } from '@noble/hashes/sha3';
-import { ensureHex } from '@lombard.finance/sdk/utils/hex';
-import { parseProofHexToU256Tuples } from '../utils/span';
+
+import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
+import { makeDestinationChainId, StarknetChainId } from '../utils/chains';
+import { Address, ensureHex } from '../utils/common';
 import { EnvParameters } from '../utils/env';
+import { parseProofHexToU256Tuples } from '../utils/span';
+import { WalletAccountParameters } from '../utils/wallet-account';
 
 export type MintParameters = TokenParameters &
   WalletAccountParameters &
@@ -53,12 +53,6 @@ export async function mint({
     provider: walletAccount,
     token,
   };
-
-  const tokenContract = getTokenContract({
-    ...tokenParams,
-    contractType: 'token',
-    env,
-  });
 
   const basculeContract = getTokenContract({
     ...tokenParams,

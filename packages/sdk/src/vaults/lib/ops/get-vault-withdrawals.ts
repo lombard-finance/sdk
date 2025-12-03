@@ -1,22 +1,23 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
+
 import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
 import {
-  TokenInfo,
   fromBaseDenomination,
   getAssetInfo,
+  TokenInfo,
 } from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
 import {
+  isVedaVaultChain,
+  Vault,
   VAULTS,
   VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
-  Vault,
   VedaVaultChain,
-  isVedaVaultChain,
 } from '../config';
 
 export type GetVaultWithdrawalsParameters = IEnvParam & {
@@ -288,7 +289,7 @@ export type GetVaultWithdrawalsAllChainsParameters = {
 /**
  * Retrieves the withdrawals made by specified address across all supported chains for a vault.
  * This is useful for getting a complete view of all withdrawals regardless of the currently connected chain.
- * 
+ *
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
  * @param parameters.vaultKey - The optional vault identifier (defaults to Veda).
@@ -320,7 +321,7 @@ export async function getVaultWithdrawalsAllChains({
   );
 
   const withdrawalsArrays = await Promise.all(withdrawalsPromises);
-  
+
   // Combine all withdrawals from all chains
   const allCancelled: VaultWithdrawal[] = [];
   const allExpired: VaultWithdrawal[] = [];

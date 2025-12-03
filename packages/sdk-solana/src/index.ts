@@ -8,8 +8,8 @@ export * from './const/known-errors';
 export * from './const/rpcUrls';
 
 // Export utility functions
-export { getLBTCProgramAddress } from './utils/getLBTCProgramAddress';
 export { parseOFTRecipient } from './utils/bridgeUtils';
+export { getLBTCProgramAddress } from './utils/getLBTCProgramAddress';
 
 // Web3 SDK functions
 export * from './web3Sdk';

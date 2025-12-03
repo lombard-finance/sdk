@@ -1,13 +1,14 @@
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import { Contract, TypedContractV2 } from 'starknet';
-import LBTC_ABI from '../abi/LBTC_ABI';
+
 import { ChainParameters, StarknetChainId } from '../../utils/chains';
+import { EnvParameters } from '../../utils/env';
 import { ERR_NO_PROVIDER, ERR_NO_TOKEN } from '../../utils/err';
 import { getRpcProvider, ProviderParameters } from '../../utils/rpc-providers';
 import ERC20_ABI from '../abi/ERC20_ABI';
-import LBTC_BRIDGE_ABI from '../abi/LBTC_BRIDGE_ABI';
+import LBTC_ABI from '../abi/LBTC_ABI';
 import LBTC_BASCULE_ABI from '../abi/LBTC_BASCULE_ABI';
-import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
-import { EnvParameters } from '../../utils/env';
+import LBTC_BRIDGE_ABI from '../abi/LBTC_BRIDGE_ABI';
 
 export enum Token {
   ETH = 'ETH',
@@ -179,7 +180,7 @@ const STRK_TOKEN_CONFIG = {
 
 export const getTokenInfo = (
   token: Token,
-  chain = StarknetChainId.SN_MAIN,
+  chain: StarknetChainId = StarknetChainId.SN_MAIN,
   contractType: 'token' | 'bridge' | 'bascule' = 'token',
   env = DEFAULT_ENV,
 ) => {

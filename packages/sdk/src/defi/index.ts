@@ -1,6 +1,5 @@
 export {
   DefiProtocol,
   type DefiRegistryToken,
-  type StakeAndBakeToken
+  type StakeAndBakeToken,
 } from './defi-registry';
-

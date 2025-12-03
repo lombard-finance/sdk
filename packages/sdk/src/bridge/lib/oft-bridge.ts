@@ -1,6 +1,7 @@
 import { Options } from '@layerzerolabs/lz-v2-utilities';
 import BigNumber from 'bignumber.js';
 import { Address, pad } from 'viem';
+
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import { ChainId } from '../../common/chains';
@@ -16,13 +17,13 @@ import { getErrorMessage } from '../../utils/err';
 import toBigInt from '../../utils/numbers';
 import {
   BridgeType,
+  getBridgeInfo,
   MIN_BRIDGE_AMOUNT,
-  OFTBridgeChain,
   OFT_BRIDGE_CHAINS,
   OFT_GAS_LIMIT,
   OFT_HI_GAS_LIMIT,
   OFT_HI_GAS_LIMIT_CHAINS,
-  getBridgeInfo,
+  OFTBridgeChain,
 } from './config';
 
 const DESTINATION_ENDPOINT_ID_MAP: Record<OFTBridgeChain, number> = {

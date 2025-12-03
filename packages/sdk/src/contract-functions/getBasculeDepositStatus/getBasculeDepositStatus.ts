@@ -3,19 +3,21 @@ import {
   Address,
   ByteArray,
   Client,
-  PublicClient,
   getContract,
   keccak256,
+  PublicClient,
   zeroAddress,
 } from 'viem';
+
 import { Deposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import {
   isEthereumChain,
   isKatanaChain,
-  isMonadChain,
   isMegaethChain,
+  isMonadChain,
+  isStableChain,
 } from '../../common/chains';
 import { CommonOptionalWriteParameters } from '../../common/parameters';
 import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
@@ -121,7 +123,7 @@ export async function getBasculeDepositStatus({
 
   let basculeContractAddress: Address;
 
-  if (isUpgradedAbi(tokenContractInfo.abi)) {
+  if (isUpgradedAbi(tokenContractInfo.abi) && token === Token.LBTC) {
     // Upgraded contract - get bascule from Asset Router
     const assetRouterAddress = (await publicClient.readContract({
       abi: tokenContractInfo.abi,
@@ -161,14 +163,17 @@ export async function getBasculeDepositStatus({
     );
   }
 
-  try {
-    // For Katana chains, use proper GMP payload decoding to calculate mintID
-    if (
-      isKatanaChain(chainId) ||
+  const shouldCheckMintHistory =
+    (isKatanaChain(chainId) ||
       isMonadChain(chainId) ||
       isEthereumChain(chainId) ||
-      isMegaethChain(chainId)
-    ) {
+      isStableChain(chainId) ||
+      isMegaethChain(chainId)) &&
+    token === Token.LBTC;
+
+  try {
+    // For Katana chains, use proper GMP payload decoding to calculate mintID
+    if (shouldCheckMintHistory) {
       const prefixedPayload = payload.startsWith('0x')
         ? payload
         : `0x${payload}`;

@@ -2,9 +2,9 @@ import {
   SuiChain,
   SuiSignPersonalMessageFeature,
 } from '@mysten/wallet-standard';
-
 import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
+
 import { getUnifiedChainId } from '../../getUnifiedChainId';
 
 export const SIGNATURE_SIZE = -132;

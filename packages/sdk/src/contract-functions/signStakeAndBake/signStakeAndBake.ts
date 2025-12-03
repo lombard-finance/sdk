@@ -1,10 +1,11 @@
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
+
 import { CommonWriteParameters } from '../../common/parameters';
 import {
-    ApprovalMode,
-    DefiProtocol,
-    StakeAndBakeToken,
+  ApprovalMode,
+  DefiProtocol,
+  StakeAndBakeToken,
 } from '../../defi/defi-registry';
 import { DAY, now, toUnix } from '../../utils/time';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
@@ -12,8 +13,8 @@ import { handleApproveFlow } from './handleApprove';
 import { handlePermitFlow } from './handlePermit';
 import { buildTypedData } from './typed-data-builder';
 import {
-    calculateStakeAndBakeLBTCAmount,
-    getStakeAndBakeTokenContract,
+  calculateStakeAndBakeLBTCAmount,
+  getStakeAndBakeTokenContract,
 } from './utils';
 import { getStakeAndBakeConfig } from './validation';
 
@@ -99,19 +100,15 @@ export async function signStakeAndBake({
   rpcUrl,
   env = DEFAULT_ENV,
 }: ISignStakeAndBakeParams): Promise<ISignStakeAndBakeResult> {
-  const strategy = getStakeAndBakeConfig(
-    vaultKey,
-    token,
-    chainId,
-    env,
-  );
+  const strategy = getStakeAndBakeConfig(vaultKey, token, chainId, env);
 
   const spenderAddress = strategy.spenderContract.address;
 
   // Calculate permit value (with conversion if needed)
-  const permitValue = strategy.amountStrategy === 'btcToLbtc'
-    ? await calculateStakeAndBakeLBTCAmount(value, env)
-    : new BigNumber(value);
+  const permitValue =
+    strategy.amountStrategy === 'btcToLbtc'
+      ? await calculateStakeAndBakeLBTCAmount(value, env)
+      : new BigNumber(value);
 
   // Get token contract (always use Token address for permits/approves, not adapter)
   const tokenContract = await getStakeAndBakeTokenContract(token, chainId, env);
@@ -123,9 +120,10 @@ export async function signStakeAndBake({
     strategy.approval.deadlineStrategy === 'zero' ? 0n : BigInt(expiry);
 
   // Get nonce if required
-  const nonce = strategy.approval.nonceStrategy === 'chain'
-    ? BigInt(await getPermitNonce({ owner: account, chainId, rpcUrl, env }))
-    : 0n;
+  const nonce =
+    strategy.approval.nonceStrategy === 'chain'
+      ? BigInt(await getPermitNonce({ owner: account, chainId, rpcUrl, env }))
+      : 0n;
 
   // Build typed data using config
   const typedData = buildTypedData({

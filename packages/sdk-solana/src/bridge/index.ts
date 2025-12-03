@@ -1,4 +1,5 @@
-import { BigNumber } from 'bignumber.js';
+import BigNumber from 'bignumber.js';
+
 import { getOftAmountCanBeSent as getOftAmountCanBeSentActual } from './getOftAmountCanBeSent';
 import { quoteBridgeFee as quoteBridgeFeeActual } from './quoteBridgeFee';
 import { sendBridgeTransaction as sendBridgeTransactionActual } from './sendBridgeTransaction';

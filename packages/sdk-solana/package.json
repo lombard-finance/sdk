@@ -24,7 +24,9 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build -o sdk-storybook",
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
-    "lint": "biome lint --diagnostic-level=error",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
@@ -55,7 +57,6 @@
     "js-sha3": "^0.9.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
     "@chromatic-com/storybook": "1.6.1",
     "@storybook/addon-essentials": "^8.2.9",
     "@storybook/addon-interactions": "^8.2.9",

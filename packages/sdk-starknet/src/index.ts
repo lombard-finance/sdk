@@ -15,6 +15,6 @@ export * from './wallet-functions/sign-message';
 
 /** Utils */
 
-export * from './utils/rpc-providers';
 export * from './utils/chains';
+export * from './utils/rpc-providers';
 export * from './utils/typed-data';

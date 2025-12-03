@@ -1,15 +1,16 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
+
 import {
   ChainId,
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
   SOLANA_TESTNET_CHAIN,
+  SolanaChain,
   STARKNET_MAINNET_CHAIN,
   STARKNET_SEPOLIA_CHAIN,
+  StarknetChainId,
   SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
-  SolanaChain,
-  StarknetChainId,
   SuiChain,
 } from './chains';
 import { featureConfig } from './feature-config';
@@ -44,6 +45,9 @@ export const BlockchainIdentifier = {
 
   monad: 'DESTINATION_BLOCKCHAIN_MONAD',
   monadOld: 'BLOCKCHAIN_MONAD',
+
+  stable: 'DESTINATION_BLOCKCHAIN_STABLE',
+  stableOld: 'BLOCKCHAIN_STABLE',
 
   megaeth: 'DESTINATION_BLOCKCHAIN_MEGAETH',
   megaethOld: 'BLOCKCHAIN_MEGAETH',
@@ -91,6 +95,10 @@ export function getChainNameById(
 
   if (featureConfig.isMonadEnabled && chainId === ChainId.monad) {
     return BlockchainIdentifier.monad;
+  }
+
+  if (chainId === ChainId.stable) {
+    return BlockchainIdentifier.stable;
   }
 
   if (chainId === SUI_TESTNET_CHAIN || chainId === SUI_MAINNET_CHAIN) {
@@ -191,6 +199,10 @@ export function getChainIdByName(
     case BlockchainIdentifier.monad:
     case BlockchainIdentifier.monadOld:
       return ChainId.monad;
+
+    case BlockchainIdentifier.stable:
+    case BlockchainIdentifier.stableOld:
+      return ChainId.stable;
 
     case BlockchainIdentifier.megaeth:
     case BlockchainIdentifier.megaethOld:

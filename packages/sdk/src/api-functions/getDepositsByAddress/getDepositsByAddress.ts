@@ -1,5 +1,6 @@
 import { Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
+
 import { getApiConfig } from '../../common/api-config';
 import { getChainIdByName } from '../../common/blockchain-identifier';
 import {
@@ -9,14 +10,14 @@ import {
   SuiChain,
 } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
-import { BTC_DECIMALS, fromSatoshi } from '../../utils/satoshi';
-import { fromBaseDenomination } from '../../tokens/tokens';
-import { fetchAllPaginated } from '../../utils/pagination';
 import {
   AddressKind,
   getTokenByAddress,
   Token,
 } from '../../tokens/token-addresses';
+import { fromBaseDenomination } from '../../tokens/tokens';
+import { fetchAllPaginated } from '../../utils/pagination';
+import { BTC_DECIMALS, fromSatoshi } from '../../utils/satoshi';
 
 /** The default number of decimals for the deposit amount (value). */
 const DECIMALS = BTC_DECIMALS;

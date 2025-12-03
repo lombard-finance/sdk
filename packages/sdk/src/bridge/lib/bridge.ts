@@ -1,15 +1,16 @@
 import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
+
 import { CommonWriteParameters } from '../../common/parameters';
 import { bridgeCCIP } from './ccip-bridge';
 import {
   BRIDGE_EXPLORER_URL_MAP,
   BridgeChain,
   BridgeType,
-  CCIPBridgeChain,
   CCIP_BRIDGE_CHAINS,
-  OFTBridgeChain,
+  CCIPBridgeChain,
   getBridgeInfo,
+  OFTBridgeChain,
 } from './config';
 import { bridgeOFT } from './oft-bridge';
 

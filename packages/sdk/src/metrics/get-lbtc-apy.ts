@@ -1,6 +1,7 @@
 import axios from 'axios';
-import { Address, zeroAddress } from 'viem';
 import BigNumber from 'bignumber.js';
+import { Address, zeroAddress } from 'viem';
+
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
 

@@ -1,4 +1,5 @@
 import { Address, pad } from 'viem';
+
 import { getChainNameById } from '../../common/blockchain-identifier';
 import {
   isSolanaChain,
@@ -8,16 +9,16 @@ import {
 } from '../../common/chains';
 import {
   AddressKind,
-  Token,
   getSolanaTokenAddress,
   getStarknetTokenAddress,
   getSuiTokenAddress,
+  Token,
 } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { makeRequest } from './make-request';
 import type {
-  IGetDepositBtcAddressParameters,
   IGetDepositBtcAddressesParameters,
+  IGetDepositBtcAddressParameters,
 } from './types';
 
 /**

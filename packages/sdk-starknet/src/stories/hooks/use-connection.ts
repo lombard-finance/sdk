@@ -4,9 +4,9 @@ import {
 } from '@starknet-io/get-starknet';
 import { createContext, useCallback, useContext } from 'react';
 import { RpcProvider, WalletAccount, defaultProvider } from 'starknet';
+import { StarknetChainId } from '../../utils/chains';
 import { ERR_NO_STARKNET_WINDOW_OBJECT } from '../../utils/err';
 import { getRpcProvider } from '../../utils/rpc-providers';
-import { StarknetChainId } from '../../utils/chains';
 
 const connectStarknet = async (rpcProvider?: RpcProvider) => {
   const starknetWindowObject = await starknet_connect({

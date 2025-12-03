@@ -1,6 +1,7 @@
 import { getOutputScript } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
-import { Address, Hex, erc20Abi, parseGwei } from 'viem';
+import { Address, erc20Abi, Hex, parseGwei } from 'viem';
+
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import {

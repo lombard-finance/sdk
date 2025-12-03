@@ -3,7 +3,12 @@
  */
 import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
+
+import { makePublicClient } from '../../clients/public-client';
+import { makeWalletClient } from '../../clients/wallet-client';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
 import { CommonWriteParameters, IEnvParam } from '../../common/parameters';
+import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 import { AddressKind, Token } from '../../tokens/token-addresses';
 import {
   fromBaseDenomination,
@@ -11,12 +16,8 @@ import {
   retrieveTokenProperties,
   toBaseDenomination,
 } from '../../tokens/tokens';
-import { makePublicClient } from '../../clients/public-client';
 import { UnsupportedTokenFlow } from '../../utils/err';
-import { makeWalletClient } from '../../clients/wallet-client';
 import toBigInt from '../../utils/numbers';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from '../../common/chains';
-import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 
 const AVAILABLE_FLOWS: Array<{
   tokenIn: Token;
@@ -196,8 +197,8 @@ export async function depositToken({
     );
   }
 
-  const isAvalanche =
-    chainId === ChainId.avalanche || chainId === ChainId.avalancheFuji;
+  // const isAvalanche =
+  //   chainId === ChainId.avalanche || chainId === ChainId.avalancheFuji;
 
   // Call deposit on AssetRouter
   const hash = await walletClient.writeContract({

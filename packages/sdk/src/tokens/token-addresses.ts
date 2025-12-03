@@ -1,28 +1,29 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import { Address } from 'viem';
+
 import {
   ChainId,
-  SOLANA_DEVNET_CHAIN,
-  SOLANA_MAINNET_CHAIN,
-  SOLANA_TESTNET_CHAIN,
-  STARKNET_MAINNET_CHAIN,
-  STARKNET_SEPOLIA_CHAIN,
-  SUI_MAINNET_CHAIN,
-  SUI_TESTNET_CHAIN,
-  SolanaChain,
-  StarknetChainId,
-  SuiChain,
   isSolanaChain,
   isStarknetChainId,
   isSuiChain,
   isValidChain,
+  SOLANA_DEVNET_CHAIN,
+  SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET_CHAIN,
+  SolanaChain,
+  STARKNET_MAINNET_CHAIN,
+  STARKNET_SEPOLIA_CHAIN,
+  StarknetChainId,
+  SUI_MAINNET_CHAIN,
+  SUI_TESTNET_CHAIN,
+  SuiChain,
 } from '../common/chains';
 import { featureConfig } from '../common/feature-config';
 import { AddressKind, BridgeTokenAddresses } from './types';
 
 // Re-export for backward compatibility
-export { AddressKind } from './types';
 export type { BridgeTokenAddresses } from './types';
+export { AddressKind } from './types';
 
 export enum Token {
   // Lombard tokens:
@@ -111,32 +112,41 @@ type TokenAddresses<
 const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
   [Env.prod]: {
     [ChainId.katana]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
-    ...(featureConfig.isAvalancheEnabled ? {
-      [ChainId.avalanche]: {
-        token: '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
-        adapter: '0x85D1D52e11290F174444d21C2a167bEDBE36e4d2',
-      },
-    } : {}),
-    ...(featureConfig.isMonadEnabled ? {
-      [ChainId.monad]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
-    } : {}),
+    ...(featureConfig.isAvalancheEnabled
+      ? {
+          [ChainId.avalanche]: {
+            token: '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
+            adapter: '0x85D1D52e11290F174444d21C2a167bEDBE36e4d2',
+          },
+        }
+      : {}),
+    ...(featureConfig.isMonadEnabled
+      ? {
+          [ChainId.monad]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
+        }
+      : {}),
     [ChainId.megaeth]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
+    [ChainId.stable]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
   },
   [Env.ibc]: {
-    ...(featureConfig.isAvalancheEnabled ? {
-      [ChainId.avalancheFuji]: {
-        adapter: '0x1391f9AC408cf13214DDB71d359002658eaF9ebb',
-        token: '0x71ba2b8dc58e7ca1b6d81a60729e31aefa37ae02',
-      },
-    } : {}),
+    ...(featureConfig.isAvalancheEnabled
+      ? {
+          [ChainId.avalancheFuji]: {
+            adapter: '0x1391f9AC408cf13214DDB71d359002658eaF9ebb',
+            token: '0x71ba2b8dc58e7ca1b6d81a60729e31aefa37ae02',
+          },
+        }
+      : {}),
   },
   [Env.dev]: {
-    ...(featureConfig.isAvalancheEnabled ? {
-      [ChainId.avalancheFuji]: {
-        adapter: '0x0A65C37d07c32E5eA8ea40495b7f249cdE26935e',
-        token: '0x7FbdC44BfEBDe80C970ba622B678daB36cee31f6',
-      },
-    } : {}),
+    ...(featureConfig.isAvalancheEnabled
+      ? {
+          [ChainId.avalancheFuji]: {
+            adapter: '0x0A65C37d07c32E5eA8ea40495b7f249cdE26935e',
+            token: '0x7FbdC44BfEBDe80C970ba622B678daB36cee31f6',
+          },
+        }
+      : {}),
     [ChainId.binanceSmartChainTestnet]:
       '0xea3F66E5f2928dB9673103BfA01a2153A57a8050',
     [ChainId.sepolia]: '0x195219A262423d209E126BD21cf4F4F9AA796927',
@@ -147,12 +157,14 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
     [ChainId.katanaTatara]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
   },
   [Env.testnet]: {
-    ...(featureConfig.isAvalancheEnabled ? {
-      [ChainId.avalancheFuji]: {
-        adapter: '0x41BCd71e7C92b1c8dDe53037F9b2c4AA2058b1cB',
-        token: '0xB14f240714Bd23Bda103A7189D512A90326E4D01',
-      },
-    } : {}),
+    ...(featureConfig.isAvalancheEnabled
+      ? {
+          [ChainId.avalancheFuji]: {
+            adapter: '0x41BCd71e7C92b1c8dDe53037F9b2c4AA2058b1cB',
+            token: '0xB14f240714Bd23Bda103A7189D512A90326E4D01',
+          },
+        }
+      : {}),
     [ChainId.sepolia]: '0x20eA7b8ABb4B583788F1DFC738C709a2d9675681',
     [ChainId.katanaTatara]: '0x20eA7b8ABb4B583788F1DFC738C709a2d9675681',
   },
@@ -161,9 +173,11 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
 export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
   [Env.prod]: {
     [ChainId.ethereum]: '0x8236a87084f8b84306f72007f36f2618a5634494',
-    ...(featureConfig.isAvalancheEnabled ? {
-      [ChainId.avalanche]: undefined,
-    } : {}),
+    ...(featureConfig.isAvalancheEnabled
+      ? {
+          [ChainId.avalanche]: undefined,
+        }
+      : {}),
     [ChainId.base]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.berachain]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.binanceSmartChain]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
@@ -172,18 +186,23 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
     [ChainId.katana]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.morph]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.sonic]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+    [ChainId.stable]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.swell]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.tac]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     [ChainId.bob]: '0xA45d4121b3D47719FF57a947A9d961539Ba33204',
-    ...(featureConfig.isMonadEnabled ? {
-      [ChainId.monad]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
-    } : {}),
+    ...(featureConfig.isMonadEnabled
+      ? {
+          [ChainId.monad]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+        }
+      : {}),
     [ChainId.megaeth]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
   },
   [Env.stage]: {
-    ...(featureConfig.isAvalancheEnabled ? {
-      [ChainId.avalancheFuji]: undefined,
-    } : {}),
+    ...(featureConfig.isAvalancheEnabled
+      ? {
+          [ChainId.avalancheFuji]: undefined,
+        }
+      : {}),
     [ChainId.baseSepoliaTestnet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
     [ChainId.berachainBartioTestnet]:
       '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
@@ -195,9 +214,11 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
     [ChainId.sonicBlazeTestnet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
   },
   [Env.testnet]: {
-    ...(featureConfig.isAvalancheEnabled ? {
-      [ChainId.avalancheFuji]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
-    } : {}),
+    ...(featureConfig.isAvalancheEnabled
+      ? {
+          [ChainId.avalancheFuji]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
+        }
+      : {}),
     [ChainId.berachainBartioTestnet]:
       '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
     [ChainId.binanceSmartChainTestnet]:
@@ -209,9 +230,11 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
     [ChainId.baseSepoliaTestnet]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
   },
   [Env.dev]: {
-    ...(featureConfig.isAvalancheEnabled ? {
-      [ChainId.avalancheFuji]: '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
-    } : {}),
+    ...(featureConfig.isAvalancheEnabled
+      ? {
+          [ChainId.avalancheFuji]: '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
+        }
+      : {}),
     [ChainId.sepolia]: '0x93283b6B889C591893dB0dc93baD71656D5d8923',
     [ChainId.baseSepoliaTestnet]: '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
     [ChainId.berachainBartioTestnet]:

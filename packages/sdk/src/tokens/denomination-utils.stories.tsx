@@ -54,27 +54,27 @@ interface StoryViewProps {
 
 /**
  * Convert between human-readable amounts and base denominations.
- * 
+ *
  * These utility functions handle conversion between display values and
  * contract-compatible base units (like satoshis for BTC or wei for ETH).
- * 
+ *
  * **Functions:**
- * 
+ *
  * 1. `toBaseDenomination(amount, decimals)`:
  *    - Converts human-readable amount to base units
  *    - Example: 1 BTC → 100,000,000 satoshis (decimals=8)
  *    - Use before sending amounts to smart contracts
- * 
+ *
  * 2. `fromBaseDenomination(amount, decimals)`:
  *    - Converts base units to human-readable amount
  *    - Example: 100,000,000 satoshis → 1 BTC (decimals=8)
  *    - Use when displaying contract values to users
- * 
+ *
  * **Common Decimal Places:**
  * - BTC/LBTC: 8 decimals
  * - ETH: 18 decimals
  * - USDC/USDT: 6 decimals
- * 
+ *
  * **Important Notes:**
  * - Uses BigNumber.js for precision
  * - Rounds to nearest integer for base denomination
@@ -173,4 +173,3 @@ export function StoryView(props: StoryViewProps) {
     </div>
   );
 }
-

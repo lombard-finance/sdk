@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { chainSelector } from '../stories/arg-types';
 import { Button } from '../stories/components/Button';
 import { CodeBlock } from '../stories/components/CodeBlock';
 import { ConnectButton } from '../stories/components/ConnectButton';
@@ -9,8 +10,7 @@ import {
   useConnection,
 } from '../stories/hooks/useConnection';
 import useQuery from '../stories/hooks/useQuery';
-import { addChain, AddChainParameters, ChainId } from './chains';
-import { chainSelector } from '../stories/arg-types';
+import { AddChainParameters, ChainId, addChain } from './chains';
 
 const meta = {
   title: 'write/addChain',

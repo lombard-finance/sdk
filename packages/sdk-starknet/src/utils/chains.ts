@@ -1,10 +1,9 @@
 import BigNumber from 'bignumber.js';
-import { shortString } from 'starknet';
 
 /** Starknet Main (mainnet) chain id */
-const SN_MAIN = shortString.encodeShortString('SN_MAIN'); // 0x534e5f4d41494e
+const SN_MAIN = '0x534e5f4d41494e' as const;
 /** Starknet Sepolia chain id */
-const SN_SEPOLIA = shortString.encodeShortString('SN_SEPOLIA'); // 0x534e5f5345504f4c4941
+const SN_SEPOLIA = '0x534e5f5345504f4c4941' as const;
 
 /** Prefixes the destination chain with 0x04... */
 export function makeDestinationChainId(chainId: `0x${string}`) {
@@ -14,10 +13,13 @@ export function makeDestinationChainId(chainId: `0x${string}`) {
 }
 
 /** Starknet chain id */
-export enum StarknetChainId {
-  SN_MAIN = '0x534e5f4d41494e', // encodeShortString('SN_MAIN'),
-  SN_SEPOLIA = '0x534e5f5345504f4c4941',
-}
+export const StarknetChainId = {
+  SN_MAIN: SN_MAIN,
+  SN_SEPOLIA: SN_SEPOLIA,
+} as const;
+
+export type StarknetChainId =
+  (typeof StarknetChainId)[keyof typeof StarknetChainId];
 
 /** Starknet chain identifier (human readable). */
 export enum StarknetChain {

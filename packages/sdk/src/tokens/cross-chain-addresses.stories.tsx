@@ -2,22 +2,22 @@ import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import {
-    SOLANA_DEVNET_CHAIN,
-    SOLANA_MAINNET_CHAIN,
-    SOLANA_TESTNET_CHAIN,
-    STARKNET_MAINNET_CHAIN,
-    STARKNET_SEPOLIA_CHAIN,
-    SUI_MAINNET_CHAIN,
-    SUI_TESTNET_CHAIN,
+  SOLANA_DEVNET_CHAIN,
+  SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET_CHAIN,
+  STARKNET_MAINNET_CHAIN,
+  STARKNET_SEPOLIA_CHAIN,
+  SUI_MAINNET_CHAIN,
+  SUI_TESTNET_CHAIN,
 } from '../common/chains';
 import { envSelector } from '../stories/arg-types';
 import { Button } from '../stories/components/Button';
 import { CodeBlock } from '../stories/components/CodeBlock';
 import { functionType } from '../stories/components/decorators';
 import {
-    getSolanaTokenAddress,
-    getStarknetTokenAddress,
-    getSuiTokenAddress,
+  getSolanaTokenAddress,
+  getStarknetTokenAddress,
+  getSuiTokenAddress,
 } from './token-addresses';
 
 const meta = {
@@ -73,32 +73,32 @@ interface StoryViewProps {
 
 /**
  * Get LBTC token addresses for non-EVM blockchains.
- * 
+ *
  * Lombard tokens are deployed across multiple blockchain ecosystems.
  * These helper functions provide easy access to token addresses for:
- * 
+ *
  * **Sui Network:**
  * - `getSuiTokenAddress(chainId, env)`
  * - Supported: Mainnet, Testnet
  * - Returns Sui package/object address
- * 
+ *
  * **Solana:**
  * - `getSolanaTokenAddress(chainId, env)`
  * - Supported: Mainnet, Testnet, Devnet
  * - Returns SPL token mint address
- * 
+ *
  * **Starknet:**
  * - `getStarknetTokenAddress(chainId, env, variant)`
  * - Supported: Mainnet, Sepolia
  * - Variants: 'token' (default), 'assetRouter'
  * - Returns Cairo contract address
- * 
+ *
  * **Use Cases:**
  * - Cross-chain integrations
  * - Multi-wallet support
  * - Token verification on different chains
  * - SDK initialization for non-EVM chains
- * 
+ *
  * **Returns:**
  * - String address if deployed
  * - `undefined` if not deployed on that chain/environment
@@ -233,4 +233,3 @@ export function StoryView(props: StoryViewProps) {
     </div>
   );
 }
-

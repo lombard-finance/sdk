@@ -1,12 +1,13 @@
 import {
   Address,
+  encodeFunctionData,
   Hex,
   PublicClient,
   SimulateContractParameters,
   SimulateContractReturnType,
   WalletClient,
-  encodeFunctionData,
 } from 'viem';
+
 import {
   EvmTransactionRequest,
   SignerError,

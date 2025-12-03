@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
 import { getErrorMessage } from '@lombard.finance/sdk/utils/err';
+import { useCallback, useEffect, useState } from 'react';
 
 type QueryFn<T> = () => Promise<T>;
 
@@ -46,7 +46,7 @@ export function useQuery<T>(
 
   useEffect(() => {
     if (shouldFetch) {
-      fetchData();
+      void fetchData();
     }
   }, [shouldFetch, fetchData, ...dependencies]);
 

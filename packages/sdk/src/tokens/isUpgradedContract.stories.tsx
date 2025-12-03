@@ -60,20 +60,20 @@ interface StoryViewProps {
 
 /**
  * Check if a token contract has been upgraded to the new version.
- * 
+ *
  * Lombard token contracts can be upgraded to new versions with additional
  * functionality. This function checks if a contract has the `getAssetRouter`
  * function, which indicates it's using the upgraded version.
- * 
+ *
  * **Supported Tokens:**
  * - `LBTC`: Checks for STLBTC_ABI (upgraded) vs LBTC_ABI (legacy)
  * - `BTCK`: Checks for NATIVE_LBTC_ABI (upgraded) vs BTCK_ABI (legacy)
- * 
+ *
  * **Use Cases:**
  * - Determine which ABI to use for contract interactions
  * - Feature detection for upgraded contract functions
  * - Display upgrade status in UI
- * 
+ *
  * **Returns:**
  * - `true`: Contract is upgraded (has getAssetRouter)
  * - `false`: Contract is legacy or doesn't support upgrades
@@ -121,4 +121,3 @@ export function StoryView(props: StoryViewProps) {
     </div>
   );
 }
-

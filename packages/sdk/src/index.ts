@@ -15,33 +15,32 @@ export * from './common/api-config';
 export * from './common/blockchain-identifier';
 export * from './common/chains';
 export {
-    SOLANA_DEVNET_CHAIN,
-    SOLANA_MAINNET_CHAIN,
-    SOLANA_TESTNET_CHAIN,
-    SUI_DEVNET_CHAIN,
-    SUI_MAINNET_CHAIN,
-    SUI_TESTNET_CHAIN
+  SOLANA_DEVNET_CHAIN,
+  SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET_CHAIN,
+  SUI_DEVNET_CHAIN,
+  SUI_MAINNET_CHAIN,
+  SUI_TESTNET_CHAIN,
 } from './common/chains';
 export * from './tokens/lbtc-addresses';
 export * from './tokens/token-addresses';
 export * from './utils/satoshi';
 
 // Metrics:
-export { getLBTCStats } from './metrics/get-lbtc-stats';
-
 export {
-    getAdditionalRewards,
-    type RewardsDistribution
+  getAdditionalRewards,
+  type RewardsDistribution,
 } from './metrics/get-additional-rewards';
 export {
-    getApy,
-    getEstimatedApy,
-    type LbtcApy,
-    type LbtcEstimatedApy
+  getApy,
+  getEstimatedApy,
+  type LbtcApy,
+  type LbtcEstimatedApy,
 } from './metrics/get-lbtc-apy';
+export { getLBTCStats } from './metrics/get-lbtc-stats';
 export {
-    getPositionsSummary,
-    type PositionsSummary
+  getPositionsSummary,
+  type PositionsSummary,
 } from './metrics/get-positions-summary';
 
 // Tokens:
@@ -54,28 +53,31 @@ export type { Address, EIP1193Provider } from 'viem';
 
 // Signer support (custom transaction signing):
 export {
-    createAccountFromSigner,
-    createWalletClientFromSigner, SignerError, validateTransactionRequest,
-    type DispatchCallback,
-    type EvmTransactionRequest,
-    type SignerAdapter
+  createAccountFromSigner,
+  createWalletClientFromSigner,
+  type DispatchCallback,
+  type EvmTransactionRequest,
+  type SignerAdapter,
+  SignerError,
+  validateTransactionRequest,
 } from './clients/evm-signer-adapter';
-
 export {
-    isProviderFlow,
-    isSignerFlow,
-    type CommonSignerWriteParameters
+  type CommonSignerWriteParameters,
+  isProviderFlow,
+  isSignerFlow,
 } from './common/parameters';
 
 // Bridge:
 export {
-    bridge,
-    bridgeCCIP,
-    bridgeOFT,
-    getBridgeInfo, OFT_GAS_LIMIT,
-    OFT_HI_GAS_LIMIT,
-    OFT_HI_GAS_LIMIT_CHAINS, type BridgeCCIPParameters,
-    type BridgeParameters
+  bridge,
+  bridgeCCIP,
+  type BridgeCCIPParameters,
+  bridgeOFT,
+  type BridgeParameters,
+  getBridgeInfo,
+  OFT_GAS_LIMIT,
+  OFT_HI_GAS_LIMIT,
+  OFT_HI_GAS_LIMIT_CHAINS,
 } from './bridge';
 
 // Debug:

@@ -1,5 +1,7 @@
-import { Buffer } from 'buffer'; // Import Buffer for hex comparisons
+import { Buffer } from 'node:buffer'; // Import Buffer for hex comparisons
+
 import { describe, expect, it } from 'vitest';
+
 import { parseSignaturesFromProof } from '../signatureUtils';
 
 describe('signatureUtils', () => {
@@ -26,7 +28,7 @@ describe('signatureUtils', () => {
       expect(result.indices.map(bn => bn.toNumber())).toEqual(expectedIndices);
 
       // Check each signature
-      result.signatures.forEach((sig, i) => {
+      result.signatures.forEach(sig => {
         expect(sig).toBeInstanceOf(Uint8Array);
         expect(sig.length).toBe(64);
       });

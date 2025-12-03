@@ -1,4 +1,5 @@
 import bs58 from 'bs58';
+
 import { ISolanaWalletProvider } from '../../types';
 import { ErrorCode, SolanaSdkError } from '../../utils/errors';
 

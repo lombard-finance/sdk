@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { Address, pad } from 'viem';
+
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
@@ -11,13 +13,12 @@ import type {
   SuiChain,
 } from '../../common/chains';
 import type { IEnvParam } from '../../common/parameters';
+import { AddressKind, Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
 import {
   getErrorMessage,
   TokenContractAddressNotFoundError,
 } from '../../utils/err';
-import { AddressKind, Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../tokens/tokens';
-import { Address, pad } from 'viem';
 
 /**
  * The address which will be returned if the provided EVM address is sanctioned.
