@@ -51,6 +51,9 @@ export const BlockchainIdentifier = {
 
   megaeth: 'DESTINATION_BLOCKCHAIN_MEGAETH',
   megaethOld: 'BLOCKCHAIN_MEGAETH',
+
+  bitcoin: 'DESTINATION_BLOCKCHAIN_BITCOIN',
+  bitcoinOld: 'BLOCKCHAIN_BITCOIN',
 } as const;
 
 export type BlockchainIdentifier =

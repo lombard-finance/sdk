@@ -103,6 +103,9 @@ interface UnstakeEntry {
 
   /** Claim transaction hash on the destination chain, if claimed (for native chain redemptions) */
   claim_tx?: string;
+
+  /** Token address on the source chain */
+  from_token_address?: string;
 }
 
 /**
@@ -148,7 +151,7 @@ export interface Unstake {
   fromChainId: ChainId | SuiChain | SolanaChain | StarknetChainId;
 
   /** Destination chain identifier (undefined for BTC unstakes). */
-  toChainId?: ChainId | SuiChain | SolanaChain | StarknetChainId;
+  toChainId?: ChainId | SuiChain | SolanaChain | StarknetChainId | 'bitcoin';
 
   /** Block height where the unstake was confirmed. */
   blockHeight: number;
@@ -197,6 +200,9 @@ export interface Unstake {
 
   /** Claim transaction hash on the destination chain, if claimed (for native chain redemptions). */
   claimTxHash?: string;
+
+  /** Token address on the source chain */
+  fromTokenAddress?: string;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -281,7 +287,12 @@ function mapUnstakeEntry(
     : PayoutTxStatus.Pending;
 
   const toToken = isNative ? Token.BTCb : undefined;
-  const toChainId = d.to_chain ? getChainIdByName(d.to_chain, env) : undefined;
+  const toChainId = d.to_chain
+    ? d.to_chain === BlockchainIdentifier.bitcoin ||
+      d.to_chain === BlockchainIdentifier.bitcoinOld
+      ? 'bitcoin'
+      : getChainIdByName(d.to_chain, env)
+    : undefined;
 
   let toTokenAddress: string | undefined = undefined;
   if (toToken) {
@@ -311,7 +322,7 @@ function mapUnstakeEntry(
     isNative,
     txHash: d.tx_hash,
     fromChainId: getChainIdByName(d.blockchain, env),
-    toChainId: toChainId,
+    toChainId,
     blockHeight: Number(d.block_height),
     blockTime: Number(d.block_time),
     fromAddress: d.from_address,
@@ -328,6 +339,7 @@ function mapUnstakeEntry(
     notarizationStatus: d.notarization_status,
     sessionState: d.session_state,
     claimTxHash: d.claim_tx,
+    fromTokenAddress: d.from_token_address,
   };
 }
 

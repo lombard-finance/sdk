@@ -1,3 +1,7 @@
+# 3.7.3
+- added from_token_address fiild for unstakes
+- added bitcoin blockchain identifier
+
 # 3.7.2
 * **added stable support**
 
