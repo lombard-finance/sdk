@@ -1,3 +1,6 @@
+# 3.7.4
+- added missed chains to CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP
+
 # 3.7.3
 - added from_token_address fiild for unstakes
 - added bitcoin blockchain identifier
