@@ -393,6 +393,8 @@ export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.swell]: 'swellchain',
   [ChainId.megaeth]: 'megaeth',
   [ChainId.monad]: 'monad',
+  [ChainId.katana]: 'katana',
+  [ChainId.stable]: 'stable',
 } as const;
 type LlamaChain =
   (typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP)[keyof typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP];
