@@ -47,8 +47,10 @@ export function StoryView(props: IGetShareValueParameters) {
 
       {data && (
         <div className="mt-4 p-4 border rounded">
-          <h3 className="text-lg font-bold mb-2">LBTCv share value</h3>
-          <p>1 LBTCv = {value} LBTC</p>
+          <h3 className="text-lg font-bold mb-2">
+            LBTCv (Vault shares) share value
+          </h3>
+          <p>1 LBTCv (Vault shares) = {value} LBTC</p>
         </div>
       )}
     </div>

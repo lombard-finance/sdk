@@ -326,8 +326,8 @@ const { balance, exchangeRate, balanceLbtc } = await getSharesByAddress({
 
 The above code results with:
 
-- `balance` - The amount of LBTCv shares owned by the account,
-- `exchangeRate` - The current LBTCv to LBTC exchange rate,
+- `balance` - The amount of LBTCv (Vault shares) shares owned by the account,
+- `exchangeRate` - The current LBTCv (Vault shares) to LBTC exchange rate,
 - `balanceLbtc` - The value of the owned shares is LBTC.
 
 ---
@@ -449,9 +449,9 @@ const { balance, exchangeRate, balanceLbtc } = await getSharesByAddress({
 
 The above function returns the:
 
-- `balance` - balance of LBTCv,
-- `exchangeRate` - the current exchange rate between LBTCv and LBTC,
-- `balanceLbtc` - the value of LBTCv represented in LBTC.
+- `balance` - balance of LBTCv (Vault shares),
+- `exchangeRate` - the current exchange rate between (Vault shares) and LBTC,
+- `balanceLbtc` - the value of LBTCv (Vault shares) represented in LBTC.
 
 ---
 

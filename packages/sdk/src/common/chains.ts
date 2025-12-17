@@ -298,6 +298,7 @@ export const ChainId = {
   corn: 21000000,
   etherlink: 42793,
   katana: 747474,
+  megaeth: 4326,
   monad: 143,
   morph: 2818,
   sonic: 146,
@@ -305,7 +306,6 @@ export const ChainId = {
   swell: 1923,
   tac: 239,
   bob: 60808,
-  megaeth: 4326,
   // Testnets:
   avalancheFuji: 43113,
   baseSepoliaTestnet: 84532,
@@ -331,14 +331,14 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.corn]: corn,
   [ChainId.etherlink]: etherlink,
   [ChainId.katana]: katana,
-  ...(featureConfig.isMonadEnabled ? { [ChainId.monad]: monad } : {}),
+  [ChainId.megaeth]: megaeth,
+  [ChainId.monad]: monad,
   [ChainId.morph]: morph,
   [ChainId.sonic]: sonic,
   [ChainId.stable]: stable,
   [ChainId.swell]: swellchain,
   [ChainId.tac]: tac,
   [ChainId.bob]: bob,
-  [ChainId.megaeth]: megaeth,
   // Testnets:
   ...(featureConfig.isAvalancheEnabled
     ? { [ChainId.avalancheFuji]: avalancheFuji }

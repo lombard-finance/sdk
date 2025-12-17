@@ -6,7 +6,6 @@ import { ChainId } from '../common/chains';
 export type TRpcUrlConfig = Record<number, string>;
 
 export const RPC_URL = 'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
-// export const RPC_URL = 'http://localhost:8001/multi-rpc/proxy';
 
 export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.ethereum]: `${RPC_URL}/eth`,
@@ -43,8 +42,12 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.binanceSmartChain]: 'https://bsc-dataseed.bnbchain.org',
     [ChainId.corn]: `${proxy}/corn_maizenet`,
     [ChainId.katana]: `${proxy}/katana`,
+    [ChainId.monad]: `${proxy}/monad_mainnet`,
+    [ChainId.megaeth]:
+      'https://alpha.megaeth.com/rpc?user=lombard+v1&token=1763427229-%2Bx6HFUDu9OhJwV%2FTCFOL0xTt%2FPJRAXPeirIcuytvnes%3D',
     [ChainId.sonic]: `${proxy}/sonic_mainnet`,
     [ChainId.tac]: `${proxy}/tac`,
+
     // Testnets:
     [ChainId.baseSepoliaTestnet]: `${proxy}/base_sepolia`,
     [ChainId.binanceSmartChainTestnet]:
