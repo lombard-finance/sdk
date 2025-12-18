@@ -100,6 +100,10 @@ export function getChainNameById(
     return BlockchainIdentifier.monad;
   }
 
+  if (chainId === ChainId.megaeth) {
+    return BlockchainIdentifier.megaeth;
+  }
+
   if (chainId === ChainId.stable) {
     return BlockchainIdentifier.stable;
   }
@@ -121,10 +125,6 @@ export function getChainNameById(
     chainId === STARKNET_SEPOLIA_CHAIN
   ) {
     return BlockchainIdentifier.starknet;
-  }
-
-  if (chainId === ChainId.megaeth) {
-    return BlockchainIdentifier.megaeth;
   }
 
   throw new Error(`Unknown chain ID: ${chainId}`);

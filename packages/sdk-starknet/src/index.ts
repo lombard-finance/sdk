@@ -12,6 +12,7 @@ export * from './contract-functions/redeem';
 /** Wallet functions */
 
 export * from './wallet-functions/sign-message';
+export * from './wallet-functions/sign-terms-of-service';
 
 /** Utils */
 

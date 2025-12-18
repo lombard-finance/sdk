@@ -6,7 +6,6 @@ import { ChainId } from '../common/chains';
 export type TRpcUrlConfig = Record<number, string>;
 
 export const RPC_URL = 'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
-// export const RPC_URL = 'http://localhost:8001/multi-rpc/proxy';
 
 export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.ethereum]: `${RPC_URL}/eth`,
@@ -43,8 +42,12 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.binanceSmartChain]: 'https://bsc-dataseed.bnbchain.org',
     [ChainId.corn]: `${proxy}/corn_maizenet`,
     [ChainId.katana]: `${proxy}/katana`,
+    [ChainId.monad]: `${proxy}/monad_mainnet`,
+    [ChainId.megaeth]:
+      'https://alpha.megaeth.com/rpc?user=lombard+v1&token=1763427229-%2Bx6HFUDu9OhJwV%2FTCFOL0xTt%2FPJRAXPeirIcuytvnes%3D',
     [ChainId.sonic]: `${proxy}/sonic_mainnet`,
     [ChainId.tac]: `${proxy}/tac`,
+
     // Testnets:
     [ChainId.baseSepoliaTestnet]: `${proxy}/base_sepolia`,
     [ChainId.binanceSmartChainTestnet]:
@@ -53,5 +56,7 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.katanaTatara]: `${proxy}/katana_tatara`,
     [ChainId.sepolia]: `${proxy}/eth_sepolia`,
     [ChainId.sonicBlazeTestnet]: `${proxy}/sonic_blaze_testnet`,
+    [ChainId.stable]:
+      'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf', // TODO: Update with the correct RPC URL once the stable network is live
   } as TRpcUrlConfig;
 }

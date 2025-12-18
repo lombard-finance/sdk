@@ -53,9 +53,9 @@ export function StoryView(props: IGetSharesByAddressParameters) {
 
       {data && (
         <div className="mt-4 p-4 border rounded">
-          <h3 className="text-lg font-bold mb-2">LBTCv shares owned</h3>
+          <h3 className="text-lg font-bold mb-2">Vault shares owned</h3>
           <p>
-            <b>{data.balance.toString()}</b> LBTCv ={' '}
+            <b>{data.balance.toString()}</b> Vault shares ={' '}
             {data.balanceLbtc.toString()} LBTC
           </p>
         </div>
