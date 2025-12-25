@@ -57,6 +57,6 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.sepolia]: `${proxy}/eth_sepolia`,
     [ChainId.sonicBlazeTestnet]: `${proxy}/sonic_blaze_testnet`,
     [ChainId.stable]:
-      'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf', // TODO: Update with the correct RPC URL once the stable network is live
+      'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf',
   } as TRpcUrlConfig;
 }
