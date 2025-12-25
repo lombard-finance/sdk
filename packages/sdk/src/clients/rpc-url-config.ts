@@ -54,9 +54,6 @@ export function getRpcUrlConfig(env: Env) {
       'https://bsc-testnet-dataseed.bnbchain.org',
     [ChainId.holesky]: `${proxy}/eth_holesky`,
     [ChainId.katanaTatara]: `${proxy}/katana_tatara`,
-    [ChainId.megaeth]:
-      'https://alpha.megaeth.com/rpc?user=lombard+v1&token=1763427229-%2Bx6HFUDu9OhJwV%2FTCFOL0xTt%2FPJRAXPeirIcuytvnes%3D',
-    [ChainId.monad]: `${proxy}/monad_mainnet`,
     [ChainId.sepolia]: `${proxy}/eth_sepolia`,
     [ChainId.sonicBlazeTestnet]: `${proxy}/sonic_blaze_testnet`,
     [ChainId.stable]:
