@@ -24,6 +24,10 @@ export interface ISetReferralParams extends IEnvParam {
    * The typed data object used to generate the signature if using a network fee authorization signature.
    */
   eip712Data?: string;
+  /**
+   * The public key (required for Starknet).
+   */
+  pubKey?: string;
 }
 
 /**
@@ -38,6 +42,7 @@ export async function setReferral({
   signature,
   eip712Data,
   referrerCode,
+  pubKey,
   env,
 }: ISetReferralParams): Promise<void> {
   const { baseApiUrl } = getApiConfig(env);
@@ -46,6 +51,7 @@ export async function setReferral({
     referrer_code: referrerCode,
     signature,
     signature_typed_data: eip712Data,
+    ...(pubKey && { public_key: pubKey }),
   };
 
   try {
