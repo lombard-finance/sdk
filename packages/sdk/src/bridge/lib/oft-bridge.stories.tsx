@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ChainId } from '../../common/chains';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
@@ -14,7 +15,7 @@ import {
 } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
 import { OFT_BRIDGE_CHAINS } from './config';
-import { BridgeOFTParameters, bridgeOFT } from './oft-bridge';
+import { bridgeOFT,BridgeOFTParameters } from './oft-bridge';
 
 const meta = {
   title: 'bridge/bridgeOFT',

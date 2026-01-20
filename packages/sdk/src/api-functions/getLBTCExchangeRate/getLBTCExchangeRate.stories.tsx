@@ -1,5 +1,6 @@
 import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ChainId } from '../../common/chains';
 import { envSelector } from '../../stories/arg-types';
 import { Button } from '../../stories/components/Button';
@@ -8,8 +9,8 @@ import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import { toSatoshi } from '../../utils/satoshi';
 import {
-  IgetLBTCExchangeRateParams,
   getLBTCExchangeRate,
+  IgetLBTCExchangeRateParams,
 } from './getLBTCExchangeRate';
 
 const meta = {

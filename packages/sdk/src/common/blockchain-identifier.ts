@@ -71,8 +71,8 @@ export function getChainNameById(
   }
 
   if (
-    featureConfig.isAvalancheEnabled &&
-    (chainId === ChainId.avalanche || chainId === ChainId.avalancheFuji)
+    (featureConfig.isAvalancheMainnetEnabled && chainId === ChainId.avalanche) ||
+    (featureConfig.isAvalancheFujiEnabled && chainId === ChainId.avalancheFuji)
   ) {
     return BlockchainIdentifier.avalanche;
   }

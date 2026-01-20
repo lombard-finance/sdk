@@ -25,7 +25,24 @@
     "useDefineForClassFields": true,
     "esModuleInterop": false,
     "noEmit": true,
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "paths": {
+      "api/*": ["api-functions/*"],
+      "chains/*": ["chains/*"],
+      "client/*": ["client/*"],
+      "common/*": ["common/*"],
+      "config/*": ["config/*"],
+      "contracts/*": ["contracts/*"],
+      "core/*": ["core/*"],
+      "defi/*": ["defi/*"],
+      "modules/*": ["modules/*"],
+      "registries/*": ["registries/*"],
+      "services/*": ["services/*"],
+      "shared/*": ["shared/*"],
+      "tokens/*": ["tokens/*"],
+      "utils/*": ["utils/*"],
+      "vaults/*": ["vaults/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"],

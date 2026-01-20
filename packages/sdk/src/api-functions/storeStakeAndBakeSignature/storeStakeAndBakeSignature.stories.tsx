@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
 import { functionType } from '../../stories/components/decorators';

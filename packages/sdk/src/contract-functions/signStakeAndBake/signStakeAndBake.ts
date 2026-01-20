@@ -93,14 +93,15 @@ export async function signStakeAndBake({
   account,
   expiry = toUnix(now() + DAY),
   value,
-  vaultKey = DefiProtocol.Veda,
+  // TODO: Rename vaultKey to protocol
+  vaultKey: protocol = DefiProtocol.Veda,
   token = 'BTC',
   chainId,
   provider,
   rpcUrl,
   env = DEFAULT_ENV,
 }: ISignStakeAndBakeParams): Promise<ISignStakeAndBakeResult> {
-  const strategy = getStakeAndBakeConfig(vaultKey, token, chainId, env);
+  const strategy = getStakeAndBakeConfig(protocol, token, chainId, env);
 
   const spenderAddress = strategy.spenderContract.address;
 

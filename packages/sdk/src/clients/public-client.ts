@@ -38,10 +38,6 @@ export function makePublicClient({
     chain = getChain(chainId);
   }
 
-  console.info(
-    `Creating a public client for ${chainId} with RPC: ${rpcUrls[chainId]}`,
-  );
-
   const transport = http(rpcUrls[chainId]);
 
   const publicClient = createPublicClient({

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { CodeBlock } from '../CodeBlock/CodeBlock';
 
 interface ResultDisplayProps {

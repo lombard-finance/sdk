@@ -33,6 +33,14 @@ interface IGetNetworkFeeSignatureResponse {
    * The auto mint is delayed
    */
   is_delayed: boolean;
+  /**
+   * Serialized signature when available
+   */
+  signature?: string;
+  /**
+   * Serialized typed data associated with the signature when available
+   */
+  typed_data?: string;
 }
 
 export interface IGetNetworkFeeSignatureMappedResponse {
@@ -48,6 +56,14 @@ export interface IGetNetworkFeeSignatureMappedResponse {
    * The auto mint is delayed
    */
   isDelayed: boolean;
+  /**
+   * Serialized signature when available
+   */
+  signature?: string;
+  /**
+   * Serialized typed data associated with the signature when available
+   */
+  typedData?: string;
 }
 
 /**
@@ -89,6 +105,8 @@ export async function getNetworkFeeSignature({
       expirationDate: data?.expiration_date,
       hasSignature: data?.has_signature,
       isDelayed: data?.is_delayed,
+      signature: data?.signature,
+      typedData: data?.typed_data,
     };
   } catch (error) {
     const errorMessage = getErrorMessage(error);

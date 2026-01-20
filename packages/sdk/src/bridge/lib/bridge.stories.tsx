@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ChainId } from '../../common/chains';
 import { Button } from '../../stories/components/Button';
 import { CodeBlock } from '../../stories/components/CodeBlock';
@@ -13,8 +14,8 @@ import {
   useConnection,
 } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
-import { BridgeParameters, bridge } from './bridge';
-import { BRIDGE_CHAINS, OFT_BRIDGE_CHAINS } from './config';
+import { bridge,BridgeParameters } from './bridge';
+import { BRIDGE_CHAINS } from './config';
 
 const meta = {
   title: 'bridge/bridge',
@@ -38,7 +39,7 @@ export const WithParams: Story = {
     to: {
       mapping: ChainId,
       options: BRIDGE_CHAINS.map(
-        ch => Object.entries(ChainId).find(([k, v]) => v === ch)?.[0],
+        ch => Object.entries(ChainId).find(([_k, v]) => v === ch)?.[0],
       ),
       control: { type: 'select' },
     },

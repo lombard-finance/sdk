@@ -10,6 +10,7 @@ import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
 import { StarknetChainId } from '../utils/chains';
 import { EnvParameters } from '../utils/env';
 import { ERR_UNEXPECTED_OUTPUT_SCRIPT } from '../utils/err';
+import { getRpcProvider } from '../utils/rpc-providers';
 import { WalletAccountParameters } from '../utils/wallet-account';
 
 export type RedeemParameters = TokenParameters &
@@ -34,10 +35,14 @@ export async function redeem({
 }: RedeemParameters) {
   const chainId = (await walletAccount.getChainId()) as StarknetChainId;
 
+  // Use SDK's RPC provider for read-only operations to avoid wallet RPC rate limits
+  // (Wallet extensions like Braavos/ArgentX use OnFinality which has strict rate limits)
+  const rpcProvider = getRpcProvider(chainId);
+
   const tokenParams = {
     token,
     chainId,
-    provider: walletAccount,
+    provider: rpcProvider, // Use SDK RPC for reads, not wallet's RPC
   };
 
   const tokenContract = getTokenContract({

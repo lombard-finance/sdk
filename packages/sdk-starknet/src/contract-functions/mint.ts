@@ -4,6 +4,7 @@ import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
 import { makeDestinationChainId, StarknetChainId } from '../utils/chains';
 import { Address, ensureHex } from '../utils/common';
 import { EnvParameters } from '../utils/env';
+import { getRpcProvider } from '../utils/rpc-providers';
 import { parseProofHexToU256Tuples } from '../utils/span';
 import { WalletAccountParameters } from '../utils/wallet-account';
 
@@ -48,14 +49,18 @@ export async function mint({
     throw new Error('Missing deposit tx id');
   }
 
-  const tokenParams = {
+  // Use SDK's RPC provider for read-only operations to avoid wallet RPC rate limits
+  // (Wallet extensions like Braavos/ArgentX use OnFinality which has strict rate limits)
+  const rpcProvider = getRpcProvider(chainId);
+
+  const readOnlyParams = {
     chainId,
-    provider: walletAccount,
+    provider: rpcProvider, // Use SDK RPC for reads, not wallet's RPC
     token,
   };
 
   const basculeContract = getTokenContract({
-    ...tokenParams,
+    ...readOnlyParams,
     contractType: 'bascule',
     env,
   });
@@ -82,8 +87,11 @@ export async function mint({
   const vout = Number(depositIndex);
   const proof = parseProofHexToU256Tuples(depositProofSignature);
 
+  // For write operations (mint), use walletAccount to sign the transaction
   const bridgeContract = getTokenContract({
-    ...tokenParams,
+    chainId,
+    provider: walletAccount, // Need wallet account to sign tx
+    token,
     contractType: 'bridge',
     env,
   });

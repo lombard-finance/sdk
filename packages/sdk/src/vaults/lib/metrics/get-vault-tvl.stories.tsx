@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { Button } from '../../../stories/components/Button';
 import { CodeBlock } from '../../../stories/components/CodeBlock';
 import {
@@ -8,7 +9,7 @@ import {
 import { ErrorBlock } from '../../../stories/components/error-block';
 import useQuery from '../../../stories/hooks/useQuery';
 import { Vault } from '../config';
-import { GetVaultTVLParameters, getVaultTVL } from './get-vault-tvl';
+import { getVaultTVL,GetVaultTVLParameters } from './get-vault-tvl';
 
 const meta = {
   title: 'vault/metrics/getVaultTVL',

@@ -5,7 +5,7 @@ import { Button } from '../../stories/components/Button';
 import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import { Vault } from '../../vaults/lib/config';
-import { IGetShareValueParameters, getShareValue } from './getShareValue';
+import { getShareValue,IGetShareValueParameters } from './getShareValue';
 
 const meta = {
   title: 'read/getShareValue',
@@ -32,7 +32,7 @@ export function StoryView(props: IGetShareValueParameters) {
     });
   };
 
-  const { data, error, isLoading, refetch } = useQuery(request, [], false);
+  const { data, error: _error, isLoading, refetch } = useQuery(request, [], false);
 
   const value = data?.toString();
 

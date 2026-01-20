@@ -31,7 +31,7 @@ export async function getDepositBtcAddress({
   chainId,
   env,
   partnerId,
-  token = Token.LBTC,
+  token: tokenParam = Token.LBTC,
 }: IGetDepositBtcAddressParameters) {
   const _addresses = await makeRequest({
     address,
@@ -42,7 +42,7 @@ export async function getDepositBtcAddress({
 
   let depositAddress: string | undefined = undefined;
 
-  if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
+  if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(tokenParam)) {
     throw new Error('Unsupported token');
   }
 
@@ -53,7 +53,7 @@ export async function getDepositBtcAddress({
   try {
     if (isValidChain(chainId)) {
       const tokenContractInfo = await getTokenContractInfo(
-        token,
+        tokenParam,
         chainId,
         env,
         AddressKind.Adapter,
@@ -124,7 +124,8 @@ export async function getDepositBtcAddress({
       }
 
       // token_address can also be empty (null) when the address is for LBTC.
-      if (token === Token.LBTC) {
+      // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_crypto_rule-node-timing-attack -- comparing Token enum values, not secrets
+      if (tokenParam === Token.LBTC) {
         isForToken = isForToken || !a.deposit_metadata.token_address;
       }
 

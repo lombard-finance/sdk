@@ -28,7 +28,8 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.holesky]: `${RPC_URL}/eth_holesky`,
   [ChainId.katanaTatara]: `${RPC_URL}/katana_tatara`,
   [ChainId.sepolia]: `${RPC_URL}/eth_sepolia`,
-  [ChainId.sonicBlazeTestnet]: `${RPC_URL}/sonic_blaze_testnet`,
+  // Use direct Sonic Labs RPC for testnet (proxy returns 403)
+  [ChainId.sonicBlazeTestnet]: 'https://rpc.blaze.soniclabs.com',
 };
 
 export function getRpcUrlConfig(env: Env) {
@@ -55,7 +56,8 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.holesky]: `${proxy}/eth_holesky`,
     [ChainId.katanaTatara]: `${proxy}/katana_tatara`,
     [ChainId.sepolia]: `${proxy}/eth_sepolia`,
-    [ChainId.sonicBlazeTestnet]: `${proxy}/sonic_blaze_testnet`,
+    // Use direct Sonic Labs RPC for testnet (proxy returns 403)
+    [ChainId.sonicBlazeTestnet]: 'https://rpc.blaze.soniclabs.com',
     [ChainId.stable]:
       'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf',
   } as TRpcUrlConfig;

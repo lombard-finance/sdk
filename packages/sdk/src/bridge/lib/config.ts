@@ -31,7 +31,7 @@ export const CCIP_BRIDGE_CHAINS = [
   ChainId.katana,
   ChainId.sonic,
   // Testnets:
-  ...(featureConfig.isAvalancheEnabled ? [ChainId.avalancheFuji] : []),
+  ...(featureConfig.isAvalancheFujiEnabled ? [ChainId.avalancheFuji] : []),
   ChainId.baseSepoliaTestnet,
   ChainId.holesky,
   ChainId.katanaTatara,

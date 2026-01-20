@@ -1,6 +1,6 @@
 // Config:
 
-export { Vault } from './lib/config';
+export { Vault, VEDA_VAULT_STAKE_AND_BAKE_CHAINS } from './lib/config';
 
 // Ops - Deposit:
 

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSwitchChain } from 'wagmi';
 import { base, bsc, bscTestnet, holesky, mainnet, sepolia } from 'wagmi/chains';
+
 import { useConnection } from '../../hooks/useConnection';
 import { Spinner } from '../Spinner';
 

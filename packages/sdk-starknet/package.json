@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-starknet",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -30,8 +30,7 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "@lombard.finance/sdk": "^3.6.1",
-    "@lombard.finance/sdk-common": "^3.3.0",
+    "@lombard.finance/sdk-common": "^3.3.1",
     "starknet": "~6.24.1"
   },
   "devDependencies": {

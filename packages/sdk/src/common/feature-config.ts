@@ -1,18 +1,79 @@
 export interface FeatureConfig {
   /**
    * Enable/disable Monad blockchain support
-   * @default false - Currently disabled
+   * @default true - Enabled
    */
   isMonadEnabled: boolean;
 
   /**
-   * Enable/disable Avalanche blockchain support
-   * @default false - Currently disabled
+   * Enable/disable Avalanche mainnet support
+   * @default false - BTC.b not released on mainnet yet
    */
-  isAvalancheEnabled: boolean;
+  isAvalancheMainnetEnabled: boolean;
+
+  /**
+   * Enable/disable Avalanche Fuji testnet support
+   * @default true - Enabled for testing
+   */
+  isAvalancheFujiEnabled: boolean;
+
+  /**
+   * Enable/disable Berachain support
+   * @default false - Not yet fully supported (APP-1975)
+   */
+  isBerachainEnabled: boolean;
+
+  /**
+   * Enable/disable Corn chain support
+   * @default false - Not yet fully supported (APP-1975)
+   */
+  isCornEnabled: boolean;
+
+  /**
+   * Enable/disable Morph chain support
+   * @default false - Not yet fully supported (APP-1975)
+   */
+  isMorphEnabled: boolean;
+
+  /**
+   * Enable/disable Swellchain support
+   * @default false - Not yet fully supported (APP-1975)
+   */
+  isSwellchainEnabled: boolean;
+
+  /**
+   * Enable/disable TAC chain support
+   * @default false - Not yet fully supported (APP-1975)
+   */
+  isTacEnabled: boolean;
+
+  /**
+   * Enable/disable BOB chain support
+   * @default false - Not yet fully supported (APP-1975)
+   */
+  isBobEnabled: boolean;
+
+  /**
+   * Enable/disable Etherlink chain support
+   * @default false - Not yet fully supported (APP-1975)
+   */
+  isEtherlinkEnabled: boolean;
 }
 
 export const featureConfig: FeatureConfig = {
   isMonadEnabled: true,
-  isAvalancheEnabled: false,
+  // Avalanche mainnet - BTC.b not released yet, keep disabled
+  isAvalancheMainnetEnabled: false,
+  // Avalanche Fuji testnet - enabled for testing (Silo integration)
+  isAvalancheFujiEnabled: true,
+
+  isCornEnabled: true,
+  // APP-1975: Chains in asset catalog but not yet fully supported
+  // These are hidden from UI until fully tested and released
+  isBerachainEnabled: false,
+  isMorphEnabled: false,
+  isSwellchainEnabled: false,
+  isTacEnabled: false,
+  isBobEnabled: false,
+  isEtherlinkEnabled: false,
 };

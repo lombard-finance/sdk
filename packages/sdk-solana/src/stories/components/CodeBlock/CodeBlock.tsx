@@ -1,5 +1,6 @@
-import { JSX } from 'react';
 import './CodeBlockStyles.css';
+
+import { JSX } from 'react';
 
 interface ICodeBlockProps {
   // biome-ignore lint/suspicious/noExplicitAny: we don't care about the type here

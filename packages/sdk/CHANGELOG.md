@@ -1,3 +1,49 @@
+# 4.0.0
+
+## 🚀 Major Release: Action-Based Architecture
+
+This release introduces a completely redesigned SDK with an action-based architecture that provides a unified, type-safe interface for all Lombard operations.
+
+### ⚠️ Breaking Changes
+
+- **New action-based API**: All operations now use the unified action pattern
+  - Before: `stakeViaBTC(...)`, `unstakeLBTC(...)`, `redeemToken(...)`
+  - After: `sdk.btc.stake()`, `sdk.chain.evm.unstake()`, `sdk.chain.evm.redeem()`
+- **Chain module access**: Non-EVM chains accessed via `sdk.chain.<chain>.<action>()`
+  - `sdk.chain.solana.unstake()`
+  - `sdk.chain.sui.unstake()`
+  - `sdk.chain.starknet.unstake()`
+- **Removed deprecated functions**: Legacy wrapper functions removed in favor of actions
+- **TypeScript 5.4+ required**
+
+### ✨ New Features
+
+- **Unified Action Pattern**: All operations follow consistent lifecycle (prepare → approve → execute → complete)
+- **Built-in State Management**: Actions emit status and progress events
+- **Integrated Validation**: Automatic balance, allowance, and fee authorization checks
+- **Resume Support**: Actions can be resumed from any state
+- **Event System**: Rich event emission for UI integration
+- **SDK Playground**: Interactive demo at `https://lombard.finance/playground`
+
+### 🔧 Improvements
+
+- **Better error handling**: Structured errors with codes and metadata
+- **Loading states**: Built-in loading indicators for async operations
+- **Progress tracking**: Step-by-step progress events with percentage
+- **TypeScript improvements**: Enhanced type inference and stricter typing
+
+### 📦 Peer Dependencies
+
+```bash
+npm i --save viem@^2.23.15 axios@^1 bignumber.js@^9 @bitcoinerlab/secp256k1@1.2.0 bitcoinjs-lib@6.1.5 @layerzerolabs/lz-v2-utilities@3.0.17 isows@^1.0.7
+```
+
+### 📚 Migration
+
+See the [Migration Guide](./docs/user-guides/MIGRATION-V4.md) for detailed upgrade instructions.
+
+---
+
 # 3.7.4
 - added missed chains to CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP
 

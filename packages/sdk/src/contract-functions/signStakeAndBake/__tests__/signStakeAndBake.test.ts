@@ -69,6 +69,7 @@ vi.mock('../../../clients/public-client', () => ({
 vi.mock('../../../tokens/tokens', () => ({
   getTokenContractInfo: vi.fn(async (token, chainId, _env, _addressKind) => {
     // Return mock contract info based on token
+    // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_crypto_rule-node-timing-attack -- comparing Token enum values in test mock, not secrets
     if (token === Token.LBTC) {
       return {
         address: '0xLBTC_CONTRACT_ADDRESS',
@@ -157,13 +158,13 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
       });
     });
 
-    it('should generate permit for LBTC on BSC', async () => {
+    it('should generate permit for LBTC on Ethereum', async () => {
       const result = await signStakeAndBake({
         account: MOCK_ACCOUNT,
         value: new BigNumber('0.5'),
         token: Token.LBTC,
         vaultKey: DefiProtocol.Veda,
-        chainId: ChainId.binanceSmartChain,
+        chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
         env: Env.prod,
@@ -391,7 +392,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
           value: new BigNumber('1'),
           token: Token.BTCb,
           vaultKey: DefiProtocol.Veda, // BTCb not configured for Veda
-          chainId: ChainId.holesky, // BTCb not configured for Holesky
+          chainId: ChainId.sepolia, // BTCb not configured for Sepolia
           provider: MOCK_PROVIDER,
           env: Env.testnet,
         }),
@@ -651,20 +652,20 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
       );
     });
 
-    it('should use correct spender contract for Veda on BSC', async () => {
+    it('should use correct spender contract for Veda on Sepolia (testnet)', async () => {
       const result = await signStakeAndBake({
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
         vaultKey: DefiProtocol.Veda,
-        chainId: ChainId.binanceSmartChain,
+        chainId: ChainId.sepolia,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
+        env: Env.testnet,
       });
 
       const typedData = JSON.parse(result.typedData);
       expect(typedData.message.spender).toBe(
-        '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
+        '0x77eD6a84fEF665156e81247ECbd43A847B8A6398',
       );
     });
 
@@ -693,7 +694,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         value: new BigNumber('1'),
         token: Token.LBTC,
         vaultKey: DefiProtocol.Veda,
-        chainId: ChainId.holesky,
+        chainId: ChainId.sepolia,
         provider: MOCK_PROVIDER,
         env: Env.testnet,
       });

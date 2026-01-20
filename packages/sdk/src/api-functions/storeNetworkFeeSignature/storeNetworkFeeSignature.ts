@@ -23,6 +23,10 @@ export interface IStoreNetworkFeeSignatureParams extends IEnvParam {
    * Destination address
    */
   address: string;
+  /**
+   * Token address (required to distinguish LBTC vs BTC.b signatures)
+   */
+  tokenAddress?: string;
 }
 
 /**
@@ -41,20 +45,26 @@ export async function storeNetworkFeeSignature({
   typedData,
   address,
   env,
+  tokenAddress,
 }: IStoreNetworkFeeSignatureParams): Promise<IStoreNetworkFeeSignatureStatus> {
   const { baseApiUrl } = getApiConfig(env);
 
   try {
+    const params: Record<string, string> = {
+      typed_data: typedData,
+      signature,
+      user_destination_address: address,
+    };
+
+    // Include token address to distinguish LBTC vs BTC.b signatures
+    if (tokenAddress) {
+      params.token_address = tokenAddress;
+    }
+
     const { data } = await axios.post<IStoreNetworkFeeSignatureResponse>(
       `${baseApiUrl}/api/v1/claimer/save-user-signature`,
       null,
-      {
-        params: {
-          typed_data: typedData,
-          signature,
-          user_destination_address: address,
-        },
-      },
+      { params },
     );
 
     return data.status;

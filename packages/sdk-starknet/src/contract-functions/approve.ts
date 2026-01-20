@@ -4,6 +4,7 @@ import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
 import { StarknetChainId } from '../utils/chains';
 import { Address } from '../utils/common';
 import { EnvParameters } from '../utils/env';
+import { getRpcProvider } from '../utils/rpc-providers';
 import { WalletAccountParameters } from '../utils/wallet-account';
 
 type ApproveParameters = {
@@ -24,6 +25,23 @@ export async function approve({
 }: ApproveParameters) {
   const chainId = (await walletAccount.getChainId()) as StarknetChainId;
 
+  // Use SDK's RPC provider for read-only operations to avoid wallet RPC rate limits
+  // (Wallet extensions like Braavos/ArgentX use OnFinality which has strict rate limits)
+  const rpcProvider = getRpcProvider(chainId);
+
+  // Read decimals using SDK RPC (avoid wallet rate limits)
+  const readOnlyContract = getTokenContract({
+    chainId,
+    contractType: 'token',
+    provider: rpcProvider,
+    token,
+    env,
+  });
+
+  const decimals = await readOnlyContract.decimals();
+  const amountBaseDenom = toBaseDenomination(amount, Number(decimals));
+
+  // Use walletAccount for write operation (signing tx)
   const tokenContract = getTokenContract({
     chainId,
     contractType: 'token',
@@ -31,9 +49,6 @@ export async function approve({
     token,
     env,
   });
-
-  const decimals = await tokenContract.decimals();
-  const amountBaseDenom = toBaseDenomination(amount, Number(decimals));
 
   const tx = await tokenContract.approve(spender, amountBaseDenom.toNumber());
 
