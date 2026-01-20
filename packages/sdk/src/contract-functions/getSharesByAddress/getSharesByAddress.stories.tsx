@@ -8,8 +8,8 @@ import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
 import { Vault } from '../../vaults/lib/config';
 import {
-  IGetSharesByAddressParameters,
   getSharesByAddress,
+  IGetSharesByAddressParameters,
 } from './getSharesByAddress';
 
 const meta = {

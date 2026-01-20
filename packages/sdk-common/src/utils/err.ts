@@ -11,17 +11,16 @@ export function extractErrorMessage(error: unknown): string {
     return error;
   }
 
-  // Check for data.message pattern
-  const hasDataMessage = (err: unknown): err is { data: { message: string } } =>
-    typeof err === 'object' &&
-    err !== null &&
-    'data' in err &&
-    typeof (err as { data?: unknown }).data === 'object' &&
-    (err as { data?: unknown }).data !== null &&
-    'message' in ((err as { data?: unknown }).data as object) &&
-    typeof (
-      (err as { data?: { message?: unknown } }).data as { message?: unknown }
-    ).message === 'string';
+  // Check for data.message pattern (common in API error responses)
+  const hasDataMessage = (
+    err: unknown,
+  ): err is { data: { message: string } } => {
+    if (err === null || typeof err !== 'object') return false;
+    if (!('data' in err) || err.data === null || typeof err.data !== 'object')
+      return false;
+    if (!('message' in err.data)) return false;
+    return typeof err.data.message === 'string';
+  };
 
   if (hasDataMessage(error)) {
     return error.data.message;

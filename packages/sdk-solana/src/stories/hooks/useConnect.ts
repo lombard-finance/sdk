@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
+
 import {
-  ISolanaWalletProvider,
   InjectedWallet,
+  ISolanaWalletProvider,
 } from '../../types/walletProviders';
 import { ErrorCode, SolanaSdkError } from '../../utils';
 import { getSolanaWalletProvider } from '../../web3Sdk/detectWallet/detectWallet';

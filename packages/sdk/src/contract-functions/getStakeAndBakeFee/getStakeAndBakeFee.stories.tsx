@@ -10,8 +10,8 @@ import useQuery from '../../stories/hooks/useQuery';
 import { Token } from '../../tokens/token-addresses';
 import { VEDA_VAULT_STAKE_AND_BAKE_CHAINS } from '../../vaults/lib/config';
 import {
-  IGetStakeAndBakeFeeParams,
   getStakeAndBakeFee,
+  IGetStakeAndBakeFeeParams,
 } from './getStakeAndBakeFee';
 
 const meta = {

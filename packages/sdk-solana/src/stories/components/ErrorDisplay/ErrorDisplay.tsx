@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { SolanaSdkError } from '../../../utils/errors';
 
 interface ErrorDisplayProps {

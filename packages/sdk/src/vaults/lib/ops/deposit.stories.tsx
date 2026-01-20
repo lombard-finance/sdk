@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { Button } from '../../../stories/components/Button';
 import { CodeBlock } from '../../../stories/components/CodeBlock';
 import { ConnectButton } from '../../../stories/components/ConnectButton';
@@ -13,7 +14,7 @@ import {
 } from '../../../stories/hooks/useConnection';
 import useQuery from '../../../stories/hooks/useQuery';
 import { Vault } from '../config';
-import { DepositParameters, deposit } from './deposit';
+import { deposit,DepositParameters } from './deposit';
 
 const meta = {
   title: 'vault/ops/deposit',

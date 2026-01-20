@@ -19,6 +19,7 @@ import {
   sonicBlazeTestnet,
   swellchain,
 } from 'wagmi/chains';
+
 import { rpcUrlConfig } from '../../../clients/rpc-url-config';
 import { katana, katanaTatara, tac } from '../../../common/chains';
 
@@ -81,7 +82,7 @@ export function ConnectionProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: Story is a storybooks story element
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const wagmiDecorator = (Story: any) => {
   return (
     <ConnectionProvider>

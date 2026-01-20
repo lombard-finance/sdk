@@ -3,6 +3,9 @@ import rootConfig from '../../eslint.config.js';
 export default [
   {
     ignores: [
+      'dist/**',
+      'test-results/**',
+      'scripts/**',
       '**/*.stories.tsx',
       '**/*.stories.ts',
       '**/stories/**',

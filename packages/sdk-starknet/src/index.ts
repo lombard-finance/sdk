@@ -19,3 +19,7 @@ export * from './wallet-functions/sign-terms-of-service';
 export * from './utils/chains';
 export * from './utils/rpc-providers';
 export * from './utils/typed-data';
+
+/** Module */
+
+export { starknetModule } from './module/createStarknetModule';

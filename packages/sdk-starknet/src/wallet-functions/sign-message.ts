@@ -47,6 +47,7 @@ export async function signMessage({
   chainId = StarknetChainId.SN_MAIN,
 }: SignMessageParameters): Promise<SignMessageResult> {
   const personalMessageTypedData = SIGN_MESSAGE_TYPED_DATA(chainId, message);
+  const skipVerify = process.env.SKIP_STARKNET_VERIFY === 'true';
 
   if (walletAccount.walletProvider.name.toLowerCase().includes('kelpr')) {
     console.warn('Keplr wallet is not fully supported.');
@@ -55,17 +56,23 @@ export async function signMessage({
   const hashMsg = await walletAccount.hashMessage(personalMessageTypedData);
   const signature = await walletAccount.signMessage(personalMessageTypedData);
 
+  // Use SDK's RPC provider for read-only operations to avoid wallet RPC rate limits
+  // (Wallet extensions like Braavos/ArgentX use OnFinality which has strict rate limits)
+  const rpcProvider = getRpcProvider(chainId);
   const pubKey = await getPublicKey(
     walletAccount.address as Address,
-    walletAccount,
+    rpcProvider,
   );
 
-  const provider = getRpcProvider(chainId);
-  const verifiedOnChain = await provider.verifyMessageInStarknet(
-    hashMsg,
-    signature,
-    walletAccount.address,
-  );
+  let verifiedOnChain = false;
+  if (!skipVerify) {
+    const provider = getRpcProvider(chainId);
+    verifiedOnChain = await provider.verifyMessageInStarknet(
+      hashMsg,
+      signature,
+      walletAccount.address,
+    );
+  }
 
   const rs = normalizeSignature(
     signature,

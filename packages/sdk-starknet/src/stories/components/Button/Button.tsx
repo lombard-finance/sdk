@@ -1,6 +1,8 @@
-import React from 'react';
-import { Spinner } from '../Spinner';
 import './Button.css';
+
+import React from 'react';
+
+import { Spinner } from '../Spinner';
 
 export interface ButtonProps {
   disabled?: boolean;

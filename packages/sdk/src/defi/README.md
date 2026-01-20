@@ -101,31 +101,47 @@ export async function signStakeAndBake(params) {
 
 ## 🔧 Adding New Integrations
 
-### Example 1: Add Existing Token to New Chain
+### Example 1: Add Existing Token to New Chain (Veda Stake & Deploy)
 
-**Scenario:** Add LBTC support on Base for Veda protocol.
+**Scenario:** Add LBTC support on a new chain for Veda protocol Stake & Deploy.
+
+**Source of Truth:** `packages/sdk/src/vaults/lib/config.ts`
 
 ```typescript
-// In defi-registry.ts
+// Step 1: In vaults/lib/config.ts - Add chain to VEDA_VAULT_STAKE_AND_BAKE_CHAINS
 
-const VEDA_STAKE_AND_BAKE_CHAINS = [
+export const VEDA_VAULT_STAKE_AND_BAKE_CHAINS = [
   ChainId.ethereum,
   ChainId.binanceSmartChain,
-  ChainId.base, // ← ADD THIS
+  ChainId.base,
+  ChainId.newChain, // ← ADD THIS
   // Testnets:
   ChainId.binanceSmartChainTestnet,
   ChainId.holesky,
-] as const;
+];
 
-// That's it! LBTC now works on Base because it uses forChains()
-// which generates config for all chains in the array.
+// Step 2: In vaults/lib/config.ts - Add spender contract
+export const VEDA_VAULT_SPENDER_CONTRACTS: Record<
+  VedaVaultStakeAndBakeChain,
+  ContractInfo
+> = {
+  // ... existing contracts
+  [ChainId.newChain]: {
+    abi: VEDA_VAULT_SPENDER_ABI as Abi,
+    address: '0x...', // Spender contract address on new chain
+    chainId: ChainId.newChain,
+  },
+};
 ```
 
 **What Happens:**
 
-- `forChains()` automatically creates registry entries for all chains
-- LBTC inherits the same `LBTC_PERMIT_CONFIG` on Base
-- Uses the correct spender contract from `VEDA_VAULT_SPENDER_CONTRACTS[ChainId.base]`
+- `DEFI_REGISTRY` imports `VEDA_VAULT_STAKE_AND_BAKE_CHAINS` (single source of truth)
+- LBTC inherits the same `LBTC_PERMIT_CONFIG` on new chain
+- Uses the correct spender contract from `VEDA_VAULT_SPENDER_CONTRACTS`
+
+**Important:** Do NOT add chains directly to `defi-registry.ts` - it uses the imported
+`VEDA_VAULT_STAKE_AND_BAKE_CHAINS` to ensure consistency
 
 ---
 

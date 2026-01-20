@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ChainId } from '../../../common/chains';
 import { Button } from '../../../stories/components/Button';
 import { CodeBlock } from '../../../stories/components/CodeBlock';
@@ -11,8 +12,8 @@ import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
 import useQuery from '../../../stories/hooks/useQuery';
 import { Vault } from '../config';
 import {
-  GetVaultDepositsParameters,
   getVaultDeposits,
+  GetVaultDepositsParameters,
 } from './get-vault-deposits';
 
 const meta = {

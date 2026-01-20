@@ -322,33 +322,46 @@ export type ChainId = (typeof ChainId)[keyof typeof ChainId];
 
 export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.ethereum]: mainnet,
-  ...(featureConfig.isAvalancheEnabled
+  // Avalanche mainnet - BTC.b not released yet
+  ...(featureConfig.isAvalancheMainnetEnabled
     ? { [ChainId.avalanche]: avalanche }
     : {}),
   [ChainId.base]: base,
-  [ChainId.berachain]: berachain,
+  // APP-1975: Feature-gated chains
+  ...(featureConfig.isBerachainEnabled
+    ? { [ChainId.berachain]: berachain }
+    : {}),
   [ChainId.binanceSmartChain]: bsc,
-  [ChainId.corn]: corn,
-  [ChainId.etherlink]: etherlink,
+  ...(featureConfig.isCornEnabled ? { [ChainId.corn]: corn } : {}),
+  ...(featureConfig.isEtherlinkEnabled
+    ? { [ChainId.etherlink]: etherlink }
+    : {}),
   [ChainId.katana]: katana,
   [ChainId.megaeth]: megaeth,
   [ChainId.monad]: monad,
-  [ChainId.morph]: morph,
+  ...(featureConfig.isMorphEnabled ? { [ChainId.morph]: morph } : {}),
   [ChainId.sonic]: sonic,
   [ChainId.stable]: stable,
-  [ChainId.swell]: swellchain,
-  [ChainId.tac]: tac,
-  [ChainId.bob]: bob,
+  ...(featureConfig.isSwellchainEnabled
+    ? { [ChainId.swell]: swellchain }
+    : {}),
+  ...(featureConfig.isTacEnabled ? { [ChainId.tac]: tac } : {}),
+  ...(featureConfig.isBobEnabled ? { [ChainId.bob]: bob } : {}),
   // Testnets:
-  ...(featureConfig.isAvalancheEnabled
+  // Avalanche Fuji - enabled for testing (Silo integration)
+  ...(featureConfig.isAvalancheFujiEnabled
     ? { [ChainId.avalancheFuji]: avalancheFuji }
     : {}),
   [ChainId.baseSepoliaTestnet]: baseSepolia,
-  [ChainId.berachainBartioTestnet]: berachainTestnetbArtio,
+  ...(featureConfig.isBerachainEnabled
+    ? { [ChainId.berachainBartioTestnet]: berachainTestnetbArtio }
+    : {}),
   [ChainId.binanceSmartChainTestnet]: bscTestnet,
   [ChainId.holesky]: holesky,
   [ChainId.katanaTatara]: katanaTatara,
-  [ChainId.morphHolesky]: morphHolesky,
+  ...(featureConfig.isMorphEnabled
+    ? { [ChainId.morphHolesky]: morphHolesky }
+    : {}),
   [ChainId.sepolia]: sepolia,
   [ChainId.sonicBlazeTestnet]: sonicBlazeTestnet,
 };
@@ -380,7 +393,7 @@ export const isMegaethChain = (chainId: unknown): chainId is MegaethChain => {
 };
 export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.ethereum]: 'ethereum',
-  ...(featureConfig.isAvalancheEnabled
+  ...(featureConfig.isAvalancheMainnetEnabled
     ? { [ChainId.avalanche]: 'avalanche' }
     : {}),
   [ChainId.base]: 'base',

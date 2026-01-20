@@ -1,3 +1,16 @@
+/**
+ * Token Contract Utilities
+ *
+ * @deprecated v4.1 Migration Target
+ *
+ * Functions like `getTokenContractInfo()` use hardcoded TOKEN_ADDRESSES.
+ * For v4.1, migrate to use Asset Catalog with catalog injection.
+ *
+ * See: docs/ADDRESS_SYSTEM_UNIFICATION.md
+ *
+ * @module tokens/tokens
+ */
+
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import { type Abi, Address, erc20Abi, PublicClient, zeroAddress } from 'viem';
@@ -10,7 +23,7 @@ import BTCK_ABI from './abi/BTCK_ABI';
 import { LBTC_ABI } from './abi/LBTC_ABI';
 import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
 import STLBTC_ABI from './abi/STLBTC_ABI';
-import { AddressKind, Token, TOKEN_ADDRESSES } from './token-addresses';
+import { AddressKind, Token,TOKEN_ADDRESSES } from './token-addresses';
 
 export type TokenInfo = {
   address: Address;
@@ -117,6 +130,7 @@ export async function getTokenContractInfo<
 
   let abi: AbiFor<TToken, chain, TAddressKind> | undefined = undefined;
 
+  // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_crypto_rule-node-timing-attack -- comparing Token enum values, not secrets
   if (token === Token.LBTC) {
     if (await isUpgradedContract(Token.LBTC, chainId, environment)) {
       abi = STLBTC_ABI as AbiFor<TToken, chain, TAddressKind>;

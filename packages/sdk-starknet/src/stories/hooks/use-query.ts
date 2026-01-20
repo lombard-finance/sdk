@@ -1,4 +1,4 @@
-import { getErrorMessage } from '@lombard.finance/sdk/utils/err';
+import { extractErrorMessage } from '@lombard.finance/sdk-common/utils/err';
 import { useCallback, useEffect, useState } from 'react';
 
 type QueryFn<T> = () => Promise<T>;
@@ -37,7 +37,7 @@ export function useQuery<T>(
       setData(result);
     } catch (err) {
       console.error(err);
-      const errorMsg = getErrorMessage(err);
+      const errorMsg = extractErrorMessage(err);
       setError(errorMsg);
     } finally {
       setLoading(false);

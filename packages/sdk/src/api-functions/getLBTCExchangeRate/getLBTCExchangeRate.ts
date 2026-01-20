@@ -44,6 +44,9 @@ export interface IgetLBTCExchangeRateResponse {
 /**
  * Retrieves the exchange rate for LBTC.
  *
+ * @deprecated This API endpoint is deprecated and will be removed in a future version.
+ * The exchange rate is now always 1:1 as LBTC is a rebasing token.
+ *
  * @param {IgetLBTCExchangeRateParams} parameters - The parameters.
  * @param {BigNumber.Value} parameters.amount - The optional amount to be exchanged.
  * @param {ChainId} parameters.chainId - The optional chain id.

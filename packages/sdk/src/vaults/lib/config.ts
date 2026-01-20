@@ -44,11 +44,8 @@ export const NETWORK_TO_VEDA_VAULT_CHAIN_MAP: Record<string, VedaVaultChain> = {
 /** A list of chains where stake and bake is enabled */
 export const VEDA_VAULT_STAKE_AND_BAKE_CHAINS = [
   ChainId.ethereum,
-  ChainId.binanceSmartChain,
-  ChainId.base,
   // Testnets:
-  ChainId.binanceSmartChainTestnet,
-  ChainId.holesky,
+  ChainId.sepolia,
 ];
 export type VedaVaultStakeAndBakeChain =
   (typeof VEDA_VAULT_STAKE_AND_BAKE_CHAINS)[number];
@@ -101,27 +98,11 @@ export const VEDA_VAULT_SPENDER_CONTRACTS: Record<
     address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
     chainId: ChainId.ethereum,
   },
-
-  [ChainId.binanceSmartChain]: {
-    abi: VEDA_VAULT_SPENDER_ABI as Abi,
-    address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
-    chainId: ChainId.binanceSmartChain,
-  },
-  [ChainId.base]: {
-    abi: VEDA_VAULT_SPENDER_ABI as Abi,
-    address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
-    chainId: ChainId.base,
-  },
   // Testnets:
-  [ChainId.holesky]: {
+  [ChainId.sepolia]: {
     abi: VEDA_VAULT_SPENDER_ABI as Abi,
-    address: '0x4A3cD83CEbb91E0Cd31EdA2Ee0F4AebfcCFCbBb6',
-    chainId: ChainId.holesky,
-  },
-  [ChainId.binanceSmartChainTestnet]: {
-    abi: VEDA_VAULT_SPENDER_ABI as Abi,
-    address: '0x72143309A662bDB4aad5cA65Ab59eD8977D047C5',
-    chainId: ChainId.binanceSmartChainTestnet,
+    address: '0x77eD6a84fEF665156e81247ECbd43A847B8A6398',
+    chainId: ChainId.sepolia,
   },
 } as const;
 

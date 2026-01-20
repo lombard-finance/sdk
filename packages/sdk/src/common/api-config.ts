@@ -1,6 +1,6 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 
-interface IApiConfig {
+export interface IApiConfig {
   baseApiUrl: string;
   bffApiUrl: string | undefined;
 }

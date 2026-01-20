@@ -52,6 +52,15 @@ export async function unstakeLBTC(
     const { treasuryAddress, lbtcTokenMint } = getConfig(env);
     const connection = getConnection(network, rpcUrl);
 
+    // Validate provider has a connected wallet
+    if (!provider.publicKey) {
+      throw SolanaSdkError.wrap(
+        new Error('Wallet not connected'),
+        ErrorCode.UNSTAKE_REJECTED,
+        'Please connect your Solana wallet and ensure it is on the correct network.',
+      );
+    }
+
     // Create a program instance
     const programIdl = getLbtcIdl(network);
     const program = new Program(programIdl, {
@@ -70,12 +79,36 @@ export async function unstakeLBTC(
       new PublicKey(program.programId),
     );
 
+    // Pre-flight check: verify config account exists
+    const configAccount = await connection.getAccountInfo(configPDA);
+    if (!configAccount) {
+      throw SolanaSdkError.wrap(
+        new Error(`LBTC program config not found on ${network}`),
+        ErrorCode.UNSTAKE_REJECTED,
+        `LBTC unstaking is not available on ${network}. The program may not be deployed or configured.`,
+      );
+    }
+
     const userTA = await createOrGetAssociatedTokenAccount({
       provider,
       connection,
       ownerAddress: provider.publicKey.toBase58(),
       mintAddress: mint.toBase58(),
     });
+
+    // Pre-flight check: verify user has LBTC balance
+    const tokenBalance = await connection.getTokenAccountBalance(
+      new PublicKey(userTA),
+    );
+    const userBalance = BigInt(tokenBalance.value.amount);
+    const requestedAmount = BigInt(amount);
+    if (userBalance < requestedAmount) {
+      throw SolanaSdkError.wrap(
+        new Error('Insufficient LBTC balance'),
+        ErrorCode.UNSTAKE_REJECTED,
+        `Insufficient LBTC balance. You have ${tokenBalance.value.uiAmountString} LBTC but requested to unstake ${Number(amount) / 1e8} LBTC.`,
+      );
+    }
 
     const tx = await program.methods
       .redeem(scriptPubKey, new BN(amount))

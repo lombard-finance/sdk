@@ -1,3 +1,21 @@
+/**
+ * Token Address Constants
+ *
+ * @deprecated v4.1 Migration Target
+ *
+ * This module contains hardcoded token addresses. For v4.1, these should be
+ * migrated to use the Asset Catalog (`core/assets/`) which supports dynamic
+ * address loading from remote sources.
+ *
+ * See: docs/ADDRESS_SYSTEM_UNIFICATION.md
+ *
+ * Current usage (~26 files) should migrate to:
+ * - `getAssetAddress()` from `core/assets/utils`
+ * - Pass `catalog` from `ResolvedLombardConfig`
+ *
+ * @module tokens/token-addresses
+ */
+
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import { Address } from 'viem';
 
@@ -112,7 +130,7 @@ type TokenAddresses<
 const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
   [Env.prod]: {
     [ChainId.katana]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
-    ...(featureConfig.isAvalancheEnabled
+    ...(featureConfig.isAvalancheMainnetEnabled
       ? {
           [ChainId.avalanche]: {
             token: '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
@@ -129,7 +147,7 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
     [ChainId.stable]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
   },
   [Env.ibc]: {
-    ...(featureConfig.isAvalancheEnabled
+    ...(featureConfig.isAvalancheFujiEnabled
       ? {
           [ChainId.avalancheFuji]: {
             adapter: '0x1391f9AC408cf13214DDB71d359002658eaF9ebb',
@@ -139,7 +157,7 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
       : {}),
   },
   [Env.dev]: {
-    ...(featureConfig.isAvalancheEnabled
+    ...(featureConfig.isAvalancheFujiEnabled
       ? {
           [ChainId.avalancheFuji]: {
             adapter: '0x0A65C37d07c32E5eA8ea40495b7f249cdE26935e',
@@ -153,11 +171,19 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
     [ChainId.katanaTatara]: '0xA74D838817f3098166d74a141b7d241efB15F42c',
   },
   [Env.stage]: {
+    ...(featureConfig.isAvalancheFujiEnabled
+      ? {
+          [ChainId.avalancheFuji]: {
+            adapter: '0x0A65C37d07c32E5eA8ea40495b7f249cdE26935e',
+            token: '0x7FbdC44BfEBDe80C970ba622B678daB36cee31f6',
+          },
+        }
+      : {}),
     [ChainId.sepolia]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
     [ChainId.katanaTatara]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
   },
   [Env.testnet]: {
-    ...(featureConfig.isAvalancheEnabled
+    ...(featureConfig.isAvalancheFujiEnabled
       ? {
           [ChainId.avalancheFuji]: {
             adapter: '0x41BCd71e7C92b1c8dDe53037F9b2c4AA2058b1cB',
@@ -173,7 +199,7 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
 export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
   [Env.prod]: {
     [ChainId.ethereum]: '0x8236a87084f8b84306f72007f36f2618a5634494',
-    ...(featureConfig.isAvalancheEnabled
+    ...(featureConfig.isAvalancheMainnetEnabled
       ? {
           [ChainId.avalanche]: undefined,
         }
@@ -198,7 +224,7 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
       : {}),
   },
   [Env.stage]: {
-    ...(featureConfig.isAvalancheEnabled
+    ...(featureConfig.isAvalancheFujiEnabled
       ? {
           [ChainId.avalancheFuji]: undefined,
         }
@@ -214,11 +240,12 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
     [ChainId.sonicBlazeTestnet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
   },
   [Env.testnet]: {
-    ...(featureConfig.isAvalancheEnabled
+    ...(featureConfig.isAvalancheFujiEnabled
       ? {
           [ChainId.avalancheFuji]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
         }
       : {}),
+    [ChainId.baseSepoliaTestnet]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
     [ChainId.berachainBartioTestnet]:
       '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
     [ChainId.binanceSmartChainTestnet]:
@@ -227,10 +254,9 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
     [ChainId.sepolia]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
     [ChainId.sonicBlazeTestnet]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
     [ChainId.katanaTatara]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
-    [ChainId.baseSepoliaTestnet]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
   },
   [Env.dev]: {
-    ...(featureConfig.isAvalancheEnabled
+    ...(featureConfig.isAvalancheFujiEnabled
       ? {
           [ChainId.avalancheFuji]: '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
         }
@@ -354,6 +380,29 @@ export const getTokenByAddress = (
       }
     }
   }
+};
+
+export const getTokenAddressForChain = (
+  chainId: ChainId | SuiChain | SolanaChain | StarknetChainId,
+  adapter: AddressKind = AddressKind.Token,
+  env: Env = DEFAULT_ENV,
+): string | undefined => {
+  if (isValidChain(chainId)) {
+    const found = TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId];
+    if (found) {
+      return typeof found === 'string' ? found : found[adapter];
+    }
+  }
+  if (isSuiChain(chainId)) {
+    return SUI_TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId];
+  }
+  if (isSolanaChain(chainId)) {
+    return SOLANA_TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId];
+  }
+  if (isStarknetChainId(chainId)) {
+    return STARKNET_TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId];
+  }
+  return undefined;
 };
 
 // Starknet token addresses

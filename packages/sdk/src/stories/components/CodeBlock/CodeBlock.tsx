@@ -1,8 +1,9 @@
-import { JSX } from 'react';
 import './CodeBlockStyles.css';
 
+import { JSX } from 'react';
+
 interface ICodeBlockProps {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   text?: any;
   withFormatting?: boolean;
 }

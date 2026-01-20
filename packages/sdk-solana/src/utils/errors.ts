@@ -1,5 +1,10 @@
 import { AxiosError } from 'axios';
 
+/** ErrorOptions type for ES2022 compatibility */
+interface ErrorOptions {
+  cause?: unknown;
+}
+
 export enum ErrorCode {
   ALREADY_CONNECTED = 'ALREADY_CONNECTED',
   CLAIM_REJECTED = 'CLAIM_REJECTED',
@@ -28,6 +33,9 @@ interface CreateSdkErrorParameters {
 }
 
 export class SolanaSdkError extends Error {
+  /** The cause of the error (for error chaining) */
+  cause?: unknown;
+
   constructor(
     /** The error message */
     message: string,
@@ -36,7 +44,11 @@ export class SolanaSdkError extends Error {
     /** The optional error options */
     options?: ErrorOptions,
   ) {
-    super(message, options);
+    super(message);
+    this.name = 'SolanaSdkError';
+    if (options?.cause) {
+      this.cause = options.cause;
+    }
   }
 
   static create({ code, message, options }: CreateSdkErrorParameters) {

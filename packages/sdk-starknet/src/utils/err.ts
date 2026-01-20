@@ -3,6 +3,11 @@ import { extractErrorMessage } from '@lombard.finance/sdk-common/utils/err';
 import { Token } from '../tokens/lib/tokens';
 import { StarknetChainId } from './chains';
 
+/** ErrorOptions type for ES2022 compatibility */
+interface ErrorOptions {
+  cause?: unknown;
+}
+
 enum ErrorCode {
   NO_PROVIDER = 'NO_PROVIDER',
   NO_TOKEN = 'NO_TOKEN',
@@ -13,9 +18,13 @@ enum ErrorCode {
   UNKNOWN_SIGNATURE_FORMAT = 'UNKNOWN_SIGNATURE_FORMAT',
   UNEXPECTED_OUTPUT_SCRIPT = 'UNEXPECTED_OUTPUT_SCRIPT',
   UNSUPPORTED_WALLET = 'UNSUPPORTED_WALLET',
+  CHAIN_MISMATCH = 'CHAIN_MISMATCH',
 }
 
 export class StarknetSdkError extends Error {
+  /** The cause of the error (for error chaining) */
+  cause?: unknown;
+
   constructor(
     /** The error message */
     message: string,
@@ -24,7 +33,11 @@ export class StarknetSdkError extends Error {
     /** The optional error options */
     options?: ErrorOptions,
   ) {
-    super(message, options);
+    super(message);
+    this.name = 'StarknetSdkError';
+    if (options?.cause) {
+      this.cause = options.cause;
+    }
   }
 
   static wrap(
@@ -89,3 +102,20 @@ export const ERR_UNSUPPORTED_WALLET = (walletName?: string) =>
     `The wallet ${walletName || ''} is not supported`,
     ErrorCode.UNSUPPORTED_WALLET,
   );
+
+export const ERR_CHAIN_MISMATCH = (
+  walletChainId: StarknetChainId | string,
+  expectedEnv: string,
+) => {
+  const walletNetwork =
+    walletChainId === '0x534e5f4d41494e'
+      ? 'Starknet Mainnet'
+      : walletChainId === '0x534e5f5345504f4c4941'
+        ? 'Starknet Sepolia'
+        : `unknown chain (${walletChainId})`;
+  const expectedNetwork = expectedEnv === 'prod' ? 'Starknet Mainnet' : 'Starknet Sepolia';
+  return new StarknetSdkError(
+    `Wallet network mismatch: Your wallet is connected to ${walletNetwork}, but the SDK is configured for ${expectedNetwork}. Please switch your wallet to ${expectedNetwork}.`,
+    ErrorCode.CHAIN_MISMATCH,
+  );
+};

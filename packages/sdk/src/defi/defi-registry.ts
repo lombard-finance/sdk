@@ -10,10 +10,12 @@ import { Abi } from 'viem';
 
 import { ChainId } from '../common/chains';
 import { ContractInfo } from '../common/contract-info';
+import { AssetId } from '../core/assets';
 import { Token } from '../tokens/token-addresses';
 import { SILO_VAULT_SPENDER_ABI } from '../vaults/abi';
 import {
   VEDA_VAULT_SPENDER_CONTRACTS,
+  VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
   VedaVaultStakeAndBakeChain,
 } from '../vaults/lib/config';
 
@@ -54,12 +56,8 @@ export type StakeAndBakeRegistry = Record<DefiProtocol, TokenStrategyMap>;
 
 const ALL_ENVS = Object.values(Env) as Env[];
 
-const VEDA_STAKE_AND_BAKE_CHAINS = [
-  ChainId.ethereum,
-  ChainId.binanceSmartChain,
-  ChainId.binanceSmartChainTestnet,
-  ChainId.holesky,
-] as const satisfies readonly ChainId[];
+// Use single source of truth from vaults/lib/config.ts
+// VEDA_VAULT_STAKE_AND_BAKE_CHAINS is imported and used directly below
 
 export const SILO_VAULT_SPENDER_CONTRACT_GASTALD_FUJI: `0x${string}` =
   '0xFe1e76D9e065e879A9D1914482f0F13d85F39877';
@@ -94,18 +92,24 @@ function getVedaSpenderContract(
   return contract;
 }
 
-export const DefiRegistryTokens = {
+const _DefiRegistryTokens = {
   LBTC: Token.LBTC,
   BTCb: Token.BTCb,
   BTC: 'BTC',
 } as const;
 
 export type DefiRegistryToken =
-  (typeof DefiRegistryTokens)[keyof typeof DefiRegistryTokens];
+  (typeof _DefiRegistryTokens)[keyof typeof _DefiRegistryTokens];
 
+/**
+ * DeFi Protocol identifiers - SINGLE SOURCE OF TRUTH
+ *
+ * These are the canonical protocol identifiers used throughout the SDK.
+ * All other protocol references should use these values.
+ */
 export const DefiProtocol = {
-  Veda: 'Veda',
-  Silo: 'Silo',
+  Veda: 'veda',
+  Silo: 'silo',
 } as const;
 
 export type DefiProtocol = (typeof DefiProtocol)[keyof typeof DefiProtocol];
@@ -139,18 +143,20 @@ const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
 
 /**
  * DeFi Registry: Token approval configurations by vault, token, env, and chain.
+ * 
+ * TODO: Update the format of this registry to match asset catalog and chain catalog
  */
 export const DEFI_REGISTRY: StakeAndBakeRegistry = {
   [DefiProtocol.Veda]: {
     [Token.LBTC]: mapEnvs(ALL_ENVS, () =>
-      mapChains(VEDA_STAKE_AND_BAKE_CHAINS, chain => ({
+      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, chain => ({
         amountStrategy: 'identity',
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
         spenderContract: getVedaSpenderContract(chain),
       })),
     ),
     BTC: mapEnvs(ALL_ENVS, () =>
-      mapChains(VEDA_STAKE_AND_BAKE_CHAINS, chain => ({
+      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, chain => ({
         amountStrategy: 'btcToLbtc',
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
         spenderContract: getVedaSpenderContract(chain),
@@ -159,6 +165,8 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
   },
   [DefiProtocol.Silo]: {
     [Token.BTCb]: {
+      // Silo on Avalanche Fuji is only available on testnet (Gastald backend)
+      // Stage environment does not support Avalanche Fuji
       [Env.testnet]: mapChains([ChainId.avalancheFuji], chain => ({
         amountStrategy: 'identity',
         approval: { ...SILO_BTCB_APPROVE_APPROVAL },
@@ -177,3 +185,111 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
  * Includes both Token enum values and virtual tokens like 'BTC'.
  */
 export type StakeAndBakeToken = DefiRegistryToken;
+
+/**
+ * Get supported chains for a protocol/token/env combination.
+ *
+ * @example
+ * ```typescript
+ * // Get chains supporting Veda with BTC token on testnet
+ * const chains = getStakeAndBakeSupportedChains(DefiProtocol.Veda, 'BTC', Env.testnet);
+ * // Returns: [ChainId.binanceSmartChainTestnet, ChainId.holesky]
+ * ```
+ */
+export function getStakeAndBakeSupportedChains(
+  protocol: DefiProtocol,
+  token: StakeAndBakeToken,
+  env: Env,
+): ChainId[] {
+  const protocolRegistry = DEFI_REGISTRY[protocol];
+  if (!protocolRegistry) return [];
+
+  const tokenRegistry =
+    protocolRegistry[token as keyof typeof protocolRegistry];
+  if (!tokenRegistry) return [];
+
+  const envRegistry = tokenRegistry[env];
+  if (!envRegistry) return [];
+
+  return Object.keys(envRegistry).map(Number) as ChainId[];
+}
+
+/**
+ * Get all supported protocols for stake and bake (regardless of environment).
+ */
+export function getSupportedProtocols(assetId: AssetId): DefiProtocol[] {
+  return Object.entries(DEFI_REGISTRY)
+    .filter(([_, tokenMap]) => assetId in tokenMap)
+    .map(([protocol]) => protocol as DefiProtocol);
+}
+
+/**
+ * Get available protocols for a specific environment and token.
+ *
+ * This filters protocols based on what is actually configured in the DEFI_REGISTRY
+ * for the given environment. Use this to determine which protocol options should
+ * be shown in the UI.
+ *
+ * @example
+ * ```typescript
+ * // Get protocols available for LBTC in production
+ * const prodProtocols = getAvailableProtocols(AssetId.LBTC, Env.prod);
+ * // Returns: ['veda'] - Silo is only on Avalanche which has no mainnet prod config
+ *
+ * // Get protocols available for BTCb in testnet
+ * const testnetProtocols = getAvailableProtocols(AssetId.BTCb, Env.testnet);
+ * // Returns: ['silo'] - Silo is available on Avalanche Fuji in testnet
+ * ```
+ */
+export function getAvailableProtocols(
+  assetId: AssetId,
+  env: Env,
+): DefiProtocol[] {
+  // Map asset IDs to registry tokens
+  const tokenMap: Partial<Record<AssetId, StakeAndBakeToken[]>> = {
+    [AssetId.LBTC]: [Token.LBTC, 'BTC'],
+    [AssetId.BTCb]: [Token.BTCb],
+    [AssetId.BTC]: ['BTC'],
+  };
+
+  const tokens = tokenMap[assetId];
+  if (!tokens) return [];
+
+  const availableProtocols: Set<DefiProtocol> = new Set();
+
+  for (const [protocol, tokenStrategyMap] of Object.entries(DEFI_REGISTRY)) {
+    for (const token of tokens) {
+      const tokenRegistry = tokenStrategyMap[token as keyof typeof tokenStrategyMap];
+      if (!tokenRegistry) continue;
+
+      const envRegistry = tokenRegistry[env];
+      if (!envRegistry || Object.keys(envRegistry).length === 0) continue;
+
+      availableProtocols.add(protocol as DefiProtocol);
+    }
+  }
+
+  return Array.from(availableProtocols);
+}
+
+/**
+ * Get available protocols with their metadata for UI display.
+ *
+ * @example
+ * ```typescript
+ * const protocols = getAvailableProtocolsWithMetadata(AssetId.LBTC, Env.prod);
+ * // Returns: [{ value: 'veda', label: 'Lombard DeFi Vault', url: '...' }]
+ * ```
+ */
+export function getAvailableProtocolsWithMetadata(
+  assetId: AssetId,
+  env: Env,
+): Array<{ value: DefiProtocol; label: string; url: string }> {
+  const protocols = getAvailableProtocols(assetId, env);
+  
+  return protocols.map(protocol => ({
+    value: protocol,
+    label: DefiProtocols[protocol]?.name ?? protocol,
+    url: DefiProtocols[protocol]?.url ?? '',
+  }));
+}

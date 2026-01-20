@@ -1,6 +1,8 @@
-import React from 'react';
-import { Spinner } from '../Spinner';
 import './Button.css';
+
+import React from 'react';
+
+import { Spinner } from '../Spinner';
 
 export interface ButtonProps {
   disabled?: boolean;
@@ -16,7 +18,7 @@ export interface ButtonProps {
  * Execute action button
  */
 export const Button = ({
-  primary = true,
+  primary: _primary = true,
   size = 'medium',
   actionName,
   children,

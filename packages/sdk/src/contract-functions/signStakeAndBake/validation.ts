@@ -40,28 +40,28 @@ export class StakeAndBakeValidationError extends Error {
  * @throws {StakeAndBakeValidationError} If vault/token/chain/env combination is invalid
  */
 export function getStakeAndBakeConfig(
-  vaultKey: DefiProtocol,
+  protocol: DefiProtocol,
   token: StakeAndBakeToken,
   chainId: ChainId,
   env: Env,
 ): StakeAndBakeStrategy {
   // Get token approval config from DeFi registry
-  const vaultRegistry = DEFI_REGISTRY[vaultKey];
-  if (!vaultRegistry) {
+  const protocolRegistry = DEFI_REGISTRY[protocol];
+  if (!protocolRegistry) {
     throw new StakeAndBakeValidationError(
       'UNSUPPORTED_VAULT',
-      `Vault ${vaultKey} not found in DeFi registry`,
-      { vaultKey },
+      `Vault ${protocol} not found in DeFi registry`,
+      { protocol },
     );
   }
 
-  const tokenRegistry = vaultRegistry[token as keyof typeof vaultRegistry];
+  const tokenRegistry = protocolRegistry[token as keyof typeof protocolRegistry];
   if (!tokenRegistry) {
     throw new StakeAndBakeValidationError(
       'UNSUPPORTED_TOKEN',
-      `Token ${token} is not supported for stake and bake on vault ${vaultKey}. ` +
-        `Supported tokens: ${Object.keys(vaultRegistry).join(', ')}`,
-      { vaultKey, token, supportedTokens: Object.keys(vaultRegistry) },
+      `Token ${token} is not supported for stake and bake on vault ${protocol}. ` +
+        `Supported tokens: ${Object.keys(protocolRegistry).join(', ')}`,
+      { protocol, token, supportedTokens: Object.keys(protocolRegistry) },
     );
   }
 
@@ -69,8 +69,8 @@ export function getStakeAndBakeConfig(
   if (!envRegistry) {
     throw new StakeAndBakeValidationError(
       'UNSUPPORTED_ENV',
-      `Environment ${env} is not supported for token ${token} on vault ${vaultKey}`,
-      { vaultKey, token, env },
+      `Environment ${env} is not supported for token ${token} on vault ${protocol}`,
+      { protocol, token, env },
     );
   }
 
@@ -78,10 +78,10 @@ export function getStakeAndBakeConfig(
   if (!registryEntry) {
     throw new StakeAndBakeValidationError(
       'UNSUPPORTED_TOKEN_CHAIN',
-      `Token ${token} is not supported on chain ${chainId} for vault ${vaultKey} in ${env}. ` +
+      `Token ${token} is not supported on chain ${chainId} for vault ${protocol} in ${env}. ` +
         `Supported chains: ${Object.keys(envRegistry).join(', ')}`,
       {
-        vaultKey,
+        protocol,
         token,
         chainId,
         env,
@@ -91,7 +91,7 @@ export function getStakeAndBakeConfig(
   }
 
   return {
-    protocol: vaultKey,
+    protocol: protocol,
     token,
     env,
     chainId,
@@ -103,20 +103,20 @@ export function getStakeAndBakeConfig(
  * Checks if a token approval config exists for a given vault/token/chain/env combination.
  * Useful for determining if config-driven logic should be used.
  *
- * @param vaultKey - The vault to check
+ * @param protocol - The vault to check
  * @param token - The token to check
  * @param chainId - The chain ID to check
  * @param env - The environment to check
  * @returns true if config exists, false otherwise
  */
 export function hasTokenApprovalConfig(
-  vaultKey: DefiProtocol,
+  protocol: DefiProtocol,
   token: StakeAndBakeToken,
   chainId: ChainId,
   env: Env,
 ): boolean {
   try {
-    const config = getStakeAndBakeConfig(vaultKey, token, chainId, env);
+    const config = getStakeAndBakeConfig(protocol, token, chainId, env);
     return config !== undefined;
   } catch {
     return false;

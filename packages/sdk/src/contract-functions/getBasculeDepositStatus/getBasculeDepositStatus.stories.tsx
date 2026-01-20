@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ChainId } from '../../common/chains';
 import {
   chainSelector,
@@ -11,8 +12,8 @@ import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import { Token } from '../../tokens/token-addresses';
 import {
-  IGetBasculeDepositStatusParameters,
   getBasculeDepositStatus,
+  IGetBasculeDepositStatusParameters,
 } from './getBasculeDepositStatus';
 
 const meta = {

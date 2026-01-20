@@ -1,6 +1,6 @@
 type FuncType = 'api-get' | 'api-post' | 'read' | 'write';
 
-// biome-ignore lint/suspicious/noExplicitAny: Story element
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const functionType = (type: FuncType) => (Story: any) => {
   return (
     <div

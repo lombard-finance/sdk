@@ -3,7 +3,7 @@ import { Contract, TypedContractV2 } from 'starknet';
 
 import { ChainParameters, StarknetChainId } from '../../utils/chains';
 import { EnvParameters } from '../../utils/env';
-import { ERR_NO_PROVIDER, ERR_NO_TOKEN } from '../../utils/err';
+import { ERR_CHAIN_MISMATCH, ERR_NO_PROVIDER, ERR_NO_TOKEN } from '../../utils/err';
 import { getRpcProvider, ProviderParameters } from '../../utils/rpc-providers';
 import ERC20_ABI from '../abi/ERC20_ABI';
 import LBTC_ABI from '../abi/LBTC_ABI';
@@ -219,7 +219,13 @@ export type TokenParameters = {
   token: Token;
 };
 
-/** Gets the token contract */
+/**
+ * Gets the token contract
+ *
+ * @throws ERR_CHAIN_MISMATCH if wallet network doesn't match SDK environment
+ * @throws ERR_NO_TOKEN if token is not configured for the given chain/env
+ * @throws ERR_NO_PROVIDER if no provider is available
+ */
 export const getTokenContract = ({
   token,
   chainId,
@@ -234,6 +240,16 @@ export const getTokenContract = ({
   }) => {
   const tokenInfo = getTokenInfo(token, chainId, contractType, env);
   if (!tokenInfo) {
+    // Check for chain/env mismatch and provide a more helpful error message
+    // This happens when the wallet is connected to a different network than the SDK expects
+    const isProd = env === 'prod';
+    const isMainnet = chainId === StarknetChainId.SN_MAIN;
+
+    // If env is prod but wallet is on testnet, or env is testnet but wallet is on mainnet
+    if ((isProd && !isMainnet) || (!isProd && isMainnet)) {
+      throw ERR_CHAIN_MISMATCH(chainId ?? 'unknown', env ?? 'unknown');
+    }
+
     throw ERR_NO_TOKEN(token);
   }
 

@@ -1,5 +1,6 @@
 import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ChainId } from '../../common/chains';
 import { chainSelector } from '../../stories/arg-types';
 import { Button } from '../../stories/components/Button';
@@ -14,8 +15,8 @@ import {
   useConnection,
 } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
-import { VAULTS, Vault } from '../../vaults/lib/config';
-import { IApproveLBTCParams, approveLBTC } from './approveLBTC';
+import { Vault,VAULTS } from '../../vaults/lib/config';
+import { approveLBTC,IApproveLBTCParams } from './approveLBTC';
 
 const meta = {
   title: 'write/approveLBTC',
@@ -31,8 +32,8 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    chainId: ChainId.holesky,
-    spender: VAULTS[Vault.Veda].spenderContracts[ChainId.holesky]?.address,
+    chainId: ChainId.sepolia,
+    spender: VAULTS[Vault.Veda].spenderContracts[ChainId.sepolia]?.address,
     amount: 0.00001,
     env: Env.stage,
   },

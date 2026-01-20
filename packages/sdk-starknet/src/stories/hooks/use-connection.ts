@@ -3,7 +3,8 @@ import {
   disconnect as starknet_disconnect,
 } from '@starknet-io/get-starknet';
 import { createContext, useCallback, useContext } from 'react';
-import { RpcProvider, WalletAccount, defaultProvider } from 'starknet';
+import { defaultProvider,RpcProvider, WalletAccount } from 'starknet';
+
 import { StarknetChainId } from '../../utils/chains';
 import { ERR_NO_STARKNET_WINDOW_OBJECT } from '../../utils/err';
 import { getRpcProvider } from '../../utils/rpc-providers';
