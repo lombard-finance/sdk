@@ -62,9 +62,7 @@ export interface FeatureConfig {
 
 export const featureConfig: FeatureConfig = {
   isMonadEnabled: true,
-  // Avalanche mainnet - BTC.b not released yet, keep disabled
-  isAvalancheMainnetEnabled: false,
-  // Avalanche Fuji testnet - enabled for testing (Silo integration)
+  isAvalancheMainnetEnabled: true,
   isAvalancheFujiEnabled: true,
 
   isCornEnabled: true,
