@@ -205,7 +205,7 @@ export const megaeth = defineChain({
   rpcUrls: {
     default: {
       http: [
-        'https://alpha.megaeth.com/rpc?user=lombard+v1&token=1763427229-%2Bx6HFUDu9OhJwV%2FTCFOL0xTt%2FPJRAXPeirIcuytvnes%3D',
+        'https://mainnet.megaeth.com/rpc',
       ],
     },
   },

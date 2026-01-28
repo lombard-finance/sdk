@@ -15,7 +15,7 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.corn]: `${RPC_URL}/corn_maizenet`,
   [ChainId.katana]: `${RPC_URL}/katana`,
   [ChainId.megaeth]:
-    'https://alpha.megaeth.com/rpc?user=lombard+v1&token=1763427229-%2Bx6HFUDu9OhJwV%2FTCFOL0xTt%2FPJRAXPeirIcuytvnes%3D',
+    'https://mainnet.megaeth.com/rpc',
   [ChainId.sonic]: `${RPC_URL}/sonic_mainnet`,
   [ChainId.stable]:
     'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf', // TODO: Update with the correct RPC URL once the stable network is live
@@ -45,7 +45,7 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.katana]: `${proxy}/katana`,
     [ChainId.monad]: `${proxy}/monad_mainnet`,
     [ChainId.megaeth]:
-      'https://alpha.megaeth.com/rpc?user=lombard+v1&token=1763427229-%2Bx6HFUDu9OhJwV%2FTCFOL0xTt%2FPJRAXPeirIcuytvnes%3D',
+      'https://mainnet.megaeth.com/rpc',
     [ChainId.sonic]: `${proxy}/sonic_mainnet`,
     [ChainId.tac]: `${proxy}/tac`,
 
