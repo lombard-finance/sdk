@@ -1,3 +1,9 @@
+# 4.1.1
+
+- Fixed BTCb claiming on Avalanche chains: `getBasculeDepositStatus` now uses `getBascule()` for Bridge Token Adapter contracts instead of `Bascule()`, resolving "Function 'Bascule' not found on ABI" errors
+
+---
+
 # 4.1.0
 
 - Enabled Avalanche mainnet
