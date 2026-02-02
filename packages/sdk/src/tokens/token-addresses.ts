@@ -129,6 +129,7 @@ type TokenAddresses<
  */
 const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
   [Env.prod]: {
+    [ChainId.ethereum]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
     [ChainId.katana]: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
     ...(featureConfig.isAvalancheMainnetEnabled
       ? {
