@@ -1,11 +1,10 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "4.0.0",
+  "version": "4.1.2",
   "dependencies": {
     "@lombard.finance/sdk-common": "^3.3.1",
     "isows": "^1.0.7",
-    "viem": "^2.23.15",
-    "vite": "^6.3.5"
+    "viem": "^2.23.15"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "1.6.1",
@@ -26,11 +25,12 @@
     "storybook": "^8.2.9",
     "typedoc": "^0.26.6",
     "typescript": "^5.4.5",
+    "vite": "^6.3.5",
     "vitest": "^3.2.4",
     "wagmi": "^2.14.15"
   },
   "engines": {
-    "node": ">= 22.14.0"
+    "node": ">= 18.0.0"
   },
   "exports": {
     ".": {
@@ -51,16 +51,15 @@
   },
   "files": [
     "dist",
-    "src",
     "CHANGELOG.md"
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@bitcoinerlab/secp256k1": "1.2.0",
-    "@layerzerolabs/lz-v2-utilities": "3.0.17",
+    "@bitcoinerlab/secp256k1": "^1.2.0",
+    "@layerzerolabs/lz-v2-utilities": "^3.0.17",
     "axios": "^1",
     "bignumber.js": "^9",
-    "bitcoinjs-lib": "6.1.5"
+    "bitcoinjs-lib": "^6.1.5"
   },
   "scripts": {
     "build": "yarn types && vite build && yarn build-types",

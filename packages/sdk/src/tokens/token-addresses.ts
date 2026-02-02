@@ -201,7 +201,7 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
     [ChainId.ethereum]: '0x8236a87084f8b84306f72007f36f2618a5634494',
     ...(featureConfig.isAvalancheMainnetEnabled
       ? {
-          [ChainId.avalanche]: undefined,
+          [ChainId.avalanche]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
         }
       : {}),
     [ChainId.base]: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',

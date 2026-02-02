@@ -30,6 +30,9 @@ export const CCIP_BRIDGE_CHAINS = [
   ChainId.binanceSmartChain,
   ChainId.katana,
   ChainId.sonic,
+  ...(featureConfig.isAvalancheMainnetEnabled ? [ChainId.avalanche] : []),
+  ...(featureConfig.isMonadEnabled ? [ChainId.monad] : []),
+  ChainId.stable,
   // Testnets:
   ...(featureConfig.isAvalancheFujiEnabled ? [ChainId.avalancheFuji] : []),
   ChainId.baseSepoliaTestnet,

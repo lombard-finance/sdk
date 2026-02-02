@@ -13,6 +13,7 @@ import { Deposit } from '../../api-functions/getDepositsByAddress/getDepositsByA
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
 import {
+  ChainId,
   isEthereumChain,
   isKatanaChain,
   isMegaethChain,
@@ -117,13 +118,23 @@ export async function getBasculeDepositStatus({
   );
 
   // Determine which bascule getter function to use based on the contract type
-  // There are two different approaches:
+  // There are three different approaches:
   // 1. Upgraded contracts (Asset Router): token.getAssetRouter() -> assetRouter.bascule()
-  // 2. Legacy contracts (NativeLBTC): Bascule()
+  // 2. Bridge Token Adapter (BTCb on Avalanche): getBascule()
+  // 3. Legacy contracts (NativeLBTC): Bascule()
 
   let basculeContractAddress: Address;
 
-  if (isUpgradedAbi(tokenContractInfo.abi) && token === Token.LBTC) {
+  if (
+    token === Token.BTCb &&
+    (chainId === ChainId.avalanche || chainId === ChainId.avalancheFuji)
+  ) {
+    basculeContractAddress = (await publicClient.readContract({
+      abi: tokenContractInfo.abi,
+      address: tokenContractInfo.address,
+      functionName: 'getBascule',
+    })) as Address;
+  } else if (isUpgradedAbi(tokenContractInfo.abi) && token === Token.LBTC) {
     // Upgraded contract - get bascule from Asset Router
     const assetRouterAddress = (await publicClient.readContract({
       abi: tokenContractInfo.abi,

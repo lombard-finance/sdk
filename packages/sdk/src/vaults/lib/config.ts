@@ -179,6 +179,6 @@ export const VAULTS = {
     withdrawQueueContracts: VEDA_VAULT_WITHDRAW_QUEUE_CONTRACTS,
 
     queueWithdrawDiscountPercent: '0.01',
-    queueWithdrawDaysValid: '3',
+    queueWithdrawDaysValid: '14',
   },
 } as const;

@@ -161,19 +161,19 @@ function NetworkEntry({ entry, isExpanded, onToggle }: NetworkEntryProps) {
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="px-3 pb-3 space-y-3">
+        <div className="px-3 pb-3 space-y-2">
           {/* Request */}
           <div>
-            <h4 className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+            <h4 style={{ fontSize: '10px', lineHeight: '14px' }} className="font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
               Request
             </h4>
-            <div className="bg-gray-50 dark:bg-gray-800 rounded p-2 text-xs font-mono overflow-x-auto">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded p-2 overflow-x-auto max-w-full">
               {request.payload ? (
-                <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                <pre style={{ fontSize: '11px', lineHeight: '16px' }} className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all font-mono m-0">
                   {JSON.stringify(request.payload, null, 2)}
                 </pre>
               ) : (
-                <span className="text-gray-400 italic">No payload</span>
+                <span style={{ fontSize: '11px' }} className="text-gray-400 italic">No payload</span>
               )}
             </div>
           </div>
@@ -181,21 +181,21 @@ function NetworkEntry({ entry, isExpanded, onToggle }: NetworkEntryProps) {
           {/* Response */}
           {response && (
             <div>
-              <h4 className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+              <h4 style={{ fontSize: '10px', lineHeight: '14px' }} className="font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
                 Response
                 {response.error && <span className="text-red-500 ml-2">Error</span>}
               </h4>
-              <div className={`rounded p-2 text-xs font-mono overflow-x-auto ${isFailed ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-800'}`}>
+              <div className={`rounded p-2 overflow-x-auto max-w-full ${isFailed ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-800'}`}>
                 {response.error ? (
-                  <pre className="text-red-600 dark:text-red-400 whitespace-pre-wrap">
+                  <pre style={{ fontSize: '11px', lineHeight: '16px' }} className="text-red-600 dark:text-red-400 whitespace-pre-wrap break-all font-mono m-0">
                     {response.error}
                   </pre>
                 ) : response.data ? (
-                  <pre className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                  <pre style={{ fontSize: '11px', lineHeight: '16px' }} className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all font-mono m-0">
                     {JSON.stringify(response.data, null, 2)}
                   </pre>
                 ) : (
-                  <span className="text-gray-400 italic">No data</span>
+                  <span style={{ fontSize: '11px' }} className="text-gray-400 italic">No data</span>
                 )}
               </div>
             </div>
