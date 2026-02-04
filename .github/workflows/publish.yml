@@ -1,0 +1,51 @@
+name: Publish
+run-name: Publish ${{ github.event.inputs.package }} from ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        type: choice
+        description: Package to publish
+        required: true
+        options:
+          - sdk
+          - sdk-common
+          - sdk-solana
+          - sdk-sui
+          - sdk-starknet
+          - sdk-devtools
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build all packages
+        run: yarn build
+
+      - name: Publish package
+        working-directory: ./packages/${{ github.event.inputs.package }}
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
+
+      - name: Create Git tag
+        run: |
+          PACKAGE_NAME=$(node -p "require('./packages/${{ github.event.inputs.package }}/package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./packages/${{ github.event.inputs.package }}/package.json').version")
+          git tag "${PACKAGE_NAME}@${PACKAGE_VERSION}"
+          git push origin "${PACKAGE_NAME}@${PACKAGE_VERSION}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

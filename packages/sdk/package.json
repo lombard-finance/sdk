@@ -2,7 +2,7 @@
   "name": "@lombard.finance/sdk",
   "version": "4.1.2",
   "dependencies": {
-    "@lombard.finance/sdk-common": "^3.3.1",
+    "@lombard.finance/sdk-common": "workspace:*",
     "isows": "^1.0.7",
     "viem": "^2.23.15"
   },

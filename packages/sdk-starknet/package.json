@@ -30,7 +30,7 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "@lombard.finance/sdk-common": "^3.3.1",
+    "@lombard.finance/sdk-common": "workspace:*",
     "starknet": "~6.24.1"
   },
   "devDependencies": {
