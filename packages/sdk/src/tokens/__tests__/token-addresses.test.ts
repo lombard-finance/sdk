@@ -73,8 +73,9 @@ describe('Token Addresses', () => {
       });
 
       it('should return undefined for chain without deployment', () => {
+        // Testnet chains don't have prod deployments
         const address = getTokenAddressForChain(
-          ChainId.avalanche,
+          ChainId.sepolia,
           AddressKind.Token,
           Env.prod,
         );
