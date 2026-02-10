@@ -4,6 +4,9 @@
  * Main entry point for the Lombard SDK.
  */
 
+// Environment - exported from sdk-common for type consistency
+export { Env } from '@lombard.finance/sdk-common';
+
 // SDK Version (injected at build time)
 export { SDK_NAME, SDK_RUNTIME, SDK_VERSION } from './version';
 
@@ -22,9 +25,11 @@ export type {
   DepositAddressOptions,
   DestinationChain,
   ExchangeRateOptions,
-  UnstakeOptions
+  UnstakeOptions,
+  VaultWithdrawalsOptions,
 } from './client/ApiNamespace';
 export { ApiNamespace } from './client/ApiNamespace';
+// VaultWithdrawal, VaultWithdrawals exported via './vaults'
 export { createConfig } from './client/createConfig';
 export { createLombardSDK } from './client/createLombardSDK';
 export { LombardSDK } from './client/LombardSDK';
@@ -107,7 +112,7 @@ export {
   assetValueToKey, Chain,
   // Chain utility functions
   CHAIN_CATALOG, chainValueToKey, DeployProtocol,
-  Env, evmChainIdToChain,
+  evmChainIdToChain,
   getAllAssetChains,
   getAssetAddress,
   // Asset utility functions for dynamic chain discovery
@@ -192,6 +197,8 @@ export {
 
 // EVM types and direct actions
 export type {
+  EvmCancelWithdrawParams,
+  EvmCancelWithdrawProgress,
   EvmDeployParams,
   EvmDeployPrepareParams,
   EvmDeployProgress,
@@ -207,18 +214,24 @@ export type {
   EvmUnstakeParams,
   EvmUnstakePrepareParams,
   EvmUnstakeProgress,
+  EvmWithdrawParams,
+  EvmWithdrawPrepareParams,
+  EvmWithdrawProgress,
+  IEvmCancelWithdraw,
   IEvmDeploy,
   IEvmDeposit,
   IEvmRedeem,
   IEvmStake,
-  IEvmUnstake
+  IEvmUnstake,
+  IEvmWithdraw,
 } from './chains/evm';
 export {
   EvmDeployStatus,
   EvmDepositStatus,
   EvmRedeemStatus,
   EvmStakeStatus,
-  EvmUnstakeStatus
+  EvmUnstakeStatus,
+  EvmWithdrawStatus,
 } from './chains/evm';
 
 // Note: Sync factory functions (evmStake, evmUnstake, etc.) are intentionally
@@ -227,20 +240,113 @@ export {
 //   const sdk = await createLombardSDK({ env: Env.prod, ... });
 //   const unstake = sdk.chain.evm.unstake({ ... });
 
-// Utils:
-export * from './common/api-config';
-export * from './common/blockchain-identifier';
-export * from './common/chains';
-export * from './common/fee-requirements';
+// Utils - API Config:
+export { getApiConfig, type IApiConfig } from './common/api-config';
 
-// Token utilities
-export * from './tokens/lbtc-addresses';
-export * from './tokens/token-addresses';
-export * from './tokens/tokens';
-export * from './utils/satoshi';
+// Utils - Blockchain Identifier:
+export {
+  BlockchainIdentifier,
+  getBaseNetworkByEnv,
+  getBscNetworkByEnv,
+  getChainIdByName,
+  getChainNameById,
+  getEthNetworkByEnv,
+  getSolanaNetworkByEnv,
+  getSonicNetworkByEnv,
+  getStarknetNetworkByEnv,
+  getSuiNetworkByEnv
+} from './common/blockchain-identifier';
+
+// Utils - Chains:
+export {
+  addChain, type AddChainParameters, allChains,
+  bob,
+  bobSepolia, CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP,
+  CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId, getChain,
+  getLlamaChainName,
+  isEthereumChain,
+  isKatanaChain,
+  isMegaethChain,
+  isMonadChain,
+  isSolanaChain,
+  isStableChain,
+  isStarknetChainId,
+  isSuiChain,
+  isValidChain,
+  katana,
+  katanaTatara,
+  megaeth,
+  monad,
+  SOLANA_DEVNET_CHAIN,
+  SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET_CHAIN, type SolanaChain, stable,
+  STARKNET_MAINNET_CHAIN,
+  STARKNET_SEPOLIA_CHAIN, type StarknetChainId, SUI_DEVNET_CHAIN,
+  SUI_LOCALNET_CHAIN,
+  SUI_MAINNET_CHAIN,
+  SUI_TESTNET_CHAIN, type SuiChain,
+tac} from './common/chains';
+
+// Utils - Fee Requirements:
+export {
+  AUTO_MINT_FEE_CHAINS,
+  requiresAutoMintFee
+} from './common/fee-requirements';
+
+// Token utilities - LBTC Addresses:
+export { getLbtcContractAddresses } from './tokens/lbtc-addresses';
+
+// Token utilities - Token Addresses:
+export {
+  AddressKind,
+  EVM_LBTC_ADDRESSES,
+  getSolanaTokenAddress,
+  getStarknetTokenAddress,
+  getSuiTokenAddress,
+  getTokenAddressForChain,
+  getTokenByAddress, RATIO_TOKEN_MAP,
+type RatioToken,
+  SOLANA_TOKEN_ADDRESSES,
+  STARKNET_ASSET_ROUTER_ADDRESSES,
+  STARKNET_TOKEN_ADDRESSES,
+  SUI_TOKEN_ADDRESSES,
+  Token,
+  TOKEN_ADDRESSES,
+  type TokenAddresses,
+  type TokenAddressesPerEnv
+} from './tokens/token-addresses';
+export type { BridgeTokenAddresses } from './tokens/types';
+
+// Token utilities - Token Operations:
+export {
+  fromBaseDenomination,
+  getTokenContractInfo,
+  isUpgradedAbi,
+  retrieveTokenProperties,
+  toBaseDenomination,
+  type TokenInfo
+} from './tokens/tokens';
+
+// Utils - Satoshi:
+export {
+  BTC_DECIMALS,
+  fromSatoshi,
+  SATOSHI_SCALE,
+  toSatoshi,
+  toSatoshiBigInt
+} from './utils/satoshi';
 
 // DeFi registry
-export * from './defi';
+export {
+  DEFI_REGISTRY,
+  DefiProtocol,
+  DefiProtocols, type DefiRegistryToken, getAvailableProtocols,
+  getAvailableProtocolsWithMetadata,
+  getStakeAndBakeSupportedChains,
+  getSupportedProtocols,
+  isVedaVaultStakeAndBakeChain, type StakeAndBakeRegistry,
+  type StakeAndBakeToken, VEDA_VAULT_STAKE_AND_BAKE_CHAINS, type VedaVaultStakeAndBakeChain
+} from './defi';
 
 // Metrics:
 export {
@@ -286,12 +392,166 @@ export {
 // External types
 export type { Address, EIP1193Provider } from 'viem';
 
-// Contract/API functions
-export * from './api-functions';
-export * from './contract-functions';
+// API functions:
+export {
+  generateDepositBtcAddress, type IGenerateDepositBtcAddressParams,
+SANCTIONED_ADDRESS} from './api-functions/generateDepositBtcAddress/generateDepositBtcAddress';
+export {
+  getDepositBtcAddress,
+  getDepositBtcAddresses
+} from './api-functions/getDepositBtcAddress/getDepositBtcAddress';
+export type {
+  IApiError,
+  IDepositAddress,
+  IDepositAddressesResponse,
+  IGetDepositBtcAddressesParameters,
+  IGetDepositBtcAddressParameters
+} from './api-functions/getDepositBtcAddress/types';
+export {
+type DirectDeposit,
+  type DirectDepositsResponse,   ENotarizationStatus,
+  ESessionState,
+  fetchBTCbDeposits,
+  fetchDirectDeposits,
+  getDepositsByAddress, type IGetDepositsByAddressParams,
+  type NativeDeposit,
+  type NativeDepositsResponse
+} from './api-functions/getDepositsByAddress/getDepositsByAddress';
+export {
+  getExchangeRatio
+} from './api-functions/getLBTCExchangeRate/get-exchange-ratio';
+export {
+  getLBTCExchangeRate,
+  type IgetLBTCExchangeRateParams,
+  type IgetLBTCExchangeRateResponse
+} from './api-functions/getLBTCExchangeRate/getLBTCExchangeRate';
+export {
+  getNetworkFeeSignature,
+  type IGetNetworkFeeSignatureMappedResponse,
+  type IGetNetworkFeeSignatureParams
+} from './api-functions/getNetworkFeeSignature/getNetworkFeeSignature';
+export {
+  getLuxSeason1Points,
+  getLuxSeason2Points, getPointsByAddress, type IGetPointsByAddressParameters,
+  type IPointsBase,
+  type IPointsByAddressSeason1,
+  type IPointsByAddressSeason2,
+  type IProtocolPointsBreakdown
+} from './api-functions/getPointsByAddress/getPointsByAddress';
+export {
+  fetchUnstakesByAddress,
+  getUnstakesByAddress,
+  type IGetUnstakesByAddressParameters
+} from './api-functions/getUnstakesByAddress/getUnstakesByAddress';
+export {
+  getUserStakeAndBakeSignature,
+  type IGetUserStakeAndBakeSignatureParams,
+  type IGetUserStakeAndBakeSignatureResponse
+} from './api-functions/getUserStakeAndBakeSignature/getUserStakeAndBakeSignature';
+export {
+type ISetReferralParams,
+  setReferral} from './api-functions/setReferral/setReferral';
+export {
+type IStoreNetworkFeeSignatureParams,
+  type IStoreNetworkFeeSignatureStatus,
+  storeNetworkFeeSignature} from './api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
+export {
+type IStoreStakeAndBakeSignatureParams,
+  type IStoreStakeAndBakeSignatureStatus,
+  storeStakeAndBakeSignature} from './api-functions/storeStakeAndBakeSignature/storeStakeAndBakeSignature';
+
+// Contract functions - READ:
+export {
+  BasculeDepositStatus,
+  getBasculeDepositStatus,
+  type IGetBasculeDepositStatusParameters
+} from './contract-functions/getBasculeDepositStatus/getBasculeDepositStatus';
+export {
+  getLBTCBurningFee,
+  getLBTCMintingFee,
+  getMinRedeemAmount,
+  getMintingFee,
+  getRedeemFee
+} from './contract-functions/getLBTCMintingFee/getLBTCMintingFee';
+export { getLBTCTotalSupply } from './contract-functions/getLBTCTotalSupply/getLBTCTotalSupply';
+export {
+  getPermitNonce,
+  type IGetPermitNonceParams
+} from './contract-functions/getPermitNonce/getPermitNonce';
+export {
+  getStakeAndBakeFee,
+  type IGetStakeAndBakeFeeParams
+} from './contract-functions/getStakeAndBakeFee/getStakeAndBakeFee';
+
+// Contract functions - WRITE:
+export {
+  approveLBTC,
+  type IApproveLBTCParams
+} from './contract-functions/approveLBTC/approveLBTC';
+export {
+  approveToken,
+  getTokenAllowance,
+  type IApproveTokenParams
+} from './contract-functions/approveToken/approveToken';
+export {
+  claimLBTC, type IClaimLBTCParams,
+mintToken} from './contract-functions/claimLBTC/claimLBTC';
+export {
+  claimUnstakeRedeem,
+  type IClaimUnstakeRedeemParams
+} from './contract-functions/claimUnstakeRedeem/claimUnstakeRedeem';
+export {
+  depositToken,
+  getAssetRouterAddress
+} from './contract-functions/deposit/depositToken';
+export {
+  signLbtcDestinationAddr,
+  type SignLbtcDestinationAddrParams
+} from './contract-functions/signLbtcDestionationAddr/signLbtcDestinationAddr';
+export {
+type ISignNetworkFeeParams,
+  type ISignNetworkFeeResponse,
+  signNetworkFee} from './contract-functions/signNetworkFee/signNetworkFee';
+export {
+type ISignStakeAndBakeParams,
+  type ISignStakeAndBakeResult,
+  signStakeAndBake} from './contract-functions/signStakeAndBake/signStakeAndBake';
+export { getStakeAndBakeConfig } from './contract-functions/signStakeAndBake/validation';
+export {
+type IUnstakeLBTCParams,
+  redeemToken,
+  unstakeLBTC} from './contract-functions/unstakeLBTC/unstakeLBTC';
+
+// Contract functions - VAULT READ:
+export {
+  getSharesByAddress,
+  type IGetSharesByAddressParameters
+} from './contract-functions/getSharesByAddress/getSharesByAddress';
+export {
+  getShareValue,
+  type IGetShareValueParameters
+} from './contract-functions/getShareValue/getShareValue';
 
 // Vault:
-export * from './vaults';
+export {
+  cancelWithdraw, type CancelWithdrawParameters, deposit, type DepositParameters,
+getVaultApy,
+  type GetVaultApyParameters,
+  getVaultDeposits,
+  getVaultDepositsAllChains,
+  type GetVaultDepositsAllChainsParameters,
+  type GetVaultDepositsParameters,
+  getVaultPoints,
+  type GetVaultPointsParameters,
+  getVaultTVL,
+  type GetVaultTVLParameters,
+  getVaultWithdrawals,
+  getVaultWithdrawalsAllChains,
+  type GetVaultWithdrawalsAllChainsParameters,
+  type GetVaultWithdrawalsParameters,   queueWithdraw, type QueueWithdrawParameters, Vault, type VaultDeposit,
+  type VaultWithdrawal,
+  type VaultWithdrawals
+} from './vaults';
 
 // Signer support (custom transaction signing):
 export {
@@ -322,7 +582,9 @@ getBridgeInfo, OFT_GAS_LIMIT,
   OFT_HI_GAS_LIMIT_CHAINS} from './bridge';
 
 // Debug:
-export * from './debug-api';
+export { fetchBtcScriptToAddress } from './debug-api/btc-script-to-address';
+export { fetchBtcTxInfo } from './debug-api/btc-tx-info';
+export { fetchEvmByBtcAddress } from './debug-api/evm-by-btc-address';
 
 // Internal utilities (used by apps/main):
 export { makePublicClient } from './clients/public-client';

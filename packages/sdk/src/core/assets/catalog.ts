@@ -44,7 +44,6 @@ export const ASSET_CATALOG: AssetCatalog = {
             Chain.SONIC,
             Chain.SWELL,
             Chain.TAC,
-            // APP-1970: Added Monad and Stable networks for LBTC prod
             ...(featureConfig.isMonadEnabled ? [Chain.MONAD] : []),
             Chain.STABLE,
           ],

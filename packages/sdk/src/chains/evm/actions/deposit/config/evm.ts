@@ -7,10 +7,11 @@
  * @module chains/evm/actions/deposit/config/evm
  */
 
+import { Env } from '@lombard.finance/sdk-common';
+
 import {
   AssetId,
   Chain,
-  Env,
   getEvmAssetChains,
 } from '../../../../../core';
 import { evmAddressSchema } from '../../../../../shared/validation';

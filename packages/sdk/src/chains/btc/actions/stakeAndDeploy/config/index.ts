@@ -7,7 +7,9 @@
  * @module chains/btc/actions/stakeAndDeploy/config
  */
 
-import type { AssetId, Chain, Env } from '../../../../../core';
+import type { Env } from '@lombard.finance/sdk-common';
+
+import type { AssetId, Chain } from '../../../../../core';
 import { DEFI_REGISTRY,DefiProtocol } from '../../../../../defi';
 import { Token } from '../../../../../tokens/token-addresses';
 import { evmStakeAndDeployConfig } from './evm';

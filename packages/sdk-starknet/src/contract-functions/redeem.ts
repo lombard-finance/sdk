@@ -60,7 +60,7 @@ export async function redeem({
     env,
   });
 
-  const script = getOutputScript(
+  const script = await getOutputScript(
     btcAddress,
     chainId === StarknetChainId.SN_MAIN ? Env.prod : Env.stage,
   );

@@ -7,13 +7,14 @@
  * @module __tests__/unit/evm/EvmUnstakeConfig.test.ts
  */
 
+import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect,it } from 'vitest';
 
 import {
   evmToBtcbConfig,
   evmToBtcConfig,
 } from '../../../chains/evm/actions/unstake/config/evm';
-import { Chain, Env } from '../../../core';
+import { Chain } from '../../../core';
 import {
   bitcoinAddressSchema,
   evmAddressSchema,

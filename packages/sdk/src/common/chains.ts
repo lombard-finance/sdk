@@ -204,9 +204,7 @@ export const megaeth = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://mainnet.megaeth.com/rpc',
-      ],
+      http: ['https://mainnet.megaeth.com/rpc'],
     },
   },
   blockExplorers: {
@@ -327,7 +325,7 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
     ? { [ChainId.avalanche]: avalanche }
     : {}),
   [ChainId.base]: base,
-  // APP-1975: Feature-gated chains
+  // Feature-gated chains
   ...(featureConfig.isBerachainEnabled
     ? { [ChainId.berachain]: berachain }
     : {}),

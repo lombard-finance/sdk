@@ -4,6 +4,7 @@
  * @module chains/evm/actions/deploy/config/types
  */
 
+import type { Env } from '@lombard.finance/sdk-common';
 import type { z } from 'zod';
 
 import type {
@@ -11,7 +12,6 @@ import type {
   Chain,
   ChainType,
   DeployProtocol,
-  Env,
 } from '../../../../../core';
 
 /**

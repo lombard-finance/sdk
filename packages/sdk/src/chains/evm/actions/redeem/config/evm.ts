@@ -9,10 +9,11 @@
  * @module chains/evm/actions/redeem/config/evm
  */
 
+import { Env } from '@lombard.finance/sdk-common';
+
 import {
   AssetId,
   Chain,
-  Env,
   getEvmAssetChains,
 } from '../../../../../core';
 import { bitcoinAddressSchema } from '../../../../../shared/validation';

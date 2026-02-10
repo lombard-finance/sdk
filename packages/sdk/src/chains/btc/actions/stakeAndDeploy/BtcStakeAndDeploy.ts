@@ -173,7 +173,8 @@ export class BtcStakeAndDeploy
       chainId: this.chainId,
       signature: this.authState.signature!,
       token: this.getExpectedToken(),
-      eip712Data: this.authState.typedData,
+      // Stake and bake uses signatureData (maps to sb_signature_data), not eip712Data
+      signatureData: this.authState.typedData,
       partnerId: this.ctx.partner.getPartnerId(),
       referrerCode: this._referralCode,
     };
@@ -273,7 +274,7 @@ export class BtcStakeAndDeploy
       // No existing signature - require authorization
       this.updateStatus(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
       this.emitInitialProgress();
-    }, BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
+    });
   }
 
   async authorizeDeposit(): Promise<void> {

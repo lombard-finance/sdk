@@ -54,3 +54,7 @@ env.test.generated
 tsconfig.build.tsbuildinfo
 
 tmp
+
+
+#Ignore cursor AI rules
+.cursor/rules/codacy.mdc

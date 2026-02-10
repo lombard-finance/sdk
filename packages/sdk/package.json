@@ -1,10 +1,9 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "4.1.2",
+  "version": "4.2.0",
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
-    "isows": "^1.0.7",
-    "viem": "^2.23.15"
+    "isows": "^1.0.7"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "1.6.1",
@@ -38,6 +37,61 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./core": {
+      "types": "./dist/entries/core.d.ts",
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    },
+    "./api": {
+      "types": "./dist/entries/api.d.ts",
+      "import": "./dist/api.js",
+      "require": "./dist/api.cjs"
+    },
+    "./contracts": {
+      "types": "./dist/entries/contracts.d.ts",
+      "import": "./dist/contracts.js",
+      "require": "./dist/contracts.cjs"
+    },
+    "./btc": {
+      "types": "./dist/entries/btc.d.ts",
+      "import": "./dist/btc.js",
+      "require": "./dist/btc.cjs"
+    },
+    "./evm": {
+      "types": "./dist/entries/evm.d.ts",
+      "import": "./dist/evm.js",
+      "require": "./dist/evm.cjs"
+    },
+    "./metrics": {
+      "types": "./dist/entries/metrics.d.ts",
+      "import": "./dist/metrics.js",
+      "require": "./dist/metrics.cjs"
+    },
+    "./utils": {
+      "types": "./dist/entries/utils.d.ts",
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
+    },
+    "./vaults": {
+      "types": "./dist/entries/vaults.d.ts",
+      "import": "./dist/vaults.js",
+      "require": "./dist/vaults.cjs"
+    },
+    "./defi": {
+      "types": "./dist/entries/defi.d.ts",
+      "import": "./dist/defi.js",
+      "require": "./dist/defi.cjs"
+    },
+    "./bridge": {
+      "types": "./dist/entries/bridge.d.ts",
+      "import": "./dist/bridge.js",
+      "require": "./dist/bridge.cjs"
+    },
+    "./debug": {
+      "types": "./dist/entries/debug.d.ts",
+      "import": "./dist/debug.js",
+      "require": "./dist/debug.cjs"
+    },
     "./package.json": "./package.json"
   },
   "sideEffects": false,
@@ -59,7 +113,8 @@
     "@layerzerolabs/lz-v2-utilities": "^3.0.17",
     "axios": "^1",
     "bignumber.js": "^9",
-    "bitcoinjs-lib": "^6.1.5"
+    "bitcoinjs-lib": "^6.1.5",
+    "viem": "^2.21.0"
   },
   "scripts": {
     "build": "yarn types && vite build && yarn build-types",
@@ -83,5 +138,42 @@
     "watch": "vite build --watch"
   },
   "type": "module",
-  "types": "./dist/index.d.ts"
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "core": [
+        "./dist/entries/core.d.ts"
+      ],
+      "api": [
+        "./dist/entries/api.d.ts"
+      ],
+      "contracts": [
+        "./dist/entries/contracts.d.ts"
+      ],
+      "btc": [
+        "./dist/entries/btc.d.ts"
+      ],
+      "evm": [
+        "./dist/entries/evm.d.ts"
+      ],
+      "metrics": [
+        "./dist/entries/metrics.d.ts"
+      ],
+      "utils": [
+        "./dist/entries/utils.d.ts"
+      ],
+      "vaults": [
+        "./dist/entries/vaults.d.ts"
+      ],
+      "defi": [
+        "./dist/entries/defi.d.ts"
+      ],
+      "bridge": [
+        "./dist/entries/bridge.d.ts"
+      ],
+      "debug": [
+        "./dist/entries/debug.d.ts"
+      ]
+    }
+  }
 }

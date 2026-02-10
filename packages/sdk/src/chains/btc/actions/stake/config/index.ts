@@ -8,7 +8,9 @@
  * @module chains/btc/actions/stake/config
  */
 
-import type { AssetId, Chain, ChainType, Env } from '../../../../../core';
+import type { Env } from '@lombard.finance/sdk-common';
+
+import type { AssetId, Chain, ChainType } from '../../../../../core';
 import { evmConfig } from './evm';
 import { solanaConfig } from './solana';
 import { starknetConfig } from './starknet';

@@ -6,7 +6,9 @@
  * @module chains/btc/actions/deposit/config
  */
 
-import type { AssetId, Chain, Env } from '../../../../../core';
+import type { Env } from '@lombard.finance/sdk-common';
+
+import type { AssetId, Chain } from '../../../../../core';
 import { evmDepositConfig } from './evm';
 
 export type {

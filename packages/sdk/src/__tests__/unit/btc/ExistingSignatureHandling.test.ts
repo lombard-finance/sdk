@@ -12,12 +12,13 @@
  * @module __tests__/unit/btc/ExistingSignatureHandling.test.ts
  */
 
+import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BaseBtcAction, type StatusConfig, type StepDefinition } from '../../../chains/btc/actions/shared/BaseBtcAction';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { ChainId } from '../../../common/chains';
-import { Chain, Env, StepStatus } from '../../../core';
+import { Chain, StepStatus } from '../../../core';
 import type { BtcCoreContext } from '../../../shared/context';
 import { evmAddressSchema } from '../../../shared/validation';
 

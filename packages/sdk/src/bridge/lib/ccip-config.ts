@@ -30,6 +30,10 @@ export const CCIP_CONFIG: CCIPConfig = {
     routerAddress: '0x7c19b79D2a054114Ab36ad758A36e92376e267DA',
     chainSelector: '2459028469735686113',
   },
+  [ChainId.megaeth]: {
+    routerAddress: '0xfa546248C54939AA6C48279CdC1EAf9A1125c411',
+    chainSelector: '6093540873831549674',
+  },
   [ChainId.avalanche]: {
     routerAddress: '0xF4c7E640EdA248ef95972845a62bdC74237805dB',
     chainSelector: '6433500567565415381',

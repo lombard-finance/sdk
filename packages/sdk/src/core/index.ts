@@ -69,4 +69,4 @@ export {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type { DeployConfig, RouteParams, StrategyProgress } from './types';
-export { DeployProtocol, Env, StepStatus, StrategyStatus } from './types';
+export { DeployProtocol, StepStatus, StrategyStatus } from './types';

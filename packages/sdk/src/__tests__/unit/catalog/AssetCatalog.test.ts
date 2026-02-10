@@ -3,11 +3,11 @@
  *
  * Tests to verify the ASSET_CATALOG has correct chain configurations.
  *
- * Related Issues:
- * - APP-1971: Fuji should be available for LBTC staking
- * - APP-1975: Holesky should NOT be available (deprecated)
- * - APP-1980: Berachain Bartio should NOT be available (not implemented)
- * - APP-1983: Base Sepolia should be available for BTC Stake
+ * Coverage:
+ * - Fuji should be available for LBTC staking
+ * - Holesky should NOT be available (deprecated)
+ * - Berachain Bartio should NOT be available (not implemented)
+ * - Base Sepolia should be available for BTC Stake
  *
  * @module __tests__/unit/catalog/AssetCatalog.test.ts
  */
@@ -25,12 +25,12 @@ describe('Asset Catalog', () => {
 
   describe('LBTC deployments', () => {
     describe('Testnet environment', () => {
-      it('should include Avalanche Fuji (APP-1971)', () => {
+      it('should include Avalanche Fuji', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.testnet);
         expect(chains).toContain(Chain.AVALANCHE_FUJI);
       });
 
-      it('should include Base Sepolia (APP-1983)', () => {
+      it('should include Base Sepolia', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.testnet);
         expect(chains).toContain(Chain.BASE_SEPOLIA);
       });
@@ -40,18 +40,18 @@ describe('Asset Catalog', () => {
         expect(chains).toContain(Chain.SEPOLIA);
       });
 
-      it('should NOT include Holesky (APP-1975 - deprecated)', () => {
+      it('should NOT include Holesky (deprecated)', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.testnet);
         // Holesky was removed from testnet
         expect(chains).not.toContain(Chain.HOLESKY);
       });
 
-      it('should NOT include Berachain Bartio (APP-1980 - not implemented)', () => {
+      it('should NOT include Berachain Bartio (not implemented)', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.testnet);
         expect(chains).not.toContain(Chain.BERACHAIN_BARTIO);
       });
 
-      it('should NOT include Sonic (APP-2009)', () => {
+      it('should NOT include Sonic', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.testnet);
         expect(chains).not.toContain(Chain.SONIC);
       });
@@ -78,7 +78,7 @@ describe('Asset Catalog', () => {
         expect(chains).not.toContain(Chain.BERACHAIN_BARTIO);
       });
 
-      it('should NOT include Sonic (APP-2009)', () => {
+      it('should NOT include Sonic', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.stage);
         expect(chains).not.toContain(Chain.SONIC);
       });
@@ -95,12 +95,12 @@ describe('Asset Catalog', () => {
         expect(chains).toContain(Chain.BASE);
       });
 
-      it('should include Stable (APP-1970)', () => {
+      it('should include Stable', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.prod);
         expect(chains).toContain(Chain.STABLE);
       });
 
-      it('should include Monad when enabled (APP-1970)', () => {
+      it('should include Monad when enabled', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.prod);
         if (featureConfig.isMonadEnabled) {
           expect(chains).toContain(Chain.MONAD);
@@ -129,12 +129,12 @@ describe('Asset Catalog', () => {
       expect(chains).toContain(Chain.AVALANCHE);
     });
 
-    it('should include Stable in production (APP-1970)', () => {
+    it('should include Stable in production', () => {
       const chains = getAssetChains(AssetId.BTCb, Env.prod);
       expect(chains).toContain(Chain.STABLE);
     });
 
-    it('should include Monad when enabled (APP-1970)', () => {
+    it('should include Monad when enabled', () => {
       const chains = getAssetChains(AssetId.BTCb, Env.prod);
       if (featureConfig.isMonadEnabled) {
         expect(chains).toContain(Chain.MONAD);
@@ -198,10 +198,10 @@ describe('Asset Catalog', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // APP-1991: Unstaking chains should include Solana, Sui, and Fuji
+  // Unstaking chains should include Solana, Sui, and Fuji
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Unstaking chains availability (APP-1991)', () => {
+  describe('Unstaking chains availability', () => {
     describe('Testnet environment', () => {
       it('should include Solana Testnet for LBTC unstaking', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.testnet);
@@ -250,10 +250,10 @@ describe('Asset Catalog', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // APP-1970: LBTC prod should include Monad and Stable networks
+  // LBTC prod should include Monad and Stable networks
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Monad and Stable networks (APP-1970)', () => {
+  describe('Monad and Stable networks', () => {
     it('should include Monad in LBTC production', () => {
       const chains = getAssetChains(AssetId.LBTC, Env.prod);
       expect(chains).toContain(Chain.MONAD);

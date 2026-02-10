@@ -11,8 +11,9 @@
  */
 
 import type { SolanaService } from '@lombard.finance/sdk-common';
+import { Env } from '@lombard.finance/sdk-common';
 
-import { AssetId, Chain, Env, getAllAssetChains } from '../../../../../core';
+import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
 import { LombardError, ValidationErrorCode } from '../../../../../shared/errors';
 import { solanaAddressSchema } from '../../../../../shared/validation';
 import { isSolanaChain } from '../../../../../utils/chain';

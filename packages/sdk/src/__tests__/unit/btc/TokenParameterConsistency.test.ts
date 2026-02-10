@@ -8,7 +8,7 @@
  * - Backend matching signatures to deposits
  *
  * This test file documents the expected token parameter for each action
- * to prevent regressions like APP-1993.
+ * to prevent regressions in stake and bake flows.
  *
  * @module __tests__/unit/btc/TokenParameterConsistency.test.ts
  */
@@ -102,9 +102,8 @@ describe('Token Parameter Consistency', () => {
        * it would hit DEFI_REGISTRY[Veda][Token.LBTC] which has:
        *   amountStrategy: 'identity' → NO ratio conversion
        *
-       * This was the bug in APP-1993:
-       * - Signature had raw amount (20000)
-       * - Backend expected adjusted amount (19947)
+       * Using the wrong token causes:
+       * - Signature with raw amount (20000) instead of adjusted (19947)
        * - Result: "signature not found" / deposit not claimed
        */
       const vedaLbtcConfig = DEFI_REGISTRY[DefiProtocol.Veda]?.[Token.LBTC];

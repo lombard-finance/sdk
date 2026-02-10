@@ -6,7 +6,9 @@
  * @module chains/solana/actions/unstake/config/btc
  */
 
-import { Chain, Env } from '../../../../../core';
+import { Env } from '@lombard.finance/sdk-common';
+
+import { Chain } from '../../../../../core';
 import { bitcoinAddressSchema } from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 

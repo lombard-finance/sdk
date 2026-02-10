@@ -6,9 +6,10 @@
  * @module chains/btc/actions/stakeAndDeploy/config/types
  */
 
+import type { Env } from '@lombard.finance/sdk-common';
 import type { z } from 'zod';
 
-import type { AssetId, Chain, DeployProtocol, Env } from '../../../../../core';
+import type { AssetId, Chain, DeployProtocol } from '../../../../../core';
 import type { BtcCoreContext } from '../../../../../shared/context';
 
 /**

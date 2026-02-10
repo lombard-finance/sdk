@@ -22,7 +22,7 @@ export interface IGetUserStakeAndBakeSignatureResponse {
    */
   userDestinationAddress: string;
   /**
-   * The signature
+   * The signature (may be empty if signature exists but not returned)
    */
   signature: string;
   /**
@@ -37,6 +37,10 @@ export interface IGetUserStakeAndBakeSignatureResponse {
    * The chain ID
    */
   chainId: string;
+  /**
+   * The nonce (increments with each new signature)
+   */
+  nonce?: string;
 }
 
 interface IGetUserStakeAndBakeSignatureAPIResponse {
@@ -45,6 +49,7 @@ interface IGetUserStakeAndBakeSignatureAPIResponse {
   expiration_date: string;
   deposit_amount: string;
   chain_id: string;
+  nonce?: string;
 }
 
 /**
@@ -81,6 +86,7 @@ export async function getUserStakeAndBakeSignature({
       expirationDate: data.expiration_date,
       depositAmount: data.deposit_amount,
       chainId: data.chain_id,
+      nonce: data.nonce,
     };
   } catch (error) {
     const errorMessage = getErrorMessage(error);

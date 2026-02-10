@@ -9,15 +9,12 @@ export function normalizeSignature(
   signature: ArraySignatureType,
   walletName?: WalletName,
 ): NormalizedSignature {
-  console.info('Normalizing signature:', signature);
-
   let sigR = undefined;
   let sigS = undefined;
 
   if (signature.length === 2) {
     // [r, s] (raw OpenZeppelin or starknet.js)
     const [r, s] = signature;
-    console.info(`OpenZeppelin: r = ${r}, s = ${s}`);
     sigR = r;
     sigS = s;
   } else if (
@@ -26,7 +23,6 @@ export function normalizeSignature(
   ) {
     // Braavos: [version, r, s]
     const [_version, r, s] = signature;
-    console.info(`Braavos: r = ${r}, s = ${s}`);
     sigR = r;
     sigS = s;
   } else if (
@@ -51,7 +47,6 @@ export function normalizeSignature(
       _r2,
       _s2,
     ] = signature;
-    console.info(`Argent: r = ${r1}, s = ${s1}`);
     sigR = r1;
     sigS = s1;
   }

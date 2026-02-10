@@ -65,12 +65,6 @@ export async function unstakeLBTC({
   
   // Use V2 only if available AND wallet is not in the force-V1 list
   const useV2 = walletHasV2 && !forceV1;
-  
-  // Debug: Log wallet features and decision
-  console.log('[unstakeLBTC] Wallet name:', wallet.name);
-  console.log('[unstakeLBTC] Wallet features:', Object.keys(walletFeatures));
-  console.log('[unstakeLBTC] Has V2:', walletHasV2, 'Has V1:', walletHasV1);
-  console.log('[unstakeLBTC] Force V1:', forceV1, '-> Using:', useV2 ? 'V2' : 'V1');
 
   const { transaction, preparedCoins: unstakingCoins } =
     await prepareCoinsTransaction({
@@ -81,7 +75,7 @@ export async function unstakeLBTC({
     });
 
   const scriptPubKey = Array.from(
-    Buffer.from(getOutputScript(btcAddress, env).replace(/^0x/, ''), 'hex'),
+    Buffer.from((await getOutputScript(btcAddress, env)).replace(/^0x/, ''), 'hex'),
   );
 
   transaction.moveCall({
@@ -96,7 +90,6 @@ export async function unstakeLBTC({
 
   // Use V2 signTransaction for wallets that properly support it (Phantom, etc.)
   if (useV2) {
-    console.log('[unstakeLBTC] Using V2 signTransaction');
     const signedTransaction = await wallet.features[
       'sui:signTransaction'
     ].signTransaction({
@@ -119,7 +112,6 @@ export async function unstakeLBTC({
   }
 
   // Use V1 signTransactionBlock (OKX, and other wallets with V2 issues)
-  console.log('[unstakeLBTC] Using V1 signTransactionBlock');
   transaction.setSender(walletAccount.address);
 
   const signedTransaction = await walletFeatures[SIGN_TRANSACTION_V1_FEATURE].signTransactionBlock({

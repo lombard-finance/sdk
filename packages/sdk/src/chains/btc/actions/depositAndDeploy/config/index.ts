@@ -7,7 +7,9 @@
  * @module chains/btc/actions/depositAndDeploy/config
  */
 
-import type { AssetId, Chain, Env } from '../../../../../core';
+import type { Env } from '@lombard.finance/sdk-common';
+
+import type { AssetId, Chain } from '../../../../../core';
 import { DEFI_REGISTRY,DefiProtocol } from '../../../../../defi';
 import { evmDepositAndDeployConfig } from './evm';
 import type { DepositAndDeployChainConfig } from './types';

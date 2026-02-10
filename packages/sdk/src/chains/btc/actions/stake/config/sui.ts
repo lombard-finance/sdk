@@ -11,8 +11,9 @@
  */
 
 import type { SuiService } from '@lombard.finance/sdk-common';
+import { Env } from '@lombard.finance/sdk-common';
 
-import { AssetId, Chain, Env, getAllAssetChains } from '../../../../../core';
+import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
 import { suiAddressSchema } from '../../../../../shared/validation';
 import { isSuiChain } from '../../../../../utils/chain';
 import type { ChainConfig } from './types';

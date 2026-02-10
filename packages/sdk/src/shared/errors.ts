@@ -75,6 +75,20 @@ export enum ContractErrorCode {
 }
 
 /**
+ * Vault withdraw error codes
+ */
+export enum WithdrawErrorCode {
+  INSUFFICIENT_SHARES = 'withdraw-insufficient-shares',
+  INVALID_AMOUNT = 'withdraw-invalid-amount',
+  NO_PENDING_WITHDRAWAL = 'withdraw-no-pending',
+  WITHDRAWAL_ALREADY_FULFILLED = 'withdraw-already-fulfilled',
+  WITHDRAWAL_EXPIRED = 'withdraw-expired',
+  WITHDRAWAL_NOT_FOUND = 'withdraw-not-found',
+  PROTOCOL_NOT_SUPPORTED = 'withdraw-protocol-not-supported',
+  INSUFFICIENT_LIQUIDITY = 'withdraw-insufficient-liquidity',
+}
+
+/**
  * Union type of all error codes
  */
 export type AnyErrorCode =
@@ -82,7 +96,8 @@ export type AnyErrorCode =
   | ProviderErrorCode
   | RegistryErrorCode
   | ValidationErrorCode
-  | ContractErrorCode;
+  | ContractErrorCode
+  | WithdrawErrorCode;
 
 /**
  * Lombard SDK Error class

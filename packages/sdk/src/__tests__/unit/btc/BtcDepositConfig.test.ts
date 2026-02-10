@@ -9,6 +9,7 @@
  * @module __tests__/unit/btc/BtcDepositConfig.test.ts
  */
 
+import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect,it } from 'vitest';
 
 import {
@@ -17,7 +18,7 @@ import {
   isDestChainSupported,
   isRouteAvailable,
 } from '../../../chains/btc/actions/deposit/config';
-import { AssetId,Chain, Env } from '../../../core';
+import { AssetId, Chain } from '../../../core';
 
 describe('BTC Deposit Config', () => {
   describe('isAssetOutSupported', () => {
