@@ -6,7 +6,7 @@ on:
     inputs:
       package:
         type: choice
-        description: Package to publish
+        description: Target
         required: true
         options:
           - sdk
@@ -18,34 +18,73 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    runs-on: [self-hosted]
+    environment: production
+    container:
+      image: ${{ vars.AWS_ECR_REGISTRY }}/library/alpine-git-node-aws:latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-publish
+      cancel-in-progress: true
 
-      - name: Setup Node.js
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref || github.sha }}
+
+      - name: Allow Git to access repo
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Debug Git status
+        run: |
+          echo "PWD: $(pwd)"
+          ls -la
+          git status
+
+      - name: Set Git identity
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          echo "✅ Git identity configured successfully."
+
+      - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
-          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
 
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Build all packages
-        run: yarn build
-
-      - name: Publish package
-        working-directory: ./packages/${{ github.event.inputs.package }}
-        run: npm publish --access public
+      - name: Check internal dependencies are published
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
+          PACKAGE_NAME: ${{ github.event.inputs.package }}
+        run: node scripts/check-publish-deps.js "$PACKAGE_NAME"
 
-      - name: Create Git tag
+      - name: Build packages
+        run: yarn turbo run build --filter=@lombard.finance/sdk-common --filter=@lombard.finance/sdk --filter=@lombard.finance/${{ github.event.inputs.package }}
+
+      - name: Configure registry
+        working-directory: ./packages/${{ github.event.inputs.package }}/
         run: |
-          PACKAGE_NAME=$(node -p "require('./packages/${{ github.event.inputs.package }}/package.json').name")
-          PACKAGE_VERSION=$(node -p "require('./packages/${{ github.event.inputs.package }}/package.json').version")
-          git tag "${PACKAGE_NAME}@${PACKAGE_VERSION}"
-          git push origin "${PACKAGE_NAME}@${PACKAGE_VERSION}"
+          npm config set access public -ws=false -iwr
+          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPMJS_TOKEN }} -ws=false -iwr
+
+      - name: Publish
+        working-directory: ./packages/${{ github.event.inputs.package }}/
+        run: npm publish
+
+      - name: Send Slack message for SDK publish
+        uses: slackapi/slack-github-action@v2.1.1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            blocks:
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "${{ github.event.inputs.package }} has been published to NPM\n${{ env.WORKFLOW_URL }}"
