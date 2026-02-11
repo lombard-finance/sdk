@@ -58,14 +58,20 @@ jobs:
           echo "📦 Setting canary versions (suffix=${SUFFIX}, run=${RUN_NUM})…"
           echo ""
 
+          # Use node directly instead of `npm version` because npm chokes on
+          # the Yarn workspace:* protocol when validating package.json.
           for pkg in $PUBLISH_ORDER; do
             PKG_DIR="./packages/$pkg"
             CURRENT=$(node -p "require('$PKG_DIR/package.json').version")
             CANARY="${CURRENT}-${SUFFIX}.${RUN_NUM}"
 
-            cd "$PKG_DIR"
-            npm version "$CANARY" --no-git-tag-version
-            cd "$GITHUB_WORKSPACE"
+            node -e "
+              const fs = require('fs');
+              const p = '$PKG_DIR/package.json';
+              const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
+              pkg.version = '$CANARY';
+              fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
+            "
 
             echo "  ${pkg}: ${CURRENT} → ${CANARY}"
           done
