@@ -64,6 +64,17 @@ function getPublishedVersions(packageName) {
  * Simple implementation for common cases
  */
 function versionSatisfies(versions, range) {
+  // Handle Yarn workspace protocol: workspace:* means "any version"
+  if (range.startsWith('workspace:')) {
+    const inner = range.slice('workspace:'.length); // e.g. "*", "^1.0.0", "~2.3.0"
+    if (inner === '*') {
+      // workspace:* — any published version is fine
+      return versions.length > 0;
+    }
+    // workspace:^x.y.z or workspace:~x.y.z — strip prefix and check normally
+    return versionSatisfies(versions, inner);
+  }
+
   // Remove ^ or ~ prefix
   const cleanRange = range.replace(/^[\^~]/, '');
   const [major, minor, patch] = cleanRange.split('.').map(Number);
