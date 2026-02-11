@@ -19,43 +19,43 @@ export interface FeatureConfig {
 
   /**
    * Enable/disable Berachain support
-   * @default false - Not yet fully supported (APP-1975)
+   * @default false - Not yet fully supported
    */
   isBerachainEnabled: boolean;
 
   /**
    * Enable/disable Corn chain support
-   * @default false - Not yet fully supported (APP-1975)
+   * @default false - Not yet fully supported
    */
   isCornEnabled: boolean;
 
   /**
    * Enable/disable Morph chain support
-   * @default false - Not yet fully supported (APP-1975)
+   * @default false - Not yet fully supported
    */
   isMorphEnabled: boolean;
 
   /**
    * Enable/disable Swellchain support
-   * @default false - Not yet fully supported (APP-1975)
+   * @default false - Not yet fully supported
    */
   isSwellchainEnabled: boolean;
 
   /**
    * Enable/disable TAC chain support
-   * @default false - Not yet fully supported (APP-1975)
+   * @default false - Not yet fully supported
    */
   isTacEnabled: boolean;
 
   /**
    * Enable/disable BOB chain support
-   * @default false - Not yet fully supported (APP-1975)
+   * @default false - Not yet fully supported
    */
   isBobEnabled: boolean;
 
   /**
    * Enable/disable Etherlink chain support
-   * @default false - Not yet fully supported (APP-1975)
+   * @default false - Not yet fully supported
    */
   isEtherlinkEnabled: boolean;
 }
@@ -66,7 +66,7 @@ export const featureConfig: FeatureConfig = {
   isAvalancheFujiEnabled: true,
 
   isCornEnabled: true,
-  // APP-1975: Chains in asset catalog but not yet fully supported
+  // Chains in asset catalog but not yet fully supported
   // These are hidden from UI until fully tested and released
   isBerachainEnabled: false,
   isMorphEnabled: false,

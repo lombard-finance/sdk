@@ -37,9 +37,5 @@ export async function balanceOf({
 
   const tokenBalance = fromBaseDenomination(balance, decimals);
 
-  console.info(
-    `${account} ${token} balance = ${tokenBalance} (decimals: ${decimals})`,
-  );
-
   return tokenBalance;
 }

@@ -75,7 +75,7 @@ export const RATIO_TOKEN_MAP: Record<RatioToken, Token> = {
   TOKEN_SYMBOL_STLBTC: Token.LBTC,
 };
 
-type TokenAddressesPerEnv<
+export type TokenAddressesPerEnv<
   token extends Token,
   chain extends string | number | symbol = ChainId | SuiChain | SolanaChain,
 > = Partial<
@@ -99,7 +99,7 @@ type TokenAddressesPerEnv<
   >
 >;
 
-type TokenAddresses<
+export type TokenAddresses<
   token extends Token,
   chain extends string | number | symbol = ChainId | SuiChain | SolanaChain,
 > = Partial<Record<token, TokenAddressesPerEnv<token, chain>>>;

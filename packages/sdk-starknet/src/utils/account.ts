@@ -35,9 +35,6 @@ export async function getPublicKey(
 
       if (num.isHex(res[0])) {
         pubkey = res[0];
-        console.info(
-          `Retrieved pubKey from ${accountAddress} via ${entrypoint}: ${pubkey}`,
-        );
       }
     } catch {
       // NOOP

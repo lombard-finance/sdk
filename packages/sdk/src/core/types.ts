@@ -116,11 +116,3 @@ export interface DeployConfig {
   options?: Record<string, unknown>;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Re-exports
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Re-export Env from sdk-common for convenience
- */
-export { Env } from '@lombard.finance/sdk-common';

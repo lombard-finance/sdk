@@ -4,7 +4,7 @@
  * Tests for address validation schemas to ensure they properly reject
  * truncated, malformed, and invalid addresses.
  *
- * Related Issue: APP-1979
+ * Background:
  * - Address validation was accepting truncated addresses
  * - User could paste valid address, delete last character, and still proceed
  *
@@ -122,15 +122,13 @@ describe('Address Validation Schemas', () => {
       }
     );
 
-    describe('should reject truncated addresses (APP-1979 - FIXED)', () => {
+    describe('should reject truncated addresses', () => {
       /**
-       * FIX IMPLEMENTED: APP-1979
-       * 
-       * The bitcoinAddressSchema now uses bitcoinjs-lib for proper validation:
+       * The bitcoinAddressSchema uses bitcoinjs-lib for proper validation:
        * - bech32/bech32m checksum verification for SegWit/Taproot addresses
        * - base58check checksum verification for legacy addresses
        * 
-       * Truncated addresses will now correctly fail validation.
+       * Truncated addresses will correctly fail validation.
        */
 
       it('should reject bech32 (Taproot) address with last character removed', () => {

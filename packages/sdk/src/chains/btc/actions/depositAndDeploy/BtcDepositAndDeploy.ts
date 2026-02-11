@@ -178,7 +178,8 @@ export class BtcDepositAndDeploy
       chainId: this.chainId,
       signature: this.authState.signature!,
       token: this.getExpectedToken(),
-      eip712Data: this.authState.typedData,
+      // Deposit and deploy uses signatureData (maps to sb_signature_data), not eip712Data
+      signatureData: this.authState.typedData,
       partnerId: this.ctx.partner.getPartnerId(),
       referrerCode: this._referralCode,
     };

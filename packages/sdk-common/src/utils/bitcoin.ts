@@ -1,21 +1,30 @@
-let bitcoin: typeof import('bitcoinjs-lib');
+let bitcoinPromise: Promise<typeof import('bitcoinjs-lib')> | null = null;
 
-const initBitcoin = async () => {
-  const module = await import('bitcoinjs-lib');
-  const ecc = await import('@bitcoinerlab/secp256k1');
+const initBitcoin = async (): Promise<typeof import('bitcoinjs-lib')> => {
   try {
-    module.initEccLib(ecc);
-  } catch (err) {
-    if (!/already initialized/i.test(String(err))) {
-      throw err;
+    const module = await import('bitcoinjs-lib');
+    const ecc = await import('@bitcoinerlab/secp256k1');
+    try {
+      module.initEccLib(ecc);
+    } catch (err) {
+      if (!/already initialized/i.test(String(err))) {
+        throw err;
+      }
     }
+    return module;
+  } catch (err) {
+    // Reset promise so subsequent calls can retry
+    bitcoinPromise = null;
+    throw new Error(
+      `Failed to initialize bitcoinjs-lib: ${err instanceof Error ? err.message : String(err)}. ` +
+        'Ensure bitcoinjs-lib and @bitcoinerlab/secp256k1 peer dependencies are installed.',
+    );
   }
-  bitcoin = module;
 };
 
-void initBitcoin().catch(err => {
-  // Surface initialization failures during development but swallow to avoid unhandled rejections.
-  console.error('Failed to initialize bitcoinjs-lib ECC library', err);
-});
-
-export { bitcoin };
+export const getBitcoin = async (): Promise<typeof import('bitcoinjs-lib')> => {
+  if (!bitcoinPromise) {
+    bitcoinPromise = initBitcoin();
+  }
+  return bitcoinPromise;
+};

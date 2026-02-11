@@ -4,10 +4,10 @@
  * Tests for parseChainIdentifier function to ensure proper handling of
  * CAIP-2 chain identifiers for all supported chain types.
  *
- * Related Issues:
- * - APP-1976: Solana genesis hash → network name mapping
- * - APP-1977: Sui chain ID validation (full CAIP-2 format)
- * - APP-1978: Starknet network name → hex chain ID mapping
+ * Covers:
+ * - Solana genesis hash → network name mapping
+ * - Sui chain ID validation (full CAIP-2 format)
+ * - Starknet network name → hex chain ID mapping
  *
  * @module __tests__/unit/core/chain-parsing.test.ts
  */
@@ -67,18 +67,16 @@ describe('parseChainIdentifier', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Solana Chain Parsing (APP-1976)
+  // Solana Chain Parsing
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Solana chains (solana:*) - APP-1976', () => {
+  describe('Solana chains (solana:*)', () => {
     /**
-     * APP-1976 FIX:
-     * 
-     * The original bug was that CAIP-2 Solana chains use genesis hash references
+     * CAIP-2 Solana chains use genesis hash references
      * (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for mainnet),
      * but the Solana SDK expects network names ('solana:mainnet-beta').
      * 
-     * The fix maps genesis hash references to their corresponding network names.
+     * The SDK maps genesis hash references to their corresponding network names.
      */
 
     describe('Legacy format (network names)', () => {
@@ -135,17 +133,13 @@ describe('parseChainIdentifier', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Sui Chain Parsing (APP-1977)
+  // Sui Chain Parsing
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Sui chains (sui:*) - APP-1977', () => {
+  describe('Sui chains (sui:*)', () => {
     /**
-     * APP-1977 FIX:
-     * 
-     * The original bug was that isSuiChain was receiving just the network part
-     * (e.g., 'testnet') instead of the full chain ID ('sui:testnet').
-     * 
-     * The fix ensures the full CAIP-2 chain ID is passed to isSuiChain.
+     * isSuiChain expects the full CAIP-2 chain ID ('sui:testnet'),
+     * not just the network part ('testnet').
      */
 
     it('should parse sui:mainnet', () => {
@@ -189,17 +183,15 @@ describe('parseChainIdentifier', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Starknet Chain Parsing (APP-1978)
+  // Starknet Chain Parsing
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe('Starknet chains (starknet:*) - APP-1978', () => {
+  describe('Starknet chains (starknet:*)', () => {
     /**
-     * APP-1978 FIX:
+     * CAIP-2 uses human-readable network names (SN_MAIN, SN_SEPOLIA),
+     * but Starknet SDK expects hex-encoded chain IDs.
      * 
-     * The original bug was that CAIP-2 uses human-readable network names
-     * (SN_MAIN, SN_SEPOLIA), but Starknet SDK expects hex-encoded chain IDs.
-     * 
-     * The fix maps network names to their corresponding hex chain IDs.
+     * The SDK maps network names to their corresponding hex chain IDs.
      */
 
     it('should parse mainnet (SN_MAIN) to hex chain ID', () => {

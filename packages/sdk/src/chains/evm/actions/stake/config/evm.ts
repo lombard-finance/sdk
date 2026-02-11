@@ -10,7 +10,9 @@
  * @module chains/evm/actions/stake/config/evm
  */
 
-import { Chain, DeployProtocol, Env } from '../../../../../core';
+import { Env } from '@lombard.finance/sdk-common';
+
+import { Chain, DeployProtocol } from '../../../../../core';
 import { evmAddressSchema } from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 

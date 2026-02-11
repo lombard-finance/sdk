@@ -8,6 +8,8 @@
  * - unstake: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
  * - deposit: Claim LBTC with notarized proof
  * - deploy: LBTC/BTC.b → DeFi protocols (Veda, Silo)
+ * - withdraw: Queue withdrawal from DeFi protocols
+ * - cancelWithdraw: Cancel pending withdrawal from DeFi protocols
  * - redeem: LBTC → BTC.b (same-chain unwrap)
  *
  * @example
@@ -60,6 +62,14 @@ import {
   type EvmUnstakeParams,
   type IEvmUnstake,
 } from './actions/unstake';
+import {
+  createEvmCancelWithdraw,
+  createEvmWithdraw,
+  type EvmCancelWithdrawParams,
+  type EvmWithdrawParams,
+  type IEvmCancelWithdraw,
+  type IEvmWithdraw,
+} from './actions/withdraw';
 
 /**
  * EVM Actions
@@ -150,6 +160,48 @@ export class EvmActions {
    */
   deploy(params: EvmDeployParams): IEvmDeploy {
     return createEvmDeploy(this.ctx, params);
+  }
+
+  /**
+   * Withdraw vault shares from DeFi protocols
+   *
+   * Queues a withdrawal request from DeFi protocols (e.g., Veda vault).
+   * After the withdrawal is queued, it will be processed within the
+   * protocol's withdrawal window.
+   *
+   * @example
+   * ```typescript
+   * const withdraw = evm.withdraw({
+   *   protocol: DeployProtocol.Veda,
+   *   sourceChain: Chain.ETHEREUM,
+   *   recipient: '0x...',
+   * });
+   * await withdraw.prepare({ amount: '0.1' });
+   * if (withdraw.needsApproval) await withdraw.approve();
+   * await withdraw.execute();
+   * ```
+   */
+  withdraw(params: EvmWithdrawParams): IEvmWithdraw {
+    return createEvmWithdraw(this.ctx, params);
+  }
+
+  /**
+   * Cancel a pending withdrawal from DeFi protocols
+   *
+   * Cancels a previously queued withdrawal request.
+   *
+   * @example
+   * ```typescript
+   * const cancelWithdraw = evm.cancelWithdraw({
+   *   protocol: DeployProtocol.Veda,
+   *   chain: Chain.ETHEREUM,
+   * });
+   * await cancelWithdraw.prepare();
+   * await cancelWithdraw.execute();
+   * ```
+   */
+  cancelWithdraw(params: EvmCancelWithdrawParams): IEvmCancelWithdraw {
+    return createEvmCancelWithdraw(this.ctx, params);
   }
 
   /**

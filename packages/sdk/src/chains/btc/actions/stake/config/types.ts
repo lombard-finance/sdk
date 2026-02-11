@@ -10,9 +10,10 @@
  * @module chains/btc/actions/stake/config/types
  */
 
+import type { Env } from '@lombard.finance/sdk-common';
 import type { z } from 'zod';
 
-import type { AssetId, Chain, ChainType, Env } from '../../../../../core';
+import type { AssetId, Chain, ChainType } from '../../../../../core';
 import type { BtcCoreContext } from '../../../../../shared/context';
 
 // ═══════════════════════════════════════════════════════════════════════════

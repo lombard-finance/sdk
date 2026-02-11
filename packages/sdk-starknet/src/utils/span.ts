@@ -46,8 +46,6 @@ export function parseProofHexToU256Tuples(proofHex: string) {
     const r = `0x${words[tupleWordIndex]}`;
     const s = `0x${words[tupleWordIndex + 1]}`;
 
-    console.log(`sig ${i}`, { r, s });
-
     const uint256r = uint256.bnToUint256(r);
     const uint256s = uint256.bnToUint256(s);
 

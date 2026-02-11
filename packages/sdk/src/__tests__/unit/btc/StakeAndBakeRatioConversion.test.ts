@@ -4,12 +4,10 @@
  * Verifies that BtcStakeAndDeploy correctly passes 'BTC' as the token
  * to trigger the btcToLbtc ratio conversion in signStakeAndBake.
  *
- * Bug Reference: APP-1993
- * Problem: Signature contained raw BTC amount (20000) instead of
- * ratio-adjusted LBTC amount (19947), causing backend to reject deposit.
- *
- * Root Cause: BtcStakeAndDeploy passed `token: AssetId.LBTC` instead of
- * `token: 'BTC'`, which triggered 'identity' strategy instead of 'btcToLbtc'.
+ * Background:
+ * - Signature must contain ratio-adjusted LBTC amount, not raw BTC
+ * - BtcStakeAndDeploy must pass `token: 'BTC'` to trigger 'btcToLbtc' strategy
+ * - Using wrong token causes signature mismatch with backend
  *
  * @module __tests__/unit/btc/StakeAndBakeRatioConversion.test.ts
  */

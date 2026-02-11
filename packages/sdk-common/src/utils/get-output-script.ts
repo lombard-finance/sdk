@@ -1,5 +1,5 @@
 import { Env } from '../env';
-import { bitcoin } from './bitcoin';
+import { getBitcoin } from './bitcoin';
 
 /**
  * Get output script from address.
@@ -9,12 +9,11 @@ import { bitcoin } from './bitcoin';
  *
  * @returns The output script.
  */
-export function getOutputScript(
+export async function getOutputScript(
   address: string,
   env: Env = Env.prod,
-): `0x${string}` {
-  console.info(`Getting output script for ${address} (${env})`);
-
+): Promise<`0x${string}`> {
+  const bitcoin = await getBitcoin();
   const outputScriptBuf = bitcoin.address.toOutputScript(
     address,
     env === Env.prod ? bitcoin.networks.bitcoin : bitcoin.networks.testnet,

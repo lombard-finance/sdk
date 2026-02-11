@@ -8,9 +8,9 @@
 import type { Env } from '@lombard.finance/sdk-common';
 
 import type {
-    CreateConfigOptions,
-    LombardConfig,
-    ResolvedLombardConfig,
+  CreateConfigOptions,
+  LombardConfig,
+  ResolvedLombardConfig,
 } from '../config/types';
 import { ASSET_CATALOG } from '../core/assets/catalog';
 import type { AssetCatalog } from '../core/assets/types';
@@ -41,7 +41,7 @@ const catalogCache = new Map<Env, Promise<AssetCatalog>>();
  */
 function fetchCatalogCached(env: Env): Promise<AssetCatalog> {
   if (!catalogCache.has(env)) {
-    // TODO (APP-1834): Implement remote catalog fetching
+    // TODO: Implement remote catalog fetching
     // When backend is ready:
     // 1. Fetch from CDN: https://cdn.lombard.finance/catalog/{env}.json
     // 2. Fallback to ASSET_CATALOG on network failure

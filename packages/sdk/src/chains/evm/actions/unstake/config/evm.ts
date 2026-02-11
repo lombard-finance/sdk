@@ -7,10 +7,11 @@
  * @module chains/evm/actions/unstake/config/evm
  */
 
+import { Env } from '@lombard.finance/sdk-common';
+
 import {
   AssetId,
   Chain,
-  Env,
   getEvmAssetChains,
   getEvmChainsWithAllAssets,
 } from '../../../../../core';

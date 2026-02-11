@@ -10,10 +10,11 @@
  */
 
 import type { EvmService } from '@lombard.finance/sdk-common';
+import { Env } from '@lombard.finance/sdk-common';
 import type { EIP1193Provider } from 'viem';
 
 import type { ChainId } from '../../../../../common/chains';
-import { AssetId, Chain, Env } from '../../../../../core';
+import { AssetId, Chain } from '../../../../../core';
 import { LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
 import { evmAddressSchema } from '../../../../../shared/validation';

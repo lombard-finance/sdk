@@ -4,9 +4,10 @@
  * @module chains/evm/actions/unstake/config/types
  */
 
+import type { Env } from '@lombard.finance/sdk-common';
 import type { z } from 'zod';
 
-import type { Chain, ChainType, Env } from '../../../../../core';
+import type { Chain, ChainType } from '../../../../../core';
 
 /**
  * Route definition for EVM unstake operations

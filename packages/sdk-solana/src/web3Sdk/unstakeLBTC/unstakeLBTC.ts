@@ -68,7 +68,7 @@ export async function unstakeLBTC(
     });
 
     const scriptPubKey = Buffer.from(
-      getOutputScript(btcAddress, env).replace(/^0x/, ''),
+      (await getOutputScript(btcAddress, env)).replace(/^0x/, ''),
       'hex',
     );
 
@@ -128,8 +128,6 @@ export async function unstakeLBTC(
       provider,
       debugLabel: 'Unstake LBTC',
     });
-
-    console.log(`Transaction sent with signature: ${signature}`);
 
     return signature;
   } catch (error: unknown) {

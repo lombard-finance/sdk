@@ -205,7 +205,7 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
     if (!btcAddress) {
       throw new Error('Missing parameter: `btcAddress`.');
     }
-    const outputScript = getOutputScript(btcAddress, env);
+    const outputScript = await getOutputScript(btcAddress, env);
 
     // The redemption of BTC.b -> BTC on Avalanche requires extra steps
     if (

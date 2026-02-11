@@ -10,11 +10,12 @@
  */
 
 import type { EvmService } from '@lombard.finance/sdk-common';
+import { Env } from '@lombard.finance/sdk-common';
 import type { EIP1193Provider } from 'viem';
 
 import { getUserStakeAndBakeSignature } from '../../../../../api-functions/getUserStakeAndBakeSignature';
 import type { ChainId } from '../../../../../common/chains';
-import { AssetId, Chain, Env, evmChainIdToChain } from '../../../../../core';
+import { AssetId, Chain, evmChainIdToChain } from '../../../../../core';
 import { LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
 import { evmAddressSchema } from '../../../../../shared/validation';
@@ -105,8 +106,12 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
         env: ctx.env,
       });
 
-      // Check if signature exists and hasn't expired
-      if (!result.signature) {
+      // Check if signature exists by looking at metadata, not just the signature string.
+      // The API may return metadata (expiration, amount, nonce) even if the raw
+      // signature string is not included in the response.
+      // If we have an expiration date, that means a valid signature exists on the server.
+      const hasSignatureData = result.signature || result.expirationDate;
+      if (!hasSignatureData) {
         return null;
       }
 

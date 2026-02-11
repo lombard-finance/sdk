@@ -12,9 +12,10 @@
  */
 
 import type { StarknetService } from '@lombard.finance/sdk-common';
+import { Env } from '@lombard.finance/sdk-common';
 import { pad } from 'viem';
 
-import { AssetId, Chain, Env, getAllAssetChains } from '../../../../../core';
+import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
 import { starknetAddressSchema } from '../../../../../shared/validation';
 import { isStarknetChain } from '../../../../../utils/chain';
 import type { ChainConfig } from './types';

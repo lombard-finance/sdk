@@ -96,6 +96,21 @@ export const DeployEvent = {
 export type DeployEvent = (typeof DeployEvent)[keyof typeof DeployEvent];
 
 /**
+ * Withdraw operation events
+ *
+ * Emitted by withdraw strategies (withdrawing vault shares from DeFi protocols)
+ */
+export const WithdrawEvent = {
+  Progress: 'progress',
+  StatusChange: 'status-change',
+  Completed: 'completed',
+  Failed: 'failed',
+  Error: 'error',
+} as const;
+
+export type WithdrawEvent = (typeof WithdrawEvent)[keyof typeof WithdrawEvent];
+
+/**
  * Bridge operation events
  *
  * Emitted by bridge strategies (cross-chain L-Asset transfers)
@@ -199,6 +214,17 @@ export interface DeployEventMap extends StrategyEventHandlerMap {
 }
 
 /**
+ * Event handler type mapping for withdraw operations
+ */
+export interface WithdrawEventMap extends StrategyEventHandlerMap {
+  [WithdrawEvent.Progress]: (progress: StrategyProgress<string>) => void;
+  [WithdrawEvent.StatusChange]: (status: string) => void;
+  [WithdrawEvent.Completed]: () => void;
+  [WithdrawEvent.Failed]: () => void;
+  [WithdrawEvent.Error]: (error: LombardError) => void;
+}
+
+/**
  * Event handler type mapping for bridge operations
  */
 export interface BridgeEventMap extends StrategyEventHandlerMap {
@@ -242,6 +268,7 @@ export type StrategyEventMap =
   | RedeemEventMap
   | UnstakeEventMap
   | DeployEventMap
+  | WithdrawEventMap
   | BridgeEventMap
   | StakeAndDeployEventMap
   | DepositAndDeployEventMap;
@@ -255,6 +282,7 @@ export type StrategyEvent =
   | RedeemEvent
   | UnstakeEvent
   | DeployEvent
+  | WithdrawEvent
   | BridgeEvent
   | StakeAndDeployEvent
   | DepositAndDeployEvent;

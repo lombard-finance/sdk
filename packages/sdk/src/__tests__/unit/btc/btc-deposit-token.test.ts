@@ -4,9 +4,9 @@
  * Tests to verify that the correct token (BTCb vs LBTC) is used
  * when generating deposit addresses.
  *
- * Related Issue: APP-1974
- * - BTC.b deposit was incorrectly generating LBTC deposit addresses
- * - The root cause was token parameter not being properly derived from assetOut
+ * Background:
+ * - BTC.b deposit must generate BTCb deposit addresses, not LBTC
+ * - The token parameter must be properly derived from assetOut
  *
  * @module __tests__/unit/btc/btc-deposit-token.test.ts
  */
@@ -17,7 +17,7 @@ import { assetIdToToken } from '../../../chains/btc/actions/shared/tokenUtils';
 import { AssetId } from '../../../core';
 import { Token } from '../../../tokens/token-addresses';
 
-describe('BTC Deposit Token Resolution (APP-1974)', () => {
+describe('BTC Deposit Token Resolution', () => {
   // ═══════════════════════════════════════════════════════════════════════════
   // assetIdToToken
   // ═══════════════════════════════════════════════════════════════════════════
@@ -48,11 +48,10 @@ describe('BTC Deposit Token Resolution (APP-1974)', () => {
 
     describe('BTC Deposit specific behavior', () => {
       /**
-       * APP-1974 Root Cause:
        * The BtcDeposit.getExpectedToken() method correctly calls
        * assetIdToToken(this.params.assetOut, Token.BTCb)
        * 
-       * However, if assetOut is not properly passed (e.g., undefined or wrong value),
+       * If assetOut is not properly passed (e.g., undefined or wrong value),
        * it could default to LBTC, causing the wrong deposit address to be generated.
        */
 
@@ -155,7 +154,6 @@ describe('BTC Deposit Token Resolution (APP-1974)', () => {
     });
 
     it('should never allow BTCb deposit to use LBTC token', () => {
-      // This is the core test for APP-1974
       // If assetOut is BTCb, the token MUST be BTCb
       const actionAssetOut = AssetId.BTCb;
       const tokenForApi = assetIdToToken(actionAssetOut, Token.BTCb);

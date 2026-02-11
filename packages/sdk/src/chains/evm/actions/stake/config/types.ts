@@ -8,13 +8,13 @@
  * @module chains/evm/actions/stake/config/types
  */
 
+import type { Env } from '@lombard.finance/sdk-common';
 import type { z } from 'zod';
 
 import type {
   Chain,
   ChainType,
   DeployProtocol,
-  Env,
 } from '../../../../../core';
 import type { EvmCoreContext } from '../../../../../shared/context';
 

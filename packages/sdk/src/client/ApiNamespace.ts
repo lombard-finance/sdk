@@ -49,6 +49,12 @@ import {
 } from '../api-functions/getUnstakesByAddress/getUnstakesByAddress';
 import type { ChainId, SolanaChain, StarknetChainId, SuiChain } from '../common/chains';
 import type { Token } from '../tokens/token-addresses';
+import { Vault } from '../vaults/lib/config';
+import {
+  getVaultWithdrawals,
+  getVaultWithdrawalsAllChains,
+  type VaultWithdrawals
+} from '../vaults/lib/ops/get-vault-withdrawals';
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -85,6 +91,16 @@ export interface DepositAddressOptions {
 
 /** Destination chain types for deposit address */
 export type DestinationChain = ChainId | SuiChain | SolanaChain | StarknetChainId;
+
+/** Options for fetching vault withdrawals */
+export interface VaultWithdrawalsOptions {
+  /** Filter by chain ID (if not provided, fetches from all chains) */
+  chainId?: ChainId;
+  /** Vault key (defaults to Veda) */
+  vault?: Vault;
+  /** Optional RPC URL override */
+  rpcUrl?: string;
+}
 
 /* -------------------------------------------------------------------------- */
 /*                              ApiNamespace                                  */
@@ -283,6 +299,63 @@ export class ApiNamespace {
       env: this.env,
       partnerId: options?.partnerId,
       token: options?.token,
+    });
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                          Vault Withdrawals                                 */
+  /* -------------------------------------------------------------------------- */
+
+  /**
+   * Fetch all vault withdrawals for an address.
+   *
+   * Returns withdrawal objects categorized by status (cancelled, expired,
+   * fulfilled, open). If chainId is not provided, fetches from all supported chains.
+   *
+   * @param address - The address to fetch withdrawals for
+   * @param options - Optional filters (chainId, vault, rpcUrl)
+   * @returns Promise resolving to categorized vault withdrawals
+   *
+   * @example
+   * ```ts
+   * // Get all withdrawals from all chains
+   * const result = await sdk.api.vaultWithdrawals('0x1234...');
+   * console.log(`Open: ${result.open.length}, Fulfilled: ${result.fulfilled.length}`);
+   *
+   * // Filter by specific chain
+   * const ethereumOnly = await sdk.api.vaultWithdrawals('0x1234...', {
+   *   chainId: ChainId.ethereum,
+   * });
+   *
+   * // Display withdrawal info
+   * result.open.forEach(w => {
+   *   console.log(`Amount: ${w.shareAmount.toFixed()}, Deadline: ${new Date(w.deadline * 1000)}`);
+   * });
+   * ```
+   */
+  async vaultWithdrawals(
+    address: string,
+    options?: VaultWithdrawalsOptions,
+  ): Promise<VaultWithdrawals> {
+    const account = address as `0x${string}`;
+    const vaultKey = options?.vault ?? Vault.Veda;
+
+    if (options?.chainId) {
+      // Fetch from specific chain
+      return getVaultWithdrawals({
+        account,
+        chainId: options.chainId,
+        vaultKey,
+        rpcUrl: options.rpcUrl,
+        env: this.env,
+      });
+    }
+
+    // Fetch from all chains
+    return getVaultWithdrawalsAllChains({
+      account,
+      vaultKey,
+      rpcUrl: options?.rpcUrl,
     });
   }
 

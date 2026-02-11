@@ -7,7 +7,9 @@
  * @module chains/btc/actions/shared/validation
  */
 
-import type { AssetId, Chain, Env } from '../../../../core';
+import type { Env } from '@lombard.finance/sdk-common';
+
+import type { AssetId, Chain } from '../../../../core';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 
 // ═══════════════════════════════════════════════════════════════════════════
