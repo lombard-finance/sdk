@@ -274,7 +274,6 @@ export {
   isSuiChain,
   isValidChain,
   katana,
-  katanaTatara,
   megaeth,
   monad,
   SOLANA_DEVNET_CHAIN,
@@ -470,6 +469,7 @@ export {
   getLBTCBurningFee,
   getLBTCMintingFee,
   getMinRedeemAmount,
+  getMinRedeemAmountWithFee,
   getMintingFee,
   getRedeemFee
 } from './contract-functions/getLBTCMintingFee/getLBTCMintingFee';
@@ -505,6 +505,7 @@ export {
   getAssetRouterAddress
 } from './contract-functions/deposit/depositToken';
 export {
+  getAddressConfirmationMessage,
   signLbtcDestinationAddr,
   type SignLbtcDestinationAddrParams
 } from './contract-functions/signLbtcDestionationAddr/signLbtcDestinationAddr';

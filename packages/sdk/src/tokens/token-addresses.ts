@@ -122,9 +122,6 @@ export type TokenAddresses<
  * const addresses = EVM_BTCB_ADDRESSES[Env.testnet][ChainId.avalancheFuji];
  * // { token: '0xB14f240...', adapter: '0x41BCd71...' }
  *
- * // Katana Tatara (testnet) has single address:
- * const address = EVM_BTCB_ADDRESSES[Env.testnet][ChainId.katanaTatara];
- * // '0x20eA7b8...'
  * ```
  */
 const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
@@ -169,7 +166,6 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
     [ChainId.binanceSmartChainTestnet]:
       '0xea3F66E5f2928dB9673103BfA01a2153A57a8050',
     [ChainId.sepolia]: '0x195219A262423d209E126BD21cf4F4F9AA796927',
-    [ChainId.katanaTatara]: '0xA74D838817f3098166d74a141b7d241efB15F42c',
   },
   [Env.stage]: {
     ...(featureConfig.isAvalancheFujiEnabled
@@ -181,7 +177,6 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
         }
       : {}),
     [ChainId.sepolia]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
-    [ChainId.katanaTatara]: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
   },
   [Env.testnet]: {
     ...(featureConfig.isAvalancheFujiEnabled
@@ -193,7 +188,6 @@ const EVM_BTCB_ADDRESSES: TokenAddressesPerEnv<Token.BTCb, ChainId> = {
         }
       : {}),
     [ChainId.sepolia]: '0x20eA7b8ABb4B583788F1DFC738C709a2d9675681',
-    [ChainId.katanaTatara]: '0x20eA7b8ABb4B583788F1DFC738C709a2d9675681',
   },
 };
 
@@ -236,7 +230,6 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
     [ChainId.binanceSmartChainTestnet]:
       '0x731eFa688F3679688cf60A3993b8658138953ED6',
     [ChainId.holesky]: '0xED7bfd5C1790576105Af4649817f6d35A75CD818',
-    [ChainId.katanaTatara]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
     [ChainId.sepolia]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
     [ChainId.sonicBlazeTestnet]: '0x731eFa688F3679688cf60A3993b8658138953ED6',
   },
@@ -254,7 +247,6 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
     [ChainId.holesky]: '0x38A13AB20D15ffbE5A7312d2336EF1552580a4E2',
     [ChainId.sepolia]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
     [ChainId.sonicBlazeTestnet]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
-    [ChainId.katanaTatara]: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
   },
   [Env.dev]: {
     ...(featureConfig.isAvalancheFujiEnabled
@@ -268,7 +260,6 @@ export const EVM_LBTC_ADDRESSES: TokenAddressesPerEnv<Token.LBTC, ChainId> = {
       '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
     [ChainId.binanceSmartChainTestnet]:
       '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
-    [ChainId.katanaTatara]: '0xc47e4b3124597FDF8DD07843D4a7052F2eE80C30',
   },
 };
 

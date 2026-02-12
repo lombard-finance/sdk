@@ -52,34 +52,6 @@ export const katana = defineChain({
   },
 });
 
-export const katanaTatara = defineChain({
-  testnet: true,
-  id: 129399,
-  name: 'Tatara',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'Ether',
-    symbol: 'ETH',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://rpc.tatara.katanarpc.com'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Tatara Explorer',
-      url: 'https://explorer.tatara.katana.network',
-    },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 7771207, // TODO: Confirm this
-    },
-  },
-});
-
 // FIXME: Remove this custom chain definition once TAC is supported by viem
 export const tac = defineChain({
   id: 239,
@@ -210,7 +182,7 @@ export const megaeth = defineChain({
   blockExplorers: {
     default: {
       name: 'MegaETH Explorer',
-      url: 'http://megaeth-testnet-v3.blockscout.com',
+      url: 'https://megaeth.blockscout.com',
     },
   },
   contracts: {
@@ -224,7 +196,6 @@ export const megaeth = defineChain({
 export const allChains: Record<string, viem_chains.Chain> = {
   ...viem_chains,
   katana,
-  katanaTatara,
   tac,
   monad,
   stable,
@@ -310,7 +281,6 @@ export const ChainId = {
   berachainBartioTestnet: 80084,
   binanceSmartChainTestnet: 97,
   holesky: 17000,
-  katanaTatara: 129399,
   morphHolesky: 2810,
   sepolia: 11155111,
   sonicBlazeTestnet: 57054,
@@ -356,7 +326,6 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
     : {}),
   [ChainId.binanceSmartChainTestnet]: bscTestnet,
   [ChainId.holesky]: holesky,
-  [ChainId.katanaTatara]: katanaTatara,
   ...(featureConfig.isMorphEnabled
     ? { [ChainId.morphHolesky]: morphHolesky }
     : {}),
@@ -364,11 +333,9 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.sonicBlazeTestnet]: sonicBlazeTestnet,
 };
 
-type KatanaChain = typeof ChainId.katana | typeof ChainId.katanaTatara;
+type KatanaChain = typeof ChainId.katana;
 export const isKatanaChain = (chainId: unknown): chainId is KatanaChain => {
-  return ([ChainId.katana, ChainId.katanaTatara] as number[]).includes(
-    chainId as number,
-  );
+  return chainId === ChainId.katana;
 };
 type MonadChain = typeof ChainId.monad;
 export const isMonadChain = (chainId: unknown): chainId is MonadChain => {

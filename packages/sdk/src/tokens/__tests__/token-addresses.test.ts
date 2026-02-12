@@ -73,7 +73,6 @@ describe('Token Addresses', () => {
       });
 
       it('should return undefined for chain without deployment', () => {
-        // Sepolia is a testnet chain, so it has no prod deployment
         const address = getTokenAddressForChain(
           ChainId.sepolia,
           AddressKind.Token,
@@ -180,7 +179,6 @@ describe('Token Addresses', () => {
           ChainId.sepolia,
           ChainId.holesky,
           ChainId.binanceSmartChainTestnet,
-          ChainId.katanaTatara,
         ];
 
         for (const chainId of testnetChains) {

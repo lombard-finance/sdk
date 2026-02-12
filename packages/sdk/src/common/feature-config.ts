@@ -58,6 +58,7 @@ export interface FeatureConfig {
    * @default false - Not yet fully supported
    */
   isEtherlinkEnabled: boolean;
+
 }
 
 export const featureConfig: FeatureConfig = {

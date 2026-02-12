@@ -34,9 +34,23 @@ export default defineConfig({
     },
   },
   build: {
-    sourcemap: false,
+    sourcemap: true,
     lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'),
+      // Multiple entry points for code splitting
+      entry: {
+        index: path.resolve(__dirname, 'src/index.ts'),
+        core: path.resolve(__dirname, 'src/entries/core.ts'),
+        api: path.resolve(__dirname, 'src/entries/api.ts'),
+        contracts: path.resolve(__dirname, 'src/entries/contracts.ts'),
+        btc: path.resolve(__dirname, 'src/entries/btc.ts'),
+        evm: path.resolve(__dirname, 'src/entries/evm.ts'),
+        metrics: path.resolve(__dirname, 'src/entries/metrics.ts'),
+        utils: path.resolve(__dirname, 'src/entries/utils.ts'),
+        vaults: path.resolve(__dirname, 'src/entries/vaults.ts'),
+        defi: path.resolve(__dirname, 'src/entries/defi.ts'),
+        bridge: path.resolve(__dirname, 'src/entries/bridge.ts'),
+        debug: path.resolve(__dirname, 'src/entries/debug.ts'),
+      },
     },
     rollupOptions: {
       output: [
@@ -44,19 +58,23 @@ export default defineConfig({
           format: 'es',
           dir: 'dist',
           entryFileNames: '[name].js',
-          chunkFileNames: '[name].js',
+          chunkFileNames: 'chunks/[name]-[hash].js',
         },
         {
           format: 'commonjs',
           dir: 'dist',
           entryFileNames: '[name].cjs',
-          chunkFileNames: '[name].cjs',
+          chunkFileNames: 'chunks/[name]-[hash].cjs',
         },
       ],
       plugins: [],
-      // make sure to externalize deps that shouldn't be bundled
-      // into your library
-      external: [...Object.keys(packageJson.peerDependencies)],
+      // Externalize peer dependencies (not bundled into SDK)
+      external: [
+        ...Object.keys(packageJson.peerDependencies),
+        // Also externalize subpath imports of peer deps
+        /^viem\/.*/,
+        /^@layerzerolabs\/.*/,
+      ],
     },
   },
 });
