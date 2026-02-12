@@ -37,8 +37,6 @@ export const CCIP_BRIDGE_CHAINS = [
   ...(featureConfig.isAvalancheFujiEnabled ? [ChainId.avalancheFuji] : []),
   ChainId.baseSepoliaTestnet,
   ChainId.holesky,
-  // katanaTatara is a deprecated testnet - conditionally include
-  ...(featureConfig.isKatanaTataraEnabled ? [ChainId.katanaTatara] : []),
   ChainId.sepolia,
 ];
 export type CCIPBridgeChain = (typeof CCIP_BRIDGE_CHAINS)[number];
@@ -185,26 +183,6 @@ const CCIP_FROM_HOLESKY = {
   },
 };
 
-const CCIP_FROM_KATANA_TATARA = {
-  routes: [bridgeIdentifier([ChainId.katanaTatara, ChainId.sepolia])],
-  type: BridgeType.CCIP,
-  contract: {
-    address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F' as Address,
-    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-    chainId: ChainId.katanaTatara,
-  },
-};
-
-const CCIP_FROM_SEPOLIA = {
-  routes: [bridgeIdentifier([ChainId.sepolia, ChainId.katanaTatara])],
-  type: BridgeType.CCIP,
-  contract: {
-    address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F' as Address,
-    abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-    chainId: ChainId.sepolia,
-  },
-};
-
 const CCIP_BRIDGES: CCIPBridgesConfig[] = [
   // Mainnets:
   CCIP_FROM_ETH,
@@ -215,8 +193,6 @@ const CCIP_BRIDGES: CCIPBridgesConfig[] = [
   // Testnets:
   CCIP_FROM_BASE_SEPOLIA,
   CCIP_FROM_HOLESKY,
-  CCIP_FROM_KATANA_TATARA,
-  CCIP_FROM_SEPOLIA,
 ].reduce((acc, cur) => {
   if (cur.type !== BridgeType.CCIP) return acc;
 

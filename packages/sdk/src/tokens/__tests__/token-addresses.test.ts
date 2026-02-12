@@ -179,7 +179,6 @@ describe('Token Addresses', () => {
           ChainId.sepolia,
           ChainId.holesky,
           ChainId.binanceSmartChainTestnet,
-          ChainId.katanaTatara,
         ];
 
         for (const chainId of testnetChains) {

@@ -50,15 +50,6 @@ export const LBTCOnBase: Story = {
   },
 };
 
-export const BTCbOnKatanaTatara: Story = {
-  args: {
-    tokenAddress: '0x20eA7b8ABb4B583788F1DFC738C709a2d9675681',
-    chainId: ChainId.katanaTatara,
-    env: undefined,
-    addressKind: AddressKind.Token,
-  },
-};
-
 export const UnknownToken: Story = {
   args: {
     tokenAddress: '0x0000000000000000000000000000000000000000',

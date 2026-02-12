@@ -160,7 +160,7 @@ export const CHAIN_CATALOG: Record<Chain, ChainMetadata> = {
     name: 'MegaETH',
     type: 'evm',
     isTestnet: false,
-    explorerUrl: 'https://megaeth.blockscout.com/',
+    explorerUrl: 'https://megaeth.blockscout.com',
     nativeCurrency: 'ETH',
     badgeVariant: 'info',
   },
@@ -214,14 +214,6 @@ export const CHAIN_CATALOG: Record<Chain, ChainMetadata> = {
     isTestnet: true,
     explorerUrl: 'https://bartio.beratrail.io',
     nativeCurrency: 'BERA',
-    badgeVariant: 'secondary',
-  },
-  [Chain.KATANA_TATARA]: {
-    name: 'Katana Tatara',
-    type: 'evm',
-    isTestnet: true,
-    explorerUrl: 'https://explorer.tatara.katanarpc.com',
-    nativeCurrency: 'BTC.b',
     badgeVariant: 'secondary',
   },
   // Note: SONIC_TESTNET and SONIC_BLAZE_TESTNET are the same chain (eip155:57054)

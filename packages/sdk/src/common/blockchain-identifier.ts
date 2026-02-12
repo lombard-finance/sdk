@@ -88,7 +88,7 @@ export function getChainNameById(
     return BlockchainIdentifier.bsc;
   }
 
-  if (chainId === ChainId.katana || chainId === ChainId.katanaTatara) {
+  if (chainId === ChainId.katana) {
     return BlockchainIdentifier.katana;
   }
 
@@ -181,7 +181,7 @@ export function getChainIdByName(
 
     case BlockchainIdentifier.katana:
     case BlockchainIdentifier.katanaOld:
-      return env === Env.prod ? ChainId.katana : ChainId.katanaTatara;
+      return ChainId.katana;
 
     case BlockchainIdentifier.sui:
     case BlockchainIdentifier.suiOld:

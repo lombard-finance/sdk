@@ -59,10 +59,6 @@ export const CCIP_CONFIG: CCIPConfig = {
     routerAddress: '0xE1053aE1857476f36A3C62580FF9b016E8EE8F6f',
     chainSelector: '13264668187771770619',
   },
-  [ChainId.katanaTatara]: {
-    routerAddress: '0x1dF1fe714A376f248d51AAB826C3feeC379e80fC',
-    chainSelector: '9090863410735740267',
-  },
   [ChainId.avalancheFuji]: {
     routerAddress: '0xF694E193200268f9a4868e4Aa017A0118C9a8177',
     chainSelector: '14767482510784806043',

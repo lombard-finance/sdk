@@ -21,7 +21,7 @@ import {
 } from 'wagmi/chains';
 
 import { rpcUrlConfig } from '../../../clients/rpc-url-config';
-import { katana, katanaTatara, tac } from '../../../common/chains';
+import { katana, tac } from '../../../common/chains';
 
 const config = createConfig({
   chains: [
@@ -41,7 +41,6 @@ const config = createConfig({
     berachainTestnetbArtio,
     bscTestnet,
     holesky,
-    katanaTatara,
     morphHolesky,
     sepolia,
     sonicBlazeTestnet,
@@ -64,7 +63,6 @@ const config = createConfig({
     [berachainTestnetbArtio.id]: http(rpcUrlConfig[berachainTestnetbArtio.id]),
     [bscTestnet.id]: http(rpcUrlConfig[bscTestnet.id]),
     [holesky.id]: http(rpcUrlConfig[holesky.id]),
-    [katanaTatara.id]: http(rpcUrlConfig[katanaTatara.id]),
     [morphHolesky.id]: http(rpcUrlConfig[morphHolesky.id]),
     [sepolia.id]: http(rpcUrlConfig[sepolia.id]),
     [sonicBlazeTestnet.id]: http(rpcUrlConfig[sonicBlazeTestnet.id]),

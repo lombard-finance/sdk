@@ -37,14 +37,6 @@ export const LBTCOnEthereum: Story = {
   },
 };
 
-export const BTCKOnKatanaTatara: Story = {
-  args: {
-    token: Token.BTCK,
-    chainId: ChainId.katanaTatara,
-    env: undefined,
-  },
-};
-
 export const LBTCOnBase: Story = {
   args: {
     token: Token.LBTC,

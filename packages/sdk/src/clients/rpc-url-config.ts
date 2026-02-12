@@ -25,7 +25,6 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.binanceSmartChainTestnet]:
     'https://bsc-testnet-dataseed.bnbchain.org',
   [ChainId.holesky]: `${RPC_URL}/eth_holesky`,
-  [ChainId.katanaTatara]: `${RPC_URL}/katana_tatara`,
   [ChainId.sepolia]: `${RPC_URL}/eth_sepolia`,
   // Use direct Sonic Labs RPC for testnet (proxy returns 403)
   [ChainId.sonicBlazeTestnet]: 'https://rpc.blaze.soniclabs.com',
@@ -52,7 +51,6 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.binanceSmartChainTestnet]:
       'https://bsc-testnet-dataseed.bnbchain.org',
     [ChainId.holesky]: `${proxy}/eth_holesky`,
-    [ChainId.katanaTatara]: `${proxy}/katana_tatara`,
     [ChainId.sepolia]: `${proxy}/eth_sepolia`,
     // Use direct Sonic Labs RPC for testnet (proxy returns 403)
     [ChainId.sonicBlazeTestnet]: 'https://rpc.blaze.soniclabs.com',

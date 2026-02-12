@@ -41,7 +41,6 @@ export {
   isSuiChain,
   isValidChain,
   katana,
-  katanaTatara,
   megaeth,
   monad,
   SOLANA_DEVNET_CHAIN,
