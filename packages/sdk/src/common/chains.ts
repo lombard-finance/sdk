@@ -210,7 +210,7 @@ export const megaeth = defineChain({
   blockExplorers: {
     default: {
       name: 'MegaETH Explorer',
-      url: 'http://megaeth-testnet-v3.blockscout.com',
+      url: 'https://megaeth.blockscout.com/',
     },
   },
   contracts: {
@@ -356,7 +356,10 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
     : {}),
   [ChainId.binanceSmartChainTestnet]: bscTestnet,
   [ChainId.holesky]: holesky,
-  [ChainId.katanaTatara]: katanaTatara,
+  // katanaTatara is a deprecated testnet - conditionally include if needed
+  ...(featureConfig.isKatanaTataraEnabled
+    ? { [ChainId.katanaTatara]: katanaTatara }
+    : {}),
   ...(featureConfig.isMorphEnabled
     ? { [ChainId.morphHolesky]: morphHolesky }
     : {}),

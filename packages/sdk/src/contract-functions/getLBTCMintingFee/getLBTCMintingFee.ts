@@ -191,3 +191,38 @@ export async function getMinRedeemAmount({
 
   return fromSatoshi(String(value));
 }
+
+/**
+ * Gets the minimum transfer amount required for a successful redemption to BTC.
+ *
+ * The contract deducts the redeem fee from the user's input first, then verifies
+ * the remaining amount meets the minimum redeem threshold. Therefore, the minimum
+ * transfer amount the user must provide is `redeemFee + minRedeemAmount`.
+ *
+ * @param params.token - The token to redeem (LBTC, BTCK, or BTCb).
+ * @param params.chainId - The chain ID where the redemption takes place.
+ * @param params.rpcUrl - Optional RPC URL override.
+ * @param params.env - Optional environment identifier.
+ *
+ * @returns The minimum transfer amount in BTC (human-readable).
+ *
+ * @example
+ * ```ts
+ * const minTransfer = await getMinRedeemAmountWithFee({
+ *   token: Token.BTCb,
+ *   chainId: ChainId.avalanche,
+ *   env: Env.prod,
+ * });
+ * // e.g. BigNumber(0.000133) — user must send at least this much
+ * ```
+ */
+export async function getMinRedeemAmountWithFee(
+  params: { token: Token } & CommonParameters,
+): Promise<BigNumber> {
+  const [fee, minRedeem] = await Promise.all([
+    getRedeemFee(params),
+    getMinRedeemAmount(params),
+  ]);
+
+  return fee.plus(minRedeem);
+}

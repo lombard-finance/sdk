@@ -37,7 +37,8 @@ export const CCIP_BRIDGE_CHAINS = [
   ...(featureConfig.isAvalancheFujiEnabled ? [ChainId.avalancheFuji] : []),
   ChainId.baseSepoliaTestnet,
   ChainId.holesky,
-  ChainId.katanaTatara,
+  // katanaTatara is a deprecated testnet - conditionally include
+  ...(featureConfig.isKatanaTataraEnabled ? [ChainId.katanaTatara] : []),
   ChainId.sepolia,
 ];
 export type CCIPBridgeChain = (typeof CCIP_BRIDGE_CHAINS)[number];

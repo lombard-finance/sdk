@@ -58,6 +58,12 @@ export interface FeatureConfig {
    * @default false - Not yet fully supported
    */
   isEtherlinkEnabled: boolean;
+
+  /**
+   * Enable/disable Katana Tatara (testnet) chain support
+   * @default false - Deprecated testnet
+   */
+  isKatanaTataraEnabled: boolean;
 }
 
 export const featureConfig: FeatureConfig = {
@@ -74,4 +80,6 @@ export const featureConfig: FeatureConfig = {
   isTacEnabled: false,
   isBobEnabled: false,
   isEtherlinkEnabled: false,
+  // Deprecated testnet - hidden from UI
+  isKatanaTataraEnabled: false,
 };
