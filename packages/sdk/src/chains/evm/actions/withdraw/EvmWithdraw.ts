@@ -29,6 +29,7 @@ import {
 } from '../../../../shared/validation';
 import { fromBaseDenomination, toBaseDenomination } from '../../../../tokens/tokens';
 import toBigInt from '../../../../utils/numbers';
+import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import { isVedaVaultChain, Vault, VAULTS, type VedaVaultChain } from '../../../../vaults/lib/config';
 import { queueWithdraw } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
@@ -192,7 +193,8 @@ export class EvmWithdraw
         args: [vault.withdrawQueueContracts[vedaChainId].address, amountBase],
       });
 
-      await walletClient.writeContract(request);
+      const txHash = await walletClient.writeContract(request);
+      await waitForTransactionReceipt(publicClient, txHash, 'vault share approval');
 
       this._needsApproval = false;
       this.emitProgress({

@@ -1,3 +1,9 @@
+# 4.3.1
+
+- Fixed EVM action `approve()` methods not awaiting transaction receipt before transitioning to READY status. Affected actions: `EvmWithdraw`, `EvmDeploy`, `EvmStake`. The approval transaction is now confirmed on-chain before the action proceeds.
+
+---
+
 # 4.1.1
 
 - Fixed BTCb claiming on Avalanche chains: `getBasculeDepositStatus` now uses `getBascule()` for Bridge Token Adapter contracts instead of `Bascule()`, resolving "Function 'Bascule' not found on ABI" errors
