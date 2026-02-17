@@ -29,6 +29,7 @@ import BigNumber from 'bignumber.js';
 import type { EIP1193Provider } from 'viem';
 import { z } from 'zod';
 
+import { makePublicClient } from '../../../../clients/public-client';
 import { ChainId } from '../../../../common/chains';
 import {
   approveToken,
@@ -47,6 +48,7 @@ import {
 } from '../../../../shared/validation';
 import { AddressKind, Token } from '../../../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../../../tokens/tokens';
+import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import {
   authorizeFee as authorizeFeeShared,
   checkFeeAuthorization,
@@ -220,7 +222,7 @@ export class EvmStake
       const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
       // Execute approval transaction
-      await approveToken({
+      const txHash = await approveToken({
         account: this._account,
         token: Token.BTCb,
         spender: this._spenderAddress,
@@ -229,6 +231,10 @@ export class EvmStake
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
       });
+
+      // Wait for approval to be confirmed on-chain
+      const publicClient = makePublicClient({ chainId });
+      await waitForTransactionReceipt(publicClient, txHash, 'BTC.b approval');
 
       // Mark approval as done
       this._needsApproval = false;

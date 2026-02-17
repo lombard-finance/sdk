@@ -31,6 +31,7 @@ import {
 import { Token } from '../../../../tokens/token-addresses';
 import { getTokenInfo, toBaseDenomination } from '../../../../tokens/tokens';
 import toBigInt from '../../../../utils/numbers';
+import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import { Vault, VAULTS } from '../../../../vaults/lib/config';
 import { deposit } from '../../../../vaults/lib/ops/deposit';
 import { evmConfig } from './config';
@@ -178,7 +179,8 @@ export class EvmDeploy
         args: [vault.vaultContract.address, amountBase],
       });
 
-      await walletClient.writeContract(request);
+      const txHash = await walletClient.writeContract(request);
+      await waitForTransactionReceipt(publicClient, txHash, 'LBTC vault deposit approval');
 
       this._needsApproval = false;
       this.emitProgress({

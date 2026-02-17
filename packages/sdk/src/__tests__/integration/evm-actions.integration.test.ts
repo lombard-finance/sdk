@@ -33,6 +33,7 @@ vi.mock('../../clients/public-client', () => ({
   makePublicClient: vi.fn(() => ({
     readContract: vi.fn().mockResolvedValue(BigInt('100000000000')), // High allowance
     simulateContract: vi.fn().mockResolvedValue({ request: {} }),
+    waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }),
   })),
 }));
 
@@ -470,6 +471,7 @@ describe('EVM Deploy Action', () => {
       vi.mocked(makePublicClient).mockReturnValueOnce({
         readContract: vi.fn().mockResolvedValue(BigInt('0')), // Zero allowance
         simulateContract: vi.fn().mockResolvedValue({ request: {} }),
+        waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }),
       } as unknown as ReturnType<typeof makePublicClient>);
 
       const config = createConfig({
@@ -500,6 +502,7 @@ describe('EVM Deploy Action', () => {
       vi.mocked(makePublicClient).mockReturnValueOnce({
         readContract: vi.fn().mockResolvedValue(BigInt('0')), // Zero allowance
         simulateContract: vi.fn().mockResolvedValue({ request: {} }),
+        waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }),
       } as unknown as ReturnType<typeof makePublicClient>);
 
       const config = createConfig({
