@@ -233,7 +233,7 @@ export class EvmStake
       });
 
       // Wait for approval to be confirmed on-chain
-      const publicClient = makePublicClient({ chainId });
+      const publicClient = makePublicClient({ chainId, env: this.ctx.env });
       await waitForTransactionReceipt(publicClient, txHash, 'BTC.b approval');
 
       // Mark approval as done
