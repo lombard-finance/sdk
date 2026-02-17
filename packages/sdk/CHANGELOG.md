@@ -4,6 +4,27 @@
 
 ---
 
+# 4.3.0
+
+- Added partner helper functions (`getLBTCMintingFee`, `signLbtcDestinationAddr`)
+- Updated chain configurations and feature flags
+
+---
+
+# 4.2.0
+
+- Added `EvmWithdraw` and `EvmCancelWithdraw` actions for vault withdrawal flows
+- Added code splitting with new subpath entry points (`/api`, `/btc`, `/evm`, `/contracts`, `/core`, `/defi`, `/metrics`, `/utils`, `/vaults`, `/bridge`, `/debug`) for tree-shaking support
+- Added MegaETH support and CCIP bridge configuration
+- Added Avalanche mainnet support
+- Added BTCb to ETH bridge functionality
+- Updated withdrawal deadline from 3 to 14 days
+- Fixed BTCb claiming on Avalanche
+- Fixed Starknet ref code handling
+- Improved bridge status tracking
+
+---
+
 # 4.1.1
 
 - Fixed BTCb claiming on Avalanche chains: `getBasculeDepositStatus` now uses `getBascule()` for Bridge Token Adapter contracts instead of `Bascule()`, resolving "Function 'Bascule' not found on ABI" errors
