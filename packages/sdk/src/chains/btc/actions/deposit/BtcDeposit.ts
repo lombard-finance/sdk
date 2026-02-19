@@ -164,7 +164,7 @@ export class BtcDeposit
     return this.authState.mintingFee;
   }
 
-  protected getDepositAddressParams() {
+  protected getDepositAddressParams(captchaToken?: string) {
     const recipient = this.ensureRecipient();
     return {
       address: recipient,
@@ -174,6 +174,7 @@ export class BtcDeposit
       eip712Data: this.authState.typedData,
       partnerId: this.ctx.partner.getPartnerId(),
       referrerCode: this._referralCode,
+      captchaToken,
     };
   }
 
@@ -183,7 +184,7 @@ export class BtcDeposit
    * When fee auth exists on server but signature isn't available locally,
    * we fall back to signing the destination address.
    */
-  async generateDepositAddress(): Promise<string> {
+  async generateDepositAddress(captchaToken?: string): Promise<string> {
     // If signature isn't available locally, sign the destination address as fallback
     if (!this.authState.signature) {
       const result = await depositConfig.signDestination(
@@ -195,7 +196,7 @@ export class BtcDeposit
       this.authState.typedData = result.typedData;
     }
 
-    return this.generateDepositAddressImpl();
+    return this.generateDepositAddressImpl(captchaToken);
   }
 
   /**

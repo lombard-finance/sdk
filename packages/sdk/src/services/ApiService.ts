@@ -68,6 +68,7 @@ export class ApiService implements IApiService {
       env: this.env,
       partnerId: params.partnerId,
       referrerCode: params.referrerCode,
+      captchaToken: params.captchaToken,
     });
   }
 

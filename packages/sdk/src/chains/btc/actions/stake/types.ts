@@ -151,7 +151,7 @@ export interface BtcStake extends MonitorableAction {
    * @returns BTC deposit address (bc1...)
    * @throws LombardError if not authorized or API fails
    */
-  generateDepositAddress(): Promise<string>;
+  generateDepositAddress(captchaToken?: string): Promise<string>;
 
   /**
    * Execute the stake operation
