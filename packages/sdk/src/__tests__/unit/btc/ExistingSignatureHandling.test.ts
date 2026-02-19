@@ -92,13 +92,14 @@ class TestBtcAction extends BaseBtcAction<any, string, { destChain: Chain }> {
     return this.chainId;
   }
 
-  protected getDepositAddressParams() {
+  protected getDepositAddressParams(captchaToken?: string) {
     return {
       address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       chainId: this.chainId,
       signature: '0xsignature',
       token: 'LBTC',
       partnerId: 'test-partner',
+      captchaToken,
     };
   }
 

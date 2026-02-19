@@ -46,6 +46,8 @@ export interface GenerateDepositAddressParams {
   partnerId?: string;
   /** Referral code */
   referrerCode?: string;
+  /** Captcha token */
+  captchaToken?: string;
 }
 
 /**

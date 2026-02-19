@@ -40,12 +40,13 @@ class TestBtcAction extends BaseBtcAction<any, string, BaseBtcParams> {
   protected getChainId() {
     return ChainId.sepolia;
   }
-  protected getDepositAddressParams() {
+  protected getDepositAddressParams(captchaToken?: string) {
     return {
       address: '0x123',
       chainId: ChainId.sepolia,
       signature: '0xsig',
       token: 'LBTC',
+      captchaToken,
     };
   }
 
