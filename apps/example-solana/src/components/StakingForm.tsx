@@ -1,7 +1,6 @@
 import { AssetId, Chain, Env } from '@lombard.finance/sdk';
 import { useEffect, useState } from 'react';
 
-import { useEvmWallet } from '../hooks/useEvmWallet';
 import { getAvailableChains, getDefaultChain } from '../lib/chains';
 import type { StakingFormData } from '../lib/types';
 
@@ -15,7 +14,7 @@ interface StakingFormProps {
 }
 
 /**
- * Form for configuring staking parameters
+ * Form for configuring staking parameters (Solana destination)
  */
 export function StakingForm({
   env,
@@ -32,7 +31,6 @@ export function StakingForm({
     fixedDestChain ?? getDefaultChain(env),
   );
   const [destAddress, setDestAddress] = useState('');
-  const { address: evmAddress, isConnected: isEvmConnected } = useEvmWallet();
 
   // Update destination chain when environment changes (only if not fixed)
   useEffect(() => {
@@ -41,27 +39,12 @@ export function StakingForm({
     }
   }, [env, fixedDestChain]);
 
-  // Auto-fill destination address based on chain type
+  // Auto-fill destination address from connected Solana wallet
   useEffect(() => {
-    // For Solana chains, use Solana address
-    if (solanaAddress && !destAddress && destChain.includes('solana')) {
+    if (solanaAddress && !destAddress) {
       setDestAddress(solanaAddress);
     }
-    // For Sui chains, use Sui address (passed via solanaAddress prop)
-    else if (solanaAddress && !destAddress && destChain.includes('sui')) {
-      setDestAddress(solanaAddress);
-    }
-    // For EVM chains, use EVM address
-    else if (
-      isEvmConnected &&
-      evmAddress &&
-      !destAddress &&
-      !destChain.includes('solana') &&
-      !destChain.includes('sui')
-    ) {
-      setDestAddress(evmAddress);
-    }
-  }, [isEvmConnected, evmAddress, solanaAddress, destAddress, destChain]);
+  }, [solanaAddress, destAddress]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -149,7 +132,7 @@ export function StakingForm({
             htmlFor="destAddress"
             className="block text-sm font-medium mb-2"
           >
-            Your Destination Address
+            Your Solana Destination Address
           </label>
           <input
             id="destAddress"
@@ -157,31 +140,13 @@ export function StakingForm({
             value={destAddress}
             onChange={e => setDestAddress(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm"
-            placeholder={
-              destChain.includes('solana')
-                ? 'Solana address...'
-                : destChain.includes('sui')
-                  ? 'Sui address...'
-                  : '0x...'
-            }
+            placeholder="Solana address..."
             required
           />
           <p className="text-xs text-secondary mt-1">
-            {isEvmConnected &&
-              evmAddress === destAddress &&
-              '✓ Auto-filled from connected EVM wallet'}
-            {solanaAddress === destAddress &&
-              destChain.includes('solana') &&
-              '✓ Auto-filled from connected Solana wallet'}
-            {solanaAddress === destAddress &&
-              destChain.includes('sui') &&
-              '✓ Auto-filled from connected Sui wallet'}
-            {!destAddress &&
-              (destChain.includes('solana')
-                ? 'Your Solana wallet address'
-                : destChain.includes('sui')
-                  ? 'Your Sui wallet address'
-                  : `Your EVM wallet address on ${destChain}`)}
+            {solanaAddress === destAddress && destAddress
+              ? '✓ Auto-filled from connected Solana wallet'
+              : 'Your Solana wallet address'}
           </p>
         </div>
       </div>
