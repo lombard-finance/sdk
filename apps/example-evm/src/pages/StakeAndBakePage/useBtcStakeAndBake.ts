@@ -1,37 +1,19 @@
 import {
-  AssetId,
-  BtcActionStatus,
-  type BtcStakeAndDeployProgress,
   Chain,
   createConfig,
-  createLombardSDK,
   DeployProtocol,
   Env,
-  type LombardSDK,
 } from '@lombard.finance/sdk';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useBtcStakeAndBake as useBtcStakeAndBakeHook,
+  useLombardSDK,
+} from '@lombard.finance/sdk-react';
+import { useCallback } from 'react';
 
 import { getEnvironment } from '../../lib/config';
 
-export interface StakeAndBakeStatus {
-  phase:
-    | 'idle'
-    | 'preparing'
-    | 'authorizing'
-    | 'waiting-deposit'
-    | 'confirming'
-    | 'depositing'
-    | 'complete'
-    | 'error';
-  message: string;
-}
-
-export interface StakeAndBakeProgress {
-  confirmations?: number;
-  requiredConfirmations?: number;
-  isDeposited?: boolean;
-  isClaimed?: boolean;
-}
+export type { StakeAndBakeStatus } from '@lombard.finance/sdk-react';
+export type { StakeAndBakeProgressInfo as StakeAndBakeProgress } from '@lombard.finance/sdk-react';
 
 /**
  * Hook for managing Stake-and-Bake flow (BTC → LBTC → Vault)
@@ -39,7 +21,7 @@ export interface StakeAndBakeProgress {
  * Combines staking and vault deployment in a single atomic operation
  *
  * @param protocol - DeFi protocol to deploy to (Veda or Silo)
- * @param partnerId - Partner ID for captcha bypass (optional)
+ * @param partnerId - Partner ID to bypass reCAPTCHA (required without captcha integration)
  * @param env - Environment (prod, testnet, stage)
  */
 export function useBtcStakeAndBake(
@@ -47,232 +29,60 @@ export function useBtcStakeAndBake(
   partnerId?: string,
   env?: Env,
 ) {
-  const [sdk, setSdk] = useState<LombardSDK | null>(null);
-  const [isInitializing, setIsInitializing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [depositAddress, setDepositAddress] = useState<string | null>(null);
-  const [stakeAmount, setStakeAmount] = useState<string | null>(null);
-  const [status, setStatus] = useState<StakeAndBakeStatus>({
-    phase: 'idle',
-    message: 'Ready to stake and bake',
-  });
-  const [progress, setProgress] = useState<StakeAndBakeProgress>({});
+  const currentEnv = env ?? getEnvironment();
 
-  // Initialize SDK
-  useEffect(() => {
-    let mounted = true;
+  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
+    () =>
+      createConfig({
+        env: currentEnv,
+        providers: {
+          ...(window.ethereum && { evm: () => window.ethereum! }),
+        },
+        ...(partnerId && { partner: { partnerId } }),
+      }),
+    // protocol is part of the public interface; include in deps for future use
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [partnerId, currentEnv, protocol],
+  );
 
-    async function initSdk() {
-      try {
-        setIsInitializing(true);
+  const {
+    stakeAndBake: stakeAndBakeCore,
+    reset,
+    depositAddress,
+    stakeAmount,
+    status,
+    progress,
+    error: snbError,
+  } = useBtcStakeAndBakeHook(sdk);
 
-        const config = createConfig({
-          env: env ?? getEnvironment(),
-          providers: {
-            ...(window.ethereum && { evm: () => window.ethereum! }),
-          },
-          ...(partnerId && { partner: { partnerId } }),
-        });
+  const sourceChain =
+    currentEnv === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET;
 
-        const lombard = await createLombardSDK(config);
-
-        if (mounted) {
-          setSdk(lombard);
-          setError(null);
-        }
-      } catch (err) {
-        console.error('Failed to initialize SDK:', err);
-        if (mounted) {
-          setError(
-            err instanceof Error ? err.message : 'Failed to initialize SDK',
-          );
-        }
-      } finally {
-        if (mounted) {
-          setIsInitializing(false);
-        }
-      }
-    }
-
-    initSdk();
-
-    return () => {
-      mounted = false;
-    };
-  }, [partnerId, env]);
-
-  /**
-   * Start stake-and-bake process
-   */
   const stakeAndBake = useCallback(
-    async (params: {
+    (params: {
       amount: string;
       recipient: string;
       destChain: Chain;
+      protocol: DeployProtocol;
       referralCode?: string;
-    }) => {
-      if (!sdk) {
-        throw new Error('SDK not initialized');
-      }
-
-      try {
-        setError(null);
-        setStatus({
-          phase: 'preparing',
-          message: 'Creating stake-and-bake action...',
-        });
-
-        // Step 1: Create stakeAndDeploy action
-        const currentEnv = env ?? getEnvironment();
-        const action = sdk.chain.btc.stakeAndDeploy({
-          assetOut: AssetId.LBTC,
-          destChain: params.destChain,
-          sourceChain:
-            currentEnv === Env.prod
-              ? Chain.BITCOIN_MAINNET
-              : Chain.BITCOIN_SIGNET,
-          protocol,
-        });
-
-        // Listen to status changes
-        action.on('status-change', (...args: unknown[]) => {
-          const newStatus = args[0] as BtcActionStatus;
-          console.log('Status changed:', newStatus);
-
-          const statusMapping: Record<string, StakeAndBakeStatus> = {
-            [BtcActionStatus.IDLE]: {
-              phase: 'idle',
-              message: 'Initializing...',
-            },
-            [BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION]: {
-              phase: 'authorizing',
-              message: 'Authorize vault deposit...',
-            },
-            [BtcActionStatus.READY]: {
-              phase: 'preparing',
-              message: 'Ready to generate address',
-            },
-            [BtcActionStatus.ADDRESS_READY]: {
-              phase: 'waiting-deposit',
-              message: 'Waiting for BTC deposit',
-            },
-          };
-
-          setStatus(
-            statusMapping[newStatus] || {
-              phase: 'idle',
-              message: String(newStatus),
-            },
-          );
-        });
-
-        // Listen to progress events
-        action.on('progress', (...args: unknown[]) => {
-          const progressData = args[0] as BtcStakeAndDeployProgress;
-          console.log('Progress:', progressData);
-
-          setProgress({
-            confirmations: progressData.confirmations,
-            requiredConfirmations: progressData.requiredConfirmations,
-            isDeposited: progressData.isDeposited,
-            isClaimed: progressData.isClaimed,
-          });
-
-          if (progressData.confirmations !== undefined) {
-            const hasEnough = progressData.hasEnoughConfirmations ?? false;
-            if (hasEnough && !progressData.isDeposited) {
-              setStatus({
-                phase: 'depositing',
-                message: 'Minting LBTC and depositing to vault...',
-              });
-            } else if (!hasEnough) {
-              setStatus({
-                phase: 'confirming',
-                message: 'Confirming transaction...',
-              });
-            }
-          }
-
-          if (progressData.isDeposited) {
-            setStatus({
-              phase: 'complete',
-              message: 'Stake and bake complete!',
-            });
-          }
-        });
-
-        // Step 2: Prepare with amount and recipient
-        setStatus({ phase: 'preparing', message: 'Preparing parameters...' });
-        await action.prepare({
-          amount: params.amount,
-          recipient: params.recipient,
-          ...(params.referralCode && { referralCode: params.referralCode }),
-        });
-
-        // Step 3: Authorize vault deposit
-        if (action.status === BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION) {
-          setStatus({
-            phase: 'authorizing',
-            message: 'Authorizing vault deposit...',
-          });
-          await action.authorizeDeposit();
-        }
-
-        // Step 4: Generate deposit address
-        if (
-          action.status === BtcActionStatus.ADDRESS_READY &&
-          action.depositAddress
-        ) {
-          setDepositAddress(action.depositAddress);
-          setStakeAmount(params.amount);
-          setStatus({
-            phase: 'waiting-deposit',
-            message: 'Send BTC to the address below',
-          });
-        } else if (action.status === BtcActionStatus.READY) {
-          setStatus({
-            phase: 'waiting-deposit',
-            message: 'Generating deposit address...',
-          });
-          const address = await action.generateDepositAddress();
-
-          setDepositAddress(address);
-          setStakeAmount(params.amount);
-          setStatus({
-            phase: 'waiting-deposit',
-            message: 'Send BTC to the address below',
-          });
-        }
-      } catch (err) {
-        console.error('Stake and bake failed:', err);
-        setError(err instanceof Error ? err.message : 'Stake and bake failed');
-        setStatus({
-          phase: 'error',
-          message: 'Failed to create stake and bake',
-        });
-        throw err;
-      }
-    },
-    [sdk, env, protocol],
+    }) =>
+      stakeAndBakeCore({
+        amount: params.amount,
+        destChain: params.destChain,
+        sourceChain,
+        protocol: params.protocol,
+        recipient: params.recipient,
+        ...(params.referralCode && { referralCode: params.referralCode }),
+      }),
+    [stakeAndBakeCore, sourceChain],
   );
-
-  /**
-   * Reset state
-   */
-  const reset = useCallback(() => {
-    setDepositAddress(null);
-    setStakeAmount(null);
-    setStatus({ phase: 'idle', message: 'Ready to stake and bake' });
-    setProgress({});
-    setError(null);
-  }, []);
 
   return {
     sdk,
     stakeAndBake,
     reset,
     isInitializing,
-    error,
+    error: sdkError ?? snbError,
     depositAddress,
     stakeAmount,
     status,

@@ -12,6 +12,7 @@
   "dependencies": {
     "@bitcoinerlab/secp256k1": "1.2.0",
     "@lombard.finance/sdk": "workspace:*",
+    "@lombard.finance/sdk-react": "workspace:*",
     "@lombard.finance/sdk-sui": "workspace:*",
     "@mysten/wallet-standard": "^0.15.0",
     "@tanstack/react-query": "^5.50.1",

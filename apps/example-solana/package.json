@@ -12,6 +12,7 @@
   "dependencies": {
     "@bitcoinerlab/secp256k1": "1.2.0",
     "@lombard.finance/sdk": "workspace:*",
+    "@lombard.finance/sdk-react": "workspace:*",
     "@lombard.finance/sdk-solana": "workspace:*",
     "@tanstack/react-query": "^5.50.1",
     "bignumber.js": "^9",
