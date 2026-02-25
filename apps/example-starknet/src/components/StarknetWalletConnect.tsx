@@ -1,22 +1,29 @@
-import { useStarknetWallet } from '../hooks/useStarknetWallet';
+interface StarknetWalletConnectProps {
+  address: string | null;
+  isConnected: boolean;
+  isConnecting: boolean;
+  error: string | null;
+  walletId: string | null;
+  connect: (walletId?: string) => Promise<void>;
+  disconnect: () => void;
+  installedWallets: { id: string; name: string }[];
+}
 
 /**
  * Starknet Wallet Connect Component
  *
  * Provides UI for connecting Starknet wallets (Braavos, Ready Wallet)
  */
-export function StarknetWalletConnect() {
-  const {
-    address,
-    isConnected,
-    isConnecting,
-    error,
-    walletId,
-    connect,
-    disconnect,
-    installedWallets,
-  } = useStarknetWallet();
-
+export function StarknetWalletConnect({
+  address,
+  isConnected,
+  isConnecting,
+  error,
+  walletId,
+  connect,
+  disconnect,
+  installedWallets,
+}: StarknetWalletConnectProps) {
   if (isConnected && address) {
     return (
       <div className="rounded-md border border-gray-300 p-4">

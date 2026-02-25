@@ -215,7 +215,7 @@ export function UnstakingForm({
             Processing...
           </>
         ) : disabled ? (
-          'Enter Partner ID to Continue'
+          'Connect Wallet to Continue'
         ) : (
           'Start Unstake'
         )}

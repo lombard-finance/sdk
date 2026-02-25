@@ -1,5 +1,5 @@
 import { Chain, Env } from '@lombard.finance/sdk';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { StakingForm } from '../../components/StakingForm';
 import { StakingProgress } from '../../components/StakingProgress';
@@ -36,11 +36,16 @@ function getSuiChain(env: Env): Chain {
  * 4. Send BTC to deposit address
  * 5. Receive LBTC on Sui
  *
- * Note: Partner ID is required for generating deposit addresses.
+ * Note: Partner ID is required for this example (no reCAPTCHA integration).
  */
 export function SuiStakePage({ env }: SuiStakePageProps) {
   const [isStaking, setIsStaking] = useState(false);
-  const [partnerId, setPartnerId] = useState('');
+  const [partnerId, setPartnerId] = useState(env !== Env.prod ? 'test' : '');
+
+  useEffect(() => {
+    setPartnerId(env !== Env.prod ? 'test' : '');
+  }, [env]);
+
   const {
     address: suiAddress,
     wallet: suiWallet,
@@ -120,8 +125,9 @@ export function SuiStakePage({ env }: SuiStakePageProps) {
               disabled={isStaking}
             />
             <p className="text-xs text-amber-700 mt-1">
-              Partner ID is required to generate Bitcoin deposit addresses.
-              Contact Lombard Finance to obtain one.
+              Without a Partner ID, deposit address generation requires
+              reCAPTCHA, which is not integrated in this example. Contact
+              Lombard Finance to obtain one.
             </p>
           </div>
 

@@ -1,4 +1,5 @@
 import { Chain, Env } from '@lombard.finance/sdk';
+import { useEffect, useState } from 'react';
 
 import { StakingForm } from '../../components/StakingForm';
 import { StakingProgress } from '../../components/StakingProgress';
@@ -17,12 +18,27 @@ import { useBtcStakingStarknet } from './useBtcStakingStarknet';
  * - Authorizing with Starknet signature
  * - Generating Bitcoin deposit address
  * - Monitoring stake lifecycle with events
+ *
+ * Note: Partner ID is required for this example (no reCAPTCHA integration).
  */
-export function StarknetStakePage() {
+export function StarknetStakePage({ env }: { env: Env }) {
+  const [isStaking, setIsStaking] = useState(false);
+  const [partnerId, setPartnerId] = useState(env !== Env.prod ? 'test' : '');
+
+  useEffect(() => {
+    setPartnerId(env !== Env.prod ? 'test' : '');
+  }, [env]);
+
   const {
     address: starknetAddress,
     isConnected: isStarknetConnected,
+    isConnecting: isStarknetConnecting,
+    error: starknetWalletError,
+    walletId: starknetWalletId,
     provider: starknetProvider,
+    connect: connectStarknet,
+    disconnect: disconnectStarknet,
+    installedWallets: starknetInstalledWallets,
   } = useStarknetWallet();
 
   const {
@@ -36,80 +52,149 @@ export function StarknetStakePage() {
     progress,
   } = useBtcStakingStarknet(
     starknetProvider,
-    undefined, // partnerId
-    Env.testnet, // env
+    partnerId,
+    env,
   );
 
+  const handleStartStaking = async (formData: Parameters<typeof stake>[0]) => {
+    setIsStaking(true);
+    try {
+      await stake(formData);
+    } catch (err) {
+      console.error('Staking failed:', err);
+      setIsStaking(false);
+    }
+  };
+
+  const handleReset = () => {
+    reset();
+    setIsStaking(false);
+  };
+
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <div>
-        <h1 className="mb-2 text-3xl font-bold">Starknet Stake</h1>
-        <p className="text-gray-600">
-          Stake Bitcoin to receive LBTC on Starknet
-        </p>
-      </div>
+    <div className="py-8">
+      <div className="container">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-bold mb-4 text-primary">
+              Stake BTC to Starknet
+            </h1>
+            <p className="text-secondary text-lg">
+              Stake BTC to receive LBTC on Starknet using the Lombard SDK
+            </p>
+          </div>
 
-      {/* Starknet Wallet Connection */}
-      <div>
-        <h2 className="mb-3 text-xl font-semibold">
-          1. Connect Starknet Wallet
-        </h2>
-        <StarknetWalletConnect />
-      </div>
+          {/* Starknet Wallet Connection */}
+          <div className="mb-6">
+            <StarknetWalletConnect
+              address={starknetAddress}
+              isConnected={isStarknetConnected}
+              isConnecting={isStarknetConnecting}
+              error={starknetWalletError}
+              walletId={starknetWalletId}
+              connect={connectStarknet}
+              disconnect={disconnectStarknet}
+              installedWallets={starknetInstalledWallets}
+            />
+            {!starknetAddress && (
+              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-900">
+                  💡 Connect Starknet wallet to auto-fill your destination address
+                </p>
+              </div>
+            )}
+          </div>
 
-      {/* Staking Form */}
-      <div>
-        <h2 className="mb-3 text-xl font-semibold">2. Configure Stake</h2>
-        <StakingForm
-          onSubmit={stake}
-          isLoading={status.phase !== 'idle' && status.phase !== 'complete'}
-          disabled={!isStarknetConnected}
-          solanaAddress={starknetAddress}
-          fixedDestChain={Chain.STARKNET_MAINNET}
-          env={Env.testnet}
-        />
-      </div>
+          {/* Partner ID Configuration (Required) */}
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <label
+              htmlFor="partnerId"
+              className="block text-sm font-medium mb-2 text-amber-900"
+            >
+              Partner ID (Required)
+            </label>
+            <input
+              id="partnerId"
+              type="text"
+              value={partnerId}
+              onChange={e => setPartnerId(e.target.value)}
+              placeholder="Enter your partner ID"
+              className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
+              disabled={isStaking}
+            />
+            <p className="text-xs text-amber-700 mt-1">
+              Without a Partner ID, deposit address generation requires
+              reCAPTCHA, which is not integrated in this example. Contact
+              Lombard Finance to obtain one.
+            </p>
+          </div>
 
-      {/* Status Display */}
-      {isInitializing && (
-        <div className="rounded-md border border-gray-300 bg-gray-50 p-4">
-          <p className="text-sm text-gray-600">Initializing SDK...</p>
+          {error && (
+            <div className="card mb-6 bg-red-50 border border-red-200">
+              <h3 className="text-error font-semibold mb-2">SDK Error</h3>
+              <p className="text-sm text-error">{error}</p>
+            </div>
+          )}
+
+          {!isStaking ? (
+            <StakingForm
+              onSubmit={handleStartStaking}
+              isLoading={isInitializing}
+              disabled={!isStarknetConnected || !partnerId}
+              solanaAddress={starknetAddress}
+              fixedDestChain={env === Env.prod ? Chain.STARKNET_MAINNET : Chain.STARKNET_SEPOLIA}
+              env={env}
+            />
+          ) : (
+            <StakingProgress
+              status={status}
+              depositAddress={depositAddress}
+              amount={stakeAmount}
+              progress={progress}
+              onReset={handleReset}
+              targetChain="Starknet"
+            />
+          )}
+
+          <div className="mt-8 card">
+            <h3 className="font-semibold mb-3">How it works</h3>
+            <ol className="space-y-2 text-sm text-secondary">
+              <li className="flex gap-2">
+                <span className="font-semibold">1.</span>
+                <span>
+                  Connect your Starknet wallet (Braavos or Ready Wallet) to
+                  auto-fill destination address
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">2.</span>
+                <span>Enter the amount of BTC you want to stake</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">3.</span>
+                <span>
+                  SDK generates a unique Bitcoin deposit address for you
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">4.</span>
+                <span>Send BTC to this address from any Bitcoin wallet</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">5.</span>
+                <span>
+                  Wait for Bitcoin confirmations (6 blocks recommended)
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">6.</span>
+                <span>
+                  LBTC will be automatically minted to your Starknet address
+                </span>
+              </li>
+            </ol>
+          </div>
         </div>
-      )}
-
-      {error && (
-        <div className="rounded-md border border-red-300 bg-red-50 p-4">
-          <p className="text-sm font-medium text-red-800">Error</p>
-          <p className="mt-1 text-sm text-red-600">{error}</p>
-        </div>
-      )}
-
-      {/* Progress */}
-      {status.phase !== 'idle' && (
-        <div>
-          <h2 className="mb-3 text-xl font-semibold">3. Progress</h2>
-          <StakingProgress
-            status={status}
-            depositAddress={depositAddress}
-            amount={stakeAmount}
-            progress={progress}
-            onReset={reset}
-            targetChain="Starknet"
-          />
-        </div>
-      )}
-
-      {/* Information */}
-      <div className="rounded-md border border-gray-300 bg-gray-50 p-4">
-        <h3 className="mb-2 font-semibold">How it works</h3>
-        <ul className="space-y-1 text-sm text-gray-600">
-          <li>1. Connect your Starknet wallet (Braavos or Ready Wallet)</li>
-          <li>2. Enter the amount of BTC you want to stake</li>
-          <li>3. Authorize the stake with your Starknet wallet</li>
-          <li>4. Receive a Bitcoin deposit address</li>
-          <li>5. Send BTC to the address</li>
-          <li>6. Receive LBTC on Starknet</li>
-        </ul>
       </div>
     </div>
   );

@@ -9,11 +9,11 @@ export function getEnvironment(): Env {
   switch (env) {
     case 'prod':
       return Env.prod;
-    case 'stage':
-      return Env.stage;
     case 'testnet':
-    default:
       return Env.testnet;
+    case 'stage':
+    default:
+      return Env.stage;
   }
 }
 

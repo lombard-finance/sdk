@@ -1,5 +1,5 @@
 import { Chain, Env } from '@lombard.finance/sdk';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { SolanaWalletConnect } from '../../components/SolanaWalletConnect';
 import { StakingForm } from '../../components/StakingForm';
@@ -36,12 +36,16 @@ function getSolanaChain(env: Env): Chain {
  * 4. Send BTC to deposit address
  * 5. Receive LBTC on Solana
  *
- * Note: Partner ID is required for generating deposit addresses.
+ * Note: Partner ID is required for this example (no reCAPTCHA integration).
  */
 export function SolanaStakePage({ env }: SolanaStakePageProps) {
   const [isStaking, setIsStaking] = useState(false);
-  const [partnerId, setPartnerId] = useState('');
+  const [partnerId, setPartnerId] = useState(env !== Env.prod ? 'test' : '');
   const { address: solanaAddress } = useSolanaWallet();
+
+  useEffect(() => {
+    setPartnerId(env !== Env.prod ? 'test' : '');
+  }, [env]);
 
   const {
     stake,
@@ -116,8 +120,9 @@ export function SolanaStakePage({ env }: SolanaStakePageProps) {
               disabled={isStaking}
             />
             <p className="text-xs text-amber-700 mt-1">
-              Partner ID is required to generate Bitcoin deposit addresses.
-              Contact Lombard Finance to obtain one.
+              Without a Partner ID, deposit address generation requires
+              reCAPTCHA, which is not integrated in this example. Contact
+              Lombard Finance to obtain one.
             </p>
           </div>
 

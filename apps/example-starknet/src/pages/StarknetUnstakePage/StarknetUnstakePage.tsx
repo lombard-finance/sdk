@@ -1,3 +1,5 @@
+import { Env } from '@lombard.finance/sdk';
+
 import { StarknetUnstakingForm } from '../../components/StarknetUnstakingForm';
 import { StarknetUnstakingProgress } from '../../components/StarknetUnstakingProgress';
 import { StarknetWalletConnect } from '../../components/StarknetWalletConnect';
@@ -14,98 +16,131 @@ import { useStarknetUnstaking } from './useStarknetUnstaking';
  * - Burning LBTC on Starknet
  * - Receiving BTC on Bitcoin network
  * - Monitoring unstake progress
+ *
+ * Note: Partner ID is not required for unstaking (pure on-chain operation).
  */
-export function StarknetUnstakePage() {
+export function StarknetUnstakePage({ env }: { env: Env }) {
   const {
     address: starknetAddress,
     isConnected: isStarknetConnected,
-    provider: starknetProvider,
+    isConnecting: isStarknetConnecting,
+    error: starknetWalletError,
     walletId: starknetWalletId,
+    provider: starknetProvider,
+    connect: connectStarknet,
+    disconnect: disconnectStarknet,
+    installedWallets: starknetInstalledWallets,
   } = useStarknetWallet();
 
   const { unstake, reset, isInitializing, error, txHash, status } =
     useStarknetUnstaking(
       starknetAddress,
-      undefined, // env (will use default)
+      env,
       starknetProvider,
       starknetWalletId,
     );
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <div>
-        <h1 className="mb-2 text-3xl font-bold">Starknet Unstake</h1>
-        <p className="text-gray-600">
-          Unstake LBTC from Starknet to receive Bitcoin
-        </p>
-      </div>
-
-      {/* Starknet Wallet Connection */}
-      <div>
-        <h2 className="mb-3 text-xl font-semibold">
-          1. Connect Starknet Wallet
-        </h2>
-        <StarknetWalletConnect />
-      </div>
-
-      {/* Unstaking Form */}
-      <div>
-        <h2 className="mb-3 text-xl font-semibold">2. Configure Unstake</h2>
-        {isStarknetConnected ? (
-          <StarknetUnstakingForm
-            onSubmit={unstake}
-            isSubmitting={
-              status.phase !== 'idle' && status.phase !== 'complete'
-            }
-          />
-        ) : (
-          <div className="rounded-md border border-gray-300 bg-gray-50 p-4">
-            <p className="text-sm text-gray-600">
-              Please connect your Starknet wallet to continue
+    <div className="py-8">
+      <div className="container">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-bold mb-4 text-primary">
+              Starknet LBTC Unstake
+            </h1>
+            <p className="text-secondary text-lg">
+              Burn LBTC on Starknet to receive BTC on Bitcoin using the Lombard
+              SDK
             </p>
           </div>
-        )}
-      </div>
 
-      {/* Status Display */}
-      {isInitializing && (
-        <div className="rounded-md border border-gray-300 bg-gray-50 p-4">
-          <p className="text-sm text-gray-600">Initializing SDK...</p>
+          {/* Wallet Connection (required) */}
+          <div className="mb-6">
+            <StarknetWalletConnect
+              address={starknetAddress}
+              isConnected={isStarknetConnected}
+              isConnecting={isStarknetConnecting}
+              error={starknetWalletError}
+              walletId={starknetWalletId}
+              connect={connectStarknet}
+              disconnect={disconnectStarknet}
+              installedWallets={starknetInstalledWallets}
+            />
+            {!starknetAddress && (
+              <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-sm text-amber-900">
+                  ⚠️ Starknet wallet connection is required to sign unstake
+                  transactions
+                </p>
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div className="card mb-6 bg-red-50 border border-red-200">
+              <h3 className="text-error font-semibold mb-2">SDK Error</h3>
+              <p className="text-sm text-error">{error}</p>
+              <button
+                onClick={reset}
+                className="mt-3 text-sm text-error underline"
+              >
+                Reset
+              </button>
+            </div>
+          )}
+
+          {isStarknetConnected ? (
+            status.phase === 'idle' ? (
+              <StarknetUnstakingForm
+                onSubmit={unstake}
+                isSubmitting={isInitializing}
+              />
+            ) : (
+              <StarknetUnstakingProgress status={status} txHash={txHash} env={env} />
+            )
+          ) : (
+            <div className="card">
+              <p className="text-secondary text-sm">
+                Connect your Starknet wallet above to continue.
+              </p>
+            </div>
+          )}
+
+          <div className="mt-8 card">
+            <h3 className="font-semibold mb-3">How it works</h3>
+            <ol className="space-y-2 text-sm text-secondary">
+              <li className="flex gap-2">
+                <span className="font-semibold">1.</span>
+                <span>
+                  Connect your Starknet wallet (Braavos or Ready Wallet)
+                  containing LBTC
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">2.</span>
+                <span>Enter the amount of LBTC to burn on Starknet</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">3.</span>
+                <span>Provide your Bitcoin address to receive BTC</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">4.</span>
+                <span>Execute the unstake transaction with your wallet</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">5.</span>
+                <span>LBTC will be burned on Starknet</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-semibold">6.</span>
+                <span>
+                  BTC will be released to your Bitcoin address automatically
+                </span>
+              </li>
+            </ol>
+          </div>
         </div>
-      )}
-
-      {error && (
-        <div className="rounded-md border border-red-300 bg-red-50 p-4">
-          <p className="text-sm font-medium text-red-800">Error</p>
-          <p className="mt-1 text-sm text-red-600">{error}</p>
-          <button
-            onClick={reset}
-            className="mt-2 rounded-md bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700"
-          >
-            Reset
-          </button>
-        </div>
-      )}
-
-      {/* Progress */}
-      {status.phase !== 'idle' && (
-        <div>
-          <h2 className="mb-3 text-xl font-semibold">3. Progress</h2>
-          <StarknetUnstakingProgress status={status} txHash={txHash} />
-        </div>
-      )}
-
-      {/* Information */}
-      <div className="rounded-md border border-gray-300 bg-gray-50 p-4">
-        <h3 className="mb-2 font-semibold">How it works</h3>
-        <ul className="space-y-1 text-sm text-gray-600">
-          <li>1. Connect your Starknet wallet</li>
-          <li>2. Enter the amount of LBTC to unstake</li>
-          <li>3. Provide a Bitcoin address to receive BTC</li>
-          <li>4. Execute the unstake transaction</li>
-          <li>5. LBTC will be burned on Starknet</li>
-          <li>6. BTC will be released to your Bitcoin address</li>
-        </ul>
       </div>
     </div>
   );

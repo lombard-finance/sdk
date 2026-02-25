@@ -1,5 +1,5 @@
 import { DeployProtocol, Env } from '@lombard.finance/sdk';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { StakeAndBakeForm } from '../../components/StakeAndBakeForm';
 import { StakeAndBakeProgress } from '../../components/StakeAndBakeProgress';
@@ -28,8 +28,12 @@ interface StakeAndBakePageProps {
  * maximizing capital efficiency.
  */
 export function StakeAndBakePage({ env }: StakeAndBakePageProps) {
-  const [partnerId, setPartnerId] = useState('');
+  const [partnerId, setPartnerId] = useState(env !== Env.prod ? 'test' : '');
   const [protocol, setProtocol] = useState<DeployProtocol>(DeployProtocol.Veda);
+
+  useEffect(() => {
+    setPartnerId(env !== Env.prod ? 'test' : '');
+  }, [env]);
 
   const {
     stakeAndBake,
@@ -100,25 +104,25 @@ export function StakeAndBakePage({ env }: StakeAndBakePageProps) {
       {/* Partner ID Configuration */}
       <div>
         <h2 className="mb-3 text-xl font-semibold">2. Partner Configuration</h2>
-        <div className="rounded-md border border-gray-300 p-4">
+        <div className="rounded-md border border-amber-300 bg-amber-50 p-4">
           <label
             htmlFor="partnerId"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-amber-900"
           >
-            Partner ID{' '}
-            <span className="text-gray-400">(Optional but recommended)</span>
+            Partner ID (Required)
           </label>
           <input
             type="text"
             id="partnerId"
             value={partnerId}
             onChange={e => setPartnerId(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
-            placeholder="your-partner-id"
+            className="w-full rounded-md border border-amber-300 bg-white px-3 py-2"
+            placeholder="Enter your partner ID"
           />
-          <p className="mt-1 text-xs text-gray-500">
-            Bypasses reCAPTCHA for better UX. Leave empty to use default captcha
-            flow.
+          <p className="mt-1 text-xs text-amber-700">
+            Without a Partner ID, deposit address generation requires
+            reCAPTCHA, which is not integrated in this example. Contact
+            Lombard Finance to obtain one.
           </p>
         </div>
       </div>

@@ -22,7 +22,7 @@ export function Header() {
           </div>
 
           <a
-            href="https://github.com/lombard-finance/sdk"
+            href="https://github.com/lombard-finance/sdk/tree/main/apps/example-evm"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-secondary hover:text-primary transition-colors"

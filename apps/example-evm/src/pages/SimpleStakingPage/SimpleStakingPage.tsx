@@ -1,5 +1,5 @@
 import { Env } from '@lombard.finance/sdk';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { StakingForm } from '../../components/StakingForm';
 import { StakingProgress } from '../../components/StakingProgress';
@@ -24,7 +24,11 @@ interface SimpleStakingPageProps {
  */
 export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
   const [isStaking, setIsStaking] = useState(false);
-  const [partnerId, setPartnerId] = useState('');
+  const [partnerId, setPartnerId] = useState(env !== Env.prod ? 'test' : '');
+
+  useEffect(() => {
+    setPartnerId(env !== Env.prod ? 'test' : '');
+  }, [env]);
 
   const {
     stake,
@@ -89,8 +93,9 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
               disabled={isStaking}
             />
             <p className="text-xs text-amber-700 mt-1">
-              Partner ID is required to perform staking operations. Contact
-              Lombard Finance to obtain your partner ID.
+              Without a Partner ID, deposit address generation requires
+              reCAPTCHA, which is not integrated in this example. Contact
+              Lombard Finance to obtain one.
             </p>
           </div>
 
