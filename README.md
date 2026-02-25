@@ -78,3 +78,12 @@ See [SECURITY.md](./SECURITY.md) for reporting vulnerabilities.
 ## License
 
 MIT - see [LICENSE](./LICENSE)
+
+## Third-Party License Notes
+
+This repository is MIT-licensed, but includes dependencies with additional terms.
+
+- LayerZero integration packages (`@layerzerolabs/*`) currently use `BUSL-1.1`.
+- Some development tooling paths currently pull MetaMask SDK packages with non-commercial terms.
+
+See [Third-Party License Notice](./THIRD_PARTY_LICENSE_NOTICE.md) and [license policy](./.license-policy.json) for the current allowlist and approved exceptions.
