@@ -55,6 +55,8 @@ tsconfig.build.tsbuildinfo
 
 tmp
 
+# Internal review/planning docs not for repo
+docs/
 
 #Ignore cursor AI rules
 .cursor/rules/codacy.mdc
