@@ -76,7 +76,7 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
 
       <div className="p-4 border-t border-gray-200">
         <a
-          href="https://github.com/lombard-finance/sdk"
+          href="https://github.com/lombard-finance/sdk/tree/main/apps/example-solana"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 text-sm text-secondary hover:text-primary transition-colors"

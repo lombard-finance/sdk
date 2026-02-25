@@ -1,4 +1,4 @@
-import { AssetId, Chain, Env } from '@lombard.finance/sdk';
+import { AssetId, Chain, Env, MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
 import { useEffect, useState } from 'react';
 
 import { useEvmWallet } from '../hooks/useEvmWallet';
@@ -27,18 +27,16 @@ export function StakingForm({
 }: StakingFormProps) {
   const availableChains = getAvailableChains(env);
 
-  const [amount, setAmount] = useState('0.001');
+  const [amount, setAmount] = useState(String(MIN_STAKE_AMOUNT_BTC));
   const [destChain, setDestChain] = useState(
     fixedDestChain ?? getDefaultChain(env),
   );
   const [destAddress, setDestAddress] = useState('');
   const { address: evmAddress, isConnected: isEvmConnected } = useEvmWallet();
 
-  // Update destination chain when environment changes (only if not fixed)
+  // Update destination chain when environment or fixedDestChain changes
   useEffect(() => {
-    if (!fixedDestChain) {
-      setDestChain(getDefaultChain(env));
-    }
+    setDestChain(fixedDestChain ?? getDefaultChain(env));
   }, [env, fixedDestChain]);
 
   // Auto-fill destination address based on chain type
@@ -63,6 +61,13 @@ export function StakingForm({
     }
   }, [isEvmConnected, evmAddress, solanaAddress, destAddress, destChain]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const activeWalletAddress =
+    destChain.includes('solana') || destChain.includes('sui')
+      ? solanaAddress
+      : isEvmConnected
+        ? evmAddress
+        : null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,14 +103,14 @@ export function StakingForm({
             id="amount"
             type="number"
             step="0.00000001"
-            min="0.0001"
+            min={MIN_STAKE_AMOUNT_BTC}
             value={amount}
             onChange={e => setAmount(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
-            placeholder="0.001"
+            placeholder={String(MIN_STAKE_AMOUNT_BTC)}
             required
           />
-          <p className="text-xs text-secondary mt-1">Minimum: 0.0001 BTC</p>
+          <p className="text-xs text-secondary mt-1">Minimum: {MIN_STAKE_AMOUNT_BTC} BTC</p>
         </div>
 
         <div>
@@ -145,12 +150,20 @@ export function StakingForm({
         </div>
 
         <div>
-          <label
-            htmlFor="destAddress"
-            className="block text-sm font-medium mb-2"
-          >
-            Your Destination Address
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label htmlFor="destAddress" className="block text-sm font-medium">
+              Your Destination Address
+            </label>
+            {activeWalletAddress && (
+              <button
+                type="button"
+                onClick={() => setDestAddress(activeWalletAddress)}
+                className="text-xs text-capital-green hover:underline font-medium"
+              >
+                Use wallet address
+              </button>
+            )}
+          </div>
           <input
             id="destAddress"
             type="text"

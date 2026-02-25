@@ -24,8 +24,8 @@ function App() {
           element={<Layout env={env} onEnvChange={handleEnvChange} />}
         >
           <Route index element={<Navigate to="/staking" replace />} />
-          <Route path="staking" element={<StarknetStakePage />} />
-          <Route path="unstaking" element={<StarknetUnstakePage />} />
+          <Route path="staking" element={<StarknetStakePage env={env} />} />
+          <Route path="unstaking" element={<StarknetUnstakePage env={env} />} />
           <Route path="*" element={<Navigate to="/staking" replace />} />
         </Route>
       </Routes>

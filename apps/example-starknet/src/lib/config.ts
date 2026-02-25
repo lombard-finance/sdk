@@ -12,8 +12,9 @@ export function getEnvironment(): Env {
     case 'stage':
       return Env.stage;
     case 'testnet':
-    default:
       return Env.testnet;
+    default:
+      return Env.stage;
   }
 }
 
