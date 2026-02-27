@@ -1,4 +1,4 @@
-import { AssetId, Chain, Env } from '@lombard.finance/sdk';
+import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
 import { useEffect, useState } from 'react';
 
 import { useEvmWallet } from '../hooks/useEvmWallet';
@@ -28,7 +28,7 @@ export function UnstakingForm({
   const availableChains = getAvailableChains(env);
   const defaultChain = availableChains[0]?.value || Chain.ETHEREUM;
 
-  const [amount, setAmount] = useState('0.001');
+  const [amount, setAmount] = useState(String(MIN_REDEEM_AMOUNT_BTC));
   const [assetOut, setAssetOut] = useState<AssetId>(AssetId.BTC);
   const [sourceChain, setSourceChain] = useState(defaultChain);
   const [destChain, setDestChain] = useState(
@@ -153,14 +153,14 @@ export function UnstakingForm({
             id="amount"
             type="number"
             step="0.00000001"
-            min="0.0001"
+            min={MIN_REDEEM_AMOUNT_BTC}
             value={amount}
             onChange={e => setAmount(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
-            placeholder="0.001"
+            placeholder={String(MIN_REDEEM_AMOUNT_BTC)}
             required
           />
-          <p className="text-xs text-secondary mt-1">Minimum: 0.0001 LBTC</p>
+          <p className="text-xs text-secondary mt-1">Minimum: {MIN_REDEEM_AMOUNT_BTC} LBTC</p>
         </div>
 
         {/* Recipient Address */}
@@ -175,7 +175,11 @@ export function UnstakingForm({
             onChange={e => setRecipient(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm"
             placeholder={
-              isBtcOutput ? 'bc1q... (Bitcoin address)' : '0x... (EVM address)'
+              isBtcOutput
+                ? env === Env.prod
+                  ? 'bc1q... (Bitcoin address)'
+                  : 'tb1q... (Bitcoin testnet address)'
+                : '0x... (EVM address)'
             }
             required
           />

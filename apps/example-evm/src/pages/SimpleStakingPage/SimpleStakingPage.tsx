@@ -123,41 +123,6 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
             />
           )}
 
-          <div className="mt-8 card">
-            <h3 className="font-semibold mb-3">How it works</h3>
-            <ol className="space-y-2 text-sm text-secondary">
-              <li className="flex gap-2">
-                <span className="font-semibold">1.</span>
-                <span>
-                  Enter the amount of BTC you want to stake and select
-                  destination chain
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">2.</span>
-                <span>
-                  Click "Generate Deposit Address" to create a unique Bitcoin
-                  address
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">3.</span>
-                <span>Send BTC from your wallet to the provided address</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">4.</span>
-                <span>
-                  Wait for confirmations (the SDK monitors automatically)
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">5.</span>
-                <span>
-                  LBTC is automatically minted to your destination address
-                </span>
-              </li>
-            </ol>
-          </div>
         </div>
       </div>
     </div>

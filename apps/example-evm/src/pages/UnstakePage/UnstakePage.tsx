@@ -105,66 +105,6 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
             />
           )}
 
-          <div className="mt-8 card">
-            <h3 className="font-semibold mb-3">How it works</h3>
-            <ol className="space-y-2 text-sm text-secondary">
-              <li className="flex gap-2">
-                <span className="font-semibold">1.</span>
-                <span>Connect your EVM wallet containing LBTC</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">2.</span>
-                <span>
-                  Choose output asset: BTC (cross-chain) or BTC.b (same chain)
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">3.</span>
-                <span>Enter the amount of LBTC to burn</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">4.</span>
-                <span>
-                  Provide recipient address (Bitcoin address for BTC, EVM
-                  address for BTC.b)
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">5.</span>
-                <span>Sign the transaction in your wallet</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">6.</span>
-                <span>
-                  Wait for confirmation - BTC/BTC.b will be sent automatically
-                </span>
-              </li>
-            </ol>
-          </div>
-
-          <div className="mt-6 card bg-gradient-to-r from-amber-50 to-orange-50">
-            <h3 className="font-semibold mb-3">Output Asset Comparison</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
-              <div className="p-3 bg-white rounded-lg border border-gray-200">
-                <h4 className="font-semibold mb-2">BTC (Cross-chain)</h4>
-                <ul className="space-y-1 text-secondary">
-                  <li>✓ Native Bitcoin on Bitcoin network</li>
-                  <li>✓ Higher liquidity and utility</li>
-                  <li>✓ Cross-chain bridge involved</li>
-                  <li>⏱ Longer processing time</li>
-                </ul>
-              </div>
-              <div className="p-3 bg-white rounded-lg border border-gray-200">
-                <h4 className="font-semibold mb-2">BTC.b (Same-chain)</h4>
-                <ul className="space-y-1 text-secondary">
-                  <li>✓ Wrapped BTC on same EVM chain</li>
-                  <li>✓ Faster processing</li>
-                  <li>✓ No bridge required</li>
-                  <li>⚠ Limited to specific chains</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

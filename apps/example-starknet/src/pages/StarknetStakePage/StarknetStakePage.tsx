@@ -54,6 +54,7 @@ export function StarknetStakePage({ env }: { env: Env }) {
     starknetProvider,
     partnerId,
     env,
+    starknetWalletId,
   );
 
   const handleStartStaking = async (formData: Parameters<typeof stake>[0]) => {
@@ -156,44 +157,6 @@ export function StarknetStakePage({ env }: { env: Env }) {
             />
           )}
 
-          <div className="mt-8 card">
-            <h3 className="font-semibold mb-3">How it works</h3>
-            <ol className="space-y-2 text-sm text-secondary">
-              <li className="flex gap-2">
-                <span className="font-semibold">1.</span>
-                <span>
-                  Connect your Starknet wallet (Braavos or Ready Wallet) to
-                  auto-fill destination address
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">2.</span>
-                <span>Enter the amount of BTC you want to stake</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">3.</span>
-                <span>
-                  SDK generates a unique Bitcoin deposit address for you
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">4.</span>
-                <span>Send BTC to this address from any Bitcoin wallet</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">5.</span>
-                <span>
-                  Wait for Bitcoin confirmations (6 blocks recommended)
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">6.</span>
-                <span>
-                  LBTC will be automatically minted to your Starknet address
-                </span>
-              </li>
-            </ol>
-          </div>
         </div>
       </div>
     </div>
