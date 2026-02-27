@@ -106,7 +106,7 @@ export interface BtcDeposit extends MonitorableAction {
   /**
    * Generate BTC deposit address
    */
-  generateDepositAddress(): Promise<string>;
+  generateDepositAddress(captchaToken?: string): Promise<string>;
 
   /**
    * Execute the deposit

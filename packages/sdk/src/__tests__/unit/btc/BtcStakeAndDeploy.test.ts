@@ -98,8 +98,8 @@ describe('BtcStakeAndDeploy Interface', () => {
       expect(testType).toBeDefined();
     });
 
-    it('should define generateDepositAddress method', () => {
-      type GenerateAddressMethod = () => Promise<string>;
+    it('should define generateDepositAddress method with optional captchaToken', () => {
+      type GenerateAddressMethod = (captchaToken?: string) => Promise<string>;
       const testType: GenerateAddressMethod = async () => 'bc1qexample';
       expect(testType).toBeDefined();
     });

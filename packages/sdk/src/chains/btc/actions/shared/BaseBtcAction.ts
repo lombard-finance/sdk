@@ -157,7 +157,7 @@ export abstract class BaseBtcAction<
    * Get API params for generateDepositAddress
    * Subclasses provide action-specific parameters
    */
-  protected abstract getDepositAddressParams(): {
+  protected abstract getDepositAddressParams(captchaToken?: string): {
     address: string;
     chainId: ChainId | SuiChain | SolanaChain | StarknetChainId;
     signature: string;
@@ -167,6 +167,7 @@ export abstract class BaseBtcAction<
     pubKey?: string;
     partnerId?: string;
     referrerCode?: string;
+    captchaToken?: string;
   };
 
   /**
@@ -330,7 +331,9 @@ export abstract class BaseBtcAction<
    *
    * Subclasses must implement getDepositAddressParams() to provide API params.
    */
-  protected async generateDepositAddressImpl(): Promise<string> {
+  protected async generateDepositAddressImpl(
+    captchaToken?: string,
+  ): Promise<string> {
     const statusConfig = this.getStatusConfig();
 
     this.assertStatus(statusConfig.ready, 'generateDepositAddress');
@@ -341,7 +344,7 @@ export abstract class BaseBtcAction<
     }
 
     return this.act(async () => {
-      const apiParams = this.getDepositAddressParams();
+      const apiParams = this.getDepositAddressParams(captchaToken);
 
       const depositAddress =
         await this.ctx.api.generateDepositAddress(apiParams);

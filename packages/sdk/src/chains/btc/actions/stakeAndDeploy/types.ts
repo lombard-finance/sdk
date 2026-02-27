@@ -104,7 +104,7 @@ export interface BtcStakeAndDeploy extends MonitorableAction {
   /**
    * Generate BTC deposit address
    */
-  generateDepositAddress(): Promise<string>;
+  generateDepositAddress(captchaToken?: string): Promise<string>;
 
   /**
    * Execute the operation

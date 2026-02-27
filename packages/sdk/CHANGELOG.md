@@ -1,3 +1,9 @@
+# 4.3.2
+
+- Fixed `captchaToken` not being forwarded to the deposit address generation API. The parameter was accepted by the low-level `generateDepositBtcAddress()` function but was never reachable from action classes (`BtcStake`, `BtcDeposit`, `BtcDepositAndDeploy`, `BtcStakeAndDeploy`). All `generateDepositAddress()` methods now accept an optional `captchaToken` parameter.
+
+---
+
 # 4.3.1
 
 - Fixed EVM action `approve()` methods not awaiting transaction receipt before transitioning to READY status. Affected actions: `EvmWithdraw`, `EvmDeploy`, `EvmStake`. The approval transaction is now confirmed on-chain before the action proceeds.

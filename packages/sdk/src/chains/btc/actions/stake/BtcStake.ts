@@ -168,7 +168,7 @@ export class BtcStake
     return this.chainId;
   }
 
-  protected getDepositAddressParams() {
+  protected getDepositAddressParams(captchaToken?: string) {
     const recipient = this.ensureRecipient();
     const signature = this.getActiveSignature();
 
@@ -188,6 +188,7 @@ export class BtcStake
       pubKey: signature.pubKey,
       partnerId: this.ctx.partner.getPartnerId(),
       referrerCode: this._referralCode,
+      captchaToken,
     };
   }
 
@@ -357,7 +358,7 @@ export class BtcStake
     }, BtcActionStatus.READY);
   }
 
-  async generateDepositAddress(): Promise<string> {
+  async generateDepositAddress(captchaToken?: string): Promise<string> {
     this.assertStatus(BtcActionStatus.READY, 'generateDepositAddress');
     this.ensureAuthorized();
 
@@ -377,7 +378,7 @@ export class BtcStake
     }
 
     return this.act(async () => {
-      const apiParams = this.getDepositAddressParams();
+      const apiParams = this.getDepositAddressParams(captchaToken);
       const depositAddress =
         await this.ctx.api.generateDepositAddress(apiParams);
 
