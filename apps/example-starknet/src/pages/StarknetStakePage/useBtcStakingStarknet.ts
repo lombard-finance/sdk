@@ -19,16 +19,21 @@ import type { StakingFormData } from '../../lib/types';
  * @param starknetProvider - Starknet wallet provider (from useStarknetWallet)
  * @param partnerId - Partner ID to bypass reCAPTCHA (required without captcha integration)
  * @param env - Environment (prod, testnet, stage)
+ * @param walletId - Wallet ID (e.g. 'braavos', 'argentX') for fallback account wrapping
  */
 export function useBtcStakingStarknet(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   starknetProvider?: any,
   partnerId?: string,
   env?: Env,
+  walletId?: string | null,
 ) {
   const currentEnv = env ?? getEnvironment();
 
   // Resolve WalletAccount asynchronously before passing to useLombardSDK
+  // The SDK's sign-message.ts requires walletAccount.walletProvider.name to be set.
+  // WalletAccount.connect() may fail (common with Braavos), so we need a fallback
+  // that wraps the raw provider with the expected walletProvider.name property.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [walletAccount, setWalletAccount] = useState<any>(null);
 
@@ -40,11 +45,52 @@ export function useBtcStakingStarknet(
     const chainId =
       env === Env.prod ? StarknetChainId.SN_MAIN : StarknetChainId.SN_SEPOLIA;
     const rpcProvider = getRpcProvider(chainId);
-    WalletAccount.connect(rpcProvider, starknetProvider)
-      .then(account => setWalletAccount(account))
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .catch(() => setWalletAccount(starknetProvider));
-  }, [starknetProvider, env]);
+
+    async function connectWalletAccount() {
+      // Try WalletAccount.connect() first
+      try {
+        const account = await WalletAccount.connect(
+          rpcProvider,
+          starknetProvider,
+        );
+        setWalletAccount(account);
+        return;
+      } catch {
+        // connect() failed, try fallback wrapping
+      }
+
+      // Fallback: wrap the provider's account with walletProvider.name
+      // so the SDK's sign-message.ts can access it
+      const wallet = starknetProvider as {
+        account?: Record<string, unknown>;
+        selectedAddress?: string;
+        id?: string;
+        name?: string;
+      };
+
+      if (wallet.account) {
+        const walletName =
+          wallet.name || wallet.id || walletId || 'Unknown';
+        const wrappedAccount = Object.create(
+          wallet.account,
+        ) as WalletAccount;
+        (wrappedAccount as unknown as Record<string, unknown>).walletProvider = {
+          name: walletName,
+          id: wallet.id || walletId || '',
+        };
+        setWalletAccount(wrappedAccount);
+        return;
+      }
+
+      // Last resort: use raw provider (will fail at sign time)
+      console.warn(
+        '[useBtcStakingStarknet] Could not create WalletAccount with walletProvider.name',
+      );
+      setWalletAccount(starknetProvider);
+    }
+
+    void connectWalletAccount();
+  }, [starknetProvider, walletId, env]);
 
   const { sdk, isInitializing, error: sdkError } = useLombardSDK(
     () => {
