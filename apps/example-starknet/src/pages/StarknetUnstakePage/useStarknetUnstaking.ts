@@ -42,10 +42,51 @@ export function useStarknetUnstaking(
     const chainId =
       env === Env.prod ? StarknetChainId.SN_MAIN : StarknetChainId.SN_SEPOLIA;
     const rpcProvider = getRpcProvider(chainId);
-    WalletAccount.connect(rpcProvider, starknetProvider)
-      .then(account => setWalletAccount(account))
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .catch(() => setWalletAccount(starknetProvider));
+
+    async function connectWalletAccount() {
+      // Try WalletAccount.connect() first
+      try {
+        const account = await WalletAccount.connect(
+          rpcProvider,
+          starknetProvider,
+        );
+        setWalletAccount(account);
+        return;
+      } catch {
+        // connect() failed, try fallback wrapping
+      }
+
+      // Fallback: wrap the provider's account with walletProvider.name
+      // so the SDK's sign-message.ts can access it
+      const wallet = starknetProvider as {
+        account?: Record<string, unknown>;
+        selectedAddress?: string;
+        id?: string;
+        name?: string;
+      };
+
+      if (wallet.account) {
+        const walletName =
+          wallet.name || wallet.id || walletId || 'Unknown';
+        const wrappedAccount = Object.create(
+          wallet.account,
+        ) as WalletAccount;
+        (wrappedAccount as unknown as Record<string, unknown>).walletProvider = {
+          name: walletName,
+          id: wallet.id || walletId || '',
+        };
+        setWalletAccount(wrappedAccount);
+        return;
+      }
+
+      // Last resort: use raw provider (will fail at sign time)
+      console.warn(
+        '[useStarknetUnstaking] Could not create WalletAccount with walletProvider.name',
+      );
+      setWalletAccount(starknetProvider);
+    }
+
+    void connectWalletAccount();
   }, [starknetProvider, starknetAddress, walletId, env]);
 
   const { sdk, isInitializing, error: sdkError } = useLombardSDK(
