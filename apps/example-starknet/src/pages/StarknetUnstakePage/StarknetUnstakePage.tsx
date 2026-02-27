@@ -94,6 +94,7 @@ export function StarknetUnstakePage({ env }: { env: Env }) {
               <StarknetUnstakingForm
                 onSubmit={unstake}
                 isSubmitting={isInitializing}
+                env={env}
               />
             ) : (
               <StarknetUnstakingProgress status={status} txHash={txHash} env={env} />
@@ -106,40 +107,6 @@ export function StarknetUnstakePage({ env }: { env: Env }) {
             </div>
           )}
 
-          <div className="mt-8 card">
-            <h3 className="font-semibold mb-3">How it works</h3>
-            <ol className="space-y-2 text-sm text-secondary">
-              <li className="flex gap-2">
-                <span className="font-semibold">1.</span>
-                <span>
-                  Connect your Starknet wallet (Braavos or Ready Wallet)
-                  containing LBTC
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">2.</span>
-                <span>Enter the amount of LBTC to burn on Starknet</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">3.</span>
-                <span>Provide your Bitcoin address to receive BTC</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">4.</span>
-                <span>Execute the unstake transaction with your wallet</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">5.</span>
-                <span>LBTC will be burned on Starknet</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">6.</span>
-                <span>
-                  BTC will be released to your Bitcoin address automatically
-                </span>
-              </li>
-            </ol>
-          </div>
         </div>
       </div>
     </div>

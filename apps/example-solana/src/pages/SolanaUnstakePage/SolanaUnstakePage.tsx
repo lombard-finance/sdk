@@ -105,62 +105,6 @@ export function SolanaUnstakePage({ env, onReset }: SolanaUnstakePageProps) {
             />
           )}
 
-          <div className="mt-8 card">
-            <h3 className="font-semibold mb-3">How it works</h3>
-            <ol className="space-y-2 text-sm text-secondary">
-              <li className="flex gap-2">
-                <span className="font-semibold">1.</span>
-                <span>
-                  Connect your Solana wallet (Phantom) containing LBTC
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">2.</span>
-                <span>Enter the amount of LBTC to burn on Solana</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">3.</span>
-                <span>Provide your Bitcoin address to receive BTC</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">4.</span>
-                <span>Sign the transaction in your Phantom wallet</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-semibold">5.</span>
-                <span>
-                  Wait for confirmation - BTC will be released to your Bitcoin
-                  address automatically
-                </span>
-              </li>
-            </ol>
-          </div>
-
-          <div className="mt-6 card bg-gradient-to-r from-purple-50 to-blue-50">
-            <h3 className="font-semibold mb-3">Solana Network</h3>
-            <div className="text-sm space-y-2">
-              <p>
-                <strong>Current Environment:</strong>{' '}
-                {env === Env.prod ? 'Production (Mainnet)' : 'Testnet (Devnet)'}
-              </p>
-              <p>
-                <strong>Source Chain:</strong>{' '}
-                {env === Env.prod ? 'Solana Mainnet' : 'Solana Devnet'}
-              </p>
-              <p>
-                <strong>Destination:</strong>{' '}
-                {env === Env.prod ? 'Bitcoin Mainnet' : 'Bitcoin Signet'}
-              </p>
-              <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200">
-                <p className="text-xs text-secondary">
-                  <strong>Note:</strong> Ensure your Phantom wallet is on the
-                  correct network. For production, use Mainnet mode. For
-                  testnet, use Devnet mode (Settings → Developer Settings →
-                  Testnet Mode).
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

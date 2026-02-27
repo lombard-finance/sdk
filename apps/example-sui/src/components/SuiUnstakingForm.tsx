@@ -1,4 +1,4 @@
-import { AssetId, Chain, Env } from '@lombard.finance/sdk';
+import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
 import { useState } from 'react';
 
 import type { UnstakingFormData } from '../lib/types';
@@ -35,7 +35,7 @@ export function SuiUnstakingForm({
   env,
   suiAddress,
 }: SuiUnstakingFormProps) {
-  const [amount, setAmount] = useState('0.001');
+  const [amount, setAmount] = useState(String(MIN_REDEEM_AMOUNT_BTC));
   const [recipient, setRecipient] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -79,15 +79,15 @@ export function SuiUnstakingForm({
             id="amount"
             type="number"
             step="0.00000001"
-            min="0.0001"
+            min={MIN_REDEEM_AMOUNT_BTC}
             value={amount}
             onChange={e => setAmount(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
-            placeholder="0.001"
+            placeholder={String(MIN_REDEEM_AMOUNT_BTC)}
             required
           />
           <p className="text-xs text-secondary mt-1">
-            Amount of LBTC to burn on Sui
+            Minimum: {MIN_REDEEM_AMOUNT_BTC} LBTC
           </p>
         </div>
 
@@ -164,7 +164,7 @@ export function SuiUnstakingForm({
 
       <button
         type="submit"
-        disabled={disabled || isLoading || isSubmitting || !suiAddress}
+        disabled={disabled || isLoading || isSubmitting}
         className="btn btn-primary w-full mt-6"
       >
         {isLoading || isSubmitting ? (

@@ -1,4 +1,4 @@
-import { AssetId, Chain, Env } from '@lombard.finance/sdk';
+import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
 import { FormEvent, useEffect, useState } from 'react';
 
 import type { SolanaUnstakingFormData } from '../pages/SolanaUnstakePage/useSolanaUnstaking';
@@ -53,7 +53,7 @@ export function SolanaUnstakingForm({
   const destChain = getBitcoinChain(env);
   const assetOut = AssetId.BTC; // Solana only supports unstaking to BTC
 
-  const [amount, setAmount] = useState('0.001');
+  const [amount, setAmount] = useState(String(MIN_REDEEM_AMOUNT_BTC));
   const [recipient, setRecipient] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -148,15 +148,16 @@ export function SolanaUnstakingForm({
           id="amount"
           type="number"
           step="0.00000001"
-          min="0"
+          min={MIN_REDEEM_AMOUNT_BTC}
           value={amount}
           onChange={e => setAmount(e.target.value)}
           disabled={isSubmitting || disabled || isLoading}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green"
+          placeholder={String(MIN_REDEEM_AMOUNT_BTC)}
           required
         />
         <p className="text-xs text-secondary mt-1">
-          Amount of LBTC to burn on Solana
+          Minimum: {MIN_REDEEM_AMOUNT_BTC} LBTC
         </p>
       </div>
 

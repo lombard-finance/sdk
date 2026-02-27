@@ -21,8 +21,8 @@ export function StarknetUnstakingProgress({
   const getExplorerUrl = (hash: string) => {
     const baseUrl =
       env === Env.prod
-        ? 'https://starkscan.co'
-        : 'https://sepolia.starkscan.co';
+        ? 'https://voyager.online'
+        : 'https://sepolia.voyager.online';
     return `${baseUrl}/tx/${hash}`;
   };
 
