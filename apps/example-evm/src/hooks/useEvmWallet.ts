@@ -32,7 +32,7 @@ export function useEvmWallet() {
     checkConnection();
 
     // Listen for account changes
-    if (window.ethereum) {
+    if (window.ethereum && typeof window.ethereum.on === 'function') {
       const handleAccountsChanged = (...args: unknown[]) => {
         const accounts = args[0] as string[];
         if (accounts.length > 0) {
