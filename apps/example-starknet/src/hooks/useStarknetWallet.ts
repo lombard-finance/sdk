@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { normalizeStarknetAddress } from '../lib/normalizeStarknetAddress';
 
 /**
  * Starknet wallet IDs
@@ -99,7 +100,7 @@ export function useStarknetWallet() {
 
         setProvider(walletProvider);
         setWalletId(targetWalletId);
-        setAddress(addr);
+        setAddress(normalizeStarknetAddress(addr));
       } catch (err) {
         console.error('Failed to connect Starknet wallet:', err);
         setError(
