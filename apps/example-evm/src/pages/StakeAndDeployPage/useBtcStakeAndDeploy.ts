@@ -16,7 +16,7 @@ export type { StakeAndBakeStatus } from '@lombard.finance/sdk-react';
 export type { StakeAndBakeProgressInfo as StakeAndBakeProgress } from '@lombard.finance/sdk-react';
 
 /**
- * Hook for managing Stake-and-Bake flow (BTC → LBTC → Vault)
+ * Hook for managing Stake-and-Deploy flow (BTC → LBTC → Vault)
  *
  * Combines staking and vault deployment in a single atomic operation
  *
@@ -24,7 +24,7 @@ export type { StakeAndBakeProgressInfo as StakeAndBakeProgress } from '@lombard.
  * @param partnerId - Partner ID to bypass reCAPTCHA (required without captcha integration)
  * @param env - Environment (prod, testnet, stage)
  */
-export function useBtcStakeAndBake(
+export function useBtcStakeAndDeploy(
   protocol: DeployProtocol,
   partnerId?: string,
   env?: Env,
@@ -46,7 +46,7 @@ export function useBtcStakeAndBake(
   );
 
   const {
-    stakeAndBake: stakeAndBakeCore,
+    stakeAndBake: stakeAndDeployCore,
     reset,
     depositAddress,
     stakeAmount,
@@ -58,7 +58,7 @@ export function useBtcStakeAndBake(
   const sourceChain =
     currentEnv === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET;
 
-  const stakeAndBake = useCallback(
+  const stakeAndDeploy = useCallback(
     (params: {
       amount: string;
       recipient: string;
@@ -66,7 +66,7 @@ export function useBtcStakeAndBake(
       protocol: DeployProtocol;
       referralCode?: string;
     }) =>
-      stakeAndBakeCore({
+      stakeAndDeployCore({
         amount: params.amount,
         destChain: params.destChain,
         sourceChain,
@@ -74,12 +74,12 @@ export function useBtcStakeAndBake(
         recipient: params.recipient,
         ...(params.referralCode && { referralCode: params.referralCode }),
       }),
-    [stakeAndBakeCore, sourceChain],
+    [stakeAndDeployCore, sourceChain],
   );
 
   return {
     sdk,
-    stakeAndBake,
+    stakeAndDeploy,
     reset,
     isInitializing,
     error: sdkError ?? snbError,

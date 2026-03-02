@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useEvmWallet } from '../../hooks/useEvmWallet';
 import { WalletConnect } from '../WalletConnect';
@@ -25,6 +25,12 @@ describe('WalletConnect', () => {
       value: undefined,
       writable: true,
       configurable: true,
+    });
+  });
+
+  afterEach(() => {
+    act(() => {
+      root?.unmount();
     });
   });
 
@@ -55,10 +61,6 @@ describe('WalletConnect', () => {
 
     expect(connect).toHaveBeenCalledTimes(1);
     expect(container.textContent).toContain('No wallet detected.');
-
-    act(() => {
-      root.unmount();
-    });
   });
 
   it('renders connected state and triggers disconnect', () => {
@@ -84,9 +86,49 @@ describe('WalletConnect', () => {
     });
 
     expect(disconnect).toHaveBeenCalledTimes(1);
+  });
 
-    act(() => {
-      root.unmount();
+  it('shows copy button when connected', () => {
+    vi.mocked(useEvmWallet).mockReturnValue({
+      address: '0x1234567890abcdef1234567890abcdef12345678',
+      isConnected: true,
+      isConnecting: false,
+      error: null,
+      connect,
+      disconnect,
     });
+
+    renderComponent();
+
+    const copyButton = Array.from(container.querySelectorAll('button')).find(
+      button => button.getAttribute('title') === 'Copy address',
+    );
+    expect(copyButton).toBeTruthy();
+  });
+
+  it('copy button calls clipboard API', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+
+    vi.mocked(useEvmWallet).mockReturnValue({
+      address: '0x1234567890abcdef1234567890abcdef12345678',
+      isConnected: true,
+      isConnecting: false,
+      error: null,
+      connect,
+      disconnect,
+    });
+
+    renderComponent();
+
+    const copyButton = Array.from(container.querySelectorAll('button')).find(
+      button => button.getAttribute('title') === 'Copy address',
+    );
+
+    await act(async () => {
+      copyButton?.click();
+    });
+
+    expect(writeText).toHaveBeenCalledWith('0x1234567890abcdef1234567890abcdef12345678');
   });
 });

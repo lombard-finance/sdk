@@ -21,10 +21,13 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
       path: '/unstaking',
     },
     {
-      id: 'stake-and-bake',
-      title: 'Stake-and-Bake',
-      description: 'Stake BTC and auto-deposit to vault',
-      path: '/stake-and-bake',
+      id: 'stake-and-deploy',
+      title: 'Stake-and-Deploy',
+      description:
+        env === Env.prod
+          ? 'Stake BTC and auto-deposit to vault'
+          : 'Production only',
+      path: '/stake-and-deploy',
     },
   ];
 

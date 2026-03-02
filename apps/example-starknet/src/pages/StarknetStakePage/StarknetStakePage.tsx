@@ -1,5 +1,5 @@
 import { Chain, Env } from '@lombard.finance/sdk';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { StakingForm } from '../../components/StakingForm';
 import { StakingProgress } from '../../components/StakingProgress';
@@ -23,11 +23,14 @@ import { useBtcStakingStarknet } from './useBtcStakingStarknet';
  */
 export function StarknetStakePage({ env }: { env: Env }) {
   const [isStaking, setIsStaking] = useState(false);
-  const [partnerId, setPartnerId] = useState(env !== Env.prod ? 'test' : '');
+  const [partnerId, setPartnerIdState] = useState(
+    () => localStorage.getItem('lombard-partnerId') || 'test',
+  );
 
-  useEffect(() => {
-    setPartnerId(env !== Env.prod ? 'test' : '');
-  }, [env]);
+  const setPartnerId = (value: string) => {
+    setPartnerIdState(value);
+    localStorage.setItem('lombard-partnerId', value);
+  };
 
   const {
     address: starknetAddress,

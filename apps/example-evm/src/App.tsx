@@ -5,15 +5,22 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { getEnvironment } from './lib/config';
 import { SimpleStakingPage } from './pages/SimpleStakingPage';
-import { StakeAndBakePage } from './pages/StakeAndBakePage';
+import { StakeAndDeployPage } from './pages/StakeAndDeployPage';
 import { UnstakePage } from './pages/UnstakePage';
 
 function App() {
-  const [env, setEnv] = useState<Env>(() => getEnvironment());
+  const [env, setEnv] = useState<Env>(() => {
+    const stored = localStorage.getItem('lombard-env');
+    if (stored && Object.values(Env).includes(stored as Env)) {
+      return stored as Env;
+    }
+    return getEnvironment();
+  });
 
   const handleEnvChange = (newEnv: Env) => {
     if (confirm('Changing environment will reload all examples. Continue?')) {
       setEnv(newEnv);
+      localStorage.setItem('lombard-env', newEnv);
     }
   };
 
@@ -27,7 +34,7 @@ function App() {
           <Route index element={<Navigate to="/staking" replace />} />
           <Route path="staking" element={<SimpleStakingPage env={env} />} />
           <Route path="unstaking" element={<UnstakePage env={env} />} />
-          <Route path="stake-and-bake" element={<StakeAndBakePage env={env} />} />
+          <Route path="stake-and-deploy" element={<StakeAndDeployPage env={env} />} />
           <Route path="*" element={<Navigate to="/staking" replace />} />
         </Route>
       </Routes>

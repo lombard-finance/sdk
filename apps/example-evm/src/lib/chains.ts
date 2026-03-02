@@ -19,19 +19,24 @@ export function getAvailableChains(env: Env): ChainOption[] {
       { value: Chain.ETHEREUM, label: 'Ethereum' },
       { value: Chain.BASE, label: 'Base' },
       { value: Chain.BSC, label: 'BNB Chain' },
-      { value: Chain.BOB, label: 'BOB' },
-      { value: Chain.SONIC, label: 'Sonic' },
       { value: Chain.KATANA, label: 'Katana' },
+      { value: Chain.SONIC, label: 'Sonic' },
+      { value: Chain.MONAD, label: 'Monad' },
+      { value: Chain.STABLE, label: 'Stable' },
+    ];
+  } else if (env === Env.testnet) {
+    return [
+      { value: Chain.BASE_SEPOLIA, label: 'Base Sepolia' },
+      { value: Chain.SEPOLIA, label: 'Sepolia' },
+      { value: Chain.BSC_TESTNET, label: 'BNB Testnet' },
+      { value: Chain.AVALANCHE_FUJI, label: 'Fuji' },
     ];
   } else {
+    // stage
     return [
-      { value: Chain.SEPOLIA, label: 'Sepolia' },
-      { value: Chain.HOLESKY, label: 'Holesky' },
       { value: Chain.BASE_SEPOLIA, label: 'Base Sepolia' },
+      { value: Chain.SEPOLIA, label: 'Sepolia' },
       { value: Chain.BSC_TESTNET, label: 'BNB Testnet' },
-      { value: Chain.SONIC_BLAZE_TESTNET, label: 'Sonic Testnet' },
-      { value: Chain.KATANA_TATARA, label: 'Katana Tatara' },
-      { value: Chain.BERACHAIN_BARTIO, label: 'Berachain Bartio' },
     ];
   }
 }
@@ -40,5 +45,6 @@ export function getAvailableChains(env: Env): ChainOption[] {
  * Get default chain for environment
  */
 export function getDefaultChain(env: Env): Chain {
-  return env === Env.prod ? Chain.ETHEREUM : Chain.SEPOLIA;
+  if (env === Env.prod) return Chain.ETHEREUM;
+  return Chain.BASE_SEPOLIA;
 }

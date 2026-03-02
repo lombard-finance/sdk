@@ -1,9 +1,15 @@
-import { Chain, DeployProtocol, Env } from '@lombard.finance/sdk';
-import { useState } from 'react';
+import { Chain, DeployProtocol, Env, MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
+import { useCallback, useState } from 'react';
 
-import { useEvmWallet } from '../hooks/useEvmWallet';
+function WalletIcon() {
+  return (
+    <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0.75 0H14.25H15V1.5H14.25H1.5V12.5H14.5V4.5H3.75H3V3H3.75H15.25H16V3.75V13.25V14H15.25H0.75H0V13.25V0.75V0H0.75ZM12 9.5C11.4375 9.5 11 9.0625 11 8.5C11 7.96875 11.4375 7.5 12 7.5C12.5312 7.5 13 7.96875 13 8.5C13 9.0625 12.5312 9.5 12 9.5Z" fill="currentColor" />
+    </svg>
+  );
+}
 
-interface StakeAndBakeFormProps {
+interface StakeAndDeployFormProps {
   env: Env;
   onSubmit: (data: {
     amount: string;
@@ -18,18 +24,16 @@ interface StakeAndBakeFormProps {
 }
 
 /**
- * Form for configuring Stake-and-Bake parameters
+ * Form for configuring Stake-and-Deploy parameters
  */
-export function StakeAndBakeForm({
+export function StakeAndDeployForm({
   env,
   onSubmit,
   isLoading,
   disabled = false,
   onReset,
-}: StakeAndBakeFormProps) {
-  const { address: evmAddress } = useEvmWallet();
-
-  const [amount, setAmount] = useState('0.001');
+}: StakeAndDeployFormProps) {
+  const [amount, setAmount] = useState(String(MIN_STAKE_AMOUNT_BTC));
   const [destAddress, setDestAddress] = useState('');
   const [protocol, setProtocol] = useState<DeployProtocol>(DeployProtocol.Veda);
   const [destChain, setDestChain] = useState<Chain>(
@@ -37,12 +41,22 @@ export function StakeAndBakeForm({
   );
   const [referralCode, setReferralCode] = useState('');
 
-  // Auto-fill destination address if wallet connected
-  const handleDestAddressFocus = () => {
-    if (!destAddress && evmAddress) {
-      setDestAddress(evmAddress);
+  const hasEthereum =
+    typeof window !== 'undefined' && typeof window.ethereum !== 'undefined';
+
+  const handleUseWalletAddress = useCallback(async () => {
+    if (!window.ethereum) return;
+    try {
+      const accounts = (await window.ethereum.request({
+        method: 'eth_accounts',
+      })) as string[];
+      if (accounts.length > 0) {
+        setDestAddress(accounts[0]);
+      }
+    } catch {
+      // Could not fetch wallet address
     }
-  };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,10 +99,10 @@ export function StakeAndBakeForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="rounded-md border border-gray-300 bg-gray-50 p-4">
         <div className="mb-3 text-sm font-medium text-gray-700">
-          What is Stake-and-Bake?
+          What is Stake-and-Deploy?
         </div>
         <p className="text-sm text-gray-600">
-          Stake-and-Bake automatically stakes your BTC to LBTC and deposits it
+          Stake-and-Deploy automatically stakes your BTC to LBTC and deposits it
           into a DeFi vault in a single atomic operation. This maximizes your
           yield by immediately putting your LBTC to work.
         </p>
@@ -170,9 +184,7 @@ export function StakeAndBakeForm({
           placeholder="0.001"
           disabled={isLoading || disabled}
         />
-        <p className="mt-1 text-xs text-gray-500">
-          Amount of BTC to stake (e.g., 0.001)
-        </p>
+        <p className="mt-1 text-xs text-gray-500">Minimum: {MIN_STAKE_AMOUNT_BTC} BTC</p>
       </div>
 
       <div>
@@ -182,21 +194,30 @@ export function StakeAndBakeForm({
         >
           Recipient Address <span className="text-red-500">*</span>
         </label>
-        <input
-          type="text"
-          id="destAddress"
-          value={destAddress}
-          onChange={e => setDestAddress(e.target.value)}
-          onFocus={handleDestAddressFocus}
-          required
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm"
-          placeholder="0x..."
-          disabled={isLoading || disabled}
-        />
+        <div className="relative">
+          <input
+            type="text"
+            id="destAddress"
+            value={destAddress}
+            onChange={e => setDestAddress(e.target.value)}
+            required
+            className={`w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm ${hasEthereum ? 'pr-10' : ''}`}
+            placeholder="0x..."
+            disabled={isLoading || disabled}
+          />
+          {hasEthereum && (
+            <button
+              type="button"
+              onClick={() => { void handleUseWalletAddress(); }}
+              title="Use wallet address"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <WalletIcon />
+            </button>
+          )}
+        </div>
         <p className="mt-1 text-xs text-gray-500">
-          {evmAddress
-            ? 'Address auto-filled from connected wallet'
-            : 'EVM address where vault shares will be minted'}
+          EVM address where vault shares will be minted
         </p>
       </div>
 
@@ -227,7 +248,7 @@ export function StakeAndBakeForm({
           disabled={isLoading || disabled}
           className="flex-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isLoading ? 'Processing...' : 'Stake and Bake'}
+          {isLoading ? 'Processing...' : 'Stake and Deploy'}
         </button>
 
         {onReset && (

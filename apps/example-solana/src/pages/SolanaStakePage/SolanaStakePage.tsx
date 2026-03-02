@@ -1,5 +1,5 @@
 import { Chain, Env } from '@lombard.finance/sdk';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { SolanaWalletConnect } from '../../components/SolanaWalletConnect';
 import { StakingForm } from '../../components/StakingForm';
@@ -40,12 +40,15 @@ function getSolanaChain(env: Env): Chain {
  */
 export function SolanaStakePage({ env }: SolanaStakePageProps) {
   const [isStaking, setIsStaking] = useState(false);
-  const [partnerId, setPartnerId] = useState(env !== Env.prod ? 'test' : '');
+  const [partnerId, setPartnerIdState] = useState(
+    () => localStorage.getItem('lombard-partnerId') || 'test',
+  );
   const { address: solanaAddress } = useSolanaWallet();
 
-  useEffect(() => {
-    setPartnerId(env !== Env.prod ? 'test' : '');
-  }, [env]);
+  const setPartnerId = (value: string) => {
+    setPartnerIdState(value);
+    localStorage.setItem('lombard-partnerId', value);
+  };
 
   const {
     stake,
