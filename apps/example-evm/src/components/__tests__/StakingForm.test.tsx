@@ -1,36 +1,34 @@
 import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AssetId, Env } from '@lombard.finance/sdk';
 
-import { useEvmWallet } from '../../hooks/useEvmWallet';
 import { StakingForm } from '../StakingForm';
-
-vi.mock('../../hooks/useEvmWallet', () => ({
-  useEvmWallet: vi.fn(),
-}));
-
-function mockWallet(overrides = {}) {
-  vi.mocked(useEvmWallet).mockReturnValue({
-    address: '0xabc123',
-    isConnected: true,
-    isConnecting: false,
-    error: null,
-    connect: vi.fn(),
-    disconnect: vi.fn(),
-    ...overrides,
-  });
-}
 
 describe('EVM StakingForm', () => {
   let root: Root;
   let container: HTMLDivElement;
 
+  beforeEach(() => {
+    Object.defineProperty(window, 'ethereum', {
+      value: {
+        request: vi.fn().mockResolvedValue(['0xabc123']),
+      },
+      writable: true,
+      configurable: true,
+    });
+  });
+
   afterEach(() => {
     act(() => {
       root?.unmount();
+    });
+    Object.defineProperty(window, 'ethereum', {
+      value: undefined,
+      writable: true,
+      configurable: true,
     });
   });
 
@@ -55,9 +53,28 @@ describe('EVM StakingForm', () => {
     return defaultProps;
   }
 
-  it('submits form payload with auto-filled EVM address', async () => {
-    mockWallet();
+  it('shows wallet icon button and fills address on click', async () => {
+    renderForm();
+
+    const walletButton = container.querySelector('button[title="Use wallet address"]');
+    expect(walletButton).toBeTruthy();
+
+    await act(async () => {
+      walletButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const destInput = container.querySelector('#destAddress') as HTMLInputElement;
+    expect(destInput.value).toBe('0xabc123');
+  });
+
+  it('submits form payload after wallet address is filled', async () => {
     const { onSubmit } = renderForm();
+
+    // Click wallet icon button to fill address
+    const walletButton = container.querySelector('button[title="Use wallet address"]');
+    await act(async () => {
+      walletButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
@@ -72,7 +89,6 @@ describe('EVM StakingForm', () => {
   });
 
   it('alerts when submitting without destination address', async () => {
-    mockWallet({ address: null, isConnected: false });
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
     const { onSubmit } = renderForm();
 
@@ -87,7 +103,6 @@ describe('EVM StakingForm', () => {
   });
 
   it('shows chain selector dropdown', () => {
-    mockWallet();
     renderForm();
 
     const destChainSelect = container.querySelector('#destChain') as HTMLSelectElement;
@@ -96,7 +111,6 @@ describe('EVM StakingForm', () => {
   });
 
   it('disables submit when disabled prop is true', () => {
-    mockWallet();
     renderForm({ disabled: true });
 
     const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
@@ -104,7 +118,6 @@ describe('EVM StakingForm', () => {
   });
 
   it('shows loading state when isLoading is true', () => {
-    mockWallet();
     renderForm({ isLoading: true });
 
     const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;

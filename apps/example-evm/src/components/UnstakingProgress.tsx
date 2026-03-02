@@ -97,9 +97,13 @@ export function UnstakingProgress({
       )}
 
       {/* Action buttons */}
-      {(isComplete || hasError) && (
+      {(isComplete || hasError) ? (
         <button onClick={onReset} className="btn btn-secondary w-full">
           Start New Unstake
+        </button>
+      ) : (
+        <button onClick={onReset} className="btn btn-secondary w-full text-sm">
+          Cancel
         </button>
       )}
 

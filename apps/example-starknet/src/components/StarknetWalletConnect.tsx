@@ -1,3 +1,21 @@
+import { useCallback, useState } from 'react';
+
+function CopyIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4.667 4.667V4c0-.934 0-1.4.181-1.757a1.667 1.667 0 0 1 .729-.728C5.933 1.333 6.4 1.333 7.333 1.333H12c.934 0 1.4 0 1.757.182.313.16.569.415.728.728.182.357.182.823.182 1.757v4.667c0 .933 0 1.4-.182 1.756-.16.314-.415.569-.728.729-.357.181-.823.181-1.757.181h-.667M11.333 7.333V12c0 .933 0 1.4-.181 1.757a1.667 1.667 0 0 1-.729.728c-.356.182-.823.182-1.756.182H4c-.933 0-1.4 0-1.757-.182a1.667 1.667 0 0 1-.728-.728C1.333 13.4 1.333 12.933 1.333 12V7.333c0-.933 0-1.4.182-1.756.16-.314.415-.569.728-.729.357-.181.824-.181 1.757-.181h4.667c.933 0 1.4 0 1.756.181.314.16.569.415.729.729.181.356.181.823.181 1.756Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13.333 4 6 11.333 2.667 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 interface StarknetWalletConnectProps {
   address: string | null;
   isConnected: boolean;
@@ -24,6 +42,15 @@ export function StarknetWalletConnect({
   disconnect,
   installedWallets,
 }: StarknetWalletConnectProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    if (!address) return;
+    await navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [address]);
+
   if (isConnected && address) {
     return (
       <div className="rounded-md border border-gray-300 p-4">
@@ -32,8 +59,16 @@ export function StarknetWalletConnect({
             <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
               Starknet Wallet Connected
             </div>
-            <div className="font-mono text-sm">
-              {address.slice(0, 8)}...{address.slice(-6)}
+            <div className="flex items-center gap-1.5 font-mono text-sm">
+              <span>{address.slice(0, 8)}...{address.slice(-6)}</span>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="inline-flex items-center justify-center rounded p-0.5 text-gray-400 transition-colors hover:text-gray-600"
+                title="Copy address"
+              >
+                {copied ? <CheckIcon /> : <CopyIcon />}
+              </button>
             </div>
             {walletId && (
               <div className="mt-1 text-xs text-gray-500">

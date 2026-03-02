@@ -1,33 +1,58 @@
-import { Env } from '@lombard.finance/sdk';
+import { DeployProtocol, Env } from '@lombard.finance/sdk';
 import { useState } from 'react';
 
-import { StakingForm } from '../../components/StakingForm';
-import { StakingProgress } from '../../components/StakingProgress';
+import { StakeAndDeployForm } from '../../components/StakeAndDeployForm';
+import { StakeAndDeployProgress } from '../../components/StakeAndDeployProgress';
 import { WalletConnect } from '../../components/WalletConnect';
-import type { StakingFormData } from '../../lib/types';
-import { useBtcStakingEvm } from './useBtcStakingEvm';
+import { useBtcStakeAndDeploy } from './useBtcStakeAndDeploy';
 
-interface SimpleStakingPageProps {
+interface StakeAndDeployPageProps {
   env: Env;
-  onReset?: () => void;
 }
 
-/**
- * Simple Bitcoin Staking Example Page
- *
- * Demonstrates basic BTC -> LBTC staking flow using Lombard SDK:
- * 1. (Optional) Connect EVM wallet for enhanced features
- * 2. User inputs staking parameters (amount, destination chain)
- * 3. SDK generates a Bitcoin deposit address
- * 4. User sends BTC to the address
- * 5. SDK monitors the transaction and auto-mints LBTC
- */
-export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
+function StakeAndDeployUnsupported() {
+  return (
+    <div className="py-8">
+      <div className="container">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-bold mb-4 text-primary">
+              Stake-and-Deploy
+            </h1>
+            <p className="text-secondary text-lg">
+              Stake BTC and automatically deposit LBTC to a DeFi vault
+            </p>
+          </div>
+
+          <div className="card bg-amber-50 border border-amber-200 text-center">
+            <p className="text-lg font-semibold text-amber-900 mb-2">
+              Production Only
+            </p>
+            <p className="text-sm text-amber-800">
+              Stake-and-Deploy is only available on the Production environment.
+              Switch to Production using the environment selector in the sidebar.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function StakeAndDeployPage({ env }: StakeAndDeployPageProps) {
+  if (env !== Env.prod) {
+    return <StakeAndDeployUnsupported />;
+  }
+
+  return <StakeAndDeployPageInner env={env} />;
+}
+
+function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
   const [isStaking, setIsStaking] = useState(false);
-  const [selectedChain, setSelectedChain] = useState('');
   const [partnerId, setPartnerIdState] = useState(
     () => localStorage.getItem('lombard-partnerId') || 'test',
   );
+  const [protocol] = useState<DeployProtocol>(DeployProtocol.Veda);
 
   const setPartnerId = (value: string) => {
     setPartnerIdState(value);
@@ -35,7 +60,7 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
   };
 
   const {
-    stake,
+    stakeAndDeploy,
     isInitializing,
     error: sdkError,
     depositAddress,
@@ -43,29 +68,29 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
     status,
     progress,
     reset,
-  } = useBtcStakingEvm(partnerId, env);
+  } = useBtcStakeAndDeploy(protocol, partnerId, env);
 
   const chainLabels: Record<string, string> = {
     'eip155:1': 'Ethereum',
     'eip155:8453': 'Base',
     'eip155:56': 'BNB Chain',
-    'eip155:747474': 'Katana',
-    'eip155:146': 'Sonic',
-    'eip155:143': 'Monad',
-    'eip155:988': 'Stable',
-    'eip155:11155111': 'Sepolia',
+    'eip155:17000': 'Holesky',
     'eip155:84532': 'Base Sepolia',
     'eip155:97': 'BNB Testnet',
-    'eip155:43113': 'Fuji',
   };
 
-  const handleStartStaking = async (formData: StakingFormData) => {
+  const handleStartStaking = async (data: {
+    amount: string;
+    recipient: string;
+    destChain: string;
+    protocol: DeployProtocol;
+    referralCode?: string;
+  }) => {
     setIsStaking(true);
-    setSelectedChain(chainLabels[formData.destChain] || formData.destChain);
     try {
-      await stake(formData);
+      await stakeAndDeploy(data as Parameters<typeof stakeAndDeploy>[0]);
     } catch (err) {
-      console.error('Staking failed:', err);
+      console.error('Stake-and-Deploy failed:', err);
       setIsStaking(false);
     }
   };
@@ -73,7 +98,6 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
   const handleReset = () => {
     reset();
     setIsStaking(false);
-    onReset?.();
   };
 
   return (
@@ -82,14 +106,14 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
         <div className="max-w-2xl mx-auto">
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-bold mb-4 text-primary">
-              Simple Bitcoin Staking
+              Stake-and-Deploy
             </h1>
             <p className="text-secondary text-lg">
-              Stake your BTC to receive LBTC using the Lombard SDK
+              Stake BTC and auto-deposit LBTC to a DeFi vault
             </p>
           </div>
 
-          {/* Wallet Connection (optional) */}
+          {/* Wallet Connection */}
           <div className="mb-6">
             <WalletConnect />
           </div>
@@ -126,23 +150,23 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
           )}
 
           {!isStaking ? (
-            <StakingForm
+            <StakeAndDeployForm
               env={env}
               onSubmit={handleStartStaking}
               isLoading={isInitializing}
               disabled={!partnerId || isInitializing}
             />
           ) : (
-            <StakingProgress
+            <StakeAndDeployProgress
+              status={status}
               depositAddress={depositAddress}
               amount={stakeAmount}
-              status={status}
               progress={progress}
               onReset={handleReset}
-              targetChain={selectedChain}
+              protocol={protocol}
+              targetChain={chainLabels[String(status)] || ''}
             />
           )}
-
         </div>
       </div>
     </div>

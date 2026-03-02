@@ -3,9 +3,9 @@ import { DeployProtocol } from '@lombard.finance/sdk';
 import type {
   StakeAndBakeProgress,
   StakeAndBakeStatus,
-} from '../pages/StakeAndBakePage/useBtcStakeAndBake';
+} from '../pages/StakeAndDeployPage/useBtcStakeAndDeploy';
 
-interface StakeAndBakeProgressProps {
+interface StakeAndDeployProgressProps {
   depositAddress: string | null;
   amount: string | null;
   status: StakeAndBakeStatus;
@@ -16,9 +16,9 @@ interface StakeAndBakeProgressProps {
 }
 
 /**
- * Display Stake-and-Bake progress and status
+ * Display Stake-and-Deploy progress and status
  */
-export function StakeAndBakeProgress({
+export function StakeAndDeployProgress({
   depositAddress,
   amount,
   status,
@@ -26,7 +26,7 @@ export function StakeAndBakeProgress({
   onReset,
   protocol,
   targetChain,
-}: StakeAndBakeProgressProps) {
+}: StakeAndDeployProgressProps) {
   const getStatusColor = () => {
     switch (status.phase) {
       case 'complete':
@@ -168,7 +168,7 @@ export function StakeAndBakeProgress({
       {status.phase === 'complete' && (
         <div className="rounded-md border border-green-300 bg-green-50 p-4">
           <div className="mb-2 text-lg font-medium text-green-900">
-            ✅ Stake and Bake Complete!
+            ✅ Stake and Deploy Complete!
           </div>
           <div className="mb-3 text-sm text-green-800">
             Your BTC has been staked to LBTC and deposited to the{' '}
@@ -188,10 +188,20 @@ export function StakeAndBakeProgress({
               onClick={onReset}
               className="w-full rounded-md border border-green-600 px-4 py-2 text-green-600 hover:bg-green-50"
             >
-              Start Another Stake-and-Bake
+              Start Another Stake-and-Deploy
             </button>
           </div>
         </div>
+      )}
+
+      {/* Cancel/Reset button for non-complete phases */}
+      {status.phase !== 'complete' && (
+        <button
+          onClick={onReset}
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+        >
+          {status.phase === 'error' ? 'Start Over' : 'Cancel'}
+        </button>
       )}
     </div>
   );

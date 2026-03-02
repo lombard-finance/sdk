@@ -44,13 +44,22 @@ export function useEvmWallet() {
         }
       };
 
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      try {
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+      } catch (err) {
+        console.warn('Failed to subscribe to accountsChanged:', err);
+        return;
+      }
 
       return () => {
-        window.ethereum?.removeListener(
-          'accountsChanged',
-          handleAccountsChanged,
-        );
+        try {
+          window.ethereum?.removeListener(
+            'accountsChanged',
+            handleAccountsChanged,
+          );
+        } catch {
+          // Provider may not support removeListener
+        }
       };
     }
   }, []);
