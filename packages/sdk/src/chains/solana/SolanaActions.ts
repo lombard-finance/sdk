@@ -21,6 +21,16 @@ import type { LombardConfig } from '../../config/types';
 import { getProviderGetter } from '../../config/types';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SolanaCoreContext } from '../../shared/context';
+import { SolanaRedeem } from './actions/redeem/SolanaRedeem';
+import type {
+  ISolanaRedeem,
+  SolanaRedeemParams,
+} from './actions/redeem/types';
+import { SolanaStake } from './actions/stake/SolanaStake';
+import type {
+  ISolanaStake,
+  SolanaStakeParams,
+} from './actions/stake/types';
 import { SolanaUnstake } from './actions/unstake/SolanaUnstake';
 import type {
   ISolanaUnstake,
@@ -66,6 +76,18 @@ export class SolanaActions {
   }
 
   /**
+   * Stake BTC.b → LBTC
+   *
+   * Converts BTC.b to LBTC via the Asset Router program on Solana.
+   *
+   * @throws LombardError if solana module is not registered
+   * @throws LombardError if route is not supported
+   */
+  stake(params: SolanaStakeParams): ISolanaStake {
+    return new SolanaStake(this.ctx, params);
+  }
+
+  /**
    * Unstake LBTC → BTC
    *
    * Burns LBTC on Solana and releases BTC on Bitcoin.
@@ -74,6 +96,18 @@ export class SolanaActions {
    */
   unstake(params: SolanaUnstakeParams): ISolanaUnstake {
     return new SolanaUnstake(this.ctx, params);
+  }
+
+  /**
+   * Redeem LBTC → BTC.b
+   *
+   * Converts LBTC to BTC.b via the Asset Router program on Solana.
+   *
+   * @throws LombardError if solana module is not registered
+   * @throws LombardError if route is not supported
+   */
+  redeem(params: SolanaRedeemParams): ISolanaRedeem {
+    return new SolanaRedeem(this.ctx, params);
   }
 }
 
