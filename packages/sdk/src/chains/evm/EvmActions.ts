@@ -6,7 +6,7 @@
  * Operations:
  * - stake: BTC.b → LBTC (stake wrapped BTC to get LBTC)
  * - unstake: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
- * - deposit: Claim LBTC with notarized proof
+ * - deposit: BTCb → LBTC (deposit BTC.b to receive LBTC)
  * - deploy: LBTC/BTC.b → DeFi protocols (Veda, Silo)
  * - withdraw: Queue withdrawal from DeFi protocols
  * - cancelWithdraw: Cancel pending withdrawal from DeFi protocols
@@ -125,14 +125,14 @@ export class EvmActions {
   }
 
   /**
-   * Deposit wrapped BTC to get LBTC
+   * Deposit BTCb to get LBTC
    *
-   * Deposits WBTC or BTCb to receive LBTC.
+   * Deposits BTC.b to receive LBTC via the claim flow.
    *
    * @example
    * ```typescript
    * const deposit = evm.deposit({
-   *   assetIn: AssetId.WBTC,
+   *   assetIn: AssetId.BTCb,
    *   assetOut: AssetId.LBTC,
    *   sourceChain: Chain.ETHEREUM,
    *   destChain: Chain.ETHEREUM,

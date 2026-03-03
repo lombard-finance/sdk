@@ -13,7 +13,7 @@ import type { AssetId, Chain, ChainType } from '../../../../../core';
  * Route definition for EVM deposit operations
  */
 export interface RouteDefinition {
-  /** Supported input assets (e.g., WBTC, BTCb) */
+  /** Supported input assets (e.g., BTCb) */
   assetsIn: AssetId[];
   /** Output asset (e.g., LBTC) */
   assetOut: AssetId;

@@ -105,7 +105,8 @@
   },
   "files": [
     "dist",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "license": "MIT",
   "peerDependencies": {

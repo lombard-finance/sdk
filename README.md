@@ -38,8 +38,8 @@ const stake = sdk.chain.btc.stake({
 });
 
 // Execute the staking flow
-await stake.prepare({ partnerConfig: { partnerId: 'your-partner-id' } });
-await stake.authorizeFee();
+await stake.prepare({ amount: '0.001', recipient: '0x...' });
+await stake.authorize();
 await stake.generateDepositAddress();
 
 console.log('Deposit BTC to:', stake.depositAddress);

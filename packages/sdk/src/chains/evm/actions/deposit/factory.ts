@@ -20,7 +20,7 @@ import type { EvmDepositParams } from './types';
  * const sdk = await createLombardSDK({ env: Env.prod, providers: { evm: () => window.ethereum } });
  * const deposit = sdk.chain.evm.deposit({
  *   sourceChain: Chain.ETHEREUM,
- *   assetIn: AssetId.WBTC,
+ *   assetIn: AssetId.BTCb,
  * });
  * await deposit.prepare({ amount: '0.1' });
  * ```
