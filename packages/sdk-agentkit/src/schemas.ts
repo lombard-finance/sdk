@@ -21,9 +21,6 @@ export const StakeSchema = z
   .object({
     amount: z
       .string()
-      .refine((v) => Number(v) >= MIN_STAKE_AMOUNT_BTC, {
-        message: `Amount must be at least ${MIN_STAKE_AMOUNT_BTC} BTC.b`,
-      })
       .describe(
         `The amount of BTC.b to stake, in whole units (e.g. "0.5" for 0.5 BTC.b). ` +
           `Minimum amount is ${MIN_STAKE_AMOUNT_BTC} BTC.b. ` +

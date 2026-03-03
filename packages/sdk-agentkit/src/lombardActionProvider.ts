@@ -23,6 +23,7 @@ import {
   DeployProtocol,
   Env,
   LombardSDK,
+  MIN_STAKE_AMOUNT_BTC,
 } from '@lombard.finance/sdk';
 import { z } from 'zod';
 
@@ -86,7 +87,10 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
     description:
       'Stake BTC.b (wrapped Bitcoin) to receive LBTC (Lombard liquid staked Bitcoin). ' +
       'LBTC earns native BTC staking yield while remaining liquid on EVM chains. ' +
-      'Requires BTC.b in the wallet.',
+      'Requires BTC.b in the wallet. ' +
+      'Note: this is an asynchronous cross-chain operation — BTC.b is burned immediately, ' +
+      'but LBTC is minted after the Lombard consortium processes the cross-chain message ' +
+      '(typically a few minutes).',
     schema: StakeSchema,
   })
   async stake(
@@ -94,6 +98,10 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
     args: z.infer<typeof StakeSchema>,
   ): Promise<string> {
     try {
+      if (Number(args.amount) < MIN_STAKE_AMOUNT_BTC) {
+        return `Minimum stake amount is ${MIN_STAKE_AMOUNT_BTC} BTC.b, got ${args.amount}.`;
+      }
+
       const sdk = await this.getSDK(walletProvider);
       const chain = toLombardChain(walletProvider.getNetwork());
 
@@ -116,8 +124,10 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
 
       const { txHash } = await action.execute();
       return (
-        `Successfully staked ${args.amount} BTC.b → LBTC. ` +
-        `Transaction: ${txHash}`
+        `Successfully submitted stake of ${args.amount} BTC.b → LBTC. ` +
+        `Transaction: ${txHash}. ` +
+        'LBTC will appear in the wallet after the Lombard consortium processes ' +
+        'the cross-chain message (typically a few minutes).'
       );
     } catch (error) {
       return `Failed to stake BTC.b: ${errorMessage(error)}`;
