@@ -81,13 +81,48 @@ export interface IConfig {
    * LZ Escrow address for LBTC operations
    */
   lzEscrow: string;
+
+  /**
+   * BTC.b SPL token mint address
+   */
+  btcbTokenMint: string | null;
+
+  /**
+   * Consortium program address
+   */
+  consortium: string | null;
+
+  /**
+   * Mailbox program address
+   */
+  mailbox: string | null;
+
+  /**
+   * Asset Router program address
+   */
+  assetRouter: string | null;
+
+  /**
+   * Ratio Oracle program address
+   */
+  ratioOracle: string | null;
+
+  /**
+   * Bridge program address
+   */
+  bridge: string | null;
+
+  /**
+   * Lombard Token Pool program address
+   */
+  lombardTokenPool: string | null;
 }
 
 /**
  * Configuration for devnet environment
  */
 const devnetConfig: IConfig = {
-  lbtcTokenMint: '1btcyoWK7d99iosES4eXQGhhooCscKGigV5wHfvzueX',
+  lbtcTokenMint: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
   lbtcProgramId: 'HEY7PCJe3GB27UWdopuYb1xDbB5SNtTcYPxRjntvfBSA',
   treasuryAddress: 'ByHNGi4zPJw5StyWZoLQJ9n2wT12oupJF2pTSNKMnnAZ',
   bascule: null,
@@ -97,6 +132,13 @@ const devnetConfig: IConfig = {
   lzOftStore: '3SG3oyrG3KSvJ9bbxPDu7ZXEe5o1TW1QkgudkKvK6FK4',
   lzMultisig: 'GfYV1f1bR9vy41mSyQ8quxYbds121kijSBj5A3nG8oDQ',
   lzEscrow: 'GRq2yasTvWWPPqSwxCZvqfCTfDhP3MswDH4nW2v6F5To',
+  btcbTokenMint: 'BTCB1BeSVzjtde2pqpNFCPbwQXpZd1ERwtToDreTdqr1',
+  consortium: 'LomCbo8K5ar4kVpqoGGktE8WemHfGz84V8aH8Y1iGxd',
+  mailbox: 'LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9',
+  assetRouter: 'LomVyJDZ91jeVbNnTupJXKJTQFakJVMc87CmwDHYt95',
+  ratioOracle: 'LomfreVHrrMrSpv54KCJ6AC1eKL8QbL1Ej28S3gwawa',
+  bridge: 'Lom9Em2WzV7gvtttdub9LZSR8gLgtbzFDhFm1zMQRp6',
+  lombardTokenPool: 'LomdWAg9hHyz3VrvK5wXTap7o348Ku2QJ2j2H8Etj3C',
 };
 
 /**
@@ -113,6 +155,13 @@ const testnetConfig: IConfig = {
   lzOftStore: '8YN34wKaAc34BwFKxnUqQeRwWmfhbs4vYw2rnz2Z89sp',
   lzMultisig: 'J3XK1JJTF6udknuLb15oUQhYbooUFiafhNxwYHAMxXE1',
   lzEscrow: '8aNceYRuD5PR51o2pBnhw9cCktByixMPySUJrP3FexzA',
+  btcbTokenMint: null,
+  consortium: null,
+  mailbox: null,
+  assetRouter: null,
+  ratioOracle: null,
+  bridge: null,
+  lombardTokenPool: null,
 };
 
 /**
@@ -129,6 +178,13 @@ const prodConfig: IConfig = {
   lzOftStore: 'CQeKmXxoGog57U5jPyYz7YAo8AuLUdoDqxGTXtMPkMuc',
   lzMultisig: '2YB3LPB4Tdb1ccmEFqhK3ZEKLFzCPayUwzEU5J1DXSzK',
   lzEscrow: '6nc7pBpN82EeKFbcqRt7xVV2h8FNQGdiVnTb2TQvyv99',
+  btcbTokenMint: null,
+  consortium: null,
+  mailbox: null,
+  assetRouter: null,
+  ratioOracle: null,
+  bridge: null,
+  lombardTokenPool: null,
 };
 
 /**

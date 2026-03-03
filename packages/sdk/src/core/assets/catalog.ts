@@ -123,7 +123,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.stage,
           chain: Chain.SOLANA_DEVNET,
-          address: 'HEY7PCJe3GB27UWdopuYb1xDbB5SNtTcYPxRjntvfBSA',
+          address: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
         },
         {
           env: Env.stage,
@@ -212,6 +212,11 @@ export const ASSET_CATALOG: AssetCatalog = {
           env: Env.stage,
           chain: Chain.SEPOLIA,
           address: '0x600e4006278EB11FA1691cA0FE6C5fcfC4992d58',
+        },
+        {
+          env: Env.stage,
+          chain: Chain.SOLANA_DEVNET,
+          address: 'BTCB1BeSVzjtde2pqpNFCPbwQXpZd1ERwtToDreTdqr1',
         },
 
         // Dev
