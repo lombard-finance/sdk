@@ -9,7 +9,7 @@
  * @module constants
  */
 
-import { Chain } from '@lombard.finance/sdk';
+import { Chain, Env } from '@lombard.finance/sdk';
 
 type ChainId = (typeof Chain)[keyof typeof Chain];
 
@@ -47,3 +47,18 @@ export const CHAIN_ID_TO_NAME: Record<string, string> = {
   '11155111': 'Sepolia',
   '43113': 'Avalanche Fuji',
 } as const;
+
+const TESTNET_LOMBARD_CHAINS: ReadonlySet<string> = new Set([
+  Chain.SEPOLIA,
+  Chain.AVALANCHE_FUJI,
+]);
+
+/**
+ * Mapping from chain ID to Lombard SDK environment.
+ */
+export const CHAIN_ID_TO_ENV: Record<string, Env> = Object.fromEntries(
+  Object.entries(CHAIN_ID_TO_LOMBARD_CHAIN).map(([id, chain]) => [
+    id,
+    TESTNET_LOMBARD_CHAINS.has(chain) ? Env.stage : Env.prod,
+  ]),
+);

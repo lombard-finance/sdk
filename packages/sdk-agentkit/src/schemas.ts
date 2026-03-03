@@ -8,6 +8,7 @@
  * @module schemas
  */
 
+import { MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
 import { z } from 'zod';
 
 const EVM_ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
@@ -20,8 +21,12 @@ export const StakeSchema = z
   .object({
     amount: z
       .string()
+      .refine((v) => Number(v) >= MIN_STAKE_AMOUNT_BTC, {
+        message: `Amount must be at least ${MIN_STAKE_AMOUNT_BTC} BTC.b`,
+      })
       .describe(
-        'The amount of BTC.b to stake, in whole units (e.g. "0.5" for 0.5 BTC.b). ' +
+        `The amount of BTC.b to stake, in whole units (e.g. "0.5" for 0.5 BTC.b). ` +
+          `Minimum amount is ${MIN_STAKE_AMOUNT_BTC} BTC.b. ` +
           'BTC.b is wrapped Bitcoin on EVM chains. Staking converts it to LBTC, ' +
           "Lombard's liquid staked Bitcoin that earns native BTC yield.",
       ),

@@ -240,6 +240,9 @@ export {
 //   const sdk = await createLombardSDK({ env: Env.prod, ... });
 //   const unstake = sdk.chain.evm.unstake({ ... });
 
+// Constants:
+export { MIN_STAKE_AMOUNT_BTC } from './common/constants';
+
 // Utils - API Config:
 export { getApiConfig, type IApiConfig } from './common/api-config';
 

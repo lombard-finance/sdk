@@ -41,6 +41,7 @@ export { toEIP1193Provider } from './utils/wallet-adapter';
 
 // Constants
 export {
+  CHAIN_ID_TO_ENV,
   CHAIN_ID_TO_LOMBARD_CHAIN,
   CHAIN_ID_TO_NAME,
   SUPPORTED_CHAIN_IDS,

@@ -31,6 +31,16 @@ describe('StakeSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects amount below minimum (0.0002)', () => {
+    const result = StakeSchema.safeParse({ amount: '0.0001' });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts amount at minimum (0.0002)', () => {
+    const result = StakeSchema.safeParse({ amount: '0.0002' });
+    expect(result.success).toBe(true);
+  });
+
   it('strips unknown fields', () => {
     const result = StakeSchema.safeParse({ amount: '1', extra: 'ignored' });
     expect(result.success).toBe(true);

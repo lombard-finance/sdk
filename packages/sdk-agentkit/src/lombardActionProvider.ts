@@ -26,6 +26,7 @@ import {
 } from '@lombard.finance/sdk';
 import { z } from 'zod';
 
+import { CHAIN_ID_TO_ENV } from './constants';
 import {
   DeploySchema,
   DepositSchema,
@@ -45,15 +46,19 @@ import { toEIP1193Provider } from './utils/wallet-adapter';
  * tool call.
  */
 export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
-  private readonly env: Env;
+  private readonly envOverride?: Env;
   private sdkCache: { sdk: LombardSDK; chainId: string } | null = null;
 
-  constructor(env: Env = Env.prod) {
+  constructor(env?: Env) {
     super('lombard', []);
-    this.env = env;
+    this.envOverride = env;
   }
 
   // ─── SDK Lifecycle ──────────────────────────────────────────────────
+
+  private resolveEnv(chainId: string): Env {
+    return this.envOverride ?? CHAIN_ID_TO_ENV[chainId] ?? Env.prod;
+  }
 
   private async getSDK(
     walletProvider: EvmWalletProvider,
@@ -66,7 +71,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
 
     const eip1193 = toEIP1193Provider(walletProvider);
     const sdk = await createLombardSDK({
-      env: this.env,
+      env: this.resolveEnv(chainId),
       providers: { evm: () => eip1193 },
     });
 
@@ -297,7 +302,10 @@ function errorMessage(error: unknown): string {
 /**
  * Create a Lombard action provider instance.
  *
- * @param env - Lombard environment (defaults to production).
+ * By default the SDK environment (prod / stage) is resolved automatically
+ * from the wallet's chain ID.  Pass an explicit `env` to override.
+ *
+ * @param env - Optional override for the Lombard SDK environment.
  *
  * @example
  * ```typescript

@@ -1,10 +1,22 @@
 import path from 'node:path';
 
+import swc from 'unplugin-swc';
 import { defineConfig } from 'vite';
 
 import packageJson from './package.json';
 
 export default defineConfig({
+  plugins: [
+    swc.vite({
+      jsc: {
+        parser: { syntax: 'typescript', decorators: true },
+        transform: {
+          legacyDecorator: true,
+          decoratorMetadata: true,
+        },
+      },
+    }),
+  ],
   build: {
     sourcemap: false,
     lib: {
