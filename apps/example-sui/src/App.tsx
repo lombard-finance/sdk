@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { Layout } from './components/layout/Layout';
+import { SuiWalletProvider } from './contexts/SuiWalletContext';
 import { getEnvironment } from './lib/config';
 import { SuiStakePage } from './pages/SuiStakePage';
 import { SuiUnstakePage } from './pages/SuiUnstakePage';
@@ -24,19 +25,21 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={<Layout env={env} onEnvChange={handleEnvChange} />}
-        >
-          <Route index element={<Navigate to="/staking" replace />} />
-          <Route path="staking" element={<SuiStakePage env={env} />} />
-          <Route path="unstaking" element={<SuiUnstakePage env={env} />} />
-          <Route path="*" element={<Navigate to="/staking" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <SuiWalletProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={<Layout env={env} onEnvChange={handleEnvChange} />}
+          >
+            <Route index element={<Navigate to="/staking" replace />} />
+            <Route path="staking" element={<SuiStakePage env={env} />} />
+            <Route path="unstaking" element={<SuiUnstakePage env={env} />} />
+            <Route path="*" element={<Navigate to="/staking" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </SuiWalletProvider>
   );
 }
 

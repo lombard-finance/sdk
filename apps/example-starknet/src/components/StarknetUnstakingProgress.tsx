@@ -6,6 +6,7 @@ interface StarknetUnstakingProgressProps {
   status: UnstakingStatus;
   txHash?: string | null;
   env?: Env;
+  onReset: () => void;
 }
 
 /**
@@ -17,6 +18,7 @@ export function StarknetUnstakingProgress({
   status,
   txHash,
   env = Env.testnet,
+  onReset,
 }: StarknetUnstakingProgressProps) {
   const getExplorerUrl = (hash: string) => {
     const baseUrl =
@@ -26,49 +28,81 @@ export function StarknetUnstakingProgress({
     return `${baseUrl}/tx/${hash}`;
   };
 
+  const isComplete = status.phase === 'complete';
+  const hasError = status.phase === 'error';
+  const isActivelyLoading = !isComplete && !hasError && status.phase !== 'idle';
+
   const getStatusColor = () => {
     switch (status.phase) {
       case 'complete':
-        return 'bg-green-50 text-green-800 border-green-200';
+        return 'text-success';
       case 'error':
-        return 'bg-red-50 text-red-800 border-red-200';
-      case 'idle':
-        return 'bg-gray-50 text-gray-600 border-gray-200';
+        return 'text-error';
+      case 'confirming':
+      case 'executing':
+        return 'text-warning';
       default:
-        return 'bg-blue-50 text-blue-800 border-blue-200';
+        return 'text-primary';
     }
   };
 
   return (
-    <div className={`rounded-md border p-4 ${getStatusColor()}`}>
-      <div className="mb-2 text-sm font-medium">Status: {status.message}</div>
+    <div className="card">
+      <h2 className="text-2xl font-semibold mb-6">
+        {isComplete ? 'Unstake Complete' : hasError ? 'Unstaking Error' : 'Unstaking Progress'}
+      </h2>
 
+      {/* Status */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-2">
+          {isActivelyLoading && <span className="spinner" />}
+          <span className={`text-lg font-medium ${getStatusColor()}`}>
+            {status.message}
+          </span>
+        </div>
+      </div>
+
+      {/* Transaction Hash */}
       {txHash && (
-        <div className="mt-3 space-y-2 text-sm">
-          <div>
-            <span className="font-medium">Transaction Hash:</span>
-            <div className="mt-1 break-all font-mono text-xs">{txHash}</div>
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">
+            Transaction Hash
+          </label>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-2">
+            <code className="text-sm break-all font-mono">{txHash}</code>
           </div>
           <a
             href={getExplorerUrl(txHash)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block text-blue-600 underline hover:text-blue-800"
+            className="text-sm text-capital-green hover:underline"
           >
-            View on Explorer →
+            View on Starknet Explorer →
           </a>
         </div>
       )}
 
-      {status.phase === 'complete' && (
-        <div className="mt-3 rounded-md bg-white/50 p-3 text-sm">
-          <div className="font-medium">Next Steps:</div>
-          <ul className="ml-4 mt-1 list-disc space-y-1">
-            <li>LBTC has been burned on Starknet</li>
-            <li>BTC will be released to your Bitcoin address</li>
-            <li>Check the transaction on Starknet explorer</li>
-          </ul>
+      {/* Success */}
+      {isComplete && (
+        <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+          <h4 className="font-semibold mb-2 text-sm text-green-900">
+            ✓ Unstake Complete
+          </h4>
+          <p className="text-sm text-green-800">
+            LBTC has been burned on Starknet. BTC will be sent to your Bitcoin address shortly.
+          </p>
         </div>
+      )}
+
+      {/* Action buttons */}
+      {(isComplete || hasError) ? (
+        <button onClick={onReset} className="btn btn-secondary w-full">
+          Start New Unstake
+        </button>
+      ) : (
+        <button onClick={onReset} className="btn btn-secondary w-full mt-4 text-sm">
+          Cancel
+        </button>
       )}
     </div>
   );

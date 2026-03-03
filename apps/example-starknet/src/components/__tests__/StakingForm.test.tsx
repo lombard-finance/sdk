@@ -99,12 +99,10 @@ describe('Starknet StakingForm', () => {
     expect(button.textContent).toContain('Initializing');
   });
 
-  it('shows "Use wallet address" button when starknet address is available', () => {
+  it('shows wallet icon button when starknet address is available', () => {
     renderForm({ solanaAddress: '0xmyaddress' });
 
-    const useWalletBtn = Array.from(container.querySelectorAll('button')).find(
-      b => b.textContent?.includes('Use wallet address'),
-    );
-    expect(useWalletBtn).toBeTruthy();
+    const walletButton = container.querySelector('button[title="Use wallet address"]');
+    expect(walletButton).toBeTruthy();
   });
 });

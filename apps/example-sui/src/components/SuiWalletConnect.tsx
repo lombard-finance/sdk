@@ -41,38 +41,20 @@ export function SuiWalletConnect() {
 
   return (
     <div className="card">
-      <h3 className="text-lg font-semibold mb-4">Sui Wallet</h3>
-
-      {!isConnected ? (
+      <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-secondary mb-4">
-            Connect your Sui wallet (Sui Wallet or Suiet extension) to interact
-            with Sui network
+          <h3 className="font-semibold mb-1">Sui Wallet</h3>
+          <p className="text-sm text-secondary">
+            {isConnected
+              ? 'Wallet connected'
+              : 'Connect wallet for enhanced features'}
           </p>
-          <button
-            onClick={connect}
-            disabled={isConnecting}
-            className="btn btn-primary w-full"
-          >
-            {isConnecting ? (
-              <>
-                <span className="spinner" />
-                Connecting...
-              </>
-            ) : (
-              'Connect Sui Wallet'
-            )}
-          </button>
-          {error && <p className="text-xs text-error mt-2">{error}</p>}
         </div>
-      ) : (
-        <div>
-          <div className="mb-4">
-            <label className="block text-xs font-medium text-secondary mb-1">
-              Connected Address
-            </label>
+
+        {isConnected && address ? (
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 rounded-lg">
-              <code className="text-sm font-mono">{formatAddress(address!)}</code>
+              <code className="text-sm font-mono">{formatAddress(address)}</code>
               <button
                 type="button"
                 onClick={() => { void handleCopy(); }}
@@ -82,36 +64,59 @@ export function SuiWalletConnect() {
                 {copied ? <CheckIcon /> : <CopyIcon />}
               </button>
             </div>
+            <button onClick={disconnect} className="btn btn-secondary">
+              Disconnect
+            </button>
           </div>
-          <button onClick={disconnect} className="btn btn-secondary w-full">
-            Disconnect
+        ) : (
+          <button
+            onClick={connect}
+            disabled={isConnecting}
+            className="btn btn-primary"
+          >
+            {isConnecting ? (
+              <>
+                <span className="spinner" />
+                Connecting...
+              </>
+            ) : (
+              'Connect Wallet'
+            )}
           </button>
+        )}
+      </div>
+
+      {error && (
+        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-error">{error}</p>
         </div>
       )}
 
-      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-        <p className="text-xs text-blue-900">
-          💡 <strong>Tip:</strong> Install{' '}
-          <a
-            href="https://chrome.google.com/webstore/detail/sui-wallet"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-capital-green hover:underline"
-          >
-            Sui Wallet
-          </a>{' '}
-          or{' '}
-          <a
-            href="https://suiet.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-capital-green hover:underline"
-          >
-            Suiet
-          </a>{' '}
-          browser extension if you haven't already.
-        </p>
-      </div>
+      {!isConnected && (
+        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-900">
+            <strong>No wallet detected?</strong> Install{' '}
+            <a
+              href="https://chrome.google.com/webstore/detail/sui-wallet"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Sui Wallet
+            </a>{' '}
+            or{' '}
+            <a
+              href="https://suiet.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Suiet
+            </a>
+            .
+          </p>
+        </div>
+      )}
     </div>
   );
 }

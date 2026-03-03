@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { Layout } from './components/layout/Layout';
+import { StarknetWalletProvider } from './contexts/StarknetWalletContext';
 import { getEnvironment } from './lib/config';
 import { StarknetStakePage } from './pages/StarknetStakePage';
 import { StarknetUnstakePage } from './pages/StarknetUnstakePage';
@@ -24,19 +25,21 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={<Layout env={env} onEnvChange={handleEnvChange} />}
-        >
-          <Route index element={<Navigate to="/staking" replace />} />
-          <Route path="staking" element={<StarknetStakePage env={env} />} />
-          <Route path="unstaking" element={<StarknetUnstakePage env={env} />} />
-          <Route path="*" element={<Navigate to="/staking" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <StarknetWalletProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={<Layout env={env} onEnvChange={handleEnvChange} />}
+          >
+            <Route index element={<Navigate to="/staking" replace />} />
+            <Route path="staking" element={<StarknetStakePage env={env} />} />
+            <Route path="unstaking" element={<StarknetUnstakePage env={env} />} />
+            <Route path="*" element={<Navigate to="/staking" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </StarknetWalletProvider>
   );
 }
 

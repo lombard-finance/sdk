@@ -3,6 +3,7 @@ import { useEvmUnstake, useLombardSDK } from '@lombard.finance/sdk-react';
 import { useCallback } from 'react';
 
 import { getEnvironment } from '../../lib/config';
+import { useEvmWallet } from '../../hooks/useEvmWallet';
 
 export type { UnstakingStatus } from '@lombard.finance/sdk-react';
 
@@ -26,6 +27,7 @@ export interface UnstakingFormData {
  */
 export function useEvmUnstaking(evmAddress?: string | null, env?: Env) {
   const currentEnv = env ?? getEnvironment();
+  const { switchNetwork } = useEvmWallet();
 
   const { sdk, isInitializing, error: sdkError } = useLombardSDK(
     () =>
@@ -47,15 +49,19 @@ export function useEvmUnstaking(evmAddress?: string | null, env?: Env) {
   } = useEvmUnstake(sdk);
 
   const unstake = useCallback(
-    (formData: UnstakingFormData) =>
-      unstakeCore({
+    async (formData: UnstakingFormData) => {
+      // Prompt wallet to switch to the source chain before executing
+      await switchNetwork(formData.sourceChain);
+
+      return unstakeCore({
         amount: formData.amount,
         sourceChain: formData.sourceChain,
         destChain: formData.destChain,
         recipient: formData.recipient,
         assetOut: formData.assetOut,
-      }),
-    [unstakeCore],
+      });
+    },
+    [unstakeCore, switchNetwork],
   );
 
   return {

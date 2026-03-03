@@ -53,55 +53,53 @@ export function StarknetWalletConnect({
 
   if (isConnected && address) {
     return (
-      <div className="rounded-md border border-gray-300 p-4">
+      <div className="card">
         <div className="flex items-center justify-between">
           <div>
-            <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">
-              Starknet Wallet Connected
-            </div>
-            <div className="flex items-center gap-1.5 font-mono text-sm">
-              <span>{address.slice(0, 8)}...{address.slice(-6)}</span>
+            <h3 className="font-semibold mb-1">Starknet Wallet</h3>
+            <p className="text-sm text-secondary">
+              Wallet connected{walletId ? ` via ${walletId === 'braavos' ? 'Braavos' : 'Ready Wallet'}` : ''}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 rounded-lg">
+              <code className="text-sm font-mono">
+                {address.slice(0, 6)}...{address.slice(-4)}
+              </code>
               <button
                 type="button"
-                onClick={handleCopy}
-                className="inline-flex items-center justify-center rounded p-0.5 text-gray-400 transition-colors hover:text-gray-600"
-                title="Copy address"
+                onClick={() => { void handleCopy(); }}
+                title={copied ? 'Copied!' : 'Copy address'}
+                className={`p-1 rounded transition-colors ${
+                  copied
+                    ? 'text-green-600'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
               >
                 {copied ? <CheckIcon /> : <CopyIcon />}
               </button>
             </div>
-            {walletId && (
-              <div className="mt-1 text-xs text-gray-500">
-                Using {walletId === 'braavos' ? 'Braavos' : 'Ready Wallet'}
-              </div>
-            )}
+            <button onClick={disconnect} className="btn btn-secondary">
+              Disconnect
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={disconnect}
-            className="rounded-md border border-red-600 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
-          >
-            Disconnect
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border border-gray-300 p-4">
-      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-gray-500">
-        Connect Starknet Wallet
-      </div>
+    <div className="card">
+      <h3 className="font-semibold mb-3">Starknet Wallet</h3>
 
       {error && (
-        <div className="mb-3 rounded-md bg-red-50 p-3 text-sm text-red-600">
-          {error}
+        <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-error">{error}</p>
         </div>
       )}
 
       {installedWallets.length === 0 ? (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-secondary">
           <p className="mb-3">
             No Starknet wallet detected. Please install one of the following:
           </p>
@@ -110,7 +108,7 @@ export function StarknetWalletConnect({
               href="https://braavos.app/download/"
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-md border border-blue-600 px-4 py-2 text-center text-blue-600 transition-colors hover:bg-blue-50"
+              className="block rounded-md border border-capital-green px-4 py-2 text-center text-capital-green transition-colors hover:bg-green-50"
             >
               Install Braavos
             </a>
@@ -118,7 +116,7 @@ export function StarknetWalletConnect({
               href="https://www.ready.co/download-ready-wallet"
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-md border border-blue-600 px-4 py-2 text-center text-blue-600 transition-colors hover:bg-blue-50"
+              className="block rounded-md border border-capital-green px-4 py-2 text-center text-capital-green transition-colors hover:bg-green-50"
             >
               Install Ready Wallet
             </a>
@@ -132,9 +130,16 @@ export function StarknetWalletConnect({
               type="button"
               onClick={() => connect(wallet.id)}
               disabled={isConnecting}
-              className="w-full rounded-md border border-blue-600 bg-white px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn btn-primary w-full"
             >
-              {isConnecting ? 'Connecting...' : `Connect ${wallet.name}`}
+              {isConnecting ? (
+                <>
+                  <span className="spinner" />
+                  Connecting...
+                </>
+              ) : (
+                `Connect ${wallet.name}`
+              )}
             </button>
           ))}
         </div>

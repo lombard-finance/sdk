@@ -42,6 +42,7 @@ export function StakingProgress({
   status,
   progress,
   onReset,
+  targetChain,
 }: StakingProgressProps) {
   const [copied, setCopied] = useState(false);
 
@@ -121,6 +122,15 @@ export function StakingProgress({
         )}
       </div>
 
+      {/* Destination Chain */}
+      {targetChain && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm">
+            <strong>Destination Chain:</strong> {targetChain}
+          </p>
+        </div>
+      )}
+
       {/* Deposit Address */}
       {depositAddress && (
         <div className="mb-6">
@@ -155,9 +165,13 @@ export function StakingProgress({
       )}
 
       {/* Action buttons */}
-      {(isComplete || hasError) && (
+      {(isComplete || hasError) ? (
         <button onClick={onReset} className="btn btn-secondary w-full">
           Start New Stake
+        </button>
+      ) : (
+        <button onClick={onReset} className="btn btn-secondary w-full mt-4 text-sm">
+          Cancel
         </button>
       )}
     </div>
