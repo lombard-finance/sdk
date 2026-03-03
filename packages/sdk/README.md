@@ -43,8 +43,8 @@ stake.on('status-change', (status) => console.log('Status:', status));
 stake.on('progress', (progress) => console.log('Progress:', progress));
 
 // Execute the action lifecycle
-await stake.prepare({ partnerConfig: { partnerId: 'your-partner-id' } });
-await stake.authorizeFee(); // If required
+await stake.prepare({ amount: '0.001', recipient: '0x...' });
+await stake.authorize(); // If required
 await stake.generateDepositAddress();
 
 // User sends BTC to stake.depositAddress
@@ -92,10 +92,10 @@ create → prepare → execute → complete
 Query deposits, unstakes, points, and exchange rates:
 
 ```typescript
-const deposits = await sdk.api.getDeposits({ address });
-const unstakes = await sdk.api.getUnstakes({ address });
-const points = await sdk.api.getPoints({ address });
-const rate = await sdk.api.getExchangeRate();
+const deposits = await sdk.api.deposits(address);
+const unstakes = await sdk.api.unstakes(address);
+const points = await sdk.api.points(address);
+const rate = await sdk.api.exchangeRatio();
 ```
 
 ## Playground
