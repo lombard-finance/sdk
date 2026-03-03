@@ -1,11 +1,12 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockCreateConfig, mockUseEvmUnstake, mockUseLombardSDK } = vi.hoisted(
+const { mockCreateConfig, mockUseEvmUnstake, mockUseLombardSDK, mockSwitchNetwork } = vi.hoisted(
   () => ({
     mockCreateConfig: vi.fn().mockReturnValue({ env: 'stage', providers: {} }),
     mockUseEvmUnstake: vi.fn(),
     mockUseLombardSDK: vi.fn(),
+    mockSwitchNetwork: vi.fn().mockResolvedValue(undefined),
   }),
 );
 
@@ -34,6 +35,10 @@ vi.mock('@lombard.finance/sdk-react', () => ({
 
 vi.mock('../../../lib/config', () => ({
   getEnvironment: () => 'stage',
+}));
+
+vi.mock('../../../hooks/useEvmWallet', () => ({
+  useEvmWallet: () => ({ switchNetwork: mockSwitchNetwork }),
 }));
 
 import { Chain } from '@lombard.finance/sdk';
@@ -103,7 +108,7 @@ describe('useEvmUnstaking', () => {
     expect(mockUseEvmUnstake).toHaveBeenCalledWith({ mock: 'sdk' });
   });
 
-  it('delegates unstake correctly', () => {
+  it('delegates unstake correctly and switches network first', async () => {
     const mockUnstakeFn = vi.fn();
     mockUseEvmUnstake.mockReturnValue({
       ...defaultUnstakeReturn,
@@ -120,8 +125,9 @@ describe('useEvmUnstaking', () => {
       assetOut: 'BTC' as never,
     };
 
-    result.current.unstake(formData);
+    await result.current.unstake(formData);
 
+    expect(mockSwitchNetwork).toHaveBeenCalledWith(Chain.ETHEREUM_MAINNET);
     expect(mockUnstakeFn).toHaveBeenCalledWith({
       amount: '0.5',
       sourceChain: Chain.ETHEREUM_MAINNET,

@@ -20,6 +20,7 @@ function mockWallet(overrides = {}) {
     error: null,
     connect: vi.fn(),
     disconnect: vi.fn(),
+    switchNetwork: vi.fn(),
     ...overrides,
   });
 }

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { Layout } from './components/layout/Layout';
+import { SolanaWalletProvider } from './contexts/SolanaWalletContext';
 import { getEnvironment } from './lib/config';
 import { SolanaStakePage } from './pages/SolanaStakePage';
 import { SolanaUnstakePage } from './pages/SolanaUnstakePage';
@@ -24,19 +25,21 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={<Layout env={env} onEnvChange={handleEnvChange} />}
-        >
-          <Route index element={<Navigate to="/staking" replace />} />
-          <Route path="staking" element={<SolanaStakePage env={env} />} />
-          <Route path="unstaking" element={<SolanaUnstakePage env={env} />} />
-          <Route path="*" element={<Navigate to="/staking" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <SolanaWalletProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={<Layout env={env} onEnvChange={handleEnvChange} />}
+          >
+            <Route index element={<Navigate to="/staking" replace />} />
+            <Route path="staking" element={<SolanaStakePage env={env} />} />
+            <Route path="unstaking" element={<SolanaUnstakePage env={env} />} />
+            <Route path="*" element={<Navigate to="/staking" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </SolanaWalletProvider>
   );
 }
 

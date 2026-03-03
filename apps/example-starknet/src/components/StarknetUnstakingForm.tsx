@@ -118,7 +118,14 @@ export function StarknetUnstakingForm({
         disabled={isSubmitting}
         className="btn btn-primary w-full mt-6"
       >
-        {isSubmitting ? 'Processing...' : 'Unstake LBTC'}
+        {isSubmitting ? (
+          <>
+            <span className="spinner" />
+            Processing...
+          </>
+        ) : (
+          'Unstake LBTC'
+        )}
       </button>
     </form>
   );

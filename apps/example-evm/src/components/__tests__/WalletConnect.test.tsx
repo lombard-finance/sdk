@@ -48,6 +48,7 @@ describe('WalletConnect', () => {
       error: null,
       connect,
       disconnect,
+      switchNetwork: vi.fn(),
     });
 
     renderComponent();
@@ -71,6 +72,7 @@ describe('WalletConnect', () => {
       error: null,
       connect,
       disconnect,
+      switchNetwork: vi.fn(),
     });
 
     renderComponent();
@@ -96,6 +98,7 @@ describe('WalletConnect', () => {
       error: null,
       connect,
       disconnect,
+      switchNetwork: vi.fn(),
     });
 
     renderComponent();
@@ -117,6 +120,7 @@ describe('WalletConnect', () => {
       error: null,
       connect,
       disconnect,
+      switchNetwork: vi.fn(),
     });
 
     renderComponent();

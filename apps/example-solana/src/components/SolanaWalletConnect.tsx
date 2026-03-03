@@ -77,10 +77,17 @@ export function SolanaWalletConnect() {
         </div>
       )}
 
-      {isConnected && address ? (
-        <div className="flex items-center justify-between">
-          <div className="flex-1 mr-4">
-            <p className="text-sm text-secondary mb-1">Connected Address</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-secondary">
+            {isConnected
+              ? 'Wallet connected'
+              : 'Connect wallet for enhanced features'}
+          </p>
+        </div>
+
+        {isConnected && address ? (
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 rounded-lg">
               <code className="text-sm font-mono">
                 {formatAddress(address)}
@@ -98,29 +105,27 @@ export function SolanaWalletConnect() {
                 {copied ? <CheckIcon /> : <CopyIcon />}
               </button>
             </div>
+            <button onClick={handleConnect} className="btn btn-secondary">
+              Disconnect
+            </button>
           </div>
+        ) : (
           <button
             onClick={handleConnect}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition-colors text-sm"
+            disabled={isConnecting}
+            className="btn btn-primary"
           >
-            Disconnect
+            {isConnecting ? (
+              <>
+                <span className="spinner" />
+                Connecting...
+              </>
+            ) : (
+              'Connect Wallet'
+            )}
           </button>
-        </div>
-      ) : (
-        <button
-          onClick={handleConnect}
-          disabled={isConnecting}
-          className="w-full px-4 py-2 bg-capital-green hover:bg-emerald-700 text-white rounded-md transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-        >
-          {isConnecting ? 'Connecting...' : 'Connect Phantom Wallet'}
-        </button>
-      )}
-
-      {!isConnected && (
-        <p className="text-xs text-secondary mt-2">
-          Connect your Phantom or other Solana wallet to burn LBTC
-        </p>
-      )}
+        )}
+      </div>
     </div>
   );
 }
