@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest
     container:
       image: ${{ vars.AWS_ECR_REGISTRY }}/library/alpine-git-node-aws:latest
     concurrency:
