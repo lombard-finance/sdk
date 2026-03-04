@@ -127,23 +127,25 @@ export class EvmRedeem
       };
 
       // Determine next status based on fee auth
+      // Note: Status is set here (not via act's successStatus) because the
+      // fee auth state is only known after the async check completes.
       if (feeAuthResult.requiresAuth && !feeAuthResult.hasValidSignature) {
+        this.updateStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
         this.emitProgress({
           status: EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
           steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
         });
-        return; // Don't transition to READY yet
+        return;
       }
 
       // No fee auth required or already authorized
       this._needsApproval = false;
+      this.updateStatus(EvmOperationStatus.READY);
       this.emitProgress({
         status: EvmOperationStatus.READY,
         steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
       });
-    }, this._feeAuth.requiresAuth && !this._feeAuth.isAuthorized
-      ? EvmOperationStatus.NEEDS_FEE_AUTHORIZATION
-      : EvmOperationStatus.READY);
+    });
   }
 
   /**
