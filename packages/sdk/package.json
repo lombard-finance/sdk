@@ -1,6 +1,7 @@
 {
   "name": "@lombard.finance/sdk",
   "version": "4.3.3",
+  "description": "TypeScript SDK for the Lombard protocol - stake BTC, mint LBTC, and interact with DeFi",
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
     "isows": "^1.0.7"
@@ -107,6 +108,15 @@
     "dist",
     "CHANGELOG.md",
     "LICENSE"
+  ],
+  "keywords": [
+    "lombard",
+    "sdk",
+    "bitcoin",
+    "lbtc",
+    "staking",
+    "defi",
+    "btc"
   ],
   "license": "MIT",
   "peerDependencies": {

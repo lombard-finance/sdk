@@ -40,6 +40,10 @@
     "vite-plugin-dts": "^4.0.0",
     "vitest": "^3.2.4"
   },
+  "homepage": "https://docs.lombard.finance",
+  "bugs": {
+    "url": "https://github.com/lombard-finance/sdk/issues"
+  },
   "publishConfig": {
     "access": "public"
   },

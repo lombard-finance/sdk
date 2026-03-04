@@ -45,6 +45,10 @@
     "typescript": "^5.5.4",
     "vitest": "^2.1.4"
   },
+  "homepage": "https://docs.lombard.finance",
+  "bugs": {
+    "url": "https://github.com/lombard-finance/sdk/issues"
+  },
   "publishConfig": {
     "access": "public"
   },
