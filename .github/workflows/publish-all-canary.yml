@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   canary:
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest
     environment: production
     container:
       image: ${{ vars.AWS_ECR_REGISTRY }}/library/alpine-git-node-aws:latest
