@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { StakingForm } from '../../components/StakingForm';
 import { StakingProgress } from '../../components/StakingProgress';
 import { WalletConnect } from '../../components/WalletConnect';
+import { useEvmWallet } from '../../hooks/useEvmWallet';
 import type { StakingFormData } from '../../lib/types';
 import { useBtcStakingEvm } from './useBtcStakingEvm';
 
@@ -25,8 +26,9 @@ interface SimpleStakingPageProps {
 export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
   const [isStaking, setIsStaking] = useState(false);
   const [selectedChain, setSelectedChain] = useState('');
+  const { isConnected } = useEvmWallet();
   const [partnerId, setPartnerIdState] = useState(
-    () => localStorage.getItem('lombard-partnerId') || 'test',
+    () => localStorage.getItem('lombard-partnerId') || (env === Env.prod ? '' : 'test'),
   );
 
   const setPartnerId = (value: string) => {
@@ -131,6 +133,7 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
               onSubmit={handleStartStaking}
               isLoading={isInitializing}
               disabled={!partnerId || isInitializing}
+              isWalletConnected={isConnected}
             />
           ) : (
             <StakingProgress

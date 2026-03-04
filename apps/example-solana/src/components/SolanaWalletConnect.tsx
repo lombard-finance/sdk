@@ -34,6 +34,9 @@ export function SolanaWalletConnect() {
     useSolanaWallet();
   const [copied, setCopied] = useState(false);
 
+  const isPhantomAvailable =
+    typeof window !== 'undefined' && !!window.solana;
+
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
@@ -61,71 +64,80 @@ export function SolanaWalletConnect() {
     <div className="card">
       <h3 className="font-semibold mb-3">Solana Wallet</h3>
 
-      {error && (
+      {error && !error.includes('not detected') && (
         <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-900">{error}</p>
-          {error.includes('not detected') && (
-            <a
-              href="https://phantom.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:underline mt-2 inline-block"
-            >
-              Install Phantom Wallet →
-            </a>
-          )}
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-secondary">
-            {isConnected
-              ? 'Wallet connected'
-              : 'Connect wallet for enhanced features'}
+      {!isPhantomAvailable && !isConnected ? (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-sm font-medium text-amber-900 mb-2">
+            Phantom wallet not detected
           </p>
+          <p className="text-xs text-amber-800 mb-3">
+            This example requires Phantom wallet for Solana interactions.
+          </p>
+          <a
+            href="https://chrome.google.com/webstore/detail/phantom/bfnaelmomeimhlpmgjnjophhpkkoljpa"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Install Phantom for Chrome
+          </a>
         </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-secondary">
+              {isConnected
+                ? 'Phantom wallet connected'
+                : 'Connect Phantom wallet'}
+            </p>
+          </div>
 
-        {isConnected && address ? (
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 rounded-lg">
-              <code className="text-sm font-mono">
-                {formatAddress(address)}
-              </code>
-              <button
-                type="button"
-                onClick={() => { void handleCopy(); }}
-                title={copied ? 'Copied!' : 'Copy address'}
-                className={`p-1 rounded transition-colors ${
-                  copied
-                    ? 'text-green-600'
-                    : 'text-gray-400 hover:text-gray-600'
-                }`}
-              >
-                {copied ? <CheckIcon /> : <CopyIcon />}
+          {isConnected && address ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 rounded-lg">
+                <code className="text-sm font-mono">
+                  {formatAddress(address)}
+                </code>
+                <button
+                  type="button"
+                  onClick={() => { void handleCopy(); }}
+                  title={copied ? 'Copied!' : 'Copy address'}
+                  className={`p-1 rounded transition-colors ${
+                    copied
+                      ? 'text-green-600'
+                      : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  {copied ? <CheckIcon /> : <CopyIcon />}
+                </button>
+              </div>
+              <button onClick={handleConnect} className="btn btn-secondary">
+                Disconnect
               </button>
             </div>
-            <button onClick={handleConnect} className="btn btn-secondary">
-              Disconnect
+          ) : (
+            <button
+              onClick={handleConnect}
+              disabled={isConnecting}
+              className="btn btn-primary"
+            >
+              {isConnecting ? (
+                <>
+                  <span className="spinner" />
+                  Connecting...
+                </>
+              ) : (
+                'Connect Phantom'
+              )}
             </button>
-          </div>
-        ) : (
-          <button
-            onClick={handleConnect}
-            disabled={isConnecting}
-            className="btn btn-primary"
-          >
-            {isConnecting ? (
-              <>
-                <span className="spinner" />
-                Connecting...
-              </>
-            ) : (
-              'Connect Wallet'
-            )}
-          </button>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -123,6 +123,7 @@ export {
   getAssetChainsForEnvs,
   getChainMetadata,
   getChainName,
+  getExplorerTxUrl,
   isAssetDeployed,
   isAssetId,
   isChain,

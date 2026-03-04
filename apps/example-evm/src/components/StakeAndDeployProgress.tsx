@@ -1,4 +1,5 @@
 import { DeployProtocol } from '@lombard.finance/sdk';
+import { useCallback, useState } from 'react';
 
 import type {
   StakeAndBakeProgress,
@@ -91,19 +92,13 @@ export function StakeAndDeployProgress({
 
       {/* Deposit Address */}
       {depositAddress && (
-        <div className="rounded-md border border-blue-300 bg-blue-50 p-4">
-          <div className="mb-2 font-medium text-blue-900">
-            📬 Send BTC to this address:
-          </div>
-          <div className="mb-2 break-all rounded-md bg-white p-3 font-mono text-sm">
-            {depositAddress}
-          </div>
+        <DepositAddress depositAddress={depositAddress}>
           {amount && (
             <div className="text-sm text-blue-800">
               Amount: <span className="font-medium">{amount} BTC</span>
             </div>
           )}
-        </div>
+        </DepositAddress>
       )}
 
       {/* Vault Info */}
@@ -203,6 +198,36 @@ export function StakeAndDeployProgress({
           {status.phase === 'error' ? 'Start Over' : 'Cancel'}
         </button>
       )}
+    </div>
+  );
+}
+
+function DepositAddress({ depositAddress, children }: { depositAddress: string; children?: React.ReactNode }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(depositAddress);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [depositAddress]);
+
+  return (
+    <div className="rounded-md border border-blue-300 bg-blue-50 p-4">
+      <div className="mb-2 font-medium text-blue-900">
+        Send BTC to this address:
+      </div>
+      <div className="mb-2 flex items-center gap-2 rounded-md bg-white p-3">
+        <span className="flex-1 break-all font-mono text-sm">{depositAddress}</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          title="Copy address"
+          className="shrink-0 rounded p-1 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          {copied ? '✓' : '⧉'}
+        </button>
+      </div>
+      {children}
     </div>
   );
 }

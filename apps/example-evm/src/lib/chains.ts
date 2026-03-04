@@ -42,6 +42,32 @@ export function getAvailableChains(env: Env): ChainOption[] {
 }
 
 /**
+ * Get available chains for BTC.b unstaking based on environment.
+ *
+ * BTC.b is only available on a subset of networks per environment.
+ */
+export function getBtcbUnstakeChains(env: Env): ChainOption[] {
+  if (env === Env.prod) {
+    return [
+      { value: Chain.ETHEREUM, label: 'Ethereum' },
+      { value: Chain.KATANA, label: 'Katana' },
+      { value: Chain.MONAD, label: 'Monad' },
+      { value: Chain.STABLE, label: 'Stable' },
+      { value: Chain.AVALANCHE, label: 'Avalanche' },
+      { value: Chain.MEGAETH, label: 'Megaeth' },
+    ];
+  } else if (env === Env.testnet) {
+    return [
+      { value: Chain.SEPOLIA, label: 'Sepolia' },
+      { value: Chain.AVALANCHE_FUJI, label: 'Fuji' },
+    ];
+  } else {
+    // stage
+    return [{ value: Chain.SEPOLIA, label: 'Sepolia' }];
+  }
+}
+
+/**
  * Get default chain for environment
  */
 export function getDefaultChain(env: Env): Chain {

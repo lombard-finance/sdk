@@ -17,6 +17,7 @@ interface StakingFormProps {
   onSubmit: (data: StakingFormData) => Promise<void>;
   isLoading: boolean;
   disabled?: boolean;
+  isWalletConnected?: boolean;
   solanaAddress?: string | null;
   fixedDestChain?: Chain;
 }
@@ -29,6 +30,7 @@ export function StakingForm({
   onSubmit,
   isLoading,
   disabled = false,
+  isWalletConnected = true,
   solanaAddress,
   fixedDestChain,
 }: StakingFormProps) {
@@ -201,7 +203,7 @@ export function StakingForm({
 
       <button
         type="submit"
-        disabled={disabled || isLoading || isSubmitting}
+        disabled={disabled || isLoading || isSubmitting || !isWalletConnected}
         className="btn btn-primary w-full mt-6"
       >
         {isLoading || isSubmitting ? (
@@ -209,6 +211,8 @@ export function StakingForm({
             <span className="spinner" />
             Initializing...
           </>
+        ) : !isWalletConnected ? (
+          'Connect Wallet to Continue'
         ) : disabled ? (
           'Enter Partner ID to Continue'
         ) : (

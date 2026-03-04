@@ -28,54 +28,60 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const checkConnection = async () => {
-      if (typeof window.ethereum !== 'undefined') {
-        try {
-          const accounts = (await window.ethereum.request({
-            method: 'eth_accounts',
-          })) as string[];
+      if (typeof window.ethereum === 'undefined') return;
+      try {
+        const accounts = (await window.ethereum.request({
+          method: 'eth_accounts',
+        })) as string[];
 
-          if (accounts.length > 0) {
-            setAddress(accounts[0]);
-            setIsConnected(true);
-          }
-        } catch (err) {
-          console.error('Failed to check wallet connection:', err);
-        }
-      }
-    };
-
-    checkConnection();
-
-    if (window.ethereum && typeof window.ethereum.on === 'function') {
-      const handleAccountsChanged = (...args: unknown[]) => {
-        const accounts = args[0] as string[];
         if (accounts.length > 0) {
           setAddress(accounts[0]);
           setIsConnected(true);
-        } else {
-          setAddress(null);
-          setIsConnected(false);
         }
-      };
+      } catch (err) {
+        console.error('Failed to check wallet connection:', err);
+      }
+    };
 
+    const handleAccountsChanged = (...args: unknown[]) => {
+      const accounts = args[0] as string[];
+      if (accounts.length > 0) {
+        setAddress(accounts[0]);
+        setIsConnected(true);
+      } else {
+        setAddress(null);
+        setIsConnected(false);
+      }
+    };
+
+    // Check immediately
+    void checkConnection();
+
+    // Some wallets inject window.ethereum asynchronously; retry after a short delay
+    const retryTimer = setTimeout(() => void checkConnection(), 500);
+
+    if (window.ethereum && typeof window.ethereum.on === 'function') {
       try {
         window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('connect', () => void checkConnection());
       } catch (err) {
-        console.warn('Failed to subscribe to accountsChanged:', err);
-        return;
+        console.warn('Failed to subscribe to wallet events:', err);
       }
-
-      return () => {
-        try {
-          window.ethereum?.removeListener(
-            'accountsChanged',
-            handleAccountsChanged,
-          );
-        } catch {
-          // Provider may not support removeListener
-        }
-      };
     }
+
+    // Handle wallets that inject ethereum provider after page load
+    const handleEthereumInit = () => void checkConnection();
+    window.addEventListener('ethereum#initialized', handleEthereumInit);
+
+    return () => {
+      clearTimeout(retryTimer);
+      window.removeEventListener('ethereum#initialized', handleEthereumInit);
+      try {
+        window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
+      } catch {
+        // Provider may not support removeListener
+      }
+    };
   }, []);
 
   const connect = useCallback(async () => {

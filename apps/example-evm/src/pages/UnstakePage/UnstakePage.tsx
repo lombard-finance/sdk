@@ -1,5 +1,5 @@
-import { Env } from '@lombard.finance/sdk';
-import { useState } from 'react';
+import { Env, getLbtcContractAddresses } from '@lombard.finance/sdk';
+import { useEffect, useState } from 'react';
 
 import { UnstakingForm } from '../../components/UnstakingForm';
 import { UnstakingProgress } from '../../components/UnstakingProgress';
@@ -28,7 +28,52 @@ interface UnstakePageProps {
 export function UnstakePage({ env, onReset }: UnstakePageProps) {
   const [isUnstaking, setIsUnstaking] = useState(false);
   const [sourceChain, setSourceChain] = useState('');
+  const [lbtcBalance, setLbtcBalance] = useState<string | null>(null);
   const { address: evmAddress } = useEvmWallet();
+
+  useEffect(() => {
+    if (!evmAddress || !window.ethereum) {
+      setLbtcBalance(null);
+      return;
+    }
+
+    const fetchBalance = async () => {
+      try {
+        const chainIdHex = (await window.ethereum!.request({
+          method: 'eth_chainId',
+        })) as string;
+        const chainId = parseInt(chainIdHex, 16);
+
+        const addresses = getLbtcContractAddresses(env);
+        const lbtcAddress = addresses[chainId as keyof typeof addresses];
+        if (!lbtcAddress) {
+          setLbtcBalance(null);
+          return;
+        }
+
+        const data =
+          '0x70a08231' + evmAddress.slice(2).toLowerCase().padStart(64, '0');
+        const result = (await window.ethereum!.request({
+          method: 'eth_call',
+          params: [{ to: lbtcAddress, data }, 'latest'],
+        })) as string;
+
+        const balance = BigInt(result);
+        const whole = balance / 10n ** 8n;
+        const fraction = (balance % 10n ** 8n)
+          .toString()
+          .padStart(8, '0')
+          .replace(/0+$/, '');
+        setLbtcBalance(
+          fraction ? `${whole}.${fraction}` : `${whole}`,
+        );
+      } catch {
+        setLbtcBalance(null);
+      }
+    };
+
+    void fetchBalance();
+  }, [evmAddress, env]);
 
   const {
     unstake,
@@ -77,6 +122,13 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
                 <p className="text-sm text-amber-900">
                   ⚠️ EVM wallet connection is required to sign unstake
                   transactions
+                </p>
+              </div>
+            )}
+            {evmAddress && lbtcBalance !== null && (
+              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-900">
+                  LBTC Balance: <span className="font-medium font-mono">{lbtcBalance}</span> LBTC
                 </p>
               </div>
             )}

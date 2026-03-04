@@ -44,7 +44,6 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
           onChange={e => onEnvChange(e.target.value as Env)}
           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
         >
-          <option value={Env.testnet}>Testnet</option>
           <option value={Env.stage}>Stage</option>
           <option value={Env.prod}>Production</option>
         </select>
