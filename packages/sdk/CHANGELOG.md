@@ -1,3 +1,11 @@
+# 4.3.3
+
+- Fixed fee authorization status being overwritten in `EvmUnstake.prepare()` and `EvmRedeem.prepare()`. The `successStatus` argument to `act()` was eagerly evaluated before the callback ran, always resolving to READY and preventing the NEEDS_FEE_AUTHORIZATION transition. This caused `authorizeFee()` to never be called on unsubsidized chains (Ethereum, Sepolia), meaning the `save-user-signature` API was never invoked.
+- Fixed ESM build producing minified internal export names (e.g., `export { B as g }`) that broke Vite dev mode resolution. Set `minifyInternalExports: false` in the Rollup output config.
+- Removed WBTC from EVM deposit configuration.
+
+---
+
 # 4.3.2
 
 - Fixed `captchaToken` not being forwarded to the deposit address generation API. The parameter was accepted by the low-level `generateDepositBtcAddress()` function but was never reachable from action classes (`BtcStake`, `BtcDeposit`, `BtcDepositAndDeploy`, `BtcStakeAndDeploy`). All `generateDepositAddress()` methods now accept an optional `captchaToken` parameter.
