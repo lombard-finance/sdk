@@ -11,10 +11,11 @@ import { SolanaUnstakePage } from './pages/SolanaUnstakePage';
 function App() {
   const [env, setEnv] = useState<Env>(() => {
     const stored = localStorage.getItem('lombard-env');
-    if (stored && Object.values(Env).includes(stored as Env)) {
+    if (stored && Object.values(Env).includes(stored as Env) && stored !== Env.testnet) {
       return stored as Env;
     }
-    return getEnvironment();
+    const defaultEnv = getEnvironment();
+    return defaultEnv === Env.testnet ? Env.stage : defaultEnv;
   });
 
   const handleEnvChange = (newEnv: Env) => {

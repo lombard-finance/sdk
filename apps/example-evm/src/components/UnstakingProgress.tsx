@@ -1,3 +1,5 @@
+import { getExplorerTxUrl } from '@lombard.finance/sdk';
+
 import type { UnstakingStatus } from '../pages/UnstakePage/useEvmUnstaking';
 
 interface UnstakingProgressProps {
@@ -33,20 +35,8 @@ export function UnstakingProgress({
   const isComplete = status.phase === 'complete';
   const hasError = status.phase === 'error';
 
-  // Simple explorer URL mapping
   const getExplorerUrl = (hash: string) => {
-    const explorers: Record<string, string> = {
-      'eip155:1': 'https://etherscan.io',
-      'eip155:8453': 'https://basescan.org',
-      'eip155:56': 'https://bscscan.com',
-      'eip155:11155111': 'https://sepolia.etherscan.io',
-      'eip155:17000': 'https://holesky.etherscan.io',
-      'eip155:84532': 'https://sepolia.basescan.org',
-      'eip155:97': 'https://testnet.bscscan.com',
-    };
-
-    const baseUrl = explorers[sourceChain] || 'https://etherscan.io';
-    return `${baseUrl}/tx/${hash}`;
+    return getExplorerTxUrl(sourceChain, hash) ?? `https://etherscan.io/tx/${hash}`;
   };
 
   return (

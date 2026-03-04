@@ -20,6 +20,7 @@ interface StakeAndDeployFormProps {
   }) => Promise<void>;
   isLoading: boolean;
   disabled?: boolean;
+  isWalletConnected?: boolean;
   onReset?: () => void;
 }
 
@@ -31,6 +32,7 @@ export function StakeAndDeployForm({
   onSubmit,
   isLoading,
   disabled = false,
+  isWalletConnected = true,
   onReset,
 }: StakeAndDeployFormProps) {
   const [amount, setAmount] = useState(String(MIN_STAKE_AMOUNT_BTC));
@@ -70,27 +72,9 @@ export function StakeAndDeployForm({
     });
   };
 
-  // Get available chains based on protocol and env
+  // Stake-and-Deploy only supports Ethereum mainnet
   const getAvailableChains = () => {
-    if (protocol === DeployProtocol.Veda) {
-      if (env === Env.prod) {
-        return [
-          { value: Chain.ETHEREUM, label: 'Ethereum' },
-          { value: Chain.BASE, label: 'Base' },
-          { value: Chain.BSC, label: 'BNB Chain' },
-          { value: Chain.CORN, label: 'Corn' },
-        ];
-      } else {
-        return [
-          { value: Chain.HOLESKY, label: 'Holesky' },
-          { value: Chain.BASE_SEPOLIA, label: 'Base Sepolia' },
-          { value: Chain.BSC_TESTNET, label: 'BNB Testnet' },
-        ];
-      }
-    } else if (protocol === DeployProtocol.Silo) {
-      return [{ value: Chain.AVALANCHE, label: 'Avalanche' }];
-    }
-    return [];
+    return [{ value: Chain.ETHEREUM, label: 'Ethereum' }];
   };
 
   const availableChains = getAvailableChains();
@@ -245,10 +229,10 @@ export function StakeAndDeployForm({
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={isLoading || disabled}
+          disabled={isLoading || disabled || !isWalletConnected}
           className="flex-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isLoading ? 'Processing...' : 'Stake and Deploy'}
+          {isLoading ? 'Processing...' : !isWalletConnected ? 'Connect Wallet to Continue' : 'Stake and Deploy'}
         </button>
 
         {onReset && (

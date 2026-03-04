@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { StakeAndDeployForm } from '../../components/StakeAndDeployForm';
 import { StakeAndDeployProgress } from '../../components/StakeAndDeployProgress';
 import { WalletConnect } from '../../components/WalletConnect';
+import { useEvmWallet } from '../../hooks/useEvmWallet';
 import { useBtcStakeAndDeploy } from './useBtcStakeAndDeploy';
 
 interface StakeAndDeployPageProps {
@@ -49,8 +50,9 @@ export function StakeAndDeployPage({ env }: StakeAndDeployPageProps) {
 
 function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
   const [isStaking, setIsStaking] = useState(false);
+  const { isConnected } = useEvmWallet();
   const [partnerId, setPartnerIdState] = useState(
-    () => localStorage.getItem('lombard-partnerId') || 'test',
+    () => localStorage.getItem('lombard-partnerId') || '',
   );
   const [protocol] = useState<DeployProtocol>(DeployProtocol.Veda);
 
@@ -155,6 +157,7 @@ function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
               onSubmit={handleStartStaking}
               isLoading={isInitializing}
               disabled={!partnerId || isInitializing}
+              isWalletConnected={isConnected}
             />
           ) : (
             <StakeAndDeployProgress

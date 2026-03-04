@@ -1,4 +1,4 @@
-import { Env } from '@lombard.finance/sdk';
+import { Chain, Env, getExplorerTxUrl } from '@lombard.finance/sdk';
 
 import type { UnstakingStatus } from '../lib/types';
 
@@ -35,12 +35,9 @@ export function SuiUnstakingProgress({
   const isComplete = status.phase === 'complete';
   const hasError = status.phase === 'error';
 
-  // Get explorer URL based on environment
   const getExplorerUrl = (hash: string) => {
-    if (env === Env.prod) {
-      return `https://suiscan.xyz/mainnet/tx/${hash}`;
-    }
-    return `https://suiscan.xyz/testnet/tx/${hash}`;
+    const chain = env === Env.prod ? Chain.SUI_MAINNET : Chain.SUI_TESTNET;
+    return getExplorerTxUrl(chain, hash) ?? `https://suiscan.xyz/mainnet/tx/${hash}`;
   };
 
   return (

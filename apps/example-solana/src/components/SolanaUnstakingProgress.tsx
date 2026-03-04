@@ -1,4 +1,4 @@
-import { Chain } from '@lombard.finance/sdk';
+import { getExplorerTxUrl } from '@lombard.finance/sdk';
 
 import type { SolanaUnstakingStatus } from '../pages/SolanaUnstakePage/useSolanaUnstaking';
 
@@ -13,9 +13,7 @@ interface SolanaUnstakingProgressProps {
  * Get Solana explorer URL for transaction
  */
 function getSolanaExplorerUrl(txHash: string, chain: string): string {
-  const isMainnet = chain === Chain.SOLANA_MAINNET;
-  const cluster = isMainnet ? '' : '?cluster=devnet';
-  return `https://explorer.solana.com/tx/${txHash}${cluster}`;
+  return getExplorerTxUrl(chain, txHash) ?? `https://explorer.solana.com/tx/${txHash}`;
 }
 
 /**
