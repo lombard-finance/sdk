@@ -3,7 +3,7 @@ import {
   type BtcStakeProgress,
   type LombardSDK,
 } from '@lombard.finance/sdk';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type {
   BtcStakeParams,
@@ -173,6 +173,14 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
     setProgress({});
     setError(null);
     setIsLoading(false);
+  }, []);
+
+  // Clean up listeners on unmount
+  useEffect(() => {
+    return () => {
+      unsubscribeRef.current?.();
+      unsubscribeRef.current = null;
+    };
   }, []);
 
   return { stake, reset, depositAddress, stakeAmount, status, progress, error, isLoading };
