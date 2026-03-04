@@ -46,7 +46,7 @@ export function useBtcStakeAndDeploy(
   );
 
   const {
-    stakeAndBake: stakeAndDeployCore,
+    stakeAndDeploy: stakeAndDeployCore,
     reset,
     depositAddress,
     stakeAmount,

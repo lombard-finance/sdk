@@ -1,6 +1,7 @@
 import { DeployProtocol } from '@lombard.finance/sdk';
 import { useCallback, useState } from 'react';
 
+import { getStatusColor } from '../lib/status-colors';
 import type {
   StakeAndBakeProgress,
   StakeAndBakeStatus,
@@ -28,20 +29,6 @@ export function StakeAndDeployProgress({
   protocol,
   targetChain,
 }: StakeAndDeployProgressProps) {
-  const getStatusColor = () => {
-    switch (status.phase) {
-      case 'complete':
-        return 'text-success';
-      case 'error':
-        return 'text-error';
-      case 'confirming':
-      case 'depositing':
-        return 'text-blue-600';
-      default:
-        return 'text-secondary';
-    }
-  };
-
   const getProgressPercentage = () => {
     if (status.phase === 'complete') return 100;
     if (status.phase === 'depositing') return 90;
@@ -68,7 +55,7 @@ export function StakeAndDeployProgress({
     <div className="space-y-4">
       {/* Status */}
       <div className="rounded-md border border-gray-300 bg-white p-4">
-        <div className={`mb-2 text-sm font-medium ${getStatusColor()}`}>
+        <div className={`mb-2 text-sm font-medium ${getStatusColor(status.phase)}`}>
           {status.message}
         </div>
 

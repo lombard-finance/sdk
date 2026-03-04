@@ -13,7 +13,7 @@ import type {
 } from '../types';
 
 export interface UseBtcStakeAndBakeReturn {
-  stakeAndBake: (params: BtcStakeAndBakeParams) => Promise<void>;
+  stakeAndDeploy: (params: BtcStakeAndBakeParams) => Promise<void>;
   reset: () => void;
   depositAddress: string | null;
   stakeAmount: string | null;
@@ -59,7 +59,7 @@ export function useBtcStakeAndBake(sdk: LombardSDK | null): UseBtcStakeAndBakeRe
   const [isLoading, setIsLoading] = useState(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
-  const stakeAndBake = useCallback(
+  const stakeAndDeploy = useCallback(
     async (params: BtcStakeAndBakeParams) => {
       if (!sdk) {
         throw new Error('SDK not initialized');
@@ -176,5 +176,5 @@ export function useBtcStakeAndBake(sdk: LombardSDK | null): UseBtcStakeAndBakeRe
     };
   }, []);
 
-  return { stakeAndBake, reset, depositAddress, stakeAmount, status, progress, error, isLoading };
+  return { stakeAndDeploy, reset, depositAddress, stakeAmount, status, progress, error, isLoading };
 }

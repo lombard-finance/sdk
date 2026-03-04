@@ -47,10 +47,10 @@ await stake({ amount, destChain, sourceChain, assetOut, recipient });
 BTC → LBTC → Vault (stake-and-deploy). Lifecycle: `prepare → authorizeDeposit (if needed) → generateDepositAddress`.
 
 ```ts
-const { stakeAndBake, reset, depositAddress, stakeAmount, status, progress, error, isLoading } =
+const { stakeAndDeploy, reset, depositAddress, stakeAmount, status, progress, error, isLoading } =
   useBtcStakeAndBake(sdk);
 
-await stakeAndBake({ amount, destChain, sourceChain, protocol, recipient });
+await stakeAndDeploy({ amount, destChain, sourceChain, protocol, recipient });
 ```
 
 ### `useEvmUnstake(sdk)`

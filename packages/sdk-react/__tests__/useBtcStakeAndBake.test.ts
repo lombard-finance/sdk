@@ -81,7 +81,7 @@ describe('useBtcStakeAndBake', () => {
   it('throws when called with null sdk', async () => {
     const { result } = renderHook(() => useBtcStakeAndBake(null));
 
-    await expect(result.current.stakeAndBake(stakeAndBakeParams)).rejects.toThrow(
+    await expect(result.current.stakeAndDeploy(stakeAndBakeParams)).rejects.toThrow(
       'SDK not initialized',
     );
   });
@@ -92,7 +92,7 @@ describe('useBtcStakeAndBake', () => {
     const { result } = renderHook(() => useBtcStakeAndBake(mockSdk as never));
 
     await act(async () => {
-      await result.current.stakeAndBake(stakeAndBakeParams);
+      await result.current.stakeAndDeploy(stakeAndBakeParams);
     });
 
     expect(mockSdk.chain.btc.stakeAndDeploy).toHaveBeenCalledWith({
@@ -125,7 +125,7 @@ describe('useBtcStakeAndBake', () => {
     const { result } = renderHook(() => useBtcStakeAndBake(mockSdk as never));
 
     await act(async () => {
-      await result.current.stakeAndBake(stakeAndBakeParams);
+      await result.current.stakeAndDeploy(stakeAndBakeParams);
     });
 
     expect(mockAction.authorizeDeposit).toHaveBeenCalled();
@@ -138,7 +138,7 @@ describe('useBtcStakeAndBake', () => {
     const { result } = renderHook(() => useBtcStakeAndBake(mockSdk as never));
 
     await act(async () => {
-      await result.current.stakeAndBake(stakeAndBakeParams).catch(() => {});
+      await result.current.stakeAndDeploy(stakeAndBakeParams).catch(() => {});
     });
 
     expect(result.current.error).toBe('Authorization failed');
@@ -155,13 +155,13 @@ describe('useBtcStakeAndBake', () => {
     expect(result.current.stakeAmount).toBeNull();
   });
 
-  it('unsubscribes previous listeners when stakeAndBake is called again', async () => {
+  it('unsubscribes previous listeners when stakeAndDeploy is called again', async () => {
     mockAction.status = BtcActionStatus.READY;
 
     const { result } = renderHook(() => useBtcStakeAndBake(mockSdk as never));
 
     await act(async () => {
-      await result.current.stakeAndBake(stakeAndBakeParams);
+      await result.current.stakeAndDeploy(stakeAndBakeParams);
     });
 
     const firstCallOnCount = mockAction.on.mock.calls.length;
@@ -171,7 +171,7 @@ describe('useBtcStakeAndBake', () => {
     mockAction.generateDepositAddress.mockResolvedValue('bc1q_second_address');
 
     await act(async () => {
-      await result.current.stakeAndBake(stakeAndBakeParams);
+      await result.current.stakeAndDeploy(stakeAndBakeParams);
     });
 
     // on() called twice per call (status-change + progress)
