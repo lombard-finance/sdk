@@ -1,11 +1,8 @@
-import { AssetId, Chain, Env } from '@lombard.finance/sdk';
+import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
 import { useCallback, useEffect, useState } from 'react';
 
 import { getAvailableChains, getBtcbUnstakeChains } from '../lib/chains';
 import type { UnstakingFormData } from '../pages/UnstakePage/useEvmUnstaking';
-
-const MIN_REDEEM_BTC = 0.000133;
-const MIN_REDEEM_BTCB = 0.00011;
 
 function WalletIcon() {
   return (
@@ -38,7 +35,7 @@ export function UnstakingForm({
   const [assetOut, setAssetOut] = useState<AssetId>(AssetId.BTC);
 
   const isBtcOutput = assetOut === AssetId.BTC;
-  const minAmount = isBtcOutput ? MIN_REDEEM_BTC : MIN_REDEEM_BTCB;
+  const minAmount = isBtcOutput ? MIN_REDEEM_AMOUNT_BTC : MIN_REDEEM_AMOUNT_BTC;
   const availableChains = isBtcOutput
     ? getAvailableChains(env)
     : getBtcbUnstakeChains(env);
@@ -81,7 +78,7 @@ export function UnstakingForm({
         env === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET,
       );
     }
-    setAmount(String(isBtcOutput ? MIN_REDEEM_BTC : MIN_REDEEM_BTCB));
+    setAmount(String(isBtcOutput ? MIN_REDEEM_AMOUNT_BTC : MIN_REDEEM_AMOUNT_BTC));
   }, [env, isBtcOutput]);
 
   // Update destChain based on assetOut

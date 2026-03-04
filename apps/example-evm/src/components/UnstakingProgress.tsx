@@ -1,5 +1,6 @@
 import { getExplorerTxUrl } from '@lombard.finance/sdk';
 
+import { getStatusColor } from '../lib/status-colors';
 import type { UnstakingStatus } from '../pages/UnstakePage/useEvmUnstaking';
 
 interface UnstakingProgressProps {
@@ -18,20 +19,6 @@ export function UnstakingProgress({
   sourceChain,
   onReset,
 }: UnstakingProgressProps) {
-  const getStatusColor = () => {
-    switch (status.phase) {
-      case 'complete':
-        return 'text-success';
-      case 'error':
-        return 'text-error';
-      case 'authorizing':
-      case 'executing':
-        return 'text-warning';
-      default:
-        return 'text-primary';
-    }
-  };
-
   const isComplete = status.phase === 'complete';
   const hasError = status.phase === 'error';
 
@@ -47,7 +34,7 @@ export function UnstakingProgress({
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           {!isComplete && !hasError && <span className="spinner" />}
-          <span className={`text-lg font-medium ${getStatusColor()}`}>
+          <span className={`text-lg font-medium ${getStatusColor(status.phase)}`}>
             {status.message}
           </span>
         </div>

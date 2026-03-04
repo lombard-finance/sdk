@@ -38,6 +38,7 @@ export function StakeAndDeployForm({
   const [amount, setAmount] = useState(String(MIN_STAKE_AMOUNT_BTC));
   const [destAddress, setDestAddress] = useState('');
   const [protocol, setProtocol] = useState<DeployProtocol>(DeployProtocol.Veda);
+  // Stake-and-Deploy only supports Ethereum mainnet
   const [destChain, setDestChain] = useState<Chain>(
     env === Env.prod ? Chain.ETHEREUM : Chain.HOLESKY,
   );

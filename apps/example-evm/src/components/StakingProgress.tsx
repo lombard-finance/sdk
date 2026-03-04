@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 
+import { getStatusColor } from '../lib/status-colors';
 import type { StakingProgressInfo, StakingStatus } from '../lib/types';
 
 interface StakingProgressProps {
@@ -57,20 +58,6 @@ export function StakingProgress({
     }
   }, [depositAddress]);
 
-  const getStatusColor = () => {
-    switch (status.phase) {
-      case 'complete':
-        return 'text-success';
-      case 'error':
-        return 'text-error';
-      case 'confirming':
-      case 'minting':
-        return 'text-warning';
-      default:
-        return 'text-primary';
-    }
-  };
-
   const isComplete = status.phase === 'complete';
   const hasError = status.phase === 'error';
   const isWaitingDeposit = status.phase === 'waiting-deposit';
@@ -91,7 +78,7 @@ export function StakingProgress({
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           {isActivelyLoading && <span className="spinner" />}
-          <span className={`text-lg font-medium ${getStatusColor()}`}>
+          <span className={`text-lg font-medium ${getStatusColor(status.phase)}`}>
             {status.message}
           </span>
         </div>
