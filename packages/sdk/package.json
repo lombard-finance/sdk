@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "4.3.2",
+  "version": "4.3.3",
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
     "isows": "^1.0.7"

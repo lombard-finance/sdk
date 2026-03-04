@@ -3,7 +3,7 @@ import {
   EvmOperationStatus,
   type LombardSDK,
 } from '@lombard.finance/sdk';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { EvmUnstakeParams, UnstakingStatus } from '../types';
 
@@ -126,6 +126,14 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
     setStatus({ phase: 'idle', message: 'Ready to unstake' });
     setError(null);
     setIsLoading(false);
+  }, []);
+
+  // Clean up listeners on unmount
+  useEffect(() => {
+    return () => {
+      unsubscribeRef.current?.();
+      unsubscribeRef.current = null;
+    };
   }, []);
 
   return { unstake, reset, txHash, status, error, isLoading };
