@@ -115,14 +115,9 @@ export function StakeAndDeployForm({
           disabled={isLoading || disabled}
         >
           <option value={DeployProtocol.Veda}>Lombard DeFi Vault (Veda)</option>
-          <option value={DeployProtocol.Silo} disabled={env === Env.prod}>
-            Silo Finance {env === Env.prod && '(Testnet only)'}
-          </option>
         </select>
         <p className="mt-1 text-xs text-gray-500">
-          {protocol === DeployProtocol.Veda
-            ? "Lombard's native vault with optimized yields"
-            : 'Third-party vault integration'}
+          Lombard&apos;s native vault with optimized yields
         </p>
       </div>
 
