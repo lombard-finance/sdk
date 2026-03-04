@@ -1,6 +1,7 @@
 {
   "name": "@lombard.finance/sdk-starknet",
   "version": "0.3.0",
+  "description": "Starknet integration for the Lombard SDK - stake BTC and manage LBTC on Starknet",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -55,6 +56,26 @@
     "typedoc": "^0.26.6",
     "typescript": "^5.4.5",
     "vite": "^6.3.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lombard-finance/sdk.git",
+    "directory": "packages/sdk-starknet"
+  },
+  "homepage": "https://docs.lombard.finance",
+  "bugs": {
+    "url": "https://github.com/lombard-finance/sdk/issues"
+  },
+  "keywords": [
+    "lombard",
+    "sdk",
+    "starknet",
+    "bitcoin",
+    "lbtc",
+    "staking"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "peerDependencies": {
     "@noble/hashes": "^1.7.2",
