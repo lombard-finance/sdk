@@ -16,18 +16,25 @@ import { useConnect } from '../../stories/hooks/useConnect';
 import { IOutput, useFetchOutputs } from '../../stories/hooks/useFetchOutputs';
 import useQuery from '../../stories/hooks/useQuery';
 import { SolanaNetwork } from '../../types';
-import { claimToken } from '../claimToken';
-import { claimLBTC } from './claimLBTC';
-import { parseTransactionLogs } from './utils/parseTransactionLogs';
+import { claimToken } from './claimToken';
 
-type TokenChoice = 'LBTC' | 'BTC.b';
+type TokenChoice = 'BTC.b' | 'LBTC';
 
-interface ClaimLbtcStoryArgs {
+interface ClaimTokenStoryArgs {
   network: SolanaNetwork;
   token: TokenChoice;
 }
 
-export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
+const getTokenMint = (
+  network: SolanaNetwork,
+  token: TokenChoice,
+): string | null => {
+  const config = getConfig(networkToEnv[network]);
+  if (token === 'BTC.b') return config.btcbTokenMint;
+  return config.lbtcTokenMint;
+};
+
+export const StoryView = ({ network, token }: ClaimTokenStoryArgs) => {
   const [selectedOutput, setSelectedOutput] = useState<IOutput | null>(null);
   const [transactionLogs, setTransactionLogs] = useState<string[] | null>(null);
 
@@ -48,54 +55,37 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
     isConnected: isConnected,
   });
 
-  const isBtcb = token === 'BTC.b';
+  const tokenMint = getTokenMint(network, token);
 
   const request = async () => {
     if (!provider || !address) throw new Error('Wallet not connected.');
     if (!selectedOutput) throw new Error('Please select an output to claim.');
     if (!selectedOutput.raw_payload)
       throw new Error('Selected output has no raw_payload.');
+    if (!selectedOutput.proof)
+      throw new Error('Selected output has no proof.');
+    if (!tokenMint)
+      throw new Error(`Token mint not configured for ${token} on ${network}.`);
 
     setTransactionLogs(null);
     try {
-      let txHash: string;
-
-      if (isBtcb) {
-        const config = getConfig(networkToEnv[network]);
-        if (!config.btcbTokenMint)
-          throw new Error(`BTC.b mint not configured for ${network}`);
-        if (!selectedOutput.proof)
-          throw new Error('Selected output has no proof.');
-
-        txHash = await claimToken(provider, {
-          recipientAddress: address,
-          tokenMint: config.btcbTokenMint,
-          network,
-          rawPayload: selectedOutput.raw_payload,
-          proofSignature: selectedOutput.proof,
-          debug: true,
-        });
-      } else {
-        if (!selectedOutput.proof)
-          throw new Error('Selected output has no proof (required for LBTC).');
-
-        txHash = await claimLBTC(provider, {
-          recipientAddress: address,
-          amount: selectedOutput.value,
-          network,
-          proofSignature: selectedOutput.proof,
-          rawPayload: selectedOutput.raw_payload,
-          debug: true,
-        });
-      }
-
+      const txHash = await claimToken(provider, {
+        recipientAddress: address,
+        tokenMint,
+        network,
+        rawPayload: selectedOutput.raw_payload,
+        proofSignature: selectedOutput.proof,
+        debug: true,
+      });
       refetchOutputs();
       setSelectedOutput(null);
       return txHash;
     } catch (err: unknown) {
-      const { errorMessage, errorLogs } = parseTransactionLogs(err);
-      setTransactionLogs(errorLogs);
-      throw new Error(errorMessage);
+      if (err instanceof Error && err.message.includes('Debug logs:')) {
+        const parts = err.message.split('Debug logs:\n');
+        setTransactionLogs(parts[1]?.split('\n') || []);
+      }
+      throw err;
     }
   };
 
@@ -110,7 +100,6 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
     false,
   );
 
-  // Clean up on network/token change
   useEffect(() => {
     setSelectedOutput(null);
     setTransactionLogs(null);
@@ -131,6 +120,19 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
 
       {isConnected && address && provider && (
         <>
+          <SectionCard title="Configuration">
+            <p>
+              <strong>Token:</strong> {token}
+            </p>
+            <p>
+              <strong>Token Mint:</strong>{' '}
+              {tokenMint || <em>Not configured</em>}
+            </p>
+            <p>
+              <strong>Network:</strong> {network}
+            </p>
+          </SectionCard>
+
           <SectionCard title="Available Bitcoin Outputs">
             <OutputSelector
               address={address}
@@ -150,9 +152,10 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
               disabled={
                 isLoading ||
                 !selectedOutput ||
-                !selectedOutput.raw_payload
+                !selectedOutput.raw_payload ||
+                !tokenMint
               }
-              actionName={isBtcb ? 'claimToken (BTC.b)' : 'claimLBTC'}
+              actionName={`claimToken (${token})`}
             />
             {selectedOutput && !selectedOutput.raw_payload && (
               <p className="text-warning small mt-1 mb-0">
@@ -166,7 +169,7 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
             <ResultDisplay
               result={result}
               title="Claim Transaction Hash"
-              successMessage={`${token} claimed!`}
+              successMessage={`${token} claimed via Asset Router!`}
             />
           )}
 
@@ -186,26 +189,29 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
 };
 
 const meta: Meta<typeof StoryView> = {
-  title: 'write/claimLBTC',
+  title: 'write/claimToken (Asset Router)',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('write')],
   parameters: {
     docs: {
       description: {
-        component: `Claim LBTC or BTC.b tokens on Solana.
+        component: `Demonstrates minting tokens (BTC.b or LBTC) via the Asset Router program (Ledger v2).
 
-**LBTC** uses the legacy 3-step on-chain flow (\`claimLBTC\`):
-1. Create Mint Payload → 2. Post Mint Signatures → 3. Mint From Payload
+**Flow:**
+1. Generate a BTC deposit address via API with \`token_address\` parameter
+2. Send BTC to the deposit address
+3. Wait for backend to notarize the deposit (Consortium validation)
+4. Call \`claimToken\` to mint tokens via Asset Router's \`mint_from_payload\`
 
-**BTC.b** uses the Asset Router (\`claimToken\`):
-Single \`mint_from_payload\` transaction after backend Consortium notarization.`,
+Unlike the legacy \`claimLBTC\` (which uses a 3-step on-chain process), this function
+performs a single transaction — the Consortium validation is handled entirely by the backend.`,
       },
     },
   },
   args: {
     network: SolanaNetwork.devnet,
-    token: 'LBTC',
+    token: 'BTC.b',
   },
   argTypes: {
     network: {
@@ -214,7 +220,7 @@ Single \`mint_from_payload\` transaction after backend Consortium notarization.`
     },
     token: {
       control: { type: 'select' },
-      options: ['LBTC', 'BTC.b'] as TokenChoice[],
+      options: ['BTC.b', 'LBTC'] as TokenChoice[],
     },
   },
 };

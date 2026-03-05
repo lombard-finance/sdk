@@ -319,7 +319,10 @@ export const getSuiTokenAddress = (
   return SUI_TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId] || undefined;
 };
 
-export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<Token.LBTC, SolanaChain> = {
+export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
+  Token.LBTC | Token.BTCb,
+  SolanaChain
+> = {
   [Token.LBTC]: {
     [Env.prod]: {
       [SOLANA_MAINNET_CHAIN]: 'LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek',
@@ -327,8 +330,13 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<Token.LBTC, SolanaChain> = {
     [Env.testnet]: {
       [SOLANA_TESTNET_CHAIN]: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
     },
-    [Env.stage]: {
-      [SOLANA_DEVNET_CHAIN]: 'HEY7PCJe3GB27UWdopuYb1xDbB5SNtTcYPxRjntvfBSA',
+    [Env.dev]: {
+      [SOLANA_DEVNET_CHAIN]: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
+    },
+  },
+  [Token.BTCb]: {
+    [Env.dev]: {
+      [SOLANA_DEVNET_CHAIN]: 'BTCB1BeSVzjtde2pqpNFCPbwQXpZd1ERwtToDreTdqr1',
     },
   },
 };
@@ -336,8 +344,9 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<Token.LBTC, SolanaChain> = {
 export const getSolanaTokenAddress = (
   chainId: SolanaChain,
   env = DEFAULT_ENV,
+  token: Token.LBTC | Token.BTCb = Token.LBTC,
 ): string | undefined => {
-  return SOLANA_TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId] || undefined;
+  return SOLANA_TOKEN_ADDRESSES[token]?.[env]?.[chainId] || undefined;
 };
 
 export const getTokenByAddress = (

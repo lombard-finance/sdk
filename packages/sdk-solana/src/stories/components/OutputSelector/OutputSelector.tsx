@@ -36,13 +36,30 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
     onOutputSelect(null);
   }, [isConnected, address, network, onOutputSelect]);
 
+  const statusLabel = (status: string) => {
+    switch (status) {
+      case 'NOTARIZATION_STATUS_SESSION_APPROVED':
+        return 'Ready to mint';
+      case 'NOTARIZATION_STATUS_PENDING':
+        return 'Pending';
+      case 'NOTARIZATION_STATUS_SUBMITTED':
+        return 'Submitted';
+      case 'NOTARIZATION_STATUS_FAILED':
+        return 'Failed';
+      case 'NOTARIZATION_STATUS_GMP_HANDLED':
+        return 'Auto-claimed';
+      default:
+        return status;
+    }
+  };
+
   const outputOptions = [
     { value: '', label: '-- Select a Bitcoin transaction --' },
     ...outputs.map(output => ({
       value: output.txid,
       label: `${output.txid.substring(0, 10)}... - ${
         Number.parseFloat(output.value) / 10 ** 8
-      } BTC (${output.notarization_status})`,
+      } BTC [${statusLabel(output.notarization_status)}]`,
     })),
   ];
 
@@ -92,9 +109,25 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
                   <strong>Block Height:</strong>{' '}
                   {selectedOutput.block_height || 'N/A'}
                 </p>
-                <p className="mb-0">
-                  <strong>Status:</strong> {selectedOutput.notarization_status}
+                <p className="mb-1">
+                  <strong>Status:</strong>{' '}
+                  {statusLabel(selectedOutput.notarization_status)}
                 </p>
+                {selectedOutput.token_address && (
+                  <p className="mb-1">
+                    <strong>Token:</strong> {selectedOutput.token_address}
+                  </p>
+                )}
+                {selectedOutput.raw_payload ? (
+                  <span className="badge bg-success">Has payload</span>
+                ) : (
+                  <span className="badge bg-warning text-dark">
+                    Awaiting notarization
+                  </span>
+                )}
+                {selectedOutput.proof && (
+                  <span className="badge bg-success ms-1">Has proof</span>
+                )}
               </div>
             </div>
           )}

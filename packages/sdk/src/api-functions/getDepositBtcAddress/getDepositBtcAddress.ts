@@ -73,7 +73,9 @@ export async function getDepositBtcAddress({
     }
 
     if (isSolanaChain(chainId)) {
-      const tokenAddress = getSolanaTokenAddress(chainId, env);
+      const solanaToken =
+        tokenParam === Token.BTCb ? Token.BTCb : Token.LBTC;
+      const tokenAddress = getSolanaTokenAddress(chainId, env, solanaToken);
       if (tokenAddress) {
         tokenAddressFilter = {
           token_address: tokenAddress.toLowerCase(),
@@ -127,6 +129,19 @@ export async function getDepositBtcAddress({
       // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_crypto_rule-node-timing-attack -- comparing Token enum values, not secrets
       if (tokenParam === Token.LBTC) {
         isForToken = isForToken || !a.deposit_metadata.token_address;
+      }
+
+      // Solana backend may omit token_address and use aux_version instead.
+      if (
+        isSolanaChain(chainId) &&
+        !isForToken &&
+        !a.deposit_metadata.token_address
+      ) {
+        if (tokenParam === Token.BTCb || tokenParam === Token.BTCK) {
+          isForToken = a.deposit_metadata.aux_version != null;
+        } else if (tokenParam === Token.LBTC) {
+          isForToken = a.deposit_metadata.aux_version == null;
+        }
       }
 
       // Get only the addresses for the specified token.

@@ -12,8 +12,13 @@ import type {
   StarknetChainId,
   SuiChain,
 } from '../../common/chains';
+import { isSolanaChain } from '../../common/chains';
 import type { IEnvParam } from '../../common/parameters';
-import { AddressKind, Token } from '../../tokens/token-addresses';
+import {
+  AddressKind,
+  getSolanaTokenAddress,
+  Token,
+} from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import {
   getErrorMessage,
@@ -148,33 +153,40 @@ export async function generateDepositBtcAddress({
   //   }
   // }
 
-  /**
-   * The deposit address generation requires additional fields for tokens other
-   * than LBTC.
-   */
   let tokenDataParams = {};
   try {
-    if (
-      EXTRA_PARAMS_TOKENS.includes(token) &&
-      // FIXME: Refactor in order to pull in all token addresses from all supported networks to the sdk-common package.
-      // FIXME: Then remove this clause prior two token model.
-      !(
-        [
-          BlockchainIdentifier.sui,
-          BlockchainIdentifier.solana,
-          BlockchainIdentifier.starknet,
-        ] as BlockchainIdentifier[]
-      ).includes(toChain)
-    ) {
-      const tokenContractInfo = await getTokenContractInfo(
-        token,
-        chainId as ChainId,
-        env,
-        AddressKind.Adapter,
-      );
-      tokenDataParams = {
-        token_address: tokenContractInfo.address,
-      };
+    if (EXTRA_PARAMS_TOKENS.includes(token)) {
+      if (isSolanaChain(chainId)) {
+        const solanaToken =
+          token === Token.BTCb ? Token.BTCb : Token.LBTC;
+        const solanaTokenAddress = getSolanaTokenAddress(
+          chainId,
+          env,
+          solanaToken,
+        );
+        if (solanaTokenAddress) {
+          tokenDataParams = { token_address: solanaTokenAddress };
+        }
+      } else if (
+        // FIXME: Refactor in order to pull in all token addresses from all supported networks to the sdk-common package.
+        // FIXME: Then remove this clause prior two token model.
+        !(
+          [
+            BlockchainIdentifier.sui,
+            BlockchainIdentifier.starknet,
+          ] as BlockchainIdentifier[]
+        ).includes(toChain)
+      ) {
+        const tokenContractInfo = await getTokenContractInfo(
+          token,
+          chainId as ChainId,
+          env,
+          AddressKind.Adapter,
+        );
+        tokenDataParams = {
+          token_address: tokenContractInfo.address,
+        };
+      }
     }
   } catch (err) {
     if (
