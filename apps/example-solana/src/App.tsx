@@ -35,7 +35,14 @@ function App() {
           >
             <Route index element={<Navigate to="/staking" replace />} />
             <Route path="staking" element={<SolanaStakePage env={env} />} />
-            <Route path="unstaking" element={<SolanaUnstakePage env={env} />} />
+            <Route
+              path="unstaking"
+              element={
+                env === Env.stage
+                  ? <Navigate to="/staking" replace />
+                  : <SolanaUnstakePage env={env} />
+              }
+            />
             <Route path="*" element={<Navigate to="/staking" replace />} />
           </Route>
         </Routes>
