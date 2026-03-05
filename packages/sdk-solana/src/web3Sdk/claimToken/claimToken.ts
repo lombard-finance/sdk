@@ -1,5 +1,5 @@
 import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
-
+import { getMint } from '@solana/spl-token';
 import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { sha256 } from 'js-sha256';
 
@@ -10,10 +10,7 @@ import { getConsortiumIdl } from '../../idl/getConsortiumIdl';
 import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import { sendAndConfirmTransaction } from '../../utils';
 import { createDebugLogger } from '../../utils/createDebugLogger';
-import {
-  createOrGetAssociatedTokenAccount,
-  getTokenProgramForMint,
-} from '../../utils/tokenAccount';
+import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
 import { ALREADY_MINTED_TX_HASH } from '../claimLBTC';
 import { parseSignaturesFromProof } from '../claimLBTC/utils/signatureUtils';
 
@@ -92,9 +89,6 @@ export async function claimToken(
     const assetRouterProgramId = new PublicKey(config.assetRouter);
     const consortiumProgramId = new PublicKey(config.consortium);
 
-    const mint = new PublicKey(tokenMint);
-    const recipient = new PublicKey(recipientAddress);
-
     // Parse payload and compute hash
     const payloadBytes = Buffer.from(rawPayload, 'hex');
     if (payloadBytes.length !== 196) {
@@ -109,8 +103,6 @@ export async function claimToken(
     const payloadHashArray = Array.from(payloadHash);
     const mintPayloadArray = Array.from(payloadBytes);
 
-    debugLog('Mint:', mint.toBase58());
-    debugLog('Recipient:', recipient.toBase58());
     debugLog('Payload hash:', payloadHash.toString('hex'));
 
     // ── PDAs ──
@@ -275,21 +267,45 @@ export async function claimToken(
 
     // ── Step 4: mint_from_payload on Asset Router ──
 
-    const tokenProgramId = await getTokenProgramForMint(connection, mint);
+    // Read mint from Asset Router config (nativeMint)
+    const assetRouterConfig =
+      // @ts-ignore — Anchor generic types don't resolve account namespaces from IDL
+      await assetRouterProgram.account.config.fetch(assetRouterConfigPDA);
+    const mint = assetRouterConfig.nativeMint as PublicKey;
+    debugLog('Native mint from config:', mint.toBase58());
+
+    // Resolve token program from mint account's on-chain owner
+    const mintAccountInfo = await connection.getAccountInfo(mint);
+    if (!mintAccountInfo) {
+      throw new Error(`Mint account not found: ${mint.toBase58()}`);
+    }
+    const tokenProgramId = mintAccountInfo.owner;
     debugLog('Token program:', tokenProgramId.toBase58());
 
-    // Ensure the recipient's ATA exists
+    // Get mint authority from mint account
+    const mintAccount = await getMint(
+      connection,
+      mint,
+      undefined,
+      tokenProgramId,
+    );
+    if (!mintAccount.mintAuthority) {
+      throw new Error('Mint has no mint authority');
+    }
+    const mintAuthority = mintAccount.mintAuthority;
+    debugLog('Mint authority:', mintAuthority.toBase58());
+
+    // Recipient from payload bytes 36-68
+    const payloadRecipient = new PublicKey(payloadBytes.subarray(36, 68));
+    debugLog('Recipient from payload:', payloadRecipient.toBase58());
+
+    // Ensure the recipient's token account exists
     await createOrGetAssociatedTokenAccount({
       provider,
       connection,
       ownerAddress: recipientAddress,
-      mintAddress: tokenMint,
+      mintAddress: mint.toBase58(),
     });
-
-    // The v2 payload contains the recipient token account address at bytes 36-68.
-    // This is the address the program validates against — pass it directly.
-    const payloadRecipient = new PublicKey(payloadBytes.slice(36, 68));
-    debugLog('Recipient from payload:', payloadRecipient.toBase58());
 
     debugLog('Step 4: mint_from_payload...');
     const mintTx = await assetRouterProgram.methods
@@ -300,7 +316,7 @@ export async function claimToken(
         tokenProgram: tokenProgramId,
         recipient: payloadRecipient,
         mint,
-        mintAuthority: tokenAuthorityPDA,
+        mintAuthority,
         tokenAuthority: tokenAuthorityPDA,
         consortiumValidatedPayload: validatedPayloadPDA,
         depositPayloadSpent: depositPayloadSpentPDA,
