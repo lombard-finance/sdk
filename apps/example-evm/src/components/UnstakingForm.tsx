@@ -35,13 +35,14 @@ export function UnstakingForm({
   const [assetOut, setAssetOut] = useState<AssetId>(AssetId.BTC);
 
   const isBtcOutput = assetOut === AssetId.BTC;
-  const minAmount = isBtcOutput ? MIN_REDEEM_AMOUNT_BTC : MIN_REDEEM_AMOUNT_BTC;
+  const defaultAmount = 0.000133;
+  const minAmount = MIN_REDEEM_AMOUNT_BTC;
   const availableChains = isBtcOutput
     ? getAvailableChains(env)
     : getBtcbUnstakeChains(env);
   const defaultChain = availableChains[0]?.value || Chain.ETHEREUM;
 
-  const [amount, setAmount] = useState(String(minAmount));
+  const [amount, setAmount] = useState(String(defaultAmount));
   const [sourceChain, setSourceChain] = useState(defaultChain);
   const [destChain, setDestChain] = useState(
     env === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET,
@@ -78,7 +79,7 @@ export function UnstakingForm({
         env === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET,
       );
     }
-    setAmount(String(isBtcOutput ? MIN_REDEEM_AMOUNT_BTC : MIN_REDEEM_AMOUNT_BTC));
+    setAmount(String(defaultAmount));
   }, [env, isBtcOutput]);
 
   // Update destChain based on assetOut
