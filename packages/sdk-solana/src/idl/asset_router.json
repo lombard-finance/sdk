@@ -1,0 +1,3454 @@
+{
+  "address": "LomVyJDZ91jeVbNnTupJXKJTQFakJVMc87CmwDHYt95",
+  "metadata": {
+    "name": "asset_router",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "The asset router contract providing token management in the Ledger v2 design."
+  },
+  "instructions": [
+    {
+      "name": "accept_ownership",
+      "discriminator": [
+        172,
+        23,
+        43,
+        13,
+        238,
+        213,
+        85,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "change_mint_auth",
+      "discriminator": [
+        98,
+        59,
+        17,
+        150,
+        173,
+        118,
+        36,
+        101
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "current_auth",
+          "docs": [
+            "current authority is passed the function call will fail."
+          ]
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "token_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_auth",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "deposit",
+      "discriminator": [
+        242,
+        35,
+        198,
+        137,
+        82,
+        225,
+        242,
+        182
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_route",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "const",
+                "value": [
+                  2,
+                  41,
+                  105,
+                  152,
+                  166,
+                  248,
+                  226,
+                  167,
+                  132,
+                  219,
+                  93,
+                  159,
+                  149,
+                  225,
+                  143,
+                  194,
+                  63,
+                  112,
+                  68,
+                  26,
+                  16,
+                  57,
+                  68,
+                  104,
+                  1,
+                  8,
+                  152,
+                  121,
+                  176,
+                  140,
+                  126,
+                  240
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              },
+              {
+                "kind": "arg",
+                "path": "to_lchain_id"
+              },
+              {
+                "kind": "arg",
+                "path": "to_token_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "messaging_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  105,
+                  110,
+                  103,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mailbox",
+          "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9"
+        },
+        {
+          "name": "mailbox_config",
+          "writable": true
+        },
+        {
+          "name": "outbound_message_path"
+        },
+        {
+          "name": "outbound_message",
+          "writable": true
+        },
+        {
+          "name": "sender_config",
+          "optional": true
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "to_lchain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "to_token_address",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "recipient",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "disable_bascule",
+      "discriminator": [
+        57,
+        164,
+        60,
+        76,
+        249,
+        175,
+        240,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "enable_bascule",
+      "discriminator": [
+        42,
+        184,
+        103,
+        55,
+        45,
+        231,
+        145,
+        180
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "gmp_receive",
+      "discriminator": [
+        75,
+        72,
+        219,
+        230,
+        85,
+        3,
+        24,
+        44
+      ],
+      "accounts": [
+        {
+          "name": "message_info",
+          "signer": true
+        },
+        {
+          "name": "handler",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "message_handled",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101,
+                  95,
+                  104,
+                  97,
+                  110,
+                  100,
+                  108,
+                  101,
+                  100
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "payload_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "mint_authority",
+          "docs": [
+            "instruction will fail."
+          ]
+        },
+        {
+          "name": "token_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "grant_account_role",
+      "discriminator": [
+        166,
+        105,
+        3,
+        49,
+        241,
+        233,
+        230,
+        157
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "account",
+          "type": "pubkey"
+        },
+        {
+          "name": "account_role",
+          "type": {
+            "defined": {
+              "name": "AccountRole"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "deployer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  5,
+                  18,
+                  234,
+                  77,
+                  227,
+                  43,
+                  95,
+                  61,
+                  233,
+                  140,
+                  62,
+                  195,
+                  41,
+                  12,
+                  98,
+                  129,
+                  217,
+                  16,
+                  222,
+                  194,
+                  22,
+                  133,
+                  11,
+                  224,
+                  186,
+                  228,
+                  222,
+                  153,
+                  255,
+                  78,
+                  217,
+                  216
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                2,
+                168,
+                246,
+                145,
+                78,
+                136,
+                161,
+                176,
+                226,
+                16,
+                21,
+                62,
+                247,
+                99,
+                174,
+                43,
+                0,
+                194,
+                185,
+                61,
+                22,
+                193,
+                36,
+                210,
+                192,
+                83,
+                122,
+                16,
+                4,
+                128,
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "messaging_authority",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  105,
+                  110,
+                  103,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "config",
+          "type": {
+            "defined": {
+              "name": "Config"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "mint_from_payload",
+      "discriminator": [
+        78,
+        44,
+        95,
+        232,
+        161,
+        7,
+        56,
+        178
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "mint_authority",
+          "docs": [
+            "instruction will fail."
+          ]
+        },
+        {
+          "name": "token_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "consortium_validated_payload",
+          "docs": [
+            "check that the consortium program has validated the payload"
+          ]
+        },
+        {
+          "name": "deposit_payload_spent",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint_payload",
+          "type": {
+            "array": [
+              "u8",
+              196
+            ]
+          }
+        },
+        {
+          "name": "mint_payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "mint_with_fee",
+      "discriminator": [
+        142,
+        93,
+        70,
+        12,
+        187,
+        19,
+        19,
+        154
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "mint_authority",
+          "docs": [
+            "instruction will fail."
+          ]
+        },
+        {
+          "name": "token_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "consortium_validated_payload",
+          "docs": [
+            "check that the consortium program has validated the payload"
+          ]
+        },
+        {
+          "name": "deposit_payload_spent",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "treasury_token_account",
+          "writable": true
+        },
+        {
+          "name": "instruction_sysvar",
+          "address": "Sysvar1nstructions1111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint_payload",
+          "type": {
+            "array": [
+              "u8",
+              196
+            ]
+          }
+        },
+        {
+          "name": "mint_payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "fee_payload",
+          "type": {
+            "array": [
+              "u8",
+              52
+            ]
+          }
+        },
+        {
+          "name": "fee_signature",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "pause",
+      "discriminator": [
+        211,
+        22,
+        221,
+        251,
+        74,
+        121,
+        193,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "redeem",
+      "discriminator": [
+        184,
+        12,
+        86,
+        149,
+        70,
+        196,
+        97,
+        225
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_route",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "const",
+                "value": [
+                  2,
+                  41,
+                  105,
+                  152,
+                  166,
+                  248,
+                  226,
+                  167,
+                  132,
+                  219,
+                  93,
+                  159,
+                  149,
+                  225,
+                  143,
+                  194,
+                  63,
+                  112,
+                  68,
+                  26,
+                  16,
+                  57,
+                  68,
+                  104,
+                  1,
+                  8,
+                  152,
+                  121,
+                  176,
+                  140,
+                  126,
+                  240
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              },
+              {
+                "kind": "arg",
+                "path": "to_lchain_id"
+              },
+              {
+                "kind": "arg",
+                "path": "to_token_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "treasury_token_account",
+          "writable": true
+        },
+        {
+          "name": "messaging_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  105,
+                  110,
+                  103,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mailbox",
+          "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9"
+        },
+        {
+          "name": "mailbox_config",
+          "writable": true
+        },
+        {
+          "name": "outbound_message_path"
+        },
+        {
+          "name": "outbound_message",
+          "writable": true
+        },
+        {
+          "name": "sender_config",
+          "optional": true
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "to_lchain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "to_token_address",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "recipient",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "redeem_for_btc",
+      "discriminator": [
+        122,
+        146,
+        65,
+        202,
+        104,
+        10,
+        146,
+        122
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_route"
+        },
+        {
+          "name": "payer_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "treasury_token_account",
+          "writable": true
+        },
+        {
+          "name": "messaging_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  105,
+                  110,
+                  103,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mailbox",
+          "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9"
+        },
+        {
+          "name": "mailbox_config",
+          "writable": true
+        },
+        {
+          "name": "outbound_message_path"
+        },
+        {
+          "name": "outbound_message",
+          "writable": true
+        },
+        {
+          "name": "sender_config",
+          "optional": true
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "script_pubkey",
+          "type": "bytes"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "revoke_account_roles",
+      "discriminator": [
+        88,
+        183,
+        44,
+        133,
+        35,
+        162,
+        233,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "account",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_mint_fee",
+      "discriminator": [
+        52,
+        77,
+        178,
+        201,
+        245,
+        51,
+        250,
+        139
+      ],
+      "accounts": [
+        {
+          "name": "operator",
+          "signer": true
+        },
+        {
+          "name": "account_roles",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "operator"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_config",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "mint_fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "set_token_config",
+      "discriminator": [
+        158,
+        231,
+        35,
+        78,
+        98,
+        32,
+        210,
+        196
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "mint_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint_address",
+          "type": "pubkey"
+        },
+        {
+          "name": "token_config",
+          "type": {
+            "defined": {
+              "name": "TokenConfig"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_token_route",
+      "discriminator": [
+        90,
+        100,
+        101,
+        223,
+        118,
+        150,
+        79,
+        221
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_route",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "from_chain_id"
+              },
+              {
+                "kind": "arg",
+                "path": "from_token_address"
+              },
+              {
+                "kind": "arg",
+                "path": "to_chain_id"
+              },
+              {
+                "kind": "arg",
+                "path": "to_token_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "from_chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "from_token_address",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "to_chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "to_token_address",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "token_route_type",
+          "type": {
+            "defined": {
+              "name": "TokenRouteType"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_treasury",
+      "discriminator": [
+        57,
+        97,
+        196,
+        95,
+        195,
+        206,
+        106,
+        136
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "treasury",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "transfer_ownership",
+      "discriminator": [
+        65,
+        177,
+        215,
+        73,
+        53,
+        45,
+        99,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unpause",
+      "discriminator": [
+        169,
+        144,
+        4,
+        38,
+        10,
+        141,
+        188,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "unset_token_route",
+      "discriminator": [
+        213,
+        165,
+        89,
+        45,
+        165,
+        194,
+        51,
+        165
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_route",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "from_chain_id"
+              },
+              {
+                "kind": "arg",
+                "path": "from_token_address"
+              },
+              {
+                "kind": "arg",
+                "path": "to_chain_id"
+              },
+              {
+                "kind": "arg",
+                "path": "to_token_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "from_chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "from_token_address",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "to_chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "to_token_address",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AccountRoles",
+      "discriminator": [
+        25,
+        230,
+        229,
+        88,
+        31,
+        135,
+        177,
+        142
+      ]
+    },
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "DepositPayloadSpent",
+      "discriminator": [
+        44,
+        125,
+        36,
+        131,
+        19,
+        161,
+        75,
+        25
+      ]
+    },
+    {
+      "name": "MessageHandled",
+      "discriminator": [
+        157,
+        239,
+        26,
+        195,
+        144,
+        53,
+        19,
+        109
+      ]
+    },
+    {
+      "name": "MessageV1Info",
+      "discriminator": [
+        113,
+        42,
+        224,
+        190,
+        65,
+        33,
+        233,
+        178
+      ]
+    },
+    {
+      "name": "MessagingAuthority",
+      "discriminator": [
+        149,
+        84,
+        21,
+        225,
+        138,
+        238,
+        79,
+        217
+      ]
+    },
+    {
+      "name": "TokenConfig",
+      "discriminator": [
+        92,
+        73,
+        255,
+        43,
+        107,
+        51,
+        117,
+        101
+      ]
+    },
+    {
+      "name": "TokenRoute",
+      "discriminator": [
+        126,
+        114,
+        64,
+        197,
+        31,
+        189,
+        252,
+        132
+      ]
+    },
+    {
+      "name": "ValidatedPayload",
+      "discriminator": [
+        129,
+        8,
+        149,
+        193,
+        22,
+        240,
+        127,
+        36
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AccountRoleGranted",
+      "discriminator": [
+        156,
+        201,
+        253,
+        16,
+        204,
+        194,
+        211,
+        121
+      ]
+    },
+    {
+      "name": "AccountRolesRevoked",
+      "discriminator": [
+        193,
+        45,
+        230,
+        213,
+        88,
+        196,
+        24,
+        174
+      ]
+    },
+    {
+      "name": "BasculeEnabled",
+      "discriminator": [
+        84,
+        223,
+        73,
+        187,
+        19,
+        208,
+        205,
+        93
+      ]
+    },
+    {
+      "name": "MintAuthorityUpdated",
+      "discriminator": [
+        251,
+        56,
+        50,
+        229,
+        68,
+        227,
+        225,
+        225
+      ]
+    },
+    {
+      "name": "MintFeeSet",
+      "discriminator": [
+        19,
+        160,
+        65,
+        66,
+        12,
+        237,
+        135,
+        42
+      ]
+    },
+    {
+      "name": "MintProofConsumed",
+      "discriminator": [
+        39,
+        6,
+        40,
+        221,
+        150,
+        118,
+        32,
+        59
+      ]
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "discriminator": [
+        181,
+        32,
+        40,
+        60,
+        60,
+        64,
+        235,
+        29
+      ]
+    },
+    {
+      "name": "OwnershipTransferred",
+      "discriminator": [
+        172,
+        61,
+        205,
+        183,
+        250,
+        50,
+        38,
+        98
+      ]
+    },
+    {
+      "name": "ProgramPaused",
+      "discriminator": [
+        247,
+        9,
+        236,
+        38,
+        105,
+        35,
+        112,
+        115
+      ]
+    },
+    {
+      "name": "TokenConfigSet",
+      "discriminator": [
+        48,
+        183,
+        41,
+        161,
+        246,
+        12,
+        242,
+        8
+      ]
+    },
+    {
+      "name": "TokenRouteSet",
+      "discriminator": [
+        4,
+        31,
+        245,
+        62,
+        151,
+        52,
+        49,
+        202
+      ]
+    },
+    {
+      "name": "TokenRouteUnset",
+      "discriminator": [
+        42,
+        85,
+        28,
+        244,
+        48,
+        106,
+        76,
+        33
+      ]
+    },
+    {
+      "name": "TreasuryChanged",
+      "discriminator": [
+        252,
+        2,
+        55,
+        56,
+        106,
+        205,
+        227,
+        47
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized function call"
+    },
+    {
+      "code": 6001,
+      "name": "AccountRoleAlreadyGranted",
+      "msg": "Account role already granted"
+    },
+    {
+      "code": 6002,
+      "name": "RecipientMismatch",
+      "msg": "Mismatch between mint payload and passed account"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidChainID",
+      "msg": "Invalid chain ID"
+    },
+    {
+      "code": 6004,
+      "name": "BasculeNotAvailable",
+      "msg": "Bascule not available"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidTokenAddress",
+      "msg": "Invalid token address"
+    },
+    {
+      "code": 6006,
+      "name": "MintPayloadUsed",
+      "msg": "Mint payload already used"
+    },
+    {
+      "code": 6007,
+      "name": "MintPayloadHashMismatch",
+      "msg": "Passed mint payload hash does not match computed hash"
+    },
+    {
+      "code": 6008,
+      "name": "WithdrawalsDisabled",
+      "msg": "Withdrawals are disabled"
+    },
+    {
+      "code": 6009,
+      "name": "FeeGTEAmount",
+      "msg": "Fee is greater than or equal to amount"
+    },
+    {
+      "code": 6010,
+      "name": "FeeApprovalExpired",
+      "msg": "Fee approval expired"
+    },
+    {
+      "code": 6011,
+      "name": "UnsupportedRedeemAddress",
+      "msg": "Script pubkey is unsupported"
+    },
+    {
+      "code": 6012,
+      "name": "AmountBelowDustLimit",
+      "msg": "Redeemed amount is below the BTC dust limit"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidFeeAction",
+      "msg": "Invalid fee action"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidFeeSignature",
+      "msg": "Fee signature invalid"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidFeePayloadLength",
+      "msg": "Invalid fee payload length"
+    },
+    {
+      "code": 6016,
+      "name": "Paused",
+      "msg": "LBTC contract is paused"
+    },
+    {
+      "code": 6017,
+      "name": "NotPaused",
+      "msg": "LBTC contract is not paused"
+    },
+    {
+      "code": 6018,
+      "name": "InvalidVerifyingcontract",
+      "msg": "Invalid verifying contract"
+    },
+    {
+      "code": 6019,
+      "name": "FeeTooHigh",
+      "msg": "Selected fee is too high"
+    },
+    {
+      "code": 6020,
+      "name": "InvalidPayloadLength",
+      "msg": "Invalid payload length"
+    },
+    {
+      "code": 6021,
+      "name": "InvalidPayloadSelector",
+      "msg": "Invalid payload selector"
+    },
+    {
+      "code": 6022,
+      "name": "BufferIOError",
+      "msg": "Buffer IO error"
+    },
+    {
+      "code": 6023,
+      "name": "InvalidMessageLength",
+      "msg": "Invalid message length"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidMessageSelector",
+      "msg": "Invalid message selector"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidMessageSender",
+      "msg": "Invalid message sender"
+    },
+    {
+      "code": 6026,
+      "name": "ZeroAmount",
+      "msg": "Zero amount"
+    },
+    {
+      "code": 6027,
+      "name": "InvalidTokenRouteType",
+      "msg": "Invalid token route type"
+    },
+    {
+      "code": 6028,
+      "name": "ProgramError",
+      "msg": "Program error"
+    },
+    {
+      "code": 6029,
+      "name": "TreasuryTokenAccountNotFound",
+      "msg": "Treasury token account not found"
+    },
+    {
+      "code": 6030,
+      "name": "MissingEd25519Instruction",
+      "msg": "Missing Ed25519 instruction"
+    },
+    {
+      "code": 6031,
+      "name": "InvalidEd25519Instruction",
+      "msg": "Invalid Ed25519 instruction"
+    },
+    {
+      "code": 6032,
+      "name": "InvalidPublicKey",
+      "msg": "Invalid public key"
+    },
+    {
+      "code": 6033,
+      "name": "InvalidMessage",
+      "msg": "Invalid message"
+    },
+    {
+      "code": 6034,
+      "name": "InvalidSignature",
+      "msg": "Invalid signature"
+    }
+  ],
+  "types": [
+    {
+      "name": "AccountRole",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Operator"
+          },
+          {
+            "name": "Pauser"
+          },
+          {
+            "name": "Claimer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountRoleGranted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "pubkey"
+          },
+          {
+            "name": "account_role",
+            "type": {
+              "defined": {
+                "name": "AccountRole"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountRoles",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "roles",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "AccountRole"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountRolesRevoked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BasculeEnabled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "enabled",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "native_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "mailbox",
+            "type": "pubkey"
+          },
+          {
+            "name": "bascule_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "ledger_lchain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "bitcoin_lchain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositPayloadSpent",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "MessageHandled",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "MessageState",
+      "docs": [
+        "The state of a payload including a GMP message"
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Unknown"
+          },
+          {
+            "name": "Delivered"
+          },
+          {
+            "name": "Handled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "message_path_identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "sender",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "destination_caller",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
+          },
+          {
+            "name": "body",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageV1Info",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "MessageState"
+              }
+            }
+          },
+          {
+            "name": "message",
+            "type": {
+              "defined": {
+                "name": "MessageV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessagingAuthority",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "MintAuthorityUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_auth",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintFeeSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint_fee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintProofConsumed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferred",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProgramPaused",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "paused",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "redeem_fee",
+            "type": "u64"
+          },
+          {
+            "name": "redeem_for_btc_min_amount",
+            "type": "u64"
+          },
+          {
+            "name": "max_mint_commission",
+            "type": "u64"
+          },
+          {
+            "name": "to_native_commission",
+            "type": "u64"
+          },
+          {
+            "name": "ledger_redeem_handler",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenConfigSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "config",
+            "type": {
+              "defined": {
+                "name": "TokenConfig"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenRoute",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "route_type",
+            "type": {
+              "defined": {
+                "name": "TokenRouteType"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenRouteSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "from_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "from_token_address",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "to_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "to_token_address",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "token_route_type",
+            "type": {
+              "defined": {
+                "name": "TokenRouteType"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenRouteType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Deposit"
+          },
+          {
+            "name": "Redeem"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenRouteUnset",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "from_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "from_token_address",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "to_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "to_token_address",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "token_route_type",
+            "type": {
+              "defined": {
+                "name": "TokenRouteType"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TreasuryChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValidatedPayload",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    }
+  ]
+}

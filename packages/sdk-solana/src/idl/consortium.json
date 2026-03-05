@@ -1,0 +1,1154 @@
+{
+  "address": "LomCbo8K5ar4kVpqoGGktE8WemHfGz84V8aH8Y1iGxd",
+  "metadata": {
+    "name": "consortium",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "The consortium program in charge of validating payloads from the Lombard Ledger notarization system"
+  },
+  "instructions": [
+    {
+      "name": "accept_ownership",
+      "discriminator": [
+        172,
+        23,
+        43,
+        13,
+        238,
+        213,
+        85,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_session",
+      "discriminator": [
+        242,
+        193,
+        143,
+        179,
+        150,
+        25,
+        122,
+        227
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "session",
+          "writable": true
+        },
+        {
+          "name": "validated_payload"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "finalize_session",
+      "discriminator": [
+        34,
+        148,
+        144,
+        47,
+        37,
+        130,
+        206,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "session",
+          "writable": true
+        },
+        {
+          "name": "validated_payload",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "deployer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  5,
+                  18,
+                  232,
+                  207,
+                  63,
+                  79,
+                  103,
+                  31,
+                  175,
+                  129,
+                  100,
+                  82,
+                  234,
+                  70,
+                  252,
+                  19,
+                  56,
+                  48,
+                  244,
+                  150,
+                  245,
+                  196,
+                  124,
+                  54,
+                  56,
+                  237,
+                  166,
+                  8,
+                  8,
+                  240,
+                  99,
+                  62
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                2,
+                168,
+                246,
+                145,
+                78,
+                136,
+                161,
+                176,
+                226,
+                16,
+                21,
+                62,
+                247,
+                99,
+                174,
+                43,
+                0,
+                194,
+                185,
+                61,
+                22,
+                193,
+                36,
+                210,
+                192,
+                83,
+                122,
+                16,
+                4,
+                128,
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "post_session_payload",
+      "discriminator": [
+        151,
+        42,
+        50,
+        73,
+        194,
+        109,
+        25,
+        199
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "session_payload",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "payload_chunk",
+          "type": "bytes"
+        },
+        {
+          "name": "payload_length",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "post_session_signatures",
+      "discriminator": [
+        154,
+        155,
+        118,
+        64,
+        171,
+        114,
+        246,
+        45
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "session",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "signatures",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        },
+        {
+          "name": "indices",
+          "type": {
+            "vec": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_initial_valset",
+      "discriminator": [
+        171,
+        69,
+        132,
+        141,
+        206,
+        84,
+        175,
+        115
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "transfer_ownership",
+      "discriminator": [
+        65,
+        177,
+        215,
+        73,
+        53,
+        45,
+        99,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "update_valset",
+      "discriminator": [
+        31,
+        154,
+        103,
+        219,
+        117,
+        16,
+        212,
+        162
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "validated_payload"
+        },
+        {
+          "name": "session_payload",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "Session",
+      "discriminator": [
+        243,
+        81,
+        72,
+        115,
+        214,
+        188,
+        72,
+        144
+      ]
+    },
+    {
+      "name": "SessionPayload",
+      "discriminator": [
+        33,
+        115,
+        191,
+        63,
+        132,
+        170,
+        233,
+        102
+      ]
+    },
+    {
+      "name": "ValidatedPayload",
+      "discriminator": [
+        129,
+        8,
+        149,
+        193,
+        22,
+        240,
+        127,
+        36
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "OwnershipTransferInitiated",
+      "discriminator": [
+        181,
+        32,
+        40,
+        60,
+        60,
+        64,
+        235,
+        29
+      ]
+    },
+    {
+      "name": "OwnershipTransferred",
+      "discriminator": [
+        172,
+        61,
+        205,
+        183,
+        250,
+        50,
+        38,
+        98
+      ]
+    },
+    {
+      "name": "SessionCreated",
+      "discriminator": [
+        107,
+        111,
+        254,
+        25,
+        21,
+        122,
+        220,
+        225
+      ]
+    },
+    {
+      "name": "SessionFinalized",
+      "discriminator": [
+        33,
+        12,
+        242,
+        91,
+        206,
+        42,
+        163,
+        235
+      ]
+    },
+    {
+      "name": "SessionPayloadChunkPosted",
+      "discriminator": [
+        32,
+        54,
+        237,
+        154,
+        192,
+        9,
+        225,
+        122
+      ]
+    },
+    {
+      "name": "SessionSignaturesAdded",
+      "discriminator": [
+        135,
+        184,
+        98,
+        71,
+        244,
+        44,
+        30,
+        32
+      ]
+    },
+    {
+      "name": "ValidatorSetUpdated",
+      "discriminator": [
+        234,
+        43,
+        30,
+        48,
+        204,
+        242,
+        119,
+        118
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized function call"
+    },
+    {
+      "code": 6001,
+      "name": "NotEnoughSignatures",
+      "msg": "Not enough signatures"
+    },
+    {
+      "code": 6002,
+      "name": "LeftoverData",
+      "msg": "Leftover data in payload"
+    },
+    {
+      "code": 6003,
+      "name": "ValidatorSetAlreadySet",
+      "msg": "Validator set already set"
+    },
+    {
+      "code": 6004,
+      "name": "OutdatedEpoch",
+      "msg": "Outdated epoch"
+    },
+    {
+      "code": 6005,
+      "name": "NotConsecutiveEpoch",
+      "msg": "No consecutive epoch"
+    },
+    {
+      "code": 6006,
+      "name": "NotIncrementingHeight",
+      "msg": "Not incrementing height"
+    },
+    {
+      "code": 6007,
+      "name": "NoValidatorSet",
+      "msg": "No validator set exists"
+    },
+    {
+      "code": 6008,
+      "name": "ValidatorSetSizeTooBig",
+      "msg": "Validator set size too big"
+    },
+    {
+      "code": 6009,
+      "name": "ValidatorSetSizeTooSmall",
+      "msg": "Validator set size too small"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidWeightThreshold",
+      "msg": "Invalid weight threshold"
+    },
+    {
+      "code": 6011,
+      "name": "ValidatorsAndWeightsMismatch",
+      "msg": "Mismatch between validators length and weights length"
+    },
+    {
+      "code": 6012,
+      "name": "ZeroWeight",
+      "msg": "Weight for validator is zero"
+    },
+    {
+      "code": 6013,
+      "name": "WeightsBelowThreshold",
+      "msg": "Sum of weights is below the threshold"
+    },
+    {
+      "code": 6014,
+      "name": "SignaturesIndicesMismatch",
+      "msg": "Mismatch between signatures and indices length"
+    },
+    {
+      "code": 6015,
+      "name": "WrongPayloadSelector",
+      "msg": "Wrong selector of session payload"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidPayloadLength",
+      "msg": "Invalid session payload length"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidValidatorPubkeyLength",
+      "msg": "Invalid validator pubkey length"
+    },
+    {
+      "code": 6018,
+      "name": "BufferIOError",
+      "msg": "Buffer IO error"
+    },
+    {
+      "code": 6019,
+      "name": "EmptyPayloadChunk",
+      "msg": "Empty payload chunk"
+    },
+    {
+      "code": 6020,
+      "name": "SessionPayloadHashMismatch",
+      "msg": "Session payload hash mismatch"
+    },
+    {
+      "code": 6021,
+      "name": "ValidatedPayloadAlreadyExists",
+      "msg": "Validated payload account already exists"
+    },
+    {
+      "code": 6022,
+      "name": "ValidatedPayloadNotEmpty",
+      "msg": "Validated payload not empty"
+    }
+  ],
+  "types": [
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "current_epoch",
+            "type": "u64"
+          },
+          {
+            "name": "current_validators",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  64
+                ]
+              }
+            }
+          },
+          {
+            "name": "current_weights",
+            "type": {
+              "vec": "u64"
+            }
+          },
+          {
+            "name": "current_weight_threshold",
+            "type": "u64"
+          },
+          {
+            "name": "current_height",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferred",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Session",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "signed",
+            "type": {
+              "vec": "bool"
+            }
+          },
+          {
+            "name": "weight",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SessionCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SessionFinalized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SessionPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payload",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SessionPayloadChunkPosted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "payload_chunk",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SessionSignaturesAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "signatures",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  64
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValidatedPayload",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "ValidatorSetUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "validators",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  64
+                ]
+              }
+            }
+          },
+          {
+            "name": "weights",
+            "type": {
+              "vec": "u64"
+            }
+          },
+          {
+            "name": "weight_threshold",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

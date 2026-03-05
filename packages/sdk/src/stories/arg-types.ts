@@ -1,13 +1,33 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { ArgTypes } from 'storybook/internal/types';
 
-import { ChainId } from '../common/chains';
+import {
+  ChainId,
+  SOLANA_DEVNET_CHAIN,
+  SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET_CHAIN,
+} from '../common/chains';
 import { Token } from '../tokens/token-addresses';
 
 export const chainSelector: Partial<ArgTypes> = {
   chainId: {
     mapping: ChainId,
     options: Object.keys(ChainId),
+    control: { type: 'select' },
+  },
+};
+
+const allChainsMapping = {
+  ...ChainId,
+  SOLANA_MAINNET: SOLANA_MAINNET_CHAIN,
+  SOLANA_TESTNET: SOLANA_TESTNET_CHAIN,
+  SOLANA_DEVNET: SOLANA_DEVNET_CHAIN,
+} as const;
+
+export const allChainSelector: Partial<ArgTypes> = {
+  chainId: {
+    mapping: allChainsMapping,
+    options: Object.keys(allChainsMapping),
     control: { type: 'select' },
   },
 };

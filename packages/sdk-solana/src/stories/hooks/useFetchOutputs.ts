@@ -22,6 +22,9 @@ export interface IOutput {
   session_id: number;
   notarization_status: string;
   session_state: string;
+  token_address?: string;
+  aux_version?: number;
+  notarization_wait_dur?: string;
 }
 
 interface IOutputsResponse {
@@ -73,8 +76,8 @@ export function useFetchOutputs({
         case SolanaNetwork.testnet:
           baseApiUrl = 'https://gastald-testnet.prod.lombard-fi.com';
           break;
-        default: // Devnet/Staging
-          baseApiUrl = 'https://staging.prod.lombard.finance';
+        default: // Devnet (dev environment)
+          baseApiUrl = 'https://bft-dev.stage.lombard-fi.com';
           break;
       }
 
@@ -82,23 +85,19 @@ export function useFetchOutputs({
         `${baseApiUrl}/api/v1/address/outputs-v2/${address}`,
       );
 
-      const pendingOutputs =
+      const solanaOutputs =
         response.data.outputs?.filter(
           output =>
             output.to_chain === 'DESTINATION_BLOCKCHAIN_SOLANA' &&
-            !output.claim_tx &&
-            output.raw_payload &&
-            output.proof &&
-            output.notarization_status ===
-              'NOTARIZATION_STATUS_SESSION_APPROVED',
+            !output.claim_tx,
         ) || [];
 
-      setOutputs(pendingOutputs);
+      setOutputs(solanaOutputs);
 
-      if (pendingOutputs.length === 0) {
+      if (solanaOutputs.length === 0) {
         setOutputsError(
           new SolanaSdkError(
-            'No pending outputs available for this address.',
+            'No outputs found for this address.',
             ErrorCode.UNKNOWN_ERROR,
           ),
         );

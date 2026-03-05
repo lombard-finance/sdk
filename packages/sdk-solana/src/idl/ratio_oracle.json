@@ -1,0 +1,784 @@
+{
+  "address": "LomfreVHrrMrSpv54KCJ6AC1eKL8QbL1Ej28S3gwawa",
+  "metadata": {
+    "name": "ratio_oracle",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "The ratio oracle program mirrors the staking ratio of a Lombard token handled on the Lombard Ledger"
+  },
+  "instructions": [
+    {
+      "name": "accept_ownership",
+      "discriminator": [
+        172,
+        23,
+        43,
+        13,
+        238,
+        213,
+        85,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  105,
+                  111,
+                  95,
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "deployer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  5,
+                  18,
+                  235,
+                  39,
+                  163,
+                  240,
+                  179,
+                  76,
+                  204,
+                  70,
+                  201,
+                  236,
+                  130,
+                  51,
+                  157,
+                  165,
+                  94,
+                  178,
+                  83,
+                  64,
+                  148,
+                  201,
+                  219,
+                  70,
+                  26,
+                  57,
+                  13,
+                  75,
+                  178,
+                  65,
+                  89,
+                  225
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                2,
+                168,
+                246,
+                145,
+                78,
+                136,
+                161,
+                176,
+                226,
+                16,
+                21,
+                62,
+                247,
+                99,
+                174,
+                43,
+                0,
+                194,
+                185,
+                61,
+                22,
+                193,
+                36,
+                210,
+                192,
+                83,
+                122,
+                16,
+                4,
+                128,
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  105,
+                  111,
+                  95,
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "admin",
+          "type": "pubkey"
+        },
+        {
+          "name": "consortium",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "initialize_oracle",
+      "discriminator": [
+        144,
+        223,
+        131,
+        120,
+        196,
+        253,
+        181,
+        99
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  105,
+                  111,
+                  95,
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "denom",
+          "type": "string"
+        },
+        {
+          "name": "mint_address",
+          "type": "pubkey"
+        },
+        {
+          "name": "initial_ratio",
+          "type": "u128"
+        },
+        {
+          "name": "switch_time",
+          "type": "u64"
+        },
+        {
+          "name": "max_ahead_interval",
+          "type": "u64"
+        },
+        {
+          "name": "ratio_threshold",
+          "type": "u128"
+        }
+      ]
+    },
+    {
+      "name": "publish_ratio",
+      "discriminator": [
+        150,
+        12,
+        239,
+        94,
+        15,
+        9,
+        177,
+        122
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  105,
+                  111,
+                  95,
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle",
+          "writable": true
+        },
+        {
+          "name": "consortium_validated_payload",
+          "docs": [
+            "check that the consortium program has validated the payload"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "array": [
+              "u8",
+              100
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "transfer_ownership",
+      "discriminator": [
+        65,
+        177,
+        215,
+        73,
+        53,
+        45,
+        99,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  105,
+                  111,
+                  95,
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "update_consortium",
+      "discriminator": [
+        66,
+        146,
+        98,
+        208,
+        251,
+        97,
+        90,
+        196
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  105,
+                  111,
+                  95,
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "consortium",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "update_ratio_threshold",
+      "discriminator": [
+        183,
+        76,
+        186,
+        79,
+        135,
+        9,
+        149,
+        236
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  105,
+                  111,
+                  95,
+                  111,
+                  114,
+                  97,
+                  99,
+                  108,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "oracle",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "ratio_threshold",
+          "type": "u128"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "Oracle",
+      "discriminator": [
+        139,
+        194,
+        131,
+        179,
+        140,
+        179,
+        229,
+        244
+      ]
+    },
+    {
+      "name": "ValidatedPayload",
+      "discriminator": [
+        129,
+        8,
+        149,
+        193,
+        22,
+        240,
+        127,
+        36
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ConsortiumUpdated",
+      "discriminator": [
+        177,
+        238,
+        1,
+        232,
+        23,
+        33,
+        83,
+        62
+      ]
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "discriminator": [
+        181,
+        32,
+        40,
+        60,
+        60,
+        64,
+        235,
+        29
+      ]
+    },
+    {
+      "name": "OwnershipTransferred",
+      "discriminator": [
+        172,
+        61,
+        205,
+        183,
+        250,
+        50,
+        38,
+        98
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized function call"
+    },
+    {
+      "code": 6001,
+      "name": "BufferIOError",
+      "msg": "Buffer IO error"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidPayloadLength",
+      "msg": "Invalid payload length"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidPayloadSelector",
+      "msg": "Invalid payload selector"
+    },
+    {
+      "code": 6004,
+      "name": "WrongDenom",
+      "msg": "Invalid denom hash"
+    },
+    {
+      "code": 6005,
+      "name": "OutdatedRatioUpdate",
+      "msg": "Outdated ratio update"
+    },
+    {
+      "code": 6006,
+      "name": "MaxAheadIntervalExceeded",
+      "msg": "Max ahead interval exceeded"
+    },
+    {
+      "code": 6007,
+      "name": "RatioThresholdExceeded",
+      "msg": "Ratio threshold exceeded"
+    },
+    {
+      "code": 6008,
+      "name": "EmptyDenom",
+      "msg": "Empty denom"
+    },
+    {
+      "code": 6009,
+      "name": "ZeroRatioThreshold",
+      "msg": "Zero ratio threshold"
+    },
+    {
+      "code": 6010,
+      "name": "ExceededMaxRatioThreshold",
+      "msg": "Exceeded max ratio threshold"
+    }
+  ],
+  "types": [
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "consortium",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConsortiumUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "consortium",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Oracle",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "denom",
+            "type": "string"
+          },
+          {
+            "name": "mint_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "previous_ratio",
+            "type": {
+              "option": "u128"
+            }
+          },
+          {
+            "name": "current_ratio",
+            "type": "u128"
+          },
+          {
+            "name": "switch_time",
+            "type": "u64"
+          },
+          {
+            "name": "max_ahead_interval",
+            "type": "u64"
+          },
+          {
+            "name": "ratio_threshold",
+            "type": "u128"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferred",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValidatedPayload",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    }
+  ]
+}

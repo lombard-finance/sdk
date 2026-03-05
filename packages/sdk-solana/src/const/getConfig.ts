@@ -25,7 +25,7 @@ export const envToNetwork: Record<Env, SolanaNetwork> = {
 export const networkToEnv: Record<SolanaNetwork, Env> = {
   [SolanaNetwork.mainnet]: 'prod',
   [SolanaNetwork.testnet]: 'testnet',
-  [SolanaNetwork.devnet]: 'stage',
+  [SolanaNetwork.devnet]: 'dev',
 };
 
 /**
@@ -194,7 +194,7 @@ const prodConfig: IConfig = {
  */
 export function getConfig(env: Env = DEFAULT_ENV): IConfig {
   switch (env) {
-    case 'stage':
+    case 'dev':
       return devnetConfig;
     case 'testnet':
       return testnetConfig;
@@ -233,7 +233,9 @@ export function getLBTCAddress(envOrNetwork: Env | SolanaNetwork): string {
   const isEnv =
     envOrNetwork === 'prod' ||
     envOrNetwork === 'testnet' ||
-    envOrNetwork === 'stage';
+    envOrNetwork === 'stage' ||
+    envOrNetwork === 'dev' ||
+    envOrNetwork === 'ibc';
 
   const env = isEnv
     ? envOrNetwork

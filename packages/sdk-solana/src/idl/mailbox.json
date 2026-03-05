@@ -1,0 +1,2605 @@
+{
+  "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9",
+  "metadata": {
+    "name": "mailbox",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "The mailbox program supporting the Lombard Ledger General Message Passing protocol"
+  },
+  "instructions": [
+    {
+      "name": "accept_ownership",
+      "discriminator": [
+        172,
+        23,
+        43,
+        13,
+        238,
+        213,
+        85,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "deliver_message",
+      "discriminator": [
+        42,
+        2,
+        185,
+        166,
+        108,
+        228,
+        198,
+        252
+      ],
+      "accounts": [
+        {
+          "name": "deliverer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "message_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "payload_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "inbound_message_path"
+        },
+        {
+          "name": "consortium_payload"
+        },
+        {
+          "name": "consortium_validated_payload",
+          "docs": [
+            "check that the consortium program has validated the payload"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "disable_inbound_message_path",
+      "discriminator": [
+        242,
+        182,
+        70,
+        210,
+        26,
+        33,
+        33,
+        78
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "inbound_message_path",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  98,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101,
+                  95,
+                  112,
+                  97,
+                  116,
+                  104
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "source_chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "source_chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "disable_outbound_message_path",
+      "discriminator": [
+        57,
+        102,
+        27,
+        150,
+        123,
+        166,
+        38,
+        158
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "outbound_message_path",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  117,
+                  116,
+                  98,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101,
+                  95,
+                  112,
+                  97,
+                  116,
+                  104
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "destination_chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "destination_chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "enable_inbound_message_path",
+      "discriminator": [
+        178,
+        201,
+        217,
+        113,
+        101,
+        52,
+        44,
+        127
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "inbound_message_path",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  98,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101,
+                  95,
+                  112,
+                  97,
+                  116,
+                  104
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "source_chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "source_chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "source_mailbox_address",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "enable_outbound_message_path",
+      "discriminator": [
+        86,
+        206,
+        215,
+        63,
+        209,
+        234,
+        166,
+        13
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "outbound_message_path",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  117,
+                  116,
+                  98,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101,
+                  95,
+                  112,
+                  97,
+                  116,
+                  104
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "destination_chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "destination_chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "grant_account_role",
+      "discriminator": [
+        166,
+        105,
+        3,
+        49,
+        241,
+        233,
+        230,
+        157
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "account",
+          "type": "pubkey"
+        },
+        {
+          "name": "account_role",
+          "type": {
+            "defined": {
+              "name": "AccountRole"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "handle_message",
+      "discriminator": [
+        91,
+        215,
+        39,
+        71,
+        108,
+        217,
+        94,
+        89
+      ],
+      "accounts": [
+        {
+          "name": "handler",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "message_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "payload_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "recipient_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ],
+      "returns": "bytes"
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "deployer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  5,
+                  18,
+                  233,
+                  90,
+                  194,
+                  193,
+                  50,
+                  141,
+                  128,
+                  131,
+                  75,
+                  41,
+                  96,
+                  114,
+                  108,
+                  90,
+                  65,
+                  124,
+                  105,
+                  212,
+                  246,
+                  221,
+                  111,
+                  217,
+                  24,
+                  17,
+                  69,
+                  69,
+                  125,
+                  185,
+                  67,
+                  232
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                2,
+                168,
+                246,
+                145,
+                78,
+                136,
+                161,
+                176,
+                226,
+                16,
+                21,
+                62,
+                247,
+                99,
+                174,
+                43,
+                0,
+                194,
+                185,
+                61,
+                22,
+                193,
+                36,
+                210,
+                192,
+                83,
+                122,
+                16,
+                4,
+                128,
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "admin",
+          "type": "pubkey"
+        },
+        {
+          "name": "consortium",
+          "type": "pubkey"
+        },
+        {
+          "name": "treasury",
+          "type": "pubkey"
+        },
+        {
+          "name": "default_max_payload_size",
+          "type": "u32"
+        },
+        {
+          "name": "fee_per_byte",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "pause",
+      "discriminator": [
+        211,
+        22,
+        221,
+        251,
+        74,
+        121,
+        193,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "pauser",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pauser"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "revoke_account_roles",
+      "discriminator": [
+        88,
+        183,
+        44,
+        133,
+        35,
+        162,
+        233,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "account",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "send_message",
+      "discriminator": [
+        57,
+        40,
+        34,
+        178,
+        189,
+        10,
+        65,
+        26
+      ],
+      "accounts": [
+        {
+          "name": "fee_payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "sender_authority",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "outbound_message_path"
+        },
+        {
+          "name": "outbound_message",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  117,
+                  116,
+                  98,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "config.global_nonce",
+                "account": "Config"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "sender_config",
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  110,
+                  100,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sender_authority.owner"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "message_body",
+          "type": "bytes"
+        },
+        {
+          "name": "recipient",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "destination_caller",
+          "type": {
+            "option": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        },
+        {
+          "name": "fee_override",
+          "type": "u64"
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "SendResult"
+        }
+      }
+    },
+    {
+      "name": "set_sender_config",
+      "discriminator": [
+        131,
+        205,
+        139,
+        221,
+        93,
+        186,
+        118,
+        146
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sender_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  110,
+                  100,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "sender_program"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "sender_program",
+          "type": "pubkey"
+        },
+        {
+          "name": "max_payload_size",
+          "type": "u32"
+        },
+        {
+          "name": "fee_disabled",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "transfer_ownership",
+      "discriminator": [
+        65,
+        177,
+        215,
+        73,
+        53,
+        45,
+        99,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unpause",
+      "discriminator": [
+        169,
+        144,
+        4,
+        38,
+        10,
+        141,
+        188,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "unset_sender_config",
+      "discriminator": [
+        10,
+        248,
+        20,
+        172,
+        121,
+        20,
+        97,
+        86
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sender_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  110,
+                  100,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "sender_program"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "sender_program",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "update_config",
+      "discriminator": [
+        29,
+        158,
+        252,
+        191,
+        10,
+        83,
+        219,
+        99
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "default_max_payload_size",
+          "type": {
+            "option": "u32"
+          }
+        },
+        {
+          "name": "fee_per_byte",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AccountRoles",
+      "discriminator": [
+        25,
+        230,
+        229,
+        88,
+        31,
+        135,
+        177,
+        142
+      ]
+    },
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "InboundMessagePath",
+      "discriminator": [
+        183,
+        101,
+        83,
+        26,
+        169,
+        221,
+        228,
+        25
+      ]
+    },
+    {
+      "name": "MessageV1Info",
+      "discriminator": [
+        113,
+        42,
+        224,
+        190,
+        65,
+        33,
+        233,
+        178
+      ]
+    },
+    {
+      "name": "OutboundMessage",
+      "discriminator": [
+        166,
+        139,
+        82,
+        146,
+        129,
+        32,
+        235,
+        239
+      ]
+    },
+    {
+      "name": "OutboundMessagePath",
+      "discriminator": [
+        58,
+        4,
+        19,
+        64,
+        132,
+        71,
+        137,
+        190
+      ]
+    },
+    {
+      "name": "SenderConfig",
+      "discriminator": [
+        0,
+        241,
+        220,
+        77,
+        167,
+        128,
+        79,
+        152
+      ]
+    },
+    {
+      "name": "SessionPayload",
+      "discriminator": [
+        33,
+        115,
+        191,
+        63,
+        132,
+        170,
+        233,
+        102
+      ]
+    },
+    {
+      "name": "ValidatedPayload",
+      "discriminator": [
+        129,
+        8,
+        149,
+        193,
+        22,
+        240,
+        127,
+        36
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AccountRoleGranted",
+      "discriminator": [
+        156,
+        201,
+        253,
+        16,
+        204,
+        194,
+        211,
+        121
+      ]
+    },
+    {
+      "name": "AccountRolesRevoked",
+      "discriminator": [
+        193,
+        45,
+        230,
+        213,
+        88,
+        196,
+        24,
+        174
+      ]
+    },
+    {
+      "name": "ConfigUpdated",
+      "discriminator": [
+        40,
+        241,
+        230,
+        122,
+        11,
+        19,
+        198,
+        194
+      ]
+    },
+    {
+      "name": "InboundMessagePathStatusChanged",
+      "discriminator": [
+        63,
+        7,
+        150,
+        75,
+        197,
+        37,
+        39,
+        168
+      ]
+    },
+    {
+      "name": "MessageDelivered",
+      "discriminator": [
+        206,
+        54,
+        202,
+        10,
+        22,
+        64,
+        153,
+        18
+      ]
+    },
+    {
+      "name": "MessageHandled",
+      "discriminator": [
+        241,
+        188,
+        96,
+        32,
+        20,
+        92,
+        213,
+        251
+      ]
+    },
+    {
+      "name": "MessageSent",
+      "discriminator": [
+        116,
+        70,
+        224,
+        76,
+        128,
+        28,
+        110,
+        55
+      ]
+    },
+    {
+      "name": "OutboundMessagePathStatusChanged",
+      "discriminator": [
+        106,
+        217,
+        122,
+        13,
+        125,
+        45,
+        243,
+        216
+      ]
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "discriminator": [
+        181,
+        32,
+        40,
+        60,
+        60,
+        64,
+        235,
+        29
+      ]
+    },
+    {
+      "name": "OwnershipTransferred",
+      "discriminator": [
+        172,
+        61,
+        205,
+        183,
+        250,
+        50,
+        38,
+        98
+      ]
+    },
+    {
+      "name": "PauserAdded",
+      "discriminator": [
+        231,
+        206,
+        109,
+        54,
+        239,
+        205,
+        234,
+        248
+      ]
+    },
+    {
+      "name": "PauserRemoved",
+      "discriminator": [
+        224,
+        157,
+        132,
+        185,
+        123,
+        96,
+        72,
+        220
+      ]
+    },
+    {
+      "name": "ProgramPaused",
+      "discriminator": [
+        247,
+        9,
+        236,
+        38,
+        105,
+        35,
+        112,
+        115
+      ]
+    },
+    {
+      "name": "SenderConfigSet",
+      "discriminator": [
+        48,
+        41,
+        191,
+        185,
+        220,
+        186,
+        107,
+        160
+      ]
+    },
+    {
+      "name": "SenderConfigUnset",
+      "discriminator": [
+        27,
+        176,
+        73,
+        192,
+        0,
+        73,
+        206,
+        177
+      ]
+    },
+    {
+      "name": "TreasuryChanged",
+      "discriminator": [
+        252,
+        2,
+        55,
+        56,
+        106,
+        205,
+        227,
+        47
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized function call"
+    },
+    {
+      "code": 6001,
+      "name": "AccountRoleAlreadyGranted",
+      "msg": "Account role already granted"
+    },
+    {
+      "code": 6002,
+      "name": "Paused",
+      "msg": "Program is paused"
+    },
+    {
+      "code": 6003,
+      "name": "NotPaused",
+      "msg": "Program is not paused"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidPayloadLength",
+      "msg": "Invalid payload size"
+    },
+    {
+      "code": 6005,
+      "name": "PayloadTooLarge",
+      "msg": "Payload too large"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidPayloadSelector",
+      "msg": "Invalid payload selector"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidMessagePath",
+      "msg": "Invalid message path"
+    },
+    {
+      "code": 6008,
+      "name": "PayloadNotFound",
+      "msg": "Payload not found"
+    },
+    {
+      "code": 6009,
+      "name": "PayloadAlreadyHandled",
+      "msg": "Payload already handled"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidPayloadState",
+      "msg": "Invalid payload state"
+    },
+    {
+      "code": 6011,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds for fee"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidFeeConfiguration",
+      "msg": "Invalid fee configuration"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidAdmin",
+      "msg": "Invalid admin"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidPauser",
+      "msg": "Invalid pauser"
+    },
+    {
+      "code": 6015,
+      "name": "PauserAlreadyExists",
+      "msg": "Pauser already exists"
+    },
+    {
+      "code": 6016,
+      "name": "PauserNotFound",
+      "msg": "Pauser not found"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidNonce",
+      "msg": "Invalid nonce"
+    },
+    {
+      "code": 6018,
+      "name": "BufferIOError",
+      "msg": "Buffer IO error"
+    },
+    {
+      "code": 6019,
+      "name": "TreasuryMismatch",
+      "msg": "treasury mismatch"
+    },
+    {
+      "code": 6020,
+      "name": "PublicSendWithFeeDisabled",
+      "msg": "public send with fee disabled"
+    },
+    {
+      "code": 6021,
+      "name": "InvalidDestinationCaller",
+      "msg": "Invalid destination caller"
+    }
+  ],
+  "types": [
+    {
+      "name": "AccountRole",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pauser"
+          },
+          {
+            "name": "None"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountRoleGranted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "pubkey"
+          },
+          {
+            "name": "account_role",
+            "type": {
+              "defined": {
+                "name": "AccountRole"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountRoles",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "roles",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "AccountRole"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountRolesRevoked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "consortium",
+            "type": "pubkey"
+          },
+          {
+            "name": "global_nonce",
+            "type": "u64"
+          },
+          {
+            "name": "default_max_payload_size",
+            "type": "u32"
+          },
+          {
+            "name": "fee_per_byte",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "default_max_payload_size",
+            "type": "u32"
+          },
+          {
+            "name": "fee_per_byte",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InboundMessagePath",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "source_mailbox_address",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "source_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "InboundMessagePathStatusChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "source_mailbox_address",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "source_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "enabled",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageDelivered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "source_mailbox_address",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "source_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageHandled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageSent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "raw_payload",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageState",
+      "docs": [
+        "The state of a payload including a GMP message"
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Unknown"
+          },
+          {
+            "name": "Delivered"
+          },
+          {
+            "name": "Handled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "message_path_identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "sender",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "destination_caller",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
+          },
+          {
+            "name": "body",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageV1Info",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "MessageState"
+              }
+            }
+          },
+          {
+            "name": "message",
+            "type": {
+              "defined": {
+                "name": "MessageV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OutboundMessage",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "defined": {
+              "name": "MessageV1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OutboundMessagePath",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "destination_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OutboundMessagePathStatusChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "destination_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "enabled",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferred",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PauserAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PauserRemoved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProgramPaused",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "paused",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SendResult",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SenderConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "max_payload_size",
+            "type": "u32"
+          },
+          {
+            "name": "fee_disabled",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SenderConfigSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "max_payload_size",
+            "type": "u32"
+          },
+          {
+            "name": "fee_disabled",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SenderConfigUnset",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender_program",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SessionPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payload",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TreasuryChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "old_treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_treasury",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValidatedPayload",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    }
+  ]
+}
