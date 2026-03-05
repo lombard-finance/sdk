@@ -10,6 +10,9 @@ export { Env } from '@lombard.finance/sdk-common';
 // SDK Version (injected at build time)
 export { SDK_NAME, SDK_RUNTIME, SDK_VERSION } from './version';
 
+// Common constants
+export { MIN_REDEEM_AMOUNT_BTC, MIN_STAKE_AMOUNT_BTC } from './common/constants';
+
 // Logging utilities
 export {
 type ConsoleLoggerOptions,   createConsoleLogger,
@@ -120,6 +123,7 @@ export {
   getAssetChainsForEnvs,
   getChainMetadata,
   getChainName,
+  getExplorerTxUrl,
   isAssetDeployed,
   isAssetId,
   isChain,

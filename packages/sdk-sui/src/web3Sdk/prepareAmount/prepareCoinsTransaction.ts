@@ -4,10 +4,8 @@ import { Transaction } from '@mysten/sui/transactions';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
-import {
-  ERROR_COIN_METADATA_NOT_FUND,
-  ERROR_NOT_ENOUGH_BALANCE,
-} from '../../const';
+import { LBTC_DECIMALS } from '../../const';
+import { ERROR_NOT_ENOUGH_BALANCE } from '../../const';
 import { getAllCoinsOfType } from '../getAllCoinsOfType';
 
 interface IUnstakeLBTCParams {
@@ -32,13 +30,12 @@ export async function prepareCoinsTransaction({
       coinType,
     });
 
-    if (!coinMetadata) {
-      throw ERROR_COIN_METADATA_NOT_FUND;
-    }
+    // Fallback to LBTC decimals when CoinMetadata is not published (e.g. testnet)
+    const decimals = coinMetadata?.decimals ?? LBTC_DECIMALS;
 
     const unstakeAmount = BigInt(
       amount
-        .multipliedBy(new BigNumber(10).pow(coinMetadata.decimals))
+        .multipliedBy(new BigNumber(10).pow(decimals))
         .toString(10),
     );
 

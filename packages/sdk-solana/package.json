@@ -1,6 +1,7 @@
 {
   "name": "@lombard.finance/sdk-solana",
-  "version": "1.1.0",
+  "version": "1.1.1",
+  "description": "Solana integration for the Lombard SDK - stake BTC and manage LBTC on Solana",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -13,7 +14,8 @@
   "types": "./src/index.ts",
   "files": [
     "dist",
-    "src"
+    "src",
+    "LICENSE"
   ],
   "engines": {
     "node": ">= 22.14.0"
@@ -32,6 +34,26 @@
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "test:turbo": "cd ../.. && turbo run test --filter=@lombard.finance/sdk-solana"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lombard-finance/sdk.git",
+    "directory": "packages/sdk-solana"
+  },
+  "homepage": "https://docs.lombard.finance",
+  "bugs": {
+    "url": "https://github.com/lombard-finance/sdk/issues"
+  },
+  "keywords": [
+    "lombard",
+    "sdk",
+    "solana",
+    "bitcoin",
+    "lbtc",
+    "staking"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "peerDependencies": {
     "axios": "^1",

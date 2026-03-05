@@ -34,6 +34,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: License policy check
+        run: yarn licenses:check
+
       - name: Lint
         run: yarn lint
 
@@ -41,4 +44,4 @@ jobs:
         run: yarn build
 
       - name: Test
-        run: yarn test
+        run: yarn test:required

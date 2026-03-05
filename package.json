@@ -4,14 +4,19 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
+    "test:required": "yarn workspace @lombard.finance/sdk test:unit && yarn workspace @lombard.finance/sdk test:integration:mocked && yarn workspace @lombard.finance/sdk-react test && yarn workspace @lombard.finance/sdk-devtools test && yarn workspace @lombard.finance/sdk-solana test && yarn workspace @lombard.finance/example-evm test && yarn workspace @lombard.finance/example-solana test && yarn workspace @lombard.finance/example-starknet test && yarn workspace @lombard.finance/example-sui test",
+    "test:online": "ENABLE_ONLINE_INTEGRATION=true yarn workspace @lombard.finance/sdk test:integration:online",
+    "test:e2e:local": "echo 'No local e2e workspace configured yet (planned: apps/e2e)'",
     "test:unit": "turbo run test:unit",
     "test:integration": "turbo run test:integration",
     "lint": "turbo run lint",
+    "licenses:check": "node scripts/check-licenses.mjs",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\""
   },

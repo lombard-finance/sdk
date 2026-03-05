@@ -1,0 +1,45 @@
+# Lombard SDK - EVM Example
+
+Example app demonstrating BTC staking, unstaking, and stake-and-deploy flows on EVM chains using the [Lombard SDK](https://docs.lombard.finance).
+
+## Prerequisites
+
+- Node.js >= 22.14.0
+- Yarn 4
+- A browser wallet (MetaMask, Rabby, etc.)
+
+## Setup
+
+```bash
+# From the repository root
+yarn install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your settings:
+#   VITE_ENV=testnet        # or "prod" / "stage"
+#   VITE_PARTNER_ID=your-partner-id
+
+# Start the dev server
+yarn workspace @lombard.finance/example-evm dev
+```
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `dev` | Start Vite dev server |
+| `build` | Type-check and build for production |
+| `preview` | Preview the production build |
+| `test` | Run tests |
+
+## What's demonstrated
+
+- **Simple BTC Staking** - Generate a deposit address, send BTC, receive LBTC
+- **Stake and Deploy** - Stake BTC and deploy LBTC into a DeFi vault in one flow
+- **EVM Unstaking** - Burn LBTC to receive BTC or BTC.b
+- **Wallet connection** - EVM wallet integration with wagmi
+
+## License
+
+MIT

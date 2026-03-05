@@ -3,7 +3,7 @@ import { SuiClient } from '@mysten/sui/client';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
-import { ERROR_COIN_METADATA_NOT_FUND } from '../../const';
+import { LBTC_DECIMALS } from '../../const';
 
 interface IGetBalanceParams {
   walletAccount: WalletAccount;
@@ -30,12 +30,11 @@ export async function getBalance({
     coinType,
   });
 
-  if (!coinMetadata) {
-    throw ERROR_COIN_METADATA_NOT_FUND;
-  }
+  // Fallback to LBTC decimals when CoinMetadata is not published (e.g. testnet)
+  const decimals = coinMetadata?.decimals ?? LBTC_DECIMALS;
 
   const total = new BigNumber(coinBalance.totalBalance).div(
-    new BigNumber(10).pow(coinMetadata.decimals),
+    new BigNumber(10).pow(decimals),
   );
 
   return { total };
