@@ -59,7 +59,6 @@ export async function claimToken(
     debug = false,
   } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
-  debugger;
   try {
     if (!provider.publicKey) {
       throw new Error('Wallet not found');
@@ -159,16 +158,26 @@ export async function claimToken(
       return ALREADY_MINTED_TX_HASH;
     }
 
-    // ── Determine consortium session status ──
+    // ── Determine consortium status ──
+    const validatedPayloadAccount =
+      await connection.getAccountInfo(validatedPayloadPDA);
     const sessionAccount = await connection.getAccountInfo(sessionPDA);
 
     debugLog('Session PDA:', sessionPDA.toBase58(), 'exists:', !!sessionAccount);
-    debugLog('ValidatedPayload PDA:', validatedPayloadPDA.toBase58());
+    debugLog(
+      'ValidatedPayload PDA:',
+      validatedPayloadPDA.toBase58(),
+      'exists:',
+      !!validatedPayloadAccount,
+    );
 
-    // ── Step 1: create_session ──
-    if (!sessionAccount) {
+    if (validatedPayloadAccount) {
+      debugLog('ValidatedPayload exists — skipping all consortium steps');
+    } else {
+      // ── Step 1: create_session ──
+      if (!sessionAccount) {
         debugLog('Step 1: create_session...');
-        const createSessionBuilder = consortiumProgram.methods
+        const createSessionTx = await consortiumProgram.methods
           .createSession(payloadHashArray)
           .accounts({
             payer: provider.publicKey,
@@ -177,24 +186,8 @@ export async function claimToken(
             session: sessionPDA,
             validatedPayload: validatedPayloadPDA,
             systemProgram: SystemProgram.programId,
-          });
-
-        const resolvedKeys = await createSessionBuilder.pubkeys();
-        debugLog(
-          'Resolved accounts for create_session:',
-          JSON.stringify(
-            Object.fromEntries(
-              Object.entries(resolvedKeys).map(([k, v]) => [
-                k,
-                v instanceof PublicKey ? v.toBase58() : v,
-              ]),
-            ),
-            null,
-            2,
-          ),
-        );
-
-        const createSessionTx = await createSessionBuilder.transaction();
+          })
+          .transaction();
 
         await sendAndConfirmTransaction({
           instruction: createSessionTx,
@@ -208,58 +201,77 @@ export async function claimToken(
         debugLog('Session already exists, skipping create_session');
       }
 
-    // ── Step 2: post_session_signatures ──
-    debugLog('Step 2: post_session_signatures...');
-    const { signatures: parsedSigs, indices } =
-      parseSignaturesFromProof(proofSignature);
+      // ── Step 2: post_session_signatures ──
+      // Read session account to check if signatures already posted
+      const freshSession =
+        sessionAccount ?? (await connection.getAccountInfo(sessionPDA));
+      // Session layout: discriminator(8) + epoch(8) + signed:Vec<bool>(4+N) + weight(8)
+      // Read weight from the end of the account (last 8 bytes before any padding)
+      let sessionSigned = false;
+      if (freshSession && freshSession.data.length >= 8 + 8 + 4 + 8) {
+        const vecLen = freshSession.data.readUInt32LE(8 + 8);
+        const weightOffset = 8 + 8 + 4 + vecLen;
+        if (freshSession.data.length >= weightOffset + 8) {
+          sessionSigned = freshSession.data.readBigUInt64LE(weightOffset) > 0n;
+        }
+      }
 
-    if (parsedSigs.length === 0 || indices.length === 0) {
-      throw new Error('No valid signatures found in the proof');
+      if (!sessionSigned) {
+        debugLog('Step 2: post_session_signatures...');
+        const { signatures: parsedSigs, indices } =
+          parseSignaturesFromProof(proofSignature);
+
+        if (parsedSigs.length === 0 || indices.length === 0) {
+          throw new Error('No valid signatures found in the proof');
+        }
+
+        const signatures = parsedSigs.map(sig => Array.from(sig));
+
+        const postSigsTx = await consortiumProgram.methods
+          .postSessionSignatures(payloadHashArray, signatures, indices)
+          .accounts({
+            payer: provider.publicKey,
+            config: consortiumConfigPDA,
+            // @ts-ignore
+            session: sessionPDA,
+          })
+          .transaction();
+
+        await sendAndConfirmTransaction({
+          instruction: postSigsTx,
+          connection,
+          provider,
+          debugLabel: 'Consortium post_session_signatures',
+          skipPreflight: true,
+        });
+        debugLog('post_session_signatures completed');
+      } else {
+        debugLog('Signatures already posted (weight > 0), skipping step 2');
+      }
+
+      // ── Step 3: finalize_session ──
+      debugLog('Step 3: finalize_session...');
+      const finalizeSessionTx = await consortiumProgram.methods
+        .finalizeSession(payloadHashArray)
+        .accounts({
+          payer: provider.publicKey,
+          config: consortiumConfigPDA,
+          // @ts-ignore
+          session: sessionPDA,
+          validatedPayload: validatedPayloadPDA,
+          systemProgram: SystemProgram.programId,
+        })
+        .transaction();
+
+      await sendAndConfirmTransaction({
+        instruction: finalizeSessionTx,
+        connection,
+        provider,
+        debugLabel: 'Consortium finalize_session',
+        skipPreflight: true,
+      });
+      debugLog('finalize_session completed — ValidatedPayload created');
     }
-
-    const signatures = parsedSigs.map(sig => Array.from(sig));
-
-    const postSigsTx = await consortiumProgram.methods
-      .postSessionSignatures(payloadHashArray, signatures, indices)
-      .accounts({
-        payer: provider.publicKey,
-        config: consortiumConfigPDA,
-        // @ts-ignore
-        session: sessionPDA,
-      })
-      .transaction();
-
-    await sendAndConfirmTransaction({
-      instruction: postSigsTx,
-      connection,
-      provider,
-      debugLabel: 'Consortium post_session_signatures',
-      skipPreflight: true,
-    });
-    debugLog('post_session_signatures completed');
-
-    // ── Step 3: finalize_session ──
-    debugLog('Step 3: finalize_session...');
-    const finalizeSessionTx = await consortiumProgram.methods
-      .finalizeSession(payloadHashArray)
-      .accounts({
-        payer: provider.publicKey,
-        config: consortiumConfigPDA,
-        // @ts-ignore
-        session: sessionPDA,
-        validatedPayload: validatedPayloadPDA,
-        systemProgram: SystemProgram.programId,
-      })
-      .transaction();
-
-    await sendAndConfirmTransaction({
-      instruction: finalizeSessionTx,
-      connection,
-      provider,
-      debugLabel: 'Consortium finalize_session',
-      skipPreflight: true,
-    });
-    debugLog('finalize_session completed — ValidatedPayload created');
 
     // ── Step 4: mint_from_payload on Asset Router ──
 
