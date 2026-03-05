@@ -1,5 +1,5 @@
 import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
-import { getAssociatedTokenAddress } from '@solana/spl-token';
+
 import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { sha256 } from 'js-sha256';
 
@@ -278,6 +278,7 @@ export async function claimToken(
     const tokenProgramId = await getTokenProgramForMint(connection, mint);
     debugLog('Token program:', tokenProgramId.toBase58());
 
+    // Ensure the recipient's ATA exists
     await createOrGetAssociatedTokenAccount({
       provider,
       connection,
@@ -285,13 +286,10 @@ export async function claimToken(
       mintAddress: tokenMint,
     });
 
-    const recipientATA = await getAssociatedTokenAddress(
-      mint,
-      recipient,
-      false,
-      tokenProgramId,
-    );
-    debugLog('Recipient ATA:', recipientATA.toBase58());
+    // The v2 payload contains the recipient token account address at bytes 36-68.
+    // This is the address the program validates against — pass it directly.
+    const payloadRecipient = new PublicKey(payloadBytes.slice(36, 68));
+    debugLog('Recipient from payload:', payloadRecipient.toBase58());
 
     debugLog('Step 4: mint_from_payload...');
     const mintTx = await assetRouterProgram.methods
@@ -300,7 +298,7 @@ export async function claimToken(
         payer: provider.publicKey,
         config: assetRouterConfigPDA,
         tokenProgram: tokenProgramId,
-        recipient: recipientATA,
+        recipient: payloadRecipient,
         mint,
         mintAuthority: tokenAuthorityPDA,
         tokenAuthority: tokenAuthorityPDA,
