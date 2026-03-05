@@ -1,4 +1,4 @@
-import { Chain, DeployProtocol, Env, MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
+import { Chain, DeployProtocol, MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
 import { useCallback, useState } from 'react';
 
 function WalletIcon() {
@@ -10,7 +10,6 @@ function WalletIcon() {
 }
 
 interface StakeAndDeployFormProps {
-  env: Env;
   onSubmit: (data: {
     amount: string;
     recipient: string;
@@ -21,27 +20,22 @@ interface StakeAndDeployFormProps {
   isLoading: boolean;
   disabled?: boolean;
   isWalletConnected?: boolean;
-  onReset?: () => void;
 }
 
 /**
  * Form for configuring Stake-and-Deploy parameters
  */
 export function StakeAndDeployForm({
-  env,
   onSubmit,
   isLoading,
   disabled = false,
   isWalletConnected = true,
-  onReset,
 }: StakeAndDeployFormProps) {
   const [amount, setAmount] = useState(String(MIN_STAKE_AMOUNT_BTC));
   const [destAddress, setDestAddress] = useState('');
   const [protocol, setProtocol] = useState<DeployProtocol>(DeployProtocol.Veda);
   // Stake-and-Deploy only supports Ethereum mainnet
-  const [destChain, setDestChain] = useState<Chain>(
-    env === Env.prod ? Chain.ETHEREUM : Chain.HOLESKY,
-  );
+  const [destChain, setDestChain] = useState<Chain>(Chain.ETHEREUM);
   const [referralCode, setReferralCode] = useState('');
 
   const hasEthereum =
@@ -74,174 +68,146 @@ export function StakeAndDeployForm({
   };
 
   // Stake-and-Deploy only supports Ethereum mainnet
-  const getAvailableChains = () => {
-    return [{ value: Chain.ETHEREUM, label: 'Ethereum' }];
-  };
-
-  const availableChains = getAvailableChains();
+  const availableChains = [{ value: Chain.ETHEREUM, label: 'Ethereum' }];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="rounded-md border border-gray-300 bg-gray-50 p-4">
-        <div className="mb-3 text-sm font-medium text-gray-700">
-          What is Stake-and-Deploy?
+    <form onSubmit={handleSubmit} className="card">
+      <h2 className="text-2xl font-semibold mb-6">Stake and Deploy</h2>
+
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="protocol" className="block text-sm font-medium mb-2">
+            Protocol
+          </label>
+          <select
+            id="protocol"
+            value={protocol}
+            onChange={e => {
+              const newProtocol = e.target.value as DeployProtocol;
+              setProtocol(newProtocol);
+              if (availableChains.length > 0) {
+                setDestChain(availableChains[0].value);
+              }
+            }}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
+            disabled={isLoading || disabled}
+          >
+            <option value={DeployProtocol.Veda}>Lombard DeFi Vault (Veda)</option>
+          </select>
+          <p className="text-xs text-secondary mt-1">
+            Lombard&apos;s native vault with optimized yields
+          </p>
         </div>
-        <p className="text-sm text-gray-600">
-          Stake-and-Deploy automatically stakes your BTC to LBTC and deposits it
-          into a DeFi vault in a single atomic operation. This maximizes your
-          yield by immediately putting your LBTC to work.
-        </p>
-      </div>
 
-      <div>
-        <label
-          htmlFor="protocol"
-          className="mb-1 block text-sm font-medium text-gray-700"
-        >
-          Protocol <span className="text-red-500">*</span>
-        </label>
-        <select
-          id="protocol"
-          value={protocol}
-          onChange={e => {
-            const newProtocol = e.target.value as DeployProtocol;
-            setProtocol(newProtocol);
-            // Reset chain when protocol changes
-            const chains = getAvailableChains();
-            if (chains.length > 0) {
-              setDestChain(chains[0].value);
-            }
-          }}
-          className="w-full rounded-md border border-gray-300 px-3 py-2"
-          disabled={isLoading || disabled}
-        >
-          <option value={DeployProtocol.Veda}>Lombard DeFi Vault (Veda)</option>
-        </select>
-        <p className="mt-1 text-xs text-gray-500">
-          Lombard&apos;s native vault with optimized yields
-        </p>
-      </div>
+        <div>
+          <label htmlFor="destChain" className="block text-sm font-medium mb-2">
+            Destination Chain
+          </label>
+          <select
+            id="destChain"
+            value={destChain}
+            onChange={e => setDestChain(e.target.value as Chain)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
+            disabled={isLoading || disabled}
+          >
+            {availableChains.map(chain => (
+              <option key={chain.value} value={chain.value}>
+                {chain.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-secondary mt-1">
+            Chain where LBTC will be minted and deposited to vault
+          </p>
+        </div>
 
-      <div>
-        <label
-          htmlFor="destChain"
-          className="mb-1 block text-sm font-medium text-gray-700"
-        >
-          Destination Chain <span className="text-red-500">*</span>
-        </label>
-        <select
-          id="destChain"
-          value={destChain}
-          onChange={e => setDestChain(e.target.value as Chain)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2"
-          disabled={isLoading || disabled}
-        >
-          {availableChains.map(chain => (
-            <option key={chain.value} value={chain.value}>
-              {chain.label}
-            </option>
-          ))}
-        </select>
-        <p className="mt-1 text-xs text-gray-500">
-          Chain where LBTC will be minted and deposited to vault
-        </p>
-      </div>
-
-      <div>
-        <label
-          htmlFor="amount"
-          className="mb-1 block text-sm font-medium text-gray-700"
-        >
-          BTC Amount <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          id="amount"
-          value={amount}
-          onChange={e => setAmount(e.target.value)}
-          required
-          className="w-full rounded-md border border-gray-300 px-3 py-2"
-          placeholder="0.001"
-          disabled={isLoading || disabled}
-        />
-        <p className="mt-1 text-xs text-gray-500">Minimum: {MIN_STAKE_AMOUNT_BTC} BTC</p>
-      </div>
-
-      <div>
-        <label
-          htmlFor="destAddress"
-          className="mb-1 block text-sm font-medium text-gray-700"
-        >
-          Recipient Address <span className="text-red-500">*</span>
-        </label>
-        <div className="relative">
+        <div>
+          <label htmlFor="amount" className="block text-sm font-medium mb-2">
+            Amount (BTC)
+          </label>
           <input
-            type="text"
-            id="destAddress"
-            value={destAddress}
-            onChange={e => setDestAddress(e.target.value)}
+            id="amount"
+            type="number"
+            step="0.00000001"
+            min={MIN_STAKE_AMOUNT_BTC}
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
+            placeholder={String(MIN_STAKE_AMOUNT_BTC)}
             required
-            className={`w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm ${hasEthereum ? 'pr-10' : ''}`}
-            placeholder="0x..."
             disabled={isLoading || disabled}
           />
-          {hasEthereum && (
-            <button
-              type="button"
-              onClick={() => { void handleUseWalletAddress(); }}
-              title="Use wallet address"
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <WalletIcon />
-            </button>
-          )}
+          <p className="text-xs text-secondary mt-1">Minimum: {MIN_STAKE_AMOUNT_BTC} BTC</p>
         </div>
-        <p className="mt-1 text-xs text-gray-500">
-          EVM address where vault shares will be minted
-        </p>
+
+        <div>
+          <label htmlFor="destAddress" className="block text-sm font-medium mb-2">
+            Recipient Address
+          </label>
+          <div className="relative">
+            <input
+              id="destAddress"
+              type="text"
+              value={destAddress}
+              onChange={e => setDestAddress(e.target.value)}
+              className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm ${hasEthereum ? 'pr-10' : ''}`}
+              placeholder="0x..."
+              required
+              disabled={isLoading || disabled}
+            />
+            {hasEthereum && (
+              <button
+                type="button"
+                onClick={() => { void handleUseWalletAddress(); }}
+                title="Use wallet address"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <WalletIcon />
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-secondary mt-1">
+            EVM address where vault shares will be minted
+          </p>
+        </div>
+
+        <div>
+          <label htmlFor="referralCode" className="block text-sm font-medium mb-2">
+            Referral Code (Optional)
+          </label>
+          <input
+            id="referralCode"
+            type="text"
+            value={referralCode}
+            onChange={e => setReferralCode(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
+            placeholder="PARTNER123"
+            disabled={isLoading || disabled}
+          />
+          <p className="text-xs text-secondary mt-1">
+            Optional referral code for attribution
+          </p>
+        </div>
       </div>
 
-      <div>
-        <label
-          htmlFor="referralCode"
-          className="mb-1 block text-sm font-medium text-gray-700"
-        >
-          Referral Code <span className="text-gray-400">(Optional)</span>
-        </label>
-        <input
-          type="text"
-          id="referralCode"
-          value={referralCode}
-          onChange={e => setReferralCode(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2"
-          placeholder="PARTNER123"
-          disabled={isLoading || disabled}
-        />
-        <p className="mt-1 text-xs text-gray-500">
-          Optional referral code for attribution
-        </p>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={isLoading || disabled || !isWalletConnected}
-          className="flex-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isLoading ? 'Processing...' : !isWalletConnected ? 'Connect Wallet to Continue' : 'Stake and Deploy'}
-        </button>
-
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            disabled={isLoading}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Reset
-          </button>
+      <button
+        type="submit"
+        disabled={disabled || isLoading || !isWalletConnected}
+        className="btn btn-primary w-full mt-6"
+      >
+        {isLoading ? (
+          <>
+            <span className="spinner" />
+            Processing...
+          </>
+        ) : !isWalletConnected ? (
+          'Connect Wallet to Continue'
+        ) : disabled ? (
+          'Enter Partner ID to Continue'
+        ) : (
+          'Stake and Deploy'
         )}
-      </div>
+      </button>
     </form>
   );
 }

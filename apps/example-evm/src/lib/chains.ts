@@ -53,8 +53,6 @@ export function getBtcbUnstakeChains(env: Env): ChainOption[] {
       { value: Chain.KATANA, label: 'Katana' },
       { value: Chain.MONAD, label: 'Monad' },
       { value: Chain.STABLE, label: 'Stable' },
-      { value: Chain.AVALANCHE, label: 'Avalanche' },
-      { value: Chain.MEGAETH, label: 'Megaeth' },
     ];
   } else if (env === Env.testnet) {
     return [

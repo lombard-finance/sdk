@@ -14,12 +14,17 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
       description: 'Stake BTC to receive LBTC on Solana',
       path: '/staking',
     },
-    {
-      id: 'unstaking',
-      title: 'Unstaking',
-      description: 'Burn LBTC on Solana to receive BTC',
-      path: '/unstaking',
-    },
+    // Unstaking is hidden on staging due to BE issues
+    ...(env !== Env.stage
+      ? [
+          {
+            id: 'unstaking',
+            title: 'Unstaking',
+            description: 'Burn LBTC on Solana to receive BTC',
+            path: '/unstaking',
+          },
+        ]
+      : []),
   ];
 
   return (

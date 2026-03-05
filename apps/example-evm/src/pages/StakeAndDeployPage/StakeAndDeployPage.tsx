@@ -153,7 +153,6 @@ function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
 
           {!isStaking ? (
             <StakeAndDeployForm
-              env={env}
               onSubmit={handleStartStaking}
               isLoading={isInitializing}
               disabled={!partnerId || isInitializing}

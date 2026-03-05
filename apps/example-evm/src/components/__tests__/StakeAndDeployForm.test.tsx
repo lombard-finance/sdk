@@ -3,7 +3,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Env, MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
+import { MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
 
 import { StakeAndDeployForm } from '../StakeAndDeployForm';
 
@@ -41,7 +41,6 @@ describe('StakeAndDeployForm', () => {
     root = createRoot(container);
 
     const defaultProps = {
-      env: Env.prod,
       onSubmit: vi.fn().mockResolvedValue(undefined),
       isLoading: false,
       ...props,
@@ -102,11 +101,11 @@ describe('StakeAndDeployForm', () => {
     expect(destInput.value).toBe('0xabc123');
   });
 
-  it('displays Stake-and-Deploy description text', () => {
+  it('displays Stake and Deploy heading', () => {
     renderForm();
 
-    expect(container.textContent).toContain('Stake-and-Deploy');
-    expect(container.textContent).not.toContain('Stake-and-Bake');
+    const heading = container.querySelector('h2');
+    expect(heading?.textContent).toBe('Stake and Deploy');
   });
 
   it('shows minimum stake amount', () => {
