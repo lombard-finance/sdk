@@ -7,6 +7,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ env, onEnvChange }: SidebarProps) {
+  const isStageEnv = env === Env.stage;
+
   const examples = [
     {
       id: 'staking',
@@ -14,17 +16,15 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
       description: 'Stake BTC to receive LBTC on Solana',
       path: '/staking',
     },
-    // Unstaking is hidden on staging due to BE issues
-    ...(env !== Env.stage
-      ? [
-          {
-            id: 'unstaking',
-            title: 'Unstaking',
-            description: 'Burn LBTC on Solana to receive BTC',
-            path: '/unstaking',
-          },
-        ]
-      : []),
+    {
+      id: 'unstaking',
+      title: 'Unstaking',
+      description: isStageEnv
+        ? 'Available in Production only'
+        : 'Burn LBTC on Solana to receive BTC',
+      path: isStageEnv ? '#' : '/unstaking',
+      disabled: isStageEnv,
+    },
   ];
 
   return (
@@ -56,25 +56,36 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
 
       <nav className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-2">
-          {examples.map(example => (
-            <li key={example.id}>
-              <NavLink
-                to={example.path}
-                className={({ isActive }) =>
-                  `block p-3 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-capital-green/10 text-primary border-l-4 border-capital-green'
-                      : 'text-secondary hover:bg-gray-50 hover:text-primary'
-                  }`
-                }
-              >
-                <div className="font-medium text-sm">{example.title}</div>
-                <div className="text-xs mt-1 opacity-75">
-                  {example.description}
+          {examples.map(example =>
+            example.disabled ? (
+              <li key={example.id}>
+                <div className="block p-3 rounded-lg text-gray-400 cursor-not-allowed">
+                  <div className="font-medium text-sm">{example.title}</div>
+                  <div className="text-xs mt-1 opacity-75">
+                    {example.description}
+                  </div>
                 </div>
-              </NavLink>
-            </li>
-          ))}
+              </li>
+            ) : (
+              <li key={example.id}>
+                <NavLink
+                  to={example.path}
+                  className={({ isActive }) =>
+                    `block p-3 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-capital-green/10 text-primary border-l-4 border-capital-green'
+                        : 'text-secondary hover:bg-gray-50 hover:text-primary'
+                    }`
+                  }
+                >
+                  <div className="font-medium text-sm">{example.title}</div>
+                  <div className="text-xs mt-1 opacity-75">
+                    {example.description}
+                  </div>
+                </NavLink>
+              </li>
+            ),
+          )}
         </ul>
       </nav>
 
