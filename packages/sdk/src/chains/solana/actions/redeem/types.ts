@@ -1,6 +1,8 @@
 /**
  * Solana Redeem Action Types
  *
+ * Redeems BTC.b on Solana → BTC on Bitcoin via Asset Router + GMP.
+ *
  * @module chains/solana/actions/redeem/types
  */
 
@@ -30,7 +32,8 @@ export interface SolanaRedeemProgress
   extends StrategyProgress<NonEvmUnstakeStatus> {
   status: NonEvmUnstakeStatus;
   steps: {
-    redeeming: StepStatus;
+    burning: StepStatus;
+    releasing: StepStatus;
   };
   txHash?: string;
 }
@@ -40,6 +43,8 @@ export interface SolanaRedeemProgress
  */
 export interface SolanaRedeemPrepareParams {
   amount: string;
+  /** Bitcoin address to receive BTC */
+  recipient: string;
 }
 
 /**
@@ -48,6 +53,7 @@ export interface SolanaRedeemPrepareParams {
 export interface ISolanaRedeem extends MonitorableAction {
   readonly status: NonEvmUnstakeStatus;
   readonly amount?: string;
+  readonly recipient?: string;
   readonly txHash?: string;
 
   prepare(params: SolanaRedeemPrepareParams): Promise<void>;
