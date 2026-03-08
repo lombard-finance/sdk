@@ -116,6 +116,12 @@ export interface IConfig {
    * Lombard Token Pool program address
    */
   lombardTokenPool: string | null;
+
+  /**
+   * Ledger chain ID (32 bytes hex) used for mailbox inbound message path derivation.
+   * Matches Go claimer config `sol.ledger-chain-id`.
+   */
+  ledgerChainId: string | null;
 }
 
 /**
@@ -139,6 +145,7 @@ const devnetConfig: IConfig = {
   ratioOracle: 'LomfreVHrrMrSpv54KCJ6AC1eKL8QbL1Ej28S3gwawa',
   bridge: 'Lom9Em2WzV7gvtttdub9LZSR8gLgtbzFDhFm1zMQRp6',
   lombardTokenPool: 'LomdWAg9hHyz3VrvK5wXTap7o348Ku2QJ2j2H8Etj3C',
+  ledgerChainId: '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e',
 };
 
 /**
@@ -162,6 +169,7 @@ const testnetConfig: IConfig = {
   ratioOracle: null,
   bridge: null,
   lombardTokenPool: null,
+  ledgerChainId: null,
 };
 
 /**
@@ -185,6 +193,7 @@ const prodConfig: IConfig = {
   ratioOracle: null,
   bridge: null,
   lombardTokenPool: null,
+  ledgerChainId: null,
 };
 
 /**
