@@ -229,7 +229,7 @@ export async function redeemForBtc(
       }
       const globalNonce = freshMailboxConfig.data.readBigUInt64LE(137);
       const nonceBuf = Buffer.alloc(8);
-      nonceBuf.writeBigUInt64LE(globalNonce);
+      nonceBuf.writeBigUInt64BE(globalNonce);
 
       const [outboundMessagePDA] = PublicKey.findProgramAddressSync(
         [Buffer.from('outbound_message'), nonceBuf],
