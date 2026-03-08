@@ -21,6 +21,7 @@ function createMockSolanaService() {
   return {
     signLbtcDestination: vi.fn().mockResolvedValue({ signature: '0xmock' }),
     unstake: vi.fn().mockResolvedValue({ txHash: 'mock-solana-tx-hash-123' }),
+    redeemForBtc: vi.fn().mockResolvedValue({ txHash: 'mock-redeem-tx-hash' }),
   };
 }
 

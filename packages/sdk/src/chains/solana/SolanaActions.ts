@@ -99,9 +99,9 @@ export class SolanaActions {
   }
 
   /**
-   * Redeem LBTC → BTC.b
+   * Redeem BTC.b → BTC
    *
-   * Converts LBTC to BTC.b via the Asset Router program on Solana.
+   * Burns BTC.b on Solana and releases BTC to a Bitcoin address via GMP.
    *
    * @throws LombardError if solana module is not registered
    * @throws LombardError if route is not supported

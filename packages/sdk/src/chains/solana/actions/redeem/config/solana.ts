@@ -1,7 +1,7 @@
 /**
  * Solana Redeem Configuration
  *
- * Handles redeeming LBTC to receive BTC.b on Solana via Asset Router.
+ * Handles redeeming BTC.b on Solana → BTC on Bitcoin via Asset Router + GMP.
  *
  * @module chains/solana/actions/redeem/config/solana
  */
@@ -9,41 +9,40 @@
 import { Env } from '@lombard.finance/sdk-common';
 
 import { AssetId, Chain } from '../../../../../core';
-import { solanaAddressSchema } from '../../../../../shared/validation';
+import { bitcoinAddressSchema } from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 
 /**
- * LBTC → BTC.b redeem configuration on Solana
+ * BTC.b → BTC redeem configuration on Solana
  *
- * Converts LBTC to BTC.b via the Solana Asset Router program.
+ * Burns BTC.b via the Asset Router program and sends a GMP message
+ * to trigger a BTC payout on the Bitcoin network.
  */
 export const solanaRedeemConfig: ChainConfig = {
   chainType: 'solana',
 
   routes: [
-    // Production: Solana Mainnet
     {
       sourceChains: [Chain.SOLANA_MAINNET],
-      destChain: Chain.SOLANA_MAINNET,
-      assetIn: AssetId.LBTC,
-      assetOut: AssetId.BTCb,
+      destChain: Chain.BITCOIN_MAINNET,
+      assetIn: AssetId.BTCb,
+      assetOut: AssetId.BTC,
       envs: [Env.prod],
     },
-    // Testnet: Solana Devnet
     {
       sourceChains: [Chain.SOLANA_DEVNET],
-      destChain: Chain.SOLANA_DEVNET,
-      assetIn: AssetId.LBTC,
-      assetOut: AssetId.BTCb,
+      destChain: Chain.BITCOIN_SIGNET,
+      assetIn: AssetId.BTCb,
+      assetOut: AssetId.BTC,
       envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
     },
   ],
 
-  recipientSchema: solanaAddressSchema,
+  recipientSchema: bitcoinAddressSchema,
 };
 
 /**
- * Check if LBTC → BTC.b redeem is supported on this Solana chain
+ * Check if BTC.b → BTC redeem is supported on this Solana chain
  */
 export function isRedeemSupported(sourceChain: Chain, env: Env): boolean {
   return solanaRedeemConfig.routes.some(

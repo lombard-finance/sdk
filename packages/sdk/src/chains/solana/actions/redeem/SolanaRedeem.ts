@@ -1,7 +1,7 @@
 /**
  * Solana Redeem Action
  *
- * Redeems LBTC to receive BTC.b via the Solana Asset Router program.
+ * Redeems BTC.b on Solana → BTC on Bitcoin via Asset Router + GMP.
  *
  * **Flow:**
  * IDLE → READY → COMPLETED
@@ -22,7 +22,8 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
-import { isRedeemSupported } from './config';
+import { toSatoshi } from '../../../../utils/satoshi';
+import { isRedeemSupported, solanaRedeemConfig } from './config';
 import type {
   ISolanaRedeem,
   SolanaRedeemParams,
@@ -48,6 +49,7 @@ export class SolanaRedeem
   implements ISolanaRedeem
 {
   private _amount?: string;
+  private _recipient?: string;
   private _txHash?: string;
   private readonly env: Env;
 
@@ -72,6 +74,10 @@ export class SolanaRedeem
     return this._amount;
   }
 
+  get recipient(): string | undefined {
+    return this._recipient;
+  }
+
   get txHash(): string | undefined {
     return this._txHash;
   }
@@ -80,12 +86,15 @@ export class SolanaRedeem
     this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
 
     return this.act(async () => {
-      const validated = validatePrepareParams(this.prepareSchema, params);
+      const validated = validatePrepareParams(this.prepareSchema, params, {
+        destChain: this.params.destChain,
+      });
       this._amount = validated.amount;
+      this._recipient = validated.recipient;
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.READY,
-        steps: { redeeming: StepStatus.PENDING },
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
       });
     }, NonEvmUnstakeStatus.READY);
   }
@@ -95,32 +104,43 @@ export class SolanaRedeem
 
     return this.act(async () => {
       const amount = this._amount;
+      const recipient = this._recipient;
 
-      if (!amount) {
-        throw LombardError.missingParameter('amount');
+      if (!amount || !recipient) {
+        throw LombardError.missingParameter('amount or recipient');
       }
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.READY,
-        steps: { redeeming: StepStatus.PENDING },
+        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
       });
 
-      const _network = envToSolanaNetwork(this.env);
+      const amountInSatoshis = toSatoshi(amount).toString();
+      const network = envToSolanaNetwork(this.env);
 
-      // TODO: Implement LBTC → BTC.b redeem via Asset Router program
-      // Requires IDL for Asset Router (LomVyJDZ91jeVbNnTupJXKJTQFakJVMc87CmwDHYt95)
-      // Expected flow:
-      // 1. Get/create recipient ATA for BTC.b
-      // 2. Call Asset Router's redeem instruction (burn LBTC, mint BTC.b)
-      throw new Error(
-        'SolanaRedeem.execute() not yet implemented — awaiting Asset Router IDL',
-      );
+      const { txHash } = await this.ctx.solana.redeemForBtc({
+        amount: amountInSatoshis,
+        btcAddress: recipient,
+        network,
+      });
+
+      this._txHash = txHash;
+
+      this.emitProgress({
+        status: NonEvmUnstakeStatus.COMPLETED,
+        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
+      });
+
+      this.emitCompleted();
+
+      return { txHash };
     }, NonEvmUnstakeStatus.COMPLETED);
   }
 
   private get prepareSchema() {
     return z.object({
       amount: amountSchema,
+      recipient: solanaRedeemConfig.recipientSchema,
     });
   }
 }
