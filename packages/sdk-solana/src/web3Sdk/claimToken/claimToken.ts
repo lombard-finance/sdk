@@ -1,7 +1,8 @@
 import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
 import { getMint } from '@solana/spl-token';
-import { PublicKey, SystemProgram } from '@solana/web3.js';
+import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { sha256 } from 'js-sha256';
+import { keccak256 } from 'js-sha3';
 
 import { getConfig, networkToEnv } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';
@@ -29,6 +30,11 @@ export interface ClaimTokenParams {
    * Proof signature from the backend (hex-encoded, ABI-packed signatures).
    */
   proofSignature: string;
+  /**
+   * Bascule program address. Required when the Asset Router has bascule enabled.
+   * Falls back to the static config `bascule` field if not provided.
+   */
+  basculeProgram?: string;
   rpcUrl?: string;
   debug?: boolean;
 }
@@ -267,12 +273,38 @@ export async function claimToken(
 
     // ── Step 4: mint_from_payload on Asset Router ──
 
-    // Read mint from Asset Router config (nativeMint)
-    const assetRouterConfig =
-      // @ts-ignore — Anchor generic types don't resolve account namespaces from IDL
-      await assetRouterProgram.account.config.fetch(assetRouterConfigPDA);
-    const mint = assetRouterConfig.nativeMint as PublicKey;
+    // Read raw config account data (like Go's getPausedAndBasculeFromConfig).
+    // The IDL may be outdated and miss bascule_program / bascule_gmp_program fields,
+    // so we parse the raw bytes at known offsets.
+    const configAccountInfo =
+      await connection.getAccountInfo(assetRouterConfigPDA);
+    if (!configAccountInfo) {
+      throw new Error('Asset Router config account not found');
+    }
+    const configData = configAccountInfo.data;
+
+    const { paused, nativeMint, basculeProgramId } =
+      parseAssetRouterConfig(configData);
+
+    if (paused) {
+      throw new Error('Asset Router contract is paused');
+    }
+
+    const mint = nativeMint;
     debugLog('Native mint from config:', mint.toBase58());
+    debugLog(
+      'Bascule program (from on-chain config):',
+      basculeProgramId?.toBase58() ?? 'not set',
+    );
+
+    // Allow explicit override via params
+    const effectiveBasculeProgramId = params.basculeProgram
+      ? new PublicKey(params.basculeProgram)
+      : basculeProgramId;
+
+    if (effectiveBasculeProgramId && !basculeProgramId) {
+      debugLog('Bascule program overridden via params:', effectiveBasculeProgramId.toBase58());
+    }
 
     // Resolve token program from mint account's on-chain owner
     const mintAccountInfo = await connection.getAccountInfo(mint);
@@ -308,7 +340,7 @@ export async function claimToken(
     });
 
     debugLog('Step 4: mint_from_payload...');
-    const mintTx = await assetRouterProgram.methods
+    const mintIx = await assetRouterProgram.methods
       .mintFromPayload(mintPayloadArray, payloadHashArray)
       .accounts({
         payer: provider.publicKey,
@@ -322,10 +354,50 @@ export async function claimToken(
         depositPayloadSpent: depositPayloadSpentPDA,
         systemProgram: SystemProgram.programId,
       })
-      .transaction();
+      .instruction();
+
+    // Append bascule accounts directly to instruction keys (same as Go claimer)
+    if (effectiveBasculeProgramId) {
+      const [basculeValidatorPDA] = PublicKey.findProgramAddressSync(
+        [Buffer.from('bascule_validator')],
+        assetRouterProgramId,
+      );
+
+      const [basculeDataPDA] = PublicKey.findProgramAddressSync(
+        [Buffer.from('bascule')],
+        effectiveBasculeProgramId,
+      );
+
+      const depositId = computeDepositIdFromPayload(payloadBytes);
+      debugLog('Deposit ID:', Buffer.from(depositId).toString('hex'));
+
+      const [basculeDepositPDA] = PublicKey.findProgramAddressSync(
+        [Buffer.from('deposit'), depositId],
+        effectiveBasculeProgramId,
+      );
+
+      debugLog('Bascule validator PDA:', basculeValidatorPDA.toBase58());
+      debugLog('Bascule data PDA:', basculeDataPDA.toBase58());
+      debugLog('Bascule deposit PDA:', basculeDepositPDA.toBase58());
+
+      mintIx.keys.push(
+        { pubkey: basculeValidatorPDA, isSigner: false, isWritable: false },
+        { pubkey: effectiveBasculeProgramId, isSigner: false, isWritable: false },
+        { pubkey: basculeDataPDA, isSigner: false, isWritable: true },
+        { pubkey: basculeDepositPDA, isSigner: false, isWritable: true },
+      );
+    }
+
+    debugLog(
+      'Instruction account count:',
+      mintIx.keys.length,
+      '(10 base + bascule:',
+      mintIx.keys.length - 10,
+      ')',
+    );
 
     const { signature } = await sendAndConfirmTransaction({
-      instruction: mintTx,
+      instruction: mintIx,
       connection,
       provider,
       debugLabel: 'Asset Router mint_from_payload',
@@ -340,4 +412,70 @@ export async function claimToken(
     }
     throw error;
   }
+}
+
+/**
+ * Parse Asset Router config from raw account bytes.
+ * Equivalent to Go's `getPausedAndBasculeFromConfig(data)`.
+ *
+ * On-chain layout (discriminator 8 bytes, then fields):
+ *   admin:              Pubkey  (offset   8, 32 bytes)
+ *   pending_admin:      Pubkey  (offset  40, 32 bytes)
+ *   treasury:           Pubkey  (offset  72, 32 bytes)
+ *   paused:             bool    (offset 104,  1 byte)
+ *   native_mint:        Pubkey  (offset 105, 32 bytes)
+ *   mailbox:            Pubkey  (offset 137, 32 bytes)
+ *   bascule_enabled:    bool    (offset 169,  1 byte)
+ *   bascule_program:    Pubkey  (offset 170, 32 bytes)  ← not in IDL
+ *   bascule_gmp_program:Pubkey  (offset 202, 32 bytes)  ← not in IDL
+ *   ledger_lchain_id:   [u8;32] (offset 234, 32 bytes)
+ *   bitcoin_lchain_id:  [u8;32] (offset 266, 32 bytes)
+ */
+function parseAssetRouterConfig(data: Buffer): {
+  paused: boolean;
+  nativeMint: PublicKey;
+  basculeProgramId: PublicKey | null;
+  basculeGmpProgramId: PublicKey | null;
+} {
+  const ZERO_PUBKEY = new PublicKey(new Uint8Array(32));
+
+  const paused = data[104] !== 0;
+  const nativeMint = new PublicKey(data.subarray(105, 137));
+
+  const basculeProgramKey = new PublicKey(data.subarray(170, 202));
+  const basculeProgramId = basculeProgramKey.equals(ZERO_PUBKEY)
+    ? null
+    : basculeProgramKey;
+
+  const basculeGmpProgramKey = new PublicKey(data.subarray(202, 234));
+  const basculeGmpProgramId = basculeGmpProgramKey.equals(ZERO_PUBKEY)
+    ? null
+    : basculeGmpProgramKey;
+
+  return { paused, nativeMint, basculeProgramId, basculeGmpProgramId };
+}
+
+/**
+ * Compute bascule deposit ID from raw 196-byte BTC.B payload.
+ *
+ * Layout matches the on-chain derivation:
+ *   keccak256( [0u8;32] || "\x03SOL" || recipient(32) || amount(8) || txid(32) || vout(4) )
+ *
+ * Payload offsets: recipient 36-68, amount 68-76, txid 76-108, vout 108-112.
+ */
+function computeDepositIdFromPayload(payloadBytes: Buffer): Uint8Array {
+  const prefix = Buffer.alloc(32, 0);
+  const chainId = Buffer.from([0x03, 0x53, 0x4f, 0x4c]);
+
+  const dataToHash = Buffer.concat([
+    prefix,
+    chainId,
+    payloadBytes.subarray(36, 68),
+    payloadBytes.subarray(68, 76),
+    payloadBytes.subarray(76, 108),
+    payloadBytes.subarray(108, 112),
+  ]);
+
+  const hash = keccak256(new Uint8Array(dataToHash));
+  return new Uint8Array(Buffer.from(hash, 'hex'));
 }
