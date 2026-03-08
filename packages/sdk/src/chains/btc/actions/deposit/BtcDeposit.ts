@@ -2,7 +2,7 @@
  * BTC Deposit Action
  *
  * Handles BTC deposit operations for custody without staking.
- * Currently supports EVM destination chains.
+ * Supports EVM and Solana destination chains.
  *
  * Fee authorization is ONLY required for Ethereum mainnet.
  * Other chains use address confirmation signing.
@@ -12,9 +12,15 @@
 
 import type { z } from 'zod';
 
-import type { ChainId } from '../../../../common/chains';
-import { isValidChain } from '../../../../common/chains';
-import { parseChainIdentifier, StepStatus } from '../../../../core';
+import type {
+  ChainId,
+  SolanaChain,
+} from '../../../../common/chains';
+import {
+  getChainType,
+  parseChainIdentifier,
+  StepStatus,
+} from '../../../../core';
 import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 import type { DepositEventMap } from '../../../../shared/events';
@@ -27,8 +33,9 @@ import {
   type StepDefinition,
 } from '../shared';
 import {
-  depositConfig,
+  type DepositChainConfig,
   type DepositFeeAuthConfig,
+  getDepositChainConfig,
   isAssetOutSupported,
   isDestChainSupported,
   isRouteAvailable,
@@ -43,6 +50,8 @@ import {
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
 // ═══════════════════════════════════════════════════════════════════════════
+
+type AnyChainId = ChainId | SolanaChain;
 
 interface AuthorizationState {
   signature?: string;
@@ -78,7 +87,8 @@ export class BtcDeposit
   extends BaseBtcAction<DepositEventMap, BtcActionStatus, BtcDepositParams>
   implements IBtcDeposit
 {
-  private readonly chainId: ChainId;
+  private readonly config: DepositChainConfig;
+  private readonly chainId: AnyChainId;
   private readonly authState: AuthorizationState = { authorized: false };
 
   /** Fee auth config - null if not required for this destination */
@@ -87,8 +97,17 @@ export class BtcDeposit
   constructor(ctx: BtcCoreContext, params: BtcDepositParams) {
     super(ctx, params, BtcActionStatus.IDLE);
 
-    // Validate assetOut - BTC Deposit should only produce BTC.b
-    if (!isAssetOutSupported(params.assetOut)) {
+    const chainType = getChainType(params.destChain);
+    const config = getDepositChainConfig(chainType);
+
+    if (!config) {
+      throw new LombardError(
+        ValidationErrorCode.INVALID_CHAIN,
+        `Unsupported destination chain type: ${chainType} (${params.destChain})`,
+      );
+    }
+
+    if (!isAssetOutSupported(config, params.assetOut)) {
       throw new LombardError(
         ValidationErrorCode.INVALID_ASSET,
         `Asset ${params.assetOut} is not supported for BTC deposits. ` +
@@ -96,15 +115,14 @@ export class BtcDeposit
       );
     }
 
-    if (!isDestChainSupported(params.destChain)) {
+    if (!isDestChainSupported(config, params.destChain)) {
       throw new LombardError(
         ValidationErrorCode.INVALID_CHAIN,
-        `Destination chain ${params.destChain} is not supported for BTC deposits. ` +
-          `BTC.b is currently available on Avalanche and Katana.`,
+        `Destination chain ${params.destChain} is not supported for ${chainType} BTC deposits`,
       );
     }
 
-    if (!isRouteAvailable(params.sourceChain, ctx.env)) {
+    if (!isRouteAvailable(config, params.sourceChain, ctx.env)) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
@@ -113,15 +131,8 @@ export class BtcDeposit
       });
     }
 
-    const parsed = parseChainIdentifier(params.destChain);
-    if (typeof parsed !== 'number' || !isValidChain(parsed)) {
-      throw new LombardError(
-        ValidationErrorCode.INVALID_CHAIN,
-        `Unsupported EVM chain: ${params.destChain}`,
-      );
-    }
-
-    this.chainId = parsed as ChainId;
+    this.config = config;
+    this.chainId = parseChainIdentifier(params.destChain) as AnyChainId;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -129,7 +140,7 @@ export class BtcDeposit
   // ─────────────────────────────────────────────────────────────────────────
 
   protected getAddressSchema(): z.ZodType<string> {
-    return depositConfig.addressSchema;
+    return this.config.addressSchema;
   }
 
   protected getStatusConfig(): StatusConfig<BtcActionStatus> {
@@ -152,7 +163,7 @@ export class BtcDeposit
     return this.authState.authorized;
   }
 
-  protected getChainId(): ChainId {
+  protected getChainId(): AnyChainId {
     return this.chainId;
   }
 
@@ -187,7 +198,7 @@ export class BtcDeposit
   async generateDepositAddress(captchaToken?: string): Promise<string> {
     // If signature isn't available locally, sign the destination address as fallback
     if (!this.authState.signature) {
-      const result = await depositConfig.signDestination(
+      const result = await this.config.signDestination(
         this.ctx,
         this.ensureRecipient(),
         this.chainId,
@@ -227,7 +238,7 @@ export class BtcDeposit
       this._referralCode = validated.referralCode;
 
       // Get fee auth config for this destination chain (needed for both resume and new flow)
-      this.feeAuthConfig = depositConfig.getFeeAuthConfig(
+      this.feeAuthConfig = this.config.getFeeAuthConfig(
         this.params.destChain,
       );
 
@@ -367,7 +378,7 @@ export class BtcDeposit
     const recipient = this.ensureRecipient();
 
     return this.act(async () => {
-      const result = await depositConfig.signDestination(
+      const result = await this.config.signDestination(
         this.ctx,
         recipient,
         this.chainId,
