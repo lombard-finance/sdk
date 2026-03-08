@@ -336,7 +336,7 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
   },
   [Token.BTCb]: {
     [Env.dev]: {
-      [SOLANA_DEVNET_CHAIN]: 'BTCB1BeSVzjtde2pqpNFCPbwQXpZd1ERwtToDreTdqr1',
+      [SOLANA_DEVNET_CHAIN]: 'BTCB3ripBAut19jM8kDPVbJHb2ZdR2GcZvGZkCmFPtV8',
     },
   },
 };

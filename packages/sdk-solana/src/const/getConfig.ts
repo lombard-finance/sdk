@@ -122,6 +122,18 @@ export interface IConfig {
    * Matches Go claimer config `sol.ledger-chain-id`.
    */
   ledgerChainId: string | null;
+
+  /**
+   * Solana routing chain ID (32 bytes hex) — `from_chain_id` for token_route PDA derivation.
+   * This identifies Solana in the Lombard cross-chain routing protocol.
+   */
+  solanaRoutingChainId: string | null;
+
+  /**
+   * Bitcoin routing chain ID (32 bytes hex) — `to_chain_id` for token_route PDA derivation.
+   * This identifies Bitcoin in the Lombard cross-chain routing protocol.
+   */
+  bitcoinRoutingChainId: string | null;
 }
 
 /**
@@ -138,7 +150,7 @@ const devnetConfig: IConfig = {
   lzOftStore: '3SG3oyrG3KSvJ9bbxPDu7ZXEe5o1TW1QkgudkKvK6FK4',
   lzMultisig: 'GfYV1f1bR9vy41mSyQ8quxYbds121kijSBj5A3nG8oDQ',
   lzEscrow: 'GRq2yasTvWWPPqSwxCZvqfCTfDhP3MswDH4nW2v6F5To',
-  btcbTokenMint: 'BTCB1BeSVzjtde2pqpNFCPbwQXpZd1ERwtToDreTdqr1',
+  btcbTokenMint: 'BTCB3ripBAut19jM8kDPVbJHb2ZdR2GcZvGZkCmFPtV8',
   consortium: 'LomCbo8K5ar4kVpqoGGktE8WemHfGz84V8aH8Y1iGxd',
   mailbox: 'LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9',
   assetRouter: 'LomVyJDZ91jeVbNnTupJXKJTQFakJVMc87CmwDHYt95',
@@ -146,6 +158,8 @@ const devnetConfig: IConfig = {
   bridge: 'Lom9Em2WzV7gvtttdub9LZSR8gLgtbzFDhFm1zMQRp6',
   lombardTokenPool: 'LomdWAg9hHyz3VrvK5wXTap7o348Ku2QJ2j2H8Etj3C',
   ledgerChainId: '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e',
+  solanaRoutingChainId: '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
+  bitcoinRoutingChainId: 'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
 };
 
 /**
@@ -170,6 +184,8 @@ const testnetConfig: IConfig = {
   bridge: null,
   lombardTokenPool: null,
   ledgerChainId: null,
+  solanaRoutingChainId: null,
+  bitcoinRoutingChainId: null,
 };
 
 /**
@@ -194,6 +210,8 @@ const prodConfig: IConfig = {
   bridge: null,
   lombardTokenPool: null,
   ledgerChainId: null,
+  solanaRoutingChainId: null,
+  bitcoinRoutingChainId: null,
 };
 
 /**
