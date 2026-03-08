@@ -4,7 +4,7 @@ import {
   getAssociatedTokenAddress,
   ASSOCIATED_TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
-import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
 
 import { DEFAULT_ENV, getConfig, networkToEnv } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';
