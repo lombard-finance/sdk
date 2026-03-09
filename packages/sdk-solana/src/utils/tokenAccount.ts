@@ -19,10 +19,22 @@ export async function getTokenProgramForMint(
   mintAddress: PublicKey,
 ): Promise<PublicKey> {
   const accountInfo = await connection.getAccountInfo(mintAddress);
-  if (accountInfo && accountInfo.owner.equals(TOKEN_2022_PROGRAM_ID)) {
+
+  if (!accountInfo) {
+    throw new Error(`Mint account not found: ${mintAddress.toBase58()}`);
+  }
+
+  if (accountInfo.owner.equals(TOKEN_2022_PROGRAM_ID)) {
     return TOKEN_2022_PROGRAM_ID;
   }
-  return TOKEN_PROGRAM_ID;
+
+  if (accountInfo.owner.equals(TOKEN_PROGRAM_ID)) {
+    return TOKEN_PROGRAM_ID;
+  }
+
+  throw new Error(
+    `Unsupported mint owner ${accountInfo.owner.toBase58()} for ${mintAddress.toBase58()}`,
+  );
 }
 
 /**
