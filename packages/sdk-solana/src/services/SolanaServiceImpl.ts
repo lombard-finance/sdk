@@ -33,10 +33,10 @@ export class SolanaServiceImpl implements SolanaService {
   async signLbtcDestination(args: {
     network: string;
   }): Promise<{ signature: string }> {
-    const provider = await this.getProvider();
+    const provider = (await this.getProvider()) as ISolanaWalletProvider;
     return signLbtcDestinationAddrSolana({
-      provider: provider as never,
-      network: args.network as never,
+      provider,
+      network: args.network as SolanaNetwork,
     });
   }
 
