@@ -77,6 +77,9 @@ export async function redeemForBtc(
     if (!config.solanaRoutingChainId) {
       throw new Error(`Solana routing chain ID not configured for network: ${network}`);
     }
+    if (!config.bitcoinRoutingChainId) {
+      throw new Error(`Bitcoin routing chain ID not configured for network: ${network}`);
+    }
 
     const mintAddress = params.tokenMint || config.btcbTokenMint;
     if (!mintAddress) {
@@ -89,6 +92,7 @@ export async function redeemForBtc(
     const assetRouterProgramId = new PublicKey(config.assetRouter);
     const mailboxProgramId = new PublicKey(config.mailbox);
     const solanaRoutingChainId = Buffer.from(config.solanaRoutingChainId, 'hex');
+    const bitcoinRoutingChainId = Buffer.from(config.bitcoinRoutingChainId, 'hex');
 
     debugLog('Payer:', payer.toBase58());
     debugLog('Mint:', mint.toBase58());
@@ -111,40 +115,6 @@ export async function redeemForBtc(
       [Buffer.from('asset_router_config')],
       assetRouterProgramId,
     );
-
-    debugLog('Asset Router config PDA:', assetRouterConfigPDA.toBase58());
-
-    const [mailboxConfigPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('mailbox_config')],
-      mailboxProgramId,
-    );
-
-    // ── Read on-chain state ──
-    const [arConfigInfo, mailboxConfigInfo] = await Promise.all([
-      connection.getAccountInfo(assetRouterConfigPDA),
-      connection.getAccountInfo(mailboxConfigPDA),
-    ]);
-
-    if (!arConfigInfo) {
-      throw new Error('Asset Router config account not found');
-    }
-    if (!mailboxConfigInfo) {
-      throw new Error('Mailbox config account not found');
-    }
-
-    // Asset Router config: treasury at offset 72, chain IDs at 203 and 235
-    const arTreasury = new PublicKey(arConfigInfo.data.subarray(72, 104));
-    const paused = arConfigInfo.data[104] !== 0;
-    if (paused) {
-      throw new Error('Asset Router is paused');
-    }
-    const ledgerChainId = Buffer.from(arConfigInfo.data.subarray(203, 235));
-    const bitcoinRoutingChainId = Buffer.from(arConfigInfo.data.subarray(235, 267));
-    debugLog('Asset Router treasury:', arTreasury.toBase58());
-    debugLog('Ledger chain ID (on-chain):', ledgerChainId.toString('hex'));
-    debugLog('Bitcoin routing chain ID (on-chain):', bitcoinRoutingChainId.toString('hex'));
-
-    // ── Derive remaining Asset Router PDAs (need on-chain chain IDs) ──
     const [tokenConfigPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from('token_config'), mint.toBuffer()],
       assetRouterProgramId,
@@ -164,11 +134,20 @@ export async function redeemForBtc(
       assetRouterProgramId,
     );
 
+    debugLog('Asset Router config PDA:', assetRouterConfigPDA.toBase58());
     debugLog('Token config PDA:', tokenConfigPDA.toBase58());
     debugLog('Token route PDA:', tokenRoutePDA.toBase58());
     debugLog('Messaging authority PDA:', messagingAuthorityPDA.toBase58());
 
     // ── Mailbox PDAs ──
+    const [mailboxConfigPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from('mailbox_config')],
+      mailboxProgramId,
+    );
+    if (!config.ledgerChainId) {
+      throw new Error(`Ledger chain ID not configured for network: ${network}`);
+    }
+    const ledgerChainId = Buffer.from(config.ledgerChainId, 'hex');
     const [outboundMessagePathPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from('outbound_message_path'), ledgerChainId],
       mailboxProgramId,
@@ -181,6 +160,27 @@ export async function redeemForBtc(
     debugLog('Mailbox config PDA:', mailboxConfigPDA.toBase58());
     debugLog('Outbound message path PDA:', outboundMessagePathPDA.toBase58());
     debugLog('Sender config PDA:', senderConfigPDA.toBase58());
+
+    // ── Read on-chain state ──
+    const [arConfigInfo, mailboxConfigInfo] = await Promise.all([
+      connection.getAccountInfo(assetRouterConfigPDA),
+      connection.getAccountInfo(mailboxConfigPDA),
+    ]);
+
+    if (!arConfigInfo) {
+      throw new Error('Asset Router config account not found');
+    }
+    if (!mailboxConfigInfo) {
+      throw new Error('Mailbox config account not found');
+    }
+
+    // Asset Router config: treasury at offset 72
+    const arTreasury = new PublicKey(arConfigInfo.data.subarray(72, 104));
+    const paused = arConfigInfo.data[104] !== 0;
+    if (paused) {
+      throw new Error('Asset Router is paused');
+    }
+    debugLog('Asset Router treasury:', arTreasury.toBase58());
 
     // Mailbox config: treasury at offset 72
     const mailboxTreasury = new PublicKey(
