@@ -162,13 +162,16 @@ describe('SolanaRedeem', () => {
       expect(result.txHash).toBe('mock-redeem-tx-hash');
     });
 
-    it('should transition to COMPLETED status', async () => {
+    it('should transition to CONFIRMING status after execute', async () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
       await redeem.execute();
 
-      expect(redeem.status).toBe(NonEvmUnstakeStatus.COMPLETED);
+      // The Solana burn and GMP dispatch are complete, but the Bitcoin-side
+      // BTC release is cross-chain async — the SDK cannot track it, so the
+      // flow terminates at CONFIRMING, not COMPLETED.
+      expect(redeem.status).toBe(NonEvmUnstakeStatus.CONFIRMING);
     });
 
     it('should throw if called when not READY', async () => {

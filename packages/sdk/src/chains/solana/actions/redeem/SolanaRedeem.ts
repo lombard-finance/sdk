@@ -4,7 +4,11 @@
  * Redeems BTC.b on Solana → BTC on Bitcoin via Asset Router + GMP.
  *
  * **Flow:**
- * IDLE → READY → COMPLETED
+ * IDLE → READY → CONFIRMING
+ *
+ * The flow ends at CONFIRMING because the Solana-side burn and GMP dispatch
+ * are complete, but the Bitcoin-side BTC release is a cross-chain async
+ * process that the SDK cannot track.
  *
  * @module chains/solana/actions/redeem/SolanaRedeem
  */
