@@ -204,7 +204,13 @@ export async function redeemForBtc(
       throw new Error('Mailbox config account not found');
     }
 
-    // Asset Router config: treasury at offset 72
+    // Asset Router config layout: discriminator(8) + admin(32) + pending_admin(32) +
+    //   treasury(32) + paused(1) — treasury ends at 104, paused at 104 → min 105 bytes
+    if (arConfigInfo.data.length < 105) {
+      throw new Error(
+        `Asset Router config account data too short: expected >= 105 bytes, got ${arConfigInfo.data.length}`,
+      );
+    }
     const arTreasury = new PublicKey(arConfigInfo.data.subarray(72, 104));
     const paused = arConfigInfo.data[104] !== 0;
     if (paused) {
@@ -212,7 +218,13 @@ export async function redeemForBtc(
     }
     debugLog('Asset Router treasury:', arTreasury.toBase58());
 
-    // Mailbox config: treasury at offset 72
+    // Mailbox config layout: discriminator(8) + admin(32) + pending_admin(32) +
+    //   treasury(32) — treasury ends at offset 104 → min 104 bytes
+    if (mailboxConfigInfo.data.length < 104) {
+      throw new Error(
+        `Mailbox config account data too short: expected >= 104 bytes, got ${mailboxConfigInfo.data.length}`,
+      );
+    }
     const mailboxTreasury = new PublicKey(
       mailboxConfigInfo.data.subarray(72, 104),
     );
@@ -262,6 +274,12 @@ export async function redeemForBtc(
       const freshMailboxConfig = await connection.getAccountInfo(mailboxConfigPDA);
       if (!freshMailboxConfig) {
         throw new Error('Mailbox config account not found');
+      }
+      // global_nonce is a u64 at offset 137; need 137 + 8 = 145 bytes
+      if (freshMailboxConfig.data.length < 145) {
+        throw new Error(
+          `Mailbox config account data too short: expected >= 145 bytes, got ${freshMailboxConfig.data.length}`,
+        );
       }
       const globalNonce = freshMailboxConfig.data.readBigUInt64LE(137);
       const nonceBuf = Buffer.alloc(8);

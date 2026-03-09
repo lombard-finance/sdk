@@ -117,6 +117,14 @@ export interface ClaimContext {
  *   bitcoin_lchain_id:  [u8;32] (offset 266, 32 bytes)
  */
 export function parseAssetRouterConfig(data: Buffer): AssetRouterConfig {
+  // ledger_lchain_id ends at offset 266 — the last field we read
+  const MIN_SIZE = 266;
+  if (data.length < MIN_SIZE) {
+    throw new Error(
+      `Asset Router config account data too short: expected >= ${MIN_SIZE} bytes, got ${data.length}`,
+    );
+  }
+
   const ZERO_PUBKEY = new PublicKey(new Uint8Array(32));
 
   const paused = data[104] !== 0;
