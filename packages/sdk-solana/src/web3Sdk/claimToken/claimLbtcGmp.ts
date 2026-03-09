@@ -86,7 +86,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   }
   const mailboxProgramId = new PublicKey(config.mailbox);
   const mailboxProgram = new Program(
-    getMailboxIdl(params.network),
+    getMailboxIdl(ctx.env),
     ctx.assetRouterProgram.provider,
   );
 

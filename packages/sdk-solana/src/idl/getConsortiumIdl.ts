@@ -1,14 +1,14 @@
 import { Idl } from '@coral-xyz/anchor';
+import { Env } from '@lombard.finance/sdk-common';
 
-import { getConfig, networkToEnv } from '../const/getConfig';
-import { SolanaNetwork } from '../types';
+import { getConfig } from '../const/getConfig';
 import consortiumIdl from './consortium.json';
 
-export const getConsortiumIdl = (network: SolanaNetwork): Idl => {
-  const config = getConfig(networkToEnv[network]);
+export const getConsortiumIdl = (env: Env): Idl => {
+  const config = getConfig(env);
   if (!config.consortium) {
     throw new Error(
-      `Consortium program not configured for network: ${network}`,
+      `Consortium program not configured for env: ${env}`,
     );
   }
   const programIdl = { ...consortiumIdl } as unknown as Idl;
