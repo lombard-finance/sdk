@@ -14,7 +14,8 @@ export const BFF_WS_URL_STAGE =
 export const RPC_URLS: Record<SolanaNetwork, string> = {
   [SolanaNetwork.mainnet]: `${BFF_BASE_URL_PROD}/solana`,
   [SolanaNetwork.testnet]: 'https://api.testnet.solana.com',
-  [SolanaNetwork.devnet]: `${BFF_BASE_URL_STAGE}/solana_devnet`,
+  // [SolanaNetwork.devnet]: `${BFF_BASE_URL_STAGE}/solana_devnet`,
+  [SolanaNetwork.devnet]: `https://devnet.helius-rpc.com/?api-key=a2a73e26-ee37-4275-a0a4-69e7a856ac75`, // TODO remove this once we have a proper devnet rpc url
 };
 
 export const WS_URLS: Record<SolanaNetwork, string> = {
