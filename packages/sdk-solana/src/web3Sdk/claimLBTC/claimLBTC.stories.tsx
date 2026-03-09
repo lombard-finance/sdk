@@ -1,7 +1,8 @@
+import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useEffect, useState } from 'react';
 
-import { getConfig, networkToEnv } from '../../const/getConfig';
+import { envToNetwork, getConfig } from '../../const/getConfig';
 import {
   Button,
   CodeBlock,
@@ -15,7 +16,6 @@ import { functionType } from '../../stories/decorators/function-type';
 import { useConnect } from '../../stories/hooks/useConnect';
 import { IOutput, useFetchOutputs } from '../../stories/hooks/useFetchOutputs';
 import useQuery from '../../stories/hooks/useQuery';
-import { SolanaNetwork } from '../../types';
 import { claimToken } from '../claimToken';
 import { claimLBTC } from './claimLBTC';
 import { parseTransactionLogs } from './utils/parseTransactionLogs';
@@ -23,11 +23,12 @@ import { parseTransactionLogs } from './utils/parseTransactionLogs';
 type TokenChoice = 'LBTC' | 'BTC.b';
 
 interface ClaimLbtcStoryArgs {
-  network: SolanaNetwork;
+  environment: Env;
   token: TokenChoice;
 }
 
-export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
+export const StoryView = ({ environment, token }: ClaimLbtcStoryArgs) => {
+  const network = envToNetwork[environment];
   const [selectedOutput, setSelectedOutput] = useState<IOutput | null>(null);
   const [transactionLogs, setTransactionLogs] = useState<string[] | null>(null);
 
@@ -44,7 +45,7 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
 
   const { refetchOutputs } = useFetchOutputs({
     address: address ?? undefined,
-    environment: network,
+    environment,
     isConnected: isConnected,
   });
 
@@ -61,9 +62,9 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
       let txHash: string;
 
       if (isBtcb) {
-        const config = getConfig(networkToEnv[network]);
+        const config = getConfig(environment);
         if (!config.btcbTokenMint)
-          throw new Error(`BTC.b mint not configured for ${network}`);
+          throw new Error(`BTC.b mint not configured for ${environment}`);
         if (!selectedOutput.proof)
           throw new Error('Selected output has no proof.');
 
@@ -71,6 +72,7 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
           recipientAddress: address,
           tokenMint: config.btcbTokenMint,
           network,
+          env: environment,
           rawPayload: selectedOutput.raw_payload,
           proofSignature: selectedOutput.proof,
           debug: true,
@@ -106,15 +108,14 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
     refetch: handleClaim,
   } = useQuery(
     request,
-    [provider, address, selectedOutput, network, token, refetchOutputs],
+    [provider, address, selectedOutput, environment, token, refetchOutputs],
     false,
   );
 
-  // Clean up on network/token change
   useEffect(() => {
     setSelectedOutput(null);
     setTransactionLogs(null);
-  }, [isConnected, address, network, token]);
+  }, [isConnected, address, environment, token]);
 
   return (
     <>
@@ -134,7 +135,7 @@ export const StoryView = ({ network, token }: ClaimLbtcStoryArgs) => {
           <SectionCard title="Available Bitcoin Outputs">
             <OutputSelector
               address={address}
-              network={network}
+              environment={environment}
               isConnected={isConnected}
               selectedOutput={selectedOutput}
               onOutputSelect={setSelectedOutput}
@@ -204,13 +205,13 @@ Single \`mint_from_payload\` transaction after backend Consortium notarization.`
     },
   },
   args: {
-    network: SolanaNetwork.devnet,
+    environment: Env.stage,
     token: 'LBTC',
   },
   argTypes: {
-    network: {
+    environment: {
       control: { type: 'select' },
-      options: Object.values(SolanaNetwork),
+      options: Object.values(Env),
     },
     token: {
       control: { type: 'select' },

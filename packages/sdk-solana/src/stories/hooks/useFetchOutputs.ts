@@ -1,8 +1,7 @@
+import { Env } from '@lombard.finance/sdk-common';
 import axios from 'axios';
-// packages/sdk-solana/src/stories/hooks/useFetchOutputs.ts
 import { useCallback, useEffect, useState } from 'react';
 
-import { SolanaNetwork } from '../../types'; // Adjust path as needed
 import { ErrorCode, SolanaSdkError } from '../../utils';
 
 // Interfaces (copied from story file)
@@ -33,7 +32,7 @@ interface IOutputsResponse {
 
 interface UseFetchOutputsParams {
   address: string | null | undefined;
-  environment: SolanaNetwork;
+  environment: Env;
   isConnected: boolean;
 }
 
@@ -68,18 +67,14 @@ export function useFetchOutputs({
     setOutputs([]);
 
     try {
-      let baseApiUrl: string;
-      switch (environment) {
-        case SolanaNetwork.mainnet:
-          baseApiUrl = 'https://mainnet.prod.lombard.finance';
-          break;
-        case SolanaNetwork.testnet:
-          baseApiUrl = 'https://gastald-testnet.prod.lombard-fi.com';
-          break;
-        default: // Devnet (dev environment)
-          baseApiUrl = 'https://bft-dev.stage.lombard-fi.com';
-          break;
-      }
+      const apiUrls: Record<Env, string> = {
+        prod: 'https://mainnet.prod.lombard.finance',
+        testnet: 'https://gastald-testnet.prod.lombard-fi.com',
+        stage: 'https://staging.prod.lombard.finance',
+        dev: 'https://bft-dev.stage.lombard-fi.com',
+        ibc: 'https://ibc.stage.lombard-fi.com',
+      };
+      const baseApiUrl = apiUrls[environment];
 
       const response = await axios.get<IOutputsResponse>(
         `${baseApiUrl}/api/v1/address/outputs-v2/${address}`,
