@@ -135,15 +135,16 @@ export class SolanaRedeem
 
       this._txHash = txHash;
 
+      // Solana burn is confirmed and the GMP message has been dispatched.
+      // The Bitcoin-side release is a cross-chain async process that the SDK
+      // cannot track, so the flow stops at CONFIRMING rather than COMPLETED.
       this.emitProgress({
-        status: NonEvmUnstakeStatus.COMPLETED,
+        status: NonEvmUnstakeStatus.CONFIRMING,
         steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
       });
 
-      this.emitCompleted();
-
       return { txHash };
-    }, NonEvmUnstakeStatus.COMPLETED);
+    }, NonEvmUnstakeStatus.CONFIRMING);
   }
 
   private get prepareSchema() {
