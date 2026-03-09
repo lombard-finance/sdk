@@ -25,7 +25,7 @@ export const envToNetwork: Record<Env, SolanaNetwork> = {
 export const networkToEnv: Record<SolanaNetwork, Env> = {
   [SolanaNetwork.mainnet]: 'prod',
   [SolanaNetwork.testnet]: 'testnet',
-  [SolanaNetwork.devnet]: 'dev',
+  [SolanaNetwork.devnet]: 'stage',
 };
 
 /**
