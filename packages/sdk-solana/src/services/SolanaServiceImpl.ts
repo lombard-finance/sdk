@@ -6,9 +6,10 @@
  * @module services/SolanaServiceImpl
  */
 
-import type { SolanaService } from '@lombard.finance/sdk-common';
+import type { Env, SolanaService } from '@lombard.finance/sdk-common';
 
 import type { ISolanaWalletProvider, SolanaNetwork } from '../types';
+import { redeemForBtc } from '../web3Sdk/redeemToken/redeemForBtc';
 import { signLbtcDestinationAddrSolana } from '../web3Sdk/signLbtcDestinationAddrSolana';
 import { unstakeLBTC } from '../web3Sdk/unstakeLBTC/unstakeLBTC';
 
@@ -32,10 +33,10 @@ export class SolanaServiceImpl implements SolanaService {
   async signLbtcDestination(args: {
     network: string;
   }): Promise<{ signature: string }> {
-    const provider = await this.getProvider();
+    const provider = (await this.getProvider()) as ISolanaWalletProvider;
     return signLbtcDestinationAddrSolana({
-      provider: provider as never,
-      network: args.network as never,
+      provider,
+      network: args.network as SolanaNetwork,
     });
   }
 
@@ -55,6 +56,29 @@ export class SolanaServiceImpl implements SolanaService {
       amount: args.amount,
       btcAddress: args.btcAddress,
       network: args.network as SolanaNetwork,
+    });
+
+    return { txHash };
+  }
+
+  /**
+   * Redeem BTC.b on Solana to receive BTC
+   *
+   * Burns BTC.b and sends a GMP message to trigger a BTC payout.
+   */
+  async redeemForBtc(args: {
+    amount: string;
+    btcAddress: string;
+    network: string;
+    env?: Env;
+  }): Promise<{ txHash: string }> {
+    const provider = (await this.getProvider()) as ISolanaWalletProvider;
+
+    const txHash = await redeemForBtc(provider, {
+      amount: args.amount,
+      btcAddress: args.btcAddress,
+      network: args.network as SolanaNetwork,
+      env: args.env,
     });
 
     return { txHash };

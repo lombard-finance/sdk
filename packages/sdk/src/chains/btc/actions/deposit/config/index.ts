@@ -8,9 +8,13 @@
 
 import type { Env } from '@lombard.finance/sdk-common';
 
-import type { AssetId, Chain } from '../../../../../core';
+import type { AssetId, Chain, ChainType } from '../../../../../core';
 import { evmDepositConfig } from './evm';
+import { solanaDepositConfig } from './solana';
+import type { DepositChainConfig } from './types';
 
+export { evmDepositConfig } from './evm';
+export { solanaDepositConfig } from './solana';
 export type {
   DepositChainConfig,
   DepositFeeAuthConfig,
@@ -20,36 +24,64 @@ export type {
   StoredFeeSignature,
 } from './types';
 
-/**
- * All deposit configs (currently only EVM)
- */
-export const depositConfig = evmDepositConfig;
+// ═══════════════════════════════════════════════════════════════════════════
+// Registry
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Check if destination chain is supported
+ * Registry of all deposit chain configurations.
+ *
+ * Add new chain types here to support additional destination chains.
  */
-export function isDestChainSupported(chain: Chain): boolean {
-  return depositConfig.destChains.includes(chain);
+export const depositConfigs: Partial<Record<ChainType, DepositChainConfig>> = {
+  evm: evmDepositConfig,
+  solana: solanaDepositConfig,
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Lookup Functions
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Get deposit chain configuration by chain type
+ */
+export function getDepositChainConfig(
+  chainType: ChainType,
+): DepositChainConfig | undefined {
+  return depositConfigs[chainType];
+}
+
+/**
+ * Check if a destination chain is supported by a config
+ */
+export function isDestChainSupported(
+  config: DepositChainConfig,
+  destChain: Chain,
+): boolean {
+  return config.destChains.includes(destChain);
 }
 
 /**
  * Check if assetOut is supported for BTC Deposit
- * BTC Deposit should only produce BTC.b
  */
-export function isAssetOutSupported(assetOut: AssetId): boolean {
-  return depositConfig.supportedAssetsOut.includes(assetOut);
+export function isAssetOutSupported(
+  config: DepositChainConfig,
+  assetOut: AssetId,
+): boolean {
+  return config.supportedAssetsOut.includes(assetOut);
 }
 
 /**
  * Check if route is available for given source chain and environment
  */
 export function isRouteAvailable(
+  config: DepositChainConfig,
   sourceChain: Chain | undefined,
   env: Env,
 ): boolean {
-  if (!sourceChain) return true;
-  return depositConfig.routes.some(
+  return config.routes.some(
     route =>
-      route.sourceChains.includes(sourceChain) && route.envs.includes(env),
+      route.envs.includes(env) &&
+      (!sourceChain || route.sourceChains.includes(sourceChain)),
   );
 }

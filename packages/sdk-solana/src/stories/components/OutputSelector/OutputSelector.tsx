@@ -1,6 +1,6 @@
+import { Env } from '@lombard.finance/sdk-common';
 import React, { useEffect } from 'react';
 
-import { SolanaNetwork } from '../../../types';
 import { IOutput, useFetchOutputs } from '../../hooks/useFetchOutputs';
 import { Button } from '../Button/Button';
 import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
@@ -9,7 +9,7 @@ import { Spinner } from '../Spinner';
 
 interface OutputSelectorProps {
   address: string | undefined;
-  network: SolanaNetwork;
+  environment: Env;
   isConnected: boolean;
   selectedOutput: IOutput | null;
   onOutputSelect: (output: IOutput | null) => void;
@@ -18,7 +18,7 @@ interface OutputSelectorProps {
 
 export const OutputSelector: React.FC<OutputSelectorProps> = ({
   address,
-  network,
+  environment,
   isConnected,
   selectedOutput,
   onOutputSelect,
@@ -27,14 +27,31 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
   const { outputs, isLoadingOutputs, outputsError, refetchOutputs } =
     useFetchOutputs({
       address: address,
-      environment: network,
+      environment,
       isConnected: isConnected,
     });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally reset only on context change
   useEffect(() => {
     onOutputSelect(null);
-  }, [isConnected, address, network, onOutputSelect]);
+  }, [isConnected, address, environment, onOutputSelect]);
+
+  const statusLabel = (status: string) => {
+    switch (status) {
+      case 'NOTARIZATION_STATUS_SESSION_APPROVED':
+        return 'Ready to mint';
+      case 'NOTARIZATION_STATUS_PENDING':
+        return 'Pending';
+      case 'NOTARIZATION_STATUS_SUBMITTED':
+        return 'Submitted';
+      case 'NOTARIZATION_STATUS_FAILED':
+        return 'Failed';
+      case 'NOTARIZATION_STATUS_GMP_HANDLED':
+        return 'Auto-claimed';
+      default:
+        return status;
+    }
+  };
 
   const outputOptions = [
     { value: '', label: '-- Select a Bitcoin transaction --' },
@@ -42,7 +59,7 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
       value: output.txid,
       label: `${output.txid.substring(0, 10)}... - ${
         Number.parseFloat(output.value) / 10 ** 8
-      } BTC (${output.notarization_status})`,
+      } BTC [${statusLabel(output.notarization_status)}]`,
     })),
   ];
 
@@ -63,7 +80,7 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
       ) : outputs.length === 0 ? (
         <div className="alert alert-info">
           No pending Bitcoin outputs found for your address (
-          {address?.substring(0, 6)}...) on {network}. You might need to stake
+          {address?.substring(0, 6)}...) on {environment}. You might need to stake
           Bitcoin first or check the selected network.
         </div>
       ) : (
@@ -92,9 +109,25 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
                   <strong>Block Height:</strong>{' '}
                   {selectedOutput.block_height || 'N/A'}
                 </p>
-                <p className="mb-0">
-                  <strong>Status:</strong> {selectedOutput.notarization_status}
+                <p className="mb-1">
+                  <strong>Status:</strong>{' '}
+                  {statusLabel(selectedOutput.notarization_status)}
                 </p>
+                {selectedOutput.token_address && (
+                  <p className="mb-1">
+                    <strong>Token:</strong> {selectedOutput.token_address}
+                  </p>
+                )}
+                {selectedOutput.raw_payload ? (
+                  <span className="badge bg-success">Has payload</span>
+                ) : (
+                  <span className="badge bg-warning text-dark">
+                    Awaiting notarization
+                  </span>
+                )}
+                {selectedOutput.proof && (
+                  <span className="badge bg-success ms-1">Has proof</span>
+                )}
               </div>
             </div>
           )}

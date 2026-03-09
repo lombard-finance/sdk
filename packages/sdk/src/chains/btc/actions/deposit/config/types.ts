@@ -7,7 +7,7 @@
 import type { Env } from '@lombard.finance/sdk-common';
 import type { z } from 'zod';
 
-import type { AssetId, Chain } from '../../../../../core';
+import type { AssetId, Chain, ChainType } from '../../../../../core';
 import type { BtcCoreContext } from '../../../../../shared/context';
 
 /**
@@ -78,16 +78,17 @@ export interface DepositFeeAuthConfig {
  * Deposit chain configuration
  *
  * BTC Deposit produces BTC.b (wrapped BTC without yield).
+ * Each supported chain type implements this interface.
  * Fee authorization is only required for Ethereum mainnet.
  * Other chains use address confirmation signing.
  */
 export interface DepositChainConfig {
-  chainType: 'evm';
+  chainType: ChainType;
   routes: DepositRouteDefinition[];
   destChains: Chain[];
   /** Supported output assets - BTC Deposit should only produce BTC.b */
   supportedAssetsOut: AssetId[];
-  addressSchema: z.ZodString;
+  addressSchema: z.ZodType<string>;
 
   /**
    * Get fee authorization config for a destination chain

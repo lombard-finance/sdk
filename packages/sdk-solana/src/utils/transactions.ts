@@ -12,11 +12,13 @@ export async function sendAndConfirmTransaction({
   connection,
   provider,
   debugLabel = 'Transaction',
+  skipPreflight = false,
 }: {
   instruction: Transaction | TransactionInstruction;
   connection: Connection;
   provider: ISolanaWalletProvider;
   debugLabel?: string;
+  skipPreflight?: boolean;
 }): Promise<{ signature: string; signedTransaction: Transaction }> {
   const transaction = new Transaction();
   transaction.add(instruction);
@@ -31,7 +33,7 @@ export async function sendAndConfirmTransaction({
     const signature = await connection.sendRawTransaction(
       signedTx.serialize(),
       {
-        skipPreflight: false,
+        skipPreflight,
       },
     );
 

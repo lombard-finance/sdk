@@ -21,6 +21,11 @@ import type { LombardConfig } from '../../config/types';
 import { getProviderGetter } from '../../config/types';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SolanaCoreContext } from '../../shared/context';
+import { SolanaRedeem } from './actions/redeem/SolanaRedeem';
+import type {
+  ISolanaRedeem,
+  SolanaRedeemParams,
+} from './actions/redeem/types';
 import { SolanaUnstake } from './actions/unstake/SolanaUnstake';
 import type {
   ISolanaUnstake,
@@ -74,6 +79,18 @@ export class SolanaActions {
    */
   unstake(params: SolanaUnstakeParams): ISolanaUnstake {
     return new SolanaUnstake(this.ctx, params);
+  }
+
+  /**
+   * Redeem BTC.b → BTC
+   *
+   * Burns BTC.b on Solana and releases BTC to a Bitcoin address via GMP.
+   *
+   * @throws LombardError if solana module is not registered
+   * @throws LombardError if route is not supported
+   */
+  redeem(params: SolanaRedeemParams): ISolanaRedeem {
+    return new SolanaRedeem(this.ctx, params);
   }
 }
 

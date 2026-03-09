@@ -3,11 +3,39 @@ import {
   createAssociatedTokenAccountInstruction,
   getAccount,
   getAssociatedTokenAddress,
+  TOKEN_2022_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 
 import { ISolanaWalletProvider } from '../types';
+
+/**
+ * Determine the token program that owns a given mint account.
+ * Returns TOKEN_2022_PROGRAM_ID for Token-2022 mints, TOKEN_PROGRAM_ID otherwise.
+ */
+export async function getTokenProgramForMint(
+  connection: Connection,
+  mintAddress: PublicKey,
+): Promise<PublicKey> {
+  const accountInfo = await connection.getAccountInfo(mintAddress);
+
+  if (!accountInfo) {
+    throw new Error(`Mint account not found: ${mintAddress.toBase58()}`);
+  }
+
+  if (accountInfo.owner.equals(TOKEN_2022_PROGRAM_ID)) {
+    return TOKEN_2022_PROGRAM_ID;
+  }
+
+  if (accountInfo.owner.equals(TOKEN_PROGRAM_ID)) {
+    return TOKEN_PROGRAM_ID;
+  }
+
+  throw new Error(
+    `Unsupported mint owner ${accountInfo.owner.toBase58()} for ${mintAddress.toBase58()}`,
+  );
+}
 
 /**
  * Create or get an associated token account for a given mint and owner
@@ -29,57 +57,50 @@ export async function createOrGetAssociatedTokenAccount({
   ownerAddress: string;
   mintAddress: string;
 }): Promise<string> {
-  // Convert addresses to PublicKey objects
   const mintPubkey = new PublicKey(mintAddress);
   const ownerPubkey = new PublicKey(ownerAddress);
 
-  // Get the associated token address
+  const tokenProgramId = await getTokenProgramForMint(connection, mintPubkey);
+
   const associatedTokenAddress = await getAssociatedTokenAddress(
     mintPubkey,
     ownerPubkey,
-    false, // allowOwnerOffCurve
-    TOKEN_PROGRAM_ID,
+    false,
+    tokenProgramId,
     ASSOCIATED_TOKEN_PROGRAM_ID,
   );
 
-  // Check if account exists
   try {
     const tokenAccount = await getAccount(
       connection,
       associatedTokenAddress,
       'confirmed',
-      TOKEN_PROGRAM_ID,
+      tokenProgramId,
     );
 
     return tokenAccount.address.toBase58();
   } catch {
-    // Create token account transaction
     const transaction = new Transaction();
 
-    // Create instruction to create associated token account
     const createATAInstruction = createAssociatedTokenAccountInstruction(
-      provider.publicKey, // payer
-      associatedTokenAddress, // associatedToken
-      ownerPubkey, // owner
-      mintPubkey, // mint
-      TOKEN_PROGRAM_ID, // token program id
-      ASSOCIATED_TOKEN_PROGRAM_ID, // associated token program id
+      provider.publicKey,
+      associatedTokenAddress,
+      ownerPubkey,
+      mintPubkey,
+      tokenProgramId,
+      ASSOCIATED_TOKEN_PROGRAM_ID,
     );
 
     transaction.add(createATAInstruction);
 
-    // Get recent blockhash
     const { blockhash } = await connection.getLatestBlockhash('confirmed');
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = provider.publicKey;
 
-    // Sign transaction
     const signedTx = await provider.signTransaction(transaction);
 
-    // Send transaction
     const signature = await connection.sendRawTransaction(signedTx.serialize());
 
-    // Wait for confirmation
     const confirmation = await connection.confirmTransaction(
       signature,
       'confirmed',

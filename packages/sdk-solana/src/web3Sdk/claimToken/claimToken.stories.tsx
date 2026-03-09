@@ -2,7 +2,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useEffect, useState } from 'react';
 
-import { envToNetwork } from '../../const/getConfig';
+import { envToNetwork, getConfig } from '../../const/getConfig';
 import {
   Button,
   CodeBlock,
@@ -16,14 +16,22 @@ import { functionType } from '../../stories/decorators/function-type';
 import { useConnect } from '../../stories/hooks/useConnect';
 import { IOutput, useFetchOutputs } from '../../stories/hooks/useFetchOutputs';
 import useQuery from '../../stories/hooks/useQuery';
-import { claimLBTC } from './claimLBTC';
-import { parseTransactionLogs } from './utils/parseTransactionLogs';
+import { claimToken } from './claimToken';
 
-interface ClaimLbtcStoryArgs {
+type TokenChoice = 'BTC.b' | 'LBTC';
+
+interface ClaimTokenStoryArgs {
   environment: Env;
+  token: TokenChoice;
 }
 
-export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
+const getTokenMint = (env: Env, token: TokenChoice): string | null => {
+  const config = getConfig(env);
+  if (token === 'BTC.b') return config.btcbTokenMint;
+  return config.lbtcTokenMint;
+};
+
+export const StoryView = ({ environment, token }: ClaimTokenStoryArgs) => {
   const network = envToNetwork[environment];
   const [selectedOutput, setSelectedOutput] = useState<IOutput | null>(null);
   const [transactionLogs, setTransactionLogs] = useState<string[] | null>(null);
@@ -45,32 +53,38 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
     isConnected: isConnected,
   });
 
+  const tokenMint = getTokenMint(environment, token);
+
   const request = async () => {
     if (!provider || !address) throw new Error('Wallet not connected.');
     if (!selectedOutput) throw new Error('Please select an output to claim.');
     if (!selectedOutput.raw_payload)
       throw new Error('Selected output has no raw_payload.');
     if (!selectedOutput.proof)
-      throw new Error('Selected output has no proof (required for LBTC).');
+      throw new Error('Selected output has no proof.');
+    if (!tokenMint)
+      throw new Error(`Token mint not configured for ${token} on ${environment}.`);
 
     setTransactionLogs(null);
     try {
-      const txHash = await claimLBTC(provider, {
+      const txHash = await claimToken(provider, {
         recipientAddress: address,
-        amount: selectedOutput.value,
+        tokenMint,
         network,
-        proofSignature: selectedOutput.proof,
+        env: environment,
         rawPayload: selectedOutput.raw_payload,
+        proofSignature: selectedOutput.proof,
         debug: true,
       });
-
       refetchOutputs();
       setSelectedOutput(null);
       return txHash;
     } catch (err: unknown) {
-      const { errorMessage, errorLogs } = parseTransactionLogs(err);
-      setTransactionLogs(errorLogs);
-      throw new Error(errorMessage);
+      if (err instanceof Error && err.message.includes('Debug logs:')) {
+        const parts = err.message.split('Debug logs:\n');
+        setTransactionLogs(parts[1]?.split('\n') || []);
+      }
+      throw err;
     }
   };
 
@@ -81,14 +95,14 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
     refetch: handleClaim,
   } = useQuery(
     request,
-    [provider, address, selectedOutput, environment, refetchOutputs],
+    [provider, address, selectedOutput, environment, token, refetchOutputs],
     false,
   );
 
   useEffect(() => {
     setSelectedOutput(null);
     setTransactionLogs(null);
-  }, [isConnected, address, environment]);
+  }, [isConnected, address, environment, token]);
 
   return (
     <>
@@ -105,6 +119,22 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
 
       {isConnected && address && provider && (
         <>
+          <SectionCard title="Configuration">
+            <p>
+              <strong>Token:</strong> {token}
+            </p>
+            <p>
+              <strong>Token Mint:</strong>{' '}
+              {tokenMint || <em>Not configured</em>}
+            </p>
+            <p>
+              <strong>Environment:</strong> {environment}
+            </p>
+            <p>
+              <strong>Network:</strong> {network}
+            </p>
+          </SectionCard>
+
           <SectionCard title="Available Bitcoin Outputs">
             <OutputSelector
               address={address}
@@ -124,9 +154,10 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
               disabled={
                 isLoading ||
                 !selectedOutput ||
-                !selectedOutput.raw_payload
+                !selectedOutput.raw_payload ||
+                !tokenMint
               }
-              actionName="claimLBTC"
+              actionName={`claimToken (${token})`}
             />
             {selectedOutput && !selectedOutput.raw_payload && (
               <p className="text-warning small mt-1 mb-0">
@@ -140,7 +171,7 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
             <ResultDisplay
               result={result}
               title="Claim Transaction Hash"
-              successMessage="LBTC claimed!"
+              successMessage={`${token} claimed via Asset Router!`}
             />
           )}
 
@@ -160,27 +191,38 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
 };
 
 const meta: Meta<typeof StoryView> = {
-  title: 'write/claimLBTC',
+  title: 'write/claimToken (Asset Router)',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('write')],
   parameters: {
     docs: {
       description: {
-        component: `Claim LBTC tokens on Solana.
+        component: `Demonstrates minting tokens (BTC.b or LBTC) via the Asset Router program (Ledger v2).
 
-Uses the legacy 3-step on-chain flow (\`claimLBTC\`):
-1. Create Mint Payload → 2. Post Mint Signatures → 3. Mint From Payload`,
+**Flow:**
+1. Generate a BTC deposit address via API with \`token_address\` parameter
+2. Send BTC to the deposit address
+3. Wait for backend to notarize the deposit (Consortium validation)
+4. Call \`claimToken\` to mint tokens via Asset Router's \`mint_from_payload\`
+
+Unlike the legacy \`claimLBTC\` (which uses a 3-step on-chain process), this function
+performs a single transaction — the Consortium validation is handled entirely by the backend.`,
       },
     },
   },
   args: {
     environment: Env.stage,
+    token: 'BTC.b',
   },
   argTypes: {
     environment: {
       control: { type: 'select' },
       options: Object.values(Env),
+    },
+    token: {
+      control: { type: 'select' },
+      options: ['BTC.b', 'LBTC'] as TokenChoice[],
     },
   },
 };

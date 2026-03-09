@@ -1,0 +1,3054 @@
+{
+  "address": "Lom9Em2WzV7gvtttdub9LZSR8gLgtbzFDhFm1zMQRp6",
+  "metadata": {
+    "name": "bridge",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "The bridge program that uses Mailbox for cross-chain communication"
+  },
+  "instructions": [
+    {
+      "name": "accept_ownership",
+      "discriminator": [
+        172,
+        23,
+        43,
+        13,
+        238,
+        213,
+        85,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "deposit",
+      "discriminator": [
+        242,
+        35,
+        198,
+        137,
+        82,
+        225,
+        242,
+        182
+      ],
+      "accounts": [
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "sender_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sender_config"
+        },
+        {
+          "name": "remote_bridge_config"
+        },
+        {
+          "name": "local_token_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  97,
+                  108,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "remote_token_config"
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "mailbox",
+          "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9"
+        },
+        {
+          "name": "mailbox_config",
+          "writable": true
+        },
+        {
+          "name": "outbound_message_path"
+        },
+        {
+          "name": "outbound_message",
+          "writable": true
+        },
+        {
+          "name": "mailbox_sender_config",
+          "writable": true
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "sender",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "recipient",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "caller",
+          "type": {
+            "option": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "message",
+          "type": {
+            "option": {
+              "array": [
+                "u8",
+                48
+              ]
+            }
+          }
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "OutboundResponse"
+        }
+      }
+    },
+    {
+      "name": "gmp_receive",
+      "discriminator": [
+        75,
+        72,
+        219,
+        230,
+        85,
+        3,
+        24,
+        44
+      ],
+      "accounts": [
+        {
+          "name": "message_info",
+          "signer": true
+        },
+        {
+          "name": "handler",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "message_handled",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  115,
+                  115,
+                  97,
+                  103,
+                  101,
+                  95,
+                  104,
+                  97,
+                  110,
+                  100,
+                  108,
+                  101,
+                  100
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "payload_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "recipient",
+          "writable": true
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "mint_authority",
+          "docs": [
+            "instruction will fail."
+          ]
+        },
+        {
+          "name": "token_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "remote_bridge_config"
+        },
+        {
+          "name": "local_token_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  97,
+                  108,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "remote_token_config",
+          "writable": true
+        },
+        {
+          "name": "inbound_message_path"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "InboundResponse"
+        }
+      }
+    },
+    {
+      "name": "grant_account_role",
+      "discriminator": [
+        166,
+        105,
+        3,
+        49,
+        241,
+        233,
+        230,
+        157
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "account",
+          "type": "pubkey"
+        },
+        {
+          "name": "account_role",
+          "type": {
+            "defined": {
+              "name": "AccountRole"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "deployer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  5,
+                  18,
+                  232,
+                  133,
+                  44,
+                  158,
+                  237,
+                  152,
+                  132,
+                  19,
+                  186,
+                  131,
+                  247,
+                  93,
+                  174,
+                  190,
+                  198,
+                  201,
+                  158,
+                  149,
+                  21,
+                  190,
+                  200,
+                  160,
+                  144,
+                  213,
+                  168,
+                  242,
+                  54,
+                  122,
+                  81,
+                  131
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                2,
+                168,
+                246,
+                145,
+                78,
+                136,
+                161,
+                176,
+                226,
+                16,
+                21,
+                62,
+                247,
+                99,
+                174,
+                43,
+                0,
+                194,
+                185,
+                61,
+                22,
+                193,
+                36,
+                210,
+                192,
+                83,
+                122,
+                16,
+                4,
+                128,
+                0,
+                0
+              ]
+            }
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "admin",
+          "type": "pubkey"
+        },
+        {
+          "name": "mailbox",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "pause",
+      "discriminator": [
+        211,
+        22,
+        221,
+        251,
+        74,
+        121,
+        193,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "pauser",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pauser"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "revoke_account_roles",
+      "discriminator": [
+        88,
+        183,
+        44,
+        133,
+        35,
+        162,
+        233,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "account_roles",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  95,
+                  114,
+                  111,
+                  108,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "account",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_local_token_config",
+      "discriminator": [
+        110,
+        191,
+        96,
+        182,
+        38,
+        62,
+        56,
+        4
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "local_token_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  97,
+                  108,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_rate_limit",
+      "discriminator": [
+        42,
+        212,
+        44,
+        91,
+        198,
+        58,
+        60,
+        239
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "remote_token_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  109,
+                  111,
+                  116,
+                  101,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "mint"
+              },
+              {
+                "kind": "arg",
+                "path": "chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "inbound_rate_limit",
+          "type": {
+            "defined": {
+              "name": "RateLimitConfig"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_remote_bridge_config",
+      "discriminator": [
+        13,
+        166,
+        97,
+        240,
+        211,
+        223,
+        90,
+        26
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "remote_bridge_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  109,
+                  111,
+                  116,
+                  101,
+                  95,
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "bridge",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_remote_token_config",
+      "discriminator": [
+        209,
+        239,
+        241,
+        190,
+        53,
+        154,
+        147,
+        76
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "remote_token_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  109,
+                  111,
+                  116,
+                  101,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "mint"
+              },
+              {
+                "kind": "arg",
+                "path": "chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "token",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "direction",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "set_sender_config",
+      "discriminator": [
+        131,
+        205,
+        139,
+        221,
+        93,
+        186,
+        118,
+        146
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sender_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  110,
+                  100,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "sender_program"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "sender_program",
+          "type": "pubkey"
+        },
+        {
+          "name": "fee_discount",
+          "type": "u64"
+        },
+        {
+          "name": "whitelisted",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "transfer_ownership",
+      "discriminator": [
+        65,
+        177,
+        215,
+        73,
+        53,
+        45,
+        99,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unpause",
+      "discriminator": [
+        169,
+        144,
+        4,
+        38,
+        10,
+        141,
+        188,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "unset_local_token_config",
+      "discriminator": [
+        91,
+        97,
+        144,
+        81,
+        158,
+        205,
+        196,
+        214
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "local_token_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  97,
+                  108,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unset_remote_bridge_config",
+      "discriminator": [
+        9,
+        36,
+        172,
+        79,
+        88,
+        161,
+        225,
+        191
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "remote_bridge_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  109,
+                  111,
+                  116,
+                  101,
+                  95,
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "unset_remote_token_config",
+      "discriminator": [
+        56,
+        144,
+        91,
+        193,
+        233,
+        8,
+        46,
+        193
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "remote_token_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  109,
+                  111,
+                  116,
+                  101,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "mint"
+              },
+              {
+                "kind": "arg",
+                "path": "chain_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "chain_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "unset_sender_config",
+      "discriminator": [
+        10,
+        248,
+        20,
+        172,
+        121,
+        20,
+        97,
+        86
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  114,
+                  105,
+                  100,
+                  103,
+                  101,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sender_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  101,
+                  110,
+                  100,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "sender_program"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "sender_program",
+          "type": "pubkey"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AccountRoles",
+      "discriminator": [
+        25,
+        230,
+        229,
+        88,
+        31,
+        135,
+        177,
+        142
+      ]
+    },
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "InboundMessagePath",
+      "discriminator": [
+        183,
+        101,
+        83,
+        26,
+        169,
+        221,
+        228,
+        25
+      ]
+    },
+    {
+      "name": "LocalTokenConfig",
+      "discriminator": [
+        226,
+        219,
+        6,
+        164,
+        17,
+        36,
+        131,
+        60
+      ]
+    },
+    {
+      "name": "MessageHandled",
+      "discriminator": [
+        157,
+        239,
+        26,
+        195,
+        144,
+        53,
+        19,
+        109
+      ]
+    },
+    {
+      "name": "MessageV1Info",
+      "discriminator": [
+        113,
+        42,
+        224,
+        190,
+        65,
+        33,
+        233,
+        178
+      ]
+    },
+    {
+      "name": "OutboundMessagePath",
+      "discriminator": [
+        58,
+        4,
+        19,
+        64,
+        132,
+        71,
+        137,
+        190
+      ]
+    },
+    {
+      "name": "RemoteBridgeConfig",
+      "discriminator": [
+        222,
+        184,
+        10,
+        71,
+        191,
+        152,
+        233,
+        224
+      ]
+    },
+    {
+      "name": "RemoteTokenConfig",
+      "discriminator": [
+        94,
+        106,
+        197,
+        180,
+        181,
+        196,
+        242,
+        140
+      ]
+    },
+    {
+      "name": "SenderConfig",
+      "discriminator": [
+        0,
+        241,
+        220,
+        77,
+        167,
+        128,
+        79,
+        152
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AccountRoleGranted",
+      "discriminator": [
+        156,
+        201,
+        253,
+        16,
+        204,
+        194,
+        211,
+        121
+      ]
+    },
+    {
+      "name": "AccountRolesRevoked",
+      "discriminator": [
+        193,
+        45,
+        230,
+        213,
+        88,
+        196,
+        24,
+        174
+      ]
+    },
+    {
+      "name": "BridgeRateLimitConfigured",
+      "discriminator": [
+        1,
+        70,
+        228,
+        66,
+        95,
+        56,
+        113,
+        231
+      ]
+    },
+    {
+      "name": "DepositToBridge",
+      "discriminator": [
+        192,
+        151,
+        111,
+        51,
+        249,
+        134,
+        126,
+        122
+      ]
+    },
+    {
+      "name": "DestinationBridgeSet",
+      "discriminator": [
+        220,
+        82,
+        2,
+        68,
+        144,
+        228,
+        205,
+        205
+      ]
+    },
+    {
+      "name": "LocalTokenConfigSet",
+      "discriminator": [
+        10,
+        201,
+        243,
+        31,
+        133,
+        56,
+        186,
+        195
+      ]
+    },
+    {
+      "name": "LocalTokenConfigUnset",
+      "discriminator": [
+        2,
+        30,
+        109,
+        190,
+        113,
+        172,
+        40,
+        13
+      ]
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "discriminator": [
+        181,
+        32,
+        40,
+        60,
+        60,
+        64,
+        235,
+        29
+      ]
+    },
+    {
+      "name": "OwnershipTransferred",
+      "discriminator": [
+        172,
+        61,
+        205,
+        183,
+        250,
+        50,
+        38,
+        98
+      ]
+    },
+    {
+      "name": "PauserAdded",
+      "discriminator": [
+        231,
+        206,
+        109,
+        54,
+        239,
+        205,
+        234,
+        248
+      ]
+    },
+    {
+      "name": "PauserRemoved",
+      "discriminator": [
+        224,
+        157,
+        132,
+        185,
+        123,
+        96,
+        72,
+        220
+      ]
+    },
+    {
+      "name": "ProgramPaused",
+      "discriminator": [
+        247,
+        9,
+        236,
+        38,
+        105,
+        35,
+        112,
+        115
+      ]
+    },
+    {
+      "name": "RemoteBridgeConfigSet",
+      "discriminator": [
+        12,
+        61,
+        49,
+        26,
+        169,
+        196,
+        20,
+        132
+      ]
+    },
+    {
+      "name": "RemoteBridgeConfigUnset",
+      "discriminator": [
+        227,
+        170,
+        246,
+        130,
+        17,
+        33,
+        51,
+        88
+      ]
+    },
+    {
+      "name": "RemoteTokenConfigSet",
+      "discriminator": [
+        165,
+        170,
+        27,
+        18,
+        14,
+        187,
+        136,
+        153
+      ]
+    },
+    {
+      "name": "RemoteTokenConfigUnset",
+      "discriminator": [
+        52,
+        201,
+        107,
+        22,
+        68,
+        13,
+        198,
+        90
+      ]
+    },
+    {
+      "name": "SenderConfigSet",
+      "discriminator": [
+        48,
+        41,
+        191,
+        185,
+        220,
+        186,
+        107,
+        160
+      ]
+    },
+    {
+      "name": "SenderConfigUnset",
+      "discriminator": [
+        27,
+        176,
+        73,
+        192,
+        0,
+        73,
+        206,
+        177
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized function call"
+    },
+    {
+      "code": 6001,
+      "name": "AccountRoleAlreadyGranted",
+      "msg": "Account role already granted"
+    },
+    {
+      "code": 6002,
+      "name": "Paused",
+      "msg": "Program is paused"
+    },
+    {
+      "code": 6003,
+      "name": "NotPaused",
+      "msg": "Program is not paused"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidAdmin",
+      "msg": "Invalid admin"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidPauser",
+      "msg": "Invalid pauser"
+    },
+    {
+      "code": 6006,
+      "name": "PauserAlreadyExists",
+      "msg": "Pauser already exists"
+    },
+    {
+      "code": 6007,
+      "name": "PauserNotFound",
+      "msg": "Pauser not found"
+    },
+    {
+      "code": 6008,
+      "name": "BufferIOError",
+      "msg": "Buffer IO error"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidMessageSender",
+      "msg": "Invalid message sender"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidTokenAddress",
+      "msg": "Invalid token address"
+    },
+    {
+      "code": 6011,
+      "name": "RecipientMismatch",
+      "msg": "Mismatch between mint payload and passed account"
+    },
+    {
+      "code": 6012,
+      "name": "ZeroAmount",
+      "msg": "Zero amount"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidMessageLength",
+      "msg": "Invalid message length"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidMessageVersion",
+      "msg": "Invalid message version"
+    },
+    {
+      "code": 6015,
+      "name": "OutboundDirectionDisabled",
+      "msg": "Outbound direction disabled"
+    },
+    {
+      "code": 6016,
+      "name": "InboundDirectionDisabled",
+      "msg": "Inbound direction disabled"
+    },
+    {
+      "code": 6017,
+      "name": "NotWhitelisted",
+      "msg": "Caller not whitelisted"
+    },
+    {
+      "code": 6018,
+      "name": "PaidOperationNotSupported",
+      "msg": "Paid operation not supported"
+    },
+    {
+      "code": 6019,
+      "name": "UnexpectedFeeDiscount",
+      "msg": "Unexpected fee discount value"
+    },
+    {
+      "code": 6020,
+      "name": "WrongTokenOwner",
+      "msg": "Token owner mismatch"
+    }
+  ],
+  "types": [
+    {
+      "name": "AccountRole",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pauser"
+          },
+          {
+            "name": "None"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountRoleGranted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "pubkey"
+          },
+          {
+            "name": "account_role",
+            "type": {
+              "defined": {
+                "name": "AccountRole"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountRoles",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "roles",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "AccountRole"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountRolesRevoked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BridgeRateLimitConfigured",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "inbound_rate_limit",
+            "type": {
+              "defined": {
+                "name": "RateLimitConfig"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "mailbox",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositToBridge",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DestinationBridgeSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "destination_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "destination_bridge",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "InboundMessagePath",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "source_mailbox_address",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "source_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "InboundResponse",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "message",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  48
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LocalTokenConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LocalTokenConfigSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LocalTokenConfigUnset",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageHandled",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "MessageState",
+      "docs": [
+        "The state of a payload including a GMP message"
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Unknown"
+          },
+          {
+            "name": "Delivered"
+          },
+          {
+            "name": "Handled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "message_path_identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "sender",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "destination_caller",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
+          },
+          {
+            "name": "body",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MessageV1Info",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "MessageState"
+              }
+            }
+          },
+          {
+            "name": "message",
+            "type": {
+              "defined": {
+                "name": "MessageV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OutboundMessagePath",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "destination_chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OutboundResponse",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferInitiated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OwnershipTransferred",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PauserAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PauserRemoved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pauser",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProgramPaused",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "paused",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RateLimitConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "enabled",
+            "type": "bool"
+          },
+          {
+            "name": "capacity",
+            "type": "u64"
+          },
+          {
+            "name": "rate",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RateLimitTokenBucket",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "tokens",
+            "type": "u64"
+          },
+          {
+            "name": "last_updated",
+            "type": "u64"
+          },
+          {
+            "name": "cfg",
+            "type": {
+              "defined": {
+                "name": "RateLimitConfig"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoteBridgeConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "bridge",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoteBridgeConfigSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "bridge",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoteBridgeConfigUnset",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoteTokenConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "token",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "direction",
+            "type": "u8"
+          },
+          {
+            "name": "inbound_rate_limit",
+            "type": {
+              "defined": {
+                "name": "RateLimitTokenBucket"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoteTokenConfigSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "token",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "direction",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemoteTokenConfigUnset",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "chain_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SenderConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "fee_discount",
+            "type": "u64"
+          },
+          {
+            "name": "whitelisted",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SenderConfigSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_discount",
+            "type": "u64"
+          },
+          {
+            "name": "whitelisted",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SenderConfigUnset",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender_program",
+            "type": "pubkey"
+          }
+        ]
+      }
+    }
+  ]
+}

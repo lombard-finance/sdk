@@ -8,3 +8,7 @@ export * from './signTermsOfService';
 // LBTC operations
 export * from './claimLBTC';
 export * from './unstakeLBTC';
+
+// Asset Router operations (Ledger v2)
+export * from './claimToken';
+export * from './redeemToken';
