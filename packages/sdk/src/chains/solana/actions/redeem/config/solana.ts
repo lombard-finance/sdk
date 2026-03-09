@@ -23,18 +23,11 @@ export const solanaRedeemConfig: ChainConfig = {
 
   routes: [
     {
-      sourceChains: [Chain.SOLANA_MAINNET],
-      destChain: Chain.BITCOIN_MAINNET,
-      assetIn: AssetId.BTCb,
-      assetOut: AssetId.BTC,
-      envs: [Env.prod],
-    },
-    {
       sourceChains: [Chain.SOLANA_DEVNET],
       destChain: Chain.BITCOIN_SIGNET,
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
+      envs: [Env.stage, Env.dev],
     },
   ],
 
