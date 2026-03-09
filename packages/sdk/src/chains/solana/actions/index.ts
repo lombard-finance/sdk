@@ -5,5 +5,4 @@
  */
 
 export * from './redeem';
-export * from './stake';
 export * from './unstake';

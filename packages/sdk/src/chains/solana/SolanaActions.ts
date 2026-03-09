@@ -26,11 +26,6 @@ import type {
   ISolanaRedeem,
   SolanaRedeemParams,
 } from './actions/redeem/types';
-import { SolanaStake } from './actions/stake/SolanaStake';
-import type {
-  ISolanaStake,
-  SolanaStakeParams,
-} from './actions/stake/types';
 import { SolanaUnstake } from './actions/unstake/SolanaUnstake';
 import type {
   ISolanaUnstake,
@@ -73,18 +68,6 @@ export class SolanaActions {
       this._ctx = createSolanaCoreContext(this.config);
     }
     return this._ctx;
-  }
-
-  /**
-   * Stake BTC.b → LBTC
-   *
-   * Converts BTC.b to LBTC via the Asset Router program on Solana.
-   *
-   * @throws LombardError if solana module is not registered
-   * @throws LombardError if route is not supported
-   */
-  stake(params: SolanaStakeParams): ISolanaStake {
-    return new SolanaStake(this.ctx, params);
   }
 
   /**
