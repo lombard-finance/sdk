@@ -46,6 +46,19 @@ export interface ClaimTokenParams {
   basculeProgram?: string;
   rpcUrl?: string;
   debug?: boolean;
+  /**
+   * Skip preflight transaction simulation before broadcast.
+   *
+   * Defaults to `false` (simulation enabled). Set to `true` if you encounter
+   * false-negative preflight failures on devnet/testnet RPC nodes that lag
+   * behind the confirmed state — for example, when a simulation node has not
+   * yet observed a PDA created by the immediately preceding step in the same
+   * multi-step flow (session, validated_payload, session_payload, message_info).
+   *
+   * On-chain errors are still surfaced through `confirmTransaction` regardless
+   * of this flag.
+   */
+  skipPreflight?: boolean;
 }
 
 export interface AssetRouterConfig {
@@ -173,7 +186,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       connection,
       provider,
       debugLabel: 'Consortium create_session',
-      skipPreflight: true,
+      skipPreflight: params.skipPreflight ?? false,
     });
     debugLog('create_session completed');
   } else {
@@ -217,7 +230,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       connection,
       provider,
       debugLabel: 'Consortium post_session_signatures',
-      skipPreflight: true,
+      skipPreflight: params.skipPreflight ?? false,
     });
     debugLog('post_session_signatures completed');
   } else {
@@ -242,7 +255,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
     connection,
     provider,
     debugLabel: 'Consortium finalize_session',
-    skipPreflight: true,
+    skipPreflight: params.skipPreflight ?? false,
   });
   debugLog('finalize_session completed — ValidatedPayload created');
 }

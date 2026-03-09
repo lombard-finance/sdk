@@ -74,7 +74,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       connection,
       provider,
       debugLabel: 'Consortium post_session_payload',
-      skipPreflight: true,
+      skipPreflight: params.skipPreflight ?? false,
     });
     debugLog('post_session_payload completed');
   }
@@ -133,7 +133,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       connection,
       provider,
       debugLabel: 'Mailbox deliver_message',
-      skipPreflight: true,
+      skipPreflight: params.skipPreflight ?? false,
     });
     debugLog('deliver_message completed');
   }
@@ -241,7 +241,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
     connection,
     provider,
     debugLabel: 'Mailbox handle_message',
-    skipPreflight: true,
+    skipPreflight: params.skipPreflight ?? false,
   });
 
   debugLog('LBTC mint successful! Signature:', signature);

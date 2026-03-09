@@ -132,7 +132,7 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
     connection,
     provider,
     debugLabel: 'Asset Router mint_from_payload',
-    skipPreflight: true,
+    skipPreflight: params.skipPreflight ?? false,
   });
 
   debugLog('BTC.B mint successful! Signature:', signature);

@@ -45,6 +45,19 @@ export interface RedeemForBtcParams {
   env?: Env;
   rpcUrl?: string;
   debug?: boolean;
+  /**
+   * Skip preflight transaction simulation before broadcast.
+   *
+   * Defaults to `false` (simulation enabled). Set to `true` if preflight
+   * simulation gives false negatives — for example, when the simulation node
+   * has not yet seen the latest global nonce for the `outbound_message` PDA,
+   * leading to a spurious `ConstraintSeeds (0x7d6)` failure even though the
+   * transaction would land correctly on-chain. The retry loop inside
+   * `redeemForBtc` already handles the `0x7d6` error returned by
+   * `confirmTransaction`, so enabling preflight only adds a redundant check
+   * at the cost of potential false negatives on lagging RPC nodes.
+   */
+  skipPreflight?: boolean;
 }
 
 /**
@@ -57,7 +70,7 @@ export async function redeemForBtc(
   provider: ISolanaWalletProvider,
   params: RedeemForBtcParams,
 ): Promise<string> {
-  const { amount, btcAddress, network, env: envOverride, rpcUrl, debug = false } = params;
+  const { amount, btcAddress, network, env: envOverride, rpcUrl, debug = false, skipPreflight = false } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
   try {
@@ -291,7 +304,7 @@ export async function redeemForBtc(
           connection,
           provider,
           debugLabel: 'Asset Router redeem_for_btc',
-          skipPreflight: true,
+          skipPreflight,
         });
 
         debugLog('redeem_for_btc completed, signature:', signature);
