@@ -1,6 +1,8 @@
+import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
+import { envToNetwork } from '../../const/getConfig';
 import {
   Button,
   CodeBlock,
@@ -12,22 +14,22 @@ import {
 import { functionType } from '../../stories/decorators/function-type';
 import { useConnect } from '../../stories/hooks/useConnect';
 import useQuery from '../../stories/hooks/useQuery';
-import { SolanaNetwork } from '../../types';
 import { redeemForBtc } from './redeemForBtc';
 
 interface RedeemForBtcStoryArgs {
-  network: SolanaNetwork;
+  environment: Env;
   amount: string;
   btcAddress: string;
   tokenMint: string;
 }
 
 export const StoryView = ({
-  network,
+  environment,
   amount,
   btcAddress,
   tokenMint,
 }: RedeemForBtcStoryArgs) => {
+  const network = envToNetwork[environment];
   const [transactionLogs, setTransactionLogs] = useState<string[] | null>(null);
 
   const {
@@ -58,6 +60,7 @@ export const StoryView = ({
         btcAddress,
         tokenMint: tokenMint || undefined,
         network,
+        env: environment,
         debug: true,
       });
       return result;
@@ -77,7 +80,7 @@ export const StoryView = ({
     refetch: handleRedeem,
   } = useQuery(
     request,
-    [provider, address, amount, btcAddress, tokenMint, network],
+    [provider, address, amount, btcAddress, tokenMint, environment],
     false,
   );
 
@@ -97,6 +100,9 @@ export const StoryView = ({
       {isConnected && (
         <>
           <SectionCard title="Configuration">
+            <p>
+              <strong>Environment:</strong> {environment}
+            </p>
             <p>
               <strong>Network:</strong> {network}
             </p>
@@ -167,15 +173,15 @@ const meta: Meta<typeof StoryView> = {
     },
   },
   args: {
-    network: SolanaNetwork.devnet,
+    environment: Env.stage,
     amount: '0.0002',
     btcAddress: '',
     tokenMint: '',
   },
   argTypes: {
-    network: {
+    environment: {
       control: { type: 'select' },
-      options: Object.values(SolanaNetwork),
+      options: Object.values(Env),
     },
     amount: {
       control: { type: 'text' },

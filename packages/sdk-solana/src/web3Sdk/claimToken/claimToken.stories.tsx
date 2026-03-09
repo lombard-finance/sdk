@@ -1,7 +1,8 @@
+import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useEffect, useState } from 'react';
 
-import { getConfig, networkToEnv } from '../../const/getConfig';
+import { envToNetwork, getConfig } from '../../const/getConfig';
 import {
   Button,
   CodeBlock,
@@ -15,26 +16,23 @@ import { functionType } from '../../stories/decorators/function-type';
 import { useConnect } from '../../stories/hooks/useConnect';
 import { IOutput, useFetchOutputs } from '../../stories/hooks/useFetchOutputs';
 import useQuery from '../../stories/hooks/useQuery';
-import { SolanaNetwork } from '../../types';
 import { claimToken } from './claimToken';
 
 type TokenChoice = 'BTC.b' | 'LBTC';
 
 interface ClaimTokenStoryArgs {
-  network: SolanaNetwork;
+  environment: Env;
   token: TokenChoice;
 }
 
-const getTokenMint = (
-  network: SolanaNetwork,
-  token: TokenChoice,
-): string | null => {
-  const config = getConfig(networkToEnv[network]);
+const getTokenMint = (env: Env, token: TokenChoice): string | null => {
+  const config = getConfig(env);
   if (token === 'BTC.b') return config.btcbTokenMint;
   return config.lbtcTokenMint;
 };
 
-export const StoryView = ({ network, token }: ClaimTokenStoryArgs) => {
+export const StoryView = ({ environment, token }: ClaimTokenStoryArgs) => {
+  const network = envToNetwork[environment];
   const [selectedOutput, setSelectedOutput] = useState<IOutput | null>(null);
   const [transactionLogs, setTransactionLogs] = useState<string[] | null>(null);
 
@@ -51,11 +49,11 @@ export const StoryView = ({ network, token }: ClaimTokenStoryArgs) => {
 
   const { refetchOutputs } = useFetchOutputs({
     address: address ?? undefined,
-    environment: network,
+    environment,
     isConnected: isConnected,
   });
 
-  const tokenMint = getTokenMint(network, token);
+  const tokenMint = getTokenMint(environment, token);
 
   const request = async () => {
     if (!provider || !address) throw new Error('Wallet not connected.');
@@ -65,7 +63,7 @@ export const StoryView = ({ network, token }: ClaimTokenStoryArgs) => {
     if (!selectedOutput.proof)
       throw new Error('Selected output has no proof.');
     if (!tokenMint)
-      throw new Error(`Token mint not configured for ${token} on ${network}.`);
+      throw new Error(`Token mint not configured for ${token} on ${environment}.`);
 
     setTransactionLogs(null);
     try {
@@ -73,6 +71,7 @@ export const StoryView = ({ network, token }: ClaimTokenStoryArgs) => {
         recipientAddress: address,
         tokenMint,
         network,
+        env: environment,
         rawPayload: selectedOutput.raw_payload,
         proofSignature: selectedOutput.proof,
         debug: true,
@@ -96,14 +95,14 @@ export const StoryView = ({ network, token }: ClaimTokenStoryArgs) => {
     refetch: handleClaim,
   } = useQuery(
     request,
-    [provider, address, selectedOutput, network, token, refetchOutputs],
+    [provider, address, selectedOutput, environment, token, refetchOutputs],
     false,
   );
 
   useEffect(() => {
     setSelectedOutput(null);
     setTransactionLogs(null);
-  }, [isConnected, address, network, token]);
+  }, [isConnected, address, environment, token]);
 
   return (
     <>
@@ -129,6 +128,9 @@ export const StoryView = ({ network, token }: ClaimTokenStoryArgs) => {
               {tokenMint || <em>Not configured</em>}
             </p>
             <p>
+              <strong>Environment:</strong> {environment}
+            </p>
+            <p>
               <strong>Network:</strong> {network}
             </p>
           </SectionCard>
@@ -136,7 +138,7 @@ export const StoryView = ({ network, token }: ClaimTokenStoryArgs) => {
           <SectionCard title="Available Bitcoin Outputs">
             <OutputSelector
               address={address}
-              network={network}
+              environment={environment}
               isConnected={isConnected}
               selectedOutput={selectedOutput}
               onOutputSelect={setSelectedOutput}
@@ -210,13 +212,13 @@ performs a single transaction — the Consortium validation is handled entirely 
     },
   },
   args: {
-    network: SolanaNetwork.devnet,
+    environment: Env.stage,
     token: 'BTC.b',
   },
   argTypes: {
-    network: {
+    environment: {
       control: { type: 'select' },
-      options: Object.values(SolanaNetwork),
+      options: Object.values(Env),
     },
     token: {
       control: { type: 'select' },

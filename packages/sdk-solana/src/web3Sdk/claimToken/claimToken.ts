@@ -31,7 +31,7 @@ export async function claimToken(
   provider: ISolanaWalletProvider,
   params: ClaimTokenParams,
 ): Promise<string> {
-  const { network, rawPayload, rpcUrl, debug = false } = params;
+  const { network, env, rawPayload, rpcUrl, debug = false } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
   try {
@@ -39,7 +39,7 @@ export async function claimToken(
       throw new Error('Wallet not found');
     }
 
-    const config = getConfig(networkToEnv[network]);
+    const config = getConfig(env ?? networkToEnv[network]);
     if (!config.assetRouter) {
       throw new Error(`Asset Router not configured for network: ${network}`);
     }
@@ -106,10 +106,15 @@ export async function claimToken(
     );
 
     // Read on-chain Asset Router config
+    debugLog('Asset Router program ID:', assetRouterProgramId.toBase58());
+    debugLog('Asset Router config PDA:', assetRouterConfigPDA.toBase58());
     const configAccountInfo =
       await connection.getAccountInfo(assetRouterConfigPDA);
+    debugLog('Config account exists:', !!configAccountInfo);
     if (!configAccountInfo) {
-      throw new Error('Asset Router config account not found');
+      throw new Error(
+        `Asset Router config account not found at ${assetRouterConfigPDA.toBase58()} (program: ${assetRouterProgramId.toBase58()})`,
+      );
     }
     const arConfig = parseAssetRouterConfig(configAccountInfo.data);
 
