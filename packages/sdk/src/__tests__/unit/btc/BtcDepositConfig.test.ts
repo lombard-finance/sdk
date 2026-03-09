@@ -164,8 +164,8 @@ describe('BTC Deposit Config', () => {
       expect(isAssetOutSupported(solConfig, AssetId.LBTC)).toBe(false);
     });
 
-    it('should support Solana mainnet as destination', () => {
-      expect(isDestChainSupported(solConfig, Chain.SOLANA_MAINNET)).toBe(true);
+    it('should support Solana devnet as destination', () => {
+      expect(isDestChainSupported(solConfig, Chain.SOLANA_DEVNET)).toBe(true);
     });
 
     it('should NOT require fee authorization for Solana', () => {
