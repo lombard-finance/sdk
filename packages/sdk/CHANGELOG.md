@@ -1,3 +1,11 @@
+# 4.4.0
+
+- Added Solana destination support for BTC deposits, including destination signing and route configuration for Solana chains.
+- Added Solana `redeem()` actions for BTC.b -> BTC flows, including stage routing.
+- Added `MIN_REDEEM_AMOUNT_BTC` export.
+
+---
+
 # 4.3.3
 
 - Fixed fee authorization status being overwritten in `EvmUnstake.prepare()` and `EvmRedeem.prepare()`. The `successStatus` argument to `act()` was eagerly evaluated before the callback ran, always resolving to READY and preventing the NEEDS_FEE_AUTHORIZATION transition. This caused `authorizeFee()` to never be called on unsubsidized chains (Ethereum, Sepolia), meaning the `save-user-signature` API was never invoked.
