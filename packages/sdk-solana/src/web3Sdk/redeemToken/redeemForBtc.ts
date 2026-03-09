@@ -1,8 +1,8 @@
 import { BN, Program } from '@coral-xyz/anchor';
 import { Env, getOutputScript } from '@lombard.finance/sdk-common';
 import {
-  getAssociatedTokenAddress,
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress,
 } from '@solana/spl-token';
 import { PublicKey, SystemProgram } from '@solana/web3.js';
 
@@ -10,13 +10,13 @@ import { DEFAULT_ENV, getConfig, networkToEnv } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';
 import { getAssetRouterIdl } from '../../idl/getAssetRouterIdl';
 import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
+import { createDebugLogger } from '../../utils/createDebugLogger';
 import {
   ErrorCode,
   sendAndConfirmTransaction,
   SolanaSdkError,
 } from '../../utils';
 import { getTokenProgramForMint } from '../../utils/tokenAccount';
-import { createDebugLogger } from '../../utils/createDebugLogger';
 
 /**
  * BTC native token address in Lombard protocol (to_token_address for BTC in token_route PDA).

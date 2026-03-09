@@ -1,2 +1,1 @@
-export { redeemForBtc } from './redeemForBtc';
-export type { RedeemForBtcParams } from './redeemForBtc';
+export { redeemForBtc, type RedeemForBtcParams } from './redeemForBtc';
