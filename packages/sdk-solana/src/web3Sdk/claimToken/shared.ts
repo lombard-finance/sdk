@@ -1,8 +1,8 @@
 import { Program } from '@coral-xyz/anchor';
 import { Env } from '@lombard.finance/sdk-common';
 import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
-import { sha256 } from 'js-sha256';
 import { keccak256 } from 'js-sha3';
+import { sha256 } from 'js-sha256';
 
 import { IConfig } from '../../const/getConfig';
 import { ISolanaWalletProvider, SolanaNetwork } from '../../types';

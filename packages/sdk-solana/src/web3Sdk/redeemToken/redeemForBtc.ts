@@ -10,12 +10,12 @@ import { DEFAULT_ENV, getConfig, networkToEnv } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';
 import { getAssetRouterIdl } from '../../idl/getAssetRouterIdl';
 import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
-import { createDebugLogger } from '../../utils/createDebugLogger';
 import {
   ErrorCode,
   sendAndConfirmTransaction,
   SolanaSdkError,
 } from '../../utils';
+import { createDebugLogger } from '../../utils/createDebugLogger';
 import { getTokenProgramForMint } from '../../utils/tokenAccount';
 
 /**
