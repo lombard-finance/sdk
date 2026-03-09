@@ -4,7 +4,7 @@
  * @module chains/solana/actions/redeem
  */
 
-export { createSolanaRedeem, solanaRedeem } from './factory';
+export { createSolanaRedeem } from './factory';
 export { SolanaRedeem } from './SolanaRedeem';
 export type {
   ISolanaRedeem,
