@@ -13,6 +13,8 @@ import { evmDepositConfig } from './evm';
 import { solanaDepositConfig } from './solana';
 import type { DepositChainConfig } from './types';
 
+export { evmDepositConfig } from './evm';
+export { solanaDepositConfig } from './solana';
 export type {
   DepositChainConfig,
   DepositFeeAuthConfig,
@@ -21,9 +23,6 @@ export type {
   SignatureResult,
   StoredFeeSignature,
 } from './types';
-
-export { evmDepositConfig } from './evm';
-export { solanaDepositConfig } from './solana';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Registry
