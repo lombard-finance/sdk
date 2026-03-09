@@ -209,7 +209,7 @@ const testnetConfig: IConfig = {
   ratioOracle: null,
   bridge: null,
   lombardTokenPool: null,
-  ledgerChainId: null,
+  ledgerChainId: '033bc7baf196ce32b8b9200518df11c35bad882fc6e3b6f45b4a8885f4c1281b',
   solanaRoutingChainId: null,
   bitcoinRoutingChainId: null,
 };
@@ -235,7 +235,7 @@ const prodConfig: IConfig = {
   ratioOracle: null,
   bridge: null,
   lombardTokenPool: null,
-  ledgerChainId: null,
+  ledgerChainId: '0387b25e8e61f2ce4838b04795b231f09ee73ffd391da018bef4bc5c4975897b',
   solanaRoutingChainId: null,
   bitcoinRoutingChainId: null,
 };
