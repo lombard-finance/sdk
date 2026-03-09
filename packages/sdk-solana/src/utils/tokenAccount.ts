@@ -99,10 +99,7 @@ export async function createOrGetAssociatedTokenAccount({
 
     const signedTx = await provider.signTransaction(transaction);
 
-    const signature = await connection.sendRawTransaction(
-      signedTx.serialize(),
-      { skipPreflight: true },
-    );
+    const signature = await connection.sendRawTransaction(signedTx.serialize());
 
     const confirmation = await connection.confirmTransaction(
       signature,
