@@ -86,6 +86,23 @@ export async function redeemForBtc(
       throw new Error(`BTC.b mint not configured for network: ${network}`);
     }
 
+    // Validate amount: must be a non-zero positive integer within u64 range
+    const U64_MAX = 18446744073709551615n;
+    if (!/^\d+$/.test(amount)) {
+      throw new Error(
+        `Invalid amount "${amount}": must be a positive integer string (lamports, no decimals or signs)`,
+      );
+    }
+    const parsedAmount = BigInt(amount);
+    if (parsedAmount === 0n) {
+      throw new Error('Amount must be greater than zero');
+    }
+    if (parsedAmount > U64_MAX) {
+      throw new Error(
+        `Amount ${amount} exceeds the u64 maximum (${U64_MAX})`,
+      );
+    }
+
     const connection = getConnection(network, rpcUrl);
     const payer = new PublicKey(provider.publicKey);
     const mint = new PublicKey(mintAddress);
@@ -212,10 +229,9 @@ export async function redeemForBtc(
       payerTokenAccount,
     );
     const userBalance = BigInt(tokenBalance.value.amount);
-    const requestedAmount = BigInt(amount);
-    if (userBalance < requestedAmount) {
+    if (userBalance < parsedAmount) {
       throw new Error(
-        `Insufficient BTC.b balance: have ${tokenBalance.value.uiAmountString}, need ${Number(amount) / 1e8}`,
+        `Insufficient BTC.b balance: have ${tokenBalance.value.uiAmountString}, need ${Number(parsedAmount) / 1e8}`,
       );
     }
 
