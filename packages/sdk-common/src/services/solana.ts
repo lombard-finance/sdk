@@ -1,3 +1,5 @@
+import type { Env } from '../env';
+
 /**
  * Solana Chain Service
  *
@@ -44,5 +46,6 @@ export interface SolanaService {
     amount: string;
     btcAddress: string;
     network: string;
+    env?: Env;
   }): Promise<{ txHash: string }>;
 }

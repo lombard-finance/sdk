@@ -122,6 +122,7 @@ export class SolanaRedeem
         amount: amountInSatoshis,
         btcAddress: recipient,
         network,
+        env: this.env,
       });
 
       this._txHash = txHash;
