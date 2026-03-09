@@ -162,6 +162,32 @@ const devnetConfig: IConfig = {
   bitcoinRoutingChainId: 'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
 };
 
+const stageConfig: IConfig = {
+  lbtcTokenMint: '1btcyoWK7d99iosES4eXQGhhooCscKGigV5wHfvzueX',
+  lbtcProgramId: 'HEY7PCJe3GB27UWdopuYb1xDbB5SNtTcYPxRjntvfBSA',
+  treasuryAddress: 'ByHNGi4zPJw5StyWZoLQJ9n2wT12oupJF2pTSNKMnnAZ',
+  bascule: 'At7x8PtHWsJrLFLFRf6VY3eBmtCwsTFEBeKU2CzKvtvs',
+  basculeData: null,
+  admin: '6MKjyWZnkSMitJYAixvJzqhJiVsjTA3hYHX8aP9qNioj',
+  lzOftAdapter: 'AEFwQgaSNhQcZhAcGZGM9iTyGML3fsJC2aBvYmzV81FE',
+  lzOftStore: '3SG3oyrG3KSvJ9bbxPDu7ZXEe5o1TW1QkgudkKvK6FK4',
+  lzMultisig: 'GfYV1f1bR9vy41mSyQ8quxYbds121kijSBj5A3nG8oDQ',
+  lzEscrow: 'GRq2yasTvWWPPqSwxCZvqfCTfDhP3MswDH4nW2v6F5To',
+  btcbTokenMint: 'BTCGPAHQSsS9RYcL2Z4B5z6YyAXLatNcnaEwYdczsMZw',
+  consortium: 'Lom4WypiQ2pXWWXEsX1N8695hVLwG3yNqwq1YvvutVE',
+  mailbox: 'Lom5doBNAny5AaPS9J7SRPLghVqwEQLrEmvQMhNEUqa',
+  assetRouter: 'Lomby2CBo9czSz6jeQo73mK4fNfpF5vNz1RTW22sE8o',
+  ratioOracle: 'LomMaT3jSjMiECtPrK4pLfzNQB2uMaxMqGenBbimjWq',
+  bridge: 'LomS25cte2jkQoLbKembGB19gb2pMNKPFodwLHpMiWR',
+  lombardTokenPool: 'LomtioA14cDhme8bCCw5oc5a9FUDyT91z8ujtGnY5g9',
+  ledgerChainId:
+    '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e',
+  solanaRoutingChainId:
+    '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
+  bitcoinRoutingChainId:
+    'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
+};
+
 /**
  * Configuration for testnet environment
  */
@@ -223,6 +249,8 @@ export function getConfig(env: Env = DEFAULT_ENV): IConfig {
   switch (env) {
     case 'dev':
       return devnetConfig;
+    case 'stage':
+      return stageConfig;
     case 'testnet':
       return testnetConfig;
     default:

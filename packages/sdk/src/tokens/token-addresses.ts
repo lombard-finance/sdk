@@ -333,10 +333,16 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
     [Env.dev]: {
       [SOLANA_DEVNET_CHAIN]: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
     },
+    [Env.stage]: {
+      [SOLANA_DEVNET_CHAIN]: '1btcyoWK7d99iosES4eXQGhhooCscKGigV5wHfvzueX',
+    },
   },
   [Token.BTCb]: {
     [Env.dev]: {
       [SOLANA_DEVNET_CHAIN]: 'BTCB3ripBAut19jM8kDPVbJHb2ZdR2GcZvGZkCmFPtV8',
+    },
+    [Env.stage]: {
+      [SOLANA_DEVNET_CHAIN]: 'BTCGPAHQSsS9RYcL2Z4B5z6YyAXLatNcnaEwYdczsMZw',
     },
   },
 };

@@ -269,7 +269,7 @@ describe('Token Addresses', () => {
           Env.stage,
         );
 
-        expect(address).toBe('HEY7PCJe3GB27UWdopuYb1xDbB5SNtTcYPxRjntvfBSA');
+        expect(address).toBe('1btcyoWK7d99iosES4eXQGhhooCscKGigV5wHfvzueX');
         expect(address).toBeDefined();
       });
 
