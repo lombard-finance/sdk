@@ -150,3 +150,29 @@ export function isStarknetChain(chain: Chain): boolean {
 export function getChainNamespace(chain: Chain): string {
   return String(chain).split(CAIP2_SEPARATOR)[0];
 }
+
+/**
+ * Map a CAIP-2 Solana chain identifier to the network string expected by
+ * sdk-solana functions (e.g. 'mainnet-beta', 'devnet', 'testnet').
+ *
+ * @throws LombardError if the chain ID is not a recognised Solana chain
+ */
+export function chainToSolanaNetwork(chainId: string): string {
+  const CHAIN_TO_NETWORK: Record<string, string> = {
+    [Chain.SOLANA_MAINNET]: 'mainnet-beta',
+    [Chain.SOLANA_DEVNET]: 'devnet',
+    [Chain.SOLANA_TESTNET]: 'testnet',
+    'solana:mainnet-beta': 'mainnet-beta',
+    'solana:devnet': 'devnet',
+    'solana:testnet': 'testnet',
+  };
+
+  const network = CHAIN_TO_NETWORK[chainId];
+  if (!network) {
+    throw new LombardError(
+      ValidationErrorCode.INVALID_CHAIN,
+      `Unknown Solana chain: ${chainId}. Expected one of: ${Object.keys(CHAIN_TO_NETWORK).join(', ')}`,
+    );
+  }
+  return network;
+}

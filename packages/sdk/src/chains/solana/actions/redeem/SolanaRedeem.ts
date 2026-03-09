@@ -23,6 +23,7 @@ import {
   validatePrepareParams,
 } from '../../../../shared/validation';
 import { toSatoshi } from '../../../../utils/satoshi';
+import { envToSolanaNetwork } from '../../utils';
 import { isRedeemSupported, solanaRedeemConfig } from './config';
 import type {
   ISolanaRedeem,
@@ -30,19 +31,6 @@ import type {
   SolanaRedeemPrepareParams,
 } from './types';
 
-function envToSolanaNetwork(env: Env): string {
-  switch (env) {
-    case 'prod':
-      return 'mainnet-beta';
-    case 'testnet':
-      return 'testnet';
-    case 'stage':
-    case 'dev':
-    case 'ibc':
-    default:
-      return 'devnet';
-  }
-}
 
 export class SolanaRedeem
   extends BaseAction<RedeemEventMap, NonEvmUnstakeStatus>
