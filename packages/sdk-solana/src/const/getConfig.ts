@@ -129,11 +129,6 @@ export interface IConfig {
    */
   solanaRoutingChainId: string | null;
 
-  /**
-   * Bitcoin routing chain ID (32 bytes hex) — `to_chain_id` for token_route PDA derivation.
-   * This identifies Bitcoin in the Lombard cross-chain routing protocol.
-   */
-  bitcoinRoutingChainId: string | null;
 }
 
 /**
@@ -159,7 +154,6 @@ const devnetConfig: IConfig = {
   lombardTokenPool: 'LomdWAg9hHyz3VrvK5wXTap7o348Ku2QJ2j2H8Etj3C',
   ledgerChainId: '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e',
   solanaRoutingChainId: '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
-  bitcoinRoutingChainId: 'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
 };
 
 const stageConfig: IConfig = {
@@ -184,8 +178,6 @@ const stageConfig: IConfig = {
     '03188910472e0723d1bbb01b01f0004a3cbbca1dde55b638d67172155d69f507',
   solanaRoutingChainId:
     '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
-  bitcoinRoutingChainId:
-    'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
 };
 
 /**
@@ -211,7 +203,6 @@ const testnetConfig: IConfig = {
   lombardTokenPool: null,
   ledgerChainId: '033bc7baf196ce32b8b9200518df11c35bad882fc6e3b6f45b4a8885f4c1281b',
   solanaRoutingChainId: null,
-  bitcoinRoutingChainId: null,
 };
 
 /**
@@ -237,7 +228,6 @@ const prodConfig: IConfig = {
   lombardTokenPool: null,
   ledgerChainId: '0387b25e8e61f2ce4838b04795b231f09ee73ffd391da018bef4bc5c4975897b',
   solanaRoutingChainId: null,
-  bitcoinRoutingChainId: null,
 };
 
 /**
