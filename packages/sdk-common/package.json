@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-common",
-  "version": "3.4.1",
+  "version": "3.5.0",
   "description": "Shared utilities and types for the Lombard SDK packages",
   "exports": {
     ".": {
