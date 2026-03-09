@@ -1,14 +1,14 @@
 import { Idl } from '@coral-xyz/anchor';
+import { Env } from '@lombard.finance/sdk-common';
 
-import { getConfig, networkToEnv } from '../const/getConfig';
-import { SolanaNetwork } from '../types';
+import { getConfig } from '../const/getConfig';
 import assetRouterIdl from './asset_router.json';
 
-export const getAssetRouterIdl = (network: SolanaNetwork): Idl => {
-  const config = getConfig(networkToEnv[network]);
+export const getAssetRouterIdl = (env: Env): Idl => {
+  const config = getConfig(env);
   if (!config.assetRouter) {
     throw new Error(
-      `Asset Router program not configured for network: ${network}`,
+      `Asset Router program not configured for env: ${env}`,
     );
   }
   const programIdl = { ...assetRouterIdl } as unknown as Idl;

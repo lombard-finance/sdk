@@ -1,14 +1,14 @@
 import { Idl } from '@coral-xyz/anchor';
+import { Env } from '@lombard.finance/sdk-common';
 
-import { getConfig, networkToEnv } from '../const/getConfig';
-import { SolanaNetwork } from '../types';
+import { getConfig } from '../const/getConfig';
 import mailboxIdl from './mailbox.json';
 
-export const getMailboxIdl = (network: SolanaNetwork): Idl => {
-  const config = getConfig(networkToEnv[network]);
+export const getMailboxIdl = (env: Env): Idl => {
+  const config = getConfig(env);
   if (!config.mailbox) {
     throw new Error(
-      `Mailbox program not configured for network: ${network}`,
+      `Mailbox program not configured for env: ${env}`,
     );
   }
   const programIdl = { ...mailboxIdl } as unknown as Idl;

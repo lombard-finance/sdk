@@ -31,7 +31,7 @@ export async function claimToken(
   provider: ISolanaWalletProvider,
   params: ClaimTokenParams,
 ): Promise<string> {
-  const { network, env, rawPayload, rpcUrl, debug = false } = params;
+  const { network, env: envOverride, rawPayload, rpcUrl, debug = false } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
   try {
@@ -39,7 +39,8 @@ export async function claimToken(
       throw new Error('Wallet not found');
     }
 
-    const config = getConfig(env ?? networkToEnv[network]);
+    const env = envOverride ?? networkToEnv[network];
+    const config = getConfig(env);
     if (!config.assetRouter) {
       throw new Error(`Asset Router not configured for network: ${network}`);
     }
@@ -57,11 +58,11 @@ export async function claimToken(
     setProvider(anchorProvider);
 
     const assetRouterProgram = new Program(
-      getAssetRouterIdl(network),
+      getAssetRouterIdl(env),
       anchorProvider,
     );
     const consortiumProgram = new Program(
-      getConsortiumIdl(network),
+      getConsortiumIdl(env),
       anchorProvider,
     );
     const assetRouterProgramId = new PublicKey(config.assetRouter);
@@ -125,6 +126,7 @@ export async function claimToken(
     const ctx: ClaimContext = {
       provider,
       params,
+      env,
       config,
       connection,
       payloadBytes,

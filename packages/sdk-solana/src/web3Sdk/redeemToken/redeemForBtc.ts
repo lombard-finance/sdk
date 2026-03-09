@@ -220,7 +220,7 @@ export async function redeemForBtc(
     }
 
     const assetRouterProgram = new Program(
-      getAssetRouterIdl(network),
+      getAssetRouterIdl(env),
       { connection },
     );
 
