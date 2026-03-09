@@ -169,7 +169,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   await createOrGetAssociatedTokenAccount({
     provider,
     connection,
-    ownerAddress: params.recipientAddress,
+    ownerAddress: tokenRecipient.toBase58(),
     mintAddress: mint.toBase58(),
   });
 

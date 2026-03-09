@@ -72,7 +72,7 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
   await createOrGetAssociatedTokenAccount({
     provider,
     connection,
-    ownerAddress: params.recipientAddress,
+    ownerAddress: payloadRecipient.toBase58(),
     mintAddress: mint.toBase58(),
   });
 
