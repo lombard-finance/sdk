@@ -20,7 +20,7 @@ jobs:
     if: >
       github.event.pull_request.head.repo.full_name == github.repository &&
       contains(github.event.pull_request.labels.*.name, 'create-tagged-sdk-release')
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.SDK_RELEASE_BOT_TOKEN }}
       PACKAGE_JSON_PATH: ./packages/sdk/package.json

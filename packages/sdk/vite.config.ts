@@ -59,6 +59,7 @@ export default defineConfig({
           dir: 'dist',
           entryFileNames: '[name].js',
           chunkFileNames: 'chunks/[name]-[hash].js',
+          minifyInternalExports: false,
         },
         {
           format: 'commonjs',

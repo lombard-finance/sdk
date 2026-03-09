@@ -1,1 +1,2 @@
 export const MIN_STAKE_AMOUNT_BTC = 0.0002;
+export const MIN_REDEEM_AMOUNT_BTC = 0.0001;

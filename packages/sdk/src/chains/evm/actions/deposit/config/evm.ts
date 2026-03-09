@@ -1,7 +1,7 @@
 /**
  * EVM Chain Configuration for Deposit
  *
- * Handles depositing wrapped BTC (WBTC, BTCb) to get LBTC.
+ * Handles depositing BTCb to get LBTC.
  * Routes are derived from ASSET_CATALOG to ensure consistency.
  *
  * @module chains/evm/actions/deposit/config/evm
@@ -21,23 +21,12 @@ import type { ChainConfig } from './types';
 // Catalog-Derived Chain Lists
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** 
- * Source chains: EVM chains with deposit assets (WBTC or BTCb) 
- * Note: We check for chains with any of the deposit assets
+/**
+ * Source chains: EVM chains with BTCb deployed
  */
-const DEPOSIT_PROD_SOURCE_CHAINS = [
-  ...new Set([
-    ...getEvmAssetChains(AssetId.WBTC, [Env.prod]),
-    ...getEvmAssetChains(AssetId.BTCb, [Env.prod]),
-  ]),
-];
+const DEPOSIT_PROD_SOURCE_CHAINS = getEvmAssetChains(AssetId.BTCb, [Env.prod]);
 
-const DEPOSIT_TESTNET_SOURCE_CHAINS = [
-  ...new Set([
-    ...getEvmAssetChains(AssetId.WBTC, [Env.testnet, Env.stage, Env.dev, Env.ibc]),
-    ...getEvmAssetChains(AssetId.BTCb, [Env.testnet, Env.stage, Env.dev, Env.ibc]),
-  ]),
-];
+const DEPOSIT_TESTNET_SOURCE_CHAINS = getEvmAssetChains(AssetId.BTCb, [Env.testnet, Env.stage, Env.dev, Env.ibc]);
 
 /** Dest chains: EVM chains with LBTC deployed */
 const LBTC_PROD_CHAINS = getEvmAssetChains(AssetId.LBTC, [Env.prod]);
@@ -55,17 +44,17 @@ const LBTC_TESTNET_CHAINS = getEvmAssetChains(AssetId.LBTC, [
 /**
  * EVM deposit configuration
  *
- * Supports depositing WBTC/BTCb to get LBTC on EVM chains.
- * Source chains derived from WBTC/BTCb deployments.
+ * Supports depositing BTCb to get LBTC on EVM chains.
+ * Source chains derived from BTCb deployments.
  * Dest chains derived from LBTC deployments.
  */
 export const evmConfig: ChainConfig = {
   chainType: 'evm',
 
   routes: [
-    // Production: WBTC/BTCb → LBTC
+    // Production: BTCb → LBTC
     {
-      assetsIn: [AssetId.WBTC, AssetId.BTCb],
+      assetsIn: [AssetId.BTCb],
       assetOut: AssetId.LBTC,
       sourceChains: DEPOSIT_PROD_SOURCE_CHAINS,
       destChains: LBTC_PROD_CHAINS,
@@ -73,7 +62,7 @@ export const evmConfig: ChainConfig = {
     },
     // Testnet
     {
-      assetsIn: [AssetId.WBTC, AssetId.BTCb],
+      assetsIn: [AssetId.BTCb],
       assetOut: AssetId.LBTC,
       sourceChains: DEPOSIT_TESTNET_SOURCE_CHAINS,
       destChains: LBTC_TESTNET_CHAINS,
