@@ -6,7 +6,7 @@
  * @module services/SolanaServiceImpl
  */
 
-import type { SolanaService } from '@lombard.finance/sdk-common';
+import type { Env, SolanaService } from '@lombard.finance/sdk-common';
 
 import type { ISolanaWalletProvider, SolanaNetwork } from '../types';
 import { redeemForBtc } from '../web3Sdk/redeemToken/redeemForBtc';
@@ -70,6 +70,7 @@ export class SolanaServiceImpl implements SolanaService {
     amount: string;
     btcAddress: string;
     network: string;
+    env?: Env;
   }): Promise<{ txHash: string }> {
     const provider = (await this.getProvider()) as ISolanaWalletProvider;
 
@@ -77,6 +78,7 @@ export class SolanaServiceImpl implements SolanaService {
       amount: args.amount,
       btcAddress: args.btcAddress,
       network: args.network as SolanaNetwork,
+      env: args.env,
     });
 
     return { txHash };
