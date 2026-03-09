@@ -64,7 +64,6 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       )
       .accounts({
         payer: provider.publicKey,
-        // @ts-ignore
         sessionPayload: sessionPayloadPDA,
         systemProgram: SystemProgram.programId,
       })
@@ -121,7 +120,6 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       .accounts({
         deliverer: provider.publicKey,
         config: mailboxConfigPDA,
-        // @ts-ignore
         messageInfo: messageInfoPDA,
         inboundMessagePath: inboundMessagePathPDA,
         consortiumPayload: sessionPayloadPDA,
@@ -176,10 +174,9 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   // Build handle_message instruction
   const handleIx = await mailboxProgram.methods
     .handleMessage(payloadHashArray)
-    .accounts({
+      .accounts({
       handler: provider.publicKey,
       config: mailboxConfigPDA,
-      // @ts-ignore
       messageInfo: messageInfoPDA,
       recipientProgram: msgRecipient,
     })

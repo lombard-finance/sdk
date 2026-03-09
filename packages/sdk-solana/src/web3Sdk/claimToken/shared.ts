@@ -162,7 +162,6 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       .accounts({
         payer: provider.publicKey,
         config: consortiumConfigPDA,
-        // @ts-ignore — Anchor may not resolve PDA types from IDL
         session: sessionPDA,
         validatedPayload: validatedPayloadPDA,
         systemProgram: SystemProgram.programId,
@@ -209,7 +208,6 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       .accounts({
         payer: provider.publicKey,
         config: consortiumConfigPDA,
-        // @ts-ignore
         session: sessionPDA,
       })
       .transaction();
@@ -230,10 +228,9 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
   debugLog('Step 3: finalize_session...');
   const finalizeSessionTx = await consortiumProgram.methods
     .finalizeSession(payloadHashArray)
-    .accounts({
+      .accounts({
       payer: provider.publicKey,
       config: consortiumConfigPDA,
-      // @ts-ignore
       session: sessionPDA,
       validatedPayload: validatedPayloadPDA,
       systemProgram: SystemProgram.programId,
