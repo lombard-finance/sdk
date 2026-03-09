@@ -1,6 +1,6 @@
+import { Env } from '@lombard.finance/sdk-common';
 import React, { useEffect } from 'react';
 
-import { SolanaNetwork } from '../../../types';
 import { IOutput, useFetchOutputs } from '../../hooks/useFetchOutputs';
 import { Button } from '../Button/Button';
 import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
@@ -9,7 +9,7 @@ import { Spinner } from '../Spinner';
 
 interface OutputSelectorProps {
   address: string | undefined;
-  network: SolanaNetwork;
+  environment: Env;
   isConnected: boolean;
   selectedOutput: IOutput | null;
   onOutputSelect: (output: IOutput | null) => void;
@@ -18,7 +18,7 @@ interface OutputSelectorProps {
 
 export const OutputSelector: React.FC<OutputSelectorProps> = ({
   address,
-  network,
+  environment,
   isConnected,
   selectedOutput,
   onOutputSelect,
@@ -27,14 +27,14 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
   const { outputs, isLoadingOutputs, outputsError, refetchOutputs } =
     useFetchOutputs({
       address: address,
-      environment: network,
+      environment,
       isConnected: isConnected,
     });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally reset only on context change
   useEffect(() => {
     onOutputSelect(null);
-  }, [isConnected, address, network, onOutputSelect]);
+  }, [isConnected, address, environment, onOutputSelect]);
 
   const statusLabel = (status: string) => {
     switch (status) {
@@ -80,7 +80,7 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
       ) : outputs.length === 0 ? (
         <div className="alert alert-info">
           No pending Bitcoin outputs found for your address (
-          {address?.substring(0, 6)}...) on {network}. You might need to stake
+          {address?.substring(0, 6)}...) on {environment}. You might need to stake
           Bitcoin first or check the selected network.
         </div>
       ) : (

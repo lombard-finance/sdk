@@ -1,5 +1,5 @@
 import { BN, Program } from '@coral-xyz/anchor';
-import { getOutputScript } from '@lombard.finance/sdk-common';
+import { Env, getOutputScript } from '@lombard.finance/sdk-common';
 import {
   getAssociatedTokenAddress,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -36,6 +36,13 @@ export interface RedeemForBtcParams {
    */
   tokenMint?: string;
   network: SolanaNetwork;
+  /**
+   * Optional environment override. When provided, used instead of
+   * the default `networkToEnv[network]` mapping to resolve config.
+   * Useful when multiple environments share the same Solana network
+   * (e.g. both 'dev' and 'stage' use devnet).
+   */
+  env?: Env;
   rpcUrl?: string;
   debug?: boolean;
 }
@@ -50,7 +57,7 @@ export async function redeemForBtc(
   provider: ISolanaWalletProvider,
   params: RedeemForBtcParams,
 ): Promise<string> {
-  const { amount, btcAddress, network, rpcUrl, debug = false } = params;
+  const { amount, btcAddress, network, env: envOverride, rpcUrl, debug = false } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
   try {
@@ -58,7 +65,7 @@ export async function redeemForBtc(
       throw new Error('Wallet not connected');
     }
 
-    const env = networkToEnv[network] || DEFAULT_ENV;
+    const env = envOverride ?? networkToEnv[network] ?? DEFAULT_ENV;
     const config = getConfig(env);
 
     if (!config.assetRouter) {

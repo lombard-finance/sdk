@@ -3,6 +3,8 @@ import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
 import { sha256 } from 'js-sha256';
 import { keccak256 } from 'js-sha3';
 
+import { Env } from '@lombard.finance/sdk-common';
+
 import { IConfig } from '../../const/getConfig';
 import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import { sendAndConfirmTransaction } from '../../utils';
@@ -22,6 +24,13 @@ export interface ClaimTokenParams {
    */
   tokenMint: string;
   network: SolanaNetwork;
+  /**
+   * Optional environment override. When provided, used instead of
+   * the default `networkToEnv[network]` mapping to resolve config.
+   * Useful when multiple environments share the same Solana network
+   * (e.g. both 'dev' and 'stage' use devnet).
+   */
+  env?: Env;
   /**
    * Raw payload hex string. Length depends on token type:
    * - BTC.B deposit: 196 bytes (selector ce25e7c2)
