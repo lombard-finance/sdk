@@ -35,7 +35,7 @@ export enum EvmDepositStatus {
  * EVM Deposit parameters
  */
 export interface EvmDepositParams {
-  /** Input asset (WBTC, BTCb) */
+  /** Input asset (BTCb) */
   assetIn: AssetId;
   /** Output asset (LBTC) */
   assetOut: AssetId;

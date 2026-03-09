@@ -5,7 +5,6 @@ import lbtcIdl from './lbtc.json';
 
 export const getLbtcIdl = (network: SolanaNetwork) => {
   const config = getConfig(networkToEnv[network]);
-  const programIdl = lbtcIdl as unknown as Lbtc;
-  programIdl.address = config.lbtcProgramId;
+  const programIdl = { ...lbtcIdl, address: config.lbtcProgramId } as unknown as Lbtc;
   return programIdl;
 };

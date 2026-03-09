@@ -1,0 +1,1 @@
+export { StarknetStakePage } from './StarknetStakePage';
