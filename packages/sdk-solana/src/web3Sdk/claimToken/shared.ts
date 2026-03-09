@@ -65,6 +65,7 @@ export type DebugLog = (...args: unknown[]) => void;
 export interface ClaimContext {
   provider: ISolanaWalletProvider;
   params: ClaimTokenParams;
+  env: Env;
   config: IConfig;
   connection: Connection;
   payloadBytes: Buffer;
