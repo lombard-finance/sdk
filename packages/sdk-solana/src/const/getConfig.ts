@@ -181,7 +181,7 @@ const stageConfig: IConfig = {
   bridge: 'LomS25cte2jkQoLbKembGB19gb2pMNKPFodwLHpMiWR',
   lombardTokenPool: 'LomtioA14cDhme8bCCw5oc5a9FUDyT91z8ujtGnY5g9',
   ledgerChainId:
-    '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e',
+    '03188910472e0723d1bbb01b01f0004a3cbbca1dde55b638d67172155d69f507',
   solanaRoutingChainId:
     '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
   bitcoinRoutingChainId:
