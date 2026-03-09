@@ -60,7 +60,15 @@ export class SolanaRedeem
     super(NonEvmUnstakeStatus.IDLE);
     this.env = ctx.env;
 
-    if (!isRedeemSupported(params.sourceChain, this.env)) {
+    if (
+      !isRedeemSupported(
+        params.sourceChain,
+        params.destChain,
+        params.assetIn,
+        params.assetOut,
+        this.env,
+      )
+    ) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,

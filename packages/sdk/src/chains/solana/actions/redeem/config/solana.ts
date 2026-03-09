@@ -35,11 +35,21 @@ export const solanaRedeemConfig: ChainConfig = {
 };
 
 /**
- * Check if BTC.b → BTC redeem is supported on this Solana chain
+ * Check if BTC.b → BTC redeem is supported for the full route
  */
-export function isRedeemSupported(sourceChain: Chain, env: Env): boolean {
+export function isRedeemSupported(
+  sourceChain: Chain,
+  destChain: Chain,
+  assetIn: AssetId,
+  assetOut: AssetId,
+  env: Env,
+): boolean {
   return solanaRedeemConfig.routes.some(
     route =>
-      route.sourceChains.includes(sourceChain) && route.envs.includes(env),
+      route.sourceChains.includes(sourceChain) &&
+      route.destChain === destChain &&
+      route.assetIn === assetIn &&
+      route.assetOut === assetOut &&
+      route.envs.includes(env),
   );
 }
