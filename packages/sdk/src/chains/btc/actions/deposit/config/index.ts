@@ -79,9 +79,9 @@ export function isRouteAvailable(
   sourceChain: Chain | undefined,
   env: Env,
 ): boolean {
-  if (!sourceChain) return true;
   return config.routes.some(
     route =>
-      route.sourceChains.includes(sourceChain) && route.envs.includes(env),
+      route.envs.includes(env) &&
+      (!sourceChain || route.sourceChains.includes(sourceChain)),
   );
 }
