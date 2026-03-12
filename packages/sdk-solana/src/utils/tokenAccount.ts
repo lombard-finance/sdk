@@ -51,11 +51,13 @@ export async function createOrGetAssociatedTokenAccount({
   connection,
   ownerAddress,
   mintAddress,
+  allowOwnerOffCurve = false,
 }: {
   provider: ISolanaWalletProvider;
   connection: Connection;
   ownerAddress: string;
   mintAddress: string;
+  allowOwnerOffCurve?: boolean;
 }): Promise<string> {
   const mintPubkey = new PublicKey(mintAddress);
   const ownerPubkey = new PublicKey(ownerAddress);
@@ -65,7 +67,7 @@ export async function createOrGetAssociatedTokenAccount({
   const associatedTokenAddress = await getAssociatedTokenAddress(
     mintPubkey,
     ownerPubkey,
-    false,
+    allowOwnerOffCurve,
     tokenProgramId,
     ASSOCIATED_TOKEN_PROGRAM_ID,
   );

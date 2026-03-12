@@ -169,6 +169,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
     connection,
     ownerAddress: tokenRecipient.toBase58(),
     mintAddress: mint.toBase58(),
+    allowOwnerOffCurve: true,
   });
 
   // Build handle_message instruction
