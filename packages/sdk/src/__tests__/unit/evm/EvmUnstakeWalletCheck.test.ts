@@ -144,7 +144,7 @@ describe('EvmUnstake wallet connection checks', () => {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
         sourceChain: Chain.BASE,
-        destChain: Chain.BITCOIN,
+        destChain: Chain.BITCOIN_MAINNET,
       });
 
       await unstake.prepare({
@@ -169,7 +169,7 @@ describe('EvmUnstake wallet connection checks', () => {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
         sourceChain: Chain.BASE,
-        destChain: Chain.BITCOIN,
+        destChain: Chain.BITCOIN_MAINNET,
       });
 
       await unstake.prepare({
