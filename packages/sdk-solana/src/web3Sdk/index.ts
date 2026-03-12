@@ -11,5 +11,6 @@ export * from './unstakeLBTC';
 
 // Asset Router operations (Ledger v2)
 export * from './claimToken';
+export * from './deposit';
 export * from './redeem';
 export * from './redeemToken';

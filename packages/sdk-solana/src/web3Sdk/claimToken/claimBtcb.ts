@@ -74,6 +74,7 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
     connection,
     ownerAddress: payloadRecipient.toBase58(),
     mintAddress: mint.toBase58(),
+    allowOwnerOffCurve: true,
   });
 
   // Build mint_from_payload instruction
