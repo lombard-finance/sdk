@@ -85,6 +85,9 @@ chore: description
 - Never force push to main
 - Never skip pre-commit hooks
 
+### Open Source Boundaries
+This is a public repository. Never include references to internal tools, URLs, or ticket systems (Jira, Confluence, Slack, etc.) in code, commits, PRs, or comments visible in the repo.
+
 ## Development Rules
 
 ### Code Changes
