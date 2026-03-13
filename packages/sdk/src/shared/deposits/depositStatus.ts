@@ -15,7 +15,9 @@
 import {
   type Deposit,
   ENotarizationStatus,
+  ESessionState,
 } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
+import { MIN_STAKE_AMOUNT_BTC } from '../../common/constants';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -30,8 +32,11 @@ export const REQUIRED_CONFIRMATIONS = 6;
 /**
  * Minimum deposit amount that can be claimed (in BTC).
  * Deposits below this amount cannot be minted.
+ *
+ * @deprecated Use `MIN_STAKE_AMOUNT_BTC` from `@lombard.finance/sdk` instead.
+ * This constant is an alias kept for backwards compatibility.
  */
-export const MIN_CLAIM_AMOUNT_BTC = 0.0002;
+export const MIN_CLAIM_AMOUNT_BTC = MIN_STAKE_AMOUNT_BTC;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -146,10 +151,11 @@ export function getConfirmationProgress(
  * Logic priority (matches apps/main useDepositState):
  * 1. Sanctioned → restricted
  * 2. Already claimed → claimed
- * 3. Amount too small → too_small
- * 4. GMP handled → auto_claimed
- * 5. Notarization failed → failed
- * 6. Based on notarization status + proof availability:
+ * 3. Session expired → expired
+ * 4. Amount too small → too_small
+ * 5. GMP handled → auto_claimed
+ * 6. Notarization failed → failed
+ * 7. Based on notarization status + proof availability:
  *    - PENDING/SUBMITTED without enough confirmations → pending_confirmations
  *    - PENDING/SUBMITTED with confirmations → pending_notarization
  *    - SESSION_APPROVED with proof → claimable
@@ -175,13 +181,18 @@ export function getDepositStatus(
     return 'claimed';
   }
 
-  // 3. Check if amount is too small
+  // 3. Check if the notarization session has expired
+  if (deposit.sessionState === ESessionState.SESSION_STATE_EXPIRED) {
+    return 'expired';
+  }
+
+  // 4. Check if amount is too small
   const amountBtc = deposit.amount?.toNumber?.() ?? Number(deposit.amount);
-  if (amountBtc > 0 && amountBtc < MIN_CLAIM_AMOUNT_BTC) {
+  if (amountBtc > 0 && amountBtc < MIN_STAKE_AMOUNT_BTC) {
     return 'too_small';
   }
 
-  // 4. Check for GMP auto-claim
+  // 5. Check for GMP auto-claim
   if (
     deposit.notarizationStatus ===
     ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED
@@ -189,7 +200,7 @@ export function getDepositStatus(
     return 'auto_claimed';
   }
 
-  // 5. Check for notarization failure
+  // 6. Check for notarization failure
   if (
     deposit.notarizationStatus ===
     ENotarizationStatus.NOTARIZATION_STATUS_FAILED
@@ -197,7 +208,7 @@ export function getDepositStatus(
     return 'failed';
   }
 
-  // 6. Determine status based on notarization status and proof availability
+  // 7. Determine status based on notarization status and proof availability
   const hasProof = !!deposit.proof && !!deposit.rawPayload;
   const notarizationStatus = deposit.notarizationStatus;
 
@@ -326,7 +337,7 @@ export function getDepositStatusDisplay(
       return {
         label: 'Too Small',
         severity: 'neutral',
-        description: `Amount below minimum claimable amount (${MIN_CLAIM_AMOUNT_BTC} BTC)`,
+        description: `Amount below minimum claimable amount (${MIN_STAKE_AMOUNT_BTC} BTC)`,
         isTerminal: true,
         requiresAction: false,
       };
