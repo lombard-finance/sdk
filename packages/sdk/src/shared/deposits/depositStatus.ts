@@ -148,13 +148,13 @@ export function getConfirmationProgress(
 /**
  * Determine the status of a deposit
  *
- * Logic priority (matches apps/main useDepositState):
+ * Logic priority:
  * 1. Sanctioned → restricted
  * 2. Already claimed → claimed
- * 3. Session expired → expired
- * 4. Amount too small → too_small
- * 5. GMP handled → auto_claimed
- * 6. Notarization failed → failed
+ * 3. GMP handled → auto_claimed  (definitive success, overrides expired/failed)
+ * 4. Amount too small → too_small (permanent, re-auth won't help)
+ * 5. Notarization failed → failed (terminal, overrides expired)
+ * 6. Session expired → expired    (recoverable via re-auth)
  * 7. Based on notarization status + proof availability:
  *    - PENDING/SUBMITTED without enough confirmations → pending_confirmations
  *    - PENDING/SUBMITTED with confirmations → pending_notarization
@@ -181,18 +181,7 @@ export function getDepositStatus(
     return 'claimed';
   }
 
-  // 3. Check if the notarization session has expired
-  if (deposit.sessionState === ESessionState.SESSION_STATE_EXPIRED) {
-    return 'expired';
-  }
-
-  // 4. Check if amount is too small
-  const amountBtc = deposit.amount?.toNumber?.() ?? Number(deposit.amount);
-  if (amountBtc > 0 && amountBtc < MIN_STAKE_AMOUNT_BTC) {
-    return 'too_small';
-  }
-
-  // 5. Check for GMP auto-claim
+  // 3. Check for GMP auto-claim (definitive success, overrides expired/failed)
   if (
     deposit.notarizationStatus ===
     ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED
@@ -200,12 +189,23 @@ export function getDepositStatus(
     return 'auto_claimed';
   }
 
-  // 6. Check for notarization failure
+  // 4. Check if amount is too small (permanent, re-auth won't help)
+  const amountBtc = deposit.amount?.toNumber?.() ?? Number(deposit.amount);
+  if (amountBtc > 0 && amountBtc < MIN_STAKE_AMOUNT_BTC) {
+    return 'too_small';
+  }
+
+  // 5. Check for notarization failure (terminal, overrides expired)
   if (
     deposit.notarizationStatus ===
     ENotarizationStatus.NOTARIZATION_STATUS_FAILED
   ) {
     return 'failed';
+  }
+
+  // 6. Check if the notarization session has expired (recoverable via re-auth)
+  if (deposit.sessionState === ESessionState.SESSION_STATE_EXPIRED) {
+    return 'expired';
   }
 
   // 7. Determine status based on notarization status and proof availability

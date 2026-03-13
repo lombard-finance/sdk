@@ -28,70 +28,76 @@ function makeDeposit(
 }
 
 describe('getDepositStatus', () => {
-  describe('expired status', () => {
-    it('returns expired when sessionState is SESSION_STATE_EXPIRED', () => {
-      const deposit = makeDeposit({
-        sessionState: ESessionState.SESSION_STATE_EXPIRED,
-        notarizationStatus:
-          ENotarizationStatus.NOTARIZATION_STATUS_SESSION_APPROVED,
-        proof: '0xproof',
-        rawPayload: '0xpayload',
-      });
-      expect(getDepositStatus(deposit)).toBe('expired');
-    });
-
-    it('claimed takes priority over SESSION_STATE_EXPIRED', () => {
-      const deposit = makeDeposit({
-        sessionState: ESessionState.SESSION_STATE_EXPIRED,
-        isClaimed: true,
-        claimTxHash: '0xclaim',
-      });
-      expect(getDepositStatus(deposit)).toBe('claimed');
-    });
-
-    it('restricted takes priority over SESSION_STATE_EXPIRED', () => {
-      const deposit = makeDeposit({
-        sessionState: ESessionState.SESSION_STATE_EXPIRED,
-        sanctioned: true,
-      });
-      expect(getDepositStatus(deposit)).toBe('restricted');
-    });
-  });
-
-  describe('existing status checks', () => {
+  describe('priority ordering', () => {
     it('returns restricted for sanctioned deposits', () => {
-      expect(getDepositStatus(makeDeposit({ sanctioned: true }))).toBe(
-        'restricted',
-      );
+      expect(getDepositStatus(makeDeposit({ sanctioned: true }))).toBe('restricted');
     });
 
     it('returns claimed when isClaimed is true', () => {
-      expect(getDepositStatus(makeDeposit({ isClaimed: true }))).toBe(
-        'claimed',
-      );
+      expect(getDepositStatus(makeDeposit({ isClaimed: true }))).toBe('claimed');
     });
 
     it('returns claimed when claimTxHash is present', () => {
+      expect(getDepositStatus(makeDeposit({ claimTxHash: '0xclaim' }))).toBe('claimed');
+    });
+
+    it('auto_claimed takes priority over SESSION_STATE_EXPIRED', () => {
       expect(
-        getDepositStatus(makeDeposit({ claimTxHash: '0xclaim' })),
-      ).toBe('claimed');
+        getDepositStatus(
+          makeDeposit({
+            notarizationStatus: ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED,
+            sessionState: ESessionState.SESSION_STATE_EXPIRED,
+          }),
+        ),
+      ).toBe('auto_claimed');
+    });
+
+    it('too_small takes priority over SESSION_STATE_EXPIRED', () => {
+      expect(
+        getDepositStatus(
+          makeDeposit({
+            amount: new BigNumber(0.00001),
+            sessionState: ESessionState.SESSION_STATE_EXPIRED,
+          }),
+        ),
+      ).toBe('too_small');
+    });
+
+    it('failed takes priority over SESSION_STATE_EXPIRED', () => {
+      expect(
+        getDepositStatus(
+          makeDeposit({
+            notarizationStatus: ENotarizationStatus.NOTARIZATION_STATUS_FAILED,
+            sessionState: ESessionState.SESSION_STATE_EXPIRED,
+          }),
+        ),
+      ).toBe('failed');
+    });
+
+    it('returns expired when sessionState is SESSION_STATE_EXPIRED (no higher priority match)', () => {
+      expect(
+        getDepositStatus(
+          makeDeposit({ sessionState: ESessionState.SESSION_STATE_EXPIRED }),
+        ),
+      ).toBe('expired');
+    });
+  });
+
+  describe('notarization status checks', () => {
+    it('returns auto_claimed for GMP handled deposits', () => {
+      expect(
+        getDepositStatus(
+          makeDeposit({
+            notarizationStatus: ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED,
+          }),
+        ),
+      ).toBe('auto_claimed');
     });
 
     it('returns too_small when amount is below minimum', () => {
       expect(
         getDepositStatus(makeDeposit({ amount: new BigNumber(0.00001) })),
       ).toBe('too_small');
-    });
-
-    it('returns auto_claimed for GMP handled deposits', () => {
-      expect(
-        getDepositStatus(
-          makeDeposit({
-            notarizationStatus:
-              ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED,
-          }),
-        ),
-      ).toBe('auto_claimed');
     });
 
     it('returns failed for failed notarization', () => {
@@ -108,8 +114,7 @@ describe('getDepositStatus', () => {
       expect(
         getDepositStatus(
           makeDeposit({
-            notarizationStatus:
-              ENotarizationStatus.NOTARIZATION_STATUS_SESSION_APPROVED,
+            notarizationStatus: ENotarizationStatus.NOTARIZATION_STATUS_SESSION_APPROVED,
             proof: '0xproof',
             rawPayload: '0xpayload',
           }),
@@ -118,9 +123,9 @@ describe('getDepositStatus', () => {
     });
 
     it('returns pending_confirmations when block height is below required', () => {
-      expect(
-        getDepositStatus(makeDeposit({ blockHeight: 100 }), 104),
-      ).toBe('pending_confirmations');
+      expect(getDepositStatus(makeDeposit({ blockHeight: 100 }), 104)).toBe(
+        'pending_confirmations',
+      );
     });
   });
 });
