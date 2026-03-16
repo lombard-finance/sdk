@@ -206,7 +206,19 @@ export interface DirectDepositsResponse {
  * Direct BTC Deposits or Native Deposits APIs.
  */
 export interface Deposit {
-  /** True if the record originates from the Native Deposits API. */
+  /**
+   * Whether this deposit originates from the Native Deposits API (EVM/alt-chain source).
+   *
+   * - `false` — Bitcoin mainnet direct deposit: the user sent BTC directly to a
+   *   Lombard deposit address. This is the most common case for BTC stakers.
+   * - `true`  — Native deposit: the deposit originated on an EVM or alt-chain
+   *   (e.g. a chain using Lombard's native deposits flow).
+   *
+   * When polling for standard BTC deposit status, filter on `isNative === false`.
+   *
+   * @remarks A rename to a more descriptive field (e.g. `depositSource`) is
+   * planned in a future major version to avoid confusion with "native BTC".
+   */
   isNative: boolean;
 
   /** Transaction hash on the source blockchain. */
