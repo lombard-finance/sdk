@@ -9,6 +9,8 @@
 import type { Env, SolanaService } from '@lombard.finance/sdk-common';
 
 import type { ISolanaWalletProvider, SolanaNetwork } from '../types';
+import { deposit } from '../web3Sdk/deposit/deposit';
+import { redeem } from '../web3Sdk/redeem/redeem';
 import { redeemForBtc } from '../web3Sdk/redeemToken/redeemForBtc';
 import { signLbtcDestinationAddrSolana } from '../web3Sdk/signLbtcDestinationAddrSolana';
 import { unstakeLBTC } from '../web3Sdk/unstakeLBTC/unstakeLBTC';
@@ -62,15 +64,16 @@ export class SolanaServiceImpl implements SolanaService {
   }
 
   /**
-   * Redeem BTC.b on Solana to receive BTC
+   * Redeem BTC.b or LBTC on Solana to receive BTC
    *
-   * Burns BTC.b and sends a GMP message to trigger a BTC payout.
+   * Burns the source token and sends a GMP message to trigger a BTC payout.
    */
   async redeemForBtc(args: {
     amount: string;
     btcAddress: string;
     network: string;
     env?: Env;
+    tokenMint?: string;
   }): Promise<{ txHash: string }> {
     const provider = (await this.getProvider()) as ISolanaWalletProvider;
 
@@ -79,6 +82,61 @@ export class SolanaServiceImpl implements SolanaService {
       btcAddress: args.btcAddress,
       network: args.network as SolanaNetwork,
       env: args.env,
+      tokenMint: args.tokenMint,
+    });
+
+    return { txHash };
+  }
+
+  /**
+   * Generic redeem via Asset Router (default: LBTC → BTC.b)
+   */
+  async redeem(args: {
+    amount: string;
+    recipient: string;
+    network: string;
+    env?: Env;
+    tokenMint?: string;
+    toLchainId?: string;
+    toTokenAddress?: string;
+  }): Promise<{ txHash: string }> {
+    const provider = (await this.getProvider()) as ISolanaWalletProvider;
+
+    const txHash = await redeem(provider, {
+      amount: args.amount,
+      recipient: args.recipient,
+      network: args.network as SolanaNetwork,
+      env: args.env,
+      tokenMint: args.tokenMint,
+      toLchainId: args.toLchainId,
+      toTokenAddress: args.toTokenAddress,
+    });
+
+    return { txHash };
+  }
+
+  /**
+   * Deposit via Asset Router (default: BTC.b → LBTC)
+   */
+  async deposit(args: {
+    amount: string;
+    recipient: string;
+    network: string;
+    env?: Env;
+    sourceTokenMint?: string;
+    toLchainId?: string;
+    toTokenAddress?: string;
+  }): Promise<{ txHash: string }> {
+    const provider = (await this.getProvider()) as ISolanaWalletProvider;
+
+    const txHash = await deposit(provider, {
+      amount: args.amount,
+      recipient: args.recipient,
+      network: args.network as SolanaNetwork,
+      env: args.env,
+      sourceTokenMint: args.sourceTokenMint,
+      toLchainId: args.toLchainId,
+      toTokenAddress: args.toTokenAddress,
     });
 
     return { txHash };

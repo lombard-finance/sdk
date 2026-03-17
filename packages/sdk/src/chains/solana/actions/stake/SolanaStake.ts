@@ -1,13 +1,12 @@
 /**
- * Solana Redeem Action
+ * Solana Stake Action
  *
- * Redeems LBTC → BTC.b on Solana via Asset Router's `redeem` instruction + GMP.
- * Same-chain unwrap, analogous to EVM redeem.
+ * Stakes BTC.b on Solana → LBTC on Solana via Asset Router + GMP.
  *
  * **Flow:**
  * IDLE → READY → CONFIRMING
  *
- * @module chains/solana/actions/redeem/SolanaRedeem
+ * @module chains/solana/actions/stake/SolanaStake
  */
 
 import type { Env } from '@lombard.finance/sdk-common';
@@ -18,23 +17,23 @@ import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
-import type { RedeemEventMap } from '../../../../shared/events';
+import type { StakeEventMap } from '../../../../shared/events';
 import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
 import { toSatoshi } from '../../../../utils/satoshi';
 import { envToSolanaNetwork } from '../../utils';
-import { isRedeemSupported, solanaRedeemConfig } from './config';
+import { isStakeSupported, solanaStakeConfig } from './config';
 import type {
-  ISolanaRedeem,
-  SolanaRedeemParams,
-  SolanaRedeemPrepareParams,
+  ISolanaStake,
+  SolanaStakeParams,
+  SolanaStakePrepareParams,
 } from './types';
 
-export class SolanaRedeem
-  extends BaseAction<RedeemEventMap, NonEvmUnstakeStatus>
-  implements ISolanaRedeem
+export class SolanaStake
+  extends BaseAction<StakeEventMap, NonEvmUnstakeStatus>
+  implements ISolanaStake
 {
   private _amount?: string;
   private _recipient?: string;
@@ -43,13 +42,13 @@ export class SolanaRedeem
 
   constructor(
     private readonly ctx: SolanaCoreContext,
-    private readonly params: SolanaRedeemParams,
+    private readonly params: SolanaStakeParams,
   ) {
     super(NonEvmUnstakeStatus.IDLE);
     this.env = ctx.env;
 
     if (
-      !isRedeemSupported(
+      !isStakeSupported(
         params.sourceChain,
         params.destChain,
         params.assetIn,
@@ -78,7 +77,7 @@ export class SolanaRedeem
     return this._txHash;
   }
 
-  async prepare(params: SolanaRedeemPrepareParams): Promise<void> {
+  async prepare(params: SolanaStakePrepareParams): Promise<void> {
     this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
 
     return this.act(async () => {
@@ -114,7 +113,7 @@ export class SolanaRedeem
       const amountInSatoshis = toSatoshi(amount).toString();
       const network = envToSolanaNetwork(this.env);
 
-      const { txHash } = await this.ctx.solana.redeem({
+      const { txHash } = await this.ctx.solana.deposit({
         amount: amountInSatoshis,
         recipient,
         network,
@@ -135,7 +134,7 @@ export class SolanaRedeem
   private get prepareSchema() {
     return z.object({
       amount: amountSchema,
-      recipient: solanaRedeemConfig.recipientSchema,
+      recipient: solanaStakeConfig.recipientSchema,
     });
   }
 }

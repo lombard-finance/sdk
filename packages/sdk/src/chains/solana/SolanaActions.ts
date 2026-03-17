@@ -1,7 +1,13 @@
 /**
  * Solana Actions
  *
- * Provides factory methods for Solana operations (unstake).
+ * Provides factory methods for Solana operations.
+ *
+ * Operations:
+ * - stake: BTC.b → LBTC (stake wrapped BTC to get LBTC)
+ * - unstake: LBTC → BTC (burn LBTC, release BTC)
+ * - redeem: LBTC → BTC.b (same-chain unwrap)
+ * - redeemForBtc: BTC.b/LBTC → BTC (cross-chain via Asset Router)
  *
  * Note: Solana module must be registered before using these actions.
  *
@@ -10,7 +16,7 @@
  * import { solanaActions } from '@lombard.finance/sdk';
  *
  * const solana = solanaActions(config);
- * const unstake = solana.unstake({ ... });
+ * const stake = solana.stake({ ... });
  * ```
  */
 
@@ -26,6 +32,16 @@ import type {
   ISolanaRedeem,
   SolanaRedeemParams,
 } from './actions/redeem/types';
+import { SolanaRedeemForBtc } from './actions/redeemForBtc/SolanaRedeemForBtc';
+import type {
+  ISolanaRedeemForBtc,
+  SolanaRedeemForBtcParams,
+} from './actions/redeemForBtc/types';
+import { SolanaStake } from './actions/stake/SolanaStake';
+import type {
+  ISolanaStake,
+  SolanaStakeParams,
+} from './actions/stake/types';
 import { SolanaUnstake } from './actions/unstake/SolanaUnstake';
 import type {
   ISolanaUnstake,
@@ -71,6 +87,18 @@ export class SolanaActions {
   }
 
   /**
+   * Stake BTC.b → LBTC
+   *
+   * Burns BTC.b on Solana and mints LBTC to the recipient via Asset Router.
+   *
+   * @throws LombardError if solana module is not registered
+   * @throws LombardError if route is not supported
+   */
+  stake(params: SolanaStakeParams): ISolanaStake {
+    return new SolanaStake(this.ctx, params);
+  }
+
+  /**
    * Unstake LBTC → BTC
    *
    * Burns LBTC on Solana and releases BTC on Bitcoin.
@@ -82,15 +110,27 @@ export class SolanaActions {
   }
 
   /**
-   * Redeem BTC.b → BTC
+   * Redeem LBTC → BTC.b (same-chain unwrap)
    *
-   * Burns BTC.b on Solana and releases BTC to a Bitcoin address via GMP.
+   * Burns LBTC on Solana and routes BTC.b to the recipient via Asset Router.
    *
    * @throws LombardError if solana module is not registered
    * @throws LombardError if route is not supported
    */
   redeem(params: SolanaRedeemParams): ISolanaRedeem {
     return new SolanaRedeem(this.ctx, params);
+  }
+
+  /**
+   * Redeem BTC.b or LBTC → BTC (cross-chain)
+   *
+   * Burns BTC.b or LBTC on Solana and releases BTC to a Bitcoin address via GMP.
+   *
+   * @throws LombardError if solana module is not registered
+   * @throws LombardError if route is not supported
+   */
+  redeemForBtc(params: SolanaRedeemForBtcParams): ISolanaRedeemForBtc {
+    return new SolanaRedeemForBtc(this.ctx, params);
   }
 }
 

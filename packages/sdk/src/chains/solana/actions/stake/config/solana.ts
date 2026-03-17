@@ -1,9 +1,9 @@
 /**
- * Solana Redeem Configuration
+ * Solana Stake Configuration
  *
- * Handles LBTC → BTC.b redemption on Solana via Asset Router (same-chain unwrap).
+ * Handles staking BTC.b on Solana → LBTC on Solana via Asset Router + GMP.
  *
- * @module chains/solana/actions/redeem/config/solana
+ * @module chains/solana/actions/stake/config/solana
  */
 
 import { Env } from '@lombard.finance/sdk-common';
@@ -12,15 +12,15 @@ import { AssetId, Chain } from '../../../../../core';
 import { solanaAddressSchema } from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 
-export const solanaRedeemConfig: ChainConfig = {
+export const solanaStakeConfig: ChainConfig = {
   chainType: 'solana',
 
   routes: [
     {
       sourceChains: [Chain.SOLANA_DEVNET],
       destChain: Chain.SOLANA_DEVNET,
-      assetIn: AssetId.LBTC,
-      assetOut: AssetId.BTCb,
+      assetIn: AssetId.BTCb,
+      assetOut: AssetId.LBTC,
       envs: [Env.stage, Env.dev],
     },
   ],
@@ -28,14 +28,14 @@ export const solanaRedeemConfig: ChainConfig = {
   recipientSchema: solanaAddressSchema,
 };
 
-export function isRedeemSupported(
+export function isStakeSupported(
   sourceChain: Chain,
   destChain: Chain,
   assetIn: AssetId,
   assetOut: AssetId,
   env: Env,
 ): boolean {
-  return solanaRedeemConfig.routes.some(
+  return solanaStakeConfig.routes.some(
     route =>
       route.sourceChains.includes(sourceChain) &&
       route.destChain === destChain &&

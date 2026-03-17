@@ -1,9 +1,9 @@
 /**
- * Solana Redeem Action Types
+ * Solana RedeemForBtc Action Types
  *
- * Redeems LBTC → BTC.b on Solana via Asset Router (same-chain unwrap).
+ * Redeems BTC.b or LBTC on Solana → BTC on Bitcoin via Asset Router + GMP.
  *
- * @module chains/solana/actions/redeem/types
+ * @module chains/solana/actions/redeemForBtc/types
  */
 
 import type {
@@ -15,35 +15,35 @@ import type {
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
 
-export interface SolanaRedeemParams {
+export interface SolanaRedeemForBtcParams {
   assetIn: AssetId;
   assetOut: AssetId;
   sourceChain: Chain;
   destChain: Chain;
 }
 
-export interface SolanaRedeemProgress
+export interface SolanaRedeemForBtcProgress
   extends StrategyProgress<NonEvmUnstakeStatus> {
   status: NonEvmUnstakeStatus;
   steps: {
     burning: StepStatus;
-    minting: StepStatus;
+    releasing: StepStatus;
   };
   txHash?: string;
 }
 
-export interface SolanaRedeemPrepareParams {
+export interface SolanaRedeemForBtcPrepareParams {
   amount: string;
-  /** Solana address to receive BTC.b */
+  /** Bitcoin address to receive BTC */
   recipient: string;
 }
 
-export interface ISolanaRedeem extends MonitorableAction {
+export interface ISolanaRedeemForBtc extends MonitorableAction {
   readonly status: NonEvmUnstakeStatus;
   readonly amount?: string;
   readonly recipient?: string;
   readonly txHash?: string;
 
-  prepare(params: SolanaRedeemPrepareParams): Promise<void>;
+  prepare(params: SolanaRedeemForBtcPrepareParams): Promise<void>;
   execute(): Promise<{ txHash: string }>;
 }

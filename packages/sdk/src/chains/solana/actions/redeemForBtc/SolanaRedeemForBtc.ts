@@ -1,19 +1,22 @@
 /**
- * Solana Redeem Action
+ * Solana RedeemForBtc Action
  *
- * Redeems LBTC → BTC.b on Solana via Asset Router's `redeem` instruction + GMP.
- * Same-chain unwrap, analogous to EVM redeem.
+ * Redeems BTC.b or LBTC on Solana → BTC on Bitcoin via Asset Router + GMP.
  *
  * **Flow:**
  * IDLE → READY → CONFIRMING
  *
- * @module chains/solana/actions/redeem/SolanaRedeem
+ * The flow ends at CONFIRMING because the Solana-side burn and GMP dispatch
+ * are complete, but the Bitcoin-side BTC release is a cross-chain async
+ * process that the SDK cannot track.
+ *
+ * @module chains/solana/actions/redeemForBtc/SolanaRedeemForBtc
  */
 
 import type { Env } from '@lombard.finance/sdk-common';
 import { z } from 'zod';
 
-import { StepStatus } from '../../../../core';
+import { AssetId, StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../../shared/context';
@@ -23,18 +26,19 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
+import { Token, getSolanaTokenAddress } from '../../../../tokens/token-addresses';
 import { toSatoshi } from '../../../../utils/satoshi';
-import { envToSolanaNetwork } from '../../utils';
-import { isRedeemSupported, solanaRedeemConfig } from './config';
+import { envToSolanaChain, envToSolanaNetwork } from '../../utils';
+import { isRedeemForBtcSupported, solanaRedeemForBtcConfig } from './config';
 import type {
-  ISolanaRedeem,
-  SolanaRedeemParams,
-  SolanaRedeemPrepareParams,
+  ISolanaRedeemForBtc,
+  SolanaRedeemForBtcParams,
+  SolanaRedeemForBtcPrepareParams,
 } from './types';
 
-export class SolanaRedeem
+export class SolanaRedeemForBtc
   extends BaseAction<RedeemEventMap, NonEvmUnstakeStatus>
-  implements ISolanaRedeem
+  implements ISolanaRedeemForBtc
 {
   private _amount?: string;
   private _recipient?: string;
@@ -43,13 +47,13 @@ export class SolanaRedeem
 
   constructor(
     private readonly ctx: SolanaCoreContext,
-    private readonly params: SolanaRedeemParams,
+    private readonly params: SolanaRedeemForBtcParams,
   ) {
     super(NonEvmUnstakeStatus.IDLE);
     this.env = ctx.env;
 
     if (
-      !isRedeemSupported(
+      !isRedeemForBtcSupported(
         params.sourceChain,
         params.destChain,
         params.assetIn,
@@ -78,7 +82,7 @@ export class SolanaRedeem
     return this._txHash;
   }
 
-  async prepare(params: SolanaRedeemPrepareParams): Promise<void> {
+  async prepare(params: SolanaRedeemForBtcPrepareParams): Promise<void> {
     this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
 
     return this.act(async () => {
@@ -90,7 +94,7 @@ export class SolanaRedeem
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.READY,
-        steps: { burning: StepStatus.IDLE, minting: StepStatus.IDLE },
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
       });
     }, NonEvmUnstakeStatus.READY);
   }
@@ -108,24 +112,30 @@ export class SolanaRedeem
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.READY,
-        steps: { burning: StepStatus.PENDING, minting: StepStatus.IDLE },
+        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
       });
 
       const amountInSatoshis = toSatoshi(amount).toString();
       const network = envToSolanaNetwork(this.env);
 
-      const { txHash } = await this.ctx.solana.redeem({
+      const tokenMint =
+        this.params.assetIn === AssetId.LBTC
+          ? getSolanaTokenAddress(envToSolanaChain(this.env), this.env, Token.LBTC)
+          : undefined;
+
+      const { txHash } = await this.ctx.solana.redeemForBtc({
         amount: amountInSatoshis,
-        recipient,
+        btcAddress: recipient,
         network,
         env: this.env,
+        tokenMint,
       });
 
       this._txHash = txHash;
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.CONFIRMING,
-        steps: { burning: StepStatus.COMPLETE, minting: StepStatus.PENDING },
+        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
       });
 
       return { txHash };
@@ -135,7 +145,7 @@ export class SolanaRedeem
   private get prepareSchema() {
     return z.object({
       amount: amountSchema,
-      recipient: solanaRedeemConfig.recipientSchema,
+      recipient: solanaRedeemForBtcConfig.recipientSchema,
     });
   }
 }

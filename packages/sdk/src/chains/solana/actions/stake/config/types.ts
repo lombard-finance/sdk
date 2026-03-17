@@ -1,7 +1,7 @@
 /**
- * Solana Redeem Chain Configuration Types
+ * Solana Stake Chain Configuration Types
  *
- * @module chains/solana/actions/redeem/config/types
+ * @module chains/solana/actions/stake/config/types
  */
 
 import type { Env } from '@lombard.finance/sdk-common';
