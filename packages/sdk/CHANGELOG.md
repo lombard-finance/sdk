@@ -5,6 +5,14 @@
 
 ---
 
+# 4.4.1
+
+- Fixed `getDepositStatus()` never returning `'expired'` despite the backend setting `SESSION_STATE_EXPIRED` on the deposit's `sessionState` field. The expired check is now correctly placed after `failed` and `auto_claimed` so that more definitive terminal states take priority.
+- Deprecated `MIN_CLAIM_AMOUNT_BTC` in favour of `MIN_STAKE_AMOUNT_BTC`. Both constants are identical (`0.0002` BTC) — `MIN_CLAIM_AMOUNT_BTC` is now a re-export alias and will be removed in a future major version.
+- Improved `isNative` JSDoc on the `Deposit` type to clarify that `false` means a Bitcoin mainnet direct deposit and `true` means an EVM/alt-chain native deposit.
+
+---
+
 # 4.4.0
 
 - Added Solana destination support for BTC deposits, including destination signing and route configuration for Solana chains.

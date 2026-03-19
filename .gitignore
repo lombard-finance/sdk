@@ -60,3 +60,8 @@ docs/
 
 #Ignore cursor AI rules
 .cursor/rules/codacy.mdc
+
+# Claude Code local files
+.claude/settings.local.json
+.claude/todos/
+.claude/plans/
