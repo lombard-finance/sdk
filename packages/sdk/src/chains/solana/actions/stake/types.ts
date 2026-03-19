@@ -18,8 +18,7 @@ import type { NonEvmUnstakeStatus } from '../../../../shared/constants/statusCon
 export interface SolanaStakeParams {
   assetIn: AssetId;
   assetOut: AssetId;
-  sourceChain: Chain;
-  destChain: Chain;
+  chain: Chain;
 }
 
 export interface SolanaStakeProgress

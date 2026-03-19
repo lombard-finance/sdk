@@ -17,8 +17,7 @@ export const solanaStakeConfig: ChainConfig = {
 
   routes: [
     {
-      sourceChains: [Chain.SOLANA_DEVNET],
-      destChain: Chain.SOLANA_DEVNET,
+      chain: Chain.SOLANA_DEVNET,
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       envs: [Env.stage, Env.dev],
@@ -29,16 +28,14 @@ export const solanaStakeConfig: ChainConfig = {
 };
 
 export function isStakeSupported(
-  sourceChain: Chain,
-  destChain: Chain,
+  chain: Chain,
   assetIn: AssetId,
   assetOut: AssetId,
   env: Env,
 ): boolean {
   return solanaStakeConfig.routes.some(
     route =>
-      route.sourceChains.includes(sourceChain) &&
-      route.destChain === destChain &&
+      route.chain === chain &&
       route.assetIn === assetIn &&
       route.assetOut === assetOut &&
       route.envs.includes(env),

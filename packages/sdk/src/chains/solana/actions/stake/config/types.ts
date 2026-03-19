@@ -10,8 +10,7 @@ import type { z } from 'zod';
 import type { AssetId, Chain, ChainType } from '../../../../../core';
 
 export interface RouteDefinition {
-  sourceChains: Chain[];
-  destChain: Chain;
+  chain: Chain;
   assetIn: AssetId;
   assetOut: AssetId;
   envs: Env[];

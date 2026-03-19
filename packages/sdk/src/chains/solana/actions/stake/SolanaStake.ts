@@ -49,8 +49,7 @@ export class SolanaStake
 
     if (
       !isStakeSupported(
-        params.sourceChain,
-        params.destChain,
+        params.chain,
         params.assetIn,
         params.assetOut,
         this.env,
@@ -58,8 +57,7 @@ export class SolanaStake
     ) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
-        sourceChain: params.sourceChain,
-        destChain: params.destChain,
+        chain: params.chain,
         env: this.env,
       });
     }
@@ -82,7 +80,7 @@ export class SolanaStake
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
-        destChain: this.params.destChain,
+        destChain: this.params.chain,
       });
       this._amount = validated.amount;
       this._recipient = validated.recipient;
