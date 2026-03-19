@@ -5,7 +5,13 @@ All notable changes to `@lombard.finance/sdk-solana` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2026-03-12
+## [2.0.0] - 2026-03-19
+
+### Removed
+
+- **BREAKING:** `unstakeLBTC` function — removed from public exports; the legacy LBTC-program direct burn path is superseded by Asset Router flows (`redeemForBtc` / `redeem`)
+- **BREAKING:** `SolanaServiceImpl.unstake()` method
+- `UNSTAKE_REJECTED_ERROR` constant (unused; `ErrorCode.UNSTAKE_REJECTED` is retained for Asset Router error handling)
 
 ### Added
 

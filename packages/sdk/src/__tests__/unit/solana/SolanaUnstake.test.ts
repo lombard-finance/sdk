@@ -22,7 +22,6 @@ import type { SolanaCoreContext } from '../../../shared/context';
 function createMockSolanaService() {
   return {
     signLbtcDestination: vi.fn().mockResolvedValue({ signature: '0xmock' }),
-    unstake: vi.fn().mockResolvedValue({ txHash: 'mock-solana-tx-hash-123' }),
     redeemForBtc: vi.fn().mockResolvedValue({ txHash: 'mock-redeemForBtc-tx-hash' }),
     redeem: vi.fn().mockResolvedValue({ txHash: 'mock-redeem-tx-hash' }),
     deposit: vi.fn().mockResolvedValue({ txHash: 'mock-deposit-tx-hash' }),
@@ -163,13 +162,12 @@ describe('SolanaUnstake — LBTC → BTC', () => {
       expect(result.txHash).toBe('mock-redeemForBtc-tx-hash');
     });
 
-    it('should NOT call solana service unstake or redeem', async () => {
+    it('should NOT call solana service redeem', async () => {
       const unstake = new SolanaUnstake(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
 
-      expect(mockCtx.solana.unstake).not.toHaveBeenCalled();
       expect(mockCtx.solana.redeem).not.toHaveBeenCalled();
     });
 
@@ -353,7 +351,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
   });
 
   describe('execute', () => {
-    it('should call solana service redeem method (not unstake)', async () => {
+    it('should call solana service redeem method', async () => {
       const unstake = new SolanaUnstake(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
@@ -367,7 +365,6 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
           env: Env.dev,
         }),
       );
-      expect(mockCtx.solana.unstake).not.toHaveBeenCalled();
       expect(result.txHash).toBe('mock-redeem-tx-hash');
     });
 

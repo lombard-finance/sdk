@@ -20,7 +20,6 @@ import type { SolanaCoreContext } from '../../../shared/context';
 function createMockSolanaService() {
   return {
     signLbtcDestination: vi.fn().mockResolvedValue({ signature: '0xmock' }),
-    unstake: vi.fn().mockResolvedValue({ txHash: 'mock-unstake-tx-hash' }),
     redeemForBtc: vi.fn().mockResolvedValue({ txHash: 'mock-redeemForBtc-tx-hash' }),
     redeem: vi.fn().mockResolvedValue({ txHash: 'mock-redeem-tx-hash' }),
     deposit: vi.fn().mockResolvedValue({ txHash: 'mock-deposit-tx-hash' }),
@@ -149,7 +148,6 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
       await redeem.execute();
 
       expect(mockCtx.solana.redeem).not.toHaveBeenCalled();
-      expect(mockCtx.solana.unstake).not.toHaveBeenCalled();
     });
 
     it('should transition to COMPLETED status after execute', async () => {

@@ -21,7 +21,6 @@ export * from './bridge';
 export { loadBridgeFunctions } from './bridge';
 export { getOftAmountCanBeSent } from './bridge/getOftAmountCanBeSent';
 export { claimLBTC } from './web3Sdk/claimLBTC/claimLBTC';
-export { unstakeLBTC } from './web3Sdk/unstakeLBTC/unstakeLBTC';
 
 // Optional chain module (Service-First): used by the core SDK CapabilityRegistry.
 // This MUST be exported from the package entrypoint so integrators can register:

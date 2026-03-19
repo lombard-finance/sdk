@@ -6,10 +6,6 @@ vi.mock('../web3Sdk/signLbtcDestinationAddrSolana', () => ({
   signLbtcDestinationAddrSolana: vi.fn().mockResolvedValue({ signature: 'mock-sig' }),
 }));
 
-vi.mock('../web3Sdk/unstakeLBTC/unstakeLBTC', () => ({
-  unstakeLBTC: vi.fn().mockResolvedValue('mock-unstake-tx'),
-}));
-
 vi.mock('../web3Sdk/redeemToken/redeemForBtc', () => ({
   redeemForBtc: vi.fn().mockResolvedValue('mock-redeemForBtc-tx'),
 }));
@@ -25,7 +21,6 @@ vi.mock('../web3Sdk/deposit/deposit', () => ({
 const { signLbtcDestinationAddrSolana } = await import(
   '../web3Sdk/signLbtcDestinationAddrSolana'
 );
-const { unstakeLBTC } = await import('../web3Sdk/unstakeLBTC/unstakeLBTC');
 const { redeemForBtc } = await import('../web3Sdk/redeemToken/redeemForBtc');
 const { redeem } = await import('../web3Sdk/redeem/redeem');
 const { deposit } = await import('../web3Sdk/deposit/deposit');
@@ -53,25 +48,6 @@ describe('SolanaServiceImpl', () => {
         network: 'devnet',
       });
       expect(result).toEqual({ signature: 'mock-sig' });
-    });
-  });
-
-  describe('unstake', () => {
-    it('should delegate to unstakeLBTC and return txHash', async () => {
-      const service = new SolanaServiceImpl(getProvider);
-
-      const result = await service.unstake({
-        amount: '1000',
-        btcAddress: 'bc1q...',
-        network: 'devnet',
-      });
-
-      expect(unstakeLBTC).toHaveBeenCalledWith(mockProvider, {
-        amount: '1000',
-        btcAddress: 'bc1q...',
-        network: 'devnet',
-      });
-      expect(result).toEqual({ txHash: 'mock-unstake-tx' });
     });
   });
 

@@ -1,7 +1,7 @@
 /**
  * Solana Service Implementation
  *
- * Provides Solana-specific operations for LBTC destination signing and unstaking.
+ * Provides Solana-specific operations for LBTC destination signing, redeem and deposit.
  *
  * @module services/SolanaServiceImpl
  */
@@ -13,7 +13,6 @@ import { deposit } from '../web3Sdk/deposit/deposit';
 import { redeem } from '../web3Sdk/redeem/redeem';
 import { redeemForBtc } from '../web3Sdk/redeemToken/redeemForBtc';
 import { signLbtcDestinationAddrSolana } from '../web3Sdk/signLbtcDestinationAddrSolana';
-import { unstakeLBTC } from '../web3Sdk/unstakeLBTC/unstakeLBTC';
 
 /**
  * Provider resolver function type
@@ -40,27 +39,6 @@ export class SolanaServiceImpl implements SolanaService {
       provider,
       network: args.network as SolanaNetwork,
     });
-  }
-
-  /**
-   * Unstake LBTC on Solana to receive BTC
-   *
-   * Burns LBTC on Solana and releases BTC to the provided Bitcoin address.
-   */
-  async unstake(args: {
-    amount: string;
-    btcAddress: string;
-    network: string;
-  }): Promise<{ txHash: string }> {
-    const provider = (await this.getProvider()) as ISolanaWalletProvider;
-
-    const txHash = await unstakeLBTC(provider, {
-      amount: args.amount,
-      btcAddress: args.btcAddress,
-      network: args.network as SolanaNetwork,
-    });
-
-    return { txHash };
   }
 
   /**

@@ -16,22 +16,6 @@ export interface SolanaService {
   }): Promise<{ signature: string }>;
 
   /**
-   * Unstake LBTC on Solana to receive BTC
-   *
-   * Burns LBTC on Solana and releases BTC to the provided Bitcoin address.
-   *
-   * @param args.amount - Amount of LBTC to unstake in base units (satoshis)
-   * @param args.btcAddress - Bitcoin address to receive BTC
-   * @param args.network - Solana network ('mainnet-beta', 'devnet', 'testnet')
-   * @returns Transaction signature
-   */
-  unstake(args: {
-    amount: string;
-    btcAddress: string;
-    network: string;
-  }): Promise<{ txHash: string }>;
-
-  /**
    * Redeem BTC.b or LBTC on Solana to receive BTC
    *
    * Burns the source token on Solana and sends a GMP message to trigger

@@ -76,7 +76,3 @@ export const CLAIM_REJECTED_ERROR = createSdkError({
   message: 'LBTC claim operation was rejected.',
 });
 
-export const UNSTAKE_REJECTED_ERROR = createSdkError({
-  code: ErrorCode.UNSTAKE_REJECTED,
-  message: 'LBTC unstake operation was rejected.',
-});
