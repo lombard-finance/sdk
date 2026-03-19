@@ -79,11 +79,15 @@ create → prepare → execute → complete
 |-------|--------|-------------|
 | BTC | `sdk.chain.btc.stake()` | Stake BTC → LBTC |
 | BTC | `sdk.chain.btc.deposit()` | Deposit BTC → BTC.b |
-| EVM | `sdk.chain.evm.unstake()` | Burn LBTC → BTC |
 | EVM | `sdk.chain.evm.stake()` | Stake BTC.b → LBTC |
-| EVM | `sdk.chain.evm.redeem()` | Redeem from DeFi vaults |
-| EVM | `sdk.chain.evm.deploy()` | Deploy to DeFi vaults |
-| Solana | `sdk.chain.solana.unstake()` | Burn LBTC on Solana |
+| EVM | `sdk.chain.evm.unstake()` | Burn LBTC → BTC or BTC.b |
+| EVM | `sdk.chain.evm.deposit()` | Deposit BTC.b → LBTC |
+| EVM | `sdk.chain.evm.redeem()` | Redeem BTC.b → BTC |
+| EVM | `sdk.chain.evm.deploy()` | Deploy LBTC/BTC.b to DeFi vaults |
+| EVM | `sdk.chain.evm.withdraw()` | Withdraw vault shares → LBTC |
+| Solana | `sdk.chain.solana.stake()` | Stake BTC.b → LBTC |
+| Solana | `sdk.chain.solana.unstake()` | Burn LBTC → BTC or BTC.b |
+| Solana | `sdk.chain.solana.redeem()` | Redeem BTC.b → BTC |
 | Sui | `sdk.chain.sui.unstake()` | Burn LBTC on Sui |
 | Starknet | `sdk.chain.starknet.unstake()` | Burn LBTC on Starknet |
 

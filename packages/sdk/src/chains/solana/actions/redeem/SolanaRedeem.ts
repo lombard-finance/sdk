@@ -1,16 +1,15 @@
 /**
  * Solana Redeem Action
  *
- * Redeems LBTC → BTC.b on Solana via Asset Router's `redeem` instruction + GMP.
- * Same-chain unwrap, analogous to EVM redeem.
+ * Redeems BTC.b → BTC on Solana via Asset Router redeemForBtc.
+ * Cross-chain burn, analogous to EVM redeem.
  *
  * **Flow:**
- * IDLE → READY → CONFIRMING
+ * IDLE → READY → COMPLETED
  *
  * @module chains/solana/actions/redeem/SolanaRedeem
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
 import { z } from 'zod';
 
 import { StepStatus } from '../../../../core';
@@ -39,14 +38,12 @@ export class SolanaRedeem
   private _amount?: string;
   private _recipient?: string;
   private _txHash?: string;
-  private readonly env: Env;
 
   constructor(
     private readonly ctx: SolanaCoreContext,
     private readonly params: SolanaRedeemParams,
   ) {
     super(NonEvmUnstakeStatus.IDLE);
-    this.env = ctx.env;
 
     if (
       !isRedeemSupported(
@@ -54,14 +51,14 @@ export class SolanaRedeem
         params.destChain,
         params.assetIn,
         params.assetOut,
-        this.env,
+        ctx.env,
       )
     ) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
         destChain: params.destChain,
-        env: this.env,
+        env: ctx.env,
       });
     }
   }
@@ -90,7 +87,7 @@ export class SolanaRedeem
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.READY,
-        steps: { burning: StepStatus.IDLE, minting: StepStatus.IDLE },
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
       });
     }, NonEvmUnstakeStatus.READY);
   }
@@ -108,28 +105,30 @@ export class SolanaRedeem
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.READY,
-        steps: { burning: StepStatus.PENDING, minting: StepStatus.IDLE },
+        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
       });
 
       const amountInSatoshis = toSatoshi(amount).toString();
-      const network = envToSolanaNetwork(this.env);
+      const network = envToSolanaNetwork(this.ctx.env);
 
-      const { txHash } = await this.ctx.solana.redeem({
+      const { txHash } = await this.ctx.solana.redeemForBtc({
         amount: amountInSatoshis,
-        recipient,
+        btcAddress: recipient,
         network,
-        env: this.env,
+        env: this.ctx.env,
       });
 
       this._txHash = txHash;
 
       this.emitProgress({
-        status: NonEvmUnstakeStatus.CONFIRMING,
-        steps: { burning: StepStatus.COMPLETE, minting: StepStatus.PENDING },
+        status: NonEvmUnstakeStatus.COMPLETED,
+        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
       });
 
+      this.emitCompleted();
+
       return { txHash };
-    }, NonEvmUnstakeStatus.CONFIRMING);
+    }, NonEvmUnstakeStatus.COMPLETED);
   }
 
   private get prepareSchema() {

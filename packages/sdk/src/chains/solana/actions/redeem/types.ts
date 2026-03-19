@@ -1,7 +1,7 @@
 /**
  * Solana Redeem Action Types
  *
- * Redeems LBTC → BTC.b on Solana via Asset Router (same-chain unwrap).
+ * Redeems BTC.b → BTC on Solana via Asset Router redeemForBtc.
  *
  * @module chains/solana/actions/redeem/types
  */
@@ -27,14 +27,14 @@ export interface SolanaRedeemProgress
   status: NonEvmUnstakeStatus;
   steps: {
     burning: StepStatus;
-    minting: StepStatus;
+    releasing: StepStatus;
   };
   txHash?: string;
 }
 
 export interface SolanaRedeemPrepareParams {
   amount: string;
-  /** Solana address to receive BTC.b */
+  /** Bitcoin address to receive BTC */
   recipient: string;
 }
 

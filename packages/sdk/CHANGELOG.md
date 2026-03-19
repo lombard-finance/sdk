@@ -1,3 +1,10 @@
+# 4.5.0
+
+- `solana.unstake()` now supports both LBTC → BTC (cross-chain) and LBTC → BTC.b (same-chain), matching the EVM unstake pattern. The output token is determined by `assetOut`. Both paths use Asset Router.
+- `solana.redeem()` changed from LBTC → BTC.b to BTC.b → BTC, matching the EVM redeem pattern.
+
+---
+
 # 4.4.0
 
 - Added Solana destination support for BTC deposits, including destination signing and route configuration for Solana chains.

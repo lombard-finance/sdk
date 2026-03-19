@@ -21,7 +21,9 @@ function createMockSolanaService() {
   return {
     signLbtcDestination: vi.fn().mockResolvedValue({ signature: '0xmock' }),
     unstake: vi.fn().mockResolvedValue({ txHash: 'mock-unstake-tx-hash' }),
-    redeemForBtc: vi.fn().mockResolvedValue({ txHash: 'mock-redeem-tx-hash' }),
+    redeemForBtc: vi.fn().mockResolvedValue({ txHash: 'mock-redeemForBtc-tx-hash' }),
+    redeem: vi.fn().mockResolvedValue({ txHash: 'mock-redeem-tx-hash' }),
+    deposit: vi.fn().mockResolvedValue({ txHash: 'mock-deposit-tx-hash' }),
   };
 }
 
@@ -41,7 +43,7 @@ function createMockContext(
 // Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('SolanaRedeem', () => {
+describe('SolanaRedeem — BTC.b → BTC', () => {
   let mockCtx: SolanaCoreContext;
 
   const validParams = {
@@ -61,10 +63,6 @@ describe('SolanaRedeem', () => {
     vi.clearAllMocks();
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Initialization Tests
-  // ─────────────────────────────────────────────────────────────────────────
-
   describe('initialization', () => {
     it('should initialize with IDLE status in dev env', () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
@@ -75,16 +73,6 @@ describe('SolanaRedeem', () => {
       const stageCtx = createMockContext({ env: Env.stage });
       const redeem = new SolanaRedeem(stageCtx, validParams);
       expect(redeem.status).toBe(NonEvmUnstakeStatus.IDLE);
-    });
-
-    it('should throw for testnet env (not yet supported)', () => {
-      const testnetCtx = createMockContext({ env: Env.testnet });
-      expect(() => new SolanaRedeem(testnetCtx, validParams)).toThrow();
-    });
-
-    it('should throw for ibc env (not yet supported)', () => {
-      const ibcCtx = createMockContext({ env: Env.ibc });
-      expect(() => new SolanaRedeem(ibcCtx, validParams)).toThrow();
     });
 
     it('should throw for prod env (not yet supported)', () => {
@@ -101,10 +89,6 @@ describe('SolanaRedeem', () => {
     });
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Prepare Tests
-  // ─────────────────────────────────────────────────────────────────────────
-
   describe('prepare', () => {
     it('should transition to READY status on valid prepare', async () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
@@ -120,7 +104,7 @@ describe('SolanaRedeem', () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
 
       await expect(
-        redeem.prepare({ amount: '0.001', recipient: 'invalid-btc-address' }),
+        redeem.prepare({ amount: '0.001', recipient: 'invalid-address' }),
       ).rejects.toThrow();
     });
 
@@ -140,10 +124,6 @@ describe('SolanaRedeem', () => {
     });
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Execute Tests
-  // ─────────────────────────────────────────────────────────────────────────
-
   describe('execute', () => {
     it('should call solana service redeemForBtc method', async () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
@@ -159,19 +139,26 @@ describe('SolanaRedeem', () => {
           env: Env.dev,
         }),
       );
-      expect(result.txHash).toBe('mock-redeem-tx-hash');
+      expect(result.txHash).toBe('mock-redeemForBtc-tx-hash');
     });
 
-    it('should transition to CONFIRMING status after execute', async () => {
+    it('should NOT call solana service redeem or unstake', async () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
       await redeem.execute();
 
-      // The Solana burn and GMP dispatch are complete, but the Bitcoin-side
-      // BTC release is cross-chain async — the SDK cannot track it, so the
-      // flow terminates at CONFIRMING, not COMPLETED.
-      expect(redeem.status).toBe(NonEvmUnstakeStatus.CONFIRMING);
+      expect(mockCtx.solana.redeem).not.toHaveBeenCalled();
+      expect(mockCtx.solana.unstake).not.toHaveBeenCalled();
+    });
+
+    it('should transition to COMPLETED status after execute', async () => {
+      const redeem = new SolanaRedeem(mockCtx, validParams);
+      await redeem.prepare(validPrepareParams);
+
+      await redeem.execute();
+
+      expect(redeem.status).toBe(NonEvmUnstakeStatus.COMPLETED);
     });
 
     it('should throw if called when not READY', async () => {
@@ -186,7 +173,7 @@ describe('SolanaRedeem', () => {
 
       await redeem.execute();
 
-      expect(redeem.txHash).toBe('mock-redeem-tx-hash');
+      expect(redeem.txHash).toBe('mock-redeemForBtc-tx-hash');
     });
 
     it('should handle service errors', async () => {
@@ -201,10 +188,6 @@ describe('SolanaRedeem', () => {
       expect(redeem.isFailed).toBe(true);
     });
   });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Network Mapping Tests
-  // ─────────────────────────────────────────────────────────────────────────
 
   describe('network mapping', () => {
     it('should use devnet for dev env', async () => {

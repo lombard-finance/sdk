@@ -141,3 +141,47 @@ const txHash = await unstakeLBTC(provider, {
   network: 'mainnet-beta',
 });
 ```
+
+### Redeeming tokens for BTC (Asset Router)
+
+Burns BTC.b or LBTC on Solana and sends a GMP message through the Mailbox to
+trigger a BTC payout to the specified Bitcoin address.
+
+```typescript
+import { redeemForBtc } from '@lombard.finance/sdk-solana';
+
+// BTC.b → BTC (default)
+const txHash = await redeemForBtc(provider, {
+  amount: '2000',
+  btcAddress: 'bc1q...',
+  network: 'devnet',
+  env: 'stage',
+});
+
+// LBTC → BTC (pass LBTC mint)
+const txHash = await redeemForBtc(provider, {
+  amount: '2000',
+  btcAddress: 'bc1q...',
+  tokenMint: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
+  network: 'devnet',
+  env: 'dev',
+});
+```
+
+### Redeeming LBTC for BTC.b (Asset Router)
+
+Burns LBTC and sends a GMP message to route BTC.b to the recipient on Solana.
+
+```typescript
+import { redeem } from '@lombard.finance/sdk-solana';
+
+const txHash = await redeem(provider, {
+  amount: '2000',
+  recipient: '8yarEiDaJVik7n6wX8JCbubTbtZD3WZ67Q1ytMDA2BKA',
+  network: 'devnet',
+  env: 'dev',
+});
+```
+
+Optional overrides: `tokenMint` (source token), `toTokenAddress` (destination
+token), `toLchainId` (destination chain). All default to LBTC → BTC.b on Solana.

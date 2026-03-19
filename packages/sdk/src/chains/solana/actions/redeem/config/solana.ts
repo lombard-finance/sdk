@@ -1,7 +1,7 @@
 /**
  * Solana Redeem Configuration
  *
- * Handles LBTC → BTC.b redemption on Solana via Asset Router (same-chain unwrap).
+ * Handles BTC.b → BTC redemption on Solana via Asset Router redeemForBtc.
  *
  * @module chains/solana/actions/redeem/config/solana
  */
@@ -9,7 +9,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 
 import { AssetId, Chain } from '../../../../../core';
-import { solanaAddressSchema } from '../../../../../shared/validation';
+import { bitcoinAddressSchema } from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 
 export const solanaRedeemConfig: ChainConfig = {
@@ -18,14 +18,14 @@ export const solanaRedeemConfig: ChainConfig = {
   routes: [
     {
       sourceChains: [Chain.SOLANA_DEVNET],
-      destChain: Chain.SOLANA_DEVNET,
-      assetIn: AssetId.LBTC,
-      assetOut: AssetId.BTCb,
+      destChain: Chain.BITCOIN_SIGNET,
+      assetIn: AssetId.BTCb,
+      assetOut: AssetId.BTC,
       envs: [Env.stage, Env.dev],
     },
   ],
 
-  recipientSchema: solanaAddressSchema,
+  recipientSchema: bitcoinAddressSchema,
 };
 
 export function isRedeemSupported(

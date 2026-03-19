@@ -5,6 +5,18 @@ All notable changes to `@lombard.finance/sdk-solana` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-03-12
+
+### Added
+
+- `redeem()` — Asset Router generic `redeem` instruction (LBTC → BTC.b on Solana)
+- `redeemForBtc()` — added LBTC → BTC flow (alongside existing BTC.b → BTC), routed by `tokenMint`
+
+### Changed
+
+- Restructured `redeemToken/` module: shared context (`shared.ts`), per-token flows (`redeemBtcb.ts`, `redeemLbtc.ts`), routing entry point (`redeemForBtc.ts`)
+- Updated Storybook with token selector (BTC.b / LBTC) and dynamic UI
+
 ## [1.2.0] - 2026-03-09
 
 ### Added
