@@ -1,4 +1,4 @@
-import { Program } from '@coral-xyz/anchor';
+import { BN, Program } from '@coral-xyz/anchor';
 import { Env } from '@lombard.finance/sdk-common';
 import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
 import { keccak256 } from 'js-sha3';
@@ -8,6 +8,11 @@ import { IConfig } from '../../const/getConfig';
 import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import { sendAndConfirmTransaction } from '../../utils';
 import { parseSignaturesFromProof } from '../claimLBTC/utils/signatureUtils';
+
+// ── PDA seeds ──
+
+export const CONSORTIUM_SESSION_SEED = Buffer.from('session');
+export const CONSORTIUM_CONFIG_SEED = Buffer.from('consortium_config');
 
 // ── Payload selectors (first 4 bytes) ──
 
@@ -95,6 +100,68 @@ export interface ClaimContext {
   tokenAuthorityPDA: PublicKey;
   arConfig: AssetRouterConfig;
   debugLog: DebugLog;
+}
+
+// ── Consortium PDA helpers ──
+
+export function getConsortiumConfigPDA(programId: PublicKey): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [CONSORTIUM_CONFIG_SEED],
+    programId,
+  )[0];
+}
+
+/**
+ * Derive the session PDA using the new seeds that include the ValSet epoch.
+ * Seeds: ["session", epoch (8 bytes BE), payer, payloadHash]
+ */
+export function getConsortiumSessionPDA(
+  programId: PublicKey,
+  payer: PublicKey,
+  payloadHash: Buffer,
+  epoch: BN,
+): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [
+      CONSORTIUM_SESSION_SEED,
+      epoch.toBuffer('be', 8),
+      payer.toBytes(),
+      payloadHash,
+    ],
+    programId,
+  )[0];
+}
+
+/**
+ * Fetch the current epoch from the on-chain consortium config account.
+ *
+ * Borsh layout of Consortium Config:
+ *   discriminator:   8 bytes  (offset 0)
+ *   admin:          32 bytes  (offset 8)
+ *   pending_admin:  32 bytes  (offset 40)
+ *   current_epoch:   8 bytes  (offset 72, u64 LE)
+ */
+export async function fetchCurrentEpoch(
+  connection: Connection,
+  consortiumConfigPDA: PublicKey,
+): Promise<BN> {
+  const accountInfo = await connection.getAccountInfo(consortiumConfigPDA);
+  if (!accountInfo) {
+    throw new Error(
+      `Consortium config account not found at ${consortiumConfigPDA.toBase58()}`,
+    );
+  }
+
+  const EPOCH_OFFSET = 72; // 8 (discriminator) + 32 (admin) + 32 (pending_admin)
+  const MIN_SIZE = EPOCH_OFFSET + 8;
+  if (accountInfo.data.length < MIN_SIZE) {
+    throw new Error(
+      `Consortium config data too short: expected >= ${MIN_SIZE} bytes, got ${accountInfo.data.length}`,
+    );
+  }
+
+  const epochLe = accountInfo.data.readBigUInt64LE(EPOCH_OFFSET);
+  return new BN(epochLe.toString());
 }
 
 // ── parseAssetRouterConfig ──
