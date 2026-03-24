@@ -12,6 +12,14 @@ export {
   type GetVaultDepositsParameters,
   type VaultDeposit,
 } from './lib/ops/get-vault-deposits';
+export {
+  getVaultMinimumDeposit,
+  type GetVaultMinimumDepositParameters,
+} from './lib/ops/get-vault-minimum-deposit';
+export {
+  previewVaultDeposit,
+  type PreviewVaultDepositParameters,
+} from './lib/ops/preview-vault-deposit';
 
 // Ops - Withdraw:
 
