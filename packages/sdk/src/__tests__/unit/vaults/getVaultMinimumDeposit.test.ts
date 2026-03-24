@@ -110,7 +110,16 @@ describe('getVaultMinimumDeposit', () => {
 
       // ceil(200000000 / 100000000) = 2, but due to premium, 2 → 0 shares
       mockReadContract.mockResolvedValueOnce(0n); // estimate = 2 yields 0
-      mockReadContract.mockResolvedValueOnce(1n); // 3 yields 1 share
+
+      // Fallback: batched multicall for candidates 3..12
+      // First candidate (3) yields 1 share
+      mockMulticall.mockResolvedValueOnce([
+        { status: 'success', result: 1n }, // candidate 3 yields 1 share
+        ...Array.from({ length: 9 }, () => ({
+          status: 'success' as const,
+          result: 0n,
+        })),
+      ]);
 
       const result = await getVaultMinimumDeposit({
         vaultKey: Vault.Veda,
@@ -230,8 +239,16 @@ describe('getVaultMinimumDeposit', () => {
         { status: 'success', result: 0n },
       ]);
 
-      // All verification attempts return 0 shares
-      mockReadContract.mockResolvedValue(0n);
+      // Verify call returns 0
+      mockReadContract.mockResolvedValueOnce(0n);
+
+      // Fallback batch: all candidates return 0 shares
+      mockMulticall.mockResolvedValueOnce(
+        Array.from({ length: 10 }, () => ({
+          status: 'success' as const,
+          result: 0n,
+        })),
+      );
 
       await expect(
         getVaultMinimumDeposit({ vaultKey: Vault.Veda }),

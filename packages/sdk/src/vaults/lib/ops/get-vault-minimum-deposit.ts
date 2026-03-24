@@ -152,19 +152,27 @@ export async function getVaultMinimumDeposit({
     return fromBaseDenomination(estimatedMin.toString(), tokenDecimals);
   }
 
-  // Edge case: estimate was off (e.g., share premium). Increment until shares > 0.
+  // Edge case: estimate was off (e.g., share premium). Batch all candidates
+  // in a single multicall to avoid sequential RPC round trips.
   const maxAttempts = 10;
-  for (let i = 1; i <= maxAttempts; i++) {
-    const candidate = estimatedMin + BigInt(i);
-    const shares = await ethPublicClient.readContract({
+  const candidates = Array.from(
+    { length: maxAttempts },
+    (_, i) => estimatedMin + BigInt(i + 1),
+  );
+
+  const batchResults = await ethPublicClient.multicall({
+    contracts: candidates.map((candidate) => ({
       address: lensAddress,
       abi: lensAbi,
-      functionName: 'previewDeposit',
+      functionName: 'previewDeposit' as const,
       args: [ethTokenAddress, candidate, vaultAddress, accountantAddress],
-    });
+    })),
+  });
 
-    if ((shares as bigint) > 0n) {
-      return fromBaseDenomination(candidate.toString(), tokenDecimals);
+  for (let i = 0; i < batchResults.length; i++) {
+    const result = batchResults[i];
+    if (result.status === 'success' && (result.result as bigint) > 0n) {
+      return fromBaseDenomination(candidates[i].toString(), tokenDecimals);
     }
   }
 
