@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
     branches: [main]
 
@@ -45,3 +45,182 @@ jobs:
 
       - name: Test
         run: yarn test:required
+
+  canary-publish:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    container:
+      image: ${{ vars.AWS_ECR_REGISTRY }}/library/alpine-git-node-aws:latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-canary
+      cancel-in-progress: true
+
+    env:
+      PUBLISH_ORDER: "sdk-common sdk sdk-solana sdk-sui sdk-starknet sdk-devtools"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Allow Git to access repo
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      # Sanitize branch name into a valid npm dist-tag:
+      #   - Strip refs/heads/ prefix
+      #   - Replace non-alphanumeric chars with dashes
+      #   - Truncate to 30 characters
+      - name: Derive canary tag from branch name
+        id: canary-tag
+        run: |
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          TAG=$(echo "$BRANCH" | sed 's/[^a-zA-Z0-9]/-/g' | cut -c1-30)
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Canary tag: ${TAG}"
+
+      - name: Set canary versions
+        env:
+          SUFFIX: ${{ steps.canary-tag.outputs.tag }}
+          RUN_NUM: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          for pkg in $PUBLISH_ORDER; do
+            PKG_DIR="./packages/$pkg"
+            CURRENT=$(node -p "require('$PKG_DIR/package.json').version")
+            CANARY="${CURRENT}-${SUFFIX}.${RUN_NUM}"
+
+            node -e "
+              const fs = require('fs');
+              const p = '$PKG_DIR/package.json';
+              const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
+              pkg.version = '$CANARY';
+              fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
+            "
+
+            echo "  ${pkg}: ${CURRENT} -> ${CANARY}"
+          done
+
+      - name: Resolve workspace dependencies
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const packagesDir = './packages';
+
+          const versions = {};
+          for (const dir of fs.readdirSync(packagesDir)) {
+            const p = path.join(packagesDir, dir, 'package.json');
+            if (!fs.existsSync(p)) continue;
+            const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
+            if (pkg.name?.startsWith('@lombard.finance/')) {
+              versions[pkg.name] = pkg.version;
+            }
+          }
+
+          for (const dir of fs.readdirSync(packagesDir)) {
+            const p = path.join(packagesDir, dir, 'package.json');
+            if (!fs.existsSync(p)) continue;
+            const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
+            let modified = false;
+
+            for (const depType of ['dependencies', 'peerDependencies']) {
+              if (!pkg[depType]) continue;
+              for (const [name, range] of Object.entries(pkg[depType])) {
+                if (!range.startsWith('workspace:')) continue;
+                const resolved = depType === 'peerDependencies'
+                  ? '*'
+                  : (versions[name] || '*');
+                pkg[depType][name] = resolved;
+                console.log('  ' + dir + ': ' + name + ' (' + depType + ') -> ' + resolved);
+                modified = true;
+              }
+            }
+
+            if (modified) {
+              fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
+            }
+          }
+          "
+
+      - name: Build all packages
+        run: yarn turbo run build
+
+      - name: Configure npm registry
+        run: |
+          npm config set access public -ws=false -iwr
+          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPMJS_TOKEN }} -ws=false -iwr
+
+      - name: Publish all packages
+        env:
+          TAG: ${{ steps.canary-tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          FAILED=""
+          for pkg in $PUBLISH_ORDER; do
+            PKG_DIR="./packages/$pkg"
+            VERSION=$(node -p "require('$PKG_DIR/package.json').version")
+
+            echo "Publishing @lombard.finance/${pkg}@${VERSION}..."
+            cd "$PKG_DIR"
+            if npm publish --tag "$TAG"; then
+              echo "  Published"
+            else
+              echo "  FAILED"
+              FAILED="${FAILED} ${pkg}"
+            fi
+            cd "$GITHUB_WORKSPACE"
+          done
+
+          if [ -n "$FAILED" ]; then
+            echo "The following packages failed to publish:${FAILED}"
+            exit 1
+          fi
+
+      - name: Print install instructions
+        if: always()
+        env:
+          TAG: ${{ steps.canary-tag.outputs.tag }}
+        run: |
+          echo ""
+          echo "========================================"
+          echo "  Canary Publish Summary"
+          echo "========================================"
+
+          for pkg in $PUBLISH_ORDER; do
+            VERSION=$(node -p "require('./packages/$pkg/package.json').version")
+            echo "  @lombard.finance/${pkg}@${VERSION}"
+          done
+
+          echo ""
+          echo "  Tag:     ${TAG}"
+          echo "  Branch:  ${{ github.ref_name }}"
+          echo "  Install: npm i @lombard.finance/sdk@${TAG}"
+          echo "========================================"
+
+      - name: Send Slack notification
+        if: success()
+        uses: slackapi/slack-github-action@v2.1.1
+        env:
+          TAG: ${{ steps.canary-tag.outputs.tag }}
+          WORKFLOW_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            blocks:
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "Canary published from `${{ github.ref_name }}` with tag `${{ env.TAG }}`\n${{ env.WORKFLOW_URL }}"
