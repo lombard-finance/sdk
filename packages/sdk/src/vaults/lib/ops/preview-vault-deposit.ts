@@ -16,12 +16,12 @@ import { isVedaVaultChain, Vault, VAULTS } from '../config';
 export type PreviewVaultDepositParameters = {
   /** The deposit amount in human-readable format (e.g., "0.001"). */
   amount: BigNumber.Value;
+  /** The vault identifier. */
+  vaultKey: Vault;
   /** The deposit token. Defaults to LBTC. */
   token?: Token;
   /** The chain where the deposit will be made. Defaults to Ethereum. */
   chainId?: ChainId;
-  /** The vault identifier. Defaults to Veda. */
-  vaultKey?: Vault;
   /** Optional RPC URL for Ethereum (used for Lens queries). */
   rpcUrl?: string;
   /** Optional environment. */
@@ -39,6 +39,7 @@ export type PreviewVaultDepositParameters = {
  * ```ts
  * const shares = await previewVaultDeposit({
  *   amount: '0.001',
+ *   vaultKey: Vault.Veda,
  *   token: Token.LBTC,
  * });
  * // BigNumber(0.00098039) — expected shares for 0.001 LBTC
@@ -46,9 +47,9 @@ export type PreviewVaultDepositParameters = {
  */
 export async function previewVaultDeposit({
   amount: amountRaw,
+  vaultKey,
   token = Token.LBTC,
   chainId = ChainId.ethereum,
-  vaultKey = Vault.Veda,
   rpcUrl,
   env,
 }: PreviewVaultDepositParameters): Promise<BigNumber> {

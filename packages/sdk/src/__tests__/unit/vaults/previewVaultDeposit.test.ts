@@ -39,6 +39,7 @@ describe('previewVaultDeposit', () => {
 
       const result = await previewVaultDeposit({
         amount: '0.001',
+        vaultKey: Vault.Veda,
         token: Token.LBTC,
         chainId: ChainId.ethereum,
       });
@@ -51,6 +52,7 @@ describe('previewVaultDeposit', () => {
 
       const result = await previewVaultDeposit({
         amount: '0.00000001', // 1 satoshi
+        vaultKey: Vault.Veda,
         token: Token.LBTC,
         chainId: ChainId.ethereum,
       });
@@ -64,6 +66,7 @@ describe('previewVaultDeposit', () => {
 
       const result = await previewVaultDeposit({
         amount: '1.0',
+        vaultKey: Vault.Veda,
         token: Token.LBTC,
       });
 
@@ -77,6 +80,7 @@ describe('previewVaultDeposit', () => {
 
       await previewVaultDeposit({
         amount: '0.0001', // 10000 sats
+        vaultKey: Vault.Veda,
         token: Token.LBTC,
         chainId: ChainId.ethereum,
       });
@@ -104,7 +108,10 @@ describe('previewVaultDeposit', () => {
     it('should use Lens contract address', async () => {
       mockReadContract.mockResolvedValueOnce(0n);
 
-      await previewVaultDeposit({ amount: '0.001' });
+      await previewVaultDeposit({
+        amount: '0.001',
+        vaultKey: Vault.Veda,
+      });
 
       const callArgs = mockReadContract.mock.calls[0][0];
       expect(callArgs.address).toBe(
@@ -114,10 +121,13 @@ describe('previewVaultDeposit', () => {
   });
 
   describe('default parameters', () => {
-    it('should default to LBTC, Ethereum, Veda', async () => {
+    it('should default token to LBTC and chain to Ethereum', async () => {
       mockReadContract.mockResolvedValueOnce(98039n);
 
-      const result = await previewVaultDeposit({ amount: '0.001' });
+      const result = await previewVaultDeposit({
+        amount: '0.001',
+        vaultKey: Vault.Veda,
+      });
 
       expect(result).toEqual(BigNumber('0.00098039'));
     });
@@ -126,19 +136,23 @@ describe('previewVaultDeposit', () => {
   describe('error handling', () => {
     it('should throw for zero amount', async () => {
       await expect(
-        previewVaultDeposit({ amount: '0' }),
+        previewVaultDeposit({ amount: '0', vaultKey: Vault.Veda }),
       ).rejects.toThrow(/must be greater than zero/);
     });
 
     it('should throw for negative amount', async () => {
       await expect(
-        previewVaultDeposit({ amount: '-0.001' }),
+        previewVaultDeposit({ amount: '-0.001', vaultKey: Vault.Veda }),
       ).rejects.toThrow(/must be greater than zero/);
     });
 
     it('should throw for unsupported chain', async () => {
       await expect(
-        previewVaultDeposit({ amount: '0.001', chainId: ChainId.sepolia }),
+        previewVaultDeposit({
+          amount: '0.001',
+          vaultKey: Vault.Veda,
+          chainId: ChainId.sepolia,
+        }),
       ).rejects.toThrow(/Unsupported chain id/);
     });
 
@@ -146,6 +160,7 @@ describe('previewVaultDeposit', () => {
       await expect(
         previewVaultDeposit({
           amount: '0.001',
+          vaultKey: Vault.Veda,
           token: Token.eBTC,
           chainId: ChainId.base,
         }),
@@ -170,6 +185,7 @@ describe('previewVaultDeposit', () => {
 
       await previewVaultDeposit({
         amount: '0.0001',
+        vaultKey: Vault.Veda,
         token: Token.LBTC,
         chainId: ChainId.base,
       });
@@ -187,7 +203,10 @@ describe('previewVaultDeposit', () => {
     it('should correctly convert decimal amounts to base units', async () => {
       mockReadContract.mockResolvedValueOnce(490196n);
 
-      await previewVaultDeposit({ amount: '0.005' }); // 500000 sats
+      await previewVaultDeposit({
+        amount: '0.005',
+        vaultKey: Vault.Veda,
+      }); // 500000 sats
 
       const callArgs = mockReadContract.mock.calls[0][0];
       expect(callArgs.args[1]).toBe(500000n);
@@ -196,7 +215,10 @@ describe('previewVaultDeposit', () => {
     it('should handle string amounts', async () => {
       mockReadContract.mockResolvedValueOnce(9804n);
 
-      const result = await previewVaultDeposit({ amount: '0.0001' });
+      const result = await previewVaultDeposit({
+        amount: '0.0001',
+        vaultKey: Vault.Veda,
+      });
 
       expect(result).toEqual(BigNumber('0.00009804'));
     });
@@ -204,7 +226,10 @@ describe('previewVaultDeposit', () => {
     it('should handle number amounts', async () => {
       mockReadContract.mockResolvedValueOnce(9804n);
 
-      const result = await previewVaultDeposit({ amount: 0.0001 });
+      const result = await previewVaultDeposit({
+        amount: 0.0001,
+        vaultKey: Vault.Veda,
+      });
 
       expect(result).toEqual(BigNumber('0.00009804'));
     });
@@ -214,6 +239,7 @@ describe('previewVaultDeposit', () => {
 
       const result = await previewVaultDeposit({
         amount: BigNumber('0.0001'),
+        vaultKey: Vault.Veda,
       });
 
       expect(result).toEqual(BigNumber('0.00009804'));

@@ -10,12 +10,12 @@ import { fromBaseDenomination } from '../../../tokens/tokens';
 import { isVedaVaultChain, Vault, VAULTS } from '../config';
 
 export type GetVaultMinimumDepositParameters = {
+  /** The vault identifier. */
+  vaultKey: Vault;
   /** The deposit token. Defaults to LBTC. */
   token?: Token;
   /** The chain where the deposit will be made. Defaults to Ethereum. */
   chainId?: ChainId;
-  /** The vault identifier. Defaults to Veda. */
-  vaultKey?: Vault;
   /** Optional RPC URL for Ethereum (used for Lens/Accountant queries). */
   rpcUrl?: string;
   /** Optional environment. */
@@ -31,17 +31,17 @@ export type GetVaultMinimumDepositParameters = {
  *
  * @example
  * ```ts
- * const min = await getVaultMinimumDeposit({ token: Token.LBTC });
+ * const min = await getVaultMinimumDeposit({ vaultKey: Vault.Veda });
  * // BigNumber(0.00000002) — 2 satoshis at current rates
  * ```
  */
 export async function getVaultMinimumDeposit({
+  vaultKey,
   token = Token.LBTC,
   chainId = ChainId.ethereum,
-  vaultKey = Vault.Veda,
   rpcUrl,
   env,
-}: GetVaultMinimumDepositParameters = {}): Promise<BigNumber> {
+}: GetVaultMinimumDepositParameters): Promise<BigNumber> {
   const vault = VAULTS[vaultKey];
   if (!vault) {
     throw new Error(`Unknown vault key: ${vaultKey}`);
