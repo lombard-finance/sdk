@@ -1,5 +1,9 @@
 import { BN, Program } from '@coral-xyz/anchor';
 import { Env } from '@lombard.finance/sdk-common';
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress,
+} from '@solana/spl-token';
 import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
 import { keccak256 } from 'js-sha3';
 import { sha256 } from 'js-sha256';
@@ -345,10 +349,47 @@ export function computePayloadHash(payloadBytes: Buffer): Buffer {
 }
 
 /**
+ * BTC.B deposit payload embeds the SPL associated token account at bytes 36–68
+ * (not the wallet owner). On-chain `mint_from_payload` requires that account
+ * pubkey to match the payload exactly.
+ *
+ * @returns The recipient token account from the payload (verified against the wallet's ATA).
+ */
+export async function assertBtcbDepositRecipientMatchesWallet({
+  payloadBytes,
+  mint,
+  tokenProgramId,
+  recipientWallet,
+}: {
+  payloadBytes: Buffer;
+  mint: PublicKey;
+  tokenProgramId: PublicKey;
+  recipientWallet: string;
+}): Promise<PublicKey> {
+  const payloadRecipient = new PublicKey(payloadBytes.subarray(36, 68));
+  const expectedAta = await getAssociatedTokenAddress(
+    mint,
+    new PublicKey(recipientWallet),
+    true,
+    tokenProgramId,
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+  );
+
+  if (!expectedAta.equals(payloadRecipient)) {
+    throw new Error(
+      `Recipient mismatch: payload expects token account ${payloadRecipient.toBase58()} ` +
+        `but ATA for wallet ${recipientWallet} is ${expectedAta.toBase58()}.`,
+    );
+  }
+
+  return payloadRecipient;
+}
+
+/**
  * Compute bascule deposit ID from raw 196-byte BTC.B payload.
  *
- * keccak256( [0u8;32] || "\x03SOL" || recipient(32) || amount(8) || txid(32) || vout(4) )
- * Payload offsets: recipient 36-68, amount 68-76, txid 76-108, vout 108-112.
+ * keccak256( [0u8;32] || "\x03SOL" || recipient_token_account(32) || amount(8) || txid(32) || vout(4) )
+ * Payload offsets: recipient ATA 36-68, amount 68-76, txid 76-108, vout 108-112.
  */
 export function computeDepositIdFromPayload(payloadBytes: Buffer): Uint8Array {
   const prefix = Buffer.alloc(32, 0);
