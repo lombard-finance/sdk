@@ -42,6 +42,7 @@ import {
   getPointsByAddress,
   type IPointsByAddressSeason1,
   type IPointsByAddressSeason2,
+  type IPointsByAddressSeason3,
 } from '../api-functions/getPointsByAddress/getPointsByAddress';
 import {
   getUnstakesByAddress,
@@ -206,6 +207,18 @@ export class ApiNamespace {
   ): Promise<IPointsByAddressSeason2>;
 
   /**
+   * Fetch Lux points for an address (Season 3).
+   *
+   * @param address - The wallet address
+   * @param season - Season number (3)
+   * @returns Promise resolving to Season 3 points breakdown
+   */
+  async points(
+    address: string,
+    season: 3,
+  ): Promise<IPointsByAddressSeason3>;
+
+  /**
    * Fetch Lux points for an address (defaults to current season).
    *
    * @param address - The wallet address
@@ -225,12 +238,12 @@ export class ApiNamespace {
   async points(
     address: string,
     season?: number,
-  ): Promise<IPointsByAddressSeason1 | IPointsByAddressSeason2>;
+  ): Promise<IPointsByAddressSeason1 | IPointsByAddressSeason2 | IPointsByAddressSeason3>;
 
   async points(
     address: string,
     season?: number,
-  ): Promise<IPointsByAddressSeason1 | IPointsByAddressSeason2> {
+  ): Promise<IPointsByAddressSeason1 | IPointsByAddressSeason2 | IPointsByAddressSeason3> {
     // Future: if (this.apiVersion === 'v2') return this.pointsV2(address, season);
     return getPointsByAddress({ address, env: this.env, season });
   }

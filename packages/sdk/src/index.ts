@@ -435,10 +435,12 @@ export {
 } from './api-functions/getNetworkFeeSignature/getNetworkFeeSignature';
 export {
   getLuxSeason1Points,
-  getLuxSeason2Points, getPointsByAddress, type IGetPointsByAddressParameters,
+  getLuxSeason2Points,
+  getLuxSeason3Points, getPointsByAddress, type IGetPointsByAddressParameters,
   type IPointsBase,
   type IPointsByAddressSeason1,
   type IPointsByAddressSeason2,
+  type IPointsByAddressSeason3,
   type IProtocolPointsBreakdown
 } from './api-functions/getPointsByAddress/getPointsByAddress';
 export {

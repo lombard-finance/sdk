@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 
-const CURRENT_SEASON = 2;
+const CURRENT_SEASON = 3;
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -71,6 +71,16 @@ export interface IPointsByAddressSeason2 extends IPointsBase {
 }
 
 /**
+ * Points specific to Season 3.
+ */
+export interface IPointsByAddressSeason3 extends IPointsBase {
+  /** Points earned from referees. */
+  refereePoints: number;
+  /** Points earned by checking in. */
+  checkinPoints: number;
+}
+
+/**
  * Raw API response format for Season 1.
  */
 interface IPointsResponseSeason1 {
@@ -91,6 +101,20 @@ interface IPointsResponseSeason1 {
  * Raw API response format for Season 2.
  */
 interface IPointsResponseSeason2 {
+  holding_points: number;
+  protocol_points: number;
+  referee_points: number;
+  referrals_points: number;
+  total: number;
+  protocol_points_map?: IProtocolPointsBreakdown;
+  badge_points: number;
+  checkin_points: number;
+}
+
+/**
+ * Raw API response format for Season 3.
+ */
+interface IPointsResponseSeason3 {
   holding_points: number;
   protocol_points: number;
   referee_points: number;
@@ -161,6 +185,8 @@ function getLombardPointsUrl(
       return `${baseApiUrl}/api/v1/referral-system/season-1/points/${address}`;
     case 2:
       return `${baseApiUrl}/api/v1/referral-system/season-2/points/${address}`;
+    case 3:
+      return `${baseApiUrl}/api/v1/referral-system/season-3/points/${address}`;
     default:
       throw new Error(`Invalid Lux season: ${season}`);
   }
@@ -235,6 +261,36 @@ async function fetchPointsSeason2({
   };
 }
 
+/**
+ * Fetches and parses Season 3 points for a given address.
+ *
+ * @param params - Address and environment parameters.
+ * @returns A typed object containing all Season 3 point metrics.
+ */
+async function fetchPointsSeason3({
+  address,
+  env,
+}: Omit<
+  IGetPointsByAddressParameters,
+  'season'
+>): Promise<IPointsByAddressSeason3> {
+  const { data } = await axios.get<IPointsResponseSeason3>(
+    getLombardPointsUrl(3, address, env),
+  );
+
+  return {
+    holdingPoints: parse(data.holding_points).toNumber(),
+    protocolPoints: parse(data.protocol_points).toNumber(),
+    referralPoints: parse(data.referrals_points).toNumber(),
+    refereePoints: parse(data.referee_points).toNumber(),
+    badgesPoints: parse(data.badge_points).toNumber(),
+    checkinPoints: parse(data.checkin_points).toNumber(),
+    totalPoints: parse(data.total).toNumber(),
+    protocolPointsBreakdown: toProtocolBreakdown(data.protocol_points_map),
+    totalWithoutBadgesPoints: parse(data.total).toNumber(),
+  };
+}
+
 /* -------------------------------------------------------------------------- */
 /*                               Public API                                   */
 /* -------------------------------------------------------------------------- */
@@ -260,6 +316,16 @@ export async function getPointsByAddress(
 ): Promise<IPointsByAddressSeason2>;
 
 /**
+ * Retrieves Season 3 points for a given address.
+ *
+ * @param parameters - Address and environment parameters.
+ * @returns A Season 3 points object.
+ */
+export async function getPointsByAddress(
+  parameters: IGetPointsByAddressParameters & { season: 3 },
+): Promise<IPointsByAddressSeason3>;
+
+/**
  * Retrieves points for the given address.
  * Defaults to the current season if none is specified.
  *
@@ -268,7 +334,7 @@ export async function getPointsByAddress(
  */
 export async function getPointsByAddress(
   parameters: IGetPointsByAddressParameters,
-): Promise<IPointsByAddressSeason1 | IPointsByAddressSeason2>;
+): Promise<IPointsByAddressSeason1 | IPointsByAddressSeason2 | IPointsByAddressSeason3>;
 
 /**
  * Implementation of getPointsByAddress with overloads.
@@ -278,11 +344,16 @@ export async function getPointsByAddress({
   env,
   season = CURRENT_SEASON,
 }: IGetPointsByAddressParameters): Promise<
-  IPointsByAddressSeason1 | IPointsByAddressSeason2
+  IPointsByAddressSeason1 | IPointsByAddressSeason2 | IPointsByAddressSeason3
 > {
-  return season === 2
-    ? fetchPointsSeason2({ address, env })
-    : fetchPointsSeason1({ address, env });
+  switch (season) {
+    case 3:
+      return fetchPointsSeason3({ address, env });
+    case 2:
+      return fetchPointsSeason2({ address, env });
+    default:
+      return fetchPointsSeason1({ address, env });
+  }
 }
 
 /**
@@ -302,3 +373,12 @@ export const getLuxSeason1Points = (
 export const getLuxSeason2Points = (
   params: Omit<IGetPointsByAddressParameters, 'season'>,
 ) => getPointsByAddress({ ...params, season: 2 });
+
+/**
+ * Convenience wrapper for fetching Season 3 points.
+ *
+ * @param params - Address and environment parameters.
+ */
+export const getLuxSeason3Points = (
+  params: Omit<IGetPointsByAddressParameters, 'season'>,
+) => getPointsByAddress({ ...params, season: 3 });
