@@ -22,8 +22,9 @@ import { validateAmount } from '../redeemToken/shared';
 export interface DepositParams {
   amount: string;
   /**
-   * Recipient address that will receive the destination token (e.g. LBTC).
-   * Solana pubkey (base58).
+   * Owner wallet that will receive the destination token (e.g. LBTC).
+   * Solana pubkey (base58). The GMP payload uses the associated token account
+   * for `toTokenAddress` / default LBTC mint — matching api backend and claimer expectations.
    */
   recipient: string;
   /**
@@ -50,7 +51,7 @@ export interface DepositParams {
  * Deposit (swap) source token to destination token via Asset Router's `deposit` instruction.
  *
  * Burns the source token (e.g. BTC.b) and sends a GMP message through the Mailbox
- * to mint the destination token (e.g. LBTC) to the recipient.
+ * to mint the destination token (e.g. LBTC) to the recipient's ATA for that mint.
  *
  * Default flow (all optional params omitted): BTC.b → LBTC on Solana.
  */
@@ -117,16 +118,21 @@ export async function deposit(
       'hex',
     );
     const toLchainId = Buffer.from(toLchainIdHex, 'hex');
-    const toTokenAddress = new PublicKey(toTokenAddressStr).toBytes();
+    const destinationMint = new PublicKey(toTokenAddressStr);
+    const toTokenAddress = destinationMint.toBytes();
 
     debugLog('Payer:', payer.toBase58());
     debugLog('Mint (source, e.g. BTC.b):', mint.toBase58());
     debugLog('Destination token (e.g. LBTC):', toTokenAddressStr);
-    debugLog('Recipient:', recipientPubkey.toBase58());
+    debugLog('Recipient (owner):', recipientPubkey.toBase58());
     debugLog('Amount:', amount);
 
-    const tokenProgramId = await getTokenProgramForMint(connection, mint);
-    debugLog('Token program:', tokenProgramId.toBase58());
+    const [tokenProgramId, destinationTokenProgramId] = await Promise.all([
+      getTokenProgramForMint(connection, mint),
+      getTokenProgramForMint(connection, destinationMint),
+    ]);
+    debugLog('Source token program:', tokenProgramId.toBase58());
+    debugLog('Destination token program:', destinationTokenProgramId.toBase58());
 
     const [assetRouterConfigPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from('asset_router_config')],
@@ -216,7 +222,15 @@ export async function deposit(
       tokenProgramId,
       ASSOCIATED_TOKEN_PROGRAM_ID,
     );
+    const recipientTokenAccount = await getAssociatedTokenAddress(
+      destinationMint,
+      recipientPubkey,
+      false,
+      destinationTokenProgramId,
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+    );
     debugLog('Payer token account:', payerTokenAccount.toBase58());
+    debugLog('Recipient token account (payload):', recipientTokenAccount.toBase58());
 
     const tokenBalance =
       await connection.getTokenAccountBalance(payerTokenAccount);
@@ -235,7 +249,7 @@ export async function deposit(
 
     const toLchainIdArray = Array.from(toLchainId);
     const toTokenAddressArray = Array.from(toTokenAddress);
-    const recipientArray = Array.from(recipientPubkey.toBytes());
+    const recipientArray = Array.from(recipientTokenAccount.toBytes());
 
     const MAX_NONCE_RETRIES = 3;
     for (let attempt = 0; attempt < MAX_NONCE_RETRIES; attempt++) {

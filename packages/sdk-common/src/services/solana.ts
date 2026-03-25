@@ -64,7 +64,7 @@ export interface SolanaService {
    * to mint the destination token to the recipient.
    *
    * @param args.amount - Amount in base units (satoshis)
-   * @param args.recipient - Recipient address (Solana base58)
+   * @param args.recipient - Owner wallet (Solana base58); the SDK derives the destination mint ATA for the GMP payload
    * @param args.network - Solana network
    * @returns Transaction signature
    */
