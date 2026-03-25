@@ -5,6 +5,7 @@ import { sendAndConfirmTransaction } from '../../utils';
 import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
 import { ALREADY_MINTED_TX_HASH } from '../claimLBTC';
 import {
+  assertBtcbDepositRecipientMatchesWallet,
   ClaimContext,
   computeDepositIdFromPayload,
   executeConsortiumSession,
@@ -66,13 +67,18 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
   const mintAuthority = mintAccount.mintAuthority;
   debugLog('Mint authority:', mintAuthority.toBase58());
 
-  const payloadRecipient = new PublicKey(payloadBytes.subarray(36, 68));
-  debugLog('Recipient from payload:', payloadRecipient.toBase58());
+  const recipientTokenAccount = await assertBtcbDepositRecipientMatchesWallet({
+    payloadBytes,
+    mint,
+    tokenProgramId,
+    recipientWallet: params.recipientAddress,
+  });
+  debugLog('Recipient token account:', recipientTokenAccount.toBase58());
 
   await createOrGetAssociatedTokenAccount({
     provider,
     connection,
-    ownerAddress: payloadRecipient.toBase58(),
+    ownerAddress: params.recipientAddress,
     mintAddress: mint.toBase58(),
   });
 
@@ -85,7 +91,7 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
       payer: provider.publicKey,
       config: assetRouterConfigPDA,
       tokenProgram: tokenProgramId,
-      recipient: payloadRecipient,
+      recipient: recipientTokenAccount,
       mint,
       mintAuthority,
       tokenAuthority: tokenAuthorityPDA,
