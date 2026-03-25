@@ -1,0 +1,89 @@
+# .github/workflows/publish-dev.yml
+name: Publish Dev (GitHub Packages)
+run-name: Dev publish ${{ github.ref_name }}
+
+on:
+  push:
+    branches:
+      - 'feat/**'
+      - 'fix/**'
+      - 'dev/**'
+      # adjust patterns to match your branch conventions
+
+jobs:
+  publish-dev:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ vars.AWS_ECR_REGISTRY }}/library/alpine-git-node-aws:latest
+    permissions:
+      contents: read
+      packages: write  # required to push to GitHub Packages
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Allow Git to access repo
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@lombard.finance'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build all packages
+        run: yarn turbo run build
+
+      - name: Compute prerelease version
+        id: version
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          SHA="${{ github.sha }}"
+          # Slugify branch name: lowercase, replace non-alphanumeric with dash
+          SLUG=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
+          SHORT_SHA="${SHA:0:7}"
+          VERSION="0.0.0-${SLUG}.${SHORT_SHA}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Computed version: $VERSION"
+
+      - name: Publish all packages to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          for PKG_DIR in packages/*/; do
+            PKG_JSON="$PKG_DIR/package.json"
+            [ -f "$PKG_JSON" ] || continue
+
+            PKG_NAME=$(node -p "require('./$PKG_JSON').name")
+            # Only publish @lombard.finance/* packages
+            [[ "$PKG_NAME" != @lombard.finance/* ]] && continue
+
+            echo "Publishing $PKG_NAME@$VERSION from $PKG_DIR"
+
+            # Rewrite version and resolve workspace:* deps
+            node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('$PKG_JSON', 'utf8'));
+              pkg.version = '$VERSION';
+              // Resolve workspace:* to the same prerelease version or '*' for peers
+              for (const depType of ['dependencies', 'peerDependencies']) {
+                if (!pkg[depType]) continue;
+                for (const [name, range] of Object.entries(pkg[depType])) {
+                  if (!range.startsWith('workspace:')) continue;
+                  pkg[depType][name] = depType === 'peerDependencies' ? '*' : '$VERSION';
+                }
+              }
+              // Force GitHub Packages registry
+              pkg.publishConfig = { registry: 'https://npm.pkg.github.com', access: 'restricted' };
+              fs.writeFileSync('$PKG_JSON', JSON.stringify(pkg, null, 2) + '\n');
+            "
+
+            (cd "$PKG_DIR" && npm publish --tag dev) || echo "⚠️ Failed to publish $PKG_NAME (may already exist)"
+          done
