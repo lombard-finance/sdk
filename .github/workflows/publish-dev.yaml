@@ -72,6 +72,7 @@ jobs:
               const fs = require('fs');
               const pkg = JSON.parse(fs.readFileSync('$PKG_JSON', 'utf8'));
               pkg.version = '$VERSION';
+              pkg.name = pkg.name.replace('@lombard.finance/', '@lombard-finance/');
               // Resolve workspace:* to the same prerelease version or '*' for peers
               for (const depType of ['dependencies', 'peerDependencies']) {
                 if (!pkg[depType]) continue;

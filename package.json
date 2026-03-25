@@ -2,7 +2,6 @@
   "name": "lombard-sdk",
   "version": "0.0.0",
   "private": true,
-  "repository": "github:lombard-finance/sdk",
   "type": "module",
   "workspaces": [
     "packages/*",
