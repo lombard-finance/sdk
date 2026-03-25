@@ -14,6 +14,9 @@ import {
   ClaimTokenParams,
   computePayloadHash,
   DEPOSIT_SELECTOR_V1,
+  fetchCurrentEpoch,
+  getConsortiumConfigPDA,
+  getConsortiumSessionPDA,
   GMP_MESSAGE_V1_SELECTOR,
   parseAssetRouterConfig,
 } from './shared';
@@ -85,13 +88,20 @@ export async function claimToken(
     // PDAs
     const payer = new PublicKey(provider.publicKey);
 
-    const [consortiumConfigPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('consortium_config')],
-      consortiumProgramId,
+    const consortiumConfigPDA = getConsortiumConfigPDA(consortiumProgramId);
+
+    // Fetch current epoch from on-chain consortium config
+    const currentEpoch = await fetchCurrentEpoch(
+      connection,
+      consortiumConfigPDA,
     );
-    const [sessionPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('session'), payer.toBytes(), payloadHash],
+    debugLog('Current consortium epoch:', currentEpoch.toString());
+
+    const sessionPDA = getConsortiumSessionPDA(
       consortiumProgramId,
+      payer,
+      payloadHash,
+      currentEpoch,
     );
     const [validatedPayloadPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from('validated_payload'), payloadHash],

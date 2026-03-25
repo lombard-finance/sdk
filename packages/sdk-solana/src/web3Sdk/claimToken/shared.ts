@@ -1,5 +1,9 @@
-import { Program } from '@coral-xyz/anchor';
+import { BN, Program } from '@coral-xyz/anchor';
 import { Env } from '@lombard.finance/sdk-common';
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress,
+} from '@solana/spl-token';
 import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
 import { keccak256 } from 'js-sha3';
 import { sha256 } from 'js-sha256';
@@ -8,6 +12,11 @@ import { IConfig } from '../../const/getConfig';
 import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import { sendAndConfirmTransaction } from '../../utils';
 import { parseSignaturesFromProof } from '../claimLBTC/utils/signatureUtils';
+
+// ── PDA seeds ──
+
+export const CONSORTIUM_SESSION_SEED = Buffer.from('session');
+export const CONSORTIUM_CONFIG_SEED = Buffer.from('consortium_config');
 
 // ── Payload selectors (first 4 bytes) ──
 
@@ -95,6 +104,68 @@ export interface ClaimContext {
   tokenAuthorityPDA: PublicKey;
   arConfig: AssetRouterConfig;
   debugLog: DebugLog;
+}
+
+// ── Consortium PDA helpers ──
+
+export function getConsortiumConfigPDA(programId: PublicKey): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [CONSORTIUM_CONFIG_SEED],
+    programId,
+  )[0];
+}
+
+/**
+ * Derive the session PDA using the new seeds that include the ValSet epoch.
+ * Seeds: ["session", epoch (8 bytes BE), payer, payloadHash]
+ */
+export function getConsortiumSessionPDA(
+  programId: PublicKey,
+  payer: PublicKey,
+  payloadHash: Buffer,
+  epoch: BN,
+): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [
+      CONSORTIUM_SESSION_SEED,
+      epoch.toBuffer('be', 8),
+      payer.toBytes(),
+      payloadHash,
+    ],
+    programId,
+  )[0];
+}
+
+/**
+ * Fetch the current epoch from the on-chain consortium config account.
+ *
+ * Borsh layout of Consortium Config:
+ *   discriminator:   8 bytes  (offset 0)
+ *   admin:          32 bytes  (offset 8)
+ *   pending_admin:  32 bytes  (offset 40)
+ *   current_epoch:   8 bytes  (offset 72, u64 LE)
+ */
+export async function fetchCurrentEpoch(
+  connection: Connection,
+  consortiumConfigPDA: PublicKey,
+): Promise<BN> {
+  const accountInfo = await connection.getAccountInfo(consortiumConfigPDA);
+  if (!accountInfo) {
+    throw new Error(
+      `Consortium config account not found at ${consortiumConfigPDA.toBase58()}`,
+    );
+  }
+
+  const EPOCH_OFFSET = 72; // 8 (discriminator) + 32 (admin) + 32 (pending_admin)
+  const MIN_SIZE = EPOCH_OFFSET + 8;
+  if (accountInfo.data.length < MIN_SIZE) {
+    throw new Error(
+      `Consortium config data too short: expected >= ${MIN_SIZE} bytes, got ${accountInfo.data.length}`,
+    );
+  }
+
+  const epochLe = accountInfo.data.readBigUInt64LE(EPOCH_OFFSET);
+  return new BN(epochLe.toString());
 }
 
 // ── parseAssetRouterConfig ──
@@ -278,10 +349,47 @@ export function computePayloadHash(payloadBytes: Buffer): Buffer {
 }
 
 /**
+ * BTC.B deposit payload embeds the SPL associated token account at bytes 36–68
+ * (not the wallet owner). On-chain `mint_from_payload` requires that account
+ * pubkey to match the payload exactly.
+ *
+ * @returns The recipient token account from the payload (verified against the wallet's ATA).
+ */
+export async function assertBtcbDepositRecipientMatchesWallet({
+  payloadBytes,
+  mint,
+  tokenProgramId,
+  recipientWallet,
+}: {
+  payloadBytes: Buffer;
+  mint: PublicKey;
+  tokenProgramId: PublicKey;
+  recipientWallet: string;
+}): Promise<PublicKey> {
+  const payloadRecipient = new PublicKey(payloadBytes.subarray(36, 68));
+  const expectedAta = await getAssociatedTokenAddress(
+    mint,
+    new PublicKey(recipientWallet),
+    true,
+    tokenProgramId,
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+  );
+
+  if (!expectedAta.equals(payloadRecipient)) {
+    throw new Error(
+      `Recipient mismatch: payload expects token account ${payloadRecipient.toBase58()} ` +
+        `but ATA for wallet ${recipientWallet} is ${expectedAta.toBase58()}.`,
+    );
+  }
+
+  return payloadRecipient;
+}
+
+/**
  * Compute bascule deposit ID from raw 196-byte BTC.B payload.
  *
- * keccak256( [0u8;32] || "\x03SOL" || recipient(32) || amount(8) || txid(32) || vout(4) )
- * Payload offsets: recipient 36-68, amount 68-76, txid 76-108, vout 108-112.
+ * keccak256( [0u8;32] || "\x03SOL" || recipient_token_account(32) || amount(8) || txid(32) || vout(4) )
+ * Payload offsets: recipient ATA 36-68, amount 68-76, txid 76-108, vout 108-112.
  */
 export function computeDepositIdFromPayload(payloadBytes: Buffer): Uint8Array {
   const prefix = Buffer.alloc(32, 0);
