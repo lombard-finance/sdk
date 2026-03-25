@@ -5,11 +5,30 @@ All notable changes to `@lombard.finance/sdk-solana` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Deprecated
+
+- `unstakeLBTC` and `UnstakeLBTCParams` — legacy LBTC-program `redeem` path; use `redeemForBtc` with `tokenMint` set to `getConfig(env).lbtcTokenMint` for LBTC → BTC (see migration notes under [2.0.0]). Marked `@deprecated` in JSDoc; removal planned for a future major version.
+
 ## [2.0.0] - 2026-03-19
+
+### Migration: `unstakeLBTC` → `redeemForBtc` (LBTC → BTC)
+
+Replace `unstakeLBTC(provider, params)` with `redeemForBtc(provider, params)`.
+
+| Former (`unstakeLBTC`) | New (`redeemForBtc`) |
+| --- | --- |
+| `amount`, `btcAddress`, `network`, `rpcUrl?` | Same fields supported |
+| (implicit LBTC mint from config) | Set **`tokenMint`** to the LBTC SPL mint for your environment — use `getConfig(env).lbtcTokenMint` (or the same value you rely on elsewhere). If omitted, the default mint is **BTC.b** from config, not LBTC. |
+| — | Optional: `env` (override vs `networkToEnv[network]`), `debug`, `skipPreflight` (see `RedeemForBtcParams` in source) |
+
+**Config requirements:** `redeemForBtc` uses the **Asset Router** and **Mailbox** stack. For the chosen `Env`, `getConfig(env)` must define non-null **`assetRouter`**, **`mailbox`**, **`solanaRoutingChainId`**, and **`bitcoinRoutingChainId`**. If any are missing, the call fails early with a clear error (environments such as `testnet` / `prod` in this package may leave these `null` until they are wired — use an environment where they are populated, e.g. `devnet` / `stage`, matching your deployment).
+
+**On-chain path:** the old API invoked the legacy LBTC program’s `redeem` instruction directly; the new API burns/redeems via Asset Router flows (`redeemForBtc` routes by mint: LBTC vs BTC.b).
 
 ### Removed
 
-- **BREAKING:** `unstakeLBTC` function — removed from public exports; the legacy LBTC-program direct burn path is superseded by Asset Router flows (`redeemForBtc` / `redeem`)
 - **BREAKING:** `SolanaServiceImpl.unstake()` method
 - `UNSTAKE_REJECTED_ERROR` constant (unused; `ErrorCode.UNSTAKE_REJECTED` is retained for Asset Router error handling)
 

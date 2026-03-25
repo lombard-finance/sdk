@@ -129,9 +129,14 @@ const txHash = await claimLBTC(provider, {
 });
 ```
 
-### Unstaking LBTC
+### Unstaking LBTC (legacy)
 
-This operation burns given amount of LBTC and initiates transfer of BTC to the
+> **Deprecated:** prefer **Redeeming tokens for BTC (Asset Router)** below using
+> `redeemForBtc` with `tokenMint` set to your environment’s LBTC mint
+> (`getConfig(env).lbtcTokenMint`). `unstakeLBTC` calls the legacy LBTC program
+> `redeem` instruction directly and may be removed in a future major version.
+
+This operation burns a given amount of LBTC and initiates transfer of BTC to the
 given BTC address.
 
 ```javascript
