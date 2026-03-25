@@ -58,6 +58,79 @@
       "args": []
     },
     {
+      "name": "close_session_for_epoch",
+      "discriminator": [
+        129,
+        95,
+        13,
+        91,
+        244,
+        182,
+        162,
+        64
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "session",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "epoch",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "create_session",
       "discriminator": [
         242,
@@ -226,38 +299,38 @@
               {
                 "kind": "const",
                 "value": [
-                  5,
-                  18,
-                  232,
-                  207,
-                  63,
-                  79,
-                  103,
-                  31,
-                  175,
-                  129,
-                  100,
-                  82,
-                  234,
-                  70,
-                  252,
-                  19,
-                  56,
+                  23,
+                  67,
+                  123,
+                  218,
+                  38,
+                  158,
+                  2,
+                  95,
+                  105,
+                  116,
                   48,
-                  244,
-                  150,
-                  245,
-                  196,
-                  124,
-                  54,
-                  56,
-                  237,
-                  166,
-                  8,
-                  8,
-                  240,
-                  99,
-                  62
+                  75,
+                  136,
+                  37,
+                  103,
+                  238,
+                  87,
+                  155,
+                  138,
+                  65,
+                  243,
+                  223,
+                  127,
+                  72,
+                  135,
+                  203,
+                  123,
+                  2,
+                  120,
+                  52,
+                  22,
+                  54
                 ]
               }
             ],
@@ -439,6 +512,10 @@
         {
           "name": "session",
           "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
@@ -523,6 +600,71 @@
         {
           "name": "payload",
           "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "set_initial_valset_from_session",
+      "discriminator": [
+        47,
+        155,
+        97,
+        15,
+        186,
+        115,
+        157,
+        213
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  115,
+                  111,
+                  114,
+                  116,
+                  105,
+                  117,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "session_payload",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "payload_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         }
       ]
     },
@@ -989,10 +1131,6 @@
       "type": {
         "kind": "struct",
         "fields": [
-          {
-            "name": "epoch",
-            "type": "u64"
-          },
           {
             "name": "signed",
             "type": {
