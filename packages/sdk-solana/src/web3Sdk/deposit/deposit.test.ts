@@ -234,7 +234,7 @@ describe('deposit', () => {
 
   it('should throw when destination token is not configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, lbtcTokenMint: null });
+    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, lbtcTokenMint: '' });
 
     await expect(
       depositFn(testWallet(MOCK_PAYER), baseParams),
