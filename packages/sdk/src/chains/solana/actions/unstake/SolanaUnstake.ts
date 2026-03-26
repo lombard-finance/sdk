@@ -21,7 +21,7 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
-import { Token, getSolanaTokenAddress } from '../../../../tokens/token-addresses';
+import { getSolanaTokenAddress,Token } from '../../../../tokens/token-addresses';
 import { toSatoshi } from '../../../../utils/satoshi';
 import { envToSolanaChain, envToSolanaNetwork } from '../../utils';
 import {
