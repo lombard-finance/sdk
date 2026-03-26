@@ -297,3 +297,26 @@ export function getLBTCAddress(envOrNetwork: Env | SolanaNetwork): string {
     : networkToEnv[envOrNetwork as SolanaNetwork];
   return getConfig(env).lbtcTokenMint;
 }
+
+/**
+ * Get the BTC.b token address for a specific environment
+ * @param env Environment
+ * @returns BTC.b token address or null if not configured
+ */
+export function getBTCBAddress(env: Env): string | null;
+export function getBTCBAddress(network: SolanaNetwork): string | null;
+export function getBTCBAddress(
+  envOrNetwork: Env | SolanaNetwork,
+): string | null {
+  const isEnv =
+    envOrNetwork === 'prod' ||
+    envOrNetwork === 'testnet' ||
+    envOrNetwork === 'stage' ||
+    envOrNetwork === 'dev' ||
+    envOrNetwork === 'ibc';
+
+  const env = isEnv
+    ? envOrNetwork
+    : networkToEnv[envOrNetwork as SolanaNetwork];
+  return getConfig(env).btcbTokenMint;
+}

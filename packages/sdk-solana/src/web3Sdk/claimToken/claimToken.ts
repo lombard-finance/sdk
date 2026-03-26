@@ -72,7 +72,10 @@ export async function claimToken(
     const consortiumProgramId = new PublicKey(config.consortium);
 
     // Parse payload
-    const payloadBytes = Buffer.from(rawPayload, 'hex');
+    const cleanPayload = rawPayload.startsWith('0x')
+      ? rawPayload.slice(2)
+      : rawPayload;
+    const payloadBytes = Buffer.from(cleanPayload, 'hex');
     if (payloadBytes.length < 4) {
       throw new Error(`Payload too short: ${payloadBytes.length} bytes`);
     }

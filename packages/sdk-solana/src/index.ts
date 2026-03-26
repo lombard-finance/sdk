@@ -3,7 +3,7 @@ export * from './types/network';
 export * from './types/walletProviders';
 
 // Export constants
-export { getConfig, getLBTCAddress } from './const/getConfig';
+export { getConfig, getLBTCAddress, getBTCBAddress } from './const/getConfig';
 export * from './const/known-errors';
 export * from './const/rpcUrls';
 
