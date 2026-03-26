@@ -5,8 +5,6 @@ All notable changes to `@lombard.finance/sdk-solana` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
 ### Deprecated
 
 - `unstakeLBTC` and `UnstakeLBTCParams` — legacy LBTC-program `redeem` path; use `redeemForBtc` with `tokenMint` set to `getConfig(env).lbtcTokenMint` for LBTC → BTC (see migration notes under [2.0.0]). Marked `@deprecated` in JSDoc; removal planned for a future major version.
@@ -36,6 +34,11 @@ Replace `unstakeLBTC(provider, params)` with `redeemForBtc(provider, params)`.
 
 - `redeem()` — Asset Router generic `redeem` instruction (LBTC → BTC.b on Solana)
 - `redeemForBtc()` — added LBTC → BTC flow (alongside existing BTC.b → BTC), routed by `tokenMint`
+- `getTokenFeeConfig()` — reads Asset Router `TokenConfig` account (redeem fee, min redeem amount, max mint commission, native commission) for a given token mint on Solana
+- `getRedeemFeeSolana()` — total redeem fee (`toNativeCommission + redeemFee`), equivalent to EVM `getRedeemFee`
+- `getMintingFeeSolana()` — max minting commission, equivalent to EVM `getMintingFee`
+- `getMinRedeemAmountSolana()` — minimum redeem amount (excluding fee), equivalent to EVM `getMinRedeemAmount`
+- `getMinRedeemAmountWithFeeSolana()` — minimum transfer amount for successful redemption (fee + min amount), equivalent to EVM `getMinRedeemAmountWithFee`
 
 ### Changed
 
