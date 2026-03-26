@@ -2,7 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { IConfig } from '../../const/getConfig';
-import { SolanaNetwork, type ISolanaWalletProvider } from '../../types';
+import { type ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import { ErrorCode, SolanaSdkError } from '../../utils';
 
 // ── Constants ──
