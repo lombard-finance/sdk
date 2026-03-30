@@ -8,16 +8,57 @@ on:
       - 'feat/**'
       - 'fix/**'
       - 'dev/**'
-      # adjust patterns to match your branch conventions
 
 jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ vars.AWS_ECR_REGISTRY }}/library/alpine-git-node-aws:latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-ci
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref || github.sha }}
+
+      - name: Allow Git to access repo
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: License policy check
+        run: yarn licenses:check
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Build
+        run: yarn build
+
+      - name: Test
+        run: yarn test:required
+
   publish-dev:
+    needs: build-and-test
     runs-on: ubuntu-latest
     container:
       image: ${{ vars.AWS_ECR_REGISTRY }}/library/alpine-git-node-aws:latest
     permissions:
       contents: read
-      packages: write  # required to push to GitHub Packages
+      packages: write
+
+    env:
+      PUBLISH_ORDER: "sdk-common sdk sdk-solana sdk-sui sdk-starknet sdk-devtools"
 
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +72,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: yarn
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@lombard.finance'
+          scope: '@lombard-finance'
 
       - name: Install dependencies
         run: yarn install --immutable
@@ -44,7 +85,6 @@ jobs:
         run: |
           BRANCH="${{ github.ref_name }}"
           SHA="${{ github.sha }}"
-          # Slugify branch name: lowercase, replace non-alphanumeric with dash
           SLUG=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
           SHORT_SHA="${SHA:0:7}"
           VERSION="0.0.0-${SLUG}.${SHORT_SHA}"
@@ -55,36 +95,50 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           VERSION="${{ steps.version.outputs.version }}"
+          FAILED=""
 
-          for PKG_DIR in packages/*/; do
+          for pkg in $PUBLISH_ORDER; do
+            PKG_DIR="./packages/$pkg"
             PKG_JSON="$PKG_DIR/package.json"
             [ -f "$PKG_JSON" ] || continue
 
-            PKG_NAME=$(node -p "require('./$PKG_JSON').name")
-            # Only publish @lombard.finance/* packages
-            [[ "$PKG_NAME" != @lombard.finance/* ]] && continue
+            echo "Publishing @lombard-finance/${pkg}@${VERSION}..."
 
-            echo "Publishing $PKG_NAME@$VERSION from $PKG_DIR"
-
-            # Rewrite version and resolve workspace:* deps
             node -e "
               const fs = require('fs');
               const pkg = JSON.parse(fs.readFileSync('$PKG_JSON', 'utf8'));
               pkg.version = '$VERSION';
               pkg.name = pkg.name.replace('@lombard.finance/', '@lombard-finance/');
-              // Resolve workspace:* to the same prerelease version or '*' for peers
               for (const depType of ['dependencies', 'peerDependencies']) {
                 if (!pkg[depType]) continue;
                 for (const [name, range] of Object.entries(pkg[depType])) {
                   if (!range.startsWith('workspace:')) continue;
-                  pkg[depType][name] = depType === 'peerDependencies' ? '*' : '$VERSION';
+                  if (name.startsWith('@lombard.finance/')) {
+                    pkg[depType][name.replace('@lombard.finance/', '@lombard-finance/')] = depType === 'peerDependencies' ? '*' : '$VERSION';
+                    delete pkg[depType][name];
+                  } else {
+                    pkg[depType][name] = depType === 'peerDependencies' ? '*' : '$VERSION';
+                  }
                 }
               }
-              // Force GitHub Packages registry
               pkg.publishConfig = { registry: 'https://npm.pkg.github.com', access: 'restricted' };
+              pkg.repository = { type: 'git', url: 'https://github.com/lombard-finance/sdk.git', directory: 'packages/$pkg' };
               fs.writeFileSync('$PKG_JSON', JSON.stringify(pkg, null, 2) + '\n');
             "
 
-            (cd "$PKG_DIR" && npm publish --tag dev) || echo "⚠️ Failed to publish $PKG_NAME (may already exist)"
+            cd "$PKG_DIR"
+            if npm publish --tag dev; then
+              echo "  Published"
+            else
+              echo "  FAILED"
+              FAILED="${FAILED} ${pkg}"
+            fi
+            cd "$GITHUB_WORKSPACE"
           done
+
+          if [ -n "$FAILED" ]; then
+            echo "The following packages failed to publish:${FAILED}"
+            exit 1
+          fi
