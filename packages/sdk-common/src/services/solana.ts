@@ -42,7 +42,7 @@ export interface SolanaService {
    * the Mailbox to route the destination token (default BTC.b) to the recipient.
    *
    * @param args.amount - Amount in base units (satoshis)
-   * @param args.recipient - Recipient address on the destination chain (Solana base58)
+   * @param args.recipient - Owner wallet (Solana base58); the SDK derives the native_mint ATA for the GMP payload from on-chain Asset Router config
    * @param args.network - Solana network
    * @returns Transaction signature
    */

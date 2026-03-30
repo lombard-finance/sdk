@@ -15,6 +15,9 @@ const MOCK_SOLANA_CHAIN_ID = '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb99
 const MOCK_LEDGER_CHAIN_ID = '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e';
 const MOCK_PAYER = '8yarEiDaJVikHZbk3PQSoWiDn2T3oM1FHZN1Jv4VZFdr';
 const MOCK_RECIPIENT = 'DVMiNi7uxHEPABTBt1nLMoxnPniPKbLAFj4MPJq1RDjg';
+const MOCK_RECIPIENT_ATA = 'GRq2yasTvWWPPqSwxCZvqfCTfDhP3MswDH4nW2v6F5To';
+const MOCK_PAYER_LBTC_ATA = 'GfYV1f1bR9vy41mSyQ8quxYbds121kijSBj5A3nG8oDQ';
+const MOCK_TREASURY_LBTC_ATA = '3SG3oyrG3KSvJ9bbxPDu7ZXEe5o1TW1QkgudkKvK6FK4';
 
 const fullConfig: IConfig = {
   lbtcTokenMint: MOCK_LBTC_MINT,
@@ -47,13 +50,13 @@ vi.mock('../../const/getConfig', () => ({
   getConfig: vi.fn(() => fullConfig),
 }));
 
-// Build AR config data: 8 (disc) + 32 (admin) + 32 (pending_admin) + 32 (treasury) + 1 (paused=0) = 105
+// Build AR config data through native_mint (offset 105–136) for redeem recipient ATA derivation
 function buildArConfigData(paused = false) {
   const data = Buffer.alloc(145, 0);
   const treasury = new PublicKey(MOCK_PAYER);
   treasury.toBuffer().copy(data, 72);
   data[104] = paused ? 1 : 0;
-  // global_nonce (u64 LE) at offset 137 → set to 42
+  new PublicKey(MOCK_BTCB_MINT).toBuffer().copy(data, 105);
   data.writeBigUInt64LE(42n, 137);
   return data;
 }
@@ -102,7 +105,37 @@ vi.mock('../../idl/getAssetRouterIdl', () => ({
 }));
 
 vi.mock('@solana/spl-token', () => ({
-  getAssociatedTokenAddress: vi.fn().mockResolvedValue(new PublicKey(MOCK_PAYER)),
+  getAssociatedTokenAddress: vi
+    .fn()
+    .mockImplementation(
+      async (
+        mint: PublicKey,
+        owner: PublicKey,
+        allowOwnerOffCurve?: boolean,
+      ) => {
+        if (
+          mint.toBase58() === MOCK_BTCB_MINT &&
+          owner.toBase58() === MOCK_RECIPIENT
+        ) {
+          return new PublicKey(MOCK_RECIPIENT_ATA);
+        }
+        if (
+          mint.toBase58() === MOCK_LBTC_MINT &&
+          owner.toBase58() === MOCK_PAYER &&
+          allowOwnerOffCurve
+        ) {
+          return new PublicKey(MOCK_TREASURY_LBTC_ATA);
+        }
+        if (
+          mint.toBase58() === MOCK_LBTC_MINT &&
+          owner.toBase58() === MOCK_PAYER &&
+          !allowOwnerOffCurve
+        ) {
+          return new PublicKey(MOCK_PAYER_LBTC_ATA);
+        }
+        return new PublicKey(MOCK_PAYER);
+      },
+    ),
   ASSOCIATED_TOKEN_PROGRAM_ID: new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'),
 }));
 
@@ -197,7 +230,7 @@ describe('redeem', () => {
 
   it('should throw when destination token is not configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, btcbTokenMint: null });
+    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, btcbTokenMint: '' });
 
     await expect(
       redeemFn({ publicKey: MOCK_PAYER } as any, baseParams),
@@ -245,11 +278,23 @@ describe('redeem', () => {
   // ── Success path ──
 
   it('should return transaction signature on success', async () => {
-    mockConnection.getAccountInfo.mockResolvedValue({ data: buildMailboxConfigData() });
+    mockConnection.getAccountInfo.mockImplementation(defaultGetAccountInfo);
 
     const sig = await redeemFn({ publicKey: MOCK_PAYER } as any, baseParams);
 
     expect(sig).toBe('mock-redeem-sig');
+  });
+
+  it('should pass native_mint ATA bytes as redeem recipient argument', async () => {
+    mockConnection.getAccountInfo.mockImplementation(defaultGetAccountInfo);
+
+    await redeemFn({ publicKey: MOCK_PAYER } as any, baseParams);
+
+    expect(mockMethods.redeem).toHaveBeenCalled();
+    const recipientArg = mockMethods.redeem.mock.calls[0][2] as number[];
+    expect(recipientArg).toEqual(
+      Array.from(new PublicKey(MOCK_RECIPIENT_ATA).toBytes()),
+    );
   });
 
   // ── Error wrapping ──
@@ -268,7 +313,7 @@ describe('redeem', () => {
   });
 
   it('should use env override when provided', async () => {
-    mockConnection.getAccountInfo.mockResolvedValue({ data: buildMailboxConfigData() });
+    mockConnection.getAccountInfo.mockImplementation(defaultGetAccountInfo);
 
     const { getConfig } = await import('../../const/getConfig');
 

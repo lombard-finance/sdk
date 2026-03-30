@@ -22,8 +22,9 @@ import { validateAmount } from '../redeemToken/shared';
 export interface RedeemParams {
   amount: string;
   /**
-   * Recipient address on the destination chain.
-   * For same-chain (Solana) redemption this is a Solana pubkey (base58).
+   * Owner wallet that receives the routed destination token (e.g. BTC.b).
+   * Solana pubkey (base58). The GMP payload uses the ATA for Asset Router
+   * `native_mint` from on-chain config and this owner — matching backend/claimer expectations.
    */
   recipient: string;
   /**
@@ -57,7 +58,7 @@ export interface RedeemParams {
  * Redeem tokens via Asset Router's generic `redeem` instruction.
  *
  * Burns the source token and sends a GMP message through the Mailbox
- * to route the destination token to the recipient.
+ * to route the destination token to the recipient's ATA for `native_mint`.
  *
  * Default flow (all optional params omitted): LBTC → BTC.b on Solana.
  */
@@ -117,8 +118,8 @@ export async function redeem(
 
     debugLog('Payer:', payer.toBase58());
     debugLog('Mint (source):', mint.toBase58());
-    debugLog('Destination token:', toTokenAddressStr);
-    debugLog('Recipient:', recipientPubkey.toBase58());
+    debugLog('Destination token (route arg):', toTokenAddressStr);
+    debugLog('Recipient (owner):', recipientPubkey.toBase58());
     debugLog('Amount:', amount);
 
     // ── Detect token program (Token vs Token-2022) ──
@@ -189,17 +190,21 @@ export async function redeem(
       throw new Error('Mailbox config account not found');
     }
 
-    if (arConfigInfo.data.length < 105) {
+    if (arConfigInfo.data.length < 137) {
       throw new Error(
-        `Asset Router config account data too short: expected >= 105 bytes, got ${arConfigInfo.data.length}`,
+        `Asset Router config account data too short: expected >= 137 bytes (treasury, paused, native_mint), got ${arConfigInfo.data.length}`,
       );
     }
     const arTreasury = new PublicKey(arConfigInfo.data.subarray(72, 104));
     const paused = arConfigInfo.data[104] !== 0;
+    const nativeMintFromConfig = new PublicKey(
+      arConfigInfo.data.subarray(105, 137),
+    );
     if (paused) {
       throw new Error('Asset Router is paused');
     }
     debugLog('Asset Router treasury:', arTreasury.toBase58());
+    debugLog('Native mint (recipient ATA mint):', nativeMintFromConfig.toBase58());
 
     if (mailboxConfigInfo.data.length < 104) {
       throw new Error(
@@ -227,8 +232,21 @@ export async function redeem(
       ASSOCIATED_TOKEN_PROGRAM_ID,
     );
 
+    const destinationTokenProgramId = await getTokenProgramForMint(
+      connection,
+      nativeMintFromConfig,
+    );
+    const recipientTokenAccount = await getAssociatedTokenAddress(
+      nativeMintFromConfig,
+      recipientPubkey,
+      false,
+      destinationTokenProgramId,
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+    );
+
     debugLog('Payer token account:', payerTokenAccount.toBase58());
     debugLog('Treasury token account:', treasuryTokenAccount.toBase58());
+    debugLog('Recipient token account (payload):', recipientTokenAccount.toBase58());
 
     // ── Balance check ──
     const tokenBalance = await connection.getTokenAccountBalance(payerTokenAccount);
@@ -248,7 +266,7 @@ export async function redeem(
     // ── Instruction args ──
     const toLchainIdArray = Array.from(toLchainId);
     const toTokenAddressArray = Array.from(toTokenAddress);
-    const recipientArray = Array.from(recipientPubkey.toBytes());
+    const recipientArray = Array.from(recipientTokenAccount.toBytes());
 
     // ── Build & send with nonce retry ──
     const MAX_NONCE_RETRIES = 3;

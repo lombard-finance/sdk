@@ -181,7 +181,7 @@ const meta: Meta<typeof StoryView> = {
 2. Enter the recipient address and amount (in BTC)
 3. Optionally override source mint, destination chain ID, and destination token
 4. Call \`redeem\` — burns the source token and sends a GMP message through the Mailbox
-5. The destination token is routed to the recipient on the target chain`,
+5. The destination token is routed to the recipient's ATA for Asset Router \`native_mint\` (payload carries that token account address)`,
       },
     },
   },
@@ -204,7 +204,8 @@ const meta: Meta<typeof StoryView> = {
     },
     recipient: {
       control: { type: 'text' },
-      description: 'Recipient address on the destination chain (base58 for Solana)',
+      description:
+        'Recipient wallet (owner); SDK uses the associated token account for on-chain native_mint in the redeem payload (Solana base58)',
     },
     tokenMint: {
       control: { type: 'text' },
