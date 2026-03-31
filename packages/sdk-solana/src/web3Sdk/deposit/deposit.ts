@@ -332,7 +332,7 @@ export async function deposit(
     }
     throw SolanaSdkError.wrap(
       error,
-      ErrorCode.UNSTAKE_REJECTED,
+      ErrorCode.DEPOSIT_REJECTED,
       'deposit operation failed',
     );
   }

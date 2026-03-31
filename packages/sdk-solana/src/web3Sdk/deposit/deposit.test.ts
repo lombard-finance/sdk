@@ -308,7 +308,7 @@ describe('deposit', () => {
       expect.unreachable('should have thrown');
     } catch (err) {
       expect(err).toBeInstanceOf(SolanaSdkError);
-      expect((err as SolanaSdkError).code).toBe(ErrorCode.UNSTAKE_REJECTED);
+      expect((err as SolanaSdkError).code).toBe(ErrorCode.DEPOSIT_REJECTED);
     }
   });
 
