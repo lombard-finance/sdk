@@ -117,7 +117,7 @@ export class SolanaUnstake
       const amountInSatoshis = toSatoshi(amount).toString();
       const network = envToSolanaNetwork(this.ctx.env);
 
-      const { txHash } = this.isBtcbOutput
+      const { signature } = this.isBtcbOutput
         ? await this.ctx.solana.redeem({
             amount: amountInSatoshis,
             recipient,
@@ -136,7 +136,7 @@ export class SolanaUnstake
             ),
           });
 
-      this._txHash = txHash;
+      this._txHash = signature;
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.COMPLETED,
@@ -145,7 +145,7 @@ export class SolanaUnstake
 
       this.emitCompleted();
 
-      return { txHash };
+      return { txHash: signature };
     }, NonEvmUnstakeStatus.COMPLETED);
   }
 

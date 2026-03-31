@@ -111,21 +111,21 @@ export class SolanaStake
       const amountInSatoshis = toSatoshi(amount).toString();
       const network = envToSolanaNetwork(this.env);
 
-      const { txHash } = await this.ctx.solana.deposit({
+      const { signature } = await this.ctx.solana.deposit({
         amount: amountInSatoshis,
         recipient,
         network,
         env: this.env,
       });
 
-      this._txHash = txHash;
+      this._txHash = signature;
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.CONFIRMING,
         steps: { burning: StepStatus.COMPLETE, minting: StepStatus.PENDING },
       });
 
-      return { txHash };
+      return { txHash: signature };
     }, NonEvmUnstakeStatus.CONFIRMING);
   }
 

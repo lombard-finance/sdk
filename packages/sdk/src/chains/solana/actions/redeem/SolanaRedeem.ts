@@ -111,14 +111,14 @@ export class SolanaRedeem
       const amountInSatoshis = toSatoshi(amount).toString();
       const network = envToSolanaNetwork(this.ctx.env);
 
-      const { txHash } = await this.ctx.solana.redeemForBtc({
+      const { signature } = await this.ctx.solana.redeemForBtc({
         amount: amountInSatoshis,
         btcAddress: recipient,
         network,
         env: this.ctx.env,
       });
 
-      this._txHash = txHash;
+      this._txHash = signature;
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.COMPLETED,
@@ -127,7 +127,7 @@ export class SolanaRedeem
 
       this.emitCompleted();
 
-      return { txHash };
+      return { txHash: signature };
     }, NonEvmUnstakeStatus.COMPLETED);
   }
 

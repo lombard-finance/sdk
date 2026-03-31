@@ -52,7 +52,7 @@ describe('SolanaServiceImpl', () => {
   });
 
   describe('redeemForBtc', () => {
-    it('should delegate to redeemForBtc and return txHash', async () => {
+    it('should delegate to redeemForBtc and return signature', async () => {
       const service = new SolanaServiceImpl(getProvider);
 
       const result = await service.redeemForBtc({
@@ -70,12 +70,12 @@ describe('SolanaServiceImpl', () => {
         env: 'dev',
         tokenMint: 'LBTCmint...',
       });
-      expect(result).toEqual({ txHash: 'mock-redeemForBtc-tx' });
+      expect(result).toEqual({ signature: 'mock-redeemForBtc-tx' });
     });
   });
 
   describe('redeem', () => {
-    it('should delegate to redeem and return txHash', async () => {
+    it('should delegate to redeem and return signature', async () => {
       const service = new SolanaServiceImpl(getProvider);
 
       const result = await service.redeem({
@@ -94,12 +94,12 @@ describe('SolanaServiceImpl', () => {
         toLchainId: undefined,
         toTokenAddress: undefined,
       });
-      expect(result).toEqual({ txHash: 'mock-redeem-tx' });
+      expect(result).toEqual({ signature: 'mock-redeem-tx' });
     });
   });
 
   describe('deposit', () => {
-    it('should delegate to deposit and return txHash', async () => {
+    it('should delegate to deposit and return signature', async () => {
       const service = new SolanaServiceImpl(getProvider);
 
       const result = await service.deposit({
@@ -117,7 +117,7 @@ describe('SolanaServiceImpl', () => {
         toLchainId: undefined,
         toTokenAddress: undefined,
       });
-      expect(result).toEqual({ txHash: 'mock-deposit-tx' });
+      expect(result).toEqual({ signature: 'mock-deposit-tx' });
     });
   });
 });

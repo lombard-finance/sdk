@@ -22,9 +22,11 @@ import type { SolanaCoreContext } from '../../../shared/context';
 function createMockSolanaService() {
   return {
     signLbtcDestination: vi.fn().mockResolvedValue({ signature: '0xmock' }),
-    redeemForBtc: vi.fn().mockResolvedValue({ txHash: 'mock-redeemForBtc-tx-hash' }),
-    redeem: vi.fn().mockResolvedValue({ txHash: 'mock-redeem-tx-hash' }),
-    deposit: vi.fn().mockResolvedValue({ txHash: 'mock-deposit-tx-hash' }),
+    redeemForBtc: vi
+      .fn()
+      .mockResolvedValue({ signature: 'mock-redeemForBtc-tx-hash' }),
+    redeem: vi.fn().mockResolvedValue({ signature: 'mock-redeem-tx-hash' }),
+    deposit: vi.fn().mockResolvedValue({ signature: 'mock-deposit-tx-hash' }),
   };
 }
 

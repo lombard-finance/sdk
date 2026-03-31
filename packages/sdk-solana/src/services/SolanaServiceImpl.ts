@@ -52,10 +52,10 @@ export class SolanaServiceImpl implements SolanaService {
     network: string;
     env?: Env;
     tokenMint?: string;
-  }): Promise<{ txHash: string }> {
+  }): Promise<{ signature: string }> {
     const provider = (await this.getProvider()) as ISolanaWalletProvider;
 
-    const txHash = await redeemForBtc(provider, {
+    const signature = await redeemForBtc(provider, {
       amount: args.amount,
       btcAddress: args.btcAddress,
       network: args.network as SolanaNetwork,
@@ -63,7 +63,7 @@ export class SolanaServiceImpl implements SolanaService {
       tokenMint: args.tokenMint,
     });
 
-    return { txHash };
+    return { signature };
   }
 
   /**
@@ -77,10 +77,10 @@ export class SolanaServiceImpl implements SolanaService {
     tokenMint?: string;
     toLchainId?: string;
     toTokenAddress?: string;
-  }): Promise<{ txHash: string }> {
+  }): Promise<{ signature: string }> {
     const provider = (await this.getProvider()) as ISolanaWalletProvider;
 
-    const txHash = await redeem(provider, {
+    const signature = await redeem(provider, {
       amount: args.amount,
       recipient: args.recipient,
       network: args.network as SolanaNetwork,
@@ -90,7 +90,7 @@ export class SolanaServiceImpl implements SolanaService {
       toTokenAddress: args.toTokenAddress,
     });
 
-    return { txHash };
+    return { signature };
   }
 
   /**
@@ -104,10 +104,10 @@ export class SolanaServiceImpl implements SolanaService {
     sourceTokenMint?: string;
     toLchainId?: string;
     toTokenAddress?: string;
-  }): Promise<{ txHash: string }> {
+  }): Promise<{ signature: string }> {
     const provider = (await this.getProvider()) as ISolanaWalletProvider;
 
-    const txHash = await deposit(provider, {
+    const signature = await deposit(provider, {
       amount: args.amount,
       recipient: args.recipient,
       network: args.network as SolanaNetwork,
@@ -117,6 +117,6 @@ export class SolanaServiceImpl implements SolanaService {
       toTokenAddress: args.toTokenAddress,
     });
 
-    return { txHash };
+    return { signature };
   }
 }

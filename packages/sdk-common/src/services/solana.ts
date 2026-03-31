@@ -25,7 +25,7 @@ export interface SolanaService {
    * @param args.btcAddress - Bitcoin address to receive BTC
    * @param args.network - Solana network ('mainnet-beta', 'devnet', 'testnet')
    * @param args.tokenMint - Optional source token mint. Pass LBTC mint for LBTC flow; defaults to BTC.b.
-   * @returns Transaction signature
+   * @returns `{ signature }` — base58 Solana transaction signature for the initiating burn/GMP transaction (not a Bitcoin payout txid).
    */
   redeemForBtc(args: {
     amount: string;
@@ -33,7 +33,7 @@ export interface SolanaService {
     network: string;
     env?: Env;
     tokenMint?: string;
-  }): Promise<{ txHash: string }>;
+  }): Promise<{ signature: string }>;
 
   /**
    * Redeem tokens via Asset Router's generic `redeem` instruction.
@@ -44,7 +44,7 @@ export interface SolanaService {
    * @param args.amount - Amount in base units (satoshis)
    * @param args.recipient - Owner wallet (Solana base58); the SDK derives the native_mint ATA for the GMP payload from on-chain Asset Router config
    * @param args.network - Solana network
-   * @returns Transaction signature
+   * @returns `{ signature }` — base58 Solana transaction signature for the submitted transaction.
    */
   redeem(args: {
     amount: string;
@@ -54,7 +54,7 @@ export interface SolanaService {
     tokenMint?: string;
     toLchainId?: string;
     toTokenAddress?: string;
-  }): Promise<{ txHash: string }>;
+  }): Promise<{ signature: string }>;
 
   /**
    * Deposit source token (default BTC.b) to receive destination token (default LBTC)
@@ -66,7 +66,7 @@ export interface SolanaService {
    * @param args.amount - Amount in base units (satoshis)
    * @param args.recipient - Owner wallet (Solana base58); the SDK derives the destination mint ATA for the GMP payload
    * @param args.network - Solana network
-   * @returns Transaction signature
+   * @returns `{ signature }` — base58 Solana transaction signature for the submitted transaction.
    */
   deposit(args: {
     amount: string;
@@ -76,5 +76,5 @@ export interface SolanaService {
     sourceTokenMint?: string;
     toLchainId?: string;
     toTokenAddress?: string;
-  }): Promise<{ txHash: string }>;
+  }): Promise<{ signature: string }>;
 }
