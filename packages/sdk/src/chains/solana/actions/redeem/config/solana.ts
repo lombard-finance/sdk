@@ -1,7 +1,7 @@
 /**
  * Solana Redeem Configuration
  *
- * Handles BTC.b → BTC redemption on Solana via Asset Router redeemForBtc.
+ * Handles BTC.b → BTC redemption from Solana to Bitcoin via Asset Router redeemForBtc.
  *
  * @module chains/solana/actions/redeem/config/solana
  */
