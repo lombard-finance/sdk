@@ -345,7 +345,7 @@ export async function redeem(
     }
     throw SolanaSdkError.wrap(
       error,
-      ErrorCode.UNSTAKE_REJECTED,
+      ErrorCode.REDEEM_REJECTED,
       'redeem operation failed',
     );
   }

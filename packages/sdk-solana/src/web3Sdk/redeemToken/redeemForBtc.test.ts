@@ -289,7 +289,7 @@ describe('redeemForBtc', () => {
       expect.unreachable('should have thrown');
     } catch (err) {
       expect(err).toBeInstanceOf(SolanaSdkError);
-      expect((err as SolanaSdkError).code).toBe(ErrorCode.UNSTAKE_REJECTED);
+      expect((err as SolanaSdkError).code).toBe(ErrorCode.REDEEM_REJECTED);
     }
   });
 

@@ -185,7 +185,7 @@ export async function redeemForBtc(
     }
     throw SolanaSdkError.wrap(
       error,
-      ErrorCode.UNSTAKE_REJECTED,
+      ErrorCode.REDEEM_REJECTED,
       'redeem_for_btc operation failed',
     );
   }
