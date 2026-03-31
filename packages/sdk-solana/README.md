@@ -156,7 +156,7 @@ trigger a BTC payout to the specified Bitcoin address.
 import { redeemForBtc } from '@lombard.finance/sdk-solana';
 
 // BTC.b → BTC (default)
-const txHash = await redeemForBtc(provider, {
+const { signature } = await redeemForBtc(provider, {
   amount: '2000',
   btcAddress: 'bc1q...',
   network: 'devnet',
@@ -164,12 +164,12 @@ const txHash = await redeemForBtc(provider, {
 });
 
 // LBTC → BTC (pass LBTC mint)
-const txHash = await redeemForBtc(provider, {
+const { signature } = await redeemForBtc(provider, {
   amount: '2000',
   btcAddress: 'bc1q...',
   tokenMint: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
   network: 'devnet',
-  env: 'dev',
+  env: 'stage',
 });
 ```
 
