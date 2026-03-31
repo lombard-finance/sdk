@@ -125,7 +125,7 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
     debugLog('Bascule deposit PDA:', basculeDepositPDA.toBase58());
 
     mintIx.keys.push(
-      { pubkey: basculeValidatorPDA, isSigner: false, isWritable: false },
+      { pubkey: basculeValidatorPDA, isSigner: false, isWritable: true },
       { pubkey: effectiveBasculeProgramId, isSigner: false, isWritable: false },
       { pubkey: basculeDataPDA, isSigner: false, isWritable: true },
       { pubkey: basculeDepositPDA, isSigner: false, isWritable: true },

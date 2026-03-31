@@ -220,7 +220,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
     );
 
     handleIx.keys.push(
-      { pubkey: basculeValidatorPDA, isSigner: false, isWritable: false },
+      { pubkey: basculeValidatorPDA, isSigner: false, isWritable: true },
       { pubkey: effectiveBasculeGmpProgramId, isSigner: false, isWritable: false },
       { pubkey: basculeGmpConfigPDA, isSigner: false, isWritable: false },
       { pubkey: basculeGmpAccountRolesPDA, isSigner: false, isWritable: false },
