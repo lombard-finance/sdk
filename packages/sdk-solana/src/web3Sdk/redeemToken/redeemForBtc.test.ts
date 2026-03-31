@@ -113,6 +113,7 @@ const baseParams = {
   amount: '100000',
   btcAddress: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
   network: SolanaNetwork.devnet,
+  tokenMint: MOCK_BTCB_MINT,
 };
 
 describe('redeemForBtc', () => {
@@ -187,13 +188,27 @@ describe('redeemForBtc', () => {
     ).rejects.toThrow('Bitcoin routing chain ID not configured');
   });
 
-  it('should throw when token mint is not resolved', async () => {
+  it('should throw when tokenMint is BTC.b but env has no BTC.b mint configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
     vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, btcbTokenMint: null });
 
     await expect(
       redeemForBtcFn(mockProvider as any, baseParams),
-    ).rejects.toThrow('Token mint not configured');
+    ).rejects.toThrow(/Unsupported tokenMint for redeemForBtc/);
+  });
+
+  it('should throw when tokenMint override is not LBTC or BTC.b for the network', async () => {
+    const foreignMint = 'So11111111111111111111111111111111111111112';
+
+    await expect(
+      redeemForBtcFn(mockProvider as any, {
+        ...baseParams,
+        tokenMint: foreignMint,
+      }),
+    ).rejects.toThrow(/Unsupported tokenMint for redeemForBtc/);
+
+    expect(mockRedeemBtcbForBtc).not.toHaveBeenCalled();
+    expect(mockRedeemLbtcForBtc).not.toHaveBeenCalled();
   });
 
   it('should throw when amount is invalid', async () => {
@@ -222,7 +237,7 @@ describe('redeemForBtc', () => {
 
   // ── Routing ──
 
-  it('should route to redeemBtcbForBtc when no tokenMint specified (defaults to BTC.b)', async () => {
+  it('should route to redeemBtcbForBtc when tokenMint is the configured BTC.b mint', async () => {
     await redeemForBtcFn(mockProvider as any, baseParams);
 
     expect(mockRedeemBtcbForBtc).toHaveBeenCalledTimes(1);

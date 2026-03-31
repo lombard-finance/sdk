@@ -51,7 +51,7 @@ export class SolanaServiceImpl implements SolanaService {
     btcAddress: string;
     network: string;
     env?: Env;
-    tokenMint?: string;
+    tokenMint: string;
   }): Promise<{ signature: string }> {
     const provider = (await this.getProvider()) as ISolanaWalletProvider;
 

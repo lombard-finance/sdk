@@ -11,10 +11,10 @@ export interface RedeemForBtcParams {
   amount: string;
   btcAddress: string;
   /**
-   * SPL token mint address override. When omitted the default BTC.b mint
-   * from config is used. Pass the LBTC mint to trigger the LBTC flow.
+   * SPL token mint to redeem. Must equal the environment’s configured LBTC or
+   * BTC.b mint; any other value fails before building a redemption transaction.
    */
-  tokenMint?: string;
+  tokenMint: string;
   network: SolanaNetwork;
   /**
    * Optional environment override. When provided, used instead of

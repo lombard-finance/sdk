@@ -60,6 +60,12 @@ export const StoryView = ({
 
     const amountSats = Math.round(parsedAmount * 1e8).toString();
 
+    if (!tokenMint) {
+      throw new Error(
+        'No mint for the selected token in this environment (e.g. BTC.b may be unset on mainnet).',
+      );
+    }
+
     setTransactionLogs(null);
     try {
       const result = await redeemForBtc(provider, {

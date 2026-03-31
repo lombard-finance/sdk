@@ -12,6 +12,8 @@ import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
 import { NonEvmUnstakeStatus } from '../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../shared/context';
+import { getSolanaTokenAddress, Token } from '../../../tokens/token-addresses';
+import { envToSolanaChain } from '../../../chains/solana/utils';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Mock Setup
@@ -138,6 +140,11 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
           btcAddress: validPrepareParams.recipient,
           network: 'devnet',
           env: Env.dev,
+          tokenMint: getSolanaTokenAddress(
+            envToSolanaChain(Env.dev),
+            Env.dev,
+            Token.BTCb,
+          ),
         }),
       );
       expect(result.txHash).toBe('mock-redeemForBtc-tx-hash');
@@ -207,7 +214,14 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
       await redeem.execute();
 
       expect(stageCtx.solana.redeemForBtc).toHaveBeenCalledWith(
-        expect.objectContaining({ network: 'devnet' }),
+        expect.objectContaining({
+          network: 'devnet',
+          tokenMint: getSolanaTokenAddress(
+            envToSolanaChain(Env.stage),
+            Env.stage,
+            Token.BTCb,
+          ),
+        }),
       );
     });
   });

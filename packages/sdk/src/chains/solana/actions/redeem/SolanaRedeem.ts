@@ -22,8 +22,9 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
+import { getSolanaTokenAddress, Token } from '../../../../tokens/token-addresses';
 import { toSatoshi } from '../../../../utils/satoshi';
-import { envToSolanaNetwork } from '../../utils';
+import { envToSolanaChain, envToSolanaNetwork } from '../../utils';
 import { isRedeemSupported, solanaRedeemConfig } from './config';
 import type {
   ISolanaRedeem,
@@ -111,11 +112,21 @@ export class SolanaRedeem
       const amountInSatoshis = toSatoshi(amount).toString();
       const network = envToSolanaNetwork(this.ctx.env);
 
+      const btcbMint: string | undefined = getSolanaTokenAddress(
+        envToSolanaChain(this.ctx.env),
+        this.ctx.env,
+        Token.BTCb,
+      );
+      if (!btcbMint) {
+        throw LombardError.missingParameter('Solana BTC.b mint for this environment');
+      }
+
       const { signature } = await this.ctx.solana.redeemForBtc({
         amount: amountInSatoshis,
         btcAddress: recipient,
         network,
         env: this.ctx.env,
+        tokenMint: btcbMint,
       });
 
       this._txHash = signature;

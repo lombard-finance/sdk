@@ -53,9 +53,14 @@ export async function redeemForBtc(
       throw new Error(`Bitcoin routing chain ID not configured for network: ${network}`);
     }
 
-    const mintAddress = params.tokenMint || config.btcbTokenMint;
-    if (!mintAddress) {
-      throw new Error(`Token mint not configured for network: ${network}`);
+    const mintAddress = params.tokenMint;
+    const supportedMints = [config.lbtcTokenMint, config.btcbTokenMint].filter(
+      (m): m is string => m != null,
+    );
+    if (!supportedMints.includes(mintAddress)) {
+      throw new Error(
+        `Unsupported tokenMint for redeemForBtc: ${mintAddress}. Use the configured LBTC or BTC.b mint for network: ${network}.`,
+      );
     }
 
     validateAmount(amount);

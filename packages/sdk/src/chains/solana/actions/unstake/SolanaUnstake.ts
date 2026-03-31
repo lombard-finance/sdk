@@ -117,24 +117,33 @@ export class SolanaUnstake
       const amountInSatoshis = toSatoshi(amount).toString();
       const network = envToSolanaNetwork(this.ctx.env);
 
-      const { signature } = this.isBtcbOutput
-        ? await this.ctx.solana.redeem({
-            amount: amountInSatoshis,
-            recipient,
-            network,
-            env: this.ctx.env,
-          })
-        : await this.ctx.solana.redeemForBtc({
-            amount: amountInSatoshis,
-            btcAddress: recipient,
-            network,
-            env: this.ctx.env,
-            tokenMint: getSolanaTokenAddress(
-              envToSolanaChain(this.ctx.env),
-              this.ctx.env,
-              Token.LBTC,
-            ),
-          });
+      let signature: string;
+      if (this.isBtcbOutput) {
+        ({ signature } = await this.ctx.solana.redeem({
+          amount: amountInSatoshis,
+          recipient,
+          network,
+          env: this.ctx.env,
+        }));
+      } else {
+        const tokenMint = getSolanaTokenAddress(
+          envToSolanaChain(this.ctx.env),
+          this.ctx.env,
+          Token.LBTC,
+        );
+        if (!tokenMint) {
+          throw LombardError.missingParameter(
+            'Solana LBTC mint for this environment',
+          );
+        }
+        ({ signature } = await this.ctx.solana.redeemForBtc({
+          amount: amountInSatoshis,
+          btcAddress: recipient,
+          network,
+          env: this.ctx.env,
+          tokenMint,
+        }));
+      }
 
       this._txHash = signature;
 

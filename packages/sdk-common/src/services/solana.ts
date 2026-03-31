@@ -24,7 +24,7 @@ export interface SolanaService {
    * @param args.amount - Amount to redeem in base units (satoshis)
    * @param args.btcAddress - Bitcoin address to receive BTC
    * @param args.network - Solana network ('mainnet-beta', 'devnet', 'testnet')
-   * @param args.tokenMint - Optional source token mint. Pass LBTC mint for LBTC flow; defaults to BTC.b.
+   * @param args.tokenMint - Source SPL mint: must be the environment’s LBTC or BTC.b mint.
    * @returns `{ signature }` — base58 Solana transaction signature for the initiating burn/GMP transaction (not a Bitcoin payout txid).
    */
   redeemForBtc(args: {
@@ -32,7 +32,7 @@ export interface SolanaService {
     btcAddress: string;
     network: string;
     env?: Env;
-    tokenMint?: string;
+    tokenMint: string;
   }): Promise<{ signature: string }>;
 
   /**
