@@ -123,6 +123,7 @@ export class SolanaStake
       this.emitProgress({
         status: NonEvmUnstakeStatus.CONFIRMING,
         steps: { burning: StepStatus.COMPLETE, minting: StepStatus.PENDING },
+        txHash: signature,
       });
 
       return { txHash: signature };
