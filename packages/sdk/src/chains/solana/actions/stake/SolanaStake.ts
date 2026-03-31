@@ -126,6 +126,8 @@ export class SolanaStake
         txHash: signature,
       });
 
+      this.emitCompleted();
+
       return { txHash: signature };
     }, NonEvmUnstakeStatus.CONFIRMING);
   }

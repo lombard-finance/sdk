@@ -72,5 +72,17 @@ describe('SolanaStake — BTC.b → LBTC on Solana', () => {
       expect(confirmingPayloads).toHaveLength(1);
       expect(confirmingPayloads[0]?.txHash).toBe(MOCK_SIGNATURE);
     });
+
+    it('should emit completed event after execute', async () => {
+      const stake = new SolanaStake(mockCtx, validParams);
+      await stake.prepare(validPrepareParams);
+
+      const completedHandler = vi.fn();
+      stake.on('completed', completedHandler);
+
+      await stake.execute();
+
+      expect(completedHandler).toHaveBeenCalledTimes(1);
+    });
   });
 });
