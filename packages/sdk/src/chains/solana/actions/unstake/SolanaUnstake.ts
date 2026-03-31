@@ -149,7 +149,7 @@ export class SolanaUnstake
 
       this.emitProgress({
         status: NonEvmUnstakeStatus.COMPLETED,
-        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
+        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.COMPLETE },
       });
 
       this.emitCompleted();
