@@ -328,7 +328,7 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
       [SOLANA_MAINNET_CHAIN]: 'LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek',
     },
     [Env.testnet]: {
-      [SOLANA_TESTNET_CHAIN]: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
+      [SOLANA_DEVNET_CHAIN]: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
     },
     [Env.dev]: {
       [SOLANA_DEVNET_CHAIN]: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
@@ -345,7 +345,7 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
       [SOLANA_DEVNET_CHAIN]: 'BTCGPAHQSsS9RYcL2Z4B5z6YyAXLatNcnaEwYdczsMZw',
     },
     [Env.testnet]: {
-      [SOLANA_TESTNET_CHAIN]: 'BTCb1Xy55DzwPMog9d3ztPau4nqXp6BhUrdGHjTrMYCn',
+      [SOLANA_DEVNET_CHAIN]: 'BTCb1Xy55DzwPMog9d3ztPau4nqXp6BhUrdGHjTrMYCn',
     },
   },
 };
