@@ -87,12 +87,14 @@ describe("toolsByName", () => {
 });
 
 describe("getExchangeRate.execute", () => {
-  it("returns mintingRate, description, and minStakeAmountBtc", async () => {
+  it("returns lbtcToBtc, btcToLbtc, description, and minStakeAmountBtc", async () => {
     const result = await getExchangeRate.execute({});
-    expect(result).toHaveProperty("mintingRate");
+    expect(result).toHaveProperty("lbtcToBtc");
+    expect(result).toHaveProperty("btcToLbtc");
     expect(result).toHaveProperty("description");
     expect(result).toHaveProperty("minStakeAmountBtc");
-    expect(result.mintingRate).toBe(1);
+    expect(typeof result.lbtcToBtc).toBe("string");
+    expect(typeof result.btcToLbtc).toBe("string");
     expect(typeof result.description).toBe("string");
     expect(typeof result.minStakeAmountBtc).toBe("string");
   });

@@ -17,6 +17,7 @@ import {
   getDepositsByAddress,
   getDepositStatus,
   getDepositStatusDisplay,
+  getExchangeRatio,
   getLBTCExchangeRate,
   getTokenContractInfo,
   getUnstakesByAddress,
@@ -110,22 +111,35 @@ export const getBtcbBalance: ToolDefinition<
 
 export const getExchangeRate: ToolDefinition<
   { chainId?: number },
-  { mintingRate: number; description: string; minStakeAmountBtc: string }
+  {
+    lbtcToBtc: string;
+    btcToLbtc: string;
+    minStakeAmountBtc: string;
+    description: string;
+  }
 > = {
   name: "get_exchange_rate",
   description:
-    "Get the LBTC minting rate and minimum stake amount. " +
-    "The minting rate is the BTC.b-to-LBTC conversion rate when staking. " +
-    "BTC.b is a 1:1 wrapped representation of BTC. " +
-    "LBTC itself may trade at a slight premium or discount on secondary markets.",
+    "Get the current LBTC/BTC exchange rate and minimum stake amount. " +
+    "LBTC accrues staking yield over time, so 1 LBTC is worth slightly more than 1 BTC.",
   parameters: ExchangeRateSchema,
   execute: async ({ chainId }) => {
     const env = chainId ? getChainConfig(chainId).env : Env.prod;
-    const rate = await getLBTCExchangeRate({ env });
+    const [ratioResult, mintRate] = await Promise.all([
+      getExchangeRatio({ env }),
+      getLBTCExchangeRate({ env }),
+    ]);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lbtcData = (ratioResult as any).LBTC || {};
+    const lbtcToBtc = String(lbtcData.BTCTokenRatio || "1");
+    const btcToLbtc = String(lbtcData.tokenBTCRatio || "1");
+
     return {
-      mintingRate: rate.exchangeRate,
-      description: `${rate.exchangeRate} BTC.b = 1 LBTC when minting. BTC.b is 1:1 with BTC.`,
-      minStakeAmountBtc: fromSatoshi(rate.minAmount).toString(),
+      lbtcToBtc,
+      btcToLbtc,
+      minStakeAmountBtc: fromSatoshi(mintRate.minAmount).toString(),
+      description: `1 LBTC = ${lbtcToBtc} BTC. 1 BTC = ${btcToLbtc} LBTC. Min stake: ${fromSatoshi(mintRate.minAmount)} BTC.`,
     };
   },
 };
@@ -242,13 +256,13 @@ export const getStrategies: ToolDefinition<
 
 export const getDepositBtcAddress: ToolDefinition<
   { address: string; chainId: number },
-  { btcAddress: string | null; chain: string; note: string }
+  { btcAddress: string | null; chain: string; note: string; action?: string }
 > = {
   name: "get_deposit_btc_address",
   description:
-    "Get the BTC deposit address for a wallet. Users send native BTC to this address " +
-    "to receive LBTC on the specified EVM chain. The deposit is tracked and can be " +
-    "claimed once notarized.",
+    "Get or generate a BTC deposit address for a wallet. Users send native BTC to this " +
+    "address to receive LBTC on the specified EVM chain. If no address exists yet, " +
+    "returns instructions to generate one (requires a wallet signature).",
   parameters: DepositBtcSchema,
   execute: async ({ address, chainId }) => {
     const config = getChainConfig(chainId);
@@ -267,7 +281,8 @@ export const getDepositBtcAddress: ToolDefinition<
       return {
         btcAddress: null,
         chain: config.name,
-        note: "No deposit address found for this wallet. A deposit address must be generated first via the Lombard app.",
+        action: "generate_deposit_address",
+        note: "No deposit address exists yet. To generate one, a wallet signature is required. Click the button below to sign and generate your BTC deposit address.",
       };
     }
   },

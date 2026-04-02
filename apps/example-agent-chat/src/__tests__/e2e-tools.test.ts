@@ -59,14 +59,16 @@ describe.skipIf(SKIP)("E2E: sdk-agent-tools on Sepolia", () => {
   });
 
   describe("get_exchange_rate", () => {
-    it("returns minting rate and min amount", async () => {
+    it("returns LBTC/BTC exchange rate and min amount", async () => {
       const result = await getExchangeRate.execute({
         chainId: SEPOLIA_CHAIN_ID,
       });
-      expect(result).toHaveProperty("mintingRate");
+      expect(result).toHaveProperty("lbtcToBtc");
+      expect(result).toHaveProperty("btcToLbtc");
       expect(result).toHaveProperty("minStakeAmountBtc");
       expect(result).toHaveProperty("description");
-      expect(typeof result.mintingRate).toBe("number");
+      expect(typeof result.lbtcToBtc).toBe("string");
+      expect(typeof result.btcToLbtc).toBe("string");
     });
   });
 
