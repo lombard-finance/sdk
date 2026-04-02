@@ -1,6 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 
-import { allTools, toolsByName, getExchangeRate } from "../tools";
+import {
+  allTools,
+  getBalance,
+  getDepositBtcAddress,
+  getExchangeRate,
+  getStrategies,
+  toolsByName,
+} from "../tools";
 
 vi.mock("@lombard.finance/sdk", async () => {
   const actual = await vi.importActual<Record<string, unknown>>("@lombard.finance/sdk");
@@ -13,9 +20,38 @@ vi.mock("@lombard.finance/sdk", async () => {
   };
 });
 
+describe("getBalance", () => {
+  it("has correct name and schema", () => {
+    expect(getBalance.name).toBe("get_balance");
+    expect(getBalance.parameters).toHaveProperty("properties");
+    expect(typeof getBalance.execute).toBe("function");
+  });
+});
+
+describe("getStrategies", () => {
+  it("has correct name and schema", () => {
+    expect(getStrategies.name).toBe("get_strategies");
+    expect(typeof getStrategies.execute).toBe("function");
+  });
+});
+
+describe("getDepositBtcAddress", () => {
+  it("has correct name and schema", () => {
+    expect(getDepositBtcAddress.name).toBe("get_deposit_btc_address");
+    expect(typeof getDepositBtcAddress.execute).toBe("function");
+  });
+});
+
 describe("allTools", () => {
-  it("has 8 entries", () => {
-    expect(allTools).toHaveLength(8);
+  it("has 11 entries", () => {
+    expect(allTools).toHaveLength(11);
+  });
+
+  it("contains all expected tools including new ones", () => {
+    const names = allTools.map((t) => t.name);
+    expect(names).toContain("get_balance");
+    expect(names).toContain("get_strategies");
+    expect(names).toContain("get_deposit_btc_address");
   });
 
   it("each tool has name, description, parameters, and execute", () => {
@@ -41,6 +77,12 @@ describe("toolsByName", () => {
 
   it("has the same number of entries as allTools", () => {
     expect(Object.keys(toolsByName)).toHaveLength(allTools.length);
+  });
+
+  it("contains new tools", () => {
+    expect(toolsByName).toHaveProperty("get_balance");
+    expect(toolsByName).toHaveProperty("get_strategies");
+    expect(toolsByName).toHaveProperty("get_deposit_btc_address");
   });
 });
 

@@ -12,6 +12,11 @@
       "types": "./dist/ai.d.ts",
       "import": "./dist/ai.js",
       "require": "./dist/ai.cjs"
+    },
+    "./langchain": {
+      "types": "./dist/langchain.d.ts",
+      "import": "./dist/langchain.js",
+      "require": "./dist/langchain.cjs"
     }
   },
   "license": "MIT",
@@ -53,6 +58,9 @@
     "viem": "^2.21.0"
   },
   "peerDependenciesMeta": {
+    "@langchain/core": {
+      "optional": true
+    },
     "ai": {
       "optional": true
     }
@@ -62,6 +70,7 @@
     "@lombard.finance/sdk-common": "workspace:*"
   },
   "devDependencies": {
+    "@langchain/core": "^0.3.0",
     "ai": "^4.0.0",
     "typescript": "^5.4.5",
     "viem": "^2.21.0",

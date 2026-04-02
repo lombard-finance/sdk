@@ -13,22 +13,29 @@
 import {
   Env,
   fromSatoshi,
+  getDepositBtcAddress as sdkGetDepositBtcAddress,
   getDepositsByAddress,
   getDepositStatus,
   getDepositStatusDisplay,
   getLBTCExchangeRate,
   getTokenContractInfo,
   getUnstakesByAddress,
+  getVaultApy,
+  getVaultTVL,
   Token,
+  Vault,
 } from "@lombard.finance/sdk";
 import { createPublicClient, formatUnits, http, type Address } from "viem";
 
 import { getChainConfig } from "./chains";
 import {
   AddressAndChainSchema,
+  BalanceSchema,
+  DepositBtcSchema,
   DeployToVaultSchema,
   ExchangeRateSchema,
   StakeSchema,
+  StrategiesSchema,
   UnstakeSchema,
 } from "./schemas";
 
@@ -178,6 +185,94 @@ export const getUnstakeStatusTool: ToolDefinition<{ address: string; chainId: nu
   },
 };
 
+export const getBalance: ToolDefinition<
+  { address: string; chainId: number },
+  { lbtc: string; btcb: string; chain: string; address: string }
+> = {
+  name: "get_balance",
+  description:
+    "Check both LBTC and BTC.b balances for a wallet address in a single call. " +
+    "Returns both token balances on the specified chain.",
+  parameters: BalanceSchema,
+  execute: async ({ address, chainId }) => {
+    const config = getChainConfig(chainId);
+    const [lbtcBal, btcbBal] = await Promise.all([
+      readTokenBalance(Token.LBTC, address, chainId),
+      readTokenBalance(Token.BTCb, address, chainId),
+    ]);
+    return { lbtc: lbtcBal, btcb: btcbBal, chain: config.name, address };
+  },
+};
+
+export const getStrategies: ToolDefinition<
+  { chainId?: number },
+  { strategies: Array<{ vault: string; chain: string; apy: string; tvlBtc: string }> }
+> = {
+  name: "get_strategies",
+  description:
+    "List available yield strategies (DeFi vaults) where LBTC can be deployed for additional yield. " +
+    "Returns vault name, chain, current APY, and TVL for each strategy.",
+  parameters: StrategiesSchema,
+  execute: async () => {
+    // Vault APY only works on Ethereum mainnet — always query prod/mainnet
+    const env = Env.prod;
+    try {
+      const [apyData, tvlData] = await Promise.all([
+        getVaultApy({ env, vaultKey: Vault.Veda }),
+        getVaultTVL({ env, vaultKey: Vault.Veda }),
+      ]);
+
+      const latestApy = apyData.length > 0 ? apyData[apyData.length - 1] : null;
+
+      return {
+        strategies: [
+          {
+            vault: "Veda",
+            chain: "Ethereum",
+            apy: latestApy ? `${latestApy.apy.toFixed(2)}%` : "N/A",
+            tvlBtc: tvlData.btcBalance.toFixed(4),
+          },
+        ],
+      };
+    } catch {
+      return { strategies: [] };
+    }
+  },
+};
+
+export const getDepositBtcAddress: ToolDefinition<
+  { address: string; chainId: number },
+  { btcAddress: string | null; chain: string; note: string }
+> = {
+  name: "get_deposit_btc_address",
+  description:
+    "Get the BTC deposit address for a wallet. Users send native BTC to this address " +
+    "to receive LBTC on the specified EVM chain. The deposit is tracked and can be " +
+    "claimed once notarized.",
+  parameters: DepositBtcSchema,
+  execute: async ({ address, chainId }) => {
+    const config = getChainConfig(chainId);
+    try {
+      const btcAddress = await sdkGetDepositBtcAddress({
+        address,
+        chainId: config.chainId,
+        env: config.env,
+      });
+      return {
+        btcAddress,
+        chain: config.name,
+        note: "Send BTC to this address. Once confirmed and notarized, use get_deposit_status to track progress and claim your LBTC.",
+      };
+    } catch {
+      return {
+        btcAddress: null,
+        chain: config.name,
+        note: "No deposit address found for this wallet. A deposit address must be generated first via the Lombard app.",
+      };
+    }
+  },
+};
+
 // ─── Write Tools (return tx params, don't execute) ────────────────────
 
 export const prepareStake: ToolDefinition<{ amount: string; chainId: number }> = {
@@ -258,9 +353,12 @@ export const prepareDeployToVault: ToolDefinition<{ amount: string; protocol: st
 export const allTools: AnyToolDefinition[] = [
   getLbtcBalance,
   getBtcbBalance,
+  getBalance,
   getExchangeRate,
   getDepositStatusTool,
   getUnstakeStatusTool,
+  getStrategies,
+  getDepositBtcAddress,
   prepareStake,
   prepareUnstake,
   prepareDeployToVault,

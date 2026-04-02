@@ -11,6 +11,7 @@ export default defineConfig({
       entry: {
         index: path.resolve(__dirname, "src/index.ts"),
         ai: path.resolve(__dirname, "src/ai.ts"),
+        langchain: path.resolve(__dirname, "src/langchain.ts"),
       },
     },
     rollupOptions: {
@@ -33,6 +34,8 @@ export default defineConfig({
         "@lombard.finance/sdk",
         "@lombard.finance/sdk-common",
         "ai",
+        "@langchain/core",
+        "@langchain/core/tools",
       ],
     },
   },

@@ -2,6 +2,9 @@ import { describe, it, expect } from "vitest";
 
 import {
   AddressAndChainSchema,
+  BalanceSchema,
+  StrategiesSchema,
+  DepositBtcSchema,
   StakeSchema,
   UnstakeSchema,
   DeployToVaultSchema,
@@ -45,6 +48,34 @@ describe("DeployToVaultSchema", () => {
     expect(DeployToVaultSchema.required).toContain("amount");
     expect(DeployToVaultSchema.required).toContain("protocol");
     expect(DeployToVaultSchema.required).toContain("chainId");
+  });
+});
+
+describe("BalanceSchema", () => {
+  it("has address and chainId properties", () => {
+    expect(BalanceSchema.type).toBe("object");
+    expect(BalanceSchema.properties).toHaveProperty("address");
+    expect(BalanceSchema.properties).toHaveProperty("chainId");
+    expect(BalanceSchema.required).toContain("address");
+    expect(BalanceSchema.required).toContain("chainId");
+  });
+});
+
+describe("StrategiesSchema", () => {
+  it("has optional chainId", () => {
+    expect(StrategiesSchema.type).toBe("object");
+    expect(StrategiesSchema.properties).toHaveProperty("chainId");
+    expect((StrategiesSchema as Record<string, unknown>).required).toBeUndefined();
+  });
+});
+
+describe("DepositBtcSchema", () => {
+  it("requires address and chainId", () => {
+    expect(DepositBtcSchema.type).toBe("object");
+    expect(DepositBtcSchema.properties).toHaveProperty("address");
+    expect(DepositBtcSchema.properties).toHaveProperty("chainId");
+    expect(DepositBtcSchema.required).toContain("address");
+    expect(DepositBtcSchema.required).toContain("chainId");
   });
 });
 

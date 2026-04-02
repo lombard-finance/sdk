@@ -21,7 +21,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const { address, chain } = useAccount();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setInput } =
+  const { messages, input, handleInputChange, handleSubmit, isLoading, append } =
     useChat({
       api: "/api/chat",
       body: {
@@ -75,7 +75,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               {suggestions.map((s) => (
                 <button
                   key={s}
-                  onClick={() => setInput(s)}
+                  onClick={() => append({ role: "user", content: s })}
                   className="rounded-[60px] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3.5 py-1.5 text-xs text-[var(--color-text-secondary)] hover:border-[var(--color-teal)] hover:text-[var(--color-teal)] transition-colors"
                 >
                   {s}

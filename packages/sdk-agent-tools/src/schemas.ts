@@ -48,6 +48,20 @@ export const UnstakeSchema = {
   required: ["amount", "outputAsset", "chainId"],
 };
 
+export const BalanceSchema = AddressAndChainSchema;
+
+export const StrategiesSchema = {
+  type: "object" as const,
+  properties: {
+    chainId: {
+      type: "number" as const,
+      description: "Chain ID to filter strategies (optional, returns all if omitted)",
+    },
+  },
+};
+
+export const DepositBtcSchema = AddressAndChainSchema;
+
 export const DeployToVaultSchema = {
   type: "object" as const,
   properties: {

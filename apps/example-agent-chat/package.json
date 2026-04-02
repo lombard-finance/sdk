@@ -9,13 +9,16 @@
     "dev:server": "npx tsx watch src/server/index.ts",
     "dev:client": "vite",
     "build": "vite build && tsc -p tsconfig.server.json",
-    "start": "node dist-server/index.js"
+    "start": "node dist-server/index.js",
+    "test": "vitest run",
+    "test:e2e": "ENABLE_E2E=true vitest run"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.0.0",
     "@lombard.finance/sdk-agent-tools": "workspace:*",
     "@tanstack/react-query": "^5.50.0",
     "ai": "^4.0.0",
+    "connectkit": "^1.8.0",
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "react": "^18.2.0",
@@ -35,6 +38,7 @@
     "tailwindcss": "^4.1.0",
     "tsx": "^4.19.0",
     "typescript": "~5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vitest": "^3.1.0"
   }
 }
