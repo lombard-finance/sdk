@@ -1,7 +1,7 @@
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 export function WalletBar() {
-  const { address, chain, isConnected } = useAccount();
+  const { address, chain, isConnected, connector } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
 
@@ -16,7 +16,9 @@ export function WalletBar() {
           {short}
         </span>
         <button
-          onClick={() => disconnect()}
+          onClick={() => {
+            disconnect({ connector });
+          }}
           className="rounded-[60px] border border-white/20 px-3 py-1 text-xs text-white/80 hover:text-white hover:border-white/40 transition-colors"
         >
           Disconnect
@@ -28,8 +30,8 @@ export function WalletBar() {
   return (
     <button
       onClick={() => {
-        const connector = connectors[0];
-        if (connector) connect({ connector });
+        const c = connectors[0];
+        if (c) connect({ connector: c });
       }}
       className="rounded-[60px] bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-[var(--color-black)] hover:bg-[var(--color-primary-dark)] transition-colors"
     >
