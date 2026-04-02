@@ -35,6 +35,10 @@ import type { Address, EIP1193Provider } from "viem";
 import { z } from "zod";
 
 import { isLombardSupportedNetwork, resolveNetwork } from "./networks";
+
+const PROTOCOL_TO_VAULT: Record<string, (typeof Vault)[keyof typeof Vault]> = {
+  veda: Vault.Veda,
+};
 import {
   ClaimDepositSchema,
   DeployToDefiSchema,
@@ -215,7 +219,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
         });
       }
 
-      // BTCb output - same chain redeem
+      // BTCb output - same chain redeem (always sends to caller's address)
       const txHash = await redeemToken({
         amount: args.amount,
         tokenIn: Token.LBTC,
@@ -226,11 +230,21 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
         env,
       });
 
-      return formatSuccess("unstake_lbtc", {
+      const result: Record<string, unknown> = {
         txHash,
         amount: args.amount,
         to: "BTC.b",
-      });
+      };
+
+      if (
+        args.recipient &&
+        args.recipient.toLowerCase() !== account.toLowerCase()
+      ) {
+        result.warning =
+          "BTC.b redemption always sends to the connected wallet. The recipient address was ignored.";
+      }
+
+      return formatSuccess("unstake_lbtc", result);
     } catch (error) {
       return formatError("unstake_lbtc", error);
     }
@@ -239,8 +253,8 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
   @CreateAction({
     name: "redeem_lbtc_to_btcb",
     description:
-      "Redeem LBTC to BTC.b (wrapped Bitcoin) on the same EVM chain. " +
-      "This is a fast same-chain conversion. For cross-chain BTC redemption, use unstake_lbtc instead.",
+      "Use this for simple same-chain LBTC to BTC.b conversion. " +
+      "For cross-chain unstaking to native BTC, use unstake_lbtc instead.",
     schema: RedeemLbtcToBtcbSchema,
   })
   async redeemLbtcToBtcb(
@@ -314,7 +328,13 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const account = walletProvider.getAddress() as Address;
       const provider = toEIP1193Provider(walletProvider, chainId);
 
-      const vaultKey = Vault.Veda;
+      const vaultKey = PROTOCOL_TO_VAULT[args.protocol];
+      if (!vaultKey) {
+        return formatError(
+          "deploy_to_defi",
+          `Unsupported protocol: ${args.protocol}`,
+        );
+      }
 
       const txHash = await vaultDeposit({
         amount: args.amount,
@@ -506,7 +526,13 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
   ): Promise<string> {
     try {
       const resolved = resolveNetwork(_walletProvider.getNetwork());
-      const env = resolved?.env;
+      if (!resolved) {
+        return formatError(
+          "get_lbtc_exchange_rate",
+          "Current network is not supported by Lombard",
+        );
+      }
+      const env = resolved.env;
 
       const rate = await getLBTCExchangeRate({ env });
 

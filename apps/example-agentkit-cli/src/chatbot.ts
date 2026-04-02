@@ -1,22 +1,12 @@
 import "dotenv/config";
 
-import {
-  AgentKit,
-  ViemWalletProvider,
-  walletActionProvider,
-} from "@coinbase/agentkit";
-import { getLangChainTools } from "@coinbase/agentkit-langchain";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { HumanMessage } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import * as readline from "readline";
-import { createWalletClient, http } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
 
-import { lombardActionProvider } from "@lombard.finance/sdk-agentkit";
-
-import { CHAINS } from "./config.js";
+import { initAgent } from "./initAgent.js";
 
 const SYSTEM_PROMPT = `You are an AI agent specialized in Bitcoin staking via the Lombard protocol.
 You can help users:
@@ -33,29 +23,7 @@ but higher yields are available by deploying LBTC into DeFi vaults via the deplo
 
 async function initializeAgent() {
   const networkId = process.env.NETWORK_ID || "ethereum-sepolia";
-  const chain = CHAINS[networkId];
-  if (!chain) {
-    throw new Error(`Unsupported network: ${networkId}. Use one of: ${Object.keys(CHAINS).join(", ")}`);
-  }
-
-  const account = privateKeyToAccount(process.env.WALLET_PRIVATE_KEY as `0x${string}`);
-  const walletClient = createWalletClient({
-    account,
-    chain,
-    transport: http(process.env.RPC_URL),
-  });
-
-  const walletProvider = new ViemWalletProvider(walletClient);
-
-  const agentkit = await AgentKit.from({
-    walletProvider,
-    actionProviders: [
-      walletActionProvider(),
-      lombardActionProvider(),
-    ],
-  });
-
-  const tools = await getLangChainTools(agentkit);
+  const { walletProvider, tools } = await initAgent(networkId);
 
   const llm = new ChatAnthropic({
     model: "claude-sonnet-4-20250514",

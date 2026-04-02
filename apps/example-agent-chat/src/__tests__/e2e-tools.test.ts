@@ -117,7 +117,7 @@ describe.skipIf(SKIP)("E2E: sdk-agent-tools on Sepolia", () => {
       if (result.btcAddress) {
         expect(typeof result.btcAddress).toBe("string");
       } else {
-        expect(result.note).toContain("No deposit address found");
+        expect(result.note).toContain("No deposit address");
       }
     });
   });

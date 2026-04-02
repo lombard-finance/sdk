@@ -5,22 +5,12 @@
  */
 import "dotenv/config";
 
-import {
-  AgentKit,
-  ViemWalletProvider,
-  walletActionProvider,
-} from "@coinbase/agentkit";
-import { getLangChainTools } from "@coinbase/agentkit-langchain";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { HumanMessage } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
-import { createWalletClient, http } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
 
-import { lombardActionProvider } from "@lombard.finance/sdk-agentkit";
-
-import { CHAINS } from "./config.js";
+import { initAgent } from "./initAgent.js";
 
 const TASKS = [
   "What is the current LBTC/BTC exchange rate?",
@@ -42,29 +32,8 @@ async function main() {
   }
 
   const networkId = process.env.NETWORK_ID || "ethereum-sepolia";
-  const chain = CHAINS[networkId];
-  if (!chain) {
-    throw new Error(`Unsupported network: ${networkId}`);
-  }
+  const { walletProvider, tools } = await initAgent(networkId);
 
-  const account = privateKeyToAccount(process.env.WALLET_PRIVATE_KEY as `0x${string}`);
-  const walletClient = createWalletClient({
-    account,
-    chain,
-    transport: http(process.env.RPC_URL),
-  });
-
-  const walletProvider = new ViemWalletProvider(walletClient);
-
-  const agentkit = await AgentKit.from({
-    walletProvider,
-    actionProviders: [
-      walletActionProvider(),
-      lombardActionProvider(),
-    ],
-  });
-
-  const tools = await getLangChainTools(agentkit);
   console.log(`Available tools (${tools.length}):`);
   for (const tool of tools) {
     console.log(`  - ${tool.name}: ${tool.description.slice(0, 80)}...`);

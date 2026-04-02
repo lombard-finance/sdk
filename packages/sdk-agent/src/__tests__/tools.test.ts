@@ -13,6 +13,9 @@ vi.mock("@lombard.finance/sdk", async () => {
   const actual = await vi.importActual<Record<string, unknown>>("@lombard.finance/sdk");
   return {
     ...actual,
+    getExchangeRatio: vi.fn().mockResolvedValue({
+      LBTC: { BTCTokenRatio: 1.001, tokenBTCRatio: 0.999 },
+    }),
     getLBTCExchangeRate: vi.fn().mockResolvedValue({
       exchangeRate: 1,
       minAmount: 100000,

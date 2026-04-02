@@ -17,6 +17,7 @@
     "@langchain/langgraph": "^0.2.0",
     "@lombard.finance/sdk-agentkit": "workspace:*",
     "dotenv": "^16.4.0",
+    "viem": "^2.23.0",
     "zod": "^3.22.0"
   },
   "devDependencies": {

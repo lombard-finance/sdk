@@ -2,8 +2,6 @@ import path from "node:path";
 
 import { defineConfig } from "vite";
 
-import packageJson from "./package.json";
-
 export default defineConfig({
   build: {
     sourcemap: false,
@@ -30,12 +28,10 @@ export default defineConfig({
         },
       ],
       external: [
-        ...Object.keys(packageJson.peerDependencies),
-        "@lombard.finance/sdk",
-        "@lombard.finance/sdk-common",
+        /^viem/,
+        /^@lombard\.finance\//,
+        /^@langchain/,
         "ai",
-        "@langchain/core",
-        "@langchain/core/tools",
       ],
     },
   },

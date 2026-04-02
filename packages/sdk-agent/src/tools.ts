@@ -76,6 +76,7 @@ async function readTokenBalance(
     args: [address as Address],
   });
 
+  // LBTC and BTC.b both use 8 decimals
   return formatUnits(balance, 8);
 }
 
@@ -124,23 +125,36 @@ export const getExchangeRate: ToolDefinition<
     "LBTC accrues staking yield over time, so 1 LBTC is worth slightly more than 1 BTC.",
   parameters: ExchangeRateSchema,
   execute: async ({ chainId }) => {
-    const env = chainId ? getChainConfig(chainId).env : Env.prod;
-    const [ratioResult, mintRate] = await Promise.all([
-      getExchangeRatio({ env }),
-      getLBTCExchangeRate({ env }),
-    ]);
+    try {
+      const env = chainId ? getChainConfig(chainId).env : Env.prod;
+      const [ratioResult, mintRate] = await Promise.all([
+        getExchangeRatio({ env }),
+        getLBTCExchangeRate({ env }),
+      ]);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const lbtcData = (ratioResult as any).LBTC || {};
-    const lbtcToBtc = String(lbtcData.BTCTokenRatio || "1");
-    const btcToLbtc = String(lbtcData.tokenBTCRatio || "1");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const lbtcData = (ratioResult as any).LBTC;
+      if (!lbtcData?.BTCTokenRatio || !lbtcData?.tokenBTCRatio) {
+        throw new Error("Exchange ratio data unavailable");
+      }
+      const lbtcToBtc = String(lbtcData.BTCTokenRatio);
+      const btcToLbtc = String(lbtcData.tokenBTCRatio);
 
-    return {
-      lbtcToBtc,
-      btcToLbtc,
-      minStakeAmountBtc: fromSatoshi(mintRate.minAmount).toString(),
-      description: `1 LBTC = ${lbtcToBtc} BTC. 1 BTC = ${btcToLbtc} LBTC. Min stake: ${fromSatoshi(mintRate.minAmount)} BTC.`,
-    };
+      return {
+        lbtcToBtc,
+        btcToLbtc,
+        minStakeAmountBtc: fromSatoshi(mintRate.minAmount).toString(),
+        description: `1 LBTC = ${lbtcToBtc} BTC. 1 BTC = ${btcToLbtc} LBTC. Min stake: ${fromSatoshi(mintRate.minAmount)} BTC.`,
+      };
+    } catch (err) {
+      return {
+        lbtcToBtc: "",
+        btcToLbtc: "",
+        minStakeAmountBtc: "",
+        description: "",
+        error: err instanceof Error ? err.message : "Failed to fetch exchange rate",
+      };
+    }
   },
 };
 
@@ -227,7 +241,8 @@ export const getStrategies: ToolDefinition<
     "List available yield strategies (DeFi vaults) where LBTC can be deployed for additional yield. " +
     "Returns vault name, chain, current APY, and TVL for each strategy.",
   parameters: StrategiesSchema,
-  execute: async () => {
+  // Vault data is mainnet-only regardless of chainId
+  execute: async ({ chainId: _chainId }) => {
     // Vault APY only works on Ethereum mainnet — always query prod/mainnet
     const env = Env.prod;
     try {
@@ -249,7 +264,7 @@ export const getStrategies: ToolDefinition<
         ],
       };
     } catch {
-      return { strategies: [] };
+      return { strategies: [], error: "Unable to fetch vault data" };
     }
   },
 };
@@ -323,6 +338,9 @@ export const prepareUnstake: ToolDefinition<{ amount: string; outputAsset: strin
     recipient?: string;
     chainId: number;
   }) => {
+    if (outputAsset === "BTC" && !recipient) {
+      throw new Error("recipient address is required when unstaking to BTC");
+    }
     const { name } = getChainConfig(chainId);
     return {
       action: "sign_transaction",
