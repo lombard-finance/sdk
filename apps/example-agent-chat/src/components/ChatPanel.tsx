@@ -62,27 +62,28 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         </button>
       </div>
 
+      {/* Quick actions — always visible */}
+      <div className="flex flex-wrap gap-2 px-4 py-2.5 border-b border-[var(--color-border)] bg-[var(--color-surface)]">
+        {suggestions.map((s) => (
+          <button
+            key={s}
+            onClick={() => append({ role: "user", content: s })}
+            disabled={isLoading}
+            className="rounded-[60px] border border-[var(--color-border-strong)] bg-[var(--color-bg)] px-3 py-1 text-xs text-[var(--color-text-secondary)] hover:border-[var(--color-teal)] hover:text-[var(--color-teal)] disabled:opacity-40 transition-colors"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[var(--color-bg)]">
         {messages.length === 0 && (
-          <div className="space-y-4 pt-8">
-            <p className="text-center text-sm text-[var(--color-text-muted)]">
-              {address
-                ? "Ask me about your balances, staking, or DeFi positions."
-                : "Connect your wallet for personalized help, or ask general questions."}
-            </p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {suggestions.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => append({ role: "user", content: s })}
-                  className="rounded-[60px] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3.5 py-1.5 text-xs text-[var(--color-text-secondary)] hover:border-[var(--color-teal)] hover:text-[var(--color-teal)] transition-colors"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
+          <p className="text-center text-sm text-[var(--color-text-muted)] pt-8">
+            {address
+              ? "Ask me about your balances, staking, or DeFi positions."
+              : "Connect your wallet for personalized help, or ask general questions."}
+          </p>
         )}
 
         {messages.map((msg) => (
