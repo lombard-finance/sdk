@@ -210,6 +210,11 @@ export const ASSET_CATALOG: AssetCatalog = {
           address: '0x7FbdC44BfEBDe80C970ba622B678daB36cee31f6',
           bridgeAdapter: '0x0A65C37d07c32E5eA8ea40495b7f249cdE26935e',
         },
+        {
+          env: Env.testnet,
+          chain: Chain.SOLANA_DEVNET,
+          address: 'BTCb1Xy55DzwPMog9d3ztPau4nqXp6BhUrdGHjTrMYCn',
+        },
 
         // Stage
         // Note: Avalanche Fuji is only supported on testnet (Gastald), not stage

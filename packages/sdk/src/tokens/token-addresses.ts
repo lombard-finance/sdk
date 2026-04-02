@@ -344,6 +344,9 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
     [Env.stage]: {
       [SOLANA_DEVNET_CHAIN]: 'BTCGPAHQSsS9RYcL2Z4B5z6YyAXLatNcnaEwYdczsMZw',
     },
+    [Env.testnet]: {
+      [SOLANA_TESTNET_CHAIN]: 'BTCb1Xy55DzwPMog9d3ztPau4nqXp6BhUrdGHjTrMYCn',
+    },
   },
 };
 
