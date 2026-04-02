@@ -1,0 +1,71 @@
+{
+  "name": "@lombard.finance/sdk-agent-tools",
+  "version": "0.1.0",
+  "description": "Framework-agnostic AI agent tool definitions for the Lombard protocol",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./ai": {
+      "types": "./dist/ai.d.ts",
+      "import": "./dist/ai.js",
+      "require": "./dist/ai.cjs"
+    }
+  },
+  "license": "MIT",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">= 22.14.0"
+  },
+  "scripts": {
+    "types": "tsc --noEmit",
+    "build": "yarn types && vite build && tsc -p tsconfig.build.json",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lombard-finance/sdk.git",
+    "directory": "packages/sdk-agent-tools"
+  },
+  "homepage": "https://docs.lombard.finance",
+  "keywords": [
+    "lombard",
+    "sdk",
+    "ai",
+    "agent",
+    "tools",
+    "bitcoin",
+    "lbtc"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "viem": "^2.21.0"
+  },
+  "peerDependenciesMeta": {
+    "ai": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@lombard.finance/sdk": "workspace:*",
+    "@lombard.finance/sdk-common": "workspace:*"
+  },
+  "devDependencies": {
+    "ai": "^4.0.0",
+    "typescript": "^5.4.5",
+    "viem": "^2.21.0",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  }
+}

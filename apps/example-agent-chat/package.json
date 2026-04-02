@@ -1,9 +1,9 @@
 {
-  "name": "@lombard.finance/example-agentkit-chat",
+  "name": "@lombard.finance/example-agent-chat",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Example frontend app with embedded Lombard AI chatbot",
+  "description": "Example frontend app with embedded Lombard AI assistant using sdk-agent-tools",
   "scripts": {
     "dev": "concurrently \"npx tsx watch src/server/index.ts\" \"vite\"",
     "dev:server": "npx tsx watch src/server/index.ts",
@@ -13,8 +13,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.0.0",
-    "@lombard.finance/sdk": "workspace:*",
-    "@lombard.finance/sdk-common": "workspace:*",
+    "@lombard.finance/sdk-agent-tools": "workspace:*",
     "@tanstack/react-query": "^5.50.0",
     "ai": "^4.0.0",
     "cors": "^2.8.5",

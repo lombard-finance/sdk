@@ -2534,13 +2534,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lombard.finance/example-agentkit-chat@workspace:apps/example-agentkit-chat":
+"@lombard.finance/example-agent-chat@workspace:apps/example-agent-chat":
   version: 0.0.0-use.local
-  resolution: "@lombard.finance/example-agentkit-chat@workspace:apps/example-agentkit-chat"
+  resolution: "@lombard.finance/example-agent-chat@workspace:apps/example-agent-chat"
   dependencies:
     "@ai-sdk/anthropic": "npm:^1.0.0"
-    "@lombard.finance/sdk": "workspace:*"
-    "@lombard.finance/sdk-common": "workspace:*"
+    "@lombard.finance/sdk-agent-tools": "workspace:*"
     "@tailwindcss/vite": "npm:^4.1.0"
     "@tanstack/react-query": "npm:^5.50.0"
     "@types/cors": "npm:^2.8.17"
@@ -2564,9 +2563,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@lombard.finance/example-agentkit@workspace:apps/example-agentkit":
+"@lombard.finance/example-agentkit-cli@workspace:apps/example-agentkit-cli":
   version: 0.0.0-use.local
-  resolution: "@lombard.finance/example-agentkit@workspace:apps/example-agentkit"
+  resolution: "@lombard.finance/example-agentkit-cli@workspace:apps/example-agentkit-cli"
   dependencies:
     "@coinbase/agentkit": "npm:^0.2.0"
     "@coinbase/agentkit-langchain": "npm:^0.2.0"
@@ -2708,6 +2707,25 @@ __metadata:
     typescript: "npm:~5.8.3"
     typescript-eslint: "npm:^8.30.1"
     vite: "npm:^6.3.5"
+  languageName: unknown
+  linkType: soft
+
+"@lombard.finance/sdk-agent-tools@workspace:*, @lombard.finance/sdk-agent-tools@workspace:packages/sdk-agent-tools":
+  version: 0.0.0-use.local
+  resolution: "@lombard.finance/sdk-agent-tools@workspace:packages/sdk-agent-tools"
+  dependencies:
+    "@lombard.finance/sdk": "workspace:*"
+    "@lombard.finance/sdk-common": "workspace:*"
+    ai: "npm:^4.0.0"
+    typescript: "npm:^5.4.5"
+    viem: "npm:^2.21.0"
+    vite: "npm:^6.3.5"
+    vitest: "npm:^3.2.4"
+  peerDependencies:
+    viem: ^2.21.0
+  peerDependenciesMeta:
+    ai:
+      optional: true
   languageName: unknown
   linkType: soft
 

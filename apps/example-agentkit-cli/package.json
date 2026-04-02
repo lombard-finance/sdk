@@ -1,5 +1,5 @@
 {
-  "name": "@lombard.finance/example-agentkit",
+  "name": "@lombard.finance/example-agentkit-cli",
   "private": true,
   "version": "1.0.0",
   "type": "module",

@@ -9,15 +9,15 @@ export function WalletBar() {
     const short = `${address.slice(0, 6)}...${address.slice(-4)}`;
     return (
       <div className="flex items-center gap-3">
-        <span className="text-sm text-[var(--color-lombard-muted)]">
+        <span className="text-xs text-[var(--color-teal-light)]">
           {chain?.name}
         </span>
-        <span className="rounded-lg bg-[var(--color-lombard-surface)] border border-[var(--color-lombard-border)] px-3 py-1.5 text-sm font-mono text-[var(--color-lombard-text)]">
+        <span className="rounded-[60px] bg-white/10 border border-white/10 px-3 py-1.5 text-sm font-mono text-white">
           {short}
         </span>
         <button
           onClick={() => disconnect()}
-          className="text-sm text-[var(--color-lombard-muted)] hover:text-[var(--color-lombard-text)] transition-colors"
+          className="text-xs text-white/60 hover:text-white transition-colors"
         >
           Disconnect
         </button>
@@ -31,7 +31,7 @@ export function WalletBar() {
         const connector = connectors[0];
         if (connector) connect({ connector });
       }}
-      className="rounded-lg bg-[var(--color-lombard-surface)] border border-[var(--color-lombard-border)] px-4 py-2 text-sm text-[var(--color-lombard-text)] hover:border-[var(--color-lombard-orange)] transition-colors"
+      className="rounded-[60px] bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-[var(--color-black)] hover:bg-[var(--color-primary-dark)] transition-colors"
     >
       Connect Wallet
     </button>
