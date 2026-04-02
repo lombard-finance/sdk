@@ -1,5 +1,5 @@
 {
-  "name": "@lombard.finance/sdk-agent-tools",
+  "name": "@lombard.finance/sdk-agent",
   "version": "0.1.0",
   "description": "Framework-agnostic AI agent tool definitions for the Lombard protocol",
   "exports": {
@@ -8,10 +8,10 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./ai": {
-      "types": "./dist/ai.d.ts",
-      "import": "./dist/ai.js",
-      "require": "./dist/ai.cjs"
+    "./vercel": {
+      "types": "./dist/vercel.d.ts",
+      "import": "./dist/vercel.js",
+      "require": "./dist/vercel.cjs"
     },
     "./langchain": {
       "types": "./dist/langchain.d.ts",

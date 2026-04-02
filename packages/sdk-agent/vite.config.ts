@@ -10,7 +10,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: path.resolve(__dirname, "src/index.ts"),
-        ai: path.resolve(__dirname, "src/ai.ts"),
+        vercel: path.resolve(__dirname, "src/vercel.ts"),
         langchain: path.resolve(__dirname, "src/langchain.ts"),
       },
     },

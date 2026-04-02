@@ -3,7 +3,7 @@
  *
  * Usage:
  * ```ts
- * import { lombardLangChainTools } from "@lombard.finance/sdk-agent-tools/langchain";
+ * import { lombardLangChainTools } from "@lombard.finance/sdk-agent/langchain";
  * import { AgentExecutor } from "langchain/agents";
  *
  * const agent = AgentExecutor.fromAgentAndTools({ agent, tools: lombardLangChainTools });

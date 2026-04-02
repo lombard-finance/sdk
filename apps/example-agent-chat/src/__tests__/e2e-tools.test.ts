@@ -11,7 +11,7 @@ import {
   prepareStake,
   prepareUnstake,
   prepareDeployToVault,
-} from "@lombard.finance/sdk-agent-tools";
+} from "@lombard.finance/sdk-agent";
 
 const SKIP = !process.env.ENABLE_E2E;
 const TEST_ADDRESS =

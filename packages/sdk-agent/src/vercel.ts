@@ -3,7 +3,7 @@
  *
  * Usage:
  * ```ts
- * import { lombardTools } from "@lombard.finance/sdk-agent-tools/ai";
+ * import { lombardTools } from "@lombard.finance/sdk-agent/vercel";
  * import { streamText } from "ai";
  *
  * const result = streamText({ model, tools: lombardTools, messages });

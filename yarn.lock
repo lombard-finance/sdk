@@ -2626,7 +2626,7 @@ __metadata:
   resolution: "@lombard.finance/example-agent-chat@workspace:apps/example-agent-chat"
   dependencies:
     "@ai-sdk/anthropic": "npm:^1.0.0"
-    "@lombard.finance/sdk-agent-tools": "workspace:*"
+    "@lombard.finance/sdk-agent": "workspace:*"
     "@tailwindcss/vite": "npm:^4.1.0"
     "@tanstack/react-query": "npm:^5.50.0"
     "@types/cors": "npm:^2.8.17"
@@ -2798,9 +2798,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@lombard.finance/sdk-agent-tools@workspace:*, @lombard.finance/sdk-agent-tools@workspace:packages/sdk-agent-tools":
+"@lombard.finance/sdk-agent@workspace:*, @lombard.finance/sdk-agent@workspace:packages/sdk-agent":
   version: 0.0.0-use.local
-  resolution: "@lombard.finance/sdk-agent-tools@workspace:packages/sdk-agent-tools"
+  resolution: "@lombard.finance/sdk-agent@workspace:packages/sdk-agent"
   dependencies:
     "@langchain/core": "npm:^0.3.0"
     "@lombard.finance/sdk": "workspace:*"
