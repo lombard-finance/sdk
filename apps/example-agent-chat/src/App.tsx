@@ -35,21 +35,36 @@ export function App() {
         </div>
 
         {/* Feature cards */}
-        <div className="mt-20 grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <div className="mt-20 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
-            title="Check Balances"
-            description="Ask about your LBTC and BTC.b balances across chains."
-            example={`"What's my LBTC balance?"`}
+            title="Deposit BTC"
+            description="Get your BTC deposit address to stake native Bitcoin and receive LBTC."
+            example={`"Get my BTC deposit address"`}
           />
           <FeatureCard
-            title="Stake & Unstake"
-            description="Stake BTC.b to receive LBTC, or unstake back."
+            title="Stake BTC.b"
+            description="Convert BTC.b (wrapped Bitcoin) to LBTC for staking yield."
             example={`"Stake 0.1 BTC.b to LBTC"`}
           />
           <FeatureCard
-            title="Deploy to Vaults"
-            description="Deploy LBTC into DeFi vaults for additional yield."
-            example={`"Deploy 0.5 LBTC to Veda vault"`}
+            title="Check Balances"
+            description="View your LBTC and BTC.b balances on any supported chain."
+            example={`"What's my balance?"`}
+          />
+          <FeatureCard
+            title="Track Deposits"
+            description="Monitor deposit status, confirmations, and claim when ready."
+            example={`"Check my deposit status"`}
+          />
+          <FeatureCard
+            title="Yield Strategies"
+            description="Browse DeFi vaults with APY and TVL, then deploy LBTC for extra yield."
+            example={`"Show available strategies"`}
+          />
+          <FeatureCard
+            title="Unstake & Redeem"
+            description="Unstake LBTC to BTC (cross-chain) or redeem to BTC.b (same chain)."
+            example={`"Unstake 0.05 LBTC to BTC.b"`}
           />
         </div>
       </main>

@@ -40,8 +40,8 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   if (!open) return null;
 
   const suggestions = address
-    ? ["What's my LBTC balance?", "Show the minting rate", "Check my deposits"]
-    : ["What is LBTC?", "Show the minting rate", "How does staking work?"];
+    ? ["My balance", "Deposit address", "Deposit status", "Yield strategies", "Minting rate"]
+    : ["What is LBTC?", "Minting rate", "Yield strategies", "How does staking work?"];
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl">
