@@ -1,0 +1,28 @@
+{
+  "name": "@lombard.finance/example-agentkit",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Example CLI agent using Lombard AgentKit provider with LangChain",
+  "scripts": {
+    "start": "npx tsx src/chatbot.ts",
+    "start:auto": "npx tsx src/autonomous.ts",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@coinbase/agentkit": "^0.2.0",
+    "@coinbase/agentkit-langchain": "^0.2.0",
+    "@langchain/anthropic": "^0.3.0",
+    "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
+    "@lombard.finance/sdk-agentkit": "workspace:*",
+    "dotenv": "^16.4.0",
+    "readline": "^1.3.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "~5.8.3"
+  }
+}
