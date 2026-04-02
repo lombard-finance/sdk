@@ -1,5 +1,7 @@
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useAccount } from "wagmi";
 
 import logoCircle from "../assets/logo-green-circle.svg";
@@ -151,7 +153,34 @@ function MessageBubble({ message }: { message: Record<string, any> }) {
             : "bg-[var(--color-chat-assistant-bg)] text-[var(--color-chat-assistant-text)]"
         }`}
       >
-        <div className="whitespace-pre-wrap">{message.content}</div>
+        <Markdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+            strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+            ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
+            ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
+            li: ({ children }) => <li className="mb-0.5">{children}</li>,
+            table: ({ children }) => (
+              <div className="overflow-x-auto my-2">
+                <table className="w-full text-xs border-collapse">{children}</table>
+              </div>
+            ),
+            thead: ({ children }) => <thead className="border-b border-[var(--color-border-strong)]">{children}</thead>,
+            th: ({ children }) => <th className="text-left px-2 py-1 font-semibold">{children}</th>,
+            td: ({ children }) => <td className="px-2 py-1 border-t border-[var(--color-border)]">{children}</td>,
+            code: ({ children }) => (
+              <code className="bg-[var(--color-border)] rounded px-1 py-0.5 text-xs font-mono">{children}</code>
+            ),
+            a: ({ href, children }) => (
+              <a href={href} target="_blank" rel="noopener noreferrer" className="text-[var(--color-teal)] underline">
+                {children}
+              </a>
+            ),
+          }}
+        >
+          {message.content as string}
+        </Markdown>
 
         {txActions.map((tx, i) => (
           <TransactionPrompt
