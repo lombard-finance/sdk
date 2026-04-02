@@ -24,13 +24,32 @@ Keep responses concise and direct.`;
 export async function chatHandler(req: Request, res: Response) {
   const { messages, walletContext } = req.body;
 
+  if (!Array.isArray(messages) || messages.length === 0) {
+    res.status(400).json({ error: "messages must be a non-empty array" });
+    return;
+  }
+
   // Inject wallet context into system prompt if available
   let contextualPrompt = SYSTEM_PROMPT;
   if (walletContext) {
-    contextualPrompt += `\n\nUser's wallet context:
-- Address: ${walletContext.address}
-- Chain ID: ${walletContext.chainId}
-- Chain name: ${walletContext.chainName}`;
+    const addr =
+      typeof walletContext.address === "string" &&
+      /^0x[a-fA-F0-9]{40}$/.test(walletContext.address)
+        ? walletContext.address
+        : null;
+    const chainId =
+      typeof walletContext.chainId === "number" ? walletContext.chainId : null;
+    const chainName =
+      typeof walletContext.chainName === "string"
+        ? walletContext.chainName.replace(/[^a-zA-Z0-9 -]/g, "").slice(0, 50)
+        : null;
+
+    if (addr) {
+      contextualPrompt += `\n\nUser's wallet context:`;
+      contextualPrompt += `\n- Address: ${addr}`;
+      if (chainId) contextualPrompt += `\n- Chain ID: ${chainId}`;
+      if (chainName) contextualPrompt += `\n- Chain name: ${chainName}`;
+    }
   }
 
   console.log(`[chat] ${messages?.length} messages, wallet: ${walletContext?.address || "none"}`);

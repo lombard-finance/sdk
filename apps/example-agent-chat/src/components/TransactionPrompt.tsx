@@ -42,12 +42,9 @@ export function TransactionPrompt({ type, description, params }: TransactionProm
       <button
         disabled={!isConnected}
         onClick={() => {
-          alert(
-            `Transaction signing would happen here.\n\n` +
-            `Type: ${type}\n` +
-            `Params: ${JSON.stringify(params, null, 2)}\n\n` +
-            `In production, this calls the Lombard SDK with your connected wallet.`
-          );
+          // Production: use wagmi's useWriteContract or useSendTransaction here
+          // to execute the transaction with the connected wallet
+          console.info("Transaction params:", { type, params });
         }}
         className="w-full rounded-[60px] bg-[var(--color-primary)] py-2 text-xs font-semibold text-[var(--color-black)] disabled:opacity-40 hover:bg-[var(--color-primary-dark)] transition-colors"
       >

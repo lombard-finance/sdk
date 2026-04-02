@@ -45,7 +45,10 @@ export function toEIP1193Provider(
         return `0x${chainId.toString(16)}`;
 
       case "eth_sendTransaction": {
-        const tx = (params as unknown[])?.[0] as Record<string, unknown>;
+        if (!params || params.length === 0) {
+          throw new Error("eth_sendTransaction requires transaction parameter");
+        }
+        const tx = (params as unknown[])[0] as Record<string, unknown>;
         return walletProvider.sendTransaction({
           to: tx.to as Address,
           value: tx.value ? BigInt(tx.value as string) : undefined,
@@ -113,8 +116,10 @@ export async function getTokenBalance(
     args: [address],
   });
 
-  // Token decimals default to 8 for BTC-like tokens
-  const decimals = 8;
+  // Use decimals from token info when available, default to 8 for BTC-like tokens
+  const decimals = "decimals" in tokenInfo && typeof tokenInfo.decimals === "number"
+    ? tokenInfo.decimals
+    : 8;
   const formatted = formatUnits(balance as bigint, decimals);
 
   return { balance: balance as bigint, formatted, decimals };

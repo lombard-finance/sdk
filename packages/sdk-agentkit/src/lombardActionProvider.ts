@@ -314,7 +314,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const account = walletProvider.getAddress() as Address;
       const provider = toEIP1193Provider(walletProvider, chainId);
 
-      const vaultKey = args.protocol === "veda" ? Vault.Veda : Vault.Veda;
+      const vaultKey = Vault.Veda;
 
       const txHash = await vaultDeposit({
         amount: args.amount,

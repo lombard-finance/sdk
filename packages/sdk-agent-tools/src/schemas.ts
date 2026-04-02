@@ -43,6 +43,8 @@ export const UnstakeSchema = {
     recipient: { type: "string" as const, description: "Destination address (required for BTC output)" },
     chainId: { type: "number" as const, description: CHAIN_ID_DESCRIPTION },
   },
+  // Note: recipient is required when outputAsset is "BTC" but JSON Schema
+  // cannot express conditional requirements. Validated at execution time.
   required: ["amount", "outputAsset", "chainId"],
 };
 

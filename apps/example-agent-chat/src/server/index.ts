@@ -8,7 +8,7 @@ import { chatHandler } from "./chat.js";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(cors({ origin: ["http://localhost:5174", "http://localhost:3000"] }));
 app.use(express.json());
 
 app.post("/api/chat", chatHandler);

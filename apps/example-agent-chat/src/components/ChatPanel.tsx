@@ -5,6 +5,13 @@ import { useAccount } from "wagmi";
 import logoCircle from "../assets/logo-green-circle.svg";
 import { TransactionPrompt } from "./TransactionPrompt";
 
+interface TxResult {
+  action: string;
+  type: string;
+  description: string;
+  params: Record<string, unknown>;
+}
+
 interface ChatPanelProps {
   open: boolean;
   onClose: () => void;
@@ -79,7 +86,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         )}
 
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
+          <MessageBubble key={msg.id} message={msg as unknown as Record<string, unknown>} />
         ))}
 
         {isLoading && (
@@ -122,15 +129,17 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   );
 }
 
-function MessageBubble({ message }: { message: { role: string; content: string; toolInvocations?: unknown[] } }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function MessageBubble({ message }: { message: Record<string, any> }) {
   const isUser = message.role === "user";
 
-  const txActions = (message.toolInvocations || [])
-    .filter((t: unknown) => {
-      const inv = t as { result?: { action?: string } };
-      return inv.result?.action === "sign_transaction";
-    })
-    .map((t: unknown) => (t as { result: { type: string; description: string; params: Record<string, unknown> } }).result);
+  const txActions: TxResult[] = [];
+  for (const inv of message.toolInvocations || []) {
+    const r = inv.result as Record<string, unknown> | undefined;
+    if (r?.action === "sign_transaction" && r.type && r.description && r.params) {
+      txActions.push(r as unknown as TxResult);
+    }
+  }
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>

@@ -17,17 +17,10 @@ import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { sepolia, mainnet, baseSepolia, base } from "viem/chains";
 
 import { lombardActionProvider } from "@lombard.finance/sdk-agentkit";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CHAINS: Record<string, any> = {
-  "ethereum-sepolia": sepolia,
-  "ethereum-mainnet": mainnet,
-  "base-sepolia": baseSepolia,
-  "base-mainnet": base,
-};
+import { CHAINS } from "./config.js";
 
 const TASKS = [
   "What is the current LBTC/BTC exchange rate?",

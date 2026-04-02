@@ -17,15 +17,18 @@ import { sepolia } from "viem/chains";
 // Import from built dist to get proper decorator metadata
 import { lombardActionProvider } from "../dist/index.js";
 
-// Use a test private key - no real funds required for read operations
-const TEST_PRIVATE_KEY =
-  "0xe7c3eb6d6ec9fd599b1382aba278d6bda2685e9e1d258ab0dccb71028512733d" as const;
+// Read test private key from environment - no real funds required for read operations
+const TEST_PRIVATE_KEY = process.env.TEST_PRIVATE_KEY;
+if (!TEST_PRIVATE_KEY) {
+  console.error("Set TEST_PRIVATE_KEY env var to run smoke test");
+  process.exit(1);
+}
 
 async function main() {
   console.log("=== Lombard AgentKit Smoke Test ===\n");
 
   // 1. Create a viem wallet client on Sepolia
-  const account = privateKeyToAccount(TEST_PRIVATE_KEY);
+  const account = privateKeyToAccount(TEST_PRIVATE_KEY as `0x${string}`);
   const walletClient = createWalletClient({
     account,
     chain: sepolia,
