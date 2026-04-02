@@ -17,7 +17,7 @@ export function WalletBar() {
         </span>
         <button
           onClick={() => disconnect()}
-          className="text-xs text-white/60 hover:text-white transition-colors"
+          className="rounded-[60px] border border-white/20 px-3 py-1 text-xs text-white/80 hover:text-white hover:border-white/40 transition-colors"
         >
           Disconnect
         </button>

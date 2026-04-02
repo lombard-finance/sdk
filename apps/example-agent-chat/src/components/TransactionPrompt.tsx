@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAccount } from "wagmi";
 
 interface TransactionPromptProps {
@@ -8,6 +9,7 @@ interface TransactionPromptProps {
 
 export function TransactionPrompt({ type, description, params }: TransactionPromptProps) {
   const { isConnected } = useAccount();
+  const [signed, setSigned] = useState(false);
 
   const typeLabels: Record<string, string> = {
     stake: "Stake",
@@ -39,17 +41,24 @@ export function TransactionPrompt({ type, description, params }: TransactionProm
           ))}
       </div>
 
-      <button
-        disabled={!isConnected}
-        onClick={() => {
-          // Production: use wagmi's useWriteContract or useSendTransaction here
-          // to execute the transaction with the connected wallet
-          console.info("Transaction params:", { type, params });
-        }}
-        className="w-full rounded-[60px] bg-[var(--color-primary)] py-2 text-xs font-semibold text-[var(--color-black)] disabled:opacity-40 hover:bg-[var(--color-primary-dark)] transition-colors"
-      >
-        {isConnected ? "Sign Transaction" : "Connect Wallet First"}
-      </button>
+      {signed ? (
+        <div className="w-full rounded-[60px] border border-[var(--color-teal)] py-2 text-xs font-medium text-[var(--color-teal)] text-center">
+          Transaction signing not implemented in this demo
+        </div>
+      ) : (
+        <button
+          disabled={!isConnected}
+          onClick={() => {
+            // Production: use wagmi's useWriteContract or useSendTransaction
+            // to execute the transaction with the connected wallet
+            console.info("Transaction params:", { type, params });
+            setSigned(true);
+          }}
+          className="w-full rounded-[60px] bg-[var(--color-primary)] py-2 text-xs font-semibold text-[var(--color-black)] disabled:opacity-40 hover:bg-[var(--color-primary-dark)] transition-colors"
+        >
+          {isConnected ? "Sign Transaction" : "Connect Wallet First"}
+        </button>
+      )}
     </div>
   );
 }
