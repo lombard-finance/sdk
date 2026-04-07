@@ -141,9 +141,10 @@ export const getExchangeRate: ToolDefinition<
   parameters: ExchangeRateSchema as Record<string, unknown>,
   schema: ExchangeRateZod,
   execute: async (params) => {
-    const { chainId } = ExchangeRateZod.parse(params);
+    const { chainId: _chainId } = ExchangeRateZod.parse(params);
     try {
-      const env = chainId ? getChainConfig(chainId).env : Env.prod;
+      // Always use prod for exchange rate — testnet rates are not meaningful
+      const env = Env.prod;
       const [ratioResult, mintRate] = await Promise.all([
         getExchangeRatio({ env }),
         getLBTCExchangeRate({ env }),
