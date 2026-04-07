@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAccount } from "wagmi";
 
 interface TransactionPromptProps {
   type: string;
@@ -8,7 +7,6 @@ interface TransactionPromptProps {
 }
 
 export function TransactionPrompt({ type, description, params }: TransactionPromptProps) {
-  const { isConnected } = useAccount();
   const [previewed, setPreviewed] = useState(false);
 
   const typeLabels: Record<string, string> = {
@@ -43,15 +41,14 @@ export function TransactionPrompt({ type, description, params }: TransactionProm
 
       {previewed ? (
         <div className="w-full rounded-[60px] border border-[var(--color-teal)] py-2 text-xs font-medium text-[var(--color-teal)] text-center">
-          Transaction preview: in production this would execute the {type} operation via the Lombard SDK
+          In production, this would execute the {typeLabels[type] || type} operation via the Lombard SDK
         </div>
       ) : (
         <button
-          disabled={!isConnected}
           onClick={() => setPreviewed(true)}
-          className="w-full rounded-[60px] bg-[var(--color-primary)] py-2 text-xs font-semibold text-[var(--color-black)] disabled:opacity-40 hover:bg-[var(--color-primary-dark)] transition-colors"
+          className="w-full rounded-[60px] bg-[var(--color-primary)] py-2 text-xs font-semibold text-[var(--color-black)] hover:bg-[var(--color-primary-dark)] transition-colors"
         >
-          {!isConnected ? "Connect Wallet First" : "Preview Transaction (Demo)"}
+          Preview Transaction (Demo)
         </button>
       )}
     </div>
