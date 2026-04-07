@@ -1,6 +1,6 @@
 import { ChainId, Env } from "@lombard.finance/sdk";
 import type { Chain } from "viem";
-import { mainnet, sepolia, base, baseSepolia } from "viem/chains";
+import { base, baseSepolia,mainnet, sepolia } from "viem/chains";
 
 export interface ChainConfig {
   chain: Chain;

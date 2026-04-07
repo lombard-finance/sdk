@@ -9,7 +9,7 @@
  * const result = streamText({ model, tools: lombardTools, messages });
  * ```
  */
-import { tool as aiTool, jsonSchema } from "ai";
+import { jsonSchema,tool as aiTool } from "ai";
 
 import { allTools, type ToolDefinition } from "./tools";
 
@@ -18,7 +18,14 @@ import { allTools, type ToolDefinition } from "./tools";
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toAiTool(def: ToolDefinition<any, any>): any {
-  return (aiTool as unknown as Function)({
+  const createTool = aiTool as unknown as (opts: {
+    name: string;
+    description: string;
+    parameters: unknown;
+    execute: (...args: unknown[]) => Promise<unknown>;
+  }) => unknown;
+  return createTool({
+    name: def.name,
     description: def.description,
     parameters: jsonSchema(def.parameters as Parameters<typeof jsonSchema>[0]),
     execute: def.execute,

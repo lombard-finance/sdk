@@ -26,14 +26,14 @@ import {
   Token,
   Vault,
 } from "@lombard.finance/sdk";
-import { createPublicClient, formatUnits, http, type Address } from "viem";
+import { type Address,createPublicClient, formatUnits, http } from "viem";
 
 import { getChainConfig } from "./chains";
 import {
   AddressAndChainSchema,
   BalanceSchema,
-  DepositBtcSchema,
   DeployToVaultSchema,
+  DepositBtcSchema,
   ExchangeRateSchema,
   StakeSchema,
   StrategiesSchema,

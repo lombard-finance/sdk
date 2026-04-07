@@ -1,14 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect,it } from "vitest";
 
 import {
   AddressAndChainSchema,
   BalanceSchema,
-  StrategiesSchema,
-  DepositBtcSchema,
-  StakeSchema,
-  UnstakeSchema,
   DeployToVaultSchema,
+  DepositBtcSchema,
   ExchangeRateSchema,
+  StakeSchema,
+  StrategiesSchema,
+  UnstakeSchema,
 } from "../schemas";
 
 describe("AddressAndChainSchema", () => {
