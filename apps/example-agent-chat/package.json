@@ -16,6 +16,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^1.0.0",
     "@ai-sdk/react": "^1.0.0",
+    "@lombard.finance/sdk": "workspace:*",
     "@lombard.finance/sdk-agent": "workspace:*",
     "@tanstack/react-query": "^5.50.0",
     "ai": "^4.0.0",

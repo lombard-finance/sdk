@@ -360,13 +360,17 @@ export const prepareStake: ToolDefinition<{ amount: string; chainId: number }> =
   schema: StakeZod,
   execute: async (params) => {
     const { amount, chainId } = StakeZod.parse(params);
-    const { name } = getChainConfig(chainId);
+    const config = getChainConfig(chainId);
     return {
-      action: "sign_transaction",
-      type: "stake",
-      description: `Stake ${amount} BTC.b to receive LBTC on ${name}`,
-      params: { amount, tokenIn: "BTCb", tokenOut: "LBTC", chainId },
-      note: "Transaction will be sent to your wallet for signing.",
+      action: "sdk_execute",
+      method: "evm.stake",
+      params: {
+        amount,
+        chainId: config.chainId,
+        assetIn: "BTCb",
+        assetOut: "LBTC",
+      },
+      description: `Stake ${amount} BTC.b to receive LBTC on ${config.name}`,
     };
   },
 };
@@ -387,16 +391,17 @@ export const prepareUnstake: ToolDefinition<{
     if (outputAsset === "BTC" && !recipient) {
       throw new Error("recipient address is required when unstaking to BTC");
     }
-    const { name } = getChainConfig(chainId);
+    const config = getChainConfig(chainId);
     return {
-      action: "sign_transaction",
-      type: "unstake",
-      description: `Unstake ${amount} LBTC to ${outputAsset} on ${name}`,
-      params: { amount, outputAsset, recipient, chainId },
-      note:
-        outputAsset === "BTC"
-          ? "Cross-chain unstake. BTC will arrive after processing."
-          : "Same-chain redeem to BTC.b.",
+      action: "sdk_execute",
+      method: "evm.unstake",
+      params: {
+        amount,
+        outputAsset,
+        recipient,
+        chainId: config.chainId,
+      },
+      description: `Unstake ${amount} LBTC to ${outputAsset} on ${config.name}`,
     };
   },
 };
@@ -413,13 +418,17 @@ export const prepareDeployToVault: ToolDefinition<{
   schema: DeployToVaultZod,
   execute: async (params) => {
     const { amount, protocol, chainId } = DeployToVaultZod.parse(params);
-    const { name } = getChainConfig(chainId);
+    const config = getChainConfig(chainId);
     return {
-      action: "sign_transaction",
-      type: "deploy_to_vault",
-      description: `Deploy ${amount} LBTC to ${protocol} vault on ${name}`,
-      params: { amount, protocol, token: "LBTC", chainId },
-      note: "Deploying to a vault earns additional DeFi yield on top of base staking rewards.",
+      action: "sdk_execute",
+      method: "evm.deploy",
+      params: {
+        amount,
+        protocol,
+        chainId: config.chainId,
+        token: "LBTC",
+      },
+      description: `Deploy ${amount} LBTC to ${protocol} vault on ${config.name}`,
     };
   },
 };

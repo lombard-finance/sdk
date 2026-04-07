@@ -129,8 +129,8 @@ describe.skipIf(SKIP)("E2E: sdk-agent-tools on Sepolia", () => {
         amount: "0.001",
         chainId: SEPOLIA_CHAIN_ID,
       });
-      expect(result).toHaveProperty("action", "sign_transaction");
-      expect(result).toHaveProperty("type", "stake");
+      expect(result).toHaveProperty("action", "sdk_execute");
+      expect(result).toHaveProperty("method", "evm.stake");
       expect(result).toHaveProperty("params");
     });
   });
@@ -142,8 +142,8 @@ describe.skipIf(SKIP)("E2E: sdk-agent-tools on Sepolia", () => {
         outputAsset: "BTCb",
         chainId: SEPOLIA_CHAIN_ID,
       });
-      expect(result).toHaveProperty("action", "sign_transaction");
-      expect(result).toHaveProperty("type", "unstake");
+      expect(result).toHaveProperty("action", "sdk_execute");
+      expect(result).toHaveProperty("method", "evm.unstake");
     });
   });
 
@@ -154,8 +154,8 @@ describe.skipIf(SKIP)("E2E: sdk-agent-tools on Sepolia", () => {
         protocol: "veda",
         chainId: SEPOLIA_CHAIN_ID,
       });
-      expect(result).toHaveProperty("action", "sign_transaction");
-      expect(result).toHaveProperty("type", "deploy_to_vault");
+      expect(result).toHaveProperty("action", "sdk_execute");
+      expect(result).toHaveProperty("method", "evm.deploy");
     });
   });
 });

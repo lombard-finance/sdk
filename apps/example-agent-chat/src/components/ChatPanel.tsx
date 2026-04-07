@@ -9,7 +9,7 @@ import { TransactionPrompt } from "./TransactionPrompt";
 
 interface TxResult {
   action: string;
-  type: string;
+  method: string;
   description: string;
   params: Record<string, unknown>;
 }
@@ -139,7 +139,7 @@ function MessageBubble({ message }: { message: Record<string, any> }) {
   const txActions: TxResult[] = [];
   for (const inv of message.toolInvocations || []) {
     const r = inv.result as Record<string, unknown> | undefined;
-    if (r?.action === "sign_transaction" && r.type && r.description && r.params) {
+    if (r?.action === "sdk_execute" && r.method && r.description && r.params) {
       txActions.push(r as unknown as TxResult);
     }
   }
@@ -185,7 +185,7 @@ function MessageBubble({ message }: { message: Record<string, any> }) {
         {txActions.map((tx, i) => (
           <TransactionPrompt
             key={i}
-            type={tx.type}
+            method={tx.method}
             description={tx.description}
             params={tx.params}
           />
