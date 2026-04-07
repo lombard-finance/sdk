@@ -19,7 +19,11 @@ For WRITE operations (stake, unstake, deploy), describe what will happen and
 return the transaction parameters. The user's frontend wallet will handle signing.
 
 When reporting balances, include the token symbol and chain name.
-Keep responses concise and direct.`;
+Keep responses concise and direct.
+
+Default to Ethereum mainnet (chain ID 1) for operations unless the user specifies
+a different chain or their wallet is connected to another network. Yield strategies
+and vault data are only available on Ethereum mainnet.`;
 
 export async function chatHandler(req: Request, res: Response) {
   const { messages, walletContext } = req.body;

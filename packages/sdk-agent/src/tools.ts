@@ -283,7 +283,7 @@ export const getStrategies: ToolDefinition<
           {
             vault: "Veda",
             chain: "Ethereum",
-            apy: latestApy ? `${latestApy.apy.toFixed(2)}%` : "N/A",
+            apy: latestApy ? `${(parseFloat(String(latestApy.apy)) * 100).toFixed(2)}%` : "N/A",
             tvlBtc: tvlData.btcBalance.toFixed(4),
           },
         ],
