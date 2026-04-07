@@ -1,6 +1,6 @@
 import type { ChainId } from "@lombard.finance/sdk";
 import { useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
 
 interface TransactionPromptProps {
   method: string;
@@ -31,7 +31,8 @@ function getEnvForChainId(chainId: number): "prod" | "testnet" {
 }
 
 export function TransactionPrompt({ method, description, params }: TransactionPromptProps) {
-  const { address } = useAccount();
+  const { address, chain } = useAccount();
+  const { switchChainAsync } = useSwitchChain();
   const [status, setStatus] = useState<"idle" | "executing" | "success" | "error">("idle");
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +50,11 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
 
       const sdkChainId = params.chainId as ChainId;
       const env = getEnvForChainId(sdkChainId);
+
+      // Switch wallet to the correct chain if needed
+      if (chain && chain.id !== sdkChainId) {
+        await switchChainAsync({ chainId: sdkChainId });
+      }
 
       let hash: string;
 
@@ -113,7 +119,11 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
       setTxHash(hash);
       setStatus("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Transaction failed");
+      // Sanitize error: show first line only, strip internal details
+      const raw = err instanceof Error ? err.message : "Transaction failed";
+      const firstLine = raw.split("\n")[0].replace(/https?:\/\/[^\s]+/g, "").trim();
+      const clean = firstLine.length > 200 ? firstLine.slice(0, 200) + "..." : firstLine;
+      setError(clean || "Transaction failed");
       setStatus("error");
     }
   };
