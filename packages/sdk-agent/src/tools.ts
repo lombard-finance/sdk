@@ -27,7 +27,13 @@ import {
   Token,
   Vault,
 } from "@lombard.finance/sdk";
-import { type Address, createPublicClient, formatUnits, http } from "viem";
+import {
+  type Address,
+  createPublicClient,
+  fallback,
+  formatUnits,
+  http,
+} from "viem";
 import type { z } from "zod";
 
 import { getChainConfig } from "./chains";
@@ -63,14 +69,37 @@ type AnyToolDefinition = ToolDefinition<any, any>;
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms),
+    ),
+  ]);
+}
+
 async function readTokenBalance(
   token: Token,
   address: string,
   chainId: number,
 ): Promise<string> {
   const config = getChainConfig(chainId);
-  const tokenInfo = await getTokenContractInfo(token, config.chainId, config.env);
-  const client = createPublicClient({ chain: config.chain, transport: http() });
+  const tokenInfo = await withTimeout(
+    getTokenContractInfo(token, config.chainId, config.env),
+    10_000,
+    "getTokenContractInfo",
+  );
+  const rpcUrl = process.env.LOMBARD_RPC_URL;
+  const client = createPublicClient({
+    chain: config.chain,
+    transport: rpcUrl
+      ? http(rpcUrl, { timeout: 10_000 })
+      : fallback(
+          (config.chain.rpcUrls.default.http ?? [])
+            .map((url) => http(url, { timeout: 10_000 })),
+          { retryCount: 1 },
+        ),
+  });
 
   const balance = await client.readContract({
     address: tokenInfo.address as Address,
