@@ -1,3 +1,16 @@
+# 4.5.1
+
+- **Solana companion package** (`@lombard.finance/sdk-solana` ≥1.2.2): consortium `claimToken()` uses epoch-seeded session PDAs and an updated Consortium IDL. Upgrade the Solana package when targeting the upgraded consortium program. This `@lombard.finance/sdk` release documents that dependency; see `packages/sdk-solana/CHANGELOG.md` for details.
+
+---
+
+# 4.5.0
+
+- Added `getVaultMinimumDeposit()` to calculate the minimum deposit amount for a given token that produces at least 1 vault share. The minimum is derived from the on-chain exchange rate and updates as the vault accrues yield.
+- Added `previewVaultDeposit()` to simulate a vault deposit and return the expected shares for a given amount. Uses the on-chain Lens contract for accurate results including share premiums.
+
+---
+
 # 4.4.1
 
 - Fixed `getDepositStatus()` never returning `'expired'` despite the backend setting `SESSION_STATE_EXPIRED` on the deposit's `sessionState` field. The expired check is now correctly placed after `failed` and `auto_claimed` so that more definitive terminal states take priority.

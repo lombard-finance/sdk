@@ -65,7 +65,7 @@ export async function createOrGetAssociatedTokenAccount({
   const associatedTokenAddress = await getAssociatedTokenAddress(
     mintPubkey,
     ownerPubkey,
-    false,
+    true,
     tokenProgramId,
     ASSOCIATED_TOKEN_PROGRAM_ID,
   );
