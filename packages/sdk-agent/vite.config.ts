@@ -32,6 +32,8 @@ export default defineConfig({
         /^@lombard\.finance\//,
         /^@langchain/,
         "ai",
+        "zod",
+        "zod-to-json-schema",
       ],
     },
   },

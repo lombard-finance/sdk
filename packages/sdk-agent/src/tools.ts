@@ -4,7 +4,8 @@
  * Each tool has:
  * - name: unique identifier
  * - description: what the tool does (for LLM context)
- * - parameters: JSON Schema for input validation
+ * - parameters: JSON Schema for input validation (derived from Zod)
+ * - schema: Zod schema for runtime validation
  * - execute: async function that performs the operation
  *
  * These can be adapted to any AI framework (Vercel AI SDK, LangChain,
@@ -26,24 +27,34 @@ import {
   Token,
   Vault,
 } from "@lombard.finance/sdk";
-import { type Address,createPublicClient, formatUnits, http } from "viem";
+import { type Address, createPublicClient, formatUnits, http } from "viem";
+import type { z } from "zod";
 
 import { getChainConfig } from "./chains";
 import {
   AddressAndChainSchema,
+  AddressAndChainZod,
   BalanceSchema,
+  BalanceZod,
   DeployToVaultSchema,
+  DeployToVaultZod,
   DepositBtcSchema,
+  DepositBtcZod,
   ExchangeRateSchema,
+  ExchangeRateZod,
   StakeSchema,
+  StakeZod,
   StrategiesSchema,
+  StrategiesZod,
   UnstakeSchema,
+  UnstakeZod,
 } from "./schemas";
 
 export interface ToolDefinition<TParams = Record<string, unknown>, TResult = unknown> {
   name: string;
   description: string;
   parameters: Record<string, unknown>;
+  schema: z.ZodType<TParams>;
   execute: (params: TParams) => Promise<TResult>;
 }
 
@@ -88,8 +99,10 @@ export const getLbtcBalance: ToolDefinition<
 > = {
   name: "get_lbtc_balance",
   description: "Check the LBTC (Lombard Staked Bitcoin) balance for a wallet address.",
-  parameters: AddressAndChainSchema,
-  execute: async ({ address, chainId }) => {
+  parameters: AddressAndChainSchema as Record<string, unknown>,
+  schema: AddressAndChainZod,
+  execute: async (params) => {
+    const { address, chainId } = AddressAndChainZod.parse(params);
     const balance = await readTokenBalance(Token.LBTC, address, chainId);
     const { name } = getChainConfig(chainId);
     return { balance, token: "LBTC", chain: name, address };
@@ -102,8 +115,10 @@ export const getBtcbBalance: ToolDefinition<
 > = {
   name: "get_btcb_balance",
   description: "Check the BTC.b (wrapped Bitcoin) balance for a wallet address.",
-  parameters: AddressAndChainSchema,
-  execute: async ({ address, chainId }) => {
+  parameters: AddressAndChainSchema as Record<string, unknown>,
+  schema: AddressAndChainZod,
+  execute: async (params) => {
+    const { address, chainId } = AddressAndChainZod.parse(params);
     const balance = await readTokenBalance(Token.BTCb, address, chainId);
     const { name } = getChainConfig(chainId);
     return { balance, token: "BTC.b", chain: name, address };
@@ -123,8 +138,10 @@ export const getExchangeRate: ToolDefinition<
   description:
     "Get the current LBTC/BTC exchange rate and minimum stake amount. " +
     "LBTC accrues staking yield over time, so 1 LBTC is worth slightly more than 1 BTC.",
-  parameters: ExchangeRateSchema,
-  execute: async ({ chainId }) => {
+  parameters: ExchangeRateSchema as Record<string, unknown>,
+  schema: ExchangeRateZod,
+  execute: async (params) => {
+    const { chainId } = ExchangeRateZod.parse(params);
     try {
       const env = chainId ? getChainConfig(chainId).env : Env.prod;
       const [ratioResult, mintRate] = await Promise.all([
@@ -162,8 +179,10 @@ export const getDepositStatusTool: ToolDefinition<{ address: string; chainId: nu
   name: "get_deposit_status",
   description:
     "Check the status of all deposits for an address. Shows pending, claimable, and claimed deposits.",
-  parameters: AddressAndChainSchema,
-  execute: async ({ address, chainId }: { address: string; chainId: number }) => {
+  parameters: AddressAndChainSchema as Record<string, unknown>,
+  schema: AddressAndChainZod,
+  execute: async (params) => {
+    const { address, chainId } = AddressAndChainZod.parse(params);
     const { env } = getChainConfig(chainId);
     const deposits = await getDepositsByAddress({ address: address as Address, env });
 
@@ -192,8 +211,10 @@ export const getDepositStatusTool: ToolDefinition<{ address: string; chainId: nu
 export const getUnstakeStatusTool: ToolDefinition<{ address: string; chainId: number }> = {
   name: "get_unstake_status",
   description: "Check the status of all unstake/redeem operations for an address.",
-  parameters: AddressAndChainSchema,
-  execute: async ({ address, chainId }: { address: string; chainId: number }) => {
+  parameters: AddressAndChainSchema as Record<string, unknown>,
+  schema: AddressAndChainZod,
+  execute: async (params) => {
+    const { address, chainId } = AddressAndChainZod.parse(params);
     const { env } = getChainConfig(chainId);
     const unstakes = await getUnstakesByAddress({ address: address as Address, env });
 
@@ -221,8 +242,10 @@ export const getBalance: ToolDefinition<
   description:
     "Check both LBTC and BTC.b balances for a wallet address in a single call. " +
     "Returns both token balances on the specified chain.",
-  parameters: BalanceSchema,
-  execute: async ({ address, chainId }) => {
+  parameters: BalanceSchema as Record<string, unknown>,
+  schema: BalanceZod,
+  execute: async (params) => {
+    const { address, chainId } = BalanceZod.parse(params);
     const config = getChainConfig(chainId);
     const [lbtcBal, btcbBal] = await Promise.all([
       readTokenBalance(Token.LBTC, address, chainId),
@@ -240,9 +263,11 @@ export const getStrategies: ToolDefinition<
   description:
     "List available yield strategies (DeFi vaults) where LBTC can be deployed for additional yield. " +
     "Returns vault name, chain, current APY, and TVL for each strategy.",
-  parameters: StrategiesSchema,
+  parameters: StrategiesSchema as Record<string, unknown>,
+  schema: StrategiesZod,
   // Vault data is mainnet-only regardless of chainId
-  execute: async ({ chainId: _chainId }) => {
+  execute: async (params) => {
+    const { chainId: _chainId } = StrategiesZod.parse(params);
     // Vault APY only works on Ethereum mainnet — always query prod/mainnet
     const env = Env.prod;
     try {
@@ -278,8 +303,10 @@ export const getDepositBtcAddress: ToolDefinition<
     "Get or generate a BTC deposit address for a wallet. Users send native BTC to this " +
     "address to receive LBTC on the specified EVM chain. If no address exists yet, " +
     "returns instructions to generate one (requires a wallet signature).",
-  parameters: DepositBtcSchema,
-  execute: async ({ address, chainId }) => {
+  parameters: DepositBtcSchema as Record<string, unknown>,
+  schema: DepositBtcZod,
+  execute: async (params) => {
+    const { address, chainId } = DepositBtcZod.parse(params);
     const config = getChainConfig(chainId);
     try {
       const btcAddress = await sdkGetDepositBtcAddress({
@@ -309,8 +336,10 @@ export const prepareStake: ToolDefinition<{ amount: string; chainId: number }> =
   name: "prepare_stake",
   description:
     "Prepare a BTC.b to LBTC stake transaction. Returns transaction parameters for the user's wallet to sign.",
-  parameters: StakeSchema,
-  execute: async ({ amount, chainId }: { amount: string; chainId: number }) => {
+  parameters: StakeSchema as Record<string, unknown>,
+  schema: StakeZod,
+  execute: async (params) => {
+    const { amount, chainId } = StakeZod.parse(params);
     const { name } = getChainConfig(chainId);
     return {
       action: "sign_transaction",
@@ -322,22 +351,19 @@ export const prepareStake: ToolDefinition<{ amount: string; chainId: number }> =
   },
 };
 
-export const prepareUnstake: ToolDefinition<{ amount: string; outputAsset: string; recipient?: string; chainId: number }> = {
+export const prepareUnstake: ToolDefinition<{
+  amount: string;
+  outputAsset: string;
+  recipient?: string;
+  chainId: number;
+}> = {
   name: "prepare_unstake",
   description:
     "Prepare an LBTC unstake transaction. Returns parameters for the user's wallet to sign.",
-  parameters: UnstakeSchema,
-  execute: async ({
-    amount,
-    outputAsset,
-    recipient,
-    chainId,
-  }: {
-    amount: string;
-    outputAsset: string;
-    recipient?: string;
-    chainId: number;
-  }) => {
+  parameters: UnstakeSchema as Record<string, unknown>,
+  schema: UnstakeZod,
+  execute: async (params) => {
+    const { amount, outputAsset, recipient, chainId } = UnstakeZod.parse(params);
     if (outputAsset === "BTC" && !recipient) {
       throw new Error("recipient address is required when unstaking to BTC");
     }
@@ -355,20 +381,18 @@ export const prepareUnstake: ToolDefinition<{ amount: string; outputAsset: strin
   },
 };
 
-export const prepareDeployToVault: ToolDefinition<{ amount: string; protocol: string; chainId: number }> = {
+export const prepareDeployToVault: ToolDefinition<{
+  amount: string;
+  protocol: string;
+  chainId: number;
+}> = {
   name: "prepare_deploy_to_vault",
   description:
     "Prepare a transaction to deploy LBTC into a DeFi vault for yield. Returns parameters for wallet signing.",
-  parameters: DeployToVaultSchema,
-  execute: async ({
-    amount,
-    protocol,
-    chainId,
-  }: {
-    amount: string;
-    protocol: string;
-    chainId: number;
-  }) => {
+  parameters: DeployToVaultSchema as Record<string, unknown>,
+  schema: DeployToVaultZod,
+  execute: async (params) => {
+    const { amount, protocol, chainId } = DeployToVaultZod.parse(params);
     const { name } = getChainConfig(chainId);
     return {
       action: "sign_transaction",

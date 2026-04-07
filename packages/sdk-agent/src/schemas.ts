@@ -1,73 +1,84 @@
 /**
- * JSON Schema definitions for all Lombard agent tools.
- * Framework-agnostic — these can be used with any AI SDK that accepts JSON Schema.
+ * Zod schema definitions for all Lombard agent tools.
+ * These are the single source of truth; JSON Schema versions are derived automatically.
  */
+import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
+
+// ─── Shared field schemas ────────────────────────────────────────────
+
+export const evmAddress = z
+  .string()
+  .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid EVM address");
+
+export const amount = z
+  .string()
+  .regex(/^\d+(\.\d+)?$/, "Must be a numeric string")
+  .refine((v) => parseFloat(v) > 0 && parseFloat(v) < 1000, "Amount must be positive and under 1000");
 
 export const CHAIN_ID_DESCRIPTION =
   "Chain ID (1=Ethereum, 11155111=Sepolia, 8453=Base, 84532=Base Sepolia)";
 
-export const AddressAndChainSchema = {
-  type: "object" as const,
-  properties: {
-    address: { type: "string" as const, description: "EVM wallet address (0x...)" },
-    chainId: { type: "number" as const, description: CHAIN_ID_DESCRIPTION },
-  },
-  required: ["address", "chainId"],
-};
+export const chainId = z.number().describe(CHAIN_ID_DESCRIPTION);
 
-export const ExchangeRateSchema = {
-  type: "object" as const,
-  properties: {
-    chainId: { type: "number" as const, description: "Chain ID for environment resolution (optional)" },
-  },
-};
+// ─── Zod Schemas ─────────────────────────────────────────────────────
 
-export const StakeSchema = {
-  type: "object" as const,
-  properties: {
-    amount: { type: "string" as const, description: "Amount of BTC.b to stake (e.g. '0.1')" },
-    chainId: { type: "number" as const, description: CHAIN_ID_DESCRIPTION },
-  },
-  required: ["amount", "chainId"],
-};
+export const AddressAndChainZod = z.object({
+  address: evmAddress.describe("EVM wallet address (0x...)"),
+  chainId: chainId,
+});
 
-export const UnstakeSchema = {
-  type: "object" as const,
-  properties: {
-    amount: { type: "string" as const, description: "Amount of LBTC to unstake" },
-    outputAsset: {
-      type: "string" as const,
-      enum: ["BTC", "BTCb"],
-      description: "Output: BTC (cross-chain) or BTCb (same chain)",
-    },
-    recipient: { type: "string" as const, description: "Destination address (required for BTC output)" },
-    chainId: { type: "number" as const, description: CHAIN_ID_DESCRIPTION },
-  },
-  // Note: recipient is required when outputAsset is "BTC" but JSON Schema
-  // cannot express conditional requirements. Validated at execution time.
-  required: ["amount", "outputAsset", "chainId"],
-};
+export const ExchangeRateZod = z.object({
+  chainId: z.number().optional().describe("Chain ID for environment resolution (optional)"),
+});
 
-export const BalanceSchema = AddressAndChainSchema;
+export const StakeZod = z.object({
+  amount: amount.describe("Amount of BTC.b to stake (e.g. '0.1')"),
+  chainId: chainId,
+});
 
-export const StrategiesSchema = {
-  type: "object" as const,
-  properties: {
-    chainId: {
-      type: "number" as const,
-      description: "Chain ID to filter strategies (optional, returns all if omitted)",
-    },
-  },
-};
+export const UnstakeZod = z.object({
+  amount: amount.describe("Amount of LBTC to unstake"),
+  outputAsset: z.enum(["BTC", "BTCb"]).describe("Output: BTC (cross-chain) or BTCb (same chain)"),
+  recipient: z.string().optional().describe("Destination address (required for BTC output)"),
+  chainId: chainId,
+});
 
-export const DepositBtcSchema = AddressAndChainSchema;
+export const BalanceZod = AddressAndChainZod;
 
-export const DeployToVaultSchema = {
-  type: "object" as const,
-  properties: {
-    amount: { type: "string" as const, description: "Amount of LBTC to deploy" },
-    protocol: { type: "string" as const, enum: ["veda"], description: "Vault protocol" },
-    chainId: { type: "number" as const, description: CHAIN_ID_DESCRIPTION },
-  },
-  required: ["amount", "protocol", "chainId"],
-};
+export const StrategiesZod = z.object({
+  chainId: z
+    .number()
+    .optional()
+    .describe("Chain ID to filter strategies (optional, returns all if omitted)"),
+});
+
+export const DepositBtcZod = AddressAndChainZod;
+
+export const DeployToVaultZod = z.object({
+  amount: amount.describe("Amount of LBTC to deploy"),
+  protocol: z.enum(["veda"]).describe("Vault protocol"),
+  chainId: chainId,
+});
+
+// ─── Derived JSON Schemas (backward-compatible exports) ──────────────
+
+interface JsonObjectSchema {
+  type: string;
+  properties: Record<string, unknown>;
+  required?: string[];
+  [key: string]: unknown;
+}
+
+function toJsonSchema(zodSchema: z.ZodType): JsonObjectSchema {
+  return zodToJsonSchema(zodSchema, { target: "openAi" }) as JsonObjectSchema;
+}
+
+export const AddressAndChainSchema = toJsonSchema(AddressAndChainZod);
+export const ExchangeRateSchema = toJsonSchema(ExchangeRateZod);
+export const StakeSchema = toJsonSchema(StakeZod);
+export const UnstakeSchema = toJsonSchema(UnstakeZod);
+export const BalanceSchema = toJsonSchema(BalanceZod);
+export const StrategiesSchema = toJsonSchema(StrategiesZod);
+export const DepositBtcSchema = toJsonSchema(DepositBtcZod);
+export const DeployToVaultSchema = toJsonSchema(DeployToVaultZod);

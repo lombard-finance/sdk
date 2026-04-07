@@ -42,4 +42,35 @@ describe("formatError", () => {
     const parsed = JSON.parse(result);
     expect(parsed.error).toBe("42");
   });
+
+  it("redacts RPC URLs from Error messages", () => {
+    const result = formatError(
+      "test_action",
+      new Error("call to https://mainnet.infura.io/v3/abc123 failed"),
+    );
+    const parsed = JSON.parse(result);
+    expect(parsed.error).toBe("call to [redacted-url] failed");
+    expect(parsed.error).not.toContain("infura");
+  });
+
+  it("redacts long hex data from Error messages", () => {
+    const longHex =
+      "0x" + "a".repeat(64);
+    const result = formatError(
+      "test_action",
+      new Error(`revert ${longHex}`),
+    );
+    const parsed = JSON.parse(result);
+    expect(parsed.error).toBe("revert [redacted-data]");
+    expect(parsed.error).not.toContain(longHex);
+  });
+
+  it("does not redact short hex strings", () => {
+    const result = formatError(
+      "test_action",
+      new Error("invalid address 0xabcdef"),
+    );
+    const parsed = JSON.parse(result);
+    expect(parsed.error).toBe("invalid address 0xabcdef");
+  });
 });

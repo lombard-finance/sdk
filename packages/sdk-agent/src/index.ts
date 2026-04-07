@@ -1,13 +1,25 @@
-export { type ChainConfig,getChainConfig, SUPPORTED_CHAINS } from "./chains";
+export { type ChainConfig, getChainConfig, SUPPORTED_CHAINS } from "./chains";
 export {
   AddressAndChainSchema,
+  AddressAndChainZod,
+  amount,
   BalanceSchema,
+  BalanceZod,
+  CHAIN_ID_DESCRIPTION,
+  chainId,
   DeployToVaultSchema,
+  DeployToVaultZod,
   DepositBtcSchema,
+  DepositBtcZod,
+  evmAddress,
   ExchangeRateSchema,
+  ExchangeRateZod,
   StakeSchema,
+  StakeZod,
   StrategiesSchema,
+  StrategiesZod,
   UnstakeSchema,
+  UnstakeZod,
 } from "./schemas";
 export {
   allTools,

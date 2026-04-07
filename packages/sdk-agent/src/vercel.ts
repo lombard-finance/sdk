@@ -9,12 +9,13 @@
  * const result = streamText({ model, tools: lombardTools, messages });
  * ```
  */
-import { jsonSchema,tool as aiTool } from "ai";
+import { tool as aiTool } from "ai";
 
 import { allTools, type ToolDefinition } from "./tools";
 
 /**
  * Converts a framework-agnostic ToolDefinition into a Vercel AI SDK tool.
+ * Uses Zod schemas directly — Vercel AI SDK accepts Zod natively.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toAiTool(def: ToolDefinition<any, any>): any {
@@ -27,7 +28,7 @@ function toAiTool(def: ToolDefinition<any, any>): any {
   return createTool({
     name: def.name,
     description: def.description,
-    parameters: jsonSchema(def.parameters as Parameters<typeof jsonSchema>[0]),
+    parameters: def.schema,
     execute: def.execute,
   });
 }

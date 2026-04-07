@@ -1,9 +1,11 @@
-import { describe, expect,it } from "vitest";
+import { describe, expect, it } from "vitest";
+import { z } from "zod";
 
 import { lombardLangChainTools, toLangChainTool } from "../langchain";
 
 describe("toLangChainTool", () => {
   it("converts a ToolDefinition to a LangChain tool", () => {
+    const testSchema = z.object({ x: z.string() });
     const tool = toLangChainTool({
       name: "test_tool",
       description: "A test tool",
@@ -12,6 +14,7 @@ describe("toLangChainTool", () => {
         properties: { x: { type: "string" } },
         required: ["x"],
       },
+      schema: testSchema,
       execute: async ({ x }: { x: string }) => ({ result: x }),
     });
 

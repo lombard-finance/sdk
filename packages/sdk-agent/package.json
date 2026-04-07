@@ -69,7 +69,9 @@
   },
   "dependencies": {
     "@lombard.finance/sdk": "workspace:*",
-    "@lombard.finance/sdk-common": "workspace:*"
+    "@lombard.finance/sdk-common": "workspace:*",
+    "zod": "^3.25.28",
+    "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
     "@langchain/core": "^0.3.0",

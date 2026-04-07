@@ -136,6 +136,14 @@ export function formatSuccess(
 }
 
 export function formatError(action: string, error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error);
+  let message: string;
+  if (error instanceof Error) {
+    // Strip RPC URLs and internal details
+    message = error.message
+      .replace(/https?:\/\/[^\s]+/g, "[redacted-url]")
+      .replace(/0x[a-fA-F0-9]{64,}/g, "[redacted-data]");
+  } else {
+    message = String(error);
+  }
   return JSON.stringify({ success: false, action, error: message });
 }

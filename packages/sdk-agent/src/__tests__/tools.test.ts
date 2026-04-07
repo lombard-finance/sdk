@@ -57,15 +57,17 @@ describe("allTools", () => {
     expect(names).toContain("get_deposit_btc_address");
   });
 
-  it("each tool has name, description, parameters, and execute", () => {
+  it("each tool has name, description, parameters, schema, and execute", () => {
     for (const tool of allTools) {
       expect(tool).toHaveProperty("name");
       expect(tool).toHaveProperty("description");
       expect(tool).toHaveProperty("parameters");
+      expect(tool).toHaveProperty("schema");
       expect(tool).toHaveProperty("execute");
       expect(typeof tool.name).toBe("string");
       expect(typeof tool.description).toBe("string");
       expect(typeof tool.parameters).toBe("object");
+      expect(typeof tool.schema).toBe("object");
       expect(typeof tool.execute).toBe("function");
     }
   });

@@ -62,6 +62,10 @@ import {
  * LombardActionProvider exposes Lombard protocol operations
  * (stake, unstake, redeem, deploy, claim) as Coinbase AgentKit actions.
  *
+ * SECURITY: This provider executes real transactions. Configure your wallet
+ * provider with appropriate spending limits. All amounts are validated to be
+ * positive numeric strings under 1000 BTC equivalent.
+ *
  * Usage:
  * ```ts
  * import { lombardActionProvider } from '@lombard.finance/sdk-agentkit';

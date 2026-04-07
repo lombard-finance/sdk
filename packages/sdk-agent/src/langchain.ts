@@ -20,7 +20,7 @@ export function toLangChainTool(def: ToolDefinition<any, any>) {
     {
       name: def.name,
       description: def.description,
-      schema: def.parameters as Record<string, unknown>,
+      schema: def.schema,
     },
   );
 }

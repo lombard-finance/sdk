@@ -28,6 +28,31 @@ describe("StakeBtcbToLbtcSchema", () => {
     const result = StakeBtcbToLbtcSchema.safeParse({ amount: 0.1 });
     expect(result.success).toBe(false);
   });
+
+  it("rejects non-numeric amount", () => {
+    const result = StakeBtcbToLbtcSchema.safeParse({ amount: "abc" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects zero amount", () => {
+    const result = StakeBtcbToLbtcSchema.safeParse({ amount: "0" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects negative amount", () => {
+    const result = StakeBtcbToLbtcSchema.safeParse({ amount: "-1" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects amount >= 1000 BTC", () => {
+    const result = StakeBtcbToLbtcSchema.safeParse({ amount: "1000" });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts amount just under 1000", () => {
+    const result = StakeBtcbToLbtcSchema.safeParse({ amount: "999.99" });
+    expect(result.success).toBe(true);
+  });
 });
 
 describe("UnstakeLbtcSchema", () => {
@@ -62,6 +87,33 @@ describe("UnstakeLbtcSchema", () => {
     const result = UnstakeLbtcSchema.safeParse({
       amount: "0.1",
       outputAsset: "BTC",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects invalid recipient address", () => {
+    const result = UnstakeLbtcSchema.safeParse({
+      amount: "0.1",
+      recipient: "not-an-address",
+      outputAsset: "BTCb",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects non-numeric amount", () => {
+    const result = UnstakeLbtcSchema.safeParse({
+      amount: "lots",
+      recipient: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18",
+      outputAsset: "BTCb",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects amount >= 1000 BTC", () => {
+    const result = UnstakeLbtcSchema.safeParse({
+      amount: "1500",
+      recipient: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18",
+      outputAsset: "BTCb",
     });
     expect(result.success).toBe(false);
   });
@@ -123,12 +175,22 @@ describe("GetLbtcBalanceSchema", () => {
     const result = GetLbtcBalanceSchema.safeParse({});
     expect(result.success).toBe(true);
   });
+
+  it("rejects invalid EVM address", () => {
+    const result = GetLbtcBalanceSchema.safeParse({ address: "not-an-address" });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe("GetBtcbBalanceSchema", () => {
   it("accepts without address", () => {
     const result = GetBtcbBalanceSchema.safeParse({});
     expect(result.success).toBe(true);
+  });
+
+  it("rejects invalid EVM address", () => {
+    const result = GetBtcbBalanceSchema.safeParse({ address: "0xshort" });
+    expect(result.success).toBe(false);
   });
 });
 
