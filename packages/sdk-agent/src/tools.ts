@@ -24,16 +24,11 @@ import {
   getUnstakesByAddress,
   getVaultApy,
   getVaultTVL,
+  makePublicClient,
   Token,
   Vault,
 } from "@lombard.finance/sdk";
-import {
-  type Address,
-  createPublicClient,
-  fallback,
-  formatUnits,
-  http,
-} from "viem";
+import { type Address, formatUnits } from "viem";
 import type { z } from "zod";
 
 import { getChainConfig } from "./chains";
@@ -89,16 +84,11 @@ async function readTokenBalance(
     10_000,
     "getTokenContractInfo",
   );
-  const rpcUrl = process.env.LOMBARD_RPC_URL;
-  const client = createPublicClient({
-    chain: config.chain,
-    transport: rpcUrl
-      ? http(rpcUrl, { timeout: 10_000 })
-      : fallback(
-          (config.chain.rpcUrls.default.http ?? [])
-            .map((url) => http(url, { timeout: 10_000 })),
-          { retryCount: 1 },
-        ),
+  // Use the SDK's makePublicClient which routes through Lombard's BFF RPC proxy
+  const client = makePublicClient({
+    chainId: config.chainId,
+    rpcUrl: process.env.LOMBARD_RPC_URL,
+    env: config.env,
   });
 
   const balance = await client.readContract({
