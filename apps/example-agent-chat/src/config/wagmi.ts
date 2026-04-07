@@ -1,14 +1,15 @@
 import { getDefaultConfig } from "connectkit";
 import { createConfig, http } from "wagmi";
-import { mainnet, sepolia, base, baseSepolia } from "wagmi/chains";
+import { base, baseSepolia, mainnet, sepolia } from "wagmi/chains";
 
+// Mainnet chains first so they are the default connection
 export const wagmiConfig = createConfig(
   getDefaultConfig({
-    chains: [sepolia, mainnet, base, baseSepolia],
+    chains: [mainnet, base, sepolia, baseSepolia],
     transports: {
       [mainnet.id]: http(),
-      [sepolia.id]: http(),
       [base.id]: http(),
+      [sepolia.id]: http(),
       [baseSepolia.id]: http(),
     },
     walletConnectProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "",
