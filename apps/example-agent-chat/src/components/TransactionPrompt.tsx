@@ -1,6 +1,6 @@
 import type { ChainId } from "@lombard.finance/sdk";
 import { useState } from "react";
-import { useAccount, useWalletClient } from "wagmi";
+import { useAccount } from "wagmi";
 
 interface TransactionPromptProps {
   method: string;
@@ -32,7 +32,6 @@ function getEnvForChainId(chainId: number): "prod" | "testnet" {
 
 export function TransactionPrompt({ method, description, params }: TransactionPromptProps) {
   const { address } = useAccount();
-  const { data: walletClient } = useWalletClient();
   const [status, setStatus] = useState<"idle" | "executing" | "success" | "error">("idle");
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +39,7 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
   const label = METHOD_LABELS[method] || method;
 
   const handleExecute = async () => {
-    if (!walletClient || !address) return;
+    if (!address) return;
     setStatus("executing");
     setError(null);
 
@@ -146,7 +145,7 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
       {status === "idle" && (
         <button
           onClick={handleExecute}
-          disabled={!address || !walletClient}
+          disabled={!address}
           className="w-full rounded-[60px] bg-[var(--color-primary)] py-2 text-xs font-semibold text-[var(--color-black)] hover:bg-[var(--color-primary-dark)] transition-colors disabled:opacity-40"
         >
           {address ? "Execute Transaction" : "Connect Wallet to Execute"}

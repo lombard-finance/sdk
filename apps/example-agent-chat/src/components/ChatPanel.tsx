@@ -137,10 +137,25 @@ function MessageBubble({ message }: { message: Record<string, any> }) {
   const isUser = message.role === "user";
 
   const txActions: TxResult[] = [];
-  for (const inv of message.toolInvocations || []) {
-    const r = inv.result as Record<string, unknown> | undefined;
-    if (r?.action === "sdk_execute" && r.method && r.description && r.params) {
-      txActions.push(r as unknown as TxResult);
+  const parts = (message.parts || []) as Array<Record<string, unknown>>;
+  for (const part of parts) {
+    if (part.type === "tool-invocation") {
+      const inv = part.toolInvocation as Record<string, unknown> | undefined;
+      if (inv?.state === "result") {
+        const r = inv.result as Record<string, unknown> | undefined;
+        if (r?.action === "sdk_execute" && r.method && r.description && r.params) {
+          txActions.push(r as unknown as TxResult);
+        }
+      }
+    }
+  }
+  // Fallback: also check legacy toolInvocations array
+  if (txActions.length === 0) {
+    for (const inv of (message.toolInvocations || []) as Array<Record<string, unknown>>) {
+      const r = inv.result as Record<string, unknown> | undefined;
+      if (r?.action === "sdk_execute" && r.method && r.description && r.params) {
+        txActions.push(r as unknown as TxResult);
+      }
     }
   }
 
