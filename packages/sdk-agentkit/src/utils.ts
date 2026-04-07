@@ -3,11 +3,12 @@ import type { ChainId } from "@lombard.finance/sdk";
 import {
   CHAIN_ID_TO_VIEM_CHAIN_MAP,
   getTokenContractInfo,
+  makePublicClient,
   Token,
 } from "@lombard.finance/sdk";
 import type { Env } from "@lombard.finance/sdk-common";
 import type { Address, EIP1193Provider, Hex } from "viem";
-import { createPublicClient, formatUnits, http } from "viem";
+import { formatUnits } from "viem";
 
 /**
  * Adapts a Coinbase AgentKit EvmWalletProvider into a viem-compatible
@@ -22,9 +23,9 @@ export function toEIP1193Provider(
 ): EIP1193Provider {
   const chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
 
-  // Create a public client for delegating read RPC calls
+  // Use SDK's makePublicClient which routes through Lombard's BFF RPC proxy
   const publicClient = chain
-    ? createPublicClient({ chain, transport: http() })
+    ? makePublicClient({ chainId })
     : null;
 
   // Use a Proxy to implement the EIP1193 request interface.
