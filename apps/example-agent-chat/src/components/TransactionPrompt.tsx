@@ -31,7 +31,7 @@ function getEnvForChainId(chainId: number): "prod" | "testnet" {
 }
 
 export function TransactionPrompt({ method, description, params }: TransactionPromptProps) {
-  const { address, chain } = useAccount();
+  const { address, chain, connector } = useAccount();
   const { switchChainAsync } = useSwitchChain();
   const [status, setStatus] = useState<"idle" | "executing" | "success" | "error">("idle");
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -45,8 +45,11 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
     setError(null);
 
     try {
-      const provider = window.ethereum;
-      if (!provider) throw new Error("No wallet provider found");
+      // Get the EIP1193 provider from the connected wallet's connector,
+      // NOT window.ethereum (which may be a different wallet extension)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const provider = (await connector?.getProvider()) as any;
+      if (!provider) throw new Error("No wallet provider found. Please reconnect your wallet.");
 
       const sdkChainId = params.chainId as ChainId;
       const env = getEnvForChainId(sdkChainId);
