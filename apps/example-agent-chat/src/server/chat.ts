@@ -1,8 +1,24 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
 import type { Request, Response } from "express";
 
 import { lombardTools } from "./tools.js";
+
+// Supports two modes:
+// 1. Direct: Set ANTHROPIC_API_KEY (default, for local dev and server deployments)
+// 2. Proxy: Set API_URL + API_BYPASS_TOKEN to route through a proxy server
+//    that keeps the API key server-side (e.g., Steve proxy on Vercel)
+const anthropic = createAnthropic(
+  process.env.API_URL
+    ? {
+        baseURL: process.env.API_URL,
+        headers: process.env.API_BYPASS_TOKEN
+          ? { "X-Vercel-Protection-Bypass": process.env.API_BYPASS_TOKEN }
+          : {},
+        apiKey: process.env.ANTHROPIC_API_KEY || "proxy-mode",
+      }
+    : {},
+);
 
 const SYSTEM_PROMPT = `You are a helpful Bitcoin staking assistant for the Lombard protocol.
 
