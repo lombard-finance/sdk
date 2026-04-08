@@ -128,6 +128,7 @@ export function TransactionPrompt({
           signature,
           eip712Data,
           env,
+          partnerId: import.meta.env.VITE_LOMBARD_PARTNER_ID,
         });
 
         setBtcDepositAddress(btcAddr);

@@ -374,6 +374,7 @@ export const getDepositBtcAddress: ToolDefinition<
         address,
         chainId: config.chainId,
         env: config.env,
+        partnerId: process.env.LOMBARD_PARTNER_ID,
       });
       return {
         btcAddress,
