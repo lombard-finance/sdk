@@ -38,6 +38,9 @@ export enum ENotarizationStatus {
   /** Initial status when a deposit transaction is created but not yet processed */
   NOTARIZATION_STATUS_PENDING = 'NOTARIZATION_STATUS_PENDING',
 
+  /** Status when a deposit transaction is pending GMP processing */
+  NOTARIZATION_STATUS_GMP_PENDING = 'NOTARIZATION_STATUS_GMP_PENDING',
+
   /** The deposit has been submitted for notarization */
   NOTARIZATION_STATUS_SUBMITTED = 'NOTARIZATION_STATUS_SUBMITTED',
 

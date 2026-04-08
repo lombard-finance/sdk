@@ -223,6 +223,7 @@ export function getDepositStatus(
 
   switch (notarizationStatus) {
     case ENotarizationStatus.NOTARIZATION_STATUS_PENDING:
+    case ENotarizationStatus.NOTARIZATION_STATUS_GMP_PENDING:
     case ENotarizationStatus.NOTARIZATION_STATUS_SUBMITTED:
       // Still in notarization queue
       // If we know block height and not enough confirmations, show that
