@@ -115,7 +115,6 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
             onChange={handleInputChange}
             placeholder={address ? "Ask about your balances, staking..." : "Ask about Lombard..."}
             className="flex-1 rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none focus:border-[var(--color-teal)] transition-colors"
-            disabled={isLoading}
           />
           <button
             type="submit"
