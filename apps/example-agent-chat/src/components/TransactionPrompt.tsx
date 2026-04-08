@@ -70,69 +70,51 @@ export function TransactionPrompt({
 
       if (method === "btc.generateDepositAddress") {
         const {
-          requiresAutoMintFee,
-          getLBTCMintingFee,
-          signNetworkFee,
-          storeNetworkFeeSignature,
-          signLbtcDestinationAddr,
-          generateDepositBtcAddress,
-          getTokenContractInfo,
-          Token,
-          AddressKind,
+          createLombardSDK,
+          Env,
+          AssetId,
+          evmChainIdToChain,
+          BtcActionStatus,
+          MIN_STAKE_AMOUNT_BTC,
         } = await import("@lombard.finance/sdk");
 
-        let signature: string;
-        let eip712Data: string | undefined;
+        const destChain = evmChainIdToChain(sdkChainId);
+        const partnerId = import.meta.env.VITE_LOMBARD_PARTNER_ID;
 
-        if (requiresAutoMintFee(sdkChainId)) {
-          const fee = await getLBTCMintingFee({ chainId: sdkChainId, env });
-          // Fee is returned in BTC (e.g. 0.00000145), convert to satoshis for signing
-          const { toSatoshi } = await import("@lombard.finance/sdk");
-          const feeSatoshis = toSatoshi(fee);
-          const DAY_SECONDS = 86400;
-          const expiry = Math.floor(Date.now() / 1000) + DAY_SECONDS;
-          const feeResult = await signNetworkFee({
-            fee: feeSatoshis.toString(),
-            expiry,
-            account: address,
-            chainId: sdkChainId,
-            provider,
-            env,
-          });
-          signature = feeResult.signature;
-          eip712Data = feeResult.typedData;
-
-          const tokenInfo = await getTokenContractInfo(
-            Token.LBTC,
-            sdkChainId,
-            env,
-            AddressKind.Adapter,
-          );
-
-          await storeNetworkFeeSignature({
-            signature,
-            typedData: eip712Data,
-            address,
-            env,
-            tokenAddress: tokenInfo.address,
-          });
-        } else {
-          signature = await signLbtcDestinationAddr({
-            account: address,
-            chainId: sdkChainId,
-            provider,
-          });
-        }
-
-        const btcAddr = await generateDepositBtcAddress({
-          address,
-          chainId: sdkChainId,
-          signature,
-          eip712Data,
-          env,
-          partnerId: import.meta.env.VITE_LOMBARD_PARTNER_ID,
+        const sdk = await createLombardSDK({
+          env: env === "testnet" ? Env.testnet : Env.prod,
+          providers: {
+            evm: () => provider,
+          },
+          ...(partnerId ? { partner: { partnerId } } : {}),
         });
 
+        const stake = sdk.chain.btc.stake({
+          assetOut: AssetId.LBTC,
+          destChain,
+        });
+
+        await stake.prepare({
+          amount: String(MIN_STAKE_AMOUNT_BTC),
+          recipient: address,
+        });
+
+        // If already ADDRESS_READY (existing deposit), return it directly
+        if (stake.status === BtcActionStatus.ADDRESS_READY) {
+          setBtcDepositAddress(stake.depositAddress!);
+          setStatus("success");
+          return;
+        }
+
+        // Authorize if needed (handles fee auth or address confirmation)
+        if (
+          stake.status === BtcActionStatus.NEEDS_FEE_AUTHORIZATION ||
+          stake.status === BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION
+        ) {
+          await stake.authorize();
+        }
+
+        const btcAddr = await stake.generateDepositAddress();
         setBtcDepositAddress(btcAddr);
         setStatus("success");
         return;
