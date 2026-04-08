@@ -84,10 +84,13 @@ export function TransactionPrompt({
 
         if (requiresAutoMintFee(sdkChainId)) {
           const fee = await getLBTCMintingFee({ chainId: sdkChainId, env });
+          // Fee is returned in BTC (e.g. 0.00000145), convert to satoshis for signing
+          const { toSatoshi } = await import("@lombard.finance/sdk");
+          const feeSatoshis = toSatoshi(fee);
           const DAY_SECONDS = 86400;
           const expiry = Math.floor(Date.now() / 1000) + DAY_SECONDS;
           const feeResult = await signNetworkFee({
-            fee: fee.toString(),
+            fee: feeSatoshis.toString(),
             expiry,
             account: address,
             chainId: sdkChainId,
