@@ -7,6 +7,7 @@ interface TransactionPromptProps {
   description: string;
   params: Record<string, unknown>;
   onError?: (error: string) => void;
+  onSuccess?: (message: string) => void;
 }
 
 const METHOD_LABELS: Record<string, string> = {
@@ -31,6 +32,7 @@ export function TransactionPrompt({
   description,
   params,
   onError,
+  onSuccess,
 }: TransactionPromptProps) {
   const { address, chain, connector } = useAccount();
   const { switchChainAsync } = useSwitchChain();
@@ -103,6 +105,7 @@ export function TransactionPrompt({
         if (stake.status === BtcActionStatus.ADDRESS_READY && stake.depositAddress) {
           setBtcDepositAddress(stake.depositAddress);
           setStatus("success");
+          onSuccess?.(`Your existing BTC deposit address is ${stake.depositAddress}. You can send BTC to this address to receive LBTC.`);
           return;
         }
 
@@ -119,6 +122,7 @@ export function TransactionPrompt({
           const btcAddr = await stake.generateDepositAddress();
           setBtcDepositAddress(btcAddr);
           setStatus("success");
+          onSuccess?.(`BTC deposit address generated: ${btcAddr}. Send BTC to this address to receive LBTC on ${chain?.name || "Ethereum"}. What is the minimum stake amount and current exchange rate?`);
           return;
         }
 
@@ -126,6 +130,7 @@ export function TransactionPrompt({
         if (stake.depositAddress) {
           setBtcDepositAddress(stake.depositAddress);
           setStatus("success");
+          onSuccess?.(`BTC deposit address: ${stake.depositAddress}. Send BTC to this address to receive LBTC.`);
           return;
         }
 
@@ -195,6 +200,7 @@ export function TransactionPrompt({
 
       setTxHash(hash);
       setStatus("success");
+      onSuccess?.(`Transaction submitted successfully with hash ${hash}. What should I do next?`);
     } catch (err) {
       // Sanitize error: show first line only, strip internal details
       const raw = err instanceof Error ? err.message : "Transaction failed";
