@@ -6,6 +6,7 @@ interface TransactionPromptProps {
   method: string;
   description: string;
   params: Record<string, unknown>;
+  onError?: (error: string) => void;
 }
 
 const METHOD_LABELS: Record<string, string> = {
@@ -29,6 +30,7 @@ export function TransactionPrompt({
   method,
   description,
   params,
+  onError,
 }: TransactionPromptProps) {
   const { address, chain, connector } = useAccount();
   const { switchChainAsync } = useSwitchChain();
@@ -208,8 +210,10 @@ export function TransactionPrompt({
         .trim();
       const clean =
         firstLine.length > 200 ? firstLine.slice(0, 200) + "..." : firstLine;
-      setError(clean || "Transaction failed");
+      const errorMsg = clean || "Transaction failed";
+      setError(errorMsg);
       setStatus("error");
+      onError?.(errorMsg);
     }
   };
 

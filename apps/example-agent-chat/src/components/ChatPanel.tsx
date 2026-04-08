@@ -134,7 +134,11 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         )}
 
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg as unknown as Record<string, unknown>} />
+          <MessageBubble
+            key={msg.id}
+            message={msg as unknown as Record<string, unknown>}
+            onTxError={(err) => append({ role: "user", content: `Transaction failed with error: "${err}". What should I do?` })}
+          />
         ))}
 
         {isLoading && (
@@ -177,7 +181,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function MessageBubble({ message }: { message: Record<string, any> }) {
+function MessageBubble({ message, onTxError }: { message: Record<string, any>; onTxError?: (error: string) => void }) {
   const isUser = message.role === "user";
 
   const txActions: TxResult[] = [];
@@ -247,6 +251,7 @@ function MessageBubble({ message }: { message: Record<string, any> }) {
             method={tx.method}
             description={tx.description}
             params={tx.params}
+            onError={onTxError}
           />
         ))}
       </div>
