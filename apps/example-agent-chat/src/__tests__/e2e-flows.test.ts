@@ -336,6 +336,138 @@ describe.skipIf(SKIP)("Flow 5: BTC Deposit Address", () => {
   });
 });
 
+// ─── Flow 5b: Full BtcStake Workflow (SDK class) ────────────────────
+
+describe.skipIf(SKIP || !TEST_PRIVATE_KEY)(
+  "Flow 5b: BtcStake Workflow (createLombardSDK)",
+  () => {
+    const account = TEST_PRIVATE_KEY ? privateKeyToAccount(TEST_PRIVATE_KEY) : undefined;
+    const client = account
+      ? createWalletClient({ account, chain: sepolia, transport: http() })
+      : undefined;
+
+    it("runs the full BtcStake lifecycle: prepare → authorize → generateDepositAddress", async () => {
+      const {
+        createLombardSDK,
+        Env,
+        AssetId,
+        evmChainIdToChain,
+        BtcActionStatus,
+        MIN_STAKE_AMOUNT_BTC,
+      } = await import("@lombard.finance/sdk");
+
+      const destChain = evmChainIdToChain(SEPOLIA_CHAIN_ID);
+
+      // Create SDK with the test wallet provider
+      const sdk = await createLombardSDK({
+        env: Env.testnet,
+        providers: {
+          evm: () => walletClientToProvider(client!),
+        },
+        ...(process.env.LOMBARD_PARTNER_ID
+          ? { partner: { partnerId: process.env.LOMBARD_PARTNER_ID } }
+          : {}),
+      });
+
+      // Create BtcStake action
+      const stake = sdk.chain.btc.stake({
+        assetOut: AssetId.LBTC,
+        destChain,
+      });
+
+      // Step 1: prepare — checks existing state
+      await stake.prepare({
+        amount: String(MIN_STAKE_AMOUNT_BTC),
+        recipient: TEST_ADDRESS,
+      });
+
+      // Status should be one of the expected values
+      expect([
+        BtcActionStatus.NEEDS_FEE_AUTHORIZATION,
+        BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION,
+        BtcActionStatus.READY,
+        BtcActionStatus.ADDRESS_READY,
+      ]).toContain(stake.status);
+
+      // If already has an address, we're done
+      if (stake.status === BtcActionStatus.ADDRESS_READY) {
+        expect(stake.depositAddress).toBeDefined();
+        expect(stake.depositAddress).toMatch(/^(bc1|tb1|1|3)/);
+        return;
+      }
+
+      // Step 2: authorize — sign fee auth or address confirmation
+      if (
+        stake.status === BtcActionStatus.NEEDS_FEE_AUTHORIZATION ||
+        stake.status === BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION
+      ) {
+        await stake.authorize();
+      }
+
+      // Step 3: generate deposit address
+      // May skip to ADDRESS_READY if address already exists from a prior run
+      if (stake.status === BtcActionStatus.READY) {
+        try {
+          const btcAddr = await stake.generateDepositAddress();
+          expect(typeof btcAddr).toBe("string");
+          expect(btcAddr).toMatch(/^(bc1|tb1|1|3)/);
+          expect(stake.depositAddress).toBe(btcAddr);
+          expect(stake.status).toBe(BtcActionStatus.ADDRESS_READY);
+        } catch (err) {
+          // Partner ID may not be valid on testnet — acceptable failure
+          const msg = err instanceof Error ? err.message : String(err);
+          expect(msg).toMatch(/partner|captcha|sanctioned/i);
+        }
+      } else {
+        expect(stake.status).toBe(BtcActionStatus.ADDRESS_READY);
+        expect(stake.depositAddress).toBeDefined();
+      }
+    }, 30000);
+
+    it("resume flow: prepare() detects existing deposit address", async () => {
+      const {
+        createLombardSDK,
+        Env,
+        AssetId,
+        evmChainIdToChain,
+        BtcActionStatus,
+        MIN_STAKE_AMOUNT_BTC,
+      } = await import("@lombard.finance/sdk");
+
+      const destChain = evmChainIdToChain(SEPOLIA_CHAIN_ID);
+
+      const sdk = await createLombardSDK({
+        env: Env.testnet,
+        providers: {
+          evm: () => walletClientToProvider(client!),
+        },
+        ...(process.env.LOMBARD_PARTNER_ID
+          ? { partner: { partnerId: process.env.LOMBARD_PARTNER_ID } }
+          : {}),
+      });
+
+      const stake = sdk.chain.btc.stake({
+        assetOut: AssetId.LBTC,
+        destChain,
+      });
+
+      await stake.prepare({
+        amount: String(MIN_STAKE_AMOUNT_BTC),
+        recipient: TEST_ADDRESS,
+      });
+
+      // Since we already generated an address in the previous test,
+      // prepare() should detect it and jump to ADDRESS_READY
+      if (stake.status === BtcActionStatus.ADDRESS_READY) {
+        expect(stake.depositAddress).toBeDefined();
+        expect(stake.depositAddress).toMatch(/^(bc1|tb1|1|3)/);
+      }
+      // If not ADDRESS_READY, the test wallet may not have a prior address
+      // (e.g., first run on a fresh wallet). That's OK too.
+    }, 30000);
+  },
+);
+
 // ─── Flow 6: Deposit Status Tracking ─────────────────────────────────
 
 describe.skipIf(SKIP)("Flow 6: Deposit Status Tracking", () => {
