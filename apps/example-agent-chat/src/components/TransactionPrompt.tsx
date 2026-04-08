@@ -223,16 +223,26 @@ export function TransactionPrompt({
       <div className="space-y-1 mb-3">
         {Object.entries(params)
           .filter(([k]) => !["chainId"].includes(k))
-          .map(([key, value]) => (
-            <div key={key} className="flex justify-between text-xs">
-              <span className="text-[var(--color-text-muted)] capitalize">
-                {key.replace(/([A-Z])/g, " $1").trim()}
-              </span>
-              <span className="text-[var(--color-text)] font-mono">
-                {String(value)}
-              </span>
-            </div>
-          ))}
+          .map(([key, value]) => {
+            const str = String(value);
+            const isAddress = str.startsWith("0x") && str.length > 20;
+            const display = isAddress
+              ? `${str.slice(0, 6)}...${str.slice(-4)}`
+              : str;
+            return (
+              <div key={key} className="flex justify-between text-xs gap-2">
+                <span className="text-[var(--color-text-muted)] capitalize shrink-0">
+                  {key.replace(/([A-Z])/g, " $1").trim()}
+                </span>
+                <span
+                  className="text-[var(--color-text)] font-mono truncate text-right"
+                  title={isAddress ? str : undefined}
+                >
+                  {display}
+                </span>
+              </div>
+            );
+          })}
       </div>
 
       {status === "idle" && (
