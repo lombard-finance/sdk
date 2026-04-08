@@ -61,6 +61,19 @@ export const DeployToVaultZod = z.object({
   chainId: chainId,
 });
 
+export const LbtcApyZod = z.object({});
+
+export const VaultWithdrawalZod = z.object({
+  amount: amount.describe("Amount of vault shares to withdraw"),
+  chainId: chainId,
+});
+
+export const ClaimDepositZod = z.object({
+  depositTxHash: z.string().min(1).describe("The BTC deposit transaction hash to claim"),
+  address: evmAddress.describe("EVM wallet address that owns the deposit"),
+  chainId: chainId,
+});
+
 // ─── Derived JSON Schemas (backward-compatible exports) ──────────────
 
 interface JsonObjectSchema {
@@ -82,3 +95,6 @@ export const BalanceSchema = toJsonSchema(BalanceZod);
 export const StrategiesSchema = toJsonSchema(StrategiesZod);
 export const DepositBtcSchema = toJsonSchema(DepositBtcZod);
 export const DeployToVaultSchema = toJsonSchema(DeployToVaultZod);
+export const LbtcApySchema = toJsonSchema(LbtcApyZod);
+export const VaultWithdrawalSchema = toJsonSchema(VaultWithdrawalZod);
+export const ClaimDepositSchema = toJsonSchema(ClaimDepositZod);

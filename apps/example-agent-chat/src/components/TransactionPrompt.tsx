@@ -14,6 +14,8 @@ const METHOD_LABELS: Record<string, string> = {
   "evm.stake": "Stake",
   "evm.unstake": "Unstake",
   "evm.deploy": "Deploy to Vault",
+  "evm.claimDeposit": "Claim Deposit",
+  "evm.withdrawFromVault": "Withdraw from Vault",
   "btc.generateDepositAddress": "Generate BTC Deposit Address",
 };
 
@@ -192,6 +194,30 @@ export function TransactionPrompt({
               env,
             });
           }
+          break;
+        }
+        case "evm.claimDeposit": {
+          const { claimLBTC } = await import("@lombard.finance/sdk");
+          hash = await claimLBTC({
+            data: params.rawPayload as string,
+            proofSignature: params.proofSignature as string,
+            account: address,
+            chainId: sdkChainId,
+            provider,
+            env,
+          });
+          break;
+        }
+        case "evm.withdrawFromVault": {
+          const { queueWithdraw, Vault } = await import("@lombard.finance/sdk");
+          hash = await queueWithdraw({
+            amount: params.amount as string,
+            account: address,
+            chainId: sdkChainId,
+            provider,
+            vaultKey: Vault.Veda,
+            env,
+          });
           break;
         }
         default:

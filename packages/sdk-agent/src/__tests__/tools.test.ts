@@ -6,8 +6,11 @@ import {
   getBalance,
   getDepositBtcAddress,
   getExchangeRate,
+  getLbtcApy,
   getStrategies,
+  getVaultPositions,
   prepareBtcDeposit,
+  prepareClaimDeposit,
   toolsByName,
 } from "../tools";
 
@@ -77,9 +80,32 @@ describe("prepareBtcDeposit", () => {
   });
 });
 
+describe("getLbtcApy", () => {
+  it("has correct name and schema", () => {
+    expect(getLbtcApy.name).toBe("get_lbtc_apy");
+    expect(typeof getLbtcApy.execute).toBe("function");
+  });
+});
+
+describe("getVaultPositions", () => {
+  it("has correct name and schema", () => {
+    expect(getVaultPositions.name).toBe("get_vault_positions");
+    expect(getVaultPositions.parameters).toHaveProperty("properties");
+    expect(typeof getVaultPositions.execute).toBe("function");
+  });
+});
+
+describe("prepareClaimDeposit", () => {
+  it("has correct name and schema", () => {
+    expect(prepareClaimDeposit.name).toBe("prepare_claim_deposit");
+    expect(prepareClaimDeposit.parameters).toHaveProperty("properties");
+    expect(typeof prepareClaimDeposit.execute).toBe("function");
+  });
+});
+
 describe("allTools", () => {
-  it("has 13 entries", () => {
-    expect(allTools).toHaveLength(13);
+  it("has 17 entries", () => {
+    expect(allTools).toHaveLength(17);
   });
 
   it("contains all expected tools including new ones", () => {
@@ -89,6 +115,10 @@ describe("allTools", () => {
     expect(names).toContain("get_deposit_btc_address");
     expect(names).toContain("check_fee_authorization");
     expect(names).toContain("prepare_btc_deposit");
+    expect(names).toContain("get_lbtc_apy");
+    expect(names).toContain("get_vault_positions");
+    expect(names).toContain("prepare_claim_deposit");
+    expect(names).toContain("prepare_vault_withdrawal");
   });
 
   it("each tool has name, description, parameters, schema, and execute", () => {
@@ -124,6 +154,9 @@ describe("toolsByName", () => {
     expect(toolsByName).toHaveProperty("get_deposit_btc_address");
     expect(toolsByName).toHaveProperty("check_fee_authorization");
     expect(toolsByName).toHaveProperty("prepare_btc_deposit");
+    expect(toolsByName).toHaveProperty("get_lbtc_apy");
+    expect(toolsByName).toHaveProperty("get_vault_positions");
+    expect(toolsByName).toHaveProperty("prepare_claim_deposit");
   });
 });
 

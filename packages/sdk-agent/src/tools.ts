@@ -14,6 +14,7 @@
 import {
   Env,
   fromSatoshi,
+  getApy,
   getDepositBtcAddress as sdkGetDepositBtcAddress,
   getDepositsByAddress,
   getDepositStatus,
@@ -21,6 +22,8 @@ import {
   getExchangeRatio,
   getLBTCExchangeRate,
   getNetworkFeeSignature,
+  getSharesByAddress,
+  getShareValue,
   getTokenContractInfo,
   getUnstakesByAddress,
   getVaultApy,
@@ -39,18 +42,24 @@ import {
   AddressAndChainZod,
   BalanceSchema,
   BalanceZod,
+  ClaimDepositSchema,
+  ClaimDepositZod,
   DeployToVaultSchema,
   DeployToVaultZod,
   DepositBtcSchema,
   DepositBtcZod,
   ExchangeRateSchema,
   ExchangeRateZod,
+  LbtcApySchema,
+  LbtcApyZod,
   StakeSchema,
   StakeZod,
   StrategiesSchema,
   StrategiesZod,
   UnstakeSchema,
   UnstakeZod,
+  VaultWithdrawalSchema,
+  VaultWithdrawalZod,
 } from "./schemas";
 
 export interface ToolDefinition<
@@ -246,6 +255,8 @@ export const getDepositStatusTool: ToolDefinition<{
           statusLabel: display.label,
           description: display.description,
           requiresAction: display.requiresAction,
+          rawPayload: d.rawPayload || null,
+          proofSignature: d.proof || null,
         };
       }),
     };
@@ -575,6 +586,213 @@ export const prepareDeployToVault: ToolDefinition<{
   },
 };
 
+export const prepareVaultWithdrawal: ToolDefinition<{
+  amount: string;
+  chainId: number;
+}> = {
+  name: "prepare_vault_withdrawal",
+  description:
+    "Prepare a withdrawal from a DeFi vault. Withdrawals are queued and may take time to process.",
+  parameters: VaultWithdrawalSchema as Record<string, unknown>,
+  schema: VaultWithdrawalZod,
+  execute: async (params) => {
+    const { amount, chainId } = VaultWithdrawalZod.parse(params);
+    const config = getChainConfig(chainId);
+    return {
+      action: "sdk_execute",
+      method: "evm.withdrawFromVault",
+      params: {
+        amount,
+        chainId: config.chainId,
+        vault: "veda",
+      },
+      description: `Withdraw ${amount} shares from Veda vault on ${config.name}. Withdrawals are queued and may take time to process.`,
+    };
+  },
+};
+
+// ─── APY & Vault Position Tools ──────────────────────────────────────
+
+export const getLbtcApy: ToolDefinition<
+  Record<string, never>,
+  { baseApy: string; effectiveApy: string; description: string; error?: string }
+> = {
+  name: "get_lbtc_apy",
+  description:
+    "Get the current LBTC base staking APY (annual percentage yield). " +
+    "Returns both the base and effective APY for LBTC staking.",
+  parameters: LbtcApySchema as Record<string, unknown>,
+  schema: LbtcApyZod,
+  execute: async () => {
+    try {
+      const apy = await withTimeout(
+        getApy({ env: Env.prod }),
+        10_000,
+        "getApy",
+      );
+      const basePercent = apy.baseApy.multipliedBy(100).toFixed(2);
+      const effectivePercent = apy.effectiveApy.multipliedBy(100).toFixed(2);
+      return {
+        baseApy: apy.baseApy.toString(),
+        effectiveApy: apy.effectiveApy.toString(),
+        description: `LBTC base staking APY: ${basePercent}%. Effective APY (with compounding/incentives): ${effectivePercent}%.`,
+      };
+    } catch (err) {
+      return {
+        baseApy: "",
+        effectiveApy: "",
+        description: "",
+        error:
+          err instanceof Error ? err.message : "Failed to fetch LBTC APY",
+      };
+    }
+  },
+};
+
+export const getVaultPositions: ToolDefinition<
+  { address: string; chainId: number },
+  {
+    shares: string;
+    shareValue: string;
+    estimatedLbtcValue: string;
+    vault: string;
+    chain: string;
+    error?: string;
+  }
+> = {
+  name: "get_vault_positions",
+  description:
+    "Get a user's vault positions including shares held and their estimated LBTC value. " +
+    "Currently supports the Veda vault on Ethereum mainnet.",
+  parameters: AddressAndChainSchema as Record<string, unknown>,
+  schema: AddressAndChainZod,
+  execute: async (params) => {
+    const { address, chainId } = AddressAndChainZod.parse(params);
+    const config = getChainConfig(chainId);
+    try {
+      const [sharesData, shareVal] = await Promise.all([
+        withTimeout(
+          getSharesByAddress({
+            address,
+            chainId: config.chainId,
+            vaultKey: Vault.Veda,
+          }),
+          10_000,
+          "getSharesByAddress",
+        ),
+        withTimeout(
+          getShareValue({
+            chainId: config.chainId,
+            vaultKey: Vault.Veda,
+          }),
+          10_000,
+          "getShareValue",
+        ),
+      ]);
+      return {
+        shares: sharesData.balance.toString(),
+        shareValue: shareVal.toString(),
+        estimatedLbtcValue: sharesData.balanceLbtc.toString(),
+        vault: "Veda",
+        chain: config.name,
+      };
+    } catch (err) {
+      return {
+        shares: "",
+        shareValue: "",
+        estimatedLbtcValue: "",
+        vault: "Veda",
+        chain: config.name,
+        error:
+          err instanceof Error
+            ? err.message
+            : "Failed to fetch vault positions",
+      };
+    }
+  },
+};
+
+// ─── Claim Deposit Tool ─────────────────────────────────────────────
+
+export const prepareClaimDeposit: ToolDefinition<
+  { depositTxHash: string; address: string; chainId: number },
+  {
+    action: string;
+    method: string;
+    params: {
+      depositTxHash: string;
+      rawPayload: string;
+      proofSignature: string;
+      chainId: number;
+    };
+    description: string;
+    error?: string;
+  }
+> = {
+  name: "prepare_claim_deposit",
+  description:
+    "Prepare a transaction to claim (mint) LBTC from a notarized BTC deposit. " +
+    "Checks if the deposit is claimable and returns the transaction parameters for wallet signing.",
+  parameters: ClaimDepositSchema as Record<string, unknown>,
+  schema: ClaimDepositZod,
+  execute: async (params) => {
+    const { depositTxHash, address, chainId } = ClaimDepositZod.parse(params);
+    const config = getChainConfig(chainId);
+    const deposits = await getDepositsByAddress({
+      address: address as Address,
+      env: config.env,
+    });
+
+    const deposit = deposits.find((d) => d.txHash === depositTxHash);
+
+    if (!deposit) {
+      return {
+        action: "error",
+        method: "",
+        params: {
+          depositTxHash,
+          rawPayload: "",
+          proofSignature: "",
+          chainId: config.chainId,
+        },
+        description: "",
+        error:
+          "Could not find a deposit with this transaction hash for the given address. Use get_deposit_status to verify the transaction hash.",
+      };
+    }
+
+    const status = getDepositStatus(deposit);
+
+    if (status !== "claimable") {
+      const display = getDepositStatusDisplay(status);
+      return {
+        action: "error",
+        method: "",
+        params: {
+          depositTxHash,
+          rawPayload: "",
+          proofSignature: "",
+          chainId: config.chainId,
+        },
+        description: "",
+        error: `Deposit is not claimable. Current status: ${display.label}. ${display.description}`,
+      };
+    }
+
+    return {
+      action: "sdk_execute",
+      method: "evm.claimDeposit",
+      params: {
+        depositTxHash,
+        rawPayload: deposit.rawPayload!,
+        proofSignature: deposit.proof!,
+        chainId: config.chainId,
+      },
+      description: `Claim LBTC from deposit ${depositTxHash.slice(0, 10)}... on ${config.name}. Your wallet will prompt you to sign the mint transaction.`,
+    };
+  },
+};
+
 /**
  * All Lombard tools as an array.
  */
@@ -592,6 +810,10 @@ export const allTools: AnyToolDefinition[] = [
   prepareStake,
   prepareUnstake,
   prepareDeployToVault,
+  prepareVaultWithdrawal,
+  getLbtcApy,
+  getVaultPositions,
+  prepareClaimDeposit,
 ];
 
 /**

@@ -5,12 +5,16 @@ import {
   AddressAndChainZod,
   BalanceSchema,
   BalanceZod,
+  ClaimDepositSchema,
+  ClaimDepositZod,
   DeployToVaultSchema,
   DeployToVaultZod,
   DepositBtcSchema,
   DepositBtcZod,
   ExchangeRateSchema,
   ExchangeRateZod,
+  LbtcApySchema,
+  LbtcApyZod,
   StakeSchema,
   StakeZod,
   StrategiesSchema,
@@ -274,5 +278,68 @@ describe("BalanceZod", () => {
 describe("DepositBtcZod", () => {
   it("is the same schema as AddressAndChainZod", () => {
     expect(DepositBtcZod).toBe(AddressAndChainZod);
+  });
+});
+
+// ─── New schema tests ───────────────────────────────────────────────
+
+describe("LbtcApyZod", () => {
+  it("accepts empty object (no params needed)", () => {
+    const result = LbtcApyZod.safeParse({});
+    expect(result.success).toBe(true);
+  });
+});
+
+describe("LbtcApySchema (JSON Schema)", () => {
+  it('has type "object"', () => {
+    expect(LbtcApySchema.type).toBe("object");
+  });
+});
+
+describe("ClaimDepositZod", () => {
+  it("accepts valid depositTxHash, address, and chainId", () => {
+    const result = ClaimDepositZod.safeParse({
+      depositTxHash: "abc123",
+      address: "0x1234567890abcdef1234567890abcdef12345678",
+      chainId: 1,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects missing depositTxHash", () => {
+    const result = ClaimDepositZod.safeParse({
+      address: "0x1234567890abcdef1234567890abcdef12345678",
+      chainId: 1,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing address", () => {
+    const result = ClaimDepositZod.safeParse({
+      depositTxHash: "abc123",
+      chainId: 1,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects empty depositTxHash", () => {
+    const result = ClaimDepositZod.safeParse({
+      depositTxHash: "",
+      address: "0x1234567890abcdef1234567890abcdef12345678",
+      chainId: 1,
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("ClaimDepositSchema (JSON Schema)", () => {
+  it("requires depositTxHash, address, and chainId", () => {
+    expect(ClaimDepositSchema.type).toBe("object");
+    expect(ClaimDepositSchema.properties).toHaveProperty("depositTxHash");
+    expect(ClaimDepositSchema.properties).toHaveProperty("address");
+    expect(ClaimDepositSchema.properties).toHaveProperty("chainId");
+    expect(ClaimDepositSchema.required).toContain("depositTxHash");
+    expect(ClaimDepositSchema.required).toContain("address");
+    expect(ClaimDepositSchema.required).toContain("chainId");
   });
 });
