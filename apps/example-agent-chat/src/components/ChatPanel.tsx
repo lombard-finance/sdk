@@ -25,7 +25,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
 
   const { messages, input, handleInputChange, handleSubmit, isLoading, append } =
     useChat({
-      api: import.meta.env.VITE_API_URL || "/api/chat",
+      api: "/api/chat",
       body: {
         walletContext: address
           ? { address, chainId: chain?.id, chainName: chain?.name }
