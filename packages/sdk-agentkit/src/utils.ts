@@ -23,7 +23,7 @@ export function toEIP1193Provider(
 ): EIP1193Provider {
   const chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
 
-  // Use SDK's makePublicClient which routes through Lombard's BFF RPC proxy
+  // Use the SDK's makePublicClient for reliable RPC calls
   const publicClient = chain
     ? makePublicClient({ chainId })
     : null;

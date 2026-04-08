@@ -18,12 +18,6 @@ const METHOD_LABELS: Record<string, string> = {
 const TESTNET_CHAIN_IDS = new Set([
   11155111, // sepolia
   84532, // baseSepoliaTestnet
-  43113, // avalancheFuji
-  80084, // berachainBartioTestnet
-  97, // binanceSmartChainTestnet
-  17000, // holesky
-  2810, // morphHolesky
-  57054, // sonicBlazeTestnet
 ]);
 
 function getEnvForChainId(chainId: number): "prod" | "testnet" {

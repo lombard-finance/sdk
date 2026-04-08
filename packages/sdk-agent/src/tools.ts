@@ -84,10 +84,9 @@ async function readTokenBalance(
     10_000,
     "getTokenContractInfo",
   );
-  // Use the SDK's makePublicClient which routes through Lombard's BFF RPC proxy
+  // Use the SDK's makePublicClient for reliable RPC calls
   const client = makePublicClient({
     chainId: config.chainId,
-    rpcUrl: process.env.LOMBARD_RPC_URL,
     env: config.env,
   });
 
@@ -106,8 +105,8 @@ async function readTokenBalance(
     args: [address as Address],
   });
 
-  // LBTC and BTC.b both use 8 decimals
-  return formatUnits(balance, 8);
+  const decimals = "decimals" in tokenInfo && typeof tokenInfo.decimals === "number" ? tokenInfo.decimals : 8;
+  return formatUnits(balance, decimals);
 }
 
 // ─── Read Tools ───────────────────────────────────────────────────────
@@ -151,6 +150,7 @@ export const getExchangeRate: ToolDefinition<
     btcToLbtc: string;
     minStakeAmountBtc: string;
     description: string;
+    error?: string;
   }
 > = {
   name: "get_exchange_rate",
@@ -277,7 +277,7 @@ export const getBalance: ToolDefinition<
 
 export const getStrategies: ToolDefinition<
   { chainId?: number },
-  { strategies: Array<{ vault: string; chain: string; apy: string; tvlBtc: string }> }
+  { strategies: Array<{ vault: string; chain: string; apy: string; tvlBtc: string }>; error?: string }
 > = {
   name: "get_strategies",
   description:

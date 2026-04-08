@@ -5,17 +5,7 @@ import { lombardTools } from "@lombard.finance/sdk-agent/vercel";
 // Vercel serverless function for /api/chat
 // Runs server-side on Vercel, keeping API keys out of the browser.
 
-const anthropic = createAnthropic(
-  process.env.API_URL
-    ? {
-        baseURL: process.env.API_URL,
-        headers: process.env.API_BYPASS_TOKEN
-          ? { "X-Vercel-Protection-Bypass": process.env.API_BYPASS_TOKEN }
-          : {},
-        apiKey: process.env.ANTHROPIC_API_KEY || "proxy-mode",
-      }
-    : {},
-);
+const anthropic = createAnthropic();
 
 const SYSTEM_PROMPT = `You are a helpful Bitcoin staking assistant for the Lombard protocol.
 
@@ -71,7 +61,7 @@ export async function POST(request: Request) {
   }
 
   const result = streamText({
-    model: anthropic("claude-sonnet-4-20250514"),
+    model: anthropic(process.env.MODEL_NAME || "claude-sonnet-4-20250514"),
     system: contextualPrompt,
     messages,
     tools: lombardTools,
