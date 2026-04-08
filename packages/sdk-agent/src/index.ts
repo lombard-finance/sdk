@@ -1,4 +1,5 @@
 export { type ChainConfig, getChainConfig, SUPPORTED_CHAINS } from "./chains";
+export { LOMBARD_SYSTEM_PROMPT } from "./prompt";
 export {
   AddressAndChainSchema,
   AddressAndChainZod,

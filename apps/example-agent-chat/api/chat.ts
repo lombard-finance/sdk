@@ -1,32 +1,12 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { streamText } from "ai";
+import { LOMBARD_SYSTEM_PROMPT } from "@lombard.finance/sdk-agent";
 import { lombardTools } from "@lombard.finance/sdk-agent/vercel";
+import { streamText } from "ai";
 
 // Vercel serverless function for /api/chat
 // Runs server-side on Vercel, keeping API keys out of the browser.
 
 const anthropic = createAnthropic();
-
-const SYSTEM_PROMPT = `You are a helpful Bitcoin staking assistant for the Lombard protocol.
-
-You help users:
-- Check their LBTC and BTC.b balances
-- View the LBTC/BTC exchange rate
-- Check deposit and unstake statuses
-- Stake BTC.b to get LBTC
-- Unstake LBTC back to BTC or BTC.b
-- Deploy LBTC into DeFi vaults for yield
-
-For READ operations (balances, rates, statuses), execute them immediately.
-For WRITE operations (stake, unstake, deploy), describe what will happen and
-return the transaction parameters. The user's frontend wallet will handle signing.
-
-When reporting balances, include the token symbol and chain name.
-Keep responses concise and direct.
-
-Default to Ethereum mainnet (chain ID 1) for operations unless the user specifies
-a different chain or their wallet is connected to another network. Yield strategies
-and vault data are only available on Ethereum mainnet.`;
 
 export async function POST(request: Request) {
   const { messages, walletContext } = await request.json();
@@ -38,7 +18,8 @@ export async function POST(request: Request) {
     });
   }
 
-  let contextualPrompt = SYSTEM_PROMPT;
+  // Extend the SDK's default system prompt with wallet context
+  let system = LOMBARD_SYSTEM_PROMPT;
   if (walletContext) {
     const addr =
       typeof walletContext.address === "string" &&
@@ -53,16 +34,16 @@ export async function POST(request: Request) {
         : null;
 
     if (addr) {
-      contextualPrompt += `\n\nUser's wallet context:`;
-      contextualPrompt += `\n- Address: ${addr}`;
-      if (chainId) contextualPrompt += `\n- Chain ID: ${chainId}`;
-      if (chainName) contextualPrompt += `\n- Chain name: ${chainName}`;
+      system += `\n\nUser's wallet context:`;
+      system += `\n- Address: ${addr}`;
+      if (chainId) system += `\n- Chain ID: ${chainId}`;
+      if (chainName) system += `\n- Chain name: ${chainName}`;
     }
   }
 
   const result = streamText({
     model: anthropic(process.env.MODEL_NAME || "claude-sonnet-4-20250514"),
-    system: contextualPrompt,
+    system,
     messages,
     tools: lombardTools,
     maxSteps: 5,
