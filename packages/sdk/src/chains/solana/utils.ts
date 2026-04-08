@@ -25,7 +25,6 @@ export function envToSolanaNetwork(env: Env): string {
     case 'prod':
       return 'mainnet-beta';
     case 'testnet':
-      return 'testnet';
     case 'stage':
     case 'dev':
     case 'ibc':
