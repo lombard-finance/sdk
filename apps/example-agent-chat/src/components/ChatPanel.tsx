@@ -1,5 +1,5 @@
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAccount } from "wagmi";
@@ -14,6 +14,13 @@ interface TxResult {
   params: Record<string, unknown>;
 }
 
+interface WalletEvent {
+  type: "wallet_change";
+  id: string;
+  address: string | null;
+  chainName?: string;
+}
+
 interface ChatPanelProps {
   open: boolean;
   onClose: () => void;
@@ -22,8 +29,10 @@ interface ChatPanelProps {
 export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const { address, chain } = useAccount();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const prevAddressRef = useRef<string | undefined>(undefined);
+  const [walletEvents, setWalletEvents] = useState<WalletEvent[]>([]);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, append } =
+  const { messages, input, handleInputChange, handleSubmit, isLoading, append, setMessages } =
     useChat({
       api: "/api/chat",
       body: {
@@ -33,11 +42,34 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
       },
     });
 
+  // Track wallet changes and insert a visual divider
+  useEffect(() => {
+    if (prevAddressRef.current === undefined) {
+      // First render, just record the address
+      prevAddressRef.current = address;
+      return;
+    }
+    if (address !== prevAddressRef.current) {
+      prevAddressRef.current = address;
+      // Clear chat history when wallet changes since context is different
+      setMessages([]);
+      setWalletEvents((prev) => [
+        ...prev,
+        {
+          type: "wallet_change",
+          id: `wallet-${Date.now()}`,
+          address: address ?? null,
+          chainName: chain?.name,
+        },
+      ]);
+    }
+  }, [address, chain?.name, setMessages]);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, walletEvents]);
 
   if (!open) return null;
 
@@ -80,6 +112,19 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[var(--color-bg)]">
+        {/* Wallet change notifications */}
+        {walletEvents.map((evt) => (
+          <div key={evt.id} className="flex items-center gap-2 py-1">
+            <div className="flex-1 border-t border-[var(--color-border)]" />
+            <span className="text-[10px] text-[var(--color-text-muted)] whitespace-nowrap">
+              {evt.address
+                ? `Switched to ${evt.address.slice(0, 6)}...${evt.address.slice(-4)}${evt.chainName ? ` on ${evt.chainName}` : ""}`
+                : "Wallet disconnected"}
+            </span>
+            <div className="flex-1 border-t border-[var(--color-border)]" />
+          </div>
+        ))}
+
         {messages.length === 0 && (
           <p className="text-center text-sm text-[var(--color-text-muted)] pt-8">
             {address
