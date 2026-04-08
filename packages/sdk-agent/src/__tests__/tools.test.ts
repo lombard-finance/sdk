@@ -2,15 +2,19 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   allTools,
+  checkFeeAuthorization,
   getBalance,
   getDepositBtcAddress,
   getExchangeRate,
   getStrategies,
+  prepareBtcDeposit,
   toolsByName,
 } from "../tools";
 
 vi.mock("@lombard.finance/sdk", async () => {
-  const actual = await vi.importActual<Record<string, unknown>>("@lombard.finance/sdk");
+  const actual = await vi.importActual<Record<string, unknown>>(
+    "@lombard.finance/sdk",
+  );
   return {
     ...actual,
     getExchangeRatio: vi.fn().mockResolvedValue({
@@ -45,9 +49,37 @@ describe("getDepositBtcAddress", () => {
   });
 });
 
+describe("checkFeeAuthorization", () => {
+  it("has correct name and schema", () => {
+    expect(checkFeeAuthorization.name).toBe("check_fee_authorization");
+    expect(checkFeeAuthorization.parameters).toHaveProperty("properties");
+    expect(typeof checkFeeAuthorization.execute).toBe("function");
+  });
+});
+
+describe("prepareBtcDeposit", () => {
+  it("has correct name and schema", () => {
+    expect(prepareBtcDeposit.name).toBe("prepare_btc_deposit");
+    expect(prepareBtcDeposit.parameters).toHaveProperty("properties");
+    expect(typeof prepareBtcDeposit.execute).toBe("function");
+  });
+
+  it("returns sdk_execute action with btc.generateDepositAddress method", async () => {
+    const result = await prepareBtcDeposit.execute({
+      address: "0x1234567890abcdef1234567890abcdef12345678",
+      chainId: 1,
+    });
+    expect(result).toHaveProperty("action", "sdk_execute");
+    expect(result).toHaveProperty("method", "btc.generateDepositAddress");
+    expect(result.params).toHaveProperty("address");
+    expect(result.params).toHaveProperty("chainId");
+    expect(result).toHaveProperty("description");
+  });
+});
+
 describe("allTools", () => {
-  it("has 11 entries", () => {
-    expect(allTools).toHaveLength(11);
+  it("has 13 entries", () => {
+    expect(allTools).toHaveLength(13);
   });
 
   it("contains all expected tools including new ones", () => {
@@ -55,6 +87,8 @@ describe("allTools", () => {
     expect(names).toContain("get_balance");
     expect(names).toContain("get_strategies");
     expect(names).toContain("get_deposit_btc_address");
+    expect(names).toContain("check_fee_authorization");
+    expect(names).toContain("prepare_btc_deposit");
   });
 
   it("each tool has name, description, parameters, schema, and execute", () => {
@@ -88,6 +122,8 @@ describe("toolsByName", () => {
     expect(toolsByName).toHaveProperty("get_balance");
     expect(toolsByName).toHaveProperty("get_strategies");
     expect(toolsByName).toHaveProperty("get_deposit_btc_address");
+    expect(toolsByName).toHaveProperty("check_fee_authorization");
+    expect(toolsByName).toHaveProperty("prepare_btc_deposit");
   });
 });
 

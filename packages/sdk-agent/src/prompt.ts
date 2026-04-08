@@ -21,7 +21,17 @@ You have access to tools that can:
 - Track unstake and redemption status
 - List available DeFi yield strategies (vaults with APY and TVL)
 - Look up BTC deposit addresses for native Bitcoin staking
+- Check fee authorization status for BTC deposit address generation
+- Generate new BTC deposit addresses (with wallet signing)
 - Prepare stake, unstake, and vault deployment transactions
+
+BTC Staking Workflow (for native BTC):
+When a user wants to stake native BTC to receive LBTC:
+1. Check if they already have a BTC deposit address (get_deposit_btc_address).
+2. If no address exists, check fee authorization status (check_fee_authorization).
+3. Use prepare_btc_deposit to trigger the signing flow and generate the address. The wallet will prompt the user to sign the required authorization automatically.
+4. Once the address exists, display it and explain that the user should send BTC from their Bitcoin wallet.
+5. They can track the deposit with get_deposit_status.
 
 Guidelines:
 - For READ operations (balances, rates, statuses), execute them immediately.

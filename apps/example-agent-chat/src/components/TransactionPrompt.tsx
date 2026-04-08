@@ -12,6 +12,7 @@ const METHOD_LABELS: Record<string, string> = {
   "evm.stake": "Stake",
   "evm.unstake": "Unstake",
   "evm.deploy": "Deploy to Vault",
+  "btc.generateDepositAddress": "Generate BTC Deposit Address",
 };
 
 /** Chain IDs that map to Env.testnet in the SDK. */
@@ -24,11 +25,20 @@ function getEnvForChainId(chainId: number): "prod" | "testnet" {
   return TESTNET_CHAIN_IDS.has(chainId) ? "testnet" : "prod";
 }
 
-export function TransactionPrompt({ method, description, params }: TransactionPromptProps) {
+export function TransactionPrompt({
+  method,
+  description,
+  params,
+}: TransactionPromptProps) {
   const { address, chain, connector } = useAccount();
   const { switchChainAsync } = useSwitchChain();
-  const [status, setStatus] = useState<"idle" | "executing" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "executing" | "success" | "error"
+  >("idle");
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [btcDepositAddress, setBtcDepositAddress] = useState<string | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const label = METHOD_LABELS[method] || method;
@@ -43,7 +53,10 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
       // NOT window.ethereum (which may be a different wallet extension)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const provider = (await connector?.getProvider()) as any;
-      if (!provider) throw new Error("No wallet provider found. Please reconnect your wallet.");
+      if (!provider)
+        throw new Error(
+          "No wallet provider found. Please reconnect your wallet.",
+        );
 
       const sdkChainId = params.chainId as ChainId;
       const env = getEnvForChainId(sdkChainId);
@@ -53,11 +66,78 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
         await switchChainAsync({ chainId: sdkChainId });
       }
 
+      if (method === "btc.generateDepositAddress") {
+        const {
+          requiresAutoMintFee,
+          getLBTCMintingFee,
+          signNetworkFee,
+          storeNetworkFeeSignature,
+          signLbtcDestinationAddr,
+          generateDepositBtcAddress,
+          getTokenContractInfo,
+          Token,
+          AddressKind,
+        } = await import("@lombard.finance/sdk");
+
+        let signature: string;
+        let eip712Data: string | undefined;
+
+        if (requiresAutoMintFee(sdkChainId)) {
+          const fee = await getLBTCMintingFee({ chainId: sdkChainId, env });
+          const DAY_SECONDS = 86400;
+          const expiry = Math.floor(Date.now() / 1000) + DAY_SECONDS;
+          const feeResult = await signNetworkFee({
+            fee: fee.toString(),
+            expiry,
+            account: address,
+            chainId: sdkChainId,
+            provider,
+            env,
+          });
+          signature = feeResult.signature;
+          eip712Data = feeResult.typedData;
+
+          const tokenInfo = await getTokenContractInfo(
+            Token.LBTC,
+            sdkChainId,
+            env,
+            AddressKind.Adapter,
+          );
+
+          await storeNetworkFeeSignature({
+            signature,
+            typedData: eip712Data,
+            address,
+            env,
+            tokenAddress: tokenInfo.address,
+          });
+        } else {
+          signature = await signLbtcDestinationAddr({
+            account: address,
+            chainId: sdkChainId,
+            provider,
+          });
+        }
+
+        const btcAddr = await generateDepositBtcAddress({
+          address,
+          chainId: sdkChainId,
+          signature,
+          eip712Data,
+          env,
+        });
+
+        setBtcDepositAddress(btcAddr);
+        setStatus("success");
+        return;
+      }
+
       let hash: string;
 
       switch (method) {
         case "evm.deploy": {
-          const { deposit, Token, Vault } = await import("@lombard.finance/sdk");
+          const { deposit, Token, Vault } =
+            await import("@lombard.finance/sdk");
           hash = await deposit({
             amount: params.amount as string,
             approve: true,
@@ -118,8 +198,12 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
     } catch (err) {
       // Sanitize error: show first line only, strip internal details
       const raw = err instanceof Error ? err.message : "Transaction failed";
-      const firstLine = raw.split("\n")[0].replace(/https?:\/\/[^\s]+/g, "").trim();
-      const clean = firstLine.length > 200 ? firstLine.slice(0, 200) + "..." : firstLine;
+      const firstLine = raw
+        .split("\n")[0]
+        .replace(/https?:\/\/[^\s]+/g, "")
+        .trim();
+      const clean =
+        firstLine.length > 200 ? firstLine.slice(0, 200) + "..." : firstLine;
       setError(clean || "Transaction failed");
       setStatus("error");
     }
@@ -132,7 +216,9 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
           {label}
         </span>
       </div>
-      <p className="text-xs text-[var(--color-text-muted)] mb-3">{description}</p>
+      <p className="text-xs text-[var(--color-text-muted)] mb-3">
+        {description}
+      </p>
 
       <div className="space-y-1 mb-3">
         {Object.entries(params)
@@ -166,10 +252,24 @@ export function TransactionPrompt({ method, description, params }: TransactionPr
         </div>
       )}
 
+      {status === "success" && btcDepositAddress && (
+        <div className="w-full rounded-lg border border-green-500/30 bg-green-500/10 py-3 px-3 text-xs text-green-400 text-center space-y-1">
+          <div className="font-medium">BTC Deposit Address Generated</div>
+          <div className="font-mono text-green-300 break-all select-all">
+            {btcDepositAddress}
+          </div>
+          <div className="text-green-500/70 text-[10px]">
+            Send BTC to this address to receive LBTC
+          </div>
+        </div>
+      )}
+
       {status === "success" && txHash && (
         <div className="w-full rounded-[60px] border border-green-500 py-2 text-xs font-medium text-green-500 text-center">
           Transaction submitted:{" "}
-          <span className="font-mono">{txHash.slice(0, 10)}...{txHash.slice(-8)}</span>
+          <span className="font-mono">
+            {txHash.slice(0, 10)}...{txHash.slice(-8)}
+          </span>
         </div>
       )}
 

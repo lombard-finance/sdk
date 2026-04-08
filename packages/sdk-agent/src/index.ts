@@ -24,6 +24,7 @@ export {
 } from "./schemas";
 export {
   allTools,
+  checkFeeAuthorization,
   getBalance,
   getBtcbBalance,
   getDepositBtcAddress,
@@ -32,6 +33,7 @@ export {
   getLbtcBalance,
   getStrategies,
   getUnstakeStatusTool,
+  prepareBtcDeposit,
   prepareDeployToVault,
   prepareStake,
   prepareUnstake,
