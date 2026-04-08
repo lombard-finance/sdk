@@ -1,5 +1,5 @@
 import { getDefaultConfig } from "connectkit";
-import { createConfig, http } from "wagmi";
+import { createConfig, createStorage, http } from "wagmi";
 import { base, baseSepolia, mainnet, sepolia } from "wagmi/chains";
 
 // Mainnet chains first so they are the default connection
@@ -14,5 +14,8 @@ export const wagmiConfig = createConfig(
     },
     walletConnectProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "",
     appName: "Lombard AI Assistant",
+    // Use sessionStorage instead of localStorage so wallet state
+    // doesn't persist across tabs/sessions, avoiding stale connections
+    storage: createStorage({ storage: sessionStorage }),
   }),
 );
