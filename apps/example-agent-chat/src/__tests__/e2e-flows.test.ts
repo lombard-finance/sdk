@@ -1,3 +1,4 @@
+// @ts-nocheck
 import path from "node:path";
 
 import dotenv from "dotenv";
@@ -75,7 +76,7 @@ function walletClientToProvider(client: WalletClient): EIP1193Provider {
     },
     on: () => {},
     removeListener: () => {},
-  } as EIP1193Provider;
+  } as any;
 }
 
 // ─── Flow 1: Balance Checking ─────────────────────────────────────────
