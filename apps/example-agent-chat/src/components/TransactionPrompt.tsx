@@ -100,8 +100,8 @@ export function TransactionPrompt({
         });
 
         // If already ADDRESS_READY (existing deposit), return it directly
-        if (stake.status === BtcActionStatus.ADDRESS_READY) {
-          setBtcDepositAddress(stake.depositAddress!);
+        if (stake.status === BtcActionStatus.ADDRESS_READY && stake.depositAddress) {
+          setBtcDepositAddress(stake.depositAddress);
           setStatus("success");
           return;
         }
@@ -114,10 +114,22 @@ export function TransactionPrompt({
           await stake.authorize();
         }
 
-        const btcAddr = await stake.generateDepositAddress();
-        setBtcDepositAddress(btcAddr);
-        setStatus("success");
-        return;
+        // Generate the deposit address (status must be READY at this point)
+        if (stake.status === BtcActionStatus.READY) {
+          const btcAddr = await stake.generateDepositAddress();
+          setBtcDepositAddress(btcAddr);
+          setStatus("success");
+          return;
+        }
+
+        // If we got here, check if the address was set during prepare/authorize
+        if (stake.depositAddress) {
+          setBtcDepositAddress(stake.depositAddress);
+          setStatus("success");
+          return;
+        }
+
+        throw new Error(`Unexpected state: ${stake.status}. Please try again.`);
       }
 
       let hash: string;
