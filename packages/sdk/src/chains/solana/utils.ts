@@ -39,7 +39,6 @@ export function envToSolanaChain(env: Env): SolanaChain {
     case 'prod':
       return SOLANA_MAINNET_CHAIN;
     case 'testnet':
-      return SOLANA_TESTNET_CHAIN;
     case 'stage':
     case 'dev':
     case 'ibc':
