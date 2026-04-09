@@ -611,7 +611,7 @@ export const getMorphoPosition: ToolDefinition<
         borrowAssets,
         loanAsset: market.loanAsset.symbol,
         loanAssetAddress: market.loanAsset.address,
-        collateralAsset: "LBTC",
+        collateralAsset: market.collateralAsset.symbol,
         collateralAssetAddress: market.collateralAsset.address,
         lltv: `${(lltvNum * 100).toFixed(0)}%`,
         currentLtv: `${(currentLtv * 100).toFixed(1)}%`,
