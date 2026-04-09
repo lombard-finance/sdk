@@ -15,9 +15,9 @@
  * @module sdk-devtools/hooks/useMockWallet
  */
 
-import { useCallback, useMemo,useState } from 'react';
+import { useCallback, useMemo, useState } from "react";
 
-import type { MockAddresses, MockWalletState } from '../types';
+import type { MockAddresses, MockWalletState } from "../types";
 
 // ─────────────────────────────────────────────────────────────────
 // Mock Addresses
@@ -29,15 +29,16 @@ import type { MockAddresses, MockWalletState } from '../types';
  */
 export const MOCK_ADDRESSES: MockAddresses = {
   // Vitalik's address (properly checksummed)
-  evm: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+  evm: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
   // Valid mainnet bitcoin address
-  bitcoin: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+  bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
   // Valid Solana address
-  solana: 'DRpbCBMxVnDK7maPMxTm9dRYNLGhPEYALmJY9VvUdWTm',
+  solana: "DRpbCBMxVnDK7maPMxTm9dRYNLGhPEYALmJY9VvUdWTm",
   // Valid Sui address
-  sui: '0x7d20dcdb2bca4f508ea9613994683eb4e76e9cc555c8e2d4f8362e10e4eca31b',
+  sui: "0x7d20dcdb2bca4f508ea9613994683eb4e76e9cc555c8e2d4f8362e10e4eca31b",
   // Valid Starknet address
-  starknet: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+  starknet:
+    "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -52,23 +53,24 @@ export const MOCK_WALLET_LIMITATIONS = {
   cannotSign: true,
 
   /** Steps that work with mock wallet */
-  supportedSteps: ['Create', 'Prepare'] as const,
+  supportedSteps: ["Create", "Prepare"] as const,
 
   /** Steps that require real wallet */
-  unsupportedSteps: ['Authorize', 'Sign', 'Execute'] as const,
+  unsupportedSteps: ["Authorize", "Sign", "Execute"] as const,
 
   /** User-friendly message */
-  message: 'Mock wallet cannot sign transactions. Connect a real wallet for full flow.',
+  message:
+    "Mock wallet cannot sign transactions. Connect a real wallet for full flow.",
 
   /** Short message for badges */
-  shortMessage: 'Cannot sign - connect real wallet',
+  shortMessage: "Cannot sign - connect real wallet",
 };
 
 // ─────────────────────────────────────────────────────────────────
 // Storage Key
 // ─────────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = 'lombard-devtools-mock-wallet';
+const STORAGE_KEY = "lombard-devtools-mock-wallet";
 
 // ─────────────────────────────────────────────────────────────────
 // Hook
@@ -94,30 +96,30 @@ const STORAGE_KEY = 'lombard-devtools-mock-wallet';
 export function useMockWallet(): MockWalletState {
   // Load initial state from localStorage
   const [isEnabled, setIsEnabled] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem(STORAGE_KEY) === 'true';
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(STORAGE_KEY) === "true";
   });
 
   const [chainId, setChainId] = useState(1); // Default to Ethereum mainnet
 
   const enable = useCallback(() => {
     setIsEnabled(true);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, 'true');
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, "true");
     }
   }, []);
 
   const disable = useCallback(() => {
     setIsEnabled(false);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, 'false');
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, "false");
     }
   }, []);
 
   const toggle = useCallback(() => {
-    setIsEnabled(prev => {
+    setIsEnabled((prev) => {
       const newValue = !prev;
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         localStorage.setItem(STORAGE_KEY, String(newValue));
       }
       return newValue;
@@ -166,9 +168,8 @@ export function getMockAddress(chainType: keyof MockAddresses): string {
 export function requiresRealWallet(stepLabel: string): boolean {
   const lower = stepLabel.toLowerCase();
   return (
-    lower.includes('authorize') ||
-    lower.includes('sign') ||
-    lower.includes('execute')
+    lower.includes("authorize") ||
+    lower.includes("sign") ||
+    lower.includes("execute")
   );
 }
-

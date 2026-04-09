@@ -6,17 +6,17 @@
  * @module chains/starknet/actions/unstake/config/btc
  */
 
-import { Env } from '@lombard.finance/sdk-common';
+import { Env } from "@lombard.finance/sdk-common";
 
-import { Chain } from '../../../../../core';
-import { bitcoinAddressSchema } from '../../../../../shared/validation';
-import type { ChainConfig } from './types';
+import { Chain } from "../../../../../core";
+import { bitcoinAddressSchema } from "../../../../../shared/validation";
+import type { ChainConfig } from "./types";
 
 /**
  * Starknet → BTC configuration
  */
 export const starknetToBtcConfig: ChainConfig = {
-  chainType: 'starknet',
+  chainType: "starknet",
 
   routes: [
     {
@@ -39,7 +39,7 @@ export const starknetToBtcConfig: ChainConfig = {
  */
 export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return starknetToBtcConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

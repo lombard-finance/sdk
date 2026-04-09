@@ -1,8 +1,8 @@
-import { addressToBytes32 } from '@layerzerolabs/lz-v2-utilities';
-import { Umi } from '@metaplex-foundation/umi';
-import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
-import BigNumber from 'bignumber.js';
-import bs58 from 'bs58';
+import { addressToBytes32 } from "@layerzerolabs/lz-v2-utilities";
+import { Umi } from "@metaplex-foundation/umi";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import BigNumber from "bignumber.js";
+import bs58 from "bs58";
 
 const umiInstances: Record<string, Umi> = {};
 export function getMinimalUmiInstance(rpcUrl: string): Umi {
@@ -15,12 +15,12 @@ export function getMinimalUmiInstance(rpcUrl: string): Umi {
 export const getRecipientBytes32 = (recipientAddress: string) => {
   let recipientBytes32: Uint8Array;
   try {
-    const cleanedRecipientAddress = recipientAddress.startsWith('0x')
+    const cleanedRecipientAddress = recipientAddress.startsWith("0x")
       ? recipientAddress.substring(2)
       : recipientAddress;
     recipientBytes32 = addressToBytes32(`0x${cleanedRecipientAddress}`);
   } catch (e) {
-    console.error('Error converting recipient address:', recipientAddress, e);
+    console.error("Error converting recipient address:", recipientAddress, e);
     throw new Error(
       `Invalid recipient address format for destination chain: ${recipientAddress}. Ensure it's a valid hex address.`,
     );
@@ -52,7 +52,7 @@ export const validateBridgeAmount = (amount: BigNumber) => {
  * ```
  */
 export const parseOFTRecipient = (addressBytes32: string): string => {
-  const bytes = Buffer.from(addressBytes32, 'hex');
+  const bytes = Buffer.from(addressBytes32, "hex");
   const solanaAddress = bs58.encode(bytes);
   return solanaAddress;
 };

@@ -1,7 +1,12 @@
-import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
-import { FormEvent, useEffect, useState } from 'react';
+import {
+  AssetId,
+  Chain,
+  Env,
+  MIN_REDEEM_AMOUNT_BTC,
+} from "@lombard.finance/sdk";
+import { FormEvent, useEffect, useState } from "react";
 
-import type { SolanaUnstakingFormData } from '../pages/SolanaUnstakePage/useSolanaUnstaking';
+import type { SolanaUnstakingFormData } from "../pages/SolanaUnstakePage/useSolanaUnstaking";
 
 interface SolanaUnstakingFormProps {
   onSubmit: (formData: SolanaUnstakingFormData) => Promise<void>;
@@ -54,19 +59,19 @@ export function SolanaUnstakingForm({
   const assetOut = AssetId.BTC; // Solana only supports unstaking to BTC
 
   const [amount, setAmount] = useState(String(MIN_REDEEM_AMOUNT_BTC));
-  const [recipient, setRecipient] = useState('');
+  const [recipient, setRecipient] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset recipient when env changes
   useEffect(() => {
-    setRecipient('');
+    setRecipient("");
   }, [env]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!recipient) {
-      alert('Please enter Bitcoin recipient address');
+      alert("Please enter Bitcoin recipient address");
       return;
     }
 
@@ -80,7 +85,7 @@ export function SolanaUnstakingForm({
         assetOut,
       });
     } catch (err) {
-      console.error('Form submission error:', err);
+      console.error("Form submission error:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -89,13 +94,13 @@ export function SolanaUnstakingForm({
   const getChainLabel = (chain: Chain): string => {
     switch (chain) {
       case Chain.SOLANA_MAINNET:
-        return 'Solana Mainnet';
+        return "Solana Mainnet";
       case Chain.SOLANA_DEVNET:
-        return 'Solana Devnet';
+        return "Solana Devnet";
       case Chain.BITCOIN_MAINNET:
-        return 'Bitcoin Mainnet';
+        return "Bitcoin Mainnet";
       case Chain.BITCOIN_SIGNET:
-        return 'Bitcoin Signet (Testnet)';
+        return "Bitcoin Signet (Testnet)";
       default:
         return chain;
     }
@@ -108,7 +113,10 @@ export function SolanaUnstakingForm({
       <div className="space-y-4">
         {/* Source Chain (read-only) */}
         <div>
-          <label htmlFor="sourceChain" className="block text-sm font-medium mb-2">
+          <label
+            htmlFor="sourceChain"
+            className="block text-sm font-medium mb-2"
+          >
             Source Chain
           </label>
           <input
@@ -151,7 +159,7 @@ export function SolanaUnstakingForm({
             step="0.00000001"
             min={MIN_REDEEM_AMOUNT_BTC}
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
             disabled={isSubmitting || disabled || isLoading}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             placeholder={String(MIN_REDEEM_AMOUNT_BTC)}
@@ -171,8 +179,8 @@ export function SolanaUnstakingForm({
             id="recipient"
             type="text"
             value={recipient}
-            onChange={e => setRecipient(e.target.value)}
-            placeholder={env === Env.prod ? 'bc1q...' : 'tb1q...'}
+            onChange={(e) => setRecipient(e.target.value)}
+            placeholder={env === Env.prod ? "bc1q..." : "tb1q..."}
             disabled={isSubmitting || disabled || isLoading}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm"
             required
@@ -194,7 +202,7 @@ export function SolanaUnstakingForm({
             Processing...
           </>
         ) : (
-          'Start Unstake'
+          "Start Unstake"
         )}
       </button>
     </form>

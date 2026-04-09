@@ -1,9 +1,9 @@
-import axios from 'axios';
-import BigNumber from 'bignumber.js';
-import { Address } from 'viem';
+import axios from "axios";
+import BigNumber from "bignumber.js";
+import { Address } from "viem";
 
-import { getApiConfig } from '../common/api-config';
-import { IEnvParam } from '../common/parameters';
+import { getApiConfig } from "../common/api-config";
+import { IEnvParam } from "../common/parameters";
 
 type Response = {
   btc_distributed: { name: string; amount: number }[];
@@ -43,7 +43,7 @@ export async function getAdditionalRewards({
   account: Address;
 } & IEnvParam) {
   if (!account) {
-    throw new Error('Missing account address');
+    throw new Error("Missing account address");
   }
 
   const { baseApiUrl } = getApiConfig(env);
@@ -52,11 +52,11 @@ export async function getAdditionalRewards({
   const { data } = await axios.get<Response>(url);
 
   const distribution: RewardsDistribution = {
-    distributed: data.btc_distributed.map(d => ({
+    distributed: data.btc_distributed.map((d) => ({
       amount: BigNumber(d.amount),
       name: d.name,
     })),
-    undistributed: data.btc_undistributed.map(u => ({
+    undistributed: data.btc_undistributed.map((u) => ({
       amount: BigNumber(u.amount),
       name: u.name,
     })),

@@ -1,1 +1,1 @@
-export * from './signTermsOfService';
+export * from "./signTermsOfService";

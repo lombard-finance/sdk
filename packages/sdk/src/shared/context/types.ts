@@ -17,12 +17,12 @@ import type {
   SolanaService,
   StarknetService,
   SuiService,
-} from '@lombard.finance/sdk-common';
+} from "@lombard.finance/sdk-common";
 // Note: EvmService is still imported for EvmCoreContext and EvmDestination
-import type { EIP1193Provider } from 'viem';
+import type { EIP1193Provider } from "viem";
 
-import type { PartnerConfiguration } from '../../client/PartnerConfiguration';
-import type { CapabilityRegistry } from '../../modules/CapabilityRegistry';
+import type { PartnerConfiguration } from "../../client/PartnerConfiguration";
+import type { CapabilityRegistry } from "../../modules/CapabilityRegistry";
 
 // ============ Logger ============
 
@@ -41,7 +41,7 @@ export interface Logger {
 /**
  * Provider key for chain-specific wallet providers
  */
-export type ProviderKey = 'bitcoin' | 'evm' | 'solana' | 'sui' | 'starknet';
+export type ProviderKey = "bitcoin" | "evm" | "solana" | "sui" | "starknet";
 
 /**
  * Provider resolver function

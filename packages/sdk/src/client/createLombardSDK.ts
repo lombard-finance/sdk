@@ -5,17 +5,17 @@
  * It fetches the asset catalog asynchronously and initializes the SDK.
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
+import type { Env } from "@lombard.finance/sdk-common";
 
 import type {
   CreateConfigOptions,
   LombardConfig,
   ResolvedLombardConfig,
-} from '../config/types';
-import { ASSET_CATALOG } from '../core/assets/catalog';
-import type { AssetCatalog } from '../core/assets/types';
-import { createConfig } from './createConfig';
-import { LombardSDK } from './LombardSDK';
+} from "../config/types";
+import { ASSET_CATALOG } from "../core/assets/catalog";
+import type { AssetCatalog } from "../core/assets/types";
+import { createConfig } from "./createConfig";
+import { LombardSDK } from "./LombardSDK";
 
 /**
  * Module-level catalog cache
@@ -102,7 +102,7 @@ export async function createLombardSDK<E extends Env = Env>(
   // If already a LombardConfig (validated), use it
   // Otherwise, create config (sync validation)
   const config: LombardConfig =
-    'modules' in options && Array.isArray(options.modules)
+    "modules" in options && Array.isArray(options.modules)
       ? (options as LombardConfig)
       : createConfig(options as CreateConfigOptions & { env: E });
 

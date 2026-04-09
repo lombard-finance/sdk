@@ -15,9 +15,9 @@
  * @module services
  */
 
-export { ApiService } from './ApiService';
-export { BtcService } from './BtcService';
-export { EvmService } from './EvmService';
+export { ApiService } from "./ApiService";
+export { BtcService } from "./BtcService";
+export { EvmService } from "./EvmService";
 
 // Re-export service interfaces from sdk-common for convenience
 // Use these for typing, use the classes above for instantiation
@@ -40,4 +40,4 @@ export type {
   StoredFeeSignature,
   StoreFeeSignatureParams,
   StoreStakeAndBakeParams,
-} from '@lombard.finance/sdk-common';
+} from "@lombard.finance/sdk-common";

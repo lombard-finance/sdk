@@ -2,14 +2,14 @@ import {
   BtcActionStatus,
   type BtcStakeProgress,
   type LombardSDK,
-} from '@lombard.finance/sdk';
-import { useCallback, useEffect, useRef, useState } from 'react';
+} from "@lombard.finance/sdk";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type {
   BtcStakeParams,
   StakingProgressInfo,
   StakingStatus,
-} from '../types';
+} from "../types";
 
 export interface UseBtcStakeReturn {
   stake: (params: BtcStakeParams) => Promise<void>;
@@ -23,26 +23,26 @@ export interface UseBtcStakeReturn {
 }
 
 const BTC_STAKE_STATUS_MAP: Partial<Record<string, StakingStatus>> = {
-  [BtcActionStatus.IDLE]: { phase: 'idle', message: 'Initializing...' },
+  [BtcActionStatus.IDLE]: { phase: "idle", message: "Initializing..." },
   [BtcActionStatus.NEEDS_FEE_AUTHORIZATION]: {
-    phase: 'preparing',
-    message: 'Authorize fee...',
+    phase: "preparing",
+    message: "Authorize fee...",
   },
   [BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION]: {
-    phase: 'preparing',
-    message: 'Confirm address...',
+    phase: "preparing",
+    message: "Confirm address...",
   },
   [BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION]: {
-    phase: 'preparing',
-    message: 'Authorize deployment...',
+    phase: "preparing",
+    message: "Authorize deployment...",
   },
   [BtcActionStatus.READY]: {
-    phase: 'preparing',
-    message: 'Ready to generate address',
+    phase: "preparing",
+    message: "Ready to generate address",
   },
   [BtcActionStatus.ADDRESS_READY]: {
-    phase: 'waiting-deposit',
-    message: 'Waiting for BTC deposit',
+    phase: "waiting-deposit",
+    message: "Waiting for BTC deposit",
   },
 };
 
@@ -58,8 +58,8 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
   const [depositAddress, setDepositAddress] = useState<string | null>(null);
   const [stakeAmount, setStakeAmount] = useState<string | null>(null);
   const [status, setStatus] = useState<StakingStatus>({
-    phase: 'idle',
-    message: 'Ready to stake',
+    phase: "idle",
+    message: "Ready to stake",
   });
   const [progress, setProgress] = useState<StakingProgressInfo>({});
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +69,7 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
   const stake = useCallback(
     async (params: BtcStakeParams) => {
       if (!sdk) {
-        throw new Error('SDK not initialized');
+        throw new Error("SDK not initialized");
       }
 
       // Clean up any lingering listeners from a previous call
@@ -79,7 +79,7 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
       try {
         setError(null);
         setIsLoading(true);
-        setStatus({ phase: 'preparing', message: 'Creating stake action...' });
+        setStatus({ phase: "preparing", message: "Creating stake action..." });
 
         const action = sdk.chain.btc.stake({
           assetOut: params.assetOut,
@@ -87,17 +87,17 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
           sourceChain: params.sourceChain,
         });
 
-        const unsubStatus = action.on('status-change', (...args: unknown[]) => {
+        const unsubStatus = action.on("status-change", (...args: unknown[]) => {
           const newStatus = args[0] as BtcActionStatus;
           setStatus(
             BTC_STAKE_STATUS_MAP[newStatus] ?? {
-              phase: 'idle',
+              phase: "idle",
               message: String(newStatus),
             },
           );
         });
 
-        const unsubProgress = action.on('progress', (...args: unknown[]) => {
+        const unsubProgress = action.on("progress", (...args: unknown[]) => {
           const data = args[0] as BtcStakeProgress;
 
           setProgress({
@@ -107,14 +107,17 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
 
           if (data.confirmations !== undefined) {
             if (data.hasEnoughConfirmations) {
-              setStatus({ phase: 'minting', message: 'Minting LBTC...' });
+              setStatus({ phase: "minting", message: "Minting LBTC..." });
             } else {
-              setStatus({ phase: 'confirming', message: 'Confirming transaction...' });
+              setStatus({
+                phase: "confirming",
+                message: "Confirming transaction...",
+              });
             }
           }
 
           if (data.isClaimed) {
-            setStatus({ phase: 'complete', message: 'Staking complete!' });
+            setStatus({ phase: "complete", message: "Staking complete!" });
           }
         });
 
@@ -124,8 +127,14 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
           unsubProgress();
         };
 
-        setStatus({ phase: 'preparing', message: 'Preparing stake parameters...' });
-        await action.prepare({ amount: params.amount, recipient: params.recipient });
+        setStatus({
+          phase: "preparing",
+          message: "Preparing stake parameters...",
+        });
+        await action.prepare({
+          amount: params.amount,
+          recipient: params.recipient,
+        });
 
         const currentStatus = action.status as BtcActionStatus;
 
@@ -133,28 +142,40 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
           currentStatus === BtcActionStatus.NEEDS_FEE_AUTHORIZATION ||
           currentStatus === BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION
         ) {
-          setStatus({ phase: 'preparing', message: 'Authorizing stake...' });
+          setStatus({ phase: "preparing", message: "Authorizing stake..." });
           await action.authorize();
         }
 
-        if (action.status === BtcActionStatus.ADDRESS_READY && action.depositAddress) {
+        if (
+          action.status === BtcActionStatus.ADDRESS_READY &&
+          action.depositAddress
+        ) {
           setDepositAddress(action.depositAddress);
           setStakeAmount(params.amount);
-          setStatus({ phase: 'waiting-deposit', message: 'Send BTC to the address below' });
+          setStatus({
+            phase: "waiting-deposit",
+            message: "Send BTC to the address below",
+          });
         } else if (action.status === BtcActionStatus.READY) {
-          setStatus({ phase: 'waiting-deposit', message: 'Generating deposit address...' });
+          setStatus({
+            phase: "waiting-deposit",
+            message: "Generating deposit address...",
+          });
           await action.generateDepositAddress();
 
           if (action.depositAddress) {
             setDepositAddress(action.depositAddress);
             setStakeAmount(params.amount);
-            setStatus({ phase: 'waiting-deposit', message: 'Send BTC to the address below' });
+            setStatus({
+              phase: "waiting-deposit",
+              message: "Send BTC to the address below",
+            });
           }
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Staking failed';
+        const message = err instanceof Error ? err.message : "Staking failed";
         setError(message);
-        setStatus({ phase: 'error', message: 'Failed to create stake' });
+        setStatus({ phase: "error", message: "Failed to create stake" });
         throw err;
       } finally {
         // Do NOT unsubscribe here — progress events must continue firing after deposit
@@ -169,7 +190,7 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
     unsubscribeRef.current = null;
     setDepositAddress(null);
     setStakeAmount(null);
-    setStatus({ phase: 'idle', message: 'Ready to stake' });
+    setStatus({ phase: "idle", message: "Ready to stake" });
     setProgress({});
     setError(null);
     setIsLoading(false);
@@ -183,5 +204,14 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
     };
   }, []);
 
-  return { stake, reset, depositAddress, stakeAmount, status, progress, error, isLoading };
+  return {
+    stake,
+    reset,
+    depositAddress,
+    stakeAmount,
+    status,
+    progress,
+    error,
+    isLoading,
+  };
 }

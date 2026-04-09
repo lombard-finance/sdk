@@ -1,7 +1,7 @@
-import { getExplorerTxUrl } from '@lombard.finance/sdk';
+import { getExplorerTxUrl } from "@lombard.finance/sdk";
 
-import { getStatusColor } from '../lib/status-colors';
-import type { UnstakingStatus } from '../pages/UnstakePage/useEvmUnstaking';
+import { getStatusColor } from "../lib/status-colors";
+import type { UnstakingStatus } from "../pages/UnstakePage/useEvmUnstaking";
 
 interface UnstakingProgressProps {
   txHash: string | null;
@@ -19,11 +19,13 @@ export function UnstakingProgress({
   sourceChain,
   onReset,
 }: UnstakingProgressProps) {
-  const isComplete = status.phase === 'complete';
-  const hasError = status.phase === 'error';
+  const isComplete = status.phase === "complete";
+  const hasError = status.phase === "error";
 
   const getExplorerUrl = (hash: string) => {
-    return getExplorerTxUrl(sourceChain, hash) ?? `https://etherscan.io/tx/${hash}`;
+    return (
+      getExplorerTxUrl(sourceChain, hash) ?? `https://etherscan.io/tx/${hash}`
+    );
   };
 
   return (
@@ -34,13 +36,15 @@ export function UnstakingProgress({
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           {!isComplete && !hasError && <span className="spinner" />}
-          <span className={`text-lg font-medium ${getStatusColor(status.phase)}`}>
+          <span
+            className={`text-lg font-medium ${getStatusColor(status.phase)}`}
+          >
             {status.message}
           </span>
         </div>
 
         {/* Transaction Progress */}
-        {status.phase === 'executing' && (
+        {status.phase === "executing" && (
           <div className="mt-4">
             <div className="flex justify-between text-sm mb-2">
               <span>Transaction Status</span>
@@ -74,7 +78,7 @@ export function UnstakingProgress({
       )}
 
       {/* Action buttons */}
-      {(isComplete || hasError) ? (
+      {isComplete || hasError ? (
         <button onClick={onReset} className="btn btn-secondary w-full">
           Start New Unstake
         </button>
@@ -85,7 +89,7 @@ export function UnstakingProgress({
       )}
 
       {/* Instructions */}
-      {status.phase === 'preparing' && (
+      {status.phase === "preparing" && (
         <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <h4 className="font-semibold mb-2 text-sm">What happens next:</h4>
           <ol className="text-sm space-y-1 text-secondary">
@@ -96,7 +100,7 @@ export function UnstakingProgress({
         </div>
       )}
 
-      {status.phase === 'executing' && (
+      {status.phase === "executing" && (
         <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
           <h4 className="font-semibold mb-2 text-sm">Processing Transaction</h4>
           <p className="text-sm text-secondary">

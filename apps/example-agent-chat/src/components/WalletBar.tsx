@@ -30,7 +30,11 @@ export function WalletBar() {
             className="bg-white/10 border border-white/10 text-white text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer hover:bg-white/15 transition-colors appearance-none"
           >
             {CHAINS.map((c) => (
-              <option key={c.id} value={c.id} className="bg-[#1a1a1a] text-white">
+              <option
+                key={c.id}
+                value={c.id}
+                className="bg-[#1a1a1a] text-white"
+              >
                 {c.name}
               </option>
             ))}

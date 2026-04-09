@@ -1,2 +1,2 @@
-export { functionType } from './function-type';
-export { wagmiDecorator } from './wagmi-decorator';
+export { functionType } from "./function-type";
+export { wagmiDecorator } from "./wagmi-decorator";

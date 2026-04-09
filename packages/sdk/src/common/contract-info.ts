@@ -1,6 +1,6 @@
-import { Abi, Address } from 'viem';
+import { Abi, Address } from "viem";
 
-import { ChainId } from './chains';
+import { ChainId } from "./chains";
 
 export type ContractInfo = {
   abi: Abi;

@@ -1,4 +1,10 @@
-import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 interface EvmWalletState {
   address: string | null;
@@ -28,10 +34,10 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const checkConnection = async () => {
-      if (typeof window.ethereum === 'undefined') return;
+      if (typeof window.ethereum === "undefined") return;
       try {
         const accounts = (await window.ethereum.request({
-          method: 'eth_accounts',
+          method: "eth_accounts",
         })) as string[];
 
         if (accounts.length > 0) {
@@ -39,7 +45,7 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
           setIsConnected(true);
         }
       } catch (err) {
-        console.error('Failed to check wallet connection:', err);
+        console.error("Failed to check wallet connection:", err);
       }
     };
 
@@ -60,24 +66,27 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
     // Some wallets inject window.ethereum asynchronously; retry after a short delay
     const retryTimer = setTimeout(() => void checkConnection(), 500);
 
-    if (window.ethereum && typeof window.ethereum.on === 'function') {
+    if (window.ethereum && typeof window.ethereum.on === "function") {
       try {
-        window.ethereum.on('accountsChanged', handleAccountsChanged);
-        window.ethereum.on('connect', () => void checkConnection());
+        window.ethereum.on("accountsChanged", handleAccountsChanged);
+        window.ethereum.on("connect", () => void checkConnection());
       } catch (err) {
-        console.warn('Failed to subscribe to wallet events:', err);
+        console.warn("Failed to subscribe to wallet events:", err);
       }
     }
 
     // Handle wallets that inject ethereum provider after page load
     const handleEthereumInit = () => void checkConnection();
-    window.addEventListener('ethereum#initialized', handleEthereumInit);
+    window.addEventListener("ethereum#initialized", handleEthereumInit);
 
     return () => {
       clearTimeout(retryTimer);
-      window.removeEventListener('ethereum#initialized', handleEthereumInit);
+      window.removeEventListener("ethereum#initialized", handleEthereumInit);
       try {
-        window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum?.removeListener(
+          "accountsChanged",
+          handleAccountsChanged,
+        );
       } catch {
         // Provider may not support removeListener
       }
@@ -85,8 +94,8 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const connect = useCallback(async () => {
-    if (typeof window.ethereum === 'undefined') {
-      setError('No web3 wallet detected. Please install MetaMask.');
+    if (typeof window.ethereum === "undefined") {
+      setError("No web3 wallet detected. Please install MetaMask.");
       return;
     }
 
@@ -95,7 +104,7 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       const accounts = (await window.ethereum.request({
-        method: 'eth_requestAccounts',
+        method: "eth_requestAccounts",
       })) as string[];
 
       if (accounts.length > 0) {
@@ -103,8 +112,8 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
         setIsConnected(true);
       }
     } catch (err) {
-      console.error('Failed to connect wallet:', err);
-      setError(err instanceof Error ? err.message : 'Failed to connect wallet');
+      console.error("Failed to connect wallet:", err);
+      setError(err instanceof Error ? err.message : "Failed to connect wallet");
     } finally {
       setIsConnecting(false);
     }
@@ -120,17 +129,17 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
    * Accepts an eip155-prefixed chain ID (e.g. "eip155:84532") or a numeric string.
    */
   const switchNetwork = useCallback(async (chainId: string) => {
-    if (typeof window.ethereum === 'undefined') return;
+    if (typeof window.ethereum === "undefined") return;
 
     // Extract numeric chain ID from eip155 format
-    const numericId = chainId.startsWith('eip155:')
-      ? chainId.split(':')[1]
+    const numericId = chainId.startsWith("eip155:")
+      ? chainId.split(":")[1]
       : chainId;
     const hexChainId = `0x${parseInt(numericId, 10).toString(16)}`;
 
     try {
       await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
+        method: "wallet_switchEthereumChain",
         params: [{ chainId: hexChainId }],
       });
     } catch (err: unknown) {
@@ -147,7 +156,15 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
 
   return (
     <EvmWalletContext.Provider
-      value={{ address, isConnected, isConnecting, error, connect, disconnect, switchNetwork }}
+      value={{
+        address,
+        isConnected,
+        isConnecting,
+        error,
+        connect,
+        disconnect,
+        switchNetwork,
+      }}
     >
       {children}
     </EvmWalletContext.Provider>

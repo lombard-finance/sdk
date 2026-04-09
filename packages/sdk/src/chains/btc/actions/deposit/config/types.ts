@@ -4,11 +4,11 @@
  * @module chains/btc/actions/deposit/config/types
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
-import type { z } from 'zod';
+import type { Env } from "@lombard.finance/sdk-common";
+import type { z } from "zod";
 
-import type { AssetId, Chain, ChainType } from '../../../../../core';
-import type { BtcCoreContext } from '../../../../../shared/context';
+import type { AssetId, Chain, ChainType } from "../../../../../core";
+import type { BtcCoreContext } from "../../../../../shared/context";
 
 /**
  * Stored fee signature result

@@ -21,14 +21,14 @@ import type {
   Chain,
   StepStatus,
   StrategyProgress,
-} from '../../../../core';
-import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
-import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
-import type { LombardError } from '../../../../shared/errors';
-import type { FeeAuthState } from '../../shared/feeAuth';
+} from "../../../../core";
+import type { MonitorableAction } from "../../../../shared/actions/BaseAction";
+import type { EvmOperationStatus } from "../../../../shared/constants/statusConstants";
+import type { LombardError } from "../../../../shared/errors";
+import type { FeeAuthState } from "../../shared/feeAuth";
 
 // Re-export status for convenience
-export { EvmOperationStatus as EvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+export { EvmOperationStatus as EvmUnstakeStatus } from "../../../../shared/constants/statusConstants";
 
 /**
  * EVM Unstake parameters
@@ -57,8 +57,7 @@ export interface EvmUnstakePrepareParams {
 /**
  * EVM Unstake progress
  */
-export interface EvmUnstakeProgress
-  extends StrategyProgress<EvmOperationStatus> {
+export interface EvmUnstakeProgress extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
   steps: {
     burning: StepStatus;

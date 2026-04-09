@@ -6,15 +6,15 @@
  * @module chains/btc/actions/deposit/config
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
+import type { Env } from "@lombard.finance/sdk-common";
 
-import type { AssetId, Chain, ChainType } from '../../../../../core';
-import { evmDepositConfig } from './evm';
-import { solanaDepositConfig } from './solana';
-import type { DepositChainConfig } from './types';
+import type { AssetId, Chain, ChainType } from "../../../../../core";
+import { evmDepositConfig } from "./evm";
+import { solanaDepositConfig } from "./solana";
+import type { DepositChainConfig } from "./types";
 
-export { evmDepositConfig } from './evm';
-export { solanaDepositConfig } from './solana';
+export { evmDepositConfig } from "./evm";
+export { solanaDepositConfig } from "./solana";
 export type {
   DepositChainConfig,
   DepositFeeAuthConfig,
@@ -22,7 +22,7 @@ export type {
   FeeAuthResult,
   SignatureResult,
   StoredFeeSignature,
-} from './types';
+} from "./types";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Registry
@@ -80,7 +80,7 @@ export function isRouteAvailable(
   env: Env,
 ): boolean {
   return config.routes.some(
-    route =>
+    (route) =>
       route.envs.includes(env) &&
       (!sourceChain || route.sourceChains.includes(sourceChain)),
   );

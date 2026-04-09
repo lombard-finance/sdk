@@ -4,14 +4,14 @@ The official SDK for integrating with [Lombard Finance](https://lombard.finance)
 
 ## Packages
 
-| Package | Description | npm |
-|---------|-------------|-----|
-| [@lombard.finance/sdk](./packages/sdk) | Core SDK for BTC/EVM operations | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk)](https://www.npmjs.com/package/@lombard.finance/sdk) |
-| [@lombard.finance/sdk-common](./packages/sdk-common) | Shared utilities and types | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-common)](https://www.npmjs.com/package/@lombard.finance/sdk-common) |
-| [@lombard.finance/sdk-solana](./packages/sdk-solana) | Solana integration | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-solana)](https://www.npmjs.com/package/@lombard.finance/sdk-solana) |
-| [@lombard.finance/sdk-sui](./packages/sdk-sui) | Sui integration | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-sui)](https://www.npmjs.com/package/@lombard.finance/sdk-sui) |
-| [@lombard.finance/sdk-starknet](./packages/sdk-starknet) | Starknet integration | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-starknet)](https://www.npmjs.com/package/@lombard.finance/sdk-starknet) |
-| [@lombard.finance/sdk-devtools](./packages/sdk-devtools) | Developer tools | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-devtools)](https://www.npmjs.com/package/@lombard.finance/sdk-devtools) |
+| Package                                                  | Description                     | npm                                                                                                                               |
+| -------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| [@lombard.finance/sdk](./packages/sdk)                   | Core SDK for BTC/EVM operations | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk)](https://www.npmjs.com/package/@lombard.finance/sdk)                   |
+| [@lombard.finance/sdk-common](./packages/sdk-common)     | Shared utilities and types      | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-common)](https://www.npmjs.com/package/@lombard.finance/sdk-common)     |
+| [@lombard.finance/sdk-solana](./packages/sdk-solana)     | Solana integration              | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-solana)](https://www.npmjs.com/package/@lombard.finance/sdk-solana)     |
+| [@lombard.finance/sdk-sui](./packages/sdk-sui)           | Sui integration                 | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-sui)](https://www.npmjs.com/package/@lombard.finance/sdk-sui)           |
+| [@lombard.finance/sdk-starknet](./packages/sdk-starknet) | Starknet integration            | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-starknet)](https://www.npmjs.com/package/@lombard.finance/sdk-starknet) |
+| [@lombard.finance/sdk-devtools](./packages/sdk-devtools) | Developer tools                 | [![npm](https://img.shields.io/npm/v/@lombard.finance/sdk-devtools)](https://www.npmjs.com/package/@lombard.finance/sdk-devtools) |
 
 ## Quick Start
 
@@ -20,11 +20,11 @@ npm install @lombard.finance/sdk
 ```
 
 ```typescript
-import { createLombardSDK, Chain, AssetId } from '@lombard.finance/sdk';
+import { createLombardSDK, Chain, AssetId } from "@lombard.finance/sdk";
 
 // Initialize the SDK
 const sdk = await createLombardSDK({
-  env: 'prod',
+  env: "prod",
   providers: {
     evm: () => window.ethereum,
     bitcoin: () => window.btc,
@@ -38,11 +38,11 @@ const stake = sdk.chain.btc.stake({
 });
 
 // Execute the staking flow
-await stake.prepare({ amount: '0.001', recipient: '0x...' });
+await stake.prepare({ amount: "0.001", recipient: "0x..." });
 await stake.authorize();
 await stake.generateDepositAddress();
 
-console.log('Deposit BTC to:', stake.depositAddress);
+console.log("Deposit BTC to:", stake.depositAddress);
 ```
 
 ## Documentation

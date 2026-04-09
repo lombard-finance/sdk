@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
-import { RPC_URLS } from '../../../const/rpcUrls';
-import { SolanaNetwork } from '../../../types';
-import { SelectField } from '../SelectField/SelectField';
+import { RPC_URLS } from "../../../const/rpcUrls";
+import { SolanaNetwork } from "../../../types";
+import { SelectField } from "../SelectField/SelectField";
 
 interface NetworkSelectorProps {
   network: SolanaNetwork;
@@ -17,11 +17,11 @@ export const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   network,
   setNetwork,
   setCustomRpcUrl,
-  id = 'network-select',
-  label = 'Network',
+  id = "network-select",
+  label = "Network",
   className,
 }) => {
-  const networkOptions = Object.keys(RPC_URLS).map(net => ({
+  const networkOptions = Object.keys(RPC_URLS).map((net) => ({
     value: net,
     label: net, // Consider using fromCamelCase for better display if needed
   }));
@@ -30,7 +30,7 @@ export const NetworkSelector: React.FC<NetworkSelectorProps> = ({
     const newNetwork = e.target.value as SolanaNetwork;
     setNetwork(newNetwork);
     if (setCustomRpcUrl) {
-      setCustomRpcUrl(''); // Clear custom RPC when network changes
+      setCustomRpcUrl(""); // Clear custom RPC when network changes
     }
   };
 

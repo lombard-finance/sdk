@@ -1,9 +1,9 @@
-import BigNumber from 'bignumber.js';
-import { PublicClient } from 'viem';
+import BigNumber from "bignumber.js";
+import { PublicClient } from "viem";
 
 export const estimateGasFees = async (
   publicClient: PublicClient,
-  callData: Parameters<PublicClient['estimateContractGas']>[0],
+  callData: Parameters<PublicClient["estimateContractGas"]>[0],
   overwriteMaxPriorityFeePerGas?: bigint,
 ) => {
   const fees = await publicClient.estimateFeesPerGas();

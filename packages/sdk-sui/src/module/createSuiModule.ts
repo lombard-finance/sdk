@@ -7,9 +7,9 @@
  * @module module/createSuiModule
  */
 
-import type { ChainModule, SuiService } from '@lombard.finance/sdk-common';
+import type { ChainModule, SuiService } from "@lombard.finance/sdk-common";
 
-import { SuiServiceImpl } from '../services/SuiServiceImpl';
+import { SuiServiceImpl } from "../services/SuiServiceImpl";
 
 /**
  * Create Sui module
@@ -26,13 +26,13 @@ import { SuiServiceImpl } from '../services/SuiServiceImpl';
  * });
  * ```
  */
-export function suiModule(): ChainModule<'sui', SuiService> {
+export function suiModule(): ChainModule<"sui", SuiService> {
   return {
-    id: 'sui',
-    chain: 'sui',
-    requiresProviders: ['sui'],
+    id: "sui",
+    chain: "sui",
+    requiresProviders: ["sui"],
     register(ctx) {
-      return new SuiServiceImpl(() => ctx.getProvider('sui'));
+      return new SuiServiceImpl(() => ctx.getProvider("sui"));
     },
   };
 }

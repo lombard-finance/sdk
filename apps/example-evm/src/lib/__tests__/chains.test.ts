@@ -1,13 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 
-import { Chain, Env } from '@lombard.finance/sdk';
+import { Chain, Env } from "@lombard.finance/sdk";
 
-import { getAvailableChains, getDefaultChain } from '../chains';
+import { getAvailableChains, getDefaultChain } from "../chains";
 
-describe('getAvailableChains', () => {
-  it('returns correct prod chains', () => {
+describe("getAvailableChains", () => {
+  it("returns correct prod chains", () => {
     const chains = getAvailableChains(Env.prod);
-    const values = chains.map(c => c.value);
+    const values = chains.map((c) => c.value);
 
     expect(values).toContain(Chain.ETHEREUM);
     expect(values).toContain(Chain.BASE);
@@ -21,9 +21,9 @@ describe('getAvailableChains', () => {
     expect(values).not.toContain(Chain.BOB);
   });
 
-  it('returns correct stage chains', () => {
+  it("returns correct stage chains", () => {
     const chains = getAvailableChains(Env.stage);
-    const values = chains.map(c => c.value);
+    const values = chains.map((c) => c.value);
 
     expect(values).toContain(Chain.BASE_SEPOLIA);
     expect(values).toContain(Chain.SEPOLIA);
@@ -37,9 +37,9 @@ describe('getAvailableChains', () => {
     expect(values).not.toContain(Chain.BERACHAIN_BARTIO);
   });
 
-  it('returns correct testnet chains', () => {
+  it("returns correct testnet chains", () => {
     const chains = getAvailableChains(Env.testnet);
-    const values = chains.map(c => c.value);
+    const values = chains.map((c) => c.value);
 
     expect(values).toContain(Chain.BASE_SEPOLIA);
     expect(values).toContain(Chain.SEPOLIA);
@@ -51,7 +51,7 @@ describe('getAvailableChains', () => {
     expect(values).not.toContain(Chain.BERACHAIN_BARTIO);
   });
 
-  it('stage and testnet have different chain counts', () => {
+  it("stage and testnet have different chain counts", () => {
     const stageChains = getAvailableChains(Env.stage);
     const testnetChains = getAvailableChains(Env.testnet);
 
@@ -60,16 +60,16 @@ describe('getAvailableChains', () => {
   });
 });
 
-describe('getDefaultChain', () => {
-  it('returns Ethereum for prod', () => {
+describe("getDefaultChain", () => {
+  it("returns Ethereum for prod", () => {
     expect(getDefaultChain(Env.prod)).toBe(Chain.ETHEREUM);
   });
 
-  it('returns Base Sepolia for stage', () => {
+  it("returns Base Sepolia for stage", () => {
     expect(getDefaultChain(Env.stage)).toBe(Chain.BASE_SEPOLIA);
   });
 
-  it('returns Base Sepolia for testnet', () => {
+  it("returns Base Sepolia for testnet", () => {
     expect(getDefaultChain(Env.testnet)).toBe(Chain.BASE_SEPOLIA);
   });
 });

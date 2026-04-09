@@ -1,13 +1,13 @@
-import { Env } from '@lombard.finance/sdk-common';
-import { Chain, createPublicClient, http, PublicClient } from 'viem';
+import { Env } from "@lombard.finance/sdk-common";
+import { Chain, createPublicClient, http, PublicClient } from "viem";
 
 import {
   CHAIN_ID_TO_VIEM_CHAIN_MAP,
   ChainId,
   getChain,
-} from '../common/chains';
-import { determineEnv } from '../utils/env';
-import { getRpcUrlConfig } from './rpc-url-config';
+} from "../common/chains";
+import { determineEnv } from "../utils/env";
+import { getRpcUrlConfig } from "./rpc-url-config";
 
 type MakePublicClientParameters = {
   chainId: ChainId;

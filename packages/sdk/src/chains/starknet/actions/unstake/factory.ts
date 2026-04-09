@@ -4,10 +4,10 @@
  * @module chains/starknet/actions/unstake/factory
  */
 
-import type { LombardConfig } from '../../../../config/types';
-import type { StarknetCoreContext } from '../../../../shared/context';
-import { StarknetUnstake } from './StarknetUnstake';
-import type { IStarknetUnstake,StarknetUnstakeParams } from './types';
+import type { LombardConfig } from "../../../../config/types";
+import type { StarknetCoreContext } from "../../../../shared/context";
+import { StarknetUnstake } from "./StarknetUnstake";
+import type { IStarknetUnstake, StarknetUnstakeParams } from "./types";
 
 /**
  * Create Starknet unstake from context
@@ -27,6 +27,6 @@ export function starknetUnstake(
   _params: StarknetUnstakeParams,
 ): IStarknetUnstake {
   throw new Error(
-    'starknetUnstake() from config is not yet supported. Use sdk.chain.starknet.unstake() instead.',
+    "starknetUnstake() from config is not yet supported. Use sdk.chain.starknet.unstake() instead.",
   );
 }

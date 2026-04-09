@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Chain, Env } from '@lombard.finance/sdk';
+import type { Chain, Env } from "@lombard.finance/sdk";
 
 const {
   mockCreateConfig,
@@ -11,8 +11,8 @@ const {
   mockUseLombardSDK,
 } = vi.hoisted(() => {
   const mockCreateConfig = vi.fn();
-  const mockSuiModule = vi.fn().mockReturnValue('sui-module');
-  const mockGetEnvironment = vi.fn().mockReturnValue('stage');
+  const mockSuiModule = vi.fn().mockReturnValue("sui-module");
+  const mockGetEnvironment = vi.fn().mockReturnValue("stage");
 
   const mockStake = vi.fn();
   const mockReset = vi.fn();
@@ -21,7 +21,7 @@ const {
     reset: mockReset,
     depositAddress: null,
     stakeAmount: null,
-    status: { phase: 'idle', message: '' },
+    status: { phase: "idle", message: "" },
     progress: null,
     error: null,
   };
@@ -45,47 +45,47 @@ const {
 
 let capturedConfigFactory: (() => unknown) | undefined;
 
-vi.mock('react', async importOriginal => {
-  const actual = await importOriginal<typeof import('react')>();
+vi.mock("react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react")>();
   return {
     ...actual,
     useCallback: (fn: unknown) => fn,
   };
 });
 
-vi.mock('@lombard.finance/sdk', () => ({
+vi.mock("@lombard.finance/sdk", () => ({
   createConfig: mockCreateConfig,
   Chain: {
-    BITCOIN_MAINNET: 'bitcoin-mainnet',
-    BITCOIN_SIGNET: 'bitcoin-signet',
+    BITCOIN_MAINNET: "bitcoin-mainnet",
+    BITCOIN_SIGNET: "bitcoin-signet",
   },
   Env: {
-    prod: 'prod',
-    testnet: 'testnet',
-    stage: 'stage',
+    prod: "prod",
+    testnet: "testnet",
+    stage: "stage",
   },
 }));
 
-vi.mock('@lombard.finance/sdk-sui', () => ({
+vi.mock("@lombard.finance/sdk-sui", () => ({
   suiModule: mockSuiModule,
 }));
 
-vi.mock('@lombard.finance/sdk-react', () => ({
+vi.mock("@lombard.finance/sdk-react", () => ({
   useBtcStake: mockUseBtcStake,
   useLombardSDK: mockUseLombardSDK,
 }));
 
-vi.mock('../../../lib/config', () => ({
+vi.mock("../../../lib/config", () => ({
   getEnvironment: mockGetEnvironment,
 }));
 
-import { useBtcStakingSui } from '../useBtcStakingSui';
+import { useBtcStakingSui } from "../useBtcStakingSui";
 
-describe('useBtcStakingSui', () => {
+describe("useBtcStakingSui", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     capturedConfigFactory = undefined;
-    mockGetEnvironment.mockReturnValue('stage');
+    mockGetEnvironment.mockReturnValue("stage");
     mockUseBtcStake.mockReturnValue(mockUseBtcStakeReturn);
     mockUseLombardSDK.mockImplementation((factory: () => unknown) => {
       capturedConfigFactory = factory;
@@ -93,10 +93,10 @@ describe('useBtcStakingSui', () => {
     });
   });
 
-  it('returns idle state when no suiWallet provided', () => {
+  it("returns idle state when no suiWallet provided", () => {
     const result = useBtcStakingSui(undefined, undefined);
 
-    expect(result.status).toEqual({ phase: 'idle', message: '' });
+    expect(result.status).toEqual({ phase: "idle", message: "" });
     expect(result.depositAddress).toBeNull();
     expect(result.stakeAmount).toBeNull();
     expect(result.error).toBeNull();
@@ -108,9 +108,9 @@ describe('useBtcStakingSui', () => {
     expect(mockCreateConfig).not.toHaveBeenCalled();
   });
 
-  it('creates SDK config with sui provider when both wallet and walletAccount exist', () => {
-    const mockWallet = { name: 'sui-wallet' };
-    const mockAccount = { address: '0xabc' };
+  it("creates SDK config with sui provider when both wallet and walletAccount exist", () => {
+    const mockWallet = { name: "sui-wallet" };
+    const mockAccount = { address: "0xabc" };
 
     useBtcStakingSui(mockWallet, mockAccount);
 
@@ -119,18 +119,18 @@ describe('useBtcStakingSui', () => {
 
     expect(mockCreateConfig).toHaveBeenCalledWith(
       expect.objectContaining({
-        env: 'stage',
+        env: "stage",
         providers: expect.objectContaining({
           sui: expect.any(Function),
         }),
-        modules: ['sui-module'],
+        modules: ["sui-module"],
       }),
     );
   });
 
-  it('sui provider has getWallet and getWalletAccount methods', () => {
-    const mockWallet = { name: 'sui-wallet' };
-    const mockAccount = { address: '0xabc' };
+  it("sui provider has getWallet and getWalletAccount methods", () => {
+    const mockWallet = { name: "sui-wallet" };
+    const mockAccount = { address: "0xabc" };
 
     useBtcStakingSui(mockWallet, mockAccount);
 
@@ -144,9 +144,9 @@ describe('useBtcStakingSui', () => {
     expect(suiProvider.getWalletAccount()).toBe(mockAccount);
   });
 
-  it('includes suiModule in config modules', () => {
-    const mockWallet = { name: 'sui-wallet' };
-    const mockAccount = { address: '0xabc' };
+  it("includes suiModule in config modules", () => {
+    const mockWallet = { name: "sui-wallet" };
+    const mockAccount = { address: "0xabc" };
 
     useBtcStakingSui(mockWallet, mockAccount);
 
@@ -156,33 +156,33 @@ describe('useBtcStakingSui', () => {
     expect(mockSuiModule).toHaveBeenCalled();
     expect(mockCreateConfig).toHaveBeenCalledWith(
       expect.objectContaining({
-        modules: ['sui-module'],
+        modules: ["sui-module"],
       }),
     );
   });
 
-  it('passes partnerId to config when provided', () => {
-    const mockWallet = { name: 'sui-wallet' };
-    const mockAccount = { address: '0xabc' };
+  it("passes partnerId to config when provided", () => {
+    const mockWallet = { name: "sui-wallet" };
+    const mockAccount = { address: "0xabc" };
 
-    useBtcStakingSui(mockWallet, mockAccount, 'partner-123');
+    useBtcStakingSui(mockWallet, mockAccount, "partner-123");
 
     expect(capturedConfigFactory).toBeDefined();
     capturedConfigFactory!();
 
     expect(mockCreateConfig).toHaveBeenCalledWith(
       expect.objectContaining({
-        partner: { partnerId: 'partner-123' },
+        partner: { partnerId: "partner-123" },
       }),
     );
   });
 
-  it('delegates stake call correctly with proper chain mapping', () => {
-    const mockWallet = { name: 'sui-wallet' };
-    const mockAccount = { address: '0xabc' };
+  it("delegates stake call correctly with proper chain mapping", () => {
+    const mockWallet = { name: "sui-wallet" };
+    const mockAccount = { address: "0xabc" };
 
     // Use testnet env (non-prod) so sourceChain = BITCOIN_SIGNET
-    mockGetEnvironment.mockReturnValue('stage');
+    mockGetEnvironment.mockReturnValue("stage");
 
     const mockStakeFn = vi.fn();
     mockUseBtcStake.mockReturnValue({
@@ -193,26 +193,26 @@ describe('useBtcStakingSui', () => {
     const result = useBtcStakingSui(mockWallet, mockAccount);
 
     const formData = {
-      amount: '0.01',
-      destChain: 'sui-mainnet' as Chain,
-      destAddress: '0xrecipient',
-      assetOut: 'lbtc' as never,
+      amount: "0.01",
+      destChain: "sui-mainnet" as Chain,
+      destAddress: "0xrecipient",
+      assetOut: "lbtc" as never,
     };
 
     result.stake(formData);
 
     expect(mockStakeFn).toHaveBeenCalledWith({
-      amount: '0.01',
-      destChain: 'sui-mainnet',
-      sourceChain: 'bitcoin-signet',
-      assetOut: 'lbtc',
-      recipient: '0xrecipient',
+      amount: "0.01",
+      destChain: "sui-mainnet",
+      sourceChain: "bitcoin-signet",
+      assetOut: "lbtc",
+      recipient: "0xrecipient",
     });
   });
 
-  it('uses BITCOIN_MAINNET as sourceChain when env is prod', () => {
-    const mockWallet = { name: 'sui-wallet' };
-    const mockAccount = { address: '0xabc' };
+  it("uses BITCOIN_MAINNET as sourceChain when env is prod", () => {
+    const mockWallet = { name: "sui-wallet" };
+    const mockAccount = { address: "0xabc" };
 
     const mockStakeFn = vi.fn();
     mockUseBtcStake.mockReturnValue({
@@ -224,21 +224,21 @@ describe('useBtcStakingSui', () => {
       mockWallet,
       mockAccount,
       undefined,
-      'prod' as Env,
+      "prod" as Env,
     );
 
     const formData = {
-      amount: '0.01',
-      destChain: 'sui-mainnet' as Chain,
-      destAddress: '0xrecipient',
-      assetOut: 'lbtc' as never,
+      amount: "0.01",
+      destChain: "sui-mainnet" as Chain,
+      destAddress: "0xrecipient",
+      assetOut: "lbtc" as never,
     };
 
     result.stake(formData);
 
     expect(mockStakeFn).toHaveBeenCalledWith(
       expect.objectContaining({
-        sourceChain: 'bitcoin-mainnet',
+        sourceChain: "bitcoin-mainnet",
       }),
     );
   });

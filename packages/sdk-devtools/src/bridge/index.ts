@@ -10,5 +10,4 @@ export {
   type DevToolsStateCallback,
   getDevToolsBridge,
   resetDevToolsBridge,
-} from './DevToolsBridge';
-
+} from "./DevToolsBridge";

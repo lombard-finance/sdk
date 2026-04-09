@@ -4,5 +4,5 @@
  * @module chains/solana
  */
 
-export * from './actions';
-export { SolanaActions, solanaActions } from './SolanaActions';
+export * from "./actions";
+export { SolanaActions, solanaActions } from "./SolanaActions";

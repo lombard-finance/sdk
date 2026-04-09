@@ -1,4 +1,4 @@
-import type { EIP1193Provider } from 'viem';
+import type { EIP1193Provider } from "viem";
 
 /**
  * Provider interfaces shared between the core SDK and optional chain modules.
@@ -34,11 +34,11 @@ export type AnyProvider =
   | StarknetProvider;
 
 export const ProviderKeys = [
-  'evm',
-  'bitcoin',
-  'solana',
-  'sui',
-  'starknet',
+  "evm",
+  "bitcoin",
+  "solana",
+  "sui",
+  "starknet",
 ] as const;
 export type ProviderKey = (typeof ProviderKeys)[number];
 

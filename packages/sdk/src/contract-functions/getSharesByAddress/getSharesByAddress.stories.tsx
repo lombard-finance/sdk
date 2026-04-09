@@ -1,22 +1,22 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { ChainId } from '../../common/chains';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
-import { functionType } from '../../stories/components/decorators';
-import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
-import useQuery from '../../stories/hooks/useQuery';
-import { Vault } from '../../vaults/lib/config';
+import { ChainId } from "../../common/chains";
+import { Button } from "../../stories/components/Button";
+import { CodeBlock } from "../../stories/components/CodeBlock";
+import { functionType } from "../../stories/components/decorators";
+import { EXAMPLE_EVM_ADDRESS } from "../../stories/constants";
+import useQuery from "../../stories/hooks/useQuery";
+import { Vault } from "../../vaults/lib/config";
 import {
   getSharesByAddress,
   IGetSharesByAddressParameters,
-} from './getSharesByAddress';
+} from "./getSharesByAddress";
 
 const meta = {
-  title: 'read/getSharesByAddress',
+  title: "read/getSharesByAddress",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('read')],
+  tags: ["autodocs"],
+  decorators: [functionType("read")],
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -55,7 +55,7 @@ export function StoryView(props: IGetSharesByAddressParameters) {
         <div className="mt-4 p-4 border rounded">
           <h3 className="text-lg font-bold mb-2">Vault shares owned</h3>
           <p>
-            <b>{data.balance.toString()}</b> Vault shares ={' '}
+            <b>{data.balance.toString()}</b> Vault shares ={" "}
             {data.balanceLbtc.toString()} LBTC
           </p>
         </div>

@@ -1,4 +1,4 @@
 export {
   getSharesByAddress,
   type IGetSharesByAddressParameters,
-} from './getSharesByAddress';
+} from "./getSharesByAddress";

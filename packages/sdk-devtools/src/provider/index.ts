@@ -9,5 +9,4 @@ export {
   type DevToolsProviderProps,
   useDevToolsContext,
   useRegisterAction,
-} from './DevToolsProvider';
-
+} from "./DevToolsProvider";

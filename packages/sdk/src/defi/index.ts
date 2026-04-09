@@ -2,7 +2,7 @@ export {
   isVedaVaultStakeAndBakeChain,
   VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
   type VedaVaultStakeAndBakeChain,
-} from '../vaults/lib/config';
+} from "../vaults/lib/config";
 export {
   DEFI_REGISTRY,
   DefiProtocol,
@@ -14,4 +14,4 @@ export {
   getSupportedProtocols,
   type StakeAndBakeRegistry,
   type StakeAndBakeToken,
-} from './defi-registry';
+} from "./defi-registry";

@@ -1,1 +1,1 @@
-export { SimpleStakingPage } from './SimpleStakingPage';
+export { SimpleStakingPage } from "./SimpleStakingPage";

@@ -6,41 +6,41 @@
  * @module chains/solana/actions/unstake/SolanaUnstake
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
-import { z } from 'zod';
+import type { Env } from "@lombard.finance/sdk-common";
+import { z } from "zod";
 
-import { StepStatus } from '../../../../core';
-import { BaseAction } from '../../../../shared/actions/BaseAction';
-import { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
-import type { SolanaCoreContext } from '../../../../shared/context';
-import { LombardError } from '../../../../shared/errors';
-import type { UnstakeEventMap } from '../../../../shared/events';
+import { StepStatus } from "../../../../core";
+import { BaseAction } from "../../../../shared/actions/BaseAction";
+import { NonEvmUnstakeStatus } from "../../../../shared/constants/statusConstants";
+import type { SolanaCoreContext } from "../../../../shared/context";
+import { LombardError } from "../../../../shared/errors";
+import type { UnstakeEventMap } from "../../../../shared/events";
 import {
   amountSchema,
   validatePrepareParams,
-} from '../../../../shared/validation';
-import { toSatoshi } from '../../../../utils/satoshi';
-import { isBtcUnstakeSupported,solanaToBtcConfig } from './config';
+} from "../../../../shared/validation";
+import { toSatoshi } from "../../../../utils/satoshi";
+import { isBtcUnstakeSupported, solanaToBtcConfig } from "./config";
 import type {
   ISolanaUnstake,
   SolanaUnstakeParams,
   SolanaUnstakePrepareParams,
-} from './types';
+} from "./types";
 
 /**
  * Map environment to Solana network
  */
 function envToSolanaNetwork(env: Env): string {
   switch (env) {
-    case 'prod':
-      return 'mainnet-beta';
-    case 'testnet':
-      return 'testnet';
-    case 'stage':
-    case 'dev':
-    case 'ibc':
+    case "prod":
+      return "mainnet-beta";
+    case "testnet":
+      return "testnet";
+    case "stage":
+    case "dev":
+    case "ibc":
     default:
-      return 'devnet';
+      return "devnet";
   }
 }
 
@@ -84,7 +84,7 @@ export class SolanaUnstake
   }
 
   async prepare(params: SolanaUnstakePrepareParams): Promise<void> {
-    this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
+    this.assertStatus(NonEvmUnstakeStatus.IDLE, "prepare");
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
@@ -101,14 +101,14 @@ export class SolanaUnstake
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(NonEvmUnstakeStatus.READY, 'execute');
+    this.assertStatus(NonEvmUnstakeStatus.READY, "execute");
 
     return this.act(async () => {
       const amount = this._amount;
       const recipient = this._recipient;
 
       if (!amount || !recipient) {
-        throw LombardError.missingParameter('amount or recipient');
+        throw LombardError.missingParameter("amount or recipient");
       }
 
       // Emit burning step

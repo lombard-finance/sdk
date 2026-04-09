@@ -1,10 +1,10 @@
-import { RpcProvider, WalletAccount } from 'starknet';
+import { RpcProvider, WalletAccount } from "starknet";
 
-import { StarknetChainId } from './chains';
+import { StarknetChainId } from "./chains";
 
 const RPC_PROVIDERS = {
-  [StarknetChainId.SN_MAIN]: 'https://rpc.starknet.lava.build:443',
-  [StarknetChainId.SN_SEPOLIA]: 'https://rpc.starknet-testnet.lava.build:443',
+  [StarknetChainId.SN_MAIN]: "https://rpc.starknet.lava.build:443",
+  [StarknetChainId.SN_SEPOLIA]: "https://rpc.starknet-testnet.lava.build:443",
 };
 
 const providers = new Map<StarknetChainId, RpcProvider>();

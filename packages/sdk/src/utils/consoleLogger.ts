@@ -7,12 +7,12 @@
  * @module utils/consoleLogger
  */
 
-import type { Logger } from '../shared/context/types';
+import type { Logger } from "../shared/context/types";
 
 /**
  * Log level hierarchy (from most to least verbose)
  */
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'none';
+export type LogLevel = "debug" | "info" | "warn" | "error" | "none";
 
 /**
  * Options for creating a console logger
@@ -46,7 +46,7 @@ export interface ConsoleLoggerOptions {
   timestamp?: boolean;
 }
 
-const LOG_LEVELS: LogLevel[] = ['debug', 'info', 'warn', 'error', 'none'];
+const LOG_LEVELS: LogLevel[] = ["debug", "info", "warn", "error", "none"];
 
 /**
  * Create a console logger with configurable options
@@ -72,13 +72,17 @@ const LOG_LEVELS: LogLevel[] = ['debug', 'info', 'warn', 'error', 'none'];
 export function createConsoleLogger(
   options: ConsoleLoggerOptions = {},
 ): Logger {
-  const { level = 'debug', prefix = '[Lombard SDK]', timestamp = false } = options;
+  const {
+    level = "debug",
+    prefix = "[Lombard SDK]",
+    timestamp = false,
+  } = options;
 
   const minLevelIndex = LOG_LEVELS.indexOf(level);
 
   const shouldLog = (logLevel: LogLevel): boolean => {
     const levelIndex = LOG_LEVELS.indexOf(logLevel);
-    return levelIndex >= minLevelIndex && level !== 'none';
+    return levelIndex >= minLevelIndex && level !== "none";
   };
 
   const formatMessage = (msg: string): string => {
@@ -98,25 +102,25 @@ export function createConsoleLogger(
 
   return {
     debug(message: string, meta?: Record<string, unknown>): void {
-      if (shouldLog('debug')) {
+      if (shouldLog("debug")) {
         console.debug(formatMessage(message), ...formatMeta(meta));
       }
     },
 
     info(message: string, meta?: Record<string, unknown>): void {
-      if (shouldLog('info')) {
+      if (shouldLog("info")) {
         console.info(formatMessage(message), ...formatMeta(meta));
       }
     },
 
     warn(message: string, meta?: Record<string, unknown>): void {
-      if (shouldLog('warn')) {
+      if (shouldLog("warn")) {
         console.warn(formatMessage(message), ...formatMeta(meta));
       }
     },
 
     error(message: string, meta?: Record<string, unknown>): void {
-      if (shouldLog('error')) {
+      if (shouldLog("error")) {
         console.error(formatMessage(message), ...formatMeta(meta));
       }
     },
@@ -136,5 +140,3 @@ export function createSilentLogger(): Logger {
     error: () => {},
   };
 }
-
-

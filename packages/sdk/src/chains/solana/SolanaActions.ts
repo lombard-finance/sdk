@@ -14,23 +14,20 @@
  * ```
  */
 
-import type { SolanaService } from '@lombard.finance/sdk-common';
+import type { SolanaService } from "@lombard.finance/sdk-common";
 
-import { PartnerConfiguration } from '../../client/PartnerConfiguration';
-import type { LombardConfig } from '../../config/types';
-import { getProviderGetter } from '../../config/types';
-import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
-import type { SolanaCoreContext } from '../../shared/context';
-import { SolanaRedeem } from './actions/redeem/SolanaRedeem';
-import type {
-  ISolanaRedeem,
-  SolanaRedeemParams,
-} from './actions/redeem/types';
-import { SolanaUnstake } from './actions/unstake/SolanaUnstake';
+import { PartnerConfiguration } from "../../client/PartnerConfiguration";
+import type { LombardConfig } from "../../config/types";
+import { getProviderGetter } from "../../config/types";
+import { CapabilityRegistry } from "../../modules/CapabilityRegistry";
+import type { SolanaCoreContext } from "../../shared/context";
+import { SolanaRedeem } from "./actions/redeem/SolanaRedeem";
+import type { ISolanaRedeem, SolanaRedeemParams } from "./actions/redeem/types";
+import { SolanaUnstake } from "./actions/unstake/SolanaUnstake";
 import type {
   ISolanaUnstake,
   SolanaUnstakeParams,
-} from './actions/unstake/types';
+} from "./actions/unstake/types";
 
 /**
  * Create Solana core context from config
@@ -38,12 +35,12 @@ import type {
  */
 function createSolanaCoreContext(config: LombardConfig): SolanaCoreContext {
   const registry = new CapabilityRegistry(config.modules, config);
-  const solana = registry.require('solana') as SolanaService;
+  const solana = registry.require("solana") as SolanaService;
 
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
-    getProvider: async key => {
+    getProvider: async (key) => {
       const getter = getProviderGetter(config.providers, key);
       if (!getter) return undefined;
       return getter();

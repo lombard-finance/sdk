@@ -7,8 +7,8 @@
  * @module utils/chain
  */
 
-import { CAIP2_SEPARATOR, Chain,CHAIN_PREFIXES } from '../core';
-import { LombardError, ValidationErrorCode } from '../shared/errors';
+import { CAIP2_SEPARATOR, Chain, CHAIN_PREFIXES } from "../core";
+import { LombardError, ValidationErrorCode } from "../shared/errors";
 
 /** Helper to get prefix with separator */
 const withSeparator = (prefix: string) => `${prefix}${CAIP2_SEPARATOR}`;
@@ -159,19 +159,19 @@ export function getChainNamespace(chain: Chain): string {
  */
 export function chainToSolanaNetwork(chainId: string): string {
   const CHAIN_TO_NETWORK: Record<string, string> = {
-    [Chain.SOLANA_MAINNET]: 'mainnet-beta',
-    [Chain.SOLANA_DEVNET]: 'devnet',
-    [Chain.SOLANA_TESTNET]: 'testnet',
-    'solana:mainnet-beta': 'mainnet-beta',
-    'solana:devnet': 'devnet',
-    'solana:testnet': 'testnet',
+    [Chain.SOLANA_MAINNET]: "mainnet-beta",
+    [Chain.SOLANA_DEVNET]: "devnet",
+    [Chain.SOLANA_TESTNET]: "testnet",
+    "solana:mainnet-beta": "mainnet-beta",
+    "solana:devnet": "devnet",
+    "solana:testnet": "testnet",
   };
 
   const network = CHAIN_TO_NETWORK[chainId];
   if (!network) {
     throw new LombardError(
       ValidationErrorCode.INVALID_CHAIN,
-      `Unknown Solana chain: ${chainId}. Expected one of: ${Object.keys(CHAIN_TO_NETWORK).join(', ')}`,
+      `Unknown Solana chain: ${chainId}. Expected one of: ${Object.keys(CHAIN_TO_NETWORK).join(", ")}`,
     );
   }
   return network;

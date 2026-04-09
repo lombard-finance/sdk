@@ -1,12 +1,12 @@
-import { BlockchainIdentifier } from '../../common/blockchain-identifier';
+import { BlockchainIdentifier } from "../../common/blockchain-identifier";
 import {
   ChainId,
   SolanaChain,
   StarknetChainId,
   SuiChain,
-} from '../../common/chains';
-import { IEnvParam } from '../../common/parameters';
-import { Token } from '../../tokens/token-addresses';
+} from "../../common/chains";
+import { IEnvParam } from "../../common/parameters";
+import { Token } from "../../tokens/token-addresses";
 
 export interface IDepositAddress {
   /**
@@ -102,5 +102,5 @@ export interface IGetDepositBtcAddressesParameters extends IEnvParam {
 
 export type IGetDepositBtcAddressParameters = { token?: Token } & Pick<
   IGetDepositBtcAddressesParameters,
-  'address' | 'chainId' | 'env' | 'partnerId'
+  "address" | "chainId" | "env" | "partnerId"
 >;

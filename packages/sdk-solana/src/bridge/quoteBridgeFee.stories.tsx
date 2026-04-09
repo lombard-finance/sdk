@@ -1,19 +1,19 @@
-import { EndpointId } from '@layerzerolabs/lz-definitions';
-import type { Meta, StoryObj } from '@storybook/react';
-import React, { useEffect, useState } from 'react';
+import { EndpointId } from "@layerzerolabs/lz-definitions";
+import type { Meta, StoryObj } from "@storybook/react";
+import React, { useEffect, useState } from "react";
 
-import { getLBTCAddress, networkToEnv } from '../const/getConfig';
+import { getLBTCAddress, networkToEnv } from "../const/getConfig";
 import {
   Button,
   ConnectButton,
   ErrorDisplay,
   ResultDisplay,
-} from '../stories/components';
-import { functionType } from '../stories/decorators/function-type';
-import { useConnect } from '../stories/hooks/useConnect';
-import useQuery from '../stories/hooks/useQuery';
-import { SolanaNetwork } from '../types';
-import { quoteBridgeFee } from './quoteBridgeFee';
+} from "../stories/components";
+import { functionType } from "../stories/decorators/function-type";
+import { useConnect } from "../stories/hooks/useConnect";
+import useQuery from "../stories/hooks/useQuery";
+import { SolanaNetwork } from "../types";
+import { quoteBridgeFee } from "./quoteBridgeFee";
 
 interface QuoteBridgeFeeStoryArgs {
   network: SolanaNetwork;
@@ -36,16 +36,16 @@ export const StoryView = ({
   const isConnected = !!connectionData;
   const provider = connectionData?.provider;
 
-  const [tokenMint, setTokenMint] = useState<string>('');
+  const [tokenMint, setTokenMint] = useState<string>("");
 
   useEffect(() => {
-    setTokenMint('');
+    setTokenMint("");
     if (!network) return;
     try {
       const lbtcAddress = getLBTCAddress(network);
       setTokenMint(lbtcAddress);
     } catch (err: unknown) {
-      console.error('Could not get LBTC address for network:', network, err);
+      console.error("Could not get LBTC address for network:", network, err);
     }
   }, [network]);
 
@@ -54,25 +54,25 @@ export const StoryView = ({
       ? EndpointId.ETHEREUM_V2_MAINNET
       : EndpointId.SEPOLIA_V2_TESTNET;
   const destinationEidName =
-    network === SolanaNetwork.mainnet ? 'Ethereum Mainnet' : 'Sepolia Testnet';
+    network === SolanaNetwork.mainnet ? "Ethereum Mainnet" : "Sepolia Testnet";
 
   const request = async () => {
-    if (!provider?.publicKey) throw new Error('Wallet not connected.');
+    if (!provider?.publicKey) throw new Error("Wallet not connected.");
     if (!tokenMint)
-      throw new Error('LBTC Token address not loaded for network.');
+      throw new Error("LBTC Token address not loaded for network.");
     if (!amount || !recipientAddress || !destinationEid)
-      throw new Error('Missing Amount or Recipient Address.');
+      throw new Error("Missing Amount or Recipient Address.");
 
     const destEidNum = Number.parseInt(destinationEid.toString(), 10);
     if (
       Number.isNaN(destEidNum) ||
       !Object.values(EndpointId).includes(destEidNum as EndpointId)
     ) {
-      throw new Error('Invalid LayerZero Endpoint ID');
+      throw new Error("Invalid LayerZero Endpoint ID");
     }
     const amountSats = Math.round(Number.parseFloat(amount) * 10 ** 8);
     if (Number.isNaN(amountSats) || amountSats <= 0) {
-      throw new Error('Invalid amount.');
+      throw new Error("Invalid amount.");
     }
 
     try {
@@ -84,14 +84,14 @@ export const StoryView = ({
           to: recipientAddress,
           amountLD: amountSats,
           minAmountLD: amountSats,
-          extraOptions: '',
-          composeMsg: '',
-          oftCmd: '',
+          extraOptions: "",
+          composeMsg: "",
+          oftCmd: "",
         },
       });
       return `Native Fee: ${quote.nativeFee} lamports\nLZ Token Fee: ${quote.lzTokenFee}`;
     } catch (err) {
-      console.error('Quote Error:', err);
+      console.error("Quote Error:", err);
       throw err;
     }
   };
@@ -147,30 +147,30 @@ export const StoryView = ({
 };
 
 const meta: Meta<typeof StoryView> = {
-  title: 'read/quoteBridgeFee',
+  title: "read/quoteBridgeFee",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('read')],
+  tags: ["autodocs"],
+  decorators: [functionType("read")],
   parameters: {
     docs: {
       description: {
         component:
-          'Demonstrates quoting LayerZero bridge fees using `quoteBridgeFee`. Network and other params are controlled by args.',
+          "Demonstrates quoting LayerZero bridge fees using `quoteBridgeFee`. Network and other params are controlled by args.",
       },
     },
   },
   args: {
     network: SolanaNetwork.devnet,
-    amount: '0.0001',
-    recipientAddress: '',
+    amount: "0.0001",
+    recipientAddress: "",
   },
   argTypes: {
     network: {
-      control: { type: 'select' },
+      control: { type: "select" },
       options: Object.values(SolanaNetwork),
     },
-    amount: { control: { type: 'text' } },
-    recipientAddress: { control: { type: 'text' } },
+    amount: { control: { type: "text" } },
+    recipientAddress: { control: { type: "text" } },
   },
 };
 export default meta;

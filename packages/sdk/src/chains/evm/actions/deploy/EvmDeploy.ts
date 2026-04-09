@@ -10,36 +10,39 @@
  * @module chains/evm/actions/deploy/EvmDeploy
  */
 
-import BigNumber from 'bignumber.js';
-import type { EIP1193Provider } from 'viem';
-import { z } from 'zod';
+import BigNumber from "bignumber.js";
+import type { EIP1193Provider } from "viem";
+import { z } from "zod";
 
-import { makePublicClient } from '../../../../clients/public-client';
-import { makeWalletClient } from '../../../../clients/wallet-client';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, type ChainId } from '../../../../common/chains';
-import type { DeployProtocol } from '../../../../core';
-import { parseChainIdentifier, StepStatus } from '../../../../core';
-import { BaseAction } from '../../../../shared/actions/BaseAction';
-import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
-import type { EvmCoreContext } from '../../../../shared/context';
-import { LombardError } from '../../../../shared/errors';
-import type { DeployEventMap } from '../../../../shared/events';
+import { makePublicClient } from "../../../../clients/public-client";
+import { makeWalletClient } from "../../../../clients/wallet-client";
 import {
-    evmAmountSchema,
-    validatePrepareParams,
-} from '../../../../shared/validation';
-import { Token } from '../../../../tokens/token-addresses';
-import { getTokenInfo, toBaseDenomination } from '../../../../tokens/tokens';
-import toBigInt from '../../../../utils/numbers';
-import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
-import { Vault, VAULTS } from '../../../../vaults/lib/config';
-import { deposit } from '../../../../vaults/lib/ops/deposit';
-import { evmConfig } from './config';
+  CHAIN_ID_TO_VIEM_CHAIN_MAP,
+  type ChainId,
+} from "../../../../common/chains";
+import type { DeployProtocol } from "../../../../core";
+import { parseChainIdentifier, StepStatus } from "../../../../core";
+import { BaseAction } from "../../../../shared/actions/BaseAction";
+import { EvmOperationStatus } from "../../../../shared/constants/statusConstants";
+import type { EvmCoreContext } from "../../../../shared/context";
+import { LombardError } from "../../../../shared/errors";
+import type { DeployEventMap } from "../../../../shared/events";
+import {
+  evmAmountSchema,
+  validatePrepareParams,
+} from "../../../../shared/validation";
+import { Token } from "../../../../tokens/token-addresses";
+import { getTokenInfo, toBaseDenomination } from "../../../../tokens/tokens";
+import toBigInt from "../../../../utils/numbers";
+import { waitForTransactionReceipt } from "../../../../utils/transaction-executor";
+import { Vault, VAULTS } from "../../../../vaults/lib/config";
+import { deposit } from "../../../../vaults/lib/ops/deposit";
+import { evmConfig } from "./config";
 import type {
-    EvmDeployParams,
-    EvmDeployPrepareParams,
-    IEvmDeploy,
-} from './types';
+  EvmDeployParams,
+  EvmDeployPrepareParams,
+  IEvmDeploy,
+} from "./types";
 
 export class EvmDeploy
   extends BaseAction<DeployEventMap, EvmOperationStatus>
@@ -76,7 +79,7 @@ export class EvmDeploy
   }
 
   async prepare(params: EvmDeployPrepareParams): Promise<void> {
-    this.assertStatus(EvmOperationStatus.IDLE, 'prepare');
+    this.assertStatus(EvmOperationStatus.IDLE, "prepare");
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params);
@@ -86,17 +89,17 @@ export class EvmDeploy
       this.validateProtocol(params.protocol);
 
       // Get provider and account
-      const provider = await this.ctx.getProvider('evm');
+      const provider = await this.ctx.getProvider("evm");
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
+        throw LombardError.providerMissing(this.params.sourceChain, "evm");
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
+        method: "eth_accounts",
       });
       const account = (accounts as string[])[0] as `0x${string}`;
       if (!account) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
+        throw LombardError.providerMissing(this.params.sourceChain, "evm");
       }
 
       this._account = account;
@@ -104,16 +107,23 @@ export class EvmDeploy
 
       // Check actual allowance to determine if approval is needed
       const vault = VAULTS[Vault.Veda];
-      const depositToken = await getTokenInfo(Token.LBTC, this._chainId, this.ctx.env);
+      const depositToken = await getTokenInfo(
+        Token.LBTC,
+        this._chainId,
+        this.ctx.env,
+      );
       if (!depositToken) {
-        throw LombardError.invalidParameter('token', 'Could not get LBTC token info');
+        throw LombardError.invalidParameter(
+          "token",
+          "Could not get LBTC token info",
+        );
       }
 
       const publicClient = makePublicClient({ chainId: this._chainId });
       const allowanceRaw = await publicClient.readContract({
         address: depositToken.address,
         abi: depositToken.abi,
-        functionName: 'allowance',
+        functionName: "allowance",
         args: [account, vault.vaultContract.address],
       });
 
@@ -133,7 +143,10 @@ export class EvmDeploy
       } else {
         this.emitProgress({
           status: EvmOperationStatus.READY,
-          steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING },
+          steps: {
+            approval: StepStatus.COMPLETE,
+            deploying: StepStatus.PENDING,
+          },
         });
         this.updateStatus(EvmOperationStatus.READY);
       }
@@ -141,27 +154,36 @@ export class EvmDeploy
   }
 
   async approve(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.NEEDS_APPROVAL, 'approve');
+    this.assertStatus(EvmOperationStatus.NEEDS_APPROVAL, "approve");
 
     return this.act(async () => {
       if (!this._account || !this._chainId || !this._amount) {
-        throw LombardError.missingParameter('account, chainId, or amount');
+        throw LombardError.missingParameter("account, chainId, or amount");
       }
 
-      const provider = await this.ctx.getProvider('evm');
+      const provider = await this.ctx.getProvider("evm");
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
+        throw LombardError.providerMissing(this.params.sourceChain, "evm");
       }
 
       // Get vault and token info
       const vault = VAULTS[Vault.Veda];
-      const depositToken = await getTokenInfo(Token.LBTC, this._chainId, this.ctx.env);
+      const depositToken = await getTokenInfo(
+        Token.LBTC,
+        this._chainId,
+        this.ctx.env,
+      );
       if (!depositToken) {
-        throw LombardError.invalidParameter('token', 'Could not get LBTC token info');
+        throw LombardError.invalidParameter(
+          "token",
+          "Could not get LBTC token info",
+        );
       }
 
       const amount = new BigNumber(this._amount);
-      const amountBase = toBigInt(toBaseDenomination(amount, depositToken.decimals));
+      const amountBase = toBigInt(
+        toBaseDenomination(amount, depositToken.decimals),
+      );
 
       // Execute approval transaction
       const publicClient = makePublicClient({ chainId: this._chainId });
@@ -175,12 +197,16 @@ export class EvmDeploy
         chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[this._chainId],
         address: depositToken.address,
         abi: depositToken.abi,
-        functionName: 'approve',
+        functionName: "approve",
         args: [vault.vaultContract.address, amountBase],
       });
 
       const txHash = await walletClient.writeContract(request);
-      await waitForTransactionReceipt(publicClient, txHash, 'LBTC vault deposit approval');
+      await waitForTransactionReceipt(
+        publicClient,
+        txHash,
+        "LBTC vault deposit approval",
+      );
 
       this._needsApproval = false;
       this.emitProgress({
@@ -191,20 +217,20 @@ export class EvmDeploy
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(EvmOperationStatus.READY, 'execute');
+    this.assertStatus(EvmOperationStatus.READY, "execute");
 
     return this.act(async () => {
-      const provider = await this.ctx.getProvider('evm');
+      const provider = await this.ctx.getProvider("evm");
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
+        throw LombardError.providerMissing(this.params.sourceChain, "evm");
       }
 
       if (!this._account || !this._chainId) {
-        throw LombardError.missingParameter('account or chainId');
+        throw LombardError.missingParameter("account or chainId");
       }
 
       // Map protocol to vault key
-      const vaultKey = this._protocol === 'veda' ? Vault.Veda : Vault.Veda;
+      const vaultKey = this._protocol === "veda" ? Vault.Veda : Vault.Veda;
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
@@ -227,7 +253,10 @@ export class EvmDeploy
 
       this.emitProgress({
         status: EvmOperationStatus.COMPLETED,
-        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.COMPLETE },
+        steps: {
+          approval: StepStatus.COMPLETE,
+          deploying: StepStatus.COMPLETE,
+        },
       });
 
       this.emitCompleted();
@@ -239,18 +268,18 @@ export class EvmDeploy
   private get prepareSchema() {
     return z.object({
       amount: evmAmountSchema,
-      protocol: z.string().min(1, 'Protocol is required'),
+      protocol: z.string().min(1, "Protocol is required"),
     });
   }
 
   private validateProtocol(protocol: DeployProtocol): void {
     const isSupported = evmConfig.routes.some(
-      route =>
+      (route) =>
         route.protocols.includes(protocol) && route.envs.includes(this.ctx.env),
     );
     if (!isSupported) {
       throw LombardError.invalidParameter(
-        'protocol',
+        "protocol",
         `Protocol ${protocol} is not supported in ${this.ctx.env} environment`,
       );
     }

@@ -54,12 +54,8 @@ describe("formatError", () => {
   });
 
   it("redacts long hex data from Error messages", () => {
-    const longHex =
-      "0x" + "a".repeat(64);
-    const result = formatError(
-      "test_action",
-      new Error(`revert ${longHex}`),
-    );
+    const longHex = "0x" + "a".repeat(64);
+    const result = formatError("test_action", new Error(`revert ${longHex}`));
     const parsed = JSON.parse(result);
     expect(parsed.error).toBe("revert [redacted-data]");
     expect(parsed.error).not.toContain(longHex);

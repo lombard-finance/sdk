@@ -119,7 +119,7 @@ export interface FlowStep {
   description?: string;
 
   /** Step status */
-  status: 'pending' | 'current' | 'completed' | 'error';
+  status: "pending" | "current" | "completed" | "error";
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -130,15 +130,15 @@ export interface FlowStep {
  * Position options for the floating widget
  */
 export type DevToolsPosition =
-  | 'bottom-right'
-  | 'bottom-left'
-  | 'top-right'
-  | 'top-left';
+  | "bottom-right"
+  | "bottom-left"
+  | "top-right"
+  | "top-left";
 
 /**
  * Theme options for DevTools
  */
-export type DevToolsTheme = 'dark' | 'light' | 'system';
+export type DevToolsTheme = "dark" | "light" | "system";
 
 /**
  * Configuration options for DevTools
@@ -170,9 +170,9 @@ export interface DevToolsConfig {
  * Default DevTools configuration
  */
 export const DEFAULT_DEVTOOLS_CONFIG: Required<DevToolsConfig> = {
-  position: 'bottom-right',
+  position: "bottom-right",
   defaultOpen: false,
-  theme: 'dark',
+  theme: "dark",
   showEnvironment: true,
   consoleLogging: false,
   maxEvents: 100,
@@ -233,7 +233,7 @@ export interface MockWalletState {
 /**
  * Warning severity levels
  */
-export type WarningSeverity = 'info' | 'warning' | 'error';
+export type WarningSeverity = "info" | "warning" | "error";
 
 /**
  * DevTools warning message
@@ -268,7 +268,7 @@ export interface DevToolsWarning {
 /**
  * HTTP method types
  */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 /**
  * API request event - logged when a request is initiated
@@ -278,7 +278,7 @@ export interface ApiRequestEvent {
   id: string;
 
   /** Event type */
-  type: 'api-request';
+  type: "api-request";
 
   /** HTTP method */
   method: HttpMethod;
@@ -307,7 +307,7 @@ export interface ApiResponseEvent {
   id: string;
 
   /** Event type */
-  type: 'api-response';
+  type: "api-response";
 
   /** Corresponding request ID */
   requestId: string;
@@ -347,4 +347,3 @@ export interface NetworkLogEntry {
   /** Whether the request failed */
   isFailed: boolean;
 }
-

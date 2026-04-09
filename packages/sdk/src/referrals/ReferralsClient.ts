@@ -1,5 +1,5 @@
-import { getDepositAddressReferrer } from '../api-functions/getDepositAddressReferrer';
-import type { LombardSDK } from '../client/LombardSDK';
+import { getDepositAddressReferrer } from "../api-functions/getDepositAddressReferrer";
+import type { LombardSDK } from "../client/LombardSDK";
 
 export interface ReferralLookupParams {
   /** Destination account that previously generated a BTC deposit address */

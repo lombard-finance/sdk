@@ -4,15 +4,15 @@
  * @module chains/evm/actions/deploy/config/types
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
-import type { z } from 'zod';
+import type { Env } from "@lombard.finance/sdk-common";
+import type { z } from "zod";
 
 import type {
   AssetId,
   Chain,
   ChainType,
   DeployProtocol,
-} from '../../../../../core';
+} from "../../../../../core";
 
 /**
  * Route definition for EVM deploy operations

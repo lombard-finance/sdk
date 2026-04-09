@@ -7,18 +7,18 @@
  * @module chains/btc/actions/stakeAndDeploy/config
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
+import type { Env } from "@lombard.finance/sdk-common";
 
-import type { AssetId, Chain } from '../../../../../core';
-import { DEFI_REGISTRY,DefiProtocol } from '../../../../../defi';
-import { Token } from '../../../../../tokens/token-addresses';
-import { evmStakeAndDeployConfig } from './evm';
+import type { AssetId, Chain } from "../../../../../core";
+import { DEFI_REGISTRY, DefiProtocol } from "../../../../../defi";
+import { Token } from "../../../../../tokens/token-addresses";
+import { evmStakeAndDeployConfig } from "./evm";
 
 export type {
   StakeAndBakeAuthResult,
   StakeAndDeployChainConfig,
   StakeAndDeployRouteDefinition,
-} from './types';
+} from "./types";
 
 /**
  * Config (currently EVM only)
@@ -49,7 +49,7 @@ export function isRouteAvailable(
 ): boolean {
   if (!sourceChain) return true;
   return stakeAndDeployConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }
@@ -73,7 +73,7 @@ export function isProtocolSupported(protocol: string): boolean {
  */
 export function getVaultKey(protocol: string): string {
   if (!isProtocolSupported(protocol)) {
-    const supportedProtocols = Object.keys(DEFI_REGISTRY).join(', ');
+    const supportedProtocols = Object.keys(DEFI_REGISTRY).join(", ");
     throw new Error(
       `Unsupported protocol: ${protocol}. ` +
         `Supported protocols: ${supportedProtocols}`,
@@ -86,7 +86,7 @@ export function getVaultKey(protocol: string): string {
 /**
  * Get list of supported protocols for StakeAndDeploy
  * This returns protocols that support LBTC or BTC (for StakeAndDeploy from BTC)
- * 
+ *
  * TODO: Update this to match against asset and chain
  */
 export function getSupportedProtocols(assetId: AssetId): DefiProtocol[] {
@@ -109,7 +109,7 @@ export function isProtocolChainSupported(
   // Check LBTC token first, then BTC
   const lbtcRegistry =
     protocolRegistry[Token.LBTC as keyof typeof protocolRegistry];
-  const btcRegistry = protocolRegistry['BTC' as keyof typeof protocolRegistry];
+  const btcRegistry = protocolRegistry["BTC" as keyof typeof protocolRegistry];
 
   const tokenRegistry = lbtcRegistry || btcRegistry;
   if (!tokenRegistry) return false;

@@ -1,18 +1,18 @@
-import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
+import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { envSelector } from '../../stories/arg-types';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
-import { functionType } from '../../stories/components/decorators';
-import useQuery from '../../stories/hooks/useQuery';
-import { getExchangeRatio } from './get-exchange-ratio';
+import { envSelector } from "../../stories/arg-types";
+import { Button } from "../../stories/components/Button";
+import { CodeBlock } from "../../stories/components/CodeBlock";
+import { functionType } from "../../stories/components/decorators";
+import useQuery from "../../stories/hooks/useQuery";
+import { getExchangeRatio } from "./get-exchange-ratio";
 
 const meta = {
-  title: 'api/getExchangeRatio',
+  title: "api/getExchangeRatio",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('api-get')],
+  tags: ["autodocs"],
+  decorators: [functionType("api-get")],
   argTypes: { ...envSelector },
 } satisfies Meta<typeof StoryView>;
 

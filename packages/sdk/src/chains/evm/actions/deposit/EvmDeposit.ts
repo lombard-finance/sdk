@@ -11,27 +11,27 @@
  * @module chains/evm/actions/deposit/EvmDeposit
  */
 
-import type { EIP1193Provider } from 'viem';
-import { z } from 'zod';
+import type { EIP1193Provider } from "viem";
+import { z } from "zod";
 
-import type { ChainId } from '../../../../common/chains';
-import { claimLBTC } from '../../../../contract-functions';
-import { parseChainIdentifier,StepStatus } from '../../../../core';
-import { BaseAction } from '../../../../shared/actions/BaseAction';
-import type { EvmCoreContext } from '../../../../shared/context';
-import { LombardError } from '../../../../shared/errors';
-import type { DepositEventMap } from '../../../../shared/events';
+import type { ChainId } from "../../../../common/chains";
+import { claimLBTC } from "../../../../contract-functions";
+import { parseChainIdentifier, StepStatus } from "../../../../core";
+import { BaseAction } from "../../../../shared/actions/BaseAction";
+import type { EvmCoreContext } from "../../../../shared/context";
+import { LombardError } from "../../../../shared/errors";
+import type { DepositEventMap } from "../../../../shared/events";
 import {
   evmAmountSchema,
   validatePrepareParams,
-} from '../../../../shared/validation';
-import { evmConfig } from './config';
+} from "../../../../shared/validation";
+import { evmConfig } from "./config";
 import {
   type EvmDepositParams,
   type EvmDepositPrepareParams,
   EvmDepositStatus,
   type IEvmDeposit,
-} from './types';
+} from "./types";
 
 export class EvmDeposit
   extends BaseAction<DepositEventMap, EvmDepositStatus>
@@ -71,7 +71,7 @@ export class EvmDeposit
   }
 
   async prepare(params: EvmDepositPrepareParams): Promise<void> {
-    this.assertStatus(EvmDepositStatus.IDLE, 'prepare');
+    this.assertStatus(EvmDepositStatus.IDLE, "prepare");
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
@@ -93,7 +93,7 @@ export class EvmDeposit
   }
 
   async approve(): Promise<void> {
-    this.assertStatus(EvmDepositStatus.NEEDS_APPROVAL, 'approve');
+    this.assertStatus(EvmDepositStatus.NEEDS_APPROVAL, "approve");
 
     return this.act(async () => {
       this._needsApproval = false;
@@ -101,16 +101,16 @@ export class EvmDeposit
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(EvmDepositStatus.READY, 'execute');
+    this.assertStatus(EvmDepositStatus.READY, "execute");
 
     if (!this._claimData) {
-      throw LombardError.missingParameter('claimData');
+      throw LombardError.missingParameter("claimData");
     }
 
     return this.act(async () => {
-      const provider = await this.ctx.getProvider('evm');
+      const provider = await this.ctx.getProvider("evm");
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
+        throw LombardError.providerMissing(this.params.sourceChain, "evm");
       }
 
       const chainId = parseChainIdentifier(this.params.destChain) as ChainId;

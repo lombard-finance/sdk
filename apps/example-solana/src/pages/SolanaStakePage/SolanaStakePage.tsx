@@ -1,12 +1,12 @@
-import { Chain, Env } from '@lombard.finance/sdk';
-import { useState } from 'react';
+import { Chain, Env } from "@lombard.finance/sdk";
+import { useState } from "react";
 
-import { SolanaWalletConnect } from '../../components/SolanaWalletConnect';
-import { StakingForm } from '../../components/StakingForm';
-import { StakingProgress } from '../../components/StakingProgress';
-import { useSolanaWallet } from '../../hooks/useSolanaWallet';
-import type { StakingFormData } from '../../lib/types';
-import { useBtcStakingSolana } from './useBtcStakingSolana';
+import { SolanaWalletConnect } from "../../components/SolanaWalletConnect";
+import { StakingForm } from "../../components/StakingForm";
+import { StakingProgress } from "../../components/StakingProgress";
+import { useSolanaWallet } from "../../hooks/useSolanaWallet";
+import type { StakingFormData } from "../../lib/types";
+import { useBtcStakingSolana } from "./useBtcStakingSolana";
 
 interface SolanaStakePageProps {
   env: Env;
@@ -41,13 +41,13 @@ function getSolanaChain(env: Env): Chain {
 export function SolanaStakePage({ env }: SolanaStakePageProps) {
   const [isStaking, setIsStaking] = useState(false);
   const [partnerId, setPartnerIdState] = useState(
-    () => localStorage.getItem('lombard-partnerId') || 'test',
+    () => localStorage.getItem("lombard-partnerId") || "test",
   );
   const { address: solanaAddress } = useSolanaWallet();
 
   const setPartnerId = (value: string) => {
     setPartnerIdState(value);
-    localStorage.setItem('lombard-partnerId', value);
+    localStorage.setItem("lombard-partnerId", value);
   };
 
   const {
@@ -70,7 +70,7 @@ export function SolanaStakePage({ env }: SolanaStakePageProps) {
         destChain: getSolanaChain(env),
       });
     } catch (err) {
-      console.error('Staking failed:', err);
+      console.error("Staking failed:", err);
       setIsStaking(false);
     }
   };
@@ -117,7 +117,7 @@ export function SolanaStakePage({ env }: SolanaStakePageProps) {
               id="partnerId"
               type="text"
               value={partnerId}
-              onChange={e => setPartnerId(e.target.value)}
+              onChange={(e) => setPartnerId(e.target.value)}
               placeholder="Enter your partner ID"
               className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
               disabled={isStaking}
@@ -155,7 +155,6 @@ export function SolanaStakePage({ env }: SolanaStakePageProps) {
               targetChain="Solana"
             />
           )}
-
         </div>
       </div>
     </div>

@@ -1,22 +1,22 @@
-import { BN, Program } from '@coral-xyz/anchor';
-import { Env } from '@lombard.finance/sdk-common';
+import { BN, Program } from "@coral-xyz/anchor";
+import { Env } from "@lombard.finance/sdk-common";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
-} from '@solana/spl-token';
-import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
-import { keccak256 } from 'js-sha3';
-import { sha256 } from 'js-sha256';
+} from "@solana/spl-token";
+import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
+import { keccak256 } from "js-sha3";
+import { sha256 } from "js-sha256";
 
-import { IConfig } from '../../const/getConfig';
-import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
-import { sendAndConfirmTransaction } from '../../utils';
-import { parseSignaturesFromProof } from '../claimLBTC/utils/signatureUtils';
+import { IConfig } from "../../const/getConfig";
+import { ISolanaWalletProvider, SolanaNetwork } from "../../types";
+import { sendAndConfirmTransaction } from "../../utils";
+import { parseSignaturesFromProof } from "../claimLBTC/utils/signatureUtils";
 
 // ── PDA seeds ──
 
-export const CONSORTIUM_SESSION_SEED = Buffer.from('session');
-export const CONSORTIUM_CONFIG_SEED = Buffer.from('consortium_config');
+export const CONSORTIUM_SESSION_SEED = Buffer.from("session");
+export const CONSORTIUM_CONFIG_SEED = Buffer.from("consortium_config");
 
 // ── Payload selectors (first 4 bytes) ──
 
@@ -128,7 +128,7 @@ export function getConsortiumSessionPDA(
   return PublicKey.findProgramAddressSync(
     [
       CONSORTIUM_SESSION_SEED,
-      epoch.toBuffer('be', 8),
+      epoch.toBuffer("be", 8),
       payer.toBytes(),
       payloadHash,
     ],
@@ -213,7 +213,13 @@ export function parseAssetRouterConfig(data: Buffer): AssetRouterConfig {
 
   const ledgerChainId = new Uint8Array(data.subarray(234, 266));
 
-  return { paused, nativeMint, basculeProgramId, basculeGmpProgramId, ledgerChainId };
+  return {
+    paused,
+    nativeMint,
+    basculeProgramId,
+    basculeGmpProgramId,
+    ledgerChainId,
+  };
 }
 
 // ── Consortium session ──
@@ -222,33 +228,41 @@ export function parseAssetRouterConfig(data: Buffer): AssetRouterConfig {
  * Execute the consortium session flow: create_session, post_signatures, finalize_session.
  * Skips steps that are already completed on-chain.
  */
-export async function executeConsortiumSession(ctx: ClaimContext): Promise<void> {
+export async function executeConsortiumSession(
+  ctx: ClaimContext,
+): Promise<void> {
   const {
-    provider, connection, consortiumProgram,
-    consortiumConfigPDA, sessionPDA, validatedPayloadPDA,
-    payloadHashArray, params, debugLog,
+    provider,
+    connection,
+    consortiumProgram,
+    consortiumConfigPDA,
+    sessionPDA,
+    validatedPayloadPDA,
+    payloadHashArray,
+    params,
+    debugLog,
   } = ctx;
 
   const validatedPayloadAccount =
     await connection.getAccountInfo(validatedPayloadPDA);
   const sessionAccount = await connection.getAccountInfo(sessionPDA);
 
-  debugLog('Session PDA:', sessionPDA.toBase58(), 'exists:', !!sessionAccount);
+  debugLog("Session PDA:", sessionPDA.toBase58(), "exists:", !!sessionAccount);
   debugLog(
-    'ValidatedPayload PDA:',
+    "ValidatedPayload PDA:",
     validatedPayloadPDA.toBase58(),
-    'exists:',
+    "exists:",
     !!validatedPayloadAccount,
   );
 
   if (validatedPayloadAccount) {
-    debugLog('ValidatedPayload exists — skipping all consortium steps');
+    debugLog("ValidatedPayload exists — skipping all consortium steps");
     return;
   }
 
   // Step 1: create_session
   if (!sessionAccount) {
-    debugLog('Step 1: create_session...');
+    debugLog("Step 1: create_session...");
     const createSessionTx = await consortiumProgram.methods
       .createSession(payloadHashArray)
       .accounts({
@@ -264,12 +278,12 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       instruction: createSessionTx,
       connection,
       provider,
-      debugLabel: 'Consortium create_session',
+      debugLabel: "Consortium create_session",
       skipPreflight: params.skipPreflight ?? false,
     });
-    debugLog('create_session completed');
+    debugLog("create_session completed");
   } else {
-    debugLog('Session already exists, skipping create_session');
+    debugLog("Session already exists, skipping create_session");
   }
 
   // Step 2: post_session_signatures
@@ -285,15 +299,16 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
   }
 
   if (!sessionSigned) {
-    debugLog('Step 2: post_session_signatures...');
-    const { signatures: parsedSigs, indices } =
-      parseSignaturesFromProof(params.proofSignature);
+    debugLog("Step 2: post_session_signatures...");
+    const { signatures: parsedSigs, indices } = parseSignaturesFromProof(
+      params.proofSignature,
+    );
 
     if (parsedSigs.length === 0 || indices.length === 0) {
-      throw new Error('No valid signatures found in the proof');
+      throw new Error("No valid signatures found in the proof");
     }
 
-    const signatures = parsedSigs.map(sig => Array.from(sig));
+    const signatures = parsedSigs.map((sig) => Array.from(sig));
 
     const postSigsTx = await consortiumProgram.methods
       .postSessionSignatures(payloadHashArray, signatures, indices)
@@ -308,19 +323,19 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       instruction: postSigsTx,
       connection,
       provider,
-      debugLabel: 'Consortium post_session_signatures',
+      debugLabel: "Consortium post_session_signatures",
       skipPreflight: params.skipPreflight ?? false,
     });
-    debugLog('post_session_signatures completed');
+    debugLog("post_session_signatures completed");
   } else {
-    debugLog('Signatures already posted (weight > 0), skipping step 2');
+    debugLog("Signatures already posted (weight > 0), skipping step 2");
   }
 
   // Step 3: finalize_session
-  debugLog('Step 3: finalize_session...');
+  debugLog("Step 3: finalize_session...");
   const finalizeSessionTx = await consortiumProgram.methods
     .finalizeSession(payloadHashArray)
-      .accounts({
+    .accounts({
       payer: provider.publicKey,
       config: consortiumConfigPDA,
       session: sessionPDA,
@@ -333,19 +348,16 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
     instruction: finalizeSessionTx,
     connection,
     provider,
-    debugLabel: 'Consortium finalize_session',
+    debugLabel: "Consortium finalize_session",
     skipPreflight: params.skipPreflight ?? false,
   });
-  debugLog('finalize_session completed — ValidatedPayload created');
+  debugLog("finalize_session completed — ValidatedPayload created");
 }
 
 // ── Helpers ──
 
 export function computePayloadHash(payloadBytes: Buffer): Buffer {
-  return Buffer.from(
-    sha256(payloadBytes as unknown as Uint8Array),
-    'hex',
-  );
+  return Buffer.from(sha256(payloadBytes as unknown as Uint8Array), "hex");
 }
 
 /**
@@ -405,5 +417,5 @@ export function computeDepositIdFromPayload(payloadBytes: Buffer): Uint8Array {
   ]);
 
   const hash = keccak256(new Uint8Array(dataToHash));
-  return new Uint8Array(Buffer.from(hash, 'hex'));
+  return new Uint8Array(Buffer.from(hash, "hex"));
 }

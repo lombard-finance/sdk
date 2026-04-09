@@ -7,9 +7,9 @@ import {
   LocalAccount,
   TransactionSerializable,
   WalletClient,
-} from 'viem';
+} from "viem";
 
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from '../common/chains';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from "../common/chains";
 
 /**
  * EVM transaction request structure compatible with unified bridge signers.
@@ -85,7 +85,7 @@ export class SignerError extends Error {
     public readonly context?: Record<string, unknown>,
   ) {
     super(message);
-    this.name = 'SignerError';
+    this.name = "SignerError";
   }
 }
 
@@ -98,11 +98,11 @@ export class SignerError extends Error {
  */
 export function validateTransactionRequest(
   tx: EvmTransactionRequest,
-  operation = 'transaction',
+  operation = "transaction",
 ): void {
   if (!tx.from) {
     throw new SignerError(
-      'MISSING_FROM_ADDRESS',
+      "MISSING_FROM_ADDRESS",
       `Missing 'from' address for ${operation}`,
       { transaction: tx, operation },
     );
@@ -110,7 +110,7 @@ export function validateTransactionRequest(
 
   if (!tx.to) {
     throw new SignerError(
-      'MISSING_TO_ADDRESS',
+      "MISSING_TO_ADDRESS",
       `Missing 'to' address for ${operation}`,
       { transaction: tx, operation },
     );
@@ -118,7 +118,7 @@ export function validateTransactionRequest(
 
   if (tx.data !== undefined && !isHex(tx.data)) {
     throw new SignerError(
-      'INVALID_DATA',
+      "INVALID_DATA",
       `Transaction data must be valid hex string for ${operation}`,
       { transaction: tx, operation, data: tx.data },
     );
@@ -126,7 +126,7 @@ export function validateTransactionRequest(
 
   if (tx.chainId && !/^0x[0-9a-fA-F]+$/.test(tx.chainId)) {
     throw new SignerError(
-      'INVALID_CHAIN_ID',
+      "INVALID_CHAIN_ID",
       `Chain ID must be a hex string (e.g., "0x1") for ${operation}`,
       { transaction: tx, operation, chainId: tx.chainId },
     );
@@ -177,7 +177,7 @@ export function createAccountFromSigner(
 
   if (!chain) {
     throw new SignerError(
-      'UNSUPPORTED_CHAIN',
+      "UNSUPPORTED_CHAIN",
       `Chain ID ${chainId} is not supported`,
       { chainId, availableChains: Object.keys(CHAIN_ID_TO_VIEM_CHAIN_MAP) },
     );
@@ -188,10 +188,10 @@ export function createAccountFromSigner(
    */
   const customAccount: LocalAccount = {
     address,
-    type: 'local' as const,
+    type: "local" as const,
     publicKey:
-      '0x0000000000000000000000000000000000000000000000000000000000000000' as Hex,
-    source: 'custom' as const,
+      "0x0000000000000000000000000000000000000000000000000000000000000000" as Hex,
+    source: "custom" as const,
 
     /**
      * Signs a transaction using the SignerAdapter.
@@ -214,14 +214,14 @@ export function createAccountFromSigner(
       };
 
       // Validate before signing
-      validateTransactionRequest(evmTx, 'signTransaction');
+      validateTransactionRequest(evmTx, "signTransaction");
 
       // Sign and return the serialized signed transaction
       // The dispatch callback here just returns what was passed (identity function)
       // because we want the signed transaction, not to broadcast it yet
       let signedTx: Hex | undefined;
 
-      await signer.sign(evmTx, async serialized => {
+      await signer.sign(evmTx, async (serialized) => {
         signedTx = serialized;
         // Return a dummy hash - the actual broadcasting happens via walletClient
         return serialized;
@@ -229,8 +229,8 @@ export function createAccountFromSigner(
 
       if (!signedTx) {
         throw new SignerError(
-          'SIGNING_FAILED',
-          'Signer did not return a signed transaction',
+          "SIGNING_FAILED",
+          "Signer did not return a signed transaction",
           { transaction: evmTx },
         );
       }
@@ -245,9 +245,9 @@ export function createAccountFromSigner(
      */
     async signMessage(): Promise<Hex> {
       throw new SignerError(
-        'NOT_IMPLEMENTED',
-        'Message signing is not supported by this adapter',
-        { method: 'signMessage' },
+        "NOT_IMPLEMENTED",
+        "Message signing is not supported by this adapter",
+        { method: "signMessage" },
       );
     },
 
@@ -257,9 +257,9 @@ export function createAccountFromSigner(
      */
     async signTypedData(): Promise<Hex> {
       throw new SignerError(
-        'NOT_IMPLEMENTED',
-        'Typed data signing is not supported by this adapter',
-        { method: 'signTypedData' },
+        "NOT_IMPLEMENTED",
+        "Typed data signing is not supported by this adapter",
+        { method: "signTypedData" },
       );
     },
   };
@@ -297,7 +297,7 @@ export function createWalletClientFromSigner(
 
   if (!chain) {
     throw new SignerError(
-      'UNSUPPORTED_CHAIN',
+      "UNSUPPORTED_CHAIN",
       `Chain ID ${chainId} is not supported`,
       { chainId },
     );

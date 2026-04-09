@@ -1,1 +1,1 @@
-export * from './get-badges-by-address';
+export * from "./get-badges-by-address";

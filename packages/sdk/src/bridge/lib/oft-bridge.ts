@@ -1,20 +1,20 @@
-import { Options } from '@layerzerolabs/lz-v2-utilities';
-import BigNumber from 'bignumber.js';
-import { Address, pad } from 'viem';
+import { Options } from "@layerzerolabs/lz-v2-utilities";
+import BigNumber from "bignumber.js";
+import { Address, pad } from "viem";
 
-import { makePublicClient } from '../../clients/public-client';
-import { makeWalletClient } from '../../clients/wallet-client';
-import { ChainId } from '../../common/chains';
-import { CommonWriteParameters } from '../../common/parameters';
-import { approveLBTC } from '../../contract-functions';
-import { Token } from '../../tokens/token-addresses';
+import { makePublicClient } from "../../clients/public-client";
+import { makeWalletClient } from "../../clients/wallet-client";
+import { ChainId } from "../../common/chains";
+import { CommonWriteParameters } from "../../common/parameters";
+import { approveLBTC } from "../../contract-functions";
+import { Token } from "../../tokens/token-addresses";
 import {
   fromBaseDenomination,
   getTokenInfo,
   toBaseDenomination,
-} from '../../tokens/tokens';
-import { getErrorMessage } from '../../utils/err';
-import toBigInt from '../../utils/numbers';
+} from "../../tokens/tokens";
+import { getErrorMessage } from "../../utils/err";
+import toBigInt from "../../utils/numbers";
 import {
   BridgeType,
   getBridgeInfo,
@@ -24,7 +24,7 @@ import {
   OFT_HI_GAS_LIMIT,
   OFT_HI_GAS_LIMIT_CHAINS,
   OFTBridgeChain,
-} from './config';
+} from "./config";
 
 const DESTINATION_ENDPOINT_ID_MAP: Record<OFTBridgeChain, number> = {
   // Mainnets:
@@ -74,7 +74,7 @@ export async function bridgeOFT({
   const bridgeInfo = getBridgeInfo(from as OFTBridgeChain, to);
   if (!bridgeInfo || bridgeInfo.type !== BridgeType.OFT) {
     throw new Error(
-      `Unsupported bridge from ${from} to ${to}. Please switch to the supported chains: ${OFT_BRIDGE_CHAINS.join(', ')}`,
+      `Unsupported bridge from ${from} to ${to}. Please switch to the supported chains: ${OFT_BRIDGE_CHAINS.join(", ")}`,
     );
   }
 
@@ -82,7 +82,7 @@ export async function bridgeOFT({
 
   const lbtcContract = await getTokenInfo(Token.LBTC, from, env, rpcUrl);
   if (!lbtcContract) {
-    throw new Error('Could not retrieve LBTC contract info.');
+    throw new Error("Could not retrieve LBTC contract info.");
   }
 
   const publicClient = makePublicClient({ chainId: from, rpcUrl });
@@ -101,7 +101,7 @@ export async function bridgeOFT({
   const balanceRaw = await publicClient.readContract({
     address: lbtcContract.address,
     abi: lbtcContract.abi,
-    functionName: 'balanceOf',
+    functionName: "balanceOf",
     args: [account],
   });
   const balance = fromBaseDenomination(
@@ -119,7 +119,7 @@ export async function bridgeOFT({
   const allowanceRaw = await publicClient.readContract({
     address: lbtcContract.address,
     abi: lbtcContract.abi,
-    functionName: 'allowance',
+    functionName: "allowance",
     args: [account, bridgeContract.address],
   });
   const allowance = fromBaseDenomination(
@@ -176,16 +176,16 @@ export async function bridgeOFT({
     /** extraOptions - bytes */
     extraOptions.toHex(),
     /** composeMsg - bytes */
-    '0x',
+    "0x",
     /** oftCmd - bytes */
-    '0x',
+    "0x",
   ];
 
   const { nativeFee, lzTokenFee } = (await publicClient.readContract({
     abi: bridgeContract.abi,
     address: bridgeContract.address,
     account,
-    functionName: 'quoteSend',
+    functionName: "quoteSend",
     args: [sendParam, false],
   })) as { nativeFee: bigint; lzTokenFee: bigint };
 
@@ -207,7 +207,7 @@ export async function bridgeOFT({
     abi: bridgeContract.abi,
     address: bridgeContract.address,
     account,
-    functionName: 'send',
+    functionName: "send",
     args: bridgeArgs,
     value: nativeFee,
   });

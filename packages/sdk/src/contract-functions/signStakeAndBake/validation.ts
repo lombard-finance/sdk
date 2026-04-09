@@ -3,15 +3,15 @@
  * Provides early validation with descriptive error messages.
  */
 
-import { Env } from '@lombard.finance/sdk-common';
+import { Env } from "@lombard.finance/sdk-common";
 
-import type { ChainId } from '../../common/chains';
+import type { ChainId } from "../../common/chains";
 import {
   DEFI_REGISTRY,
   DefiProtocol,
   StakeAndBakeStrategy,
   StakeAndBakeToken,
-} from '../../defi/defi-registry';
+} from "../../defi/defi-registry";
 
 /**
  * Custom error for stake and bake validation failures.
@@ -24,7 +24,7 @@ export class StakeAndBakeValidationError extends Error {
     public readonly context?: Record<string, unknown>,
   ) {
     super(message);
-    this.name = 'StakeAndBakeValidationError';
+    this.name = "StakeAndBakeValidationError";
   }
 }
 
@@ -49,18 +49,19 @@ export function getStakeAndBakeConfig(
   const protocolRegistry = DEFI_REGISTRY[protocol];
   if (!protocolRegistry) {
     throw new StakeAndBakeValidationError(
-      'UNSUPPORTED_VAULT',
+      "UNSUPPORTED_VAULT",
       `Vault ${protocol} not found in DeFi registry`,
       { protocol },
     );
   }
 
-  const tokenRegistry = protocolRegistry[token as keyof typeof protocolRegistry];
+  const tokenRegistry =
+    protocolRegistry[token as keyof typeof protocolRegistry];
   if (!tokenRegistry) {
     throw new StakeAndBakeValidationError(
-      'UNSUPPORTED_TOKEN',
+      "UNSUPPORTED_TOKEN",
       `Token ${token} is not supported for stake and bake on vault ${protocol}. ` +
-        `Supported tokens: ${Object.keys(protocolRegistry).join(', ')}`,
+        `Supported tokens: ${Object.keys(protocolRegistry).join(", ")}`,
       { protocol, token, supportedTokens: Object.keys(protocolRegistry) },
     );
   }
@@ -68,7 +69,7 @@ export function getStakeAndBakeConfig(
   const envRegistry = tokenRegistry[env];
   if (!envRegistry) {
     throw new StakeAndBakeValidationError(
-      'UNSUPPORTED_ENV',
+      "UNSUPPORTED_ENV",
       `Environment ${env} is not supported for token ${token} on vault ${protocol}`,
       { protocol, token, env },
     );
@@ -77,9 +78,9 @@ export function getStakeAndBakeConfig(
   const registryEntry = envRegistry[chainId as keyof typeof envRegistry];
   if (!registryEntry) {
     throw new StakeAndBakeValidationError(
-      'UNSUPPORTED_TOKEN_CHAIN',
+      "UNSUPPORTED_TOKEN_CHAIN",
       `Token ${token} is not supported on chain ${chainId} for vault ${protocol} in ${env}. ` +
-        `Supported chains: ${Object.keys(envRegistry).join(', ')}`,
+        `Supported chains: ${Object.keys(envRegistry).join(", ")}`,
       {
         protocol,
         token,

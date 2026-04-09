@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 
-import { Spinner } from '../Spinner';
+import { Spinner } from "../Spinner";
 
 export interface ButtonProps {
   disabled?: boolean;
   children?: React.ReactNode;
   primary?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: "small" | "medium" | "large";
   isLoading?: boolean;
   onClick?: () => void;
   className?: string;
@@ -20,7 +20,7 @@ export interface ButtonProps {
  */
 export const Button = ({
   primary = true,
-  size = 'medium',
+  size = "medium",
   fullWidth = false,
   children,
   actionName,
@@ -29,7 +29,7 @@ export const Button = ({
 }: ButtonProps) => {
   const label = actionName ? (
     <span>
-      Execute: <span style={{ fontFamily: 'monospace' }}>{actionName}</span>
+      Execute: <span style={{ fontFamily: "monospace" }}>{actionName}</span>
     </span>
   ) : (
     children
@@ -39,13 +39,13 @@ export const Button = ({
     <button
       type="button"
       className={[
-        'btn',
-        size === 'small' ? 'btn-sm' : '',
-        size === 'large' ? 'btn-lg' : '',
-        primary ? 'btn-primary' : 'btn-secondary',
-        'story-btn',
-        fullWidth ? 'w-100' : '',
-      ].join(' ')}
+        "btn",
+        size === "small" ? "btn-sm" : "",
+        size === "large" ? "btn-lg" : "",
+        primary ? "btn-primary" : "btn-secondary",
+        "story-btn",
+        fullWidth ? "w-100" : "",
+      ].join(" ")}
       {...props}
     >
       {label}

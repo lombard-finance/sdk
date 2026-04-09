@@ -7,10 +7,10 @@
  * @module shared/validation
  */
 
-import * as bitcoin from 'bitcoinjs-lib';
-import { z } from 'zod';
+import * as bitcoin from "bitcoinjs-lib";
+import { z } from "zod";
 
-import { MIN_STAKE_AMOUNT_BTC } from '../../common/constants';
+import { MIN_STAKE_AMOUNT_BTC } from "../../common/constants";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Address Validation Helpers
@@ -28,12 +28,12 @@ import { MIN_STAKE_AMOUNT_BTC } from '../../common/constants';
  * @returns true if valid, false otherwise
  */
 export function isValidBitcoinAddress(address: string): boolean {
-  if (!address || typeof address !== 'string') {
+  if (!address || typeof address !== "string") {
     return false;
   }
 
   // Bech32/Bech32m addresses (bc1..., tb1...)
-  if (address.startsWith('bc1') || address.startsWith('tb1')) {
+  if (address.startsWith("bc1") || address.startsWith("tb1")) {
     try {
       bitcoin.address.fromBech32(address);
       return true;
@@ -65,7 +65,7 @@ export function isValidSolanaAddress(address: string): boolean {
   // Base58 character set (no 0, O, I, l)
   const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
 
-  if (!address || typeof address !== 'string') {
+  if (!address || typeof address !== "string") {
     return false;
   }
 
@@ -93,7 +93,7 @@ export function isValidSolanaAddress(address: string): boolean {
  * Based on the Bitcoin/Solana base58 alphabet
  */
 function decodeBase58(str: string): Uint8Array {
-  const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
   const ALPHABET_MAP: Record<string, number> = {};
   for (let i = 0; i < ALPHABET.length; i++) {
     ALPHABET_MAP[ALPHABET[i]] = i;
@@ -105,7 +105,7 @@ function decodeBase58(str: string): Uint8Array {
 
   // Count leading zeros (represented by '1' in base58)
   let leadingZeros = 0;
-  for (let i = 0; i < str.length && str[i] === '1'; i++) {
+  for (let i = 0; i < str.length && str[i] === "1"; i++) {
     leadingZeros++;
   }
 
@@ -153,22 +153,22 @@ function decodeBase58(str: string): Uint8Array {
  */
 export function createAmountSchema(minAmount?: number) {
   const baseSchema = z
-    .string({ message: 'Amount is required' })
-    .min(1, 'Amount is required')
-    .refine(val => val !== '0', {
-      message: 'Amount must be greater than 0',
+    .string({ message: "Amount is required" })
+    .min(1, "Amount is required")
+    .refine((val) => val !== "0", {
+      message: "Amount must be greater than 0",
     })
     .refine(
-      val => {
+      (val) => {
         const num = Number.parseFloat(val);
         return !Number.isNaN(num) && num > 0;
       },
-      { message: 'Invalid amount format' },
+      { message: "Invalid amount format" },
     );
 
   if (minAmount !== undefined && minAmount > 0) {
     return baseSchema.refine(
-      val => {
+      (val) => {
         const num = Number.parseFloat(val);
         return num >= minAmount;
       },
@@ -207,7 +207,7 @@ export const evmAmountSchema = amountSchema;
  */
 export const satoshiAmountSchema = z
   .union([z.bigint(), z.number()])
-  .refine(val => val > 0, { message: 'Amount must be greater than 0' });
+  .refine((val) => val > 0, { message: "Amount must be greater than 0" });
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Address Schemas
@@ -217,30 +217,30 @@ export const satoshiAmountSchema = z
  * EVM address validation (0x + 40 hex chars)
  */
 export const evmAddressSchema = z
-  .string({ message: 'Address is required' })
-  .regex(/^0x[a-fA-F0-9]{40}$/, 'Invalid EVM address format');
+  .string({ message: "Address is required" })
+  .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid EVM address format");
 
 /**
  * Solana address validation (base58, exactly 32 bytes when decoded)
  * Uses proper base58 decoding to verify the address structure
  */
 export const solanaAddressSchema = z
-  .string({ message: 'Address is required' })
-  .refine(isValidSolanaAddress, { message: 'Invalid Solana address format' });
+  .string({ message: "Address is required" })
+  .refine(isValidSolanaAddress, { message: "Invalid Solana address format" });
 
 /**
  * Sui address validation (0x + 64 hex chars)
  */
 export const suiAddressSchema = z
-  .string({ message: 'Address is required' })
-  .regex(/^0x[a-fA-F0-9]{64}$/, 'Invalid Sui address format');
+  .string({ message: "Address is required" })
+  .regex(/^0x[a-fA-F0-9]{64}$/, "Invalid Sui address format");
 
 /**
  * Starknet address validation (0x + 1-64 hex chars)
  */
 export const starknetAddressSchema = z
-  .string({ message: 'Address is required' })
-  .regex(/^0x[a-fA-F0-9]{1,64}$/, 'Invalid Starknet address format');
+  .string({ message: "Address is required" })
+  .regex(/^0x[a-fA-F0-9]{1,64}$/, "Invalid Starknet address format");
 
 /**
  * Bitcoin address validation with proper checksum verification
@@ -251,8 +251,8 @@ export const starknetAddressSchema = z
  * - Taproot bech32m (bc1p..., tb1p...)
  */
 export const bitcoinAddressSchema = z
-  .string({ message: 'Address is required' })
-  .refine(isValidBitcoinAddress, { message: 'Invalid Bitcoin address format' });
+  .string({ message: "Address is required" })
+  .refine(isValidBitcoinAddress, { message: "Invalid Bitcoin address format" });
 
 /**
  * Map of chain type to address schema
@@ -279,7 +279,7 @@ export const referralCodeSchema = z.string().optional();
  */
 export const txHashSchema = z
   .string()
-  .regex(/^0x[a-fA-F0-9]{64}$/, 'Invalid transaction hash');
+  .regex(/^0x[a-fA-F0-9]{64}$/, "Invalid transaction hash");
 
 // ═══════════════════════════════════════════════════════════════════════════
 // BTC Stake Schemas
@@ -291,8 +291,8 @@ export const txHashSchema = z
 export const btcStakePrepareBaseSchema = z.object({
   amount: btcStakeAmountSchema,
   recipient: z
-    .string({ message: 'Recipient is required' })
-    .min(1, 'Recipient is required'),
+    .string({ message: "Recipient is required" })
+    .min(1, "Recipient is required"),
   referralCode: referralCodeSchema,
 });
 
@@ -325,8 +325,8 @@ export type BtcStakePrepareParams = z.infer<typeof btcStakePrepareBaseSchema>;
 // Validation Helpers
 // ═══════════════════════════════════════════════════════════════════════════
 
-import type { Chain } from '../../core';
-import { LombardError } from '../errors';
+import type { Chain } from "../../core";
+import { LombardError } from "../errors";
 
 /**
  * Validation error handler configuration
@@ -363,12 +363,12 @@ export function validatePrepareParams<T>(
   if (!result.success) {
     const firstIssue = result.error.issues[0];
     const path = firstIssue?.path[0];
-    const message = firstIssue?.message ?? 'Invalid parameter';
+    const message = firstIssue?.message ?? "Invalid parameter";
 
-    if (path === 'amount') {
+    if (path === "amount") {
       throw LombardError.invalidAmount(message);
     }
-    if (path === 'recipient') {
+    if (path === "recipient") {
       throw LombardError.invalidAddress(
         (params as Record<string, unknown>)?.recipient as string,
         config.destChain,
@@ -391,7 +391,7 @@ export function validateOrThrow<T>(
   const result = schema.safeParse(data);
   if (!result.success) {
     const firstIssue = result.error.issues[0];
-    throw errorFactory(firstIssue?.message ?? 'Validation failed');
+    throw errorFactory(firstIssue?.message ?? "Validation failed");
   }
   return result.data;
 }

@@ -1,6 +1,6 @@
-import { Address } from 'viem';
+import { Address } from "viem";
 
-import { IEnvParam } from '../../common/parameters';
+import { IEnvParam } from "../../common/parameters";
 
 export type GetBadgesByAddress = {
   /** The account address */
@@ -9,5 +9,5 @@ export type GetBadgesByAddress = {
 
 export async function getBadgesByAddress(_props: GetBadgesByAddress) {
   // TODO: Move badges logic to SDK
-  throw new Error('Not implemented');
+  throw new Error("Not implemented");
 }

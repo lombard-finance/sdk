@@ -1,18 +1,18 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useEffect, useState } from 'react';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useEffect, useState } from "react";
 
-import { getLBTCAddress, networkToEnv } from '../const/getConfig';
+import { getLBTCAddress, networkToEnv } from "../const/getConfig";
 import {
   Button,
   ConnectButton,
   ErrorDisplay,
   ResultDisplay,
-} from '../stories/components';
-import { functionType } from '../stories/decorators/function-type';
-import { useConnect } from '../stories/hooks/useConnect';
-import useQuery from '../stories/hooks/useQuery';
-import { SolanaNetwork } from '../types';
-import { sendBridgeTransaction } from './sendBridgeTransaction';
+} from "../stories/components";
+import { functionType } from "../stories/decorators/function-type";
+import { useConnect } from "../stories/hooks/useConnect";
+import useQuery from "../stories/hooks/useQuery";
+import { SolanaNetwork } from "../types";
+import { sendBridgeTransaction } from "./sendBridgeTransaction";
 
 interface SendBridgeTransactionStoryArgs {
   network: SolanaNetwork;
@@ -35,33 +35,33 @@ export const StoryView = ({
   const isConnected = !!connectionData;
   const provider = connectionData?.provider;
 
-  const [tokenMint, setTokenMint] = useState<string>('');
+  const [tokenMint, setTokenMint] = useState<string>("");
 
   const destinationEid = network === SolanaNetwork.mainnet ? 30101 : 40161;
 
   useEffect(() => {
-    setTokenMint('');
+    setTokenMint("");
     if (!network) return;
     try {
       const lbtcAddress = getLBTCAddress(network);
       setTokenMint(lbtcAddress);
     } catch (err: unknown) {
-      console.error('Could not get LBTC address for network:', network, err);
+      console.error("Could not get LBTC address for network:", network, err);
     }
   }, [network]);
 
   const request = async () => {
     if (!provider?.publicKey || !provider.signTransaction)
-      throw new Error('Wallet not connected or does not support signing.');
+      throw new Error("Wallet not connected or does not support signing.");
     if (!tokenMint)
-      throw new Error('LBTC Token address not loaded for this network.');
+      throw new Error("LBTC Token address not loaded for this network.");
     if (!amount || !recipientAddress)
-      throw new Error('Amount and Recipient Address are required.');
+      throw new Error("Amount and Recipient Address are required.");
 
     const env = networkToEnv[network as keyof typeof networkToEnv];
     const parsedAmount = Number.parseFloat(amount);
     if (Number.isNaN(parsedAmount) || parsedAmount <= 0)
-      throw new Error('Invalid amount specified.');
+      throw new Error("Invalid amount specified.");
 
     try {
       const signature = await sendBridgeTransaction({
@@ -73,7 +73,7 @@ export const StoryView = ({
       });
       return signature;
     } catch (err) {
-      console.error('Send Bridge Error:', err);
+      console.error("Send Bridge Error:", err);
       throw err;
     }
   };
@@ -109,14 +109,14 @@ export const StoryView = ({
           <strong>Destination EID:</strong> {destinationEid}
         </p>
         <p className="mb-1">
-          <strong>LBTC Mint:</strong> {tokenMint || 'Loading...'}
+          <strong>LBTC Mint:</strong> {tokenMint || "Loading..."}
         </p>
         <p className="mb-1">
           <strong>Amount (from args):</strong> {amount} LBTC
         </p>
         <p className="mb-0">
-          <strong>Recipient (from args):</strong>{' '}
-          {recipientAddress || '(Not Set)'}
+          <strong>Recipient (from args):</strong>{" "}
+          {recipientAddress || "(Not Set)"}
         </p>
       </div>
 
@@ -153,30 +153,30 @@ export const StoryView = ({
 };
 
 const meta: Meta<typeof StoryView> = {
-  title: 'write/sendBridgeTransaction',
+  title: "write/sendBridgeTransaction",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('write')],
+  tags: ["autodocs"],
+  decorators: [functionType("write")],
   parameters: {
     docs: {
       description: {
         component:
-          'Demonstrates sending an LBTC bridge transaction from Solana using `sendBridgeTransaction`.',
+          "Demonstrates sending an LBTC bridge transaction from Solana using `sendBridgeTransaction`.",
       },
     },
   },
   args: {
     network: SolanaNetwork.devnet,
-    amount: '0.0001',
-    recipientAddress: '',
+    amount: "0.0001",
+    recipientAddress: "",
   },
   argTypes: {
     network: {
-      control: { type: 'select' },
+      control: { type: "select" },
       options: Object.values(SolanaNetwork),
     },
-    amount: { control: { type: 'text' } },
-    recipientAddress: { control: { type: 'text' } },
+    amount: { control: { type: "text" } },
+    recipientAddress: { control: { type: "text" } },
   },
 };
 export default meta;

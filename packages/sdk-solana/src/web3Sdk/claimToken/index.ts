@@ -1,1 +1,1 @@
-export * from './claimToken';
+export * from "./claimToken";

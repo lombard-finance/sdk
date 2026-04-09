@@ -26,31 +26,30 @@
  */
 declare const __SDK_VERSION__: string;
 export const SDK_VERSION: string =
-  typeof __SDK_VERSION__ !== 'undefined' ? __SDK_VERSION__ : 'development';
+  typeof __SDK_VERSION__ !== "undefined" ? __SDK_VERSION__ : "development";
 
 /**
  * SDK package name
  *
  * The npm package name for the SDK.
  */
-export const SDK_NAME = '@lombard.finance/sdk';
+export const SDK_NAME = "@lombard.finance/sdk";
 
 /**
  * SDK runtime environment
  *
  * Detects whether running in browser, Node.js, or unknown environment.
  */
-export const SDK_RUNTIME: 'browser' | 'node' | 'unknown' = (() => {
-  if (typeof window !== 'undefined' && typeof window.document !== 'undefined') {
-    return 'browser';
+export const SDK_RUNTIME: "browser" | "node" | "unknown" = (() => {
+  if (typeof window !== "undefined" && typeof window.document !== "undefined") {
+    return "browser";
   }
   if (
-    typeof process !== 'undefined' &&
+    typeof process !== "undefined" &&
     process.versions &&
     process.versions.node
   ) {
-    return 'node';
+    return "node";
   }
-  return 'unknown';
+  return "unknown";
 })();
-

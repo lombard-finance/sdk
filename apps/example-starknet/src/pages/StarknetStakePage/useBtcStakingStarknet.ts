@@ -1,15 +1,15 @@
-import { Chain, createConfig, Env } from '@lombard.finance/sdk';
+import { Chain, createConfig, Env } from "@lombard.finance/sdk";
 import {
   getRpcProvider,
   StarknetChainId,
   starknetModule,
-} from '@lombard.finance/sdk-starknet';
-import { useBtcStake, useLombardSDK } from '@lombard.finance/sdk-react';
-import { useCallback, useEffect, useState } from 'react';
-import { WalletAccount } from 'starknet';
+} from "@lombard.finance/sdk-starknet";
+import { useBtcStake, useLombardSDK } from "@lombard.finance/sdk-react";
+import { useCallback, useEffect, useState } from "react";
+import { WalletAccount } from "starknet";
 
-import { getEnvironment } from '../../lib/config';
-import type { StakingFormData } from '../../lib/types';
+import { getEnvironment } from "../../lib/config";
+import type { StakingFormData } from "../../lib/types";
 
 /**
  * Hook for managing Bitcoin staking to Starknet
@@ -69,22 +69,20 @@ export function useBtcStakingStarknet(
       };
 
       if (wallet.account) {
-        const walletName =
-          wallet.name || wallet.id || walletId || 'Unknown';
-        const wrappedAccount = Object.create(
-          wallet.account,
-        ) as WalletAccount;
-        (wrappedAccount as unknown as Record<string, unknown>).walletProvider = {
-          name: walletName,
-          id: wallet.id || walletId || '',
-        };
+        const walletName = wallet.name || wallet.id || walletId || "Unknown";
+        const wrappedAccount = Object.create(wallet.account) as WalletAccount;
+        (wrappedAccount as unknown as Record<string, unknown>).walletProvider =
+          {
+            name: walletName,
+            id: wallet.id || walletId || "",
+          };
         setWalletAccount(wrappedAccount);
         return;
       }
 
       // Last resort: use raw provider (will fail at sign time)
       console.warn(
-        '[useBtcStakingStarknet] Could not create WalletAccount with walletProvider.name',
+        "[useBtcStakingStarknet] Could not create WalletAccount with walletProvider.name",
       );
       setWalletAccount(starknetProvider);
     }
@@ -92,20 +90,21 @@ export function useBtcStakingStarknet(
     void connectWalletAccount();
   }, [starknetProvider, walletId, env]);
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
-    () => {
-      if (!walletAccount) return undefined;
-      return createConfig({
-        env: currentEnv,
-        providers: {
-          starknet: () => ({ getProvider: () => walletAccount }),
-        },
-        modules: [starknetModule()],
-        ...(partnerId && { partner: { partnerId } }),
-      });
-    },
-    [walletAccount, partnerId, currentEnv],
-  );
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(() => {
+    if (!walletAccount) return undefined;
+    return createConfig({
+      env: currentEnv,
+      providers: {
+        starknet: () => ({ getProvider: () => walletAccount }),
+      },
+      modules: [starknetModule()],
+      ...(partnerId && { partner: { partnerId } }),
+    });
+  }, [walletAccount, partnerId, currentEnv]);
 
   const {
     stake: stakeCore,

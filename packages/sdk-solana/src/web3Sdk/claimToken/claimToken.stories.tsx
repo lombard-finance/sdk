@@ -1,8 +1,8 @@
-import { Env } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
-import { useEffect, useState } from 'react';
+import { Env } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
+import { useEffect, useState } from "react";
 
-import { envToNetwork, getConfig } from '../../const/getConfig';
+import { envToNetwork, getConfig } from "../../const/getConfig";
 import {
   Button,
   CodeBlock,
@@ -11,14 +11,14 @@ import {
   OutputSelector,
   ResultDisplay,
   SectionCard,
-} from '../../stories/components';
-import { functionType } from '../../stories/decorators/function-type';
-import { useConnect } from '../../stories/hooks/useConnect';
-import { IOutput, useFetchOutputs } from '../../stories/hooks/useFetchOutputs';
-import useQuery from '../../stories/hooks/useQuery';
-import { claimToken } from './claimToken';
+} from "../../stories/components";
+import { functionType } from "../../stories/decorators/function-type";
+import { useConnect } from "../../stories/hooks/useConnect";
+import { IOutput, useFetchOutputs } from "../../stories/hooks/useFetchOutputs";
+import useQuery from "../../stories/hooks/useQuery";
+import { claimToken } from "./claimToken";
 
-type TokenChoice = 'BTC.b' | 'LBTC';
+type TokenChoice = "BTC.b" | "LBTC";
 
 interface ClaimTokenStoryArgs {
   environment: Env;
@@ -27,7 +27,7 @@ interface ClaimTokenStoryArgs {
 
 const getTokenMint = (env: Env, token: TokenChoice): string | null => {
   const config = getConfig(env);
-  if (token === 'BTC.b') return config.btcbTokenMint;
+  if (token === "BTC.b") return config.btcbTokenMint;
   return config.lbtcTokenMint;
 };
 
@@ -56,14 +56,15 @@ export const StoryView = ({ environment, token }: ClaimTokenStoryArgs) => {
   const tokenMint = getTokenMint(environment, token);
 
   const request = async () => {
-    if (!provider || !address) throw new Error('Wallet not connected.');
-    if (!selectedOutput) throw new Error('Please select an output to claim.');
+    if (!provider || !address) throw new Error("Wallet not connected.");
+    if (!selectedOutput) throw new Error("Please select an output to claim.");
     if (!selectedOutput.raw_payload)
-      throw new Error('Selected output has no raw_payload.');
-    if (!selectedOutput.proof)
-      throw new Error('Selected output has no proof.');
+      throw new Error("Selected output has no raw_payload.");
+    if (!selectedOutput.proof) throw new Error("Selected output has no proof.");
     if (!tokenMint)
-      throw new Error(`Token mint not configured for ${token} on ${environment}.`);
+      throw new Error(
+        `Token mint not configured for ${token} on ${environment}.`,
+      );
 
     setTransactionLogs(null);
     try {
@@ -80,9 +81,9 @@ export const StoryView = ({ environment, token }: ClaimTokenStoryArgs) => {
       setSelectedOutput(null);
       return txHash;
     } catch (err: unknown) {
-      if (err instanceof Error && err.message.includes('Debug logs:')) {
-        const parts = err.message.split('Debug logs:\n');
-        setTransactionLogs(parts[1]?.split('\n') || []);
+      if (err instanceof Error && err.message.includes("Debug logs:")) {
+        const parts = err.message.split("Debug logs:\n");
+        setTransactionLogs(parts[1]?.split("\n") || []);
       }
       throw err;
     }
@@ -124,7 +125,7 @@ export const StoryView = ({ environment, token }: ClaimTokenStoryArgs) => {
               <strong>Token:</strong> {token}
             </p>
             <p>
-              <strong>Token Mint:</strong>{' '}
+              <strong>Token Mint:</strong>{" "}
               {tokenMint || <em>Not configured</em>}
             </p>
             <p>
@@ -181,7 +182,7 @@ export const StoryView = ({ environment, token }: ClaimTokenStoryArgs) => {
 
           {transactionLogs && transactionLogs.length > 0 && (
             <SectionCard title="Transaction Logs (Debug)">
-              <CodeBlock text={transactionLogs.join('\n')} />
+              <CodeBlock text={transactionLogs.join("\n")} />
             </SectionCard>
           )}
         </>
@@ -191,10 +192,10 @@ export const StoryView = ({ environment, token }: ClaimTokenStoryArgs) => {
 };
 
 const meta: Meta<typeof StoryView> = {
-  title: 'write/claimToken (Asset Router)',
+  title: "write/claimToken (Asset Router)",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('write')],
+  tags: ["autodocs"],
+  decorators: [functionType("write")],
   parameters: {
     docs: {
       description: {
@@ -213,16 +214,16 @@ performs a single transaction — the Consortium validation is handled entirely 
   },
   args: {
     environment: Env.stage,
-    token: 'BTC.b',
+    token: "BTC.b",
   },
   argTypes: {
     environment: {
-      control: { type: 'select' },
+      control: { type: "select" },
       options: Object.values(Env),
     },
     token: {
-      control: { type: 'select' },
-      options: ['BTC.b', 'LBTC'] as TokenChoice[],
+      control: { type: "select" },
+      options: ["BTC.b", "LBTC"] as TokenChoice[],
     },
   },
 };

@@ -1,13 +1,13 @@
-import axios from 'axios';
-import BigNumber from 'bignumber.js';
-import { Address } from 'viem';
+import axios from "axios";
+import BigNumber from "bignumber.js";
+import { Address } from "viem";
 
-import { getApiConfig } from '../common/api-config';
-import { IEnvParam } from '../common/parameters';
-import { Token } from '../tokens/token-addresses';
+import { getApiConfig } from "../common/api-config";
+import { IEnvParam } from "../common/parameters";
+import { Token } from "../tokens/token-addresses";
 
-type PositionAsset = 'ASSET_LBTC' | 'ASSET_UNSPECIFIED';
-type PositionType = 'BALANCE_TYPE_HOLDING' | 'BALANCE_TYPE_DEFI';
+type PositionAsset = "ASSET_LBTC" | "ASSET_UNSPECIFIED";
+type PositionType = "BALANCE_TYPE_HOLDING" | "BALANCE_TYPE_DEFI";
 
 type Response = {
   btc_price_usd: { price: number; timestamp: string };
@@ -28,7 +28,7 @@ type Response = {
 
 function mapRewardAssetToToken(asset: PositionAsset) {
   switch (asset) {
-    case 'ASSET_LBTC':
+    case "ASSET_LBTC":
       return Token.LBTC;
     default:
       return undefined;
@@ -117,7 +117,7 @@ export async function getPositionsSummary({
     },
     btcValue: BigNumber(data.btc_value || 0),
     btcPnl: BigNumber(data.btc_pnl || 0),
-    snapshot: data.snapshot?.map(ds => ({
+    snapshot: data.snapshot?.map((ds) => ({
       token: mapRewardAssetToToken(ds.asset),
       type: ds.type,
       balance: BigNumber(ds.balance || 0),

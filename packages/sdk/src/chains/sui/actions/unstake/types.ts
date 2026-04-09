@@ -9,9 +9,9 @@ import type {
   Chain,
   StepStatus,
   StrategyProgress,
-} from '../../../../core';
-import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
-import type { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+} from "../../../../core";
+import type { MonitorableAction } from "../../../../shared/actions/BaseAction";
+import type { NonEvmUnstakeStatus } from "../../../../shared/constants/statusConstants";
 
 /**
  * Sui Unstake parameters
@@ -26,8 +26,7 @@ export interface SuiUnstakeParams {
 /**
  * Sui Unstake progress
  */
-export interface SuiUnstakeProgress
-  extends StrategyProgress<NonEvmUnstakeStatus> {
+export interface SuiUnstakeProgress extends StrategyProgress<NonEvmUnstakeStatus> {
   status: NonEvmUnstakeStatus;
   steps: {
     burning: StepStatus;

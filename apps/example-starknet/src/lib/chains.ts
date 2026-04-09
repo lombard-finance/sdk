@@ -1,4 +1,4 @@
-import { Chain, Env } from '@lombard.finance/sdk';
+import { Chain, Env } from "@lombard.finance/sdk";
 
 /**
  * Chain options for different environments
@@ -15,9 +15,9 @@ export interface ChainOption {
  */
 export function getAvailableChains(env: Env): ChainOption[] {
   if (env === Env.prod) {
-    return [{ value: Chain.STARKNET_MAINNET, label: 'Starknet Mainnet' }];
+    return [{ value: Chain.STARKNET_MAINNET, label: "Starknet Mainnet" }];
   } else {
-    return [{ value: Chain.STARKNET_SEPOLIA, label: 'Starknet Sepolia' }];
+    return [{ value: Chain.STARKNET_SEPOLIA, label: "Starknet Sepolia" }];
   }
 }
 

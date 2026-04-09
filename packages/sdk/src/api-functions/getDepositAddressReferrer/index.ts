@@ -1,1 +1,1 @@
-export * from './getDepositAddressReferrer';
+export * from "./getDepositAddressReferrer";

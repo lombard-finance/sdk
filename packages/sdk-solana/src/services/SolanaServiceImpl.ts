@@ -6,12 +6,12 @@
  * @module services/SolanaServiceImpl
  */
 
-import type { Env, SolanaService } from '@lombard.finance/sdk-common';
+import type { Env, SolanaService } from "@lombard.finance/sdk-common";
 
-import type { ISolanaWalletProvider, SolanaNetwork } from '../types';
-import { redeemForBtc } from '../web3Sdk/redeemToken/redeemForBtc';
-import { signLbtcDestinationAddrSolana } from '../web3Sdk/signLbtcDestinationAddrSolana';
-import { unstakeLBTC } from '../web3Sdk/unstakeLBTC/unstakeLBTC';
+import type { ISolanaWalletProvider, SolanaNetwork } from "../types";
+import { redeemForBtc } from "../web3Sdk/redeemToken/redeemForBtc";
+import { signLbtcDestinationAddrSolana } from "../web3Sdk/signLbtcDestinationAddrSolana";
+import { unstakeLBTC } from "../web3Sdk/unstakeLBTC/unstakeLBTC";
 
 /**
  * Provider resolver function type

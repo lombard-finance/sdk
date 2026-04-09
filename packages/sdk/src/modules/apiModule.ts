@@ -14,9 +14,9 @@
 import type {
   ApiService as IApiService,
   SdkModule,
-} from '@lombard.finance/sdk-common';
+} from "@lombard.finance/sdk-common";
 
-import { ApiService } from '../services/ApiService';
+import { ApiService } from "../services/ApiService";
 
 /**
  * Create API module
@@ -32,9 +32,9 @@ import { ApiService } from '../services/ApiService';
  * const deposits = await sdk.api.deposits('0x...');
  * ```
  */
-export function apiModule(): SdkModule<'api', IApiService> {
+export function apiModule(): SdkModule<"api", IApiService> {
   return {
-    id: 'api',
+    id: "api",
     register(ctx) {
       return new ApiService(ctx.env);
     },
@@ -48,4 +48,4 @@ export type {
   DepositInfo,
   GenerateDepositAddressParams,
   GetDepositAddressParams,
-} from '@lombard.finance/sdk-common';
+} from "@lombard.finance/sdk-common";

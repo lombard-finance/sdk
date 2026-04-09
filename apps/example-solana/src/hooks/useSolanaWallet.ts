@@ -1,6 +1,6 @@
-import { useContext } from 'react';
+import { useContext } from "react";
 
-import { SolanaWalletContext } from '../contexts/SolanaWalletContext';
+import { SolanaWalletContext } from "../contexts/SolanaWalletContext";
 
 /**
  * Hook to access shared Solana wallet state.

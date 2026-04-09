@@ -7,20 +7,20 @@
  */
 
 // Types and constants
-export type { ChainMetadata, ChainType } from './types';
+export type { ChainMetadata, ChainType } from "./types";
 export {
   CAIP2_SEPARATOR,
   Chain,
   CHAIN_PREFIXES,
   chainValueToKey,
   isChain,
-} from './types';
+} from "./types";
 
 // Catalog
-export { CHAIN_CATALOG } from './catalog';
+export { CHAIN_CATALOG } from "./catalog";
 
 // Query functions
-export type { ChainTypeMetadata } from './utils';
+export type { ChainTypeMetadata } from "./utils";
 export {
   evmChainIdToChain,
   getChainMetadata,
@@ -36,4 +36,4 @@ export {
   isMainnet,
   isTestnet,
   parseChainIdentifier,
-} from './utils';
+} from "./utils";

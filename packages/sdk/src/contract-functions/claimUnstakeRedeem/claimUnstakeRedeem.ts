@@ -1,15 +1,15 @@
-import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import { Hash, parseGwei, zeroAddress } from 'viem';
+import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
+import { Hash, parseGwei, zeroAddress } from "viem";
 
-import { makePublicClient } from '../../clients/public-client';
-import { makeWalletClient } from '../../clients/wallet-client';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
-import { CommonWriteParameters } from '../../common/parameters';
-import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
-import { AddressKind, Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../tokens/tokens';
-import { estimateGasFees } from '../../utils/gas';
-import { ensureHex } from '../../utils/hex';
+import { makePublicClient } from "../../clients/public-client";
+import { makeWalletClient } from "../../clients/wallet-client";
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from "../../common/chains";
+import { CommonWriteParameters } from "../../common/parameters";
+import ASSET_ROUTER_ABI from "../../tokens/abi/ASSET_ROUTER_ABI";
+import { AddressKind, Token } from "../../tokens/token-addresses";
+import { getTokenContractInfo } from "../../tokens/tokens";
+import { estimateGasFees } from "../../utils/gas";
+import { ensureHex } from "../../utils/hex";
 
 /**
  * Parameters for claiming BTC.b from unstake redemptions
@@ -63,11 +63,11 @@ export async function claimUnstakeRedeem({
   const assetRouterAddress = await publicClient.readContract({
     address: btcbTokenContract.address,
     abi: btcbTokenContract.abi,
-    functionName: 'getAssetRouter',
+    functionName: "getAssetRouter",
   });
 
   if (!assetRouterAddress || assetRouterAddress === zeroAddress) {
-    throw new Error('AssetRouter address not found in token adapter');
+    throw new Error("AssetRouter address not found in token adapter");
   }
 
   // Call AssetRouter.mint function
@@ -76,12 +76,12 @@ export async function claimUnstakeRedeem({
     account,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: ASSET_ROUTER_ABI,
-    functionName: 'mint',
+    functionName: "mint",
     args: [ensureHex(data), ensureHex(proofSignature)],
   } as const;
 
   const gasEstimationData = isKatanaChain(chainId)
-    ? await estimateGasFees(publicClient, callData, parseGwei('1'))
+    ? await estimateGasFees(publicClient, callData, parseGwei("1"))
     : {};
 
   const { request } = await publicClient.simulateContract({

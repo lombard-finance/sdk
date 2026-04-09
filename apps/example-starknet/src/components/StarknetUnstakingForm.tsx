@@ -1,7 +1,12 @@
-import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
-import { useState } from 'react';
+import {
+  AssetId,
+  Chain,
+  Env,
+  MIN_REDEEM_AMOUNT_BTC,
+} from "@lombard.finance/sdk";
+import { useState } from "react";
 
-import type { UnstakingFormData } from '../lib/types';
+import type { UnstakingFormData } from "../lib/types";
 
 interface StarknetUnstakingFormProps {
   onSubmit: (data: UnstakingFormData) => Promise<void>;
@@ -20,7 +25,7 @@ export function StarknetUnstakingForm({
   env,
 }: StarknetUnstakingFormProps) {
   const [amount, setAmount] = useState(String(MIN_REDEEM_AMOUNT_BTC));
-  const [recipient, setRecipient] = useState('');
+  const [recipient, setRecipient] = useState("");
 
   const sourceChain =
     env === Env.prod ? Chain.STARKNET_MAINNET : Chain.STARKNET_SEPOLIA;
@@ -28,9 +33,8 @@ export function StarknetUnstakingForm({
     env === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET;
 
   const sourceLabel =
-    env === Env.prod ? 'Starknet Mainnet' : 'Starknet Sepolia';
-  const destLabel =
-    env === Env.prod ? 'Bitcoin Mainnet' : 'Bitcoin Signet';
+    env === Env.prod ? "Starknet Mainnet" : "Starknet Sepolia";
+  const destLabel = env === Env.prod ? "Bitcoin Mainnet" : "Bitcoin Signet";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +56,10 @@ export function StarknetUnstakingForm({
       <div className="space-y-4">
         {/* Source Chain (read-only) */}
         <div>
-          <label htmlFor="sourceChain" className="block text-sm font-medium mb-2">
+          <label
+            htmlFor="sourceChain"
+            className="block text-sm font-medium mb-2"
+          >
             Source Chain
           </label>
           <input
@@ -87,13 +94,15 @@ export function StarknetUnstakingForm({
             type="text"
             id="amount"
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
             required
             min={MIN_REDEEM_AMOUNT_BTC}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             placeholder={String(MIN_REDEEM_AMOUNT_BTC)}
           />
-          <p className="text-xs text-secondary mt-1">Minimum: {MIN_REDEEM_AMOUNT_BTC} LBTC</p>
+          <p className="text-xs text-secondary mt-1">
+            Minimum: {MIN_REDEEM_AMOUNT_BTC} LBTC
+          </p>
         </div>
 
         {/* Recipient */}
@@ -105,10 +114,10 @@ export function StarknetUnstakingForm({
             type="text"
             id="recipient"
             value={recipient}
-            onChange={e => setRecipient(e.target.value)}
+            onChange={(e) => setRecipient(e.target.value)}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm"
-            placeholder={env === Env.prod ? 'bc1q...' : 'tb1q...'}
+            placeholder={env === Env.prod ? "bc1q..." : "tb1q..."}
           />
         </div>
       </div>
@@ -124,7 +133,7 @@ export function StarknetUnstakingForm({
             Processing...
           </>
         ) : (
-          'Unstake LBTC'
+          "Unstake LBTC"
         )}
       </button>
     </form>

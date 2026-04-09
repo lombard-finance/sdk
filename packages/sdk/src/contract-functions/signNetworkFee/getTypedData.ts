@@ -13,8 +13,8 @@ export function getTypedData({
 }: IGetTypedData) {
   return {
     domain: {
-      name: 'Lombard Staked Bitcoin',
-      version: '1',
+      name: "Lombard Staked Bitcoin",
+      version: "1",
       chainId,
       verifyingContract,
     },
@@ -23,18 +23,18 @@ export function getTypedData({
       fee,
       expiry,
     },
-    primaryType: 'feeApproval',
+    primaryType: "feeApproval",
     types: {
       EIP712Domain: [
-        { name: 'name', type: 'string' },
-        { name: 'version', type: 'string' },
-        { name: 'chainId', type: 'uint256' },
-        { name: 'verifyingContract', type: 'address' },
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
       ],
       feeApproval: [
-        { name: 'chainId', type: 'uint256' },
-        { name: 'fee', type: 'uint256' },
-        { name: 'expiry', type: 'uint256' },
+        { name: "chainId", type: "uint256" },
+        { name: "fee", type: "uint256" },
+        { name: "expiry", type: "uint256" },
       ],
     },
   };

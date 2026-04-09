@@ -7,11 +7,11 @@
  * @module chains/btc/actions/stake/factory
  */
 
-import type { LombardConfig } from '../../../../config/types';
-import type { BtcCoreContext } from '../../../../shared/context';
-import { createBtcCoreContext } from '../../../../shared/context';
-import { BtcStake } from './BtcStake';
-import type { BtcStakeParams } from './types';
+import type { LombardConfig } from "../../../../config/types";
+import type { BtcCoreContext } from "../../../../shared/context";
+import { createBtcCoreContext } from "../../../../shared/context";
+import { BtcStake } from "./BtcStake";
+import type { BtcStakeParams } from "./types";
 
 /**
  * Create BtcStake action from config

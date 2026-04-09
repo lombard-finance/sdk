@@ -1,6 +1,6 @@
-import { Connection, SendOptions, Transaction } from '@solana/web3.js';
+import { Connection, SendOptions, Transaction } from "@solana/web3.js";
 
-import { ISolanaWalletProvider } from '../types'; // Assuming ISolanaWalletProvider is defined here
+import { ISolanaWalletProvider } from "../types"; // Assuming ISolanaWalletProvider is defined here
 
 /**
  * Signs, sends, and confirms a transaction.
@@ -21,36 +21,36 @@ export async function sendAndConfirmTransaction(
   options?: SendOptions,
 ): Promise<string> {
   if (!provider.publicKey) {
-    throw new Error('Wallet provider public key not found.');
+    throw new Error("Wallet provider public key not found.");
   }
   if (!provider.signTransaction) {
-    throw new Error('Wallet provider does not support signTransaction.');
+    throw new Error("Wallet provider does not support signTransaction.");
   }
 
   transaction.feePayer = provider.publicKey;
-  debugLog('Fetching latest blockhash for transaction...');
+  debugLog("Fetching latest blockhash for transaction...");
   transaction.recentBlockhash = (
     await connection.getLatestBlockhash()
   ).blockhash;
   debugLog(`Blockhash: ${transaction.recentBlockhash}`);
   debugLog(`Fee Payer: ${transaction.feePayer.toBase58()}`);
 
-  debugLog('Requesting transaction signature from provider...');
+  debugLog("Requesting transaction signature from provider...");
   const signedTransaction = await provider.signTransaction(transaction);
 
-  debugLog('Sending signed transaction...');
+  debugLog("Sending signed transaction...");
   const signature = await connection.sendRawTransaction(
     signedTransaction.serialize(),
     options,
   );
-  debugLog('Transaction sent with signature:', signature);
+  debugLog("Transaction sent with signature:", signature);
 
-  debugLog('Confirming transaction...');
+  debugLog("Confirming transaction...");
   const confirmation = await connection.confirmTransaction(
     signature,
-    'confirmed', // Use 'confirmed' commitment level for confirmation
+    "confirmed", // Use 'confirmed' commitment level for confirmation
   );
-  debugLog('Transaction confirmation status:', confirmation);
+  debugLog("Transaction confirmation status:", confirmation);
 
   if (confirmation.value.err) {
     throw new Error(
@@ -58,6 +58,6 @@ export async function sendAndConfirmTransaction(
     );
   }
 
-  debugLog('Transaction confirmed successfully.');
+  debugLog("Transaction confirmed successfully.");
   return signature;
 }

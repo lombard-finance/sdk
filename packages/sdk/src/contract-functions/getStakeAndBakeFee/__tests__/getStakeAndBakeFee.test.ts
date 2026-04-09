@@ -1,18 +1,18 @@
-import { Env } from '@lombard.finance/sdk-common';
-import { describe, expect, it, vi } from 'vitest';
+import { Env } from "@lombard.finance/sdk-common";
+import { describe, expect, it, vi } from "vitest";
 
-import { ChainId } from '../../../common/chains';
-import { DefiProtocol } from '../../../defi/defi-registry';
-import { Token } from '../../../tokens/token-addresses';
-import { getStakeAndBakeFee } from '../getStakeAndBakeFee';
+import { ChainId } from "../../../common/chains";
+import { DefiProtocol } from "../../../defi/defi-registry";
+import { Token } from "../../../tokens/token-addresses";
+import { getStakeAndBakeFee } from "../getStakeAndBakeFee";
 
 // Mock dependencies
-vi.mock('../../../clients/public-client', () => ({
+vi.mock("../../../clients/public-client", () => ({
   makePublicClient: vi.fn(() => ({})),
 }));
 
-vi.mock('viem', async importOriginal => {
-  const actual = await importOriginal<typeof import('viem')>();
+vi.mock("viem", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("viem")>();
   return {
     ...actual,
     getContract: vi.fn(() => ({
@@ -23,7 +23,7 @@ vi.mock('viem', async importOriginal => {
   };
 });
 
-vi.mock('../../signStakeAndBake/validation', () => ({
+vi.mock("../../signStakeAndBake/validation", () => ({
   getStakeAndBakeConfig: vi.fn((protocol, token, chainId, env) => {
     // Simulate validation - throw for unsupported combinations
     if (protocol === DefiProtocol.Silo && token !== Token.BTCb) {
@@ -42,16 +42,16 @@ vi.mock('../../signStakeAndBake/validation', () => ({
       token,
       chainId,
       env,
-      amountStrategy: 'identity',
+      amountStrategy: "identity",
       approval: {
-        mode: 'permit',
-        domainName: 'Test',
-        domainVersion: '1',
-        deadlineStrategy: 'expiry',
-        nonceStrategy: 'chain',
+        mode: "permit",
+        domainName: "Test",
+        domainVersion: "1",
+        deadlineStrategy: "expiry",
+        nonceStrategy: "chain",
       },
       spenderContract: {
-        address: '0x1234567890123456789012345678901234567890',
+        address: "0x1234567890123456789012345678901234567890",
         abi: [],
         chainId,
       },
@@ -59,31 +59,31 @@ vi.mock('../../signStakeAndBake/validation', () => ({
   }),
 }));
 
-describe('getStakeAndBakeFee', () => {
-  describe('Protocol-aware default tokens', () => {
-    it('should use LBTC as default token for Veda', async () => {
+describe("getStakeAndBakeFee", () => {
+  describe("Protocol-aware default tokens", () => {
+    it("should use LBTC as default token for Veda", async () => {
       const result = await getStakeAndBakeFee({
         protocol: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         env: Env.prod,
       });
 
-      expect(result.toString()).toBe('0.01');
+      expect(result.toString()).toBe("0.01");
     });
 
-    it('should use BTCb as default token for Silo', async () => {
+    it("should use BTCb as default token for Silo", async () => {
       const result = await getStakeAndBakeFee({
         protocol: DefiProtocol.Silo,
         chainId: ChainId.avalancheFuji,
         env: Env.testnet,
       });
 
-      expect(result.toString()).toBe('0.01');
+      expect(result.toString()).toBe("0.01");
     });
   });
 
-  describe('Explicit token parameter', () => {
-    it('should use explicitly provided token for Veda (LBTC)', async () => {
+  describe("Explicit token parameter", () => {
+    it("should use explicitly provided token for Veda (LBTC)", async () => {
       const result = await getStakeAndBakeFee({
         protocol: DefiProtocol.Veda,
         token: Token.LBTC,
@@ -91,10 +91,10 @@ describe('getStakeAndBakeFee', () => {
         env: Env.prod,
       });
 
-      expect(result.toString()).toBe('0.01');
+      expect(result.toString()).toBe("0.01");
     });
 
-    it('should use explicitly provided token for Silo (BTCb)', async () => {
+    it("should use explicitly provided token for Silo (BTCb)", async () => {
       const result = await getStakeAndBakeFee({
         protocol: DefiProtocol.Silo,
         token: Token.BTCb,
@@ -102,23 +102,23 @@ describe('getStakeAndBakeFee', () => {
         env: Env.testnet,
       });
 
-      expect(result.toString()).toBe('0.01');
+      expect(result.toString()).toBe("0.01");
     });
 
-    it('should use explicitly provided BTC token for Veda', async () => {
+    it("should use explicitly provided BTC token for Veda", async () => {
       const result = await getStakeAndBakeFee({
         protocol: DefiProtocol.Veda,
-        token: 'BTC',
+        token: "BTC",
         chainId: ChainId.ethereum,
         env: Env.prod,
       });
 
-      expect(result.toString()).toBe('0.01');
+      expect(result.toString()).toBe("0.01");
     });
   });
 
-  describe('Error handling - invalid token/protocol combinations', () => {
-    it('should throw error when using BTCb with Veda (explicit)', async () => {
+  describe("Error handling - invalid token/protocol combinations", () => {
+    it("should throw error when using BTCb with Veda (explicit)", async () => {
       await expect(
         getStakeAndBakeFee({
           protocol: DefiProtocol.Veda,
@@ -127,11 +127,11 @@ describe('getStakeAndBakeFee', () => {
           env: Env.prod,
         }),
       ).rejects.toThrow(
-        'Token BTC.b is not supported for stake and bake on vault Veda',
+        "Token BTC.b is not supported for stake and bake on vault Veda",
       );
     });
 
-    it('should throw error when using LBTC with Silo (explicit)', async () => {
+    it("should throw error when using LBTC with Silo (explicit)", async () => {
       await expect(
         getStakeAndBakeFee({
           protocol: DefiProtocol.Silo,
@@ -140,28 +140,28 @@ describe('getStakeAndBakeFee', () => {
           env: Env.testnet,
         }),
       ).rejects.toThrow(
-        'Token LBTC is not supported for stake and bake on vault Silo',
+        "Token LBTC is not supported for stake and bake on vault Silo",
       );
     });
   });
 
-  describe('Default protocol behavior', () => {
-    it('should default to Veda protocol when not specified', async () => {
+  describe("Default protocol behavior", () => {
+    it("should default to Veda protocol when not specified", async () => {
       const result = await getStakeAndBakeFee({
         chainId: ChainId.ethereum,
         env: Env.prod,
       });
 
-      expect(result.toString()).toBe('0.01');
+      expect(result.toString()).toBe("0.01");
     });
 
-    it('should default to LBTC token when protocol and token not specified', async () => {
+    it("should default to LBTC token when protocol and token not specified", async () => {
       const result = await getStakeAndBakeFee({
         chainId: ChainId.ethereum,
         env: Env.prod,
       });
 
-      expect(result.toString()).toBe('0.01');
+      expect(result.toString()).toBe("0.01");
     });
   });
 });

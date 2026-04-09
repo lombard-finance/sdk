@@ -1,8 +1,8 @@
-import { Env } from '@lombard.finance/sdk-common';
-import { AxiosError } from 'axios';
+import { Env } from "@lombard.finance/sdk-common";
+import { AxiosError } from "axios";
 
-import { ChainId } from '../common/chains';
-import { Token } from '../tokens/token-addresses';
+import { ChainId } from "../common/chains";
+import { Token } from "../tokens/token-addresses";
 
 /**
  * Retrieves the error message from the given error object.
@@ -11,20 +11,20 @@ import { Token } from '../tokens/token-addresses';
  * @returns The error message as a string.
  */
 export function getErrorMessage(error: unknown): string {
-  if (typeof error === 'string') {
+  if (typeof error === "string") {
     return error;
   }
 
   const hasDataMessage = (err: unknown): err is { data: { message: string } } =>
     Boolean(
       err &&
-        typeof err === 'object' &&
-        'data' in err &&
-        err.data &&
-        typeof err.data === 'object' &&
-        'message' in err.data &&
-        err?.data?.message &&
-        typeof err.data.message === 'string',
+      typeof err === "object" &&
+      "data" in err &&
+      err.data &&
+      typeof err.data === "object" &&
+      "message" in err.data &&
+      err?.data?.message &&
+      typeof err.data.message === "string",
     );
 
   if (hasDataMessage(error)) {
@@ -49,14 +49,14 @@ function getAxiosErrorMessage(error: AxiosError): string {
 function getErrorMessageFromObject(error: unknown): string {
   if (
     error &&
-    typeof error === 'object' &&
-    'message' in error &&
-    typeof error.message === 'string'
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
   ) {
     return error.message;
   }
 
-  return 'Unknown error';
+  return "Unknown error";
 }
 
 export class TokenContractAddressNotFoundError extends Error {
@@ -65,7 +65,7 @@ export class TokenContractAddressNotFoundError extends Error {
     public readonly chainId: ChainId,
     env?: Env,
   ) {
-    const message = `Could not determine the ${token} contract address for given chain id: ${chainId} (env: ${env || 'undefined'})`;
+    const message = `Could not determine the ${token} contract address for given chain id: ${chainId} (env: ${env || "undefined"})`;
     super(message);
   }
 }
@@ -77,7 +77,7 @@ export class UnsupportedTokenFlow extends Error {
     public readonly chainId: ChainId,
     env?: Env,
   ) {
-    const message = `The flow of ${tokenIn} to ${tokenOut} on ${chainId} (env: ${env || 'undefined'}) is not supported`;
+    const message = `The flow of ${tokenIn} to ${tokenOut} on ${chainId} (env: ${env || "undefined"}) is not supported`;
     super(message);
   }
 }

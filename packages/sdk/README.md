@@ -21,11 +21,11 @@ npm install axios@^1 bignumber.js@^9 @bitcoinerlab/secp256k1@1.2.0 bitcoinjs-lib
 ## Quick Start
 
 ```typescript
-import { createLombardSDK, Chain, AssetId } from '@lombard.finance/sdk';
+import { createLombardSDK, Chain, AssetId } from "@lombard.finance/sdk";
 
 // Initialize SDK
 const sdk = await createLombardSDK({
-  env: 'prod',
+  env: "prod",
   providers: {
     evm: () => window.ethereum,
     bitcoin: () => window.btc,
@@ -39,11 +39,11 @@ const stake = sdk.chain.btc.stake({
 });
 
 // Listen to events
-stake.on('status-change', (status) => console.log('Status:', status));
-stake.on('progress', (progress) => console.log('Progress:', progress));
+stake.on("status-change", (status) => console.log("Status:", status));
+stake.on("progress", (progress) => console.log("Progress:", progress));
 
 // Execute the action lifecycle
-await stake.prepare({ amount: '0.001', recipient: '0x...' });
+await stake.prepare({ amount: "0.001", recipient: "0x..." });
 await stake.authorize(); // If required
 await stake.generateDepositAddress();
 
@@ -60,7 +60,7 @@ The SDK provides two approaches:
 ```typescript
 // SDK initialization is async (fetches config)
 const sdk = await createLombardSDK({
-  env: 'prod',
+  env: "prod",
   providers: { evm: () => window.ethereum },
 });
 ```
@@ -75,17 +75,17 @@ create → prepare → execute → complete
 
 ### Available Actions
 
-| Chain | Action | Description |
-|-------|--------|-------------|
-| BTC | `sdk.chain.btc.stake()` | Stake BTC → LBTC |
-| BTC | `sdk.chain.btc.deposit()` | Deposit BTC → BTC.b |
-| EVM | `sdk.chain.evm.unstake()` | Burn LBTC → BTC |
-| EVM | `sdk.chain.evm.stake()` | Stake BTC.b → LBTC |
-| EVM | `sdk.chain.evm.redeem()` | Redeem from DeFi vaults |
-| EVM | `sdk.chain.evm.deploy()` | Deploy to DeFi vaults |
-| Solana | `sdk.chain.solana.unstake()` | Burn LBTC on Solana |
-| Sui | `sdk.chain.sui.unstake()` | Burn LBTC on Sui |
-| Starknet | `sdk.chain.starknet.unstake()` | Burn LBTC on Starknet |
+| Chain    | Action                         | Description             |
+| -------- | ------------------------------ | ----------------------- |
+| BTC      | `sdk.chain.btc.stake()`        | Stake BTC → LBTC        |
+| BTC      | `sdk.chain.btc.deposit()`      | Deposit BTC → BTC.b     |
+| EVM      | `sdk.chain.evm.unstake()`      | Burn LBTC → BTC         |
+| EVM      | `sdk.chain.evm.stake()`        | Stake BTC.b → LBTC      |
+| EVM      | `sdk.chain.evm.redeem()`       | Redeem from DeFi vaults |
+| EVM      | `sdk.chain.evm.deploy()`       | Deploy to DeFi vaults   |
+| Solana   | `sdk.chain.solana.unstake()`   | Burn LBTC on Solana     |
+| Sui      | `sdk.chain.sui.unstake()`      | Burn LBTC on Sui        |
+| Starknet | `sdk.chain.starknet.unstake()` | Burn LBTC on Starknet   |
 
 ### Data API
 
@@ -103,6 +103,7 @@ const rate = await sdk.api.exchangeRatio();
 Try the SDK interactively at **[lombard.finance/playground](https://lombard.finance/playground)**.
 
 The playground provides:
+
 - Live code examples for all actions
 - Real wallet connections
 - Testnet and mainnet environments
@@ -123,7 +124,7 @@ For Solana, Sui, and Starknet, install the chain-specific modules:
 # Solana
 npm install @lombard.finance/sdk-solana
 
-# Sui  
+# Sui
 npm install @lombard.finance/sdk-sui
 
 # Starknet
@@ -133,11 +134,11 @@ npm install @lombard.finance/sdk-starknet
 Register modules when creating the SDK:
 
 ```typescript
-import { solanaModule } from '@lombard.finance/sdk-solana';
-import { suiModule } from '@lombard.finance/sdk-sui';
+import { solanaModule } from "@lombard.finance/sdk-solana";
+import { suiModule } from "@lombard.finance/sdk-sui";
 
 const sdk = await createLombardSDK({
-  env: 'prod',
+  env: "prod",
   modules: [solanaModule(), suiModule()],
   providers: {
     solana: () => window.solana,
@@ -154,11 +155,11 @@ const sdk = await createLombardSDK({
 
 ## Environment
 
-| Environment | Description | Use For |
-|-------------|-------------|---------|
-| `prod` | Production mainnet | Live deployments |
-| `testnet` | Public testnet | Integration testing |
-| `stage` | Staging environment | Internal testing |
+| Environment | Description         | Use For             |
+| ----------- | ------------------- | ------------------- |
+| `prod`      | Production mainnet  | Live deployments    |
+| `testnet`   | Public testnet      | Integration testing |
+| `stage`     | Staging environment | Internal testing    |
 
 ## License
 

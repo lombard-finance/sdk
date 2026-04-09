@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-import { SolanaSdkError } from '../../utils/errors';
+import { SolanaSdkError } from "../../utils/errors";
 
 type QueryFn<T> = () => Promise<T>;
 

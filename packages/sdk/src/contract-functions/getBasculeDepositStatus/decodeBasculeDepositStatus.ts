@@ -1,30 +1,30 @@
-import { decodeFunctionData, encodeAbiParameters, keccak256 } from 'viem';
+import { decodeFunctionData, encodeAbiParameters, keccak256 } from "viem";
 
-const GMP_V1_SELECTOR = '0xe288fb4a';
-const MINT_SELECTOR = '0x155b6b13';
+const GMP_V1_SELECTOR = "0xe288fb4a";
+const MINT_SELECTOR = "0x155b6b13";
 
 // ABI for the outer payload (matches your Solidity encodePayload/MessageV1)
 const gmpPayloadAbi = {
-  type: 'function',
-  name: 'MessageV1',
+  type: "function",
+  name: "MessageV1",
   inputs: [
-    { name: 'msgPath', type: 'bytes32' },
-    { name: 'msgNonce', type: 'uint256' },
-    { name: 'msgSender', type: 'bytes32' },
-    { name: 'msgRecipient', type: 'bytes32' },
-    { name: 'msgDestinationCaller', type: 'bytes32' },
-    { name: 'msgBody', type: 'bytes' },
+    { name: "msgPath", type: "bytes32" },
+    { name: "msgNonce", type: "uint256" },
+    { name: "msgSender", type: "bytes32" },
+    { name: "msgRecipient", type: "bytes32" },
+    { name: "msgDestinationCaller", type: "bytes32" },
+    { name: "msgBody", type: "bytes" },
   ],
 } as const;
 
 // ABI for the inner body (mint)
 const mintAbi = {
-  type: 'function',
-  name: 'mint',
+  type: "function",
+  name: "mint",
   inputs: [
-    { name: 'toToken', type: 'bytes32' },
-    { name: 'recipient', type: 'bytes32' },
-    { name: 'amount', type: 'uint256' },
+    { name: "toToken", type: "bytes32" },
+    { name: "recipient", type: "bytes32" },
+    { name: "amount", type: "uint256" },
   ],
 } as const;
 
@@ -63,8 +63,8 @@ export interface DecodedGmpPayload {
  * Decode ABI-encoded GMP Payload hex where msgBody is an ABI-encoded `mint` call.
  */
 export function decodeGmpMintPayload(hexData: string): DecodedGmpPayload {
-  if (!hexData.startsWith('0x')) {
-    throw new Error('Payload must be 0x-prefixed hex');
+  if (!hexData.startsWith("0x")) {
+    throw new Error("Payload must be 0x-prefixed hex");
   }
 
   // 1) Check outer selector
@@ -82,7 +82,7 @@ export function decodeGmpMintPayload(hexData: string): DecodedGmpPayload {
   });
 
   if (!decoded.args) {
-    throw new Error('Failed to decode GMP payload: args is undefined');
+    throw new Error("Failed to decode GMP payload: args is undefined");
   }
 
   const msgPath = decoded.args[0] as string;
@@ -92,8 +92,8 @@ export function decodeGmpMintPayload(hexData: string): DecodedGmpPayload {
   const msgDestinationCaller = decoded.args[4] as string;
   const msgBody = decoded.args[5] as string; // bytes => 0x…
 
-  if (typeof msgBody !== 'string' || !msgBody.startsWith('0x')) {
-    throw new Error('msgBody is not valid hex');
+  if (typeof msgBody !== "string" || !msgBody.startsWith("0x")) {
+    throw new Error("msgBody is not valid hex");
   }
 
   // 3) Check inner selector (mint)
@@ -111,7 +111,7 @@ export function decodeGmpMintPayload(hexData: string): DecodedGmpPayload {
   });
 
   if (!mintDecoded.args) {
-    throw new Error('Failed to decode mint body: args is undefined');
+    throw new Error("Failed to decode mint body: args is undefined");
   }
 
   const toToken = mintDecoded.args[0] as string;
@@ -150,11 +150,11 @@ export function calcMintIDFromDecoded(
   // Solidity: abi.encode(uint256 nonce, uint256 chainId, address recipient, address toToken, uint256 amount)
   const encoded = encodeAbiParameters(
     [
-      { name: 'nonce', type: 'uint256' },
-      { name: 'chainId', type: 'uint256' },
-      { name: 'recipient', type: 'bytes32' },
-      { name: 'toToken', type: 'bytes32' },
-      { name: 'amount', type: 'uint256' },
+      { name: "nonce", type: "uint256" },
+      { name: "chainId", type: "uint256" },
+      { name: "recipient", type: "bytes32" },
+      { name: "toToken", type: "bytes32" },
+      { name: "amount", type: "uint256" },
     ],
     [
       BigInt(msgNonce), // self.nonce

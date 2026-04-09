@@ -1,19 +1,19 @@
-import BigNumber from 'bignumber.js';
+import BigNumber from "bignumber.js";
 
-import { makePublicClient } from '../../../clients/public-client';
-import { makeWalletClient } from '../../../clients/wallet-client';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../../common/chains';
-import { CommonWriteParameters } from '../../../common/parameters';
-import { Token } from '../../../tokens/token-addresses';
+import { makePublicClient } from "../../../clients/public-client";
+import { makeWalletClient } from "../../../clients/wallet-client";
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from "../../../common/chains";
+import { CommonWriteParameters } from "../../../common/parameters";
+import { Token } from "../../../tokens/token-addresses";
 import {
   fromBaseDenomination,
   getTokenInfo,
   toBaseDenomination,
-} from '../../../tokens/tokens';
-import { getErrorMessage } from '../../../utils/err';
-import toBigInt from '../../../utils/numbers';
-import { DAY } from '../../../utils/time';
-import { isVedaVaultChain, Vault, VAULTS } from '../config';
+} from "../../../tokens/tokens";
+import { getErrorMessage } from "../../../utils/err";
+import toBigInt from "../../../utils/numbers";
+import { DAY } from "../../../utils/time";
+import { isVedaVaultChain, Vault, VAULTS } from "../config";
 
 export type QueueWithdrawParameters = {
   /** The amount to be withdrawn from the DeFi vault. */
@@ -62,7 +62,7 @@ export async function queueWithdraw({
 
   if (!isVedaVaultChain(chainId)) {
     throw new Error(
-      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
+      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(", ")}`,
     );
   }
 
@@ -80,7 +80,7 @@ export async function queueWithdraw({
   const balanceRaw = await publicClient.readContract({
     address: vault.lensContract.address,
     abi: vault.lensContract.abi,
-    functionName: 'balanceOf',
+    functionName: "balanceOf",
     args: [account, vault.vaultContract.address],
   });
   const balance = fromBaseDenomination(String(balanceRaw), vault.decimals);
@@ -88,7 +88,7 @@ export async function queueWithdraw({
   const allowanceRaw = await publicClient.readContract({
     address: vault.vaultContract.address,
     abi: vault.vaultContract.abi,
-    functionName: 'allowance',
+    functionName: "allowance",
     args: [account, vault.withdrawQueueContracts[chainId].address],
   });
   const allowance = fromBaseDenomination(String(allowanceRaw), vault.decimals);
@@ -115,7 +115,7 @@ export async function queueWithdraw({
         chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
-        functionName: 'approve',
+        functionName: "approve",
         args: [vault.withdrawQueueContracts[chainId].address, amountBase],
       });
 
@@ -145,7 +145,7 @@ export async function queueWithdraw({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     address: vault.withdrawQueueContracts[chainId].address,
     abi: vault.withdrawQueueContracts[chainId].abi,
-    functionName: 'safeUpdateAtomicRequest',
+    functionName: "safeUpdateAtomicRequest",
     args: [
       vault.vaultContract.address,
       withdrawToken.address,
@@ -161,7 +161,7 @@ export async function queueWithdraw({
 
 export type CancelWithdrawParameters = Pick<
   QueueWithdrawParameters,
-  'token' | 'vaultKey'
+  "token" | "vaultKey"
 > &
   CommonWriteParameters;
 
@@ -194,7 +194,7 @@ export async function cancelWithdraw({
 
   if (!isVedaVaultChain(chainId)) {
     throw new Error(
-      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
+      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(", ")}`,
     );
   }
 
@@ -212,7 +212,7 @@ export async function cancelWithdraw({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     address: vault.withdrawQueueContracts[chainId].address,
     abi: vault.withdrawQueueContracts[chainId].abi,
-    functionName: 'updateAtomicRequest',
+    functionName: "updateAtomicRequest",
     args: [
       vault.vaultContract.address,
       withdrawToken.address,

@@ -1,11 +1,11 @@
-import BigNumber from 'bignumber.js';
-import { Hex } from 'viem';
+import BigNumber from "bignumber.js";
+import { Hex } from "viem";
 
-import { makeWalletClient } from '../../clients/wallet-client';
-import { CommonWriteParameters } from '../../common/parameters';
-import { Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../tokens/tokens';
-import { DAY, now, toUnix } from '../../utils/time';
+import { makeWalletClient } from "../../clients/wallet-client";
+import { CommonWriteParameters } from "../../common/parameters";
+import { Token } from "../../tokens/token-addresses";
+import { getTokenContractInfo } from "../../tokens/tokens";
+import { DAY, now, toUnix } from "../../utils/time";
 
 export interface ISignNetworkFeeParams extends CommonWriteParameters {
   /**
@@ -69,8 +69,8 @@ export async function signNetworkFee({
   const typedData: TypedData = {
     account,
     domain: {
-      name: token === Token.BTCb ? 'Bitcoin' : 'Lombard Staked Bitcoin',
-      version: '1',
+      name: token === Token.BTCb ? "Bitcoin" : "Lombard Staked Bitcoin",
+      version: "1",
       chainId,
       verifyingContract: tokenContract.address,
     },
@@ -79,18 +79,18 @@ export async function signNetworkFee({
       fee: BigInt(BigNumber(fee).toFixed()),
       expiry,
     },
-    primaryType: 'feeApproval',
+    primaryType: "feeApproval",
     types: {
       EIP712Domain: [
-        { name: 'name', type: 'string' },
-        { name: 'version', type: 'string' },
-        { name: 'chainId', type: 'uint256' },
-        { name: 'verifyingContract', type: 'address' },
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
       ],
       feeApproval: [
-        { name: 'chainId', type: 'uint256' },
-        { name: 'fee', type: 'uint256' },
-        { name: 'expiry', type: 'uint256' },
+        { name: "chainId", type: "uint256" },
+        { name: "fee", type: "uint256" },
+        { name: "expiry", type: "uint256" },
       ],
     },
   };
@@ -100,7 +100,7 @@ export async function signNetworkFee({
   return {
     signature: signature,
     typedData: JSON.stringify(typedData, (_, v) =>
-      typeof v === 'bigint' ? v.toString() : v,
+      typeof v === "bigint" ? v.toString() : v,
     ),
   };
 }

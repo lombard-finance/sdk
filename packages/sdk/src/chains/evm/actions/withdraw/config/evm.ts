@@ -6,11 +6,11 @@
  * @module chains/evm/actions/withdraw/config/evm
  */
 
-import { Env } from '@lombard.finance/sdk-common';
+import { Env } from "@lombard.finance/sdk-common";
 
-import { Chain, DeployProtocol } from '../../../../../core';
-import { evmAddressSchema } from '../../../../../shared/validation';
-import type { WithdrawChainConfig } from './types';
+import { Chain, DeployProtocol } from "../../../../../core";
+import { evmAddressSchema } from "../../../../../shared/validation";
+import type { WithdrawChainConfig } from "./types";
 
 /**
  * EVM withdraw configuration
@@ -19,7 +19,7 @@ import type { WithdrawChainConfig } from './types';
  * - Veda: Ethereum, Base, BSC, Corn (prod only)
  */
 export const evmWithdrawConfig: WithdrawChainConfig = {
-  chainType: 'evm',
+  chainType: "evm",
 
   routes: [
     // Veda - Ethereum, Base, BSC, Corn
@@ -42,7 +42,7 @@ export function isWithdrawSupported(
   env: Env,
 ): boolean {
   return evmWithdrawConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(chain) &&
       route.protocols.includes(protocol) &&
       route.envs.includes(env),

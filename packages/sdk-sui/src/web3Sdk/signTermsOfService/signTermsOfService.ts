@@ -1,9 +1,9 @@
-import { SuiSignPersonalMessageFeature } from '@mysten/wallet-standard';
-import { WalletWithFeatures } from '@wallet-standard/base';
-import type { WalletAccount } from '@wallet-standard/core';
+import { SuiSignPersonalMessageFeature } from "@mysten/wallet-standard";
+import { WalletWithFeatures } from "@wallet-standard/base";
+import type { WalletAccount } from "@wallet-standard/core";
 
 const SIGN_MESSAGE =
-  'I have read and agreed to the terms of service: https://docs.lombard.finance/legals/terms-of-service';
+  "I have read and agreed to the terms of service: https://docs.lombard.finance/legals/terms-of-service";
 
 interface SignTermsOfServiceParams {
   wallet: WalletWithFeatures<SuiSignPersonalMessageFeature>;
@@ -24,8 +24,8 @@ export async function signTermsOfService({
   bytes: string;
   signature: string;
 }> {
-  return wallet.features['sui:signPersonalMessage'].signPersonalMessage({
-    message: Buffer.from(SIGN_MESSAGE, 'utf8') as unknown as Uint8Array,
+  return wallet.features["sui:signPersonalMessage"].signPersonalMessage({
+    message: Buffer.from(SIGN_MESSAGE, "utf8") as unknown as Uint8Array,
     account,
   });
 }

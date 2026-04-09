@@ -1,20 +1,24 @@
 /**
  * Hook Tests
- * 
+ *
  * Tests for DevTools React hooks.
  */
 
-import { act, renderHook, waitFor } from '@testing-library/react';
-import { ReactNode } from 'react';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { ReactNode } from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { resetDevToolsBridge } from '../bridge/DevToolsBridge';
-import { useActionEvents } from '../hooks/useDevTools';
-import { DevToolsProvider, useDevToolsContext, useRegisterAction } from '../provider/DevToolsProvider';
-import type { MonitorableAction } from '../types';
+import { resetDevToolsBridge } from "../bridge/DevToolsBridge";
+import { useActionEvents } from "../hooks/useDevTools";
+import {
+  DevToolsProvider,
+  useDevToolsContext,
+  useRegisterAction,
+} from "../provider/DevToolsProvider";
+import type { MonitorableAction } from "../types";
 
 // Mock action factory
-function createMockAction(initialStatus = 'idle'): MonitorableAction & { 
+function createMockAction(initialStatus = "idle"): MonitorableAction & {
   emit: (event: string, data: unknown) => void;
   handlers: Map<string, Array<(...args: unknown[]) => void>>;
 } {
@@ -22,12 +26,20 @@ function createMockAction(initialStatus = 'idle'): MonitorableAction & {
   let currentStatus = initialStatus;
   let currentLoading = false;
   let currentError: Error | null = null;
-  
+
   return {
-    get status() { return currentStatus; },
-    get isLoading() { return currentLoading; },
-    get error() { return currentError; },
-    get isFailed() { return currentError !== null; },
+    get status() {
+      return currentStatus;
+    },
+    get isLoading() {
+      return currentLoading;
+    },
+    get error() {
+      return currentError;
+    },
+    get isFailed() {
+      return currentError !== null;
+    },
     handlers,
     on(event: string, handler: (...args: unknown[]) => void) {
       if (!handlers.has(event)) {
@@ -43,17 +55,19 @@ function createMockAction(initialStatus = 'idle'): MonitorableAction & {
       };
     },
     emit(event: string, data: unknown) {
-      if (event === 'status-change') {
+      if (event === "status-change") {
         currentStatus = String(data);
-      } else if (event === 'loading') {
+      } else if (event === "loading") {
         currentLoading = Boolean(data);
-      } else if (event === 'error') {
+      } else if (event === "error") {
         currentError = data as Error;
       }
-      
+
       const eventHandlers = handlers.get(event);
       if (eventHandlers) {
-        eventHandlers.forEach(h => { h(data); });
+        eventHandlers.forEach((h) => {
+          h(data);
+        });
       }
     },
   };
@@ -62,85 +76,85 @@ function createMockAction(initialStatus = 'idle'): MonitorableAction & {
 // Provider wrapper
 const createWrapper = (enabled = true) => {
   return function Wrapper({ children }: { children: ReactNode }) {
-    return (
-      <DevToolsProvider enabled={enabled}>
-        {children}
-      </DevToolsProvider>
-    );
+    return <DevToolsProvider enabled={enabled}>{children}</DevToolsProvider>;
   };
 };
 
-describe('useDevToolsContext', () => {
+describe("useDevToolsContext", () => {
   beforeEach(() => {
     resetDevToolsBridge();
   });
 
-  it('should throw outside provider', () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+  it("should throw outside provider", () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
     expect(() => {
       renderHook(() => useDevToolsContext());
-    }).toThrow('useDevToolsContext must be used within a DevToolsProvider');
-    
+    }).toThrow("useDevToolsContext must be used within a DevToolsProvider");
+
     consoleSpy.mockRestore();
   });
 
-  it('should provide context values', () => {
+  it("should provide context values", () => {
     const { result } = renderHook(() => useDevToolsContext(), {
       wrapper: createWrapper(),
     });
 
     expect(result.current.events).toEqual([]);
     expect(result.current.actions).toBeInstanceOf(Map);
-    expect(typeof result.current.registerAction).toBe('function');
-    expect(typeof result.current.clearEvents).toBe('function');
+    expect(typeof result.current.registerAction).toBe("function");
+    expect(typeof result.current.clearEvents).toBe("function");
     expect(result.current.isEnabled).toBe(true);
   });
 
-  it('should register and track actions', () => {
+  it("should register and track actions", () => {
     const { result } = renderHook(() => useDevToolsContext(), {
       wrapper: createWrapper(),
     });
 
     const action = createMockAction();
-    
+
     act(() => {
-      result.current.registerAction('test', action);
+      result.current.registerAction("test", action);
     });
 
-    expect(result.current.actions.has('test')).toBe(true);
-    expect(result.current.events.some(e => e.type === 'registered')).toBe(true);
+    expect(result.current.actions.has("test")).toBe(true);
+    expect(result.current.events.some((e) => e.type === "registered")).toBe(
+      true,
+    );
   });
 
-  it('should track action events', async () => {
+  it("should track action events", async () => {
     const { result } = renderHook(() => useDevToolsContext(), {
       wrapper: createWrapper(),
     });
 
     const action = createMockAction();
-    
+
     act(() => {
-      result.current.registerAction('test', action);
+      result.current.registerAction("test", action);
     });
 
     act(() => {
-      action.emit('status-change', 'new-status');
+      action.emit("status-change", "new-status");
     });
 
     await waitFor(() => {
-      expect(result.current.events.some(e => e.type === 'status-change')).toBe(true);
+      expect(
+        result.current.events.some((e) => e.type === "status-change"),
+      ).toBe(true);
     });
   });
 
-  it('should clear events', () => {
+  it("should clear events", () => {
     const { result } = renderHook(() => useDevToolsContext(), {
       wrapper: createWrapper(),
     });
 
     const action = createMockAction();
-    
+
     act(() => {
-      result.current.registerAction('test', action);
+      result.current.registerAction("test", action);
     });
 
     expect(result.current.events.length).toBeGreaterThan(0);
@@ -153,31 +167,31 @@ describe('useDevToolsContext', () => {
   });
 });
 
-describe('useRegisterAction', () => {
+describe("useRegisterAction", () => {
   beforeEach(() => {
     resetDevToolsBridge();
   });
 
-  it('should handle null action without error', () => {
+  it("should handle null action without error", () => {
     // Should not throw when action is null
     expect(() => {
       renderHook(
         () => {
-          useRegisterAction('test', null);
+          useRegisterAction("test", null);
         },
-        { wrapper: createWrapper() }
+        { wrapper: createWrapper() },
       );
     }).not.toThrow();
   });
 
-  it('should not throw on unmount', () => {
+  it("should not throw on unmount", () => {
     const action = createMockAction();
-    
+
     const { unmount } = renderHook(
       () => {
-        useRegisterAction('test', action);
+        useRegisterAction("test", action);
       },
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     // Should not throw on unmount
@@ -185,40 +199,42 @@ describe('useRegisterAction', () => {
   });
 });
 
-describe('useActionEvents', () => {
-  it('should return initial state when action is null', () => {
+describe("useActionEvents", () => {
+  it("should return initial state when action is null", () => {
     const { result } = renderHook(() => useActionEvents(null));
 
-    expect(result.current.status).toBe('idle');
+    expect(result.current.status).toBe("idle");
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
     expect(result.current.events).toEqual([]);
   });
 
-  it('should track status changes', async () => {
-    const action = createMockAction('initial');
+  it("should track status changes", async () => {
+    const action = createMockAction("initial");
     const { result } = renderHook(() => useActionEvents(action));
 
-    expect(result.current.status).toBe('initial');
+    expect(result.current.status).toBe("initial");
 
     act(() => {
-      action.emit('status-change', 'updated');
+      action.emit("status-change", "updated");
     });
 
     await waitFor(() => {
-      expect(result.current.status).toBe('updated');
-      expect(result.current.events.some(e => e.type === 'status-change')).toBe(true);
+      expect(result.current.status).toBe("updated");
+      expect(
+        result.current.events.some((e) => e.type === "status-change"),
+      ).toBe(true);
     });
   });
 
-  it('should track loading state', async () => {
+  it("should track loading state", async () => {
     const action = createMockAction();
     const { result } = renderHook(() => useActionEvents(action));
 
     expect(result.current.isLoading).toBe(false);
 
     act(() => {
-      action.emit('loading', true);
+      action.emit("loading", true);
     });
 
     await waitFor(() => {
@@ -226,12 +242,12 @@ describe('useActionEvents', () => {
     });
   });
 
-  it('should clear events', async () => {
+  it("should clear events", async () => {
     const action = createMockAction();
     const { result } = renderHook(() => useActionEvents(action));
 
     act(() => {
-      action.emit('status-change', 'test');
+      action.emit("status-change", "test");
     });
 
     await waitFor(() => {

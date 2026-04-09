@@ -10,13 +10,13 @@
  * @module chains/btc/actions/stake/config/sui
  */
 
-import type { SuiService } from '@lombard.finance/sdk-common';
-import { Env } from '@lombard.finance/sdk-common';
+import type { SuiService } from "@lombard.finance/sdk-common";
+import { Env } from "@lombard.finance/sdk-common";
 
-import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
-import { suiAddressSchema } from '../../../../../shared/validation';
-import { isSuiChain } from '../../../../../utils/chain';
-import type { ChainConfig } from './types';
+import { AssetId, Chain, getAllAssetChains } from "../../../../../core";
+import { suiAddressSchema } from "../../../../../shared/validation";
+import { isSuiChain } from "../../../../../utils/chain";
+import type { ChainConfig } from "./types";
 
 /**
  * Sui chain configuration for BTC stake
@@ -25,7 +25,7 @@ import type { ChainConfig } from './types';
  * Requires the @lombard.finance/sdk-sui module to be installed.
  */
 export const suiConfig: ChainConfig = {
-  chainType: 'sui',
+  chainType: "sui",
 
   routes: [
     {
@@ -39,7 +39,7 @@ export const suiConfig: ChainConfig = {
   ],
 
   // Derived from ASSET_CATALOG - Sui chains where LBTC is deployed
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain =>
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) =>
     isSuiChain(chain),
   ),
 
@@ -52,7 +52,7 @@ export const suiConfig: ChainConfig = {
   getFeeAuthConfig: () => null,
 
   async getSignature(ctx, _recipient, chainId) {
-    const sui = ctx.capabilities.require('sui') as SuiService;
+    const sui = ctx.capabilities.require("sui") as SuiService;
     const { signature } = await sui.signLbtcDestination({
       chainId: chainId as string,
     });

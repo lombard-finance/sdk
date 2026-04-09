@@ -1,8 +1,8 @@
-import BigNumber from 'bignumber.js';
-import { Address } from 'viem';
+import BigNumber from "bignumber.js";
+import { Address } from "viem";
 
-import { CommonWriteParameters } from '../../common/parameters';
-import { bridgeCCIP } from './ccip-bridge';
+import { CommonWriteParameters } from "../../common/parameters";
+import { bridgeCCIP } from "./ccip-bridge";
 import {
   BRIDGE_EXPLORER_URL_MAP,
   BridgeChain,
@@ -11,8 +11,8 @@ import {
   CCIPBridgeChain,
   getBridgeInfo,
   OFTBridgeChain,
-} from './config';
-import { bridgeOFT } from './oft-bridge';
+} from "./config";
+import { bridgeOFT } from "./oft-bridge";
 
 export type BridgeParameters = {
   /** The destination chain id. */
@@ -61,7 +61,7 @@ export async function bridge({
     // working on moving all bridges to the CCIP method. OFT bridging shouldn't
     // be exposed.
     throw new Error(
-      `Unsupported bridge from ${chainId} to ${to}. Please switch to the supported chains: ${CCIP_BRIDGE_CHAINS.join(', ')}`,
+      `Unsupported bridge from ${chainId} to ${to}. Please switch to the supported chains: ${CCIP_BRIDGE_CHAINS.join(", ")}`,
     );
   }
 
@@ -82,7 +82,7 @@ export async function bridge({
       return {
         txHash,
         explorerUrl: BRIDGE_EXPLORER_URL_MAP[BridgeType.CCIP].replace(
-          '{txHash}',
+          "{txHash}",
           txHash,
         ),
         type: BridgeType.CCIP,
@@ -105,7 +105,7 @@ export async function bridge({
       return {
         txHash,
         explorerUrl: BRIDGE_EXPLORER_URL_MAP[BridgeType.OFT].replace(
-          '{txHash}',
+          "{txHash}",
           txHash,
         ),
         type: BridgeType.OFT,

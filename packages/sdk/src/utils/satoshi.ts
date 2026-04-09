@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import BigNumber from "bignumber.js";
 
 export const BTC_DECIMALS = 8;
 export const SATOSHI_SCALE = BigNumber(10).pow(BTC_DECIMALS);

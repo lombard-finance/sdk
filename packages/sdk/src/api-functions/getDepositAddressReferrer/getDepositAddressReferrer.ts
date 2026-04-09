@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
-import { getApiConfig } from '../../common/api-config';
-import type { IEnvParam } from '../../common/parameters';
+import { getApiConfig } from "../../common/api-config";
+import type { IEnvParam } from "../../common/parameters";
 
 interface ApiResponse {
   exists?: boolean;

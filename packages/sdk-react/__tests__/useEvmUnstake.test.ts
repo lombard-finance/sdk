@@ -1,14 +1,14 @@
-import { act, renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useEvmUnstake } from '../src/hooks/useEvmUnstake';
+import { useEvmUnstake } from "../src/hooks/useEvmUnstake";
 
-vi.mock('@lombard.finance/sdk', async importOriginal => {
-  const actual = await importOriginal<typeof import('@lombard.finance/sdk')>();
+vi.mock("@lombard.finance/sdk", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@lombard.finance/sdk")>();
   return { ...actual };
 });
 
-import { AssetId, Chain, EvmOperationStatus } from '@lombard.finance/sdk';
+import { AssetId, Chain, EvmOperationStatus } from "@lombard.finance/sdk";
 
 function createMockUnstakeAction(
   initialStatus: string = EvmOperationStatus.IDLE,
@@ -27,24 +27,24 @@ function createMockUnstakeAction(
       if (!handlers[event]) handlers[event] = [];
       handlers[event].push(handler);
       return () => {
-        handlers[event] = handlers[event].filter(h => h !== handler);
+        handlers[event] = handlers[event].filter((h) => h !== handler);
       };
     }),
     prepare: vi.fn(),
     authorizeFee: vi.fn(),
-    execute: vi.fn().mockResolvedValue({ txHash: '0xabc123' }),
+    execute: vi.fn().mockResolvedValue({ txHash: "0xabc123" }),
   };
 }
 
 const unstakeParams = {
-  amount: '0.001',
+  amount: "0.001",
   sourceChain: Chain.ETHEREUM_MAINNET,
   destChain: Chain.BITCOIN_MAINNET,
-  recipient: 'bc1q_btc_address',
+  recipient: "bc1q_btc_address",
   assetOut: AssetId.BTC,
 };
 
-describe('useEvmUnstake', () => {
+describe("useEvmUnstake", () => {
   let mockAction: ReturnType<typeof createMockUnstakeAction>;
   let mockSdk: { chain: { evm: { unstake: ReturnType<typeof vi.fn> } } };
 
@@ -63,16 +63,16 @@ describe('useEvmUnstake', () => {
     };
   });
 
-  it('returns idle state when sdk is null', () => {
+  it("returns idle state when sdk is null", () => {
     const { result } = renderHook(() => useEvmUnstake(null));
 
-    expect(result.current.status.phase).toBe('idle');
+    expect(result.current.status.phase).toBe("idle");
     expect(result.current.txHash).toBeNull();
     expect(result.current.error).toBeNull();
     expect(result.current.isLoading).toBe(false);
   });
 
-  it('completes full unstake flow without authorizeFee', async () => {
+  it("completes full unstake flow without authorizeFee", async () => {
     mockAction.status = EvmOperationStatus.READY;
 
     const { result } = renderHook(() => useEvmUnstake(mockSdk as never));
@@ -93,12 +93,12 @@ describe('useEvmUnstake', () => {
     });
     expect(mockAction.authorizeFee).not.toHaveBeenCalled();
     expect(mockAction.execute).toHaveBeenCalled();
-    expect(result.current.txHash).toBe('0xabc123');
-    expect(result.current.status.phase).toBe('complete');
+    expect(result.current.txHash).toBe("0xabc123");
+    expect(result.current.status.phase).toBe("complete");
     expect(result.current.isLoading).toBe(false);
   });
 
-  it('calls authorizeFee when status is NEEDS_FEE_AUTHORIZATION', async () => {
+  it("calls authorizeFee when status is NEEDS_FEE_AUTHORIZATION", async () => {
     mockAction.prepare.mockImplementation(() => {
       mockAction.status = EvmOperationStatus.NEEDS_FEE_AUTHORIZATION;
       return Promise.resolve(undefined);
@@ -115,12 +115,12 @@ describe('useEvmUnstake', () => {
     });
 
     expect(mockAction.authorizeFee).toHaveBeenCalled();
-    expect(result.current.txHash).toBe('0xabc123');
-    expect(result.current.status.phase).toBe('complete');
+    expect(result.current.txHash).toBe("0xabc123");
+    expect(result.current.status.phase).toBe("complete");
   });
 
-  it('sets error on failure and reset clears state', async () => {
-    mockAction.prepare.mockRejectedValue(new Error('Execution failed'));
+  it("sets error on failure and reset clears state", async () => {
+    mockAction.prepare.mockRejectedValue(new Error("Execution failed"));
 
     const { result } = renderHook(() => useEvmUnstake(mockSdk as never));
 
@@ -128,8 +128,8 @@ describe('useEvmUnstake', () => {
       await result.current.unstake(unstakeParams).catch(() => {});
     });
 
-    expect(result.current.error).toBe('Execution failed');
-    expect(result.current.status.phase).toBe('error');
+    expect(result.current.error).toBe("Execution failed");
+    expect(result.current.status.phase).toBe("error");
     expect(result.current.isLoading).toBe(false);
 
     act(() => {
@@ -137,7 +137,7 @@ describe('useEvmUnstake', () => {
     });
 
     expect(result.current.error).toBeNull();
-    expect(result.current.status.phase).toBe('idle');
+    expect(result.current.status.phase).toBe("idle");
     expect(result.current.txHash).toBeNull();
   });
 });

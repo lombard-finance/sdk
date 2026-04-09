@@ -1,4 +1,4 @@
-import { Env } from '@lombard.finance/sdk';
+import { Env } from "@lombard.finance/sdk";
 
 /**
  * Get SDK environment from environment variable
@@ -7,11 +7,11 @@ export function getEnvironment(): Env {
   const env = import.meta.env.VITE_ENV as string;
 
   switch (env) {
-    case 'prod':
+    case "prod":
       return Env.prod;
-    case 'testnet':
+    case "testnet":
       return Env.testnet;
-    case 'stage':
+    case "stage":
     default:
       return Env.stage;
   }

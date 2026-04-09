@@ -7,9 +7,9 @@
  * @module module/createStarknetModule
  */
 
-import type { ChainModule, StarknetService } from '@lombard.finance/sdk-common';
+import type { ChainModule, StarknetService } from "@lombard.finance/sdk-common";
 
-import { StarknetServiceImpl } from '../services/StarknetServiceImpl';
+import { StarknetServiceImpl } from "../services/StarknetServiceImpl";
 
 /**
  * Create Starknet module
@@ -26,13 +26,13 @@ import { StarknetServiceImpl } from '../services/StarknetServiceImpl';
  * });
  * ```
  */
-export function starknetModule(): ChainModule<'starknet', StarknetService> {
+export function starknetModule(): ChainModule<"starknet", StarknetService> {
   return {
-    id: 'starknet',
-    chain: 'starknet',
-    requiresProviders: ['starknet'],
+    id: "starknet",
+    chain: "starknet",
+    requiresProviders: ["starknet"],
     register(ctx) {
-      return new StarknetServiceImpl(() => ctx.getProvider('starknet'));
+      return new StarknetServiceImpl(() => ctx.getProvider("starknet"));
     },
   };
 }

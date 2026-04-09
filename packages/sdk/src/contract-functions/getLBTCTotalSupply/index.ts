@@ -1,1 +1,1 @@
-export * from './getLBTCTotalSupply';
+export * from "./getLBTCTotalSupply";

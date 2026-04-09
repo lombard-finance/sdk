@@ -1,11 +1,11 @@
-import { fromBaseDenomination } from '@lombard.finance/sdk-common/utils/numbers';
-import { BigNumber } from 'bignumber.js';
+import { fromBaseDenomination } from "@lombard.finance/sdk-common/utils/numbers";
+import { BigNumber } from "bignumber.js";
 
-import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
-import { ChainParameters } from '../utils/chains';
-import { Address } from '../utils/common';
-import { EnvParameters } from '../utils/env';
-import { getRpcProvider } from '../utils/rpc-providers';
+import { getTokenContract, TokenParameters } from "../tokens/lib/tokens";
+import { ChainParameters } from "../utils/chains";
+import { Address } from "../utils/common";
+import { EnvParameters } from "../utils/env";
+import { getRpcProvider } from "../utils/rpc-providers";
 
 type BalanceOfParameters = {
   /** The account address */
@@ -24,7 +24,7 @@ export async function balanceOf({
 
   const contract = getTokenContract({
     chainId,
-    contractType: 'token',
+    contractType: "token",
     provider,
     token,
     env,

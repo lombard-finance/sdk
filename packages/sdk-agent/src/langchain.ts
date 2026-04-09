@@ -15,14 +15,11 @@ import { allTools, type ToolDefinition } from "./tools";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function toLangChainTool(def: ToolDefinition<any, any>) {
-  return tool(
-    async (input) => JSON.stringify(await def.execute(input)),
-    {
-      name: def.name,
-      description: def.description,
-      schema: def.schema,
-    },
-  );
+  return tool(async (input) => JSON.stringify(await def.execute(input)), {
+    name: def.name,
+    description: def.description,
+    schema: def.schema,
+  });
 }
 
 export const lombardLangChainTools = allTools.map(toLangChainTool);

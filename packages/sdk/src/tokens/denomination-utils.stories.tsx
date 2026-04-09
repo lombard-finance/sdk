@@ -1,24 +1,24 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
 
-import { Button } from '../stories/components/Button';
-import { CodeBlock } from '../stories/components/CodeBlock';
-import { functionType } from '../stories/components/decorators';
-import { fromBaseDenomination, toBaseDenomination } from './tokens';
+import { Button } from "../stories/components/Button";
+import { CodeBlock } from "../stories/components/CodeBlock";
+import { functionType } from "../stories/components/decorators";
+import { fromBaseDenomination, toBaseDenomination } from "./tokens";
 
 const meta = {
-  title: 'tokens/denomination-conversion',
+  title: "tokens/denomination-conversion",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('read')],
+  tags: ["autodocs"],
+  decorators: [functionType("read")],
   argTypes: {
     amount: {
-      control: { type: 'text' },
-      description: 'Amount to convert',
+      control: { type: "text" },
+      description: "Amount to convert",
     },
     decimals: {
-      control: { type: 'number', min: 0, max: 18 },
-      description: 'Number of decimal places',
+      control: { type: "number", min: 0, max: 18 },
+      description: "Number of decimal places",
     },
   },
 } satisfies Meta<typeof StoryView>;
@@ -29,21 +29,21 @@ type Story = StoryObj<typeof meta>;
 
 export const BTCToSatoshi: Story = {
   args: {
-    amount: '1',
+    amount: "1",
     decimals: 8,
   },
 };
 
 export const LBTCToWei: Story = {
   args: {
-    amount: '0.5',
+    amount: "0.5",
     decimals: 8,
   },
 };
 
 export const SmallAmount: Story = {
   args: {
-    amount: '0.00000001',
+    amount: "0.00000001",
     decimals: 8,
   },
 };
@@ -99,7 +99,7 @@ export function StoryView(props: StoryViewProps) {
     } catch (err) {
       setResults({
         toBase: `Error: ${err}`,
-        fromBase: 'N/A',
+        fromBase: "N/A",
       });
     }
   };

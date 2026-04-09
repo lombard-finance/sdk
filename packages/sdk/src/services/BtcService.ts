@@ -9,9 +9,9 @@
 import type {
   BtcNetworkMode,
   BtcService as IBtcService,
-} from '@lombard.finance/sdk-common';
+} from "@lombard.finance/sdk-common";
 
-import { getCurrentBlockHeight } from '../chains/btc/client/getCurrentBlockHeight';
+import { getCurrentBlockHeight } from "../chains/btc/client/getCurrentBlockHeight";
 
 /**
  * BTC Service

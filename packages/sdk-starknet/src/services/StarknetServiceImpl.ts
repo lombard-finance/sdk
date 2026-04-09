@@ -6,13 +6,13 @@
  * @module services/StarknetServiceImpl
  */
 
-import type { Env, StarknetService } from '@lombard.finance/sdk-common';
-import type { WalletAccount } from 'starknet';
+import type { Env, StarknetService } from "@lombard.finance/sdk-common";
+import type { WalletAccount } from "starknet";
 
-import { redeem } from '../contract-functions/redeem';
-import { Token } from '../tokens/lib/tokens';
-import { StarknetChainId } from '../utils/chains';
-import { signLbtcDestinationAddrStarknet } from '../wallet-functions/sign-message';
+import { redeem } from "../contract-functions/redeem";
+import { Token } from "../tokens/lib/tokens";
+import { StarknetChainId } from "../utils/chains";
+import { signLbtcDestinationAddrStarknet } from "../wallet-functions/sign-message";
 
 /**
  * Provider resolver function type

@@ -4,4 +4,4 @@
  * @module chains/evm/shared
  */
 
-export * from './feeAuth';
+export * from "./feeAuth";

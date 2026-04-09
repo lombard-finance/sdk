@@ -1,13 +1,22 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from "react";
 
-import { useSolanaWallet } from '../hooks/useSolanaWallet';
+import { useSolanaWallet } from "../hooks/useSolanaWallet";
 
 function CopyIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M4.667 4.667V4c0-.934 0-1.4.181-1.757a1.667 1.667 0 0 1 .729-.728C5.933 1.333 6.4 1.333 7.333 1.333H12c.934 0 1.4 0 1.757.182.313.16.569.415.728.728.182.357.182.823.182 1.757v4.667c0 .933 0 1.4-.182 1.756-.16.314-.415.569-.728.729-.357.181-.823.181-1.757.181h-.667M11.333 7.333V12c0 .933 0 1.4-.181 1.757a1.667 1.667 0 0 1-.729.728c-.356.182-.823.182-1.756.182H4c-.933 0-1.4 0-1.757-.182a1.667 1.667 0 0 1-.728-.728C1.333 13.4 1.333 12.933 1.333 12V7.333c0-.933 0-1.4.182-1.756.16-.314.415-.569.728-.729.357-.181.824-.181 1.757-.181h4.667c.933 0 1.4 0 1.756.181.314.16.569.415.729.729.181.356.181.823.181 1.756Z"
-        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -15,10 +24,19 @@ function CopyIcon() {
 
 function CheckIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M13.333 4 6 11.333 2.667 8"
-        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -34,8 +52,7 @@ export function SolanaWalletConnect() {
     useSolanaWallet();
   const [copied, setCopied] = useState(false);
 
-  const isPhantomAvailable =
-    typeof window !== 'undefined' && !!window.solana;
+  const isPhantomAvailable = typeof window !== "undefined" && !!window.solana;
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
@@ -48,7 +65,7 @@ export function SolanaWalletConnect() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      console.error("Failed to copy:", err);
     }
   }, [address]);
 
@@ -64,7 +81,7 @@ export function SolanaWalletConnect() {
     <div className="card">
       <h3 className="font-semibold mb-3">Solana Wallet</h3>
 
-      {error && !error.includes('not detected') && (
+      {error && !error.includes("not detected") && (
         <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-900">{error}</p>
         </div>
@@ -92,8 +109,8 @@ export function SolanaWalletConnect() {
           <div>
             <p className="text-sm text-secondary">
               {isConnected
-                ? 'Phantom wallet connected'
-                : 'Connect Phantom wallet'}
+                ? "Phantom wallet connected"
+                : "Connect Phantom wallet"}
             </p>
           </div>
 
@@ -105,12 +122,14 @@ export function SolanaWalletConnect() {
                 </code>
                 <button
                   type="button"
-                  onClick={() => { void handleCopy(); }}
-                  title={copied ? 'Copied!' : 'Copy address'}
+                  onClick={() => {
+                    void handleCopy();
+                  }}
+                  title={copied ? "Copied!" : "Copy address"}
                   className={`p-1 rounded transition-colors ${
                     copied
-                      ? 'text-green-600'
-                      : 'text-gray-400 hover:text-gray-600'
+                      ? "text-green-600"
+                      : "text-gray-400 hover:text-gray-600"
                   }`}
                 >
                   {copied ? <CheckIcon /> : <CopyIcon />}
@@ -132,7 +151,7 @@ export function SolanaWalletConnect() {
                   Connecting...
                 </>
               ) : (
-                'Connect Phantom'
+                "Connect Phantom"
               )}
             </button>
           )}

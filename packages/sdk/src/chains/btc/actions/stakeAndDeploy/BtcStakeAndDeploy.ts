@@ -7,27 +7,27 @@
  * @module chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy
  */
 
-import type { z } from 'zod';
+import type { z } from "zod";
 
-import type { ChainId } from '../../../../common/chains';
-import { isValidChain } from '../../../../common/chains';
-import { AssetId, parseChainIdentifier, StepStatus } from '../../../../core';
-import type { BtcCoreContext } from '../../../../shared/context';
-import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
-import type { StakeAndDeployEventMap } from '../../../../shared/events';
+import type { ChainId } from "../../../../common/chains";
+import { isValidChain } from "../../../../common/chains";
+import { AssetId, parseChainIdentifier, StepStatus } from "../../../../core";
+import type { BtcCoreContext } from "../../../../shared/context";
+import { LombardError, ValidationErrorCode } from "../../../../shared/errors";
+import type { StakeAndDeployEventMap } from "../../../../shared/events";
 import {
   monitorDeposit,
   type MonitorProgress,
-} from '../../../../shared/monitoring';
-import { Token } from '../../../../tokens/token-addresses';
-import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctionedAddress';
-import { toSatoshi } from '../../../../utils/satoshi';
+} from "../../../../shared/monitoring";
+import { Token } from "../../../../tokens/token-addresses";
+import { ensureNotSanctionedAddress } from "../../../../utils/ensureNotSanctionedAddress";
+import { toSatoshi } from "../../../../utils/satoshi";
 import {
   assetIdToToken,
   BaseBtcAction,
   type StatusConfig,
   type StepDefinition,
-} from '../shared';
+} from "../shared";
 import {
   getVaultKey,
   isAssetOutSupported,
@@ -35,13 +35,13 @@ import {
   isProtocolSupported,
   isRouteAvailable,
   stakeAndDeployConfig,
-} from './config';
+} from "./config";
 import {
   BtcActionStatus,
   type BtcStakeAndDeploy as IBtcStakeAndDeploy,
   type BtcStakeAndDeployParams,
   type BtcStakeAndDeployPrepareParams,
-} from './types';
+} from "./types";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -123,7 +123,7 @@ export class BtcStakeAndDeploy
     }
 
     const parsed = parseChainIdentifier(params.destChain);
-    if (typeof parsed !== 'number' || !isValidChain(parsed)) {
+    if (typeof parsed !== "number" || !isValidChain(parsed)) {
       throw new LombardError(
         ValidationErrorCode.INVALID_CHAIN,
         `Unsupported EVM chain: ${params.destChain}`,
@@ -189,7 +189,7 @@ export class BtcStakeAndDeploy
   }
 
   protected getAuthRequiredMessage(): string {
-    return 'Deposit authorization required. Call authorizeDeposit() first.';
+    return "Deposit authorization required. Call authorizeDeposit() first.";
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ export class BtcStakeAndDeploy
   // ─────────────────────────────────────────────────────────────────────────
 
   async prepare(params: BtcStakeAndDeployPrepareParams): Promise<void> {
-    this.assertStatus(BtcActionStatus.IDLE, 'prepare');
+    this.assertStatus(BtcActionStatus.IDLE, "prepare");
 
     return this.act(async () => {
       const validated = this.validatePrepareParams(params);
@@ -281,7 +281,7 @@ export class BtcStakeAndDeploy
   async authorizeDeposit(): Promise<void> {
     this.assertStatus(
       [BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION, BtcActionStatus.READY],
-      'authorizeDeposit',
+      "authorizeDeposit",
     );
 
     if (this.status === BtcActionStatus.READY) return;
@@ -319,7 +319,7 @@ export class BtcStakeAndDeploy
   }
 
   async generateDepositAddress(captchaToken?: string): Promise<string> {
-    this.assertStatus(BtcActionStatus.READY, 'generateDepositAddress');
+    this.assertStatus(BtcActionStatus.READY, "generateDepositAddress");
     this.ensureAuthorized();
 
     if (this._depositAddress) {
@@ -351,7 +351,7 @@ export class BtcStakeAndDeploy
 
   async execute(): Promise<{ depositAddress: string; txHash?: string }> {
     return this.act(async () => {
-      this.assertStatus(BtcActionStatus.ADDRESS_READY, 'execute');
+      this.assertStatus(BtcActionStatus.ADDRESS_READY, "execute");
 
       if (!this._depositAddress) {
         await this.generateDepositAddress();
@@ -370,7 +370,7 @@ export class BtcStakeAndDeploy
     const recipient = this._recipient;
 
     if (!depositAddress || !recipient) {
-      throw LombardError.missingParameter('depositAddress or recipient');
+      throw LombardError.missingParameter("depositAddress or recipient");
     }
 
     const progress = await monitorDeposit({
@@ -379,7 +379,7 @@ export class BtcStakeAndDeploy
       fetchDeposit: async () => {
         const deposits = await this.ctx.api.getDeposits(recipient);
         const ourDeposit = deposits.find(
-          deposit => deposit.depositAddress === depositAddress,
+          (deposit) => deposit.depositAddress === depositAddress,
         );
 
         if (!ourDeposit) {
@@ -391,7 +391,7 @@ export class BtcStakeAndDeploy
           isClaimed: ourDeposit.isClaimed,
         };
       },
-      onProgress: p => {
+      onProgress: (p) => {
         this.emitProgress({
           status: this.status,
           steps: {

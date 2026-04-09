@@ -25,7 +25,12 @@ import {
   getNetworkFeeSignature,
   toSatoshi,
 } from "@lombard.finance/sdk";
-import { createWalletClient, http, type EIP1193Provider, type WalletClient } from "viem";
+import {
+  createWalletClient,
+  http,
+  type EIP1193Provider,
+  type WalletClient,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { sepolia } from "viem/chains";
 
@@ -35,7 +40,9 @@ dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
 const SKIP = !process.env.ENABLE_E2E;
 const TEST_ADDRESS =
   process.env.TEST_EVM_ADDRESS || "0xa8dF6751A3E3A80cb20AF25eA9A892D29c3A65BA";
-const TEST_PRIVATE_KEY = process.env.TEST_EVM_PRIVATE_KEY as `0x${string}` | undefined;
+const TEST_PRIVATE_KEY = process.env.TEST_EVM_PRIVATE_KEY as
+  | `0x${string}`
+  | undefined;
 const SEPOLIA_CHAIN_ID = 11155111;
 const MAINNET_CHAIN_ID = 1;
 
@@ -44,7 +51,13 @@ const MAINNET_CHAIN_ID = 1;
  */
 function walletClientToProvider(client: WalletClient): EIP1193Provider {
   return {
-    request: async ({ method, params }: { method: string; params?: unknown[] }) => {
+    request: async ({
+      method,
+      params,
+    }: {
+      method: string;
+      params?: unknown[];
+    }) => {
       switch (method) {
         case "eth_accounts":
         case "eth_requestAccounts":
@@ -307,9 +320,10 @@ describe.skipIf(SKIP || !TEST_PRIVATE_KEY)(
 
       // expirationDate may be a unix timestamp (seconds) or ISO string
       const raw = result.expirationDate;
-      const expMs = typeof raw === "string" && /^\d+$/.test(raw)
-        ? Number(raw) * 1000
-        : new Date(raw).getTime();
+      const expMs =
+        typeof raw === "string" && /^\d+$/.test(raw)
+          ? Number(raw) * 1000
+          : new Date(raw).getTime();
       expect(expMs).toBeGreaterThan(Date.now());
     });
   },
@@ -341,7 +355,9 @@ describe.skipIf(SKIP)("Flow 5: BTC Deposit Address", () => {
 describe.skipIf(SKIP || !TEST_PRIVATE_KEY)(
   "Flow 5b: BtcStake Workflow (createLombardSDK)",
   () => {
-    const account = TEST_PRIVATE_KEY ? privateKeyToAccount(TEST_PRIVATE_KEY) : undefined;
+    const account = TEST_PRIVATE_KEY
+      ? privateKeyToAccount(TEST_PRIVATE_KEY)
+      : undefined;
     const client = account
       ? createWalletClient({ account, chain: sepolia, transport: http() })
       : undefined;

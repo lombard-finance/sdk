@@ -5,9 +5,9 @@
  * separate from the asset catalog which defines what assets exist where.
  */
 
-import type { Abi } from 'viem';
+import type { Abi } from "viem";
 
-import type { ChainId } from '../common/chains';
+import type { ChainId } from "../common/chains";
 import type {
   ASSET_ROUTER_ABI,
   BRIDGE_TOKEN_ADAPTER_ABI,
@@ -15,7 +15,7 @@ import type {
   LBTC_ABI,
   NATIVE_LBTC_ABI,
   STLBTC_ABI,
-} from './abis';
+} from "./abis";
 
 /**
  * Address kinds for tokens that have multiple contract addresses.
@@ -56,13 +56,13 @@ export enum AddressKind {
    * The bridge adapter contract address (BridgeTokenAdapter).
    * Used for burn/mint/transfer operations and as the spender for bridge approvals.
    */
-  Adapter = 'adapter',
+  Adapter = "adapter",
 
   /**
    * The token contract address (standard ERC20).
    * Used for permit signatures, balance queries, and standard ERC20 operations.
    */
-  Token = 'token',
+  Token = "token",
 }
 
 /**
@@ -81,9 +81,9 @@ export interface BridgeTokenAddresses {
  */
 export enum ContractVersion {
   /** Legacy LBTC contract (pre-AssetRouter) */
-  Legacy = 'legacy',
+  Legacy = "legacy",
   /** Upgraded contract with AssetRouter support */
-  Upgraded = 'upgraded',
+  Upgraded = "upgraded",
 }
 
 /**
@@ -91,17 +91,17 @@ export enum ContractVersion {
  */
 export enum ContractType {
   /** LBTC token contract */
-  LBTC = 'lbtc',
+  LBTC = "lbtc",
   /** Native LBTC variant (BTCb on non-Avalanche chains) */
-  NativeLBTC = 'native_lbtc',
+  NativeLBTC = "native_lbtc",
   /** BTCK legacy contract */
-  BTCK = 'btck',
+  BTCK = "btck",
   /** Bridge Token Adapter (BTCb on Avalanche) */
-  BridgeTokenAdapter = 'bridge_token_adapter',
+  BridgeTokenAdapter = "bridge_token_adapter",
   /** Asset Router contract */
-  AssetRouter = 'asset_router',
+  AssetRouter = "asset_router",
   /** Standard ERC20 */
-  ERC20 = 'erc20',
+  ERC20 = "erc20",
 }
 
 /**

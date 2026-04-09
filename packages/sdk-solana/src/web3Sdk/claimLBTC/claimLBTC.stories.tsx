@@ -1,8 +1,8 @@
-import { Env } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
-import { useEffect, useState } from 'react';
+import { Env } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
+import { useEffect, useState } from "react";
 
-import { envToNetwork } from '../../const/getConfig';
+import { envToNetwork } from "../../const/getConfig";
 import {
   Button,
   CodeBlock,
@@ -11,13 +11,13 @@ import {
   OutputSelector,
   ResultDisplay,
   SectionCard,
-} from '../../stories/components';
-import { functionType } from '../../stories/decorators/function-type';
-import { useConnect } from '../../stories/hooks/useConnect';
-import { IOutput, useFetchOutputs } from '../../stories/hooks/useFetchOutputs';
-import useQuery from '../../stories/hooks/useQuery';
-import { claimLBTC } from './claimLBTC';
-import { parseTransactionLogs } from './utils/parseTransactionLogs';
+} from "../../stories/components";
+import { functionType } from "../../stories/decorators/function-type";
+import { useConnect } from "../../stories/hooks/useConnect";
+import { IOutput, useFetchOutputs } from "../../stories/hooks/useFetchOutputs";
+import useQuery from "../../stories/hooks/useQuery";
+import { claimLBTC } from "./claimLBTC";
+import { parseTransactionLogs } from "./utils/parseTransactionLogs";
 
 interface ClaimLbtcStoryArgs {
   environment: Env;
@@ -46,12 +46,12 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
   });
 
   const request = async () => {
-    if (!provider || !address) throw new Error('Wallet not connected.');
-    if (!selectedOutput) throw new Error('Please select an output to claim.');
+    if (!provider || !address) throw new Error("Wallet not connected.");
+    if (!selectedOutput) throw new Error("Please select an output to claim.");
     if (!selectedOutput.raw_payload)
-      throw new Error('Selected output has no raw_payload.');
+      throw new Error("Selected output has no raw_payload.");
     if (!selectedOutput.proof)
-      throw new Error('Selected output has no proof (required for LBTC).');
+      throw new Error("Selected output has no proof (required for LBTC).");
 
     setTransactionLogs(null);
     try {
@@ -122,9 +122,7 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
               onClick={handleClaim}
               isLoading={isLoading}
               disabled={
-                isLoading ||
-                !selectedOutput ||
-                !selectedOutput.raw_payload
+                isLoading || !selectedOutput || !selectedOutput.raw_payload
               }
               actionName="claimLBTC"
             />
@@ -150,7 +148,7 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
 
           {transactionLogs && transactionLogs.length > 0 && (
             <SectionCard title="Transaction Logs (Debug)">
-              <CodeBlock text={transactionLogs.join('\n')} />
+              <CodeBlock text={transactionLogs.join("\n")} />
             </SectionCard>
           )}
         </>
@@ -160,10 +158,10 @@ export const StoryView = ({ environment }: ClaimLbtcStoryArgs) => {
 };
 
 const meta: Meta<typeof StoryView> = {
-  title: 'write/claimLBTC',
+  title: "write/claimLBTC",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('write')],
+  tags: ["autodocs"],
+  decorators: [functionType("write")],
   parameters: {
     docs: {
       description: {
@@ -179,7 +177,7 @@ Uses the legacy 3-step on-chain flow (\`claimLBTC\`):
   },
   argTypes: {
     environment: {
-      control: { type: 'select' },
+      control: { type: "select" },
       options: Object.values(Env),
     },
   },

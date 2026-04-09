@@ -1,11 +1,11 @@
-import { DeployProtocol, Env } from '@lombard.finance/sdk';
-import { useState } from 'react';
+import { DeployProtocol, Env } from "@lombard.finance/sdk";
+import { useState } from "react";
 
-import { StakeAndDeployForm } from '../../components/StakeAndDeployForm';
-import { StakeAndDeployProgress } from '../../components/StakeAndDeployProgress';
-import { WalletConnect } from '../../components/WalletConnect';
-import { useEvmWallet } from '../../hooks/useEvmWallet';
-import { useBtcStakeAndDeploy } from './useBtcStakeAndDeploy';
+import { StakeAndDeployForm } from "../../components/StakeAndDeployForm";
+import { StakeAndDeployProgress } from "../../components/StakeAndDeployProgress";
+import { WalletConnect } from "../../components/WalletConnect";
+import { useEvmWallet } from "../../hooks/useEvmWallet";
+import { useBtcStakeAndDeploy } from "./useBtcStakeAndDeploy";
 
 interface StakeAndDeployPageProps {
   env: Env;
@@ -31,7 +31,8 @@ function StakeAndDeployUnsupported() {
             </p>
             <p className="text-sm text-amber-800">
               Stake-and-Deploy is only available on the Production environment.
-              Switch to Production using the environment selector in the sidebar.
+              Switch to Production using the environment selector in the
+              sidebar.
             </p>
           </div>
         </div>
@@ -52,13 +53,13 @@ function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
   const [isStaking, setIsStaking] = useState(false);
   const { isConnected } = useEvmWallet();
   const [partnerId, setPartnerIdState] = useState(
-    () => localStorage.getItem('lombard-partnerId') || '',
+    () => localStorage.getItem("lombard-partnerId") || "",
   );
   const [protocol] = useState<DeployProtocol>(DeployProtocol.Veda);
 
   const setPartnerId = (value: string) => {
     setPartnerIdState(value);
-    localStorage.setItem('lombard-partnerId', value);
+    localStorage.setItem("lombard-partnerId", value);
   };
 
   const {
@@ -73,12 +74,12 @@ function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
   } = useBtcStakeAndDeploy(protocol, partnerId, env);
 
   const chainLabels: Record<string, string> = {
-    'eip155:1': 'Ethereum',
-    'eip155:8453': 'Base',
-    'eip155:56': 'BNB Chain',
-    'eip155:17000': 'Holesky',
-    'eip155:84532': 'Base Sepolia',
-    'eip155:97': 'BNB Testnet',
+    "eip155:1": "Ethereum",
+    "eip155:8453": "Base",
+    "eip155:56": "BNB Chain",
+    "eip155:17000": "Holesky",
+    "eip155:84532": "Base Sepolia",
+    "eip155:97": "BNB Testnet",
   };
 
   const handleStartStaking = async (data: {
@@ -92,7 +93,7 @@ function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
     try {
       await stakeAndDeploy(data as Parameters<typeof stakeAndDeploy>[0]);
     } catch (err) {
-      console.error('Stake-and-Deploy failed:', err);
+      console.error("Stake-and-Deploy failed:", err);
       setIsStaking(false);
     }
   };
@@ -132,7 +133,7 @@ function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
               id="partnerId"
               type="text"
               value={partnerId}
-              onChange={e => setPartnerId(e.target.value)}
+              onChange={(e) => setPartnerId(e.target.value)}
               placeholder="Enter your partner ID"
               className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
               disabled={isStaking}
@@ -166,7 +167,7 @@ function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
               progress={progress}
               onReset={handleReset}
               protocol={protocol}
-              targetChain={chainLabels[String(status)] || ''}
+              targetChain={chainLabels[String(status)] || ""}
             />
           )}
         </div>

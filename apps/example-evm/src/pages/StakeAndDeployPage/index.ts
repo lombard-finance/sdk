@@ -1,1 +1,1 @@
-export { StakeAndDeployPage } from './StakeAndDeployPage';
+export { StakeAndDeployPage } from "./StakeAndDeployPage";

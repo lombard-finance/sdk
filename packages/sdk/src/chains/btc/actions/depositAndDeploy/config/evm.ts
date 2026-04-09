@@ -9,17 +9,17 @@
  * @module chains/btc/actions/depositAndDeploy/config/evm
  */
 
-import type { EvmService } from '@lombard.finance/sdk-common';
-import { Env } from '@lombard.finance/sdk-common';
-import type { EIP1193Provider } from 'viem';
+import type { EvmService } from "@lombard.finance/sdk-common";
+import { Env } from "@lombard.finance/sdk-common";
+import type { EIP1193Provider } from "viem";
 
-import type { ChainId } from '../../../../../common/chains';
-import { AssetId, Chain } from '../../../../../core';
-import { LombardError } from '../../../../../shared/errors';
-import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
-import { evmAddressSchema } from '../../../../../shared/validation';
-import { getSupportedProtocols } from '../../stakeAndDeploy/config';
-import type { DepositAndDeployChainConfig } from './types';
+import type { ChainId } from "../../../../../common/chains";
+import { AssetId, Chain } from "../../../../../core";
+import { LombardError } from "../../../../../shared/errors";
+import { ensureCorrectChain } from "../../../../../shared/evm/switchChain";
+import { evmAddressSchema } from "../../../../../shared/validation";
+import { getSupportedProtocols } from "../../stakeAndDeploy/config";
+import type { DepositAndDeployChainConfig } from "./types";
 
 // DepositAndDeploy requires BTC.b + Silo vault support
 // Currently only Avalanche is supported
@@ -35,7 +35,7 @@ const DEPOSIT_AND_DEPLOY_CHAINS = {
  * Currently limited to Silo on Avalanche.
  */
 export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
-  chainType: 'evm',
+  chainType: "evm",
 
   routes: [
     {
@@ -62,7 +62,7 @@ export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
   addressSchema: evmAddressSchema,
 
   async getDepositAndDeployFee(ctx, chainId, vaultKey) {
-    const evm = ctx.capabilities.require('evm') as EvmService;
+    const evm = ctx.capabilities.require("evm") as EvmService;
     // Silo uses the same fee mechanism as stake and bake
     return evm.getStakeAndBakeFee(chainId as ChainId, vaultKey);
   },
@@ -71,10 +71,10 @@ export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
     ctx,
     { chainId, recipient, amount, vaultKey, token },
   ) {
-    const evm = ctx.capabilities.require('evm') as EvmService;
-    const provider = await ctx.getProvider('evm');
+    const evm = ctx.capabilities.require("evm") as EvmService;
+    const provider = await ctx.getProvider("evm");
     if (!provider) {
-      throw LombardError.providerMissing(String(chainId), 'evm');
+      throw LombardError.providerMissing(String(chainId), "evm");
     }
 
     // Ensure wallet is on the correct chain before signing

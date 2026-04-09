@@ -1,13 +1,27 @@
-import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  AssetId,
+  Chain,
+  Env,
+  MIN_REDEEM_AMOUNT_BTC,
+} from "@lombard.finance/sdk";
+import { useCallback, useEffect, useState } from "react";
 
-import { getAvailableChains, getBtcbUnstakeChains } from '../lib/chains';
-import type { UnstakingFormData } from '../pages/UnstakePage/useEvmUnstaking';
+import { getAvailableChains, getBtcbUnstakeChains } from "../lib/chains";
+import type { UnstakingFormData } from "../pages/UnstakePage/useEvmUnstaking";
 
 function WalletIcon() {
   return (
-    <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0.75 0H14.25H15V1.5H14.25H1.5V12.5H14.5V4.5H3.75H3V3H3.75H15.25H16V3.75V13.25V14H15.25H0.75H0V13.25V0.75V0H0.75ZM12 9.5C11.4375 9.5 11 9.0625 11 8.5C11 7.96875 11.4375 7.5 12 7.5C12.5312 7.5 13 7.96875 13 8.5C13 9.0625 12.5312 9.5 12 9.5Z" fill="currentColor" />
+    <svg
+      width="16"
+      height="14"
+      viewBox="0 0 16 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0.75 0H14.25H15V1.5H14.25H1.5V12.5H14.5V4.5H3.75H3V3H3.75H15.25H16V3.75V13.25V14H15.25H0.75H0V13.25V0.75V0H0.75ZM12 9.5C11.4375 9.5 11 9.0625 11 8.5C11 7.96875 11.4375 7.5 12 7.5C12.5312 7.5 13 7.96875 13 8.5C13 9.0625 12.5312 9.5 12 9.5Z"
+        fill="currentColor"
+      />
     </svg>
   );
 }
@@ -47,16 +61,16 @@ export function UnstakingForm({
   const [destChain, setDestChain] = useState(
     env === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET,
   );
-  const [recipient, setRecipient] = useState('');
+  const [recipient, setRecipient] = useState("");
 
   const hasEthereum =
-    typeof window !== 'undefined' && typeof window.ethereum !== 'undefined';
+    typeof window !== "undefined" && typeof window.ethereum !== "undefined";
 
   const handleUseWalletAddress = useCallback(async () => {
     if (!window.ethereum) return;
     try {
       const accounts = (await window.ethereum.request({
-        method: 'eth_accounts',
+        method: "eth_accounts",
       })) as string[];
       if (accounts.length > 0) {
         setRecipient(accounts[0]);
@@ -126,7 +140,7 @@ export function UnstakingForm({
           <select
             id="assetOut"
             value={assetOut}
-            onChange={e => setAssetOut(e.target.value as AssetId)}
+            onChange={(e) => setAssetOut(e.target.value as AssetId)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
           >
             <option value={AssetId.BTC}>BTC (Cross-chain to Bitcoin)</option>
@@ -134,8 +148,8 @@ export function UnstakingForm({
           </select>
           <p className="text-xs text-secondary mt-1">
             {isBtcOutput
-              ? 'Receive native BTC on Bitcoin network'
-              : 'Receive wrapped BTC.b on same EVM chain'}
+              ? "Receive native BTC on Bitcoin network"
+              : "Receive wrapped BTC.b on same EVM chain"}
           </p>
         </div>
 
@@ -150,10 +164,10 @@ export function UnstakingForm({
           <select
             id="sourceChain"
             value={sourceChain}
-            onChange={e => setSourceChain(e.target.value)}
+            onChange={(e) => setSourceChain(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
           >
-            {availableChains.map(chain => (
+            {availableChains.map((chain) => (
               <option key={chain.value} value={chain.value}>
                 {chain.label}
               </option>
@@ -175,13 +189,13 @@ export function UnstakingForm({
             step="0.00000001"
             min={minAmount}
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             placeholder={String(minAmount)}
             required
           />
           <p className="text-xs text-secondary mt-1">
-            Minimum: {minAmount} LBTC {isBtcOutput ? '(→ BTC)' : '(→ BTC.b)'}
+            Minimum: {minAmount} LBTC {isBtcOutput ? "(→ BTC)" : "(→ BTC.b)"}
           </p>
         </div>
 
@@ -195,21 +209,23 @@ export function UnstakingForm({
               id="recipient"
               type="text"
               value={recipient}
-              onChange={e => setRecipient(e.target.value)}
-              className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm ${!isBtcOutput && hasEthereum ? 'pr-10' : ''}`}
+              onChange={(e) => setRecipient(e.target.value)}
+              className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm ${!isBtcOutput && hasEthereum ? "pr-10" : ""}`}
               placeholder={
                 isBtcOutput
                   ? env === Env.prod
-                    ? 'bc1q... (Bitcoin address)'
-                    : 'tb1q... (Bitcoin testnet address)'
-                  : '0x... (EVM address)'
+                    ? "bc1q... (Bitcoin address)"
+                    : "tb1q... (Bitcoin testnet address)"
+                  : "0x... (EVM address)"
               }
               required
             />
             {!isBtcOutput && hasEthereum && (
               <button
                 type="button"
-                onClick={() => { void handleUseWalletAddress(); }}
+                onClick={() => {
+                  void handleUseWalletAddress();
+                }}
                 title="Use wallet address"
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-600 transition-colors"
               >
@@ -219,7 +235,7 @@ export function UnstakingForm({
           </div>
           <p className="text-xs text-secondary mt-1">
             {isBtcOutput
-              ? 'Bitcoin address where BTC will be sent'
+              ? "Bitcoin address where BTC will be sent"
               : `EVM address on ${sourceChain}`}
           </p>
         </div>
@@ -228,10 +244,10 @@ export function UnstakingForm({
         {isBtcOutput && (
           <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm">
-              <strong>Destination:</strong>{' '}
+              <strong>Destination:</strong>{" "}
               {destChain === Chain.BITCOIN_MAINNET
-                ? 'Bitcoin Mainnet'
-                : 'Bitcoin Signet'}
+                ? "Bitcoin Mainnet"
+                : "Bitcoin Signet"}
             </p>
             <p className="text-xs text-secondary mt-1">
               BTC will be released on the Bitcoin network
@@ -251,9 +267,9 @@ export function UnstakingForm({
             Processing...
           </>
         ) : disabled ? (
-          'Connect Wallet to Continue'
+          "Connect Wallet to Continue"
         ) : (
-          'Start Unstake'
+          "Start Unstake"
         )}
       </button>
     </form>

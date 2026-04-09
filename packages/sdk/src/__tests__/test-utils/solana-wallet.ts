@@ -1,11 +1,11 @@
-import { Connection, Keypair } from '@solana/web3.js';
-import bs58 from 'bs58';
+import { Connection, Keypair } from "@solana/web3.js";
+import bs58 from "bs58";
 
 export async function createTestSolanaWallet(secretKeyBase58: string) {
   const keypair = Keypair.fromSecretKey(bs58.decode(secretKeyBase58));
   const connection = new Connection(
-    process.env.SOLANA_DEVNET_RPC || 'https://api.devnet.solana.com',
-    'confirmed',
+    process.env.SOLANA_DEVNET_RPC || "https://api.devnet.solana.com",
+    "confirmed",
   );
 
   return {
@@ -19,4 +19,3 @@ export async function createTestSolanaWallet(secretKeyBase58: string) {
     },
   };
 }
-

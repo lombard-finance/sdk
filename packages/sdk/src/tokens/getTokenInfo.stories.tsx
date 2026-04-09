@@ -1,23 +1,23 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { ChainId } from '../common/chains';
+import { ChainId } from "../common/chains";
 import {
   chainSelector,
   envSelector,
   makeTokenSelector,
-} from '../stories/arg-types';
-import { Button } from '../stories/components/Button';
-import { CodeBlock } from '../stories/components/CodeBlock';
-import { functionType } from '../stories/components/decorators';
-import useQuery from '../stories/hooks/useQuery';
-import { Token } from './token-addresses';
-import { getTokenInfo } from './tokens';
+} from "../stories/arg-types";
+import { Button } from "../stories/components/Button";
+import { CodeBlock } from "../stories/components/CodeBlock";
+import { functionType } from "../stories/components/decorators";
+import useQuery from "../stories/hooks/useQuery";
+import { Token } from "./token-addresses";
+import { getTokenInfo } from "./tokens";
 
 const meta = {
-  title: 'tokens/getTokenInfo',
+  title: "tokens/getTokenInfo",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('read')],
+  tags: ["autodocs"],
+  decorators: [functionType("read")],
   argTypes: {
     ...chainSelector,
     ...envSelector,

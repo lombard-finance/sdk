@@ -1,15 +1,15 @@
-import type { AssetId, Chain, DeployProtocol } from '@lombard.finance/sdk';
+import type { AssetId, Chain, DeployProtocol } from "@lombard.finance/sdk";
 
 // ─── Staking ─────────────────────────────────────────────────────────────────
 
 export type StakingPhase =
-  | 'idle'
-  | 'preparing'
-  | 'waiting-deposit'
-  | 'confirming'
-  | 'minting'
-  | 'complete'
-  | 'error';
+  | "idle"
+  | "preparing"
+  | "waiting-deposit"
+  | "confirming"
+  | "minting"
+  | "complete"
+  | "error";
 
 export interface StakingStatus {
   phase: StakingPhase;
@@ -32,14 +32,14 @@ export interface BtcStakeParams {
 // ─── Stake-and-Bake ───────────────────────────────────────────────────────────
 
 export type StakeAndBakePhase =
-  | 'idle'
-  | 'preparing'
-  | 'authorizing'
-  | 'waiting-deposit'
-  | 'confirming'
-  | 'depositing'
-  | 'complete'
-  | 'error';
+  | "idle"
+  | "preparing"
+  | "authorizing"
+  | "waiting-deposit"
+  | "confirming"
+  | "depositing"
+  | "complete"
+  | "error";
 
 export interface StakeAndBakeStatus {
   phase: StakeAndBakePhase;
@@ -65,14 +65,14 @@ export interface BtcStakeAndBakeParams {
 // ─── Unstaking ───────────────────────────────────────────────────────────────
 
 export type UnstakingPhase =
-  | 'idle'
-  | 'preparing'
-  | 'ready'
-  | 'authorizing'
-  | 'executing'
-  | 'confirming'
-  | 'complete'
-  | 'error';
+  | "idle"
+  | "preparing"
+  | "ready"
+  | "authorizing"
+  | "executing"
+  | "confirming"
+  | "complete"
+  | "error";
 
 export interface UnstakingStatus {
   phase: UnstakingPhase;

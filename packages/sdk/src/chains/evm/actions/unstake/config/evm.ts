@@ -7,19 +7,19 @@
  * @module chains/evm/actions/unstake/config/evm
  */
 
-import { Env } from '@lombard.finance/sdk-common';
+import { Env } from "@lombard.finance/sdk-common";
 
 import {
   AssetId,
   Chain,
   getEvmAssetChains,
   getEvmChainsWithAllAssets,
-} from '../../../../../core';
+} from "../../../../../core";
 import {
   bitcoinAddressSchema,
   evmAddressSchema,
-} from '../../../../../shared/validation';
-import type { ChainConfig } from './types';
+} from "../../../../../shared/validation";
+import type { ChainConfig } from "./types";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Catalog-Derived Chain Lists
@@ -55,7 +55,7 @@ const LBTC_BTCB_TESTNET_CHAINS = getEvmChainsWithAllAssets(
  * Source chains derived from ASSET_CATALOG LBTC deployments.
  */
 export const evmToBtcConfig: ChainConfig = {
-  chainType: 'evm',
+  chainType: "evm",
 
   routes: [
     // Production: EVM chains with LBTC → Bitcoin Mainnet
@@ -83,17 +83,17 @@ export const evmToBtcConfig: ChainConfig = {
  * Routes are generated dynamically from catalog.
  */
 export const evmToBtcbConfig: ChainConfig = {
-  chainType: 'evm',
+  chainType: "evm",
 
   routes: [
     // Production: Same-chain routes for chains with both LBTC and BTCb
-    ...LBTC_BTCB_PROD_CHAINS.map(chain => ({
+    ...LBTC_BTCB_PROD_CHAINS.map((chain) => ({
       sourceChains: [chain],
       destChain: chain,
       envs: [Env.prod] as Env[],
     })),
     // Testnet: Same-chain routes
-    ...LBTC_BTCB_TESTNET_CHAINS.map(chain => ({
+    ...LBTC_BTCB_TESTNET_CHAINS.map((chain) => ({
       sourceChains: [chain],
       destChain: chain,
       envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] as Env[],
@@ -108,7 +108,7 @@ export const evmToBtcbConfig: ChainConfig = {
  */
 export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return evmToBtcConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }
@@ -118,7 +118,7 @@ export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
  */
 export function isBtcbUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return evmToBtcbConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

@@ -1,1 +1,1 @@
-export * from './getLBTCMintingFee';
+export * from "./getLBTCMintingFee";

@@ -1,9 +1,9 @@
-import axios from 'axios';
-import BigNumber from 'bignumber.js';
-import { Address, zeroAddress } from 'viem';
+import axios from "axios";
+import BigNumber from "bignumber.js";
+import { Address, zeroAddress } from "viem";
 
-import { getApiConfig } from '../common/api-config';
-import { IEnvParam } from '../common/parameters';
+import { getApiConfig } from "../common/api-config";
+import { IEnvParam } from "../common/parameters";
 
 type Response = {
   lbtc_base_apy: number;
@@ -63,7 +63,7 @@ export async function getEstimatedApy({
 }: { partnerId?: string } & IEnvParam) {
   const { baseApiUrl } = getApiConfig(env);
 
-  const url = `${baseApiUrl}/api/v1/analytics/estimated-apy?partner_id=${partnerId || ''}`;
+  const url = `${baseApiUrl}/api/v1/analytics/estimated-apy?partner_id=${partnerId || ""}`;
   const { data } = await axios.get<EstimatedApyResponse>(url);
 
   const apy: LbtcEstimatedApy = {

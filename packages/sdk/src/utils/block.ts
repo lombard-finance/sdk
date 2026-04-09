@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-import { ChainId, getLlamaChainName } from '../common/chains';
+import { ChainId, getLlamaChainName } from "../common/chains";
 
 type Response = {
   height: number;

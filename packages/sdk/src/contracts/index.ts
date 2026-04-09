@@ -39,7 +39,7 @@
  */
 
 // ABIs
-export * from './abis';
+export * from "./abis";
 
 // Types
 export {
@@ -50,7 +50,7 @@ export {
   ContractType,
   ContractVersion,
   type GetContractInfoOptions,
-} from './types';
+} from "./types";
 
 // Utilities
 export {
@@ -60,4 +60,4 @@ export {
   getLbtcAbi,
   isUpgradedAbi,
   isUpgradedContract,
-} from './utils';
+} from "./utils";

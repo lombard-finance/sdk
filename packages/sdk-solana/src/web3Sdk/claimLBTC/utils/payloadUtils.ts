@@ -1,7 +1,7 @@
-import { Program } from '@coral-xyz/anchor';
-import { PublicKey } from '@solana/web3.js';
+import { Program } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
 
-import type { Lbtc } from '../../../idl/lbtc';
+import type { Lbtc } from "../../../idl/lbtc";
 
 /**
  * Status of a mint payload on-chain
@@ -52,7 +52,7 @@ export async function checkPayloadStatus(
       isMinted: !!payloadAccount.minted,
     };
   } catch (error) {
-    debugLog('Error checking payload status:', error);
+    debugLog("Error checking payload status:", error);
     return { exists: false, isSigned: false, isMinted: false };
   }
 }

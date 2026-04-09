@@ -10,82 +10,82 @@
  * - Sentry-compatible context extraction
  */
 
-import { SDK_VERSION } from '../version';
+import { SDK_VERSION } from "../version";
 
 /**
  * General error codes
  */
 export enum ErrorCode {
-  UNKNOWN_ERROR = 'unknown-error',
-  INVALID_CONFIGURATION = 'invalid-configuration',
-  OPERATION_TIMEOUT = 'operation-timeout',
-  OPERATION_CANCELLED = 'operation-cancelled',
+  UNKNOWN_ERROR = "unknown-error",
+  INVALID_CONFIGURATION = "invalid-configuration",
+  OPERATION_TIMEOUT = "operation-timeout",
+  OPERATION_CANCELLED = "operation-cancelled",
 }
 
 /**
  * Provider-related error codes
  */
 export enum ProviderErrorCode {
-  PROVIDER_MISSING = 'provider-missing',
-  PROVIDER_INITIALIZATION_FAILED = 'provider-initialization-failed',
-  PROVIDER_CALL_FAILED = 'provider-call-failed',
-  SIGNER_MISSING = 'signer-missing',
-  USER_REJECTED = 'user-rejected',
-  NETWORK_MISMATCH = 'network-mismatch',
+  PROVIDER_MISSING = "provider-missing",
+  PROVIDER_INITIALIZATION_FAILED = "provider-initialization-failed",
+  PROVIDER_CALL_FAILED = "provider-call-failed",
+  SIGNER_MISSING = "signer-missing",
+  USER_REJECTED = "user-rejected",
+  NETWORK_MISMATCH = "network-mismatch",
 }
 
 /**
  * Registry-related error codes
  */
 export enum RegistryErrorCode {
-  ROUTE_NOT_FOUND = 'route-not-found',
-  INVALID_ROUTE_DEFINITION = 'invalid-route-definition',
-  UNSUPPORTED_CHAIN = 'unsupported-chain',
-  UNSUPPORTED_ASSET = 'unsupported-asset',
-  INCOMPATIBLE_ROUTE = 'incompatible-route',
-  ENVIRONMENT_MISMATCH = 'environment-mismatch',
+  ROUTE_NOT_FOUND = "route-not-found",
+  INVALID_ROUTE_DEFINITION = "invalid-route-definition",
+  UNSUPPORTED_CHAIN = "unsupported-chain",
+  UNSUPPORTED_ASSET = "unsupported-asset",
+  INCOMPATIBLE_ROUTE = "incompatible-route",
+  ENVIRONMENT_MISMATCH = "environment-mismatch",
 }
 
 /**
  * Validation error codes
  */
 export enum ValidationErrorCode {
-  INVALID_ADDRESS = 'invalid-address',
-  INVALID_AMOUNT = 'invalid-amount',
-  AMOUNT_TOO_SMALL = 'amount-too-small',
-  AMOUNT_TOO_LARGE = 'amount-too-large',
-  INSUFFICIENT_BALANCE = 'insufficient-balance',
-  INVALID_PARAMETER = 'invalid-parameter',
-  MISSING_REQUIRED_PARAMETER = 'missing-required-parameter',
-  INVALID_CHAIN = 'invalid-chain',
-  INVALID_STATE = 'invalid-state',
-  INVALID_ASSET = 'invalid-asset',
+  INVALID_ADDRESS = "invalid-address",
+  INVALID_AMOUNT = "invalid-amount",
+  AMOUNT_TOO_SMALL = "amount-too-small",
+  AMOUNT_TOO_LARGE = "amount-too-large",
+  INSUFFICIENT_BALANCE = "insufficient-balance",
+  INVALID_PARAMETER = "invalid-parameter",
+  MISSING_REQUIRED_PARAMETER = "missing-required-parameter",
+  INVALID_CHAIN = "invalid-chain",
+  INVALID_STATE = "invalid-state",
+  INVALID_ASSET = "invalid-asset",
 }
 
 /**
  * Contract interaction error codes
  */
 export enum ContractErrorCode {
-  CONTRACT_CALL_FAILED = 'contract-call-failed',
-  TRANSACTION_FAILED = 'transaction-failed',
-  TRANSACTION_REVERTED = 'transaction-reverted',
-  APPROVAL_FAILED = 'approval-failed',
-  INSUFFICIENT_ALLOWANCE = 'insufficient-allowance',
-  GAS_ESTIMATION_FAILED = 'gas-estimation-failed',
+  CONTRACT_CALL_FAILED = "contract-call-failed",
+  TRANSACTION_FAILED = "transaction-failed",
+  TRANSACTION_REVERTED = "transaction-reverted",
+  APPROVAL_FAILED = "approval-failed",
+  INSUFFICIENT_ALLOWANCE = "insufficient-allowance",
+  GAS_ESTIMATION_FAILED = "gas-estimation-failed",
 }
 
 /**
  * Vault withdraw error codes
  */
 export enum WithdrawErrorCode {
-  INSUFFICIENT_SHARES = 'withdraw-insufficient-shares',
-  INVALID_AMOUNT = 'withdraw-invalid-amount',
-  NO_PENDING_WITHDRAWAL = 'withdraw-no-pending',
-  WITHDRAWAL_ALREADY_FULFILLED = 'withdraw-already-fulfilled',
-  WITHDRAWAL_EXPIRED = 'withdraw-expired',
-  WITHDRAWAL_NOT_FOUND = 'withdraw-not-found',
-  PROTOCOL_NOT_SUPPORTED = 'withdraw-protocol-not-supported',
-  INSUFFICIENT_LIQUIDITY = 'withdraw-insufficient-liquidity',
+  INSUFFICIENT_SHARES = "withdraw-insufficient-shares",
+  INVALID_AMOUNT = "withdraw-invalid-amount",
+  NO_PENDING_WITHDRAWAL = "withdraw-no-pending",
+  WITHDRAWAL_ALREADY_FULFILLED = "withdraw-already-fulfilled",
+  WITHDRAWAL_EXPIRED = "withdraw-expired",
+  WITHDRAWAL_NOT_FOUND = "withdraw-not-found",
+  PROTOCOL_NOT_SUPPORTED = "withdraw-protocol-not-supported",
+  INSUFFICIENT_LIQUIDITY = "withdraw-insufficient-liquidity",
 }
 
 /**
@@ -135,7 +135,7 @@ export class LombardError extends Error {
     metadata?: Record<string, unknown>,
   ) {
     super(message);
-    this.name = 'LombardError';
+    this.name = "LombardError";
     this.code = code;
     this.metadata = metadata;
 
@@ -194,9 +194,9 @@ export class LombardError extends Error {
    */
   toSentryContext(): Record<string, unknown> {
     return {
-      'sdk.version': this.sdkVersion,
-      'error.code': this.code,
-      'error.timestamp': this.timestamp,
+      "sdk.version": this.sdkVersion,
+      "error.code": this.code,
+      "error.timestamp": this.timestamp,
       ...this.metadata,
     };
   }
@@ -259,7 +259,7 @@ export class LombardError extends Error {
   static routeNotFound(params: Record<string, unknown>): LombardError {
     return new LombardError(
       RegistryErrorCode.ROUTE_NOT_FOUND,
-      'No route found matching the provided parameters. Please verify the asset and chain combination is supported.',
+      "No route found matching the provided parameters. Please verify the asset and chain combination is supported.",
       params,
     );
   }
@@ -301,7 +301,7 @@ export class LombardError extends Error {
   static invalidAddress(address: string, chain?: string): LombardError {
     return new LombardError(
       ValidationErrorCode.INVALID_ADDRESS,
-      `Invalid address format: ${address}${chain ? ` for chain ${chain}` : ''}`,
+      `Invalid address format: ${address}${chain ? ` for chain ${chain}` : ""}`,
       { address, chain },
     );
   }
@@ -376,7 +376,7 @@ export class LombardError extends Error {
   ): LombardError {
     return new LombardError(
       ContractErrorCode.TRANSACTION_REVERTED,
-      `Transaction reverted${revertReason ? `: ${revertReason}` : ''}`,
+      `Transaction reverted${revertReason ? `: ${revertReason}` : ""}`,
       { txHash, revertReason },
     );
   }

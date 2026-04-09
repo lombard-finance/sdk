@@ -1,1 +1,1 @@
-export * from './getAllCoinsOfType';
+export * from "./getAllCoinsOfType";

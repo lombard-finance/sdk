@@ -10,15 +10,15 @@
  * @module sdk-devtools/hooks/useDevTools
  */
 
-import { useCallback, useEffect, useMemo, useRef,useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { DevToolsBridge, getDevToolsBridge } from '../bridge/DevToolsBridge';
+import { DevToolsBridge, getDevToolsBridge } from "../bridge/DevToolsBridge";
 import type {
   DevToolsConfig,
   DevToolsEvent,
   MonitorableAction,
   RegisteredAction,
-} from '../types';
+} from "../types";
 
 // ─────────────────────────────────────────────────────────────────
 // Hook Return Type
@@ -32,7 +32,10 @@ export interface UseDevToolsReturn {
   actions: Map<string, RegisteredAction>;
 
   /** Current state summary */
-  stateSummary: Record<string, { status: string; isLoading: boolean; hasError: boolean }>;
+  stateSummary: Record<
+    string,
+    { status: string; isLoading: boolean; hasError: boolean }
+  >;
 
   /** Register an action for monitoring */
   registerAction: (
@@ -102,15 +105,19 @@ export function useDevTools(config?: DevToolsConfig): UseDevToolsReturn {
   const bridgeRef = useRef<DevToolsBridge | null>(null);
 
   if (!bridgeRef.current) {
-    bridgeRef.current = config ? new DevToolsBridge(config) : getDevToolsBridge();
+    bridgeRef.current = config
+      ? new DevToolsBridge(config)
+      : getDevToolsBridge();
   }
 
   const bridge = bridgeRef.current;
 
   // State for React re-renders
-  const [events, setEvents] = useState<DevToolsEvent[]>(() => bridge.getEvents());
-  const [actions, setActions] = useState<Map<string, RegisteredAction>>(
-    () => bridge.getActions(),
+  const [events, setEvents] = useState<DevToolsEvent[]>(() =>
+    bridge.getEvents(),
+  );
+  const [actions, setActions] = useState<Map<string, RegisteredAction>>(() =>
+    bridge.getActions(),
   );
 
   // Subscribe to bridge updates
@@ -119,7 +126,7 @@ export function useDevTools(config?: DevToolsConfig): UseDevToolsReturn {
       setEvents(bridge.getEvents());
     });
 
-    const unsubState = bridge.onStateChange(newActions => {
+    const unsubState = bridge.onStateChange((newActions) => {
       setActions(newActions);
     });
 
@@ -207,7 +214,6 @@ export function useMonitoredAction<T extends MonitorableAction>(
       unregister();
       setAction(null);
     };
-     
   }, deps);
 
   return action;
@@ -227,7 +233,7 @@ export function useMonitoredAction<T extends MonitorableAction>(
  */
 export function useActionEvents(action: MonitorableAction | null) {
   const [events, setEvents] = useState<DevToolsEvent[]>([]);
-  const [status, setStatus] = useState<string>(action?.status ?? 'idle');
+  const [status, setStatus] = useState<string>(action?.status ?? "idle");
   const [isLoading, setIsLoading] = useState(action?.isLoading ?? false);
   const [error, setError] = useState<Error | null>(action?.error ?? null);
   const eventIdRef = useRef(0);
@@ -239,13 +245,13 @@ export function useActionEvents(action: MonitorableAction | null) {
 
     // Status change
     unsubscribers.push(
-      action.on('status-change', (newStatus: unknown) => {
+      action.on("status-change", (newStatus: unknown) => {
         setStatus(String(newStatus));
-        setEvents(prev => [
+        setEvents((prev) => [
           ...prev,
           {
             id: String(++eventIdRef.current),
-            type: 'status-change',
+            type: "status-change",
             timestamp: Date.now(),
             data: newStatus,
             isSDKEvent: true,
@@ -256,13 +262,13 @@ export function useActionEvents(action: MonitorableAction | null) {
 
     // Loading
     unsubscribers.push(
-      action.on('loading', (loading: unknown) => {
+      action.on("loading", (loading: unknown) => {
         setIsLoading(Boolean(loading));
-        setEvents(prev => [
+        setEvents((prev) => [
           ...prev,
           {
             id: String(++eventIdRef.current),
-            type: 'loading',
+            type: "loading",
             timestamp: Date.now(),
             data: loading,
             isSDKEvent: true,
@@ -273,13 +279,13 @@ export function useActionEvents(action: MonitorableAction | null) {
 
     // Error
     unsubscribers.push(
-      action.on('error', (err: unknown) => {
+      action.on("error", (err: unknown) => {
         setError(err as Error);
-        setEvents(prev => [
+        setEvents((prev) => [
           ...prev,
           {
             id: String(++eventIdRef.current),
-            type: 'error',
+            type: "error",
             timestamp: Date.now(),
             data: err,
             isSDKEvent: true,
@@ -290,12 +296,12 @@ export function useActionEvents(action: MonitorableAction | null) {
 
     // Completed
     unsubscribers.push(
-      action.on('completed', () => {
-        setEvents(prev => [
+      action.on("completed", () => {
+        setEvents((prev) => [
           ...prev,
           {
             id: String(++eventIdRef.current),
-            type: 'completed',
+            type: "completed",
             timestamp: Date.now(),
             data: null,
             isSDKEvent: true,
@@ -306,12 +312,12 @@ export function useActionEvents(action: MonitorableAction | null) {
 
     // Failed
     unsubscribers.push(
-      action.on('failed', () => {
-        setEvents(prev => [
+      action.on("failed", () => {
+        setEvents((prev) => [
           ...prev,
           {
             id: String(++eventIdRef.current),
-            type: 'failed',
+            type: "failed",
             timestamp: Date.now(),
             data: null,
             isSDKEvent: true,
@@ -321,11 +327,15 @@ export function useActionEvents(action: MonitorableAction | null) {
     );
 
     return () => {
-      unsubscribers.forEach(unsub => { unsub(); });
+      unsubscribers.forEach((unsub) => {
+        unsub();
+      });
     };
   }, [action]);
 
-  const clearEvents = useCallback(() => { setEvents([]); }, []);
+  const clearEvents = useCallback(() => {
+    setEvents([]);
+  }, []);
 
   return {
     events,
@@ -336,4 +346,3 @@ export function useActionEvents(action: MonitorableAction | null) {
     clearEvents,
   };
 }
-

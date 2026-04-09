@@ -1,7 +1,7 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { avalanche, avalancheFuji } from '@wagmi/core/chains';
-import { ReactNode } from 'react';
-import { createConfig, http, WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { avalanche, avalancheFuji } from "@wagmi/core/chains";
+import { ReactNode } from "react";
+import { createConfig, http, WagmiProvider } from "wagmi";
 import {
   base,
   baseSepolia,
@@ -18,10 +18,10 @@ import {
   sonic,
   sonicBlazeTestnet,
   swellchain,
-} from 'wagmi/chains';
+} from "wagmi/chains";
 
-import { rpcUrlConfig } from '../../../clients/rpc-url-config';
-import { katana, tac } from '../../../common/chains';
+import { rpcUrlConfig } from "../../../clients/rpc-url-config";
+import { katana, tac } from "../../../common/chains";
 
 const config = createConfig({
   chains: [

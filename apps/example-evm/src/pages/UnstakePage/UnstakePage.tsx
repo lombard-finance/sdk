@@ -1,12 +1,12 @@
-import { Env, getLbtcContractAddresses } from '@lombard.finance/sdk';
-import { useEffect, useState } from 'react';
+import { Env, getLbtcContractAddresses } from "@lombard.finance/sdk";
+import { useEffect, useState } from "react";
 
-import { UnstakingForm } from '../../components/UnstakingForm';
-import { UnstakingProgress } from '../../components/UnstakingProgress';
-import { WalletConnect } from '../../components/WalletConnect';
-import { useEvmWallet } from '../../hooks/useEvmWallet';
-import type { UnstakingFormData } from './useEvmUnstaking';
-import { useEvmUnstaking } from './useEvmUnstaking';
+import { UnstakingForm } from "../../components/UnstakingForm";
+import { UnstakingProgress } from "../../components/UnstakingProgress";
+import { WalletConnect } from "../../components/WalletConnect";
+import { useEvmWallet } from "../../hooks/useEvmWallet";
+import type { UnstakingFormData } from "./useEvmUnstaking";
+import { useEvmUnstaking } from "./useEvmUnstaking";
 
 interface UnstakePageProps {
   env: Env;
@@ -27,7 +27,7 @@ interface UnstakePageProps {
  */
 export function UnstakePage({ env, onReset }: UnstakePageProps) {
   const [isUnstaking, setIsUnstaking] = useState(false);
-  const [sourceChain, setSourceChain] = useState('');
+  const [sourceChain, setSourceChain] = useState("");
   const [lbtcBalance, setLbtcBalance] = useState<string | null>(null);
   const { address: evmAddress } = useEvmWallet();
 
@@ -40,7 +40,7 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
     const fetchBalance = async () => {
       try {
         const chainIdHex = (await window.ethereum!.request({
-          method: 'eth_chainId',
+          method: "eth_chainId",
         })) as string;
         const chainId = parseInt(chainIdHex, 16);
 
@@ -52,21 +52,19 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
         }
 
         const data =
-          '0x70a08231' + evmAddress.slice(2).toLowerCase().padStart(64, '0');
+          "0x70a08231" + evmAddress.slice(2).toLowerCase().padStart(64, "0");
         const result = (await window.ethereum!.request({
-          method: 'eth_call',
-          params: [{ to: lbtcAddress, data }, 'latest'],
+          method: "eth_call",
+          params: [{ to: lbtcAddress, data }, "latest"],
         })) as string;
 
         const balance = BigInt(result);
         const whole = balance / 10n ** 8n;
         const fraction = (balance % 10n ** 8n)
           .toString()
-          .padStart(8, '0')
-          .replace(/0+$/, '');
-        setLbtcBalance(
-          fraction ? `${whole}.${fraction}` : `${whole}`,
-        );
+          .padStart(8, "0")
+          .replace(/0+$/, "");
+        setLbtcBalance(fraction ? `${whole}.${fraction}` : `${whole}`);
       } catch {
         setLbtcBalance(null);
       }
@@ -90,7 +88,7 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
     try {
       await unstake(formData);
     } catch (err) {
-      console.error('Unstaking failed:', err);
+      console.error("Unstaking failed:", err);
       setIsUnstaking(false);
     }
   };
@@ -128,7 +126,9 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
             {evmAddress && lbtcBalance !== null && (
               <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-900">
-                  LBTC Balance: <span className="font-medium font-mono">{lbtcBalance}</span> LBTC
+                  LBTC Balance:{" "}
+                  <span className="font-medium font-mono">{lbtcBalance}</span>{" "}
+                  LBTC
                 </p>
               </div>
             )}
@@ -156,7 +156,6 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
               onReset={handleReset}
             />
           )}
-
         </div>
       </div>
     </div>

@@ -177,7 +177,9 @@ describe("GetLbtcBalanceSchema", () => {
   });
 
   it("rejects invalid EVM address", () => {
-    const result = GetLbtcBalanceSchema.safeParse({ address: "not-an-address" });
+    const result = GetLbtcBalanceSchema.safeParse({
+      address: "not-an-address",
+    });
     expect(result.success).toBe(false);
   });
 });

@@ -5,7 +5,7 @@
  * Used in SDK playground stories to display workflow state, snapshots, and results.
  */
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export interface JsonPreviewProps {
   /** Title displayed in the header */
@@ -18,12 +18,12 @@ export interface JsonPreviewProps {
   badge?: string;
   /** Badge variant for styling */
   badgeVariant?:
-    | 'primary'
-    | 'secondary'
-    | 'success'
-    | 'danger'
-    | 'warning'
-    | 'info';
+    | "primary"
+    | "secondary"
+    | "success"
+    | "danger"
+    | "warning"
+    | "info";
 }
 
 /**
@@ -34,7 +34,7 @@ export function JsonPreview({
   data,
   defaultExpanded = true,
   badge,
-  badgeVariant = 'secondary',
+  badgeVariant = "secondary",
 }: JsonPreviewProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
@@ -45,8 +45,8 @@ export function JsonPreview({
         type="button"
         className="d-flex justify-content-between align-items-center px-3 py-2 bg-secondary bg-opacity-10 w-100 border-0 text-start"
         onClick={() => setIsExpanded(!isExpanded)}
-        aria-expanded={isExpanded ? 'true' : 'false'}
-        aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${title}`}
+        aria-expanded={isExpanded ? "true" : "false"}
+        aria-label={`${isExpanded ? "Collapse" : "Expand"} ${title}`}
       >
         <div className="d-flex align-items-center gap-2">
           <small className="text-uppercase text-muted fw-bold font-monospace">
@@ -58,7 +58,7 @@ export function JsonPreview({
             </span>
           )}
         </div>
-        <span className="text-muted">{isExpanded ? '▼' : '▶'}</span>
+        <span className="text-muted">{isExpanded ? "▼" : "▶"}</span>
       </button>
 
       {/* Content */}

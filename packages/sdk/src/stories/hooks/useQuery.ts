@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-import { getErrorMessage } from '../../utils/err';
+import { getErrorMessage } from "../../utils/err";
 
 type QueryFn<T> = () => Promise<T>;
 

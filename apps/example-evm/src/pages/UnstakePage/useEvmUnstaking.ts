@@ -1,11 +1,11 @@
-import { AssetId, Chain, createConfig, Env } from '@lombard.finance/sdk';
-import { useEvmUnstake, useLombardSDK } from '@lombard.finance/sdk-react';
-import { useCallback } from 'react';
+import { AssetId, Chain, createConfig, Env } from "@lombard.finance/sdk";
+import { useEvmUnstake, useLombardSDK } from "@lombard.finance/sdk-react";
+import { useCallback } from "react";
 
-import { getEnvironment } from '../../lib/config';
-import { useEvmWallet } from '../../hooks/useEvmWallet';
+import { getEnvironment } from "../../lib/config";
+import { useEvmWallet } from "../../hooks/useEvmWallet";
 
-export type { UnstakingStatus } from '@lombard.finance/sdk-react';
+export type { UnstakingStatus } from "@lombard.finance/sdk-react";
 
 /**
  * Form data for EVM unstaking
@@ -29,7 +29,11 @@ export function useEvmUnstaking(evmAddress?: string | null, env?: Env) {
   const currentEnv = env ?? getEnvironment();
   const { switchNetwork } = useEvmWallet();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(
     () =>
       createConfig({
         env: currentEnv,

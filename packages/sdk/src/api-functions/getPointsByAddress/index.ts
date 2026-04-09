@@ -1,1 +1,1 @@
-export * from './getPointsByAddress';
+export * from "./getPointsByAddress";

@@ -1,10 +1,10 @@
-import { createConfig, Env } from '@lombard.finance/sdk';
-import { suiModule } from '@lombard.finance/sdk-sui';
-import { useNonEvmUnstake, useLombardSDK } from '@lombard.finance/sdk-react';
-import { useCallback } from 'react';
+import { createConfig, Env } from "@lombard.finance/sdk";
+import { suiModule } from "@lombard.finance/sdk-sui";
+import { useNonEvmUnstake, useLombardSDK } from "@lombard.finance/sdk-react";
+import { useCallback } from "react";
 
-import { getEnvironment } from '../../lib/config';
-import type { UnstakingFormData, UnstakingStatus } from '../../lib/types';
+import { getEnvironment } from "../../lib/config";
+import type { UnstakingFormData, UnstakingStatus } from "../../lib/types";
 
 /**
  * Hook for managing Sui unstaking flow (LBTC → BTC)
@@ -26,24 +26,25 @@ export function useSuiUnstaking(
 ) {
   const currentEnv = env ?? getEnvironment();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
-    () => {
-      if (!suiAddress) return undefined;
-      const suiProvider =
-        suiWallet && suiWalletAccount
-          ? {
-              getWallet: () => suiWallet,
-              getWalletAccount: () => suiWalletAccount,
-            }
-          : undefined;
-      return createConfig({
-        env: currentEnv,
-        ...(suiProvider && { providers: { sui: () => suiProvider } }),
-        modules: [suiModule()],
-      });
-    },
-    [suiAddress, suiWallet, suiWalletAccount, currentEnv],
-  );
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(() => {
+    if (!suiAddress) return undefined;
+    const suiProvider =
+      suiWallet && suiWalletAccount
+        ? {
+            getWallet: () => suiWallet,
+            getWalletAccount: () => suiWalletAccount,
+          }
+        : undefined;
+    return createConfig({
+      env: currentEnv,
+      ...(suiProvider && { providers: { sui: () => suiProvider } }),
+      modules: [suiModule()],
+    });
+  }, [suiAddress, suiWallet, suiWalletAccount, currentEnv]);
 
   const {
     unstake: unstakeCore,
@@ -51,7 +52,7 @@ export function useSuiUnstaking(
     txHash,
     status: unstakeStatus,
     error: unstakeError,
-  } = useNonEvmUnstake(sdk, 'sui');
+  } = useNonEvmUnstake(sdk, "sui");
 
   const status = unstakeStatus as UnstakingStatus;
 

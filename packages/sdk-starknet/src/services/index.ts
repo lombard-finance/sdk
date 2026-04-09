@@ -4,4 +4,4 @@
  * @module services
  */
 
-export { StarknetServiceImpl } from './StarknetServiceImpl';
+export { StarknetServiceImpl } from "./StarknetServiceImpl";

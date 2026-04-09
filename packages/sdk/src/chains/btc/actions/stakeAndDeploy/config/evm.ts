@@ -9,24 +9,24 @@
  * @module chains/btc/actions/stakeAndDeploy/config/evm
  */
 
-import type { EvmService } from '@lombard.finance/sdk-common';
-import { Env } from '@lombard.finance/sdk-common';
-import type { EIP1193Provider } from 'viem';
+import type { EvmService } from "@lombard.finance/sdk-common";
+import { Env } from "@lombard.finance/sdk-common";
+import type { EIP1193Provider } from "viem";
 
-import { getUserStakeAndBakeSignature } from '../../../../../api-functions/getUserStakeAndBakeSignature';
-import type { ChainId } from '../../../../../common/chains';
-import { AssetId, Chain, evmChainIdToChain } from '../../../../../core';
-import { LombardError } from '../../../../../shared/errors';
-import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
-import { evmAddressSchema } from '../../../../../shared/validation';
-import { VEDA_VAULT_STAKE_AND_BAKE_CHAINS } from '../../../../../vaults/lib/config';
-import { getSupportedProtocols } from '../../depositAndDeploy/config';
-import type { StakeAndDeployChainConfig } from './types';
+import { getUserStakeAndBakeSignature } from "../../../../../api-functions/getUserStakeAndBakeSignature";
+import type { ChainId } from "../../../../../common/chains";
+import { AssetId, Chain, evmChainIdToChain } from "../../../../../core";
+import { LombardError } from "../../../../../shared/errors";
+import { ensureCorrectChain } from "../../../../../shared/evm/switchChain";
+import { evmAddressSchema } from "../../../../../shared/validation";
+import { VEDA_VAULT_STAKE_AND_BAKE_CHAINS } from "../../../../../vaults/lib/config";
+import { getSupportedProtocols } from "../../depositAndDeploy/config";
+import type { StakeAndDeployChainConfig } from "./types";
 
 // Convert chain IDs to Chain enum values (CAIP-2 format)
 // Uses VEDA_VAULT_STAKE_AND_BAKE_CHAINS as source of truth
 const STAKE_AND_DEPLOY_DEST_CHAINS = VEDA_VAULT_STAKE_AND_BAKE_CHAINS.map(
-  chainId => evmChainIdToChain(chainId),
+  (chainId) => evmChainIdToChain(chainId),
 );
 
 /**
@@ -36,7 +36,7 @@ const STAKE_AND_DEPLOY_DEST_CHAINS = VEDA_VAULT_STAKE_AND_BAKE_CHAINS.map(
  * Limited to chains with Veda/Silo vault support.
  */
 export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
-  chainType: 'evm',
+  chainType: "evm",
 
   routes: [
     {
@@ -60,7 +60,7 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
   addressSchema: evmAddressSchema,
 
   async getStakeAndBakeFee(ctx, chainId, protocol) {
-    const evm = ctx.capabilities.require('evm') as EvmService;
+    const evm = ctx.capabilities.require("evm") as EvmService;
     return evm.getStakeAndBakeFee(chainId as ChainId, protocol);
   },
 
@@ -68,10 +68,10 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
     ctx,
     { chainId, recipient, amount, vaultKey, token },
   ) {
-    const evm = ctx.capabilities.require('evm') as EvmService;
-    const provider = await ctx.getProvider('evm');
+    const evm = ctx.capabilities.require("evm") as EvmService;
+    const provider = await ctx.getProvider("evm");
     if (!provider) {
-      throw LombardError.providerMissing(String(chainId), 'evm');
+      throw LombardError.providerMissing(String(chainId), "evm");
     }
 
     // Ensure wallet is on the correct chain before signing

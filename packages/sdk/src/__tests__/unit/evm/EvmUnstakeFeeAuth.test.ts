@@ -10,33 +10,33 @@
  * the callback. As a result, authorizeFee() was never called.
  */
 
-import { Env } from '@lombard.finance/sdk-common';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Env } from "@lombard.finance/sdk-common";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { EvmUnstake } from '../../../chains/evm/actions/unstake/EvmUnstake';
-import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
-import { AssetId, Chain } from '../../../core';
-import { EvmOperationStatus } from '../../../shared/constants/statusConstants';
-import type { EvmCoreContext } from '../../../shared/context/types';
+import { EvmUnstake } from "../../../chains/evm/actions/unstake/EvmUnstake";
+import { PartnerConfiguration } from "../../../client/PartnerConfiguration";
+import { AssetId, Chain } from "../../../core";
+import { EvmOperationStatus } from "../../../shared/constants/statusConstants";
+import type { EvmCoreContext } from "../../../shared/context/types";
 
-vi.mock('../../../chains/evm/shared/feeAuth', async (importOriginal) => {
+vi.mock("../../../chains/evm/shared/feeAuth", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import('../../../chains/evm/shared/feeAuth')>();
+    await importOriginal<typeof import("../../../chains/evm/shared/feeAuth")>();
   return {
     ...actual,
     checkFeeAuthorization: vi.fn(),
   };
 });
 
-vi.mock('../../../contract-functions/approveToken', () => ({
+vi.mock("../../../contract-functions/approveToken", () => ({
   approveToken: vi.fn(),
   getTokenAllowance: vi.fn(),
 }));
 
 const mockProvider = {
   request: vi.fn(async ({ method }: { method: string }) => {
-    if (method === 'eth_accounts') {
-      return ['0x0000000000000000000000000000000000000002'];
+    if (method === "eth_accounts") {
+      return ["0x0000000000000000000000000000000000000002"];
     }
     return [];
   }),
@@ -47,26 +47,25 @@ function createContext(): EvmCoreContext {
     env: Env.prod,
     partner: new PartnerConfiguration(undefined),
     getProvider: async () => mockProvider,
-    evm: {} as EvmCoreContext['evm'],
+    evm: {} as EvmCoreContext["evm"],
   };
 }
 
-describe('EvmUnstake fee authorization status', () => {
+describe("EvmUnstake fee authorization status", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('transitions to NEEDS_FEE_AUTHORIZATION when fee auth required and no valid signature', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+  it("transitions to NEEDS_FEE_AUTHORIZATION when fee auth required and no valid signature", async () => {
+    const { checkFeeAuthorization } =
+      await import("../../../chains/evm/shared/feeAuth");
 
     // Mock: fee auth required, no valid signature (unsubsidized chain like Ethereum)
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
       requiresAuth: true,
       hasValidSignature: false,
       feeInSatoshis: BigInt(1992),
-      feeFormatted: '0.00001992',
+      feeFormatted: "0.00001992",
       expirationDate: null,
     });
 
@@ -81,8 +80,8 @@ describe('EvmUnstake fee authorization status', () => {
     expect(unstake.status).toBe(EvmOperationStatus.IDLE);
 
     await unstake.prepare({
-      amount: '10000',
-      recipient: '0x0000000000000000000000000000000000000002',
+      amount: "10000",
+      recipient: "0x0000000000000000000000000000000000000002",
     });
 
     // This is the critical assertion that caught the bug:
@@ -96,10 +95,9 @@ describe('EvmUnstake fee authorization status', () => {
     expect(unstake.feeAuth.feeInSatoshis).toBe(BigInt(1992));
   });
 
-  it('transitions to READY when fee auth not required (subsidized chain)', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+  it("transitions to READY when fee auth not required (subsidized chain)", async () => {
+    const { checkFeeAuthorization } =
+      await import("../../../chains/evm/shared/feeAuth");
 
     // Mock: no fee auth required (subsidized chain like Base)
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
@@ -119,25 +117,24 @@ describe('EvmUnstake fee authorization status', () => {
     });
 
     await unstake.prepare({
-      amount: '10000',
-      recipient: '0x0000000000000000000000000000000000000002',
+      amount: "10000",
+      recipient: "0x0000000000000000000000000000000000000002",
     });
 
     expect(unstake.status).toBe(EvmOperationStatus.READY);
     expect(unstake.feeAuth.requiresAuth).toBe(false);
   });
 
-  it('transitions to READY when fee auth required but valid signature exists', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+  it("transitions to READY when fee auth required but valid signature exists", async () => {
+    const { checkFeeAuthorization } =
+      await import("../../../chains/evm/shared/feeAuth");
 
     // Mock: fee auth required AND valid signature already exists
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
       requiresAuth: true,
       hasValidSignature: true,
       feeInSatoshis: BigInt(1992),
-      feeFormatted: '0.00001992',
+      feeFormatted: "0.00001992",
       expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
     });
 
@@ -150,8 +147,8 @@ describe('EvmUnstake fee authorization status', () => {
     });
 
     await unstake.prepare({
-      amount: '10000',
-      recipient: '0x0000000000000000000000000000000000000002',
+      amount: "10000",
+      recipient: "0x0000000000000000000000000000000000000002",
     });
 
     expect(unstake.status).toBe(EvmOperationStatus.READY);
@@ -159,16 +156,15 @@ describe('EvmUnstake fee authorization status', () => {
     expect(unstake.feeAuth.isAuthorized).toBe(true);
   });
 
-  it('emits status-change event with NEEDS_FEE_AUTHORIZATION', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+  it("emits status-change event with NEEDS_FEE_AUTHORIZATION", async () => {
+    const { checkFeeAuthorization } =
+      await import("../../../chains/evm/shared/feeAuth");
 
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
       requiresAuth: true,
       hasValidSignature: false,
       feeInSatoshis: BigInt(1992),
-      feeFormatted: '0.00001992',
+      feeFormatted: "0.00001992",
       expirationDate: null,
     });
 
@@ -181,19 +177,17 @@ describe('EvmUnstake fee authorization status', () => {
     });
 
     const statusChanges: string[] = [];
-    unstake.on('status-change', (...args: unknown[]) => {
+    unstake.on("status-change", (...args: unknown[]) => {
       statusChanges.push(args[0] as string);
     });
 
     await unstake.prepare({
-      amount: '10000',
-      recipient: '0x0000000000000000000000000000000000000002',
+      amount: "10000",
+      recipient: "0x0000000000000000000000000000000000000002",
     });
 
     // Should include NEEDS_FEE_AUTHORIZATION in emitted statuses
-    expect(statusChanges).toContain(
-      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-    );
+    expect(statusChanges).toContain(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
     // Should NOT contain READY (the bug would emit READY after NEEDS_FEE_AUTHORIZATION)
     expect(statusChanges).not.toContain(EvmOperationStatus.READY);
   });

@@ -1,12 +1,12 @@
-import { keccak_256 } from '@noble/hashes/sha3';
+import { keccak_256 } from "@noble/hashes/sha3";
 
-import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
-import { makeDestinationChainId, StarknetChainId } from '../utils/chains';
-import { Address, ensureHex } from '../utils/common';
-import { EnvParameters } from '../utils/env';
-import { getRpcProvider } from '../utils/rpc-providers';
-import { parseProofHexToU256Tuples } from '../utils/span';
-import { WalletAccountParameters } from '../utils/wallet-account';
+import { getTokenContract, TokenParameters } from "../tokens/lib/tokens";
+import { makeDestinationChainId, StarknetChainId } from "../utils/chains";
+import { Address, ensureHex } from "../utils/common";
+import { EnvParameters } from "../utils/env";
+import { getRpcProvider } from "../utils/rpc-providers";
+import { parseProofHexToU256Tuples } from "../utils/span";
+import { WalletAccountParameters } from "../utils/wallet-account";
 
 export type MintParameters = TokenParameters &
   WalletAccountParameters &
@@ -43,10 +43,10 @@ export async function mint({
   const chainId = (await walletAccount.getChainId()) as StarknetChainId;
 
   const btcTxIdBytes = (
-    depositTxId.startsWith('0x') ? depositTxId.slice(2) : depositTxId
+    depositTxId.startsWith("0x") ? depositTxId.slice(2) : depositTxId
   ).match(/.{2}/g);
   if (!btcTxIdBytes) {
-    throw new Error('Missing deposit tx id');
+    throw new Error("Missing deposit tx id");
   }
 
   // Use SDK's RPC provider for read-only operations to avoid wallet RPC rate limits
@@ -61,21 +61,21 @@ export async function mint({
 
   const basculeContract = getTokenContract({
     ...readOnlyParams,
-    contractType: 'bascule',
+    contractType: "bascule",
     env,
   });
 
   const basculeDepositId = ensureHex(
     Buffer.from(
-      keccak_256(Buffer.from(depositPayload.slice(8), 'hex')),
-    ).toString('hex'),
+      keccak_256(Buffer.from(depositPayload.slice(8), "hex")),
+    ).toString("hex"),
   );
 
   const status = await basculeContract.get_deposit_status(
     BigInt(basculeDepositId),
   );
 
-  if (status.activeVariant() !== 'Reported') {
+  if (status.activeVariant() !== "Reported") {
     const msg = `The deposit cannot be claimed. Bascule status: ${status.activeVariant()}`;
     console.warn(msg); // TODO: Remove when Bascule configured
     // throw new Error(msg); // TODO: Re-enable once configured
@@ -83,7 +83,7 @@ export async function mint({
 
   const to_chain = BigInt(makeDestinationChainId(chainId));
   const recipient = recipientAddress || walletAccount.address;
-  const tx_id = BigInt(ensureHex(btcTxIdBytes.reverse().join('')));
+  const tx_id = BigInt(ensureHex(btcTxIdBytes.reverse().join("")));
   const vout = Number(depositIndex);
   const proof = parseProofHexToU256Tuples(depositProofSignature);
 
@@ -92,7 +92,7 @@ export async function mint({
     chainId,
     provider: walletAccount, // Need wallet account to sign tx
     token,
-    contractType: 'bridge',
+    contractType: "bridge",
     env,
   });
 

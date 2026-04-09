@@ -5,17 +5,17 @@
  * handle contract upgrades, and provide typed contract information.
  */
 
-import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
-import { type Abi, erc20Abi, zeroAddress } from 'viem';
+import { DEFAULT_ENV, Env } from "@lombard.finance/sdk-common";
+import { type Abi, erc20Abi, zeroAddress } from "viem";
 
-import { makePublicClient } from '../clients/public-client';
-import { ChainId } from '../common/chains';
+import { makePublicClient } from "../clients/public-client";
+import { ChainId } from "../common/chains";
 import {
   AssetId,
   evmChainIdToChain,
   getAssetAddress,
   getBridgeAdapter,
-} from '../core';
+} from "../core";
 import {
   ASSET_ROUTER_ABI,
   BRIDGE_TOKEN_ADAPTER_ABI,
@@ -23,14 +23,14 @@ import {
   LBTC_ABI,
   NATIVE_LBTC_ABI,
   STLBTC_ABI,
-} from './abis';
+} from "./abis";
 import {
   AddressKind,
   type ContractInfo,
   ContractType,
   ContractVersion,
   type GetContractInfoOptions,
-} from './types';
+} from "./types";
 
 /**
  * ABI fragment for detecting upgraded contracts.
@@ -39,10 +39,10 @@ import {
 const UPGRADE_DETECTION_ABI = [
   {
     inputs: [],
-    name: 'getAssetRouter',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
+    name: "getAssetRouter",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
   },
 ] as const;
 
@@ -70,7 +70,7 @@ export async function isUpgradedContract(
     const assetRouter = await publicClient.readContract({
       abi: UPGRADE_DETECTION_ABI,
       address,
-      functionName: 'getAssetRouter',
+      functionName: "getAssetRouter",
     });
     return assetRouter !== zeroAddress;
   } catch {
@@ -86,7 +86,7 @@ export function isUpgradedAbi(
   abi: unknown,
 ): abi is typeof STLBTC_ABI | typeof NATIVE_LBTC_ABI {
   const hasAssetRouter = (abi as Abi).find(
-    a => a.type === 'function' && a.name === 'getAssetRouter',
+    (a) => a.type === "function" && a.name === "getAssetRouter",
   );
   return hasAssetRouter != null;
 }
@@ -268,7 +268,7 @@ export async function getContractInfo(
   }
 
   return {
-    abi: abi as ContractInfo['abi'],
+    abi: abi as ContractInfo["abi"],
     address,
     chainId,
     type: contractType,

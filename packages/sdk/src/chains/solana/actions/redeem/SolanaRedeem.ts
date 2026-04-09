@@ -13,28 +13,27 @@
  * @module chains/solana/actions/redeem/SolanaRedeem
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
-import { z } from 'zod';
+import type { Env } from "@lombard.finance/sdk-common";
+import { z } from "zod";
 
-import { StepStatus } from '../../../../core';
-import { BaseAction } from '../../../../shared/actions/BaseAction';
-import { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
-import type { SolanaCoreContext } from '../../../../shared/context';
-import { LombardError } from '../../../../shared/errors';
-import type { RedeemEventMap } from '../../../../shared/events';
+import { StepStatus } from "../../../../core";
+import { BaseAction } from "../../../../shared/actions/BaseAction";
+import { NonEvmUnstakeStatus } from "../../../../shared/constants/statusConstants";
+import type { SolanaCoreContext } from "../../../../shared/context";
+import { LombardError } from "../../../../shared/errors";
+import type { RedeemEventMap } from "../../../../shared/events";
 import {
   amountSchema,
   validatePrepareParams,
-} from '../../../../shared/validation';
-import { toSatoshi } from '../../../../utils/satoshi';
-import { envToSolanaNetwork } from '../../utils';
-import { isRedeemSupported, solanaRedeemConfig } from './config';
+} from "../../../../shared/validation";
+import { toSatoshi } from "../../../../utils/satoshi";
+import { envToSolanaNetwork } from "../../utils";
+import { isRedeemSupported, solanaRedeemConfig } from "./config";
 import type {
   ISolanaRedeem,
   SolanaRedeemParams,
   SolanaRedeemPrepareParams,
-} from './types';
-
+} from "./types";
 
 export class SolanaRedeem
   extends BaseAction<RedeemEventMap, NonEvmUnstakeStatus>
@@ -83,7 +82,7 @@ export class SolanaRedeem
   }
 
   async prepare(params: SolanaRedeemPrepareParams): Promise<void> {
-    this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
+    this.assertStatus(NonEvmUnstakeStatus.IDLE, "prepare");
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
@@ -100,14 +99,14 @@ export class SolanaRedeem
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(NonEvmUnstakeStatus.READY, 'execute');
+    this.assertStatus(NonEvmUnstakeStatus.READY, "execute");
 
     return this.act(async () => {
       const amount = this._amount;
       const recipient = this._recipient;
 
       if (!amount || !recipient) {
-        throw LombardError.missingParameter('amount or recipient');
+        throw LombardError.missingParameter("amount or recipient");
       }
 
       this.emitProgress({

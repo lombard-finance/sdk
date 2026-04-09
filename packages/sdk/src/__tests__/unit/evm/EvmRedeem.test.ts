@@ -6,14 +6,14 @@
  * @module __tests__/unit/evm/EvmRedeem.test.ts
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from "vitest";
 
-import { AssetId, Chain } from '../../../core';
-import { LombardError, ValidationErrorCode } from '../../../shared/errors';
+import { AssetId, Chain } from "../../../core";
+import { LombardError, ValidationErrorCode } from "../../../shared/errors";
 
-describe('EvmRedeem Interface', () => {
-  describe('EvmRedeemParams', () => {
-    it('should require LBTC as input asset', () => {
+describe("EvmRedeem Interface", () => {
+  describe("EvmRedeemParams", () => {
+    it("should require LBTC as input asset", () => {
       const params = {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
@@ -23,7 +23,7 @@ describe('EvmRedeem Interface', () => {
       expect(params.assetIn).toBe(AssetId.LBTC);
     });
 
-    it('should require BTCb as output asset', () => {
+    it("should require BTCb as output asset", () => {
       const params = {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
@@ -33,7 +33,7 @@ describe('EvmRedeem Interface', () => {
       expect(params.assetOut).toBe(AssetId.BTCb);
     });
 
-    it('should be same-chain operation', () => {
+    it("should be same-chain operation", () => {
       const params = {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
@@ -45,91 +45,89 @@ describe('EvmRedeem Interface', () => {
     });
   });
 
-  describe('EvmRedeemPrepareParams', () => {
-    it('should accept valid prepare parameters', () => {
+  describe("EvmRedeemPrepareParams", () => {
+    it("should accept valid prepare parameters", () => {
       const params = {
-        amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+        amount: "0.1",
+        recipient: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0",
       };
 
-      expect(params.amount).toBe('0.1');
+      expect(params.amount).toBe("0.1");
       expect(params.recipient).toBeDefined();
     });
 
-    it('should require EVM recipient address', () => {
+    it("should require EVM recipient address", () => {
       const params = {
-        amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+        amount: "0.1",
+        recipient: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0",
       };
 
       expect(params.recipient).toMatch(/^0x/);
     });
   });
 
-  describe('Status Transitions', () => {
-    it('should define all required status values', () => {
-      const statuses = [
-        'idle',
-        'needs-approval',
-        'ready',
-        'completed',
-      ];
+  describe("Status Transitions", () => {
+    it("should define all required status values", () => {
+      const statuses = ["idle", "needs-approval", "ready", "completed"];
 
-      statuses.forEach(status => {
-        expect(typeof status).toBe('string');
+      statuses.forEach((status) => {
+        expect(typeof status).toBe("string");
       });
     });
   });
 
-  describe('Method Signatures', () => {
-    it('should define prepare method', () => {
-      type PrepareMethod = (params: { amount: string; recipient: string }) => Promise<void>;
+  describe("Method Signatures", () => {
+    it("should define prepare method", () => {
+      type PrepareMethod = (params: {
+        amount: string;
+        recipient: string;
+      }) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });
 
-    it('should define approve method', () => {
+    it("should define approve method", () => {
       type ApproveMethod = () => Promise<void>;
       const testType: ApproveMethod = async () => {};
       expect(testType).toBeDefined();
     });
 
-    it('should define execute method', () => {
+    it("should define execute method", () => {
       type ExecuteMethod = () => Promise<{ txHash: string }>;
-      const testType: ExecuteMethod = async () => ({ txHash: '0x123' });
+      const testType: ExecuteMethod = async () => ({ txHash: "0x123" });
       expect(testType).toBeDefined();
     });
   });
 
-  describe('Redemption Logic', () => {
-    it('should burn LBTC and mint BTC.b', () => {
+  describe("Redemption Logic", () => {
+    it("should burn LBTC and mint BTC.b", () => {
       // Redeem burns LBTC and mints equivalent BTC.b
       const redeemFlow = {
         input: AssetId.LBTC,
         output: AssetId.BTCb,
-        operation: 'burn-and-mint',
+        operation: "burn-and-mint",
       };
 
-      expect(redeemFlow.operation).toBe('burn-and-mint');
+      expect(redeemFlow.operation).toBe("burn-and-mint");
     });
 
-    it('should be 1:1 conversion', () => {
-      const inputAmount = '0.1';
-      const outputAmount = '0.1'; // 1:1 ratio
-      
+    it("should be 1:1 conversion", () => {
+      const inputAmount = "0.1";
+      const outputAmount = "0.1"; // 1:1 ratio
+
       expect(inputAmount).toBe(outputAmount);
     });
   });
 
-  describe('Token Approval', () => {
-    it('should require LBTC approval before redemption', () => {
+  describe("Token Approval", () => {
+    it("should require LBTC approval before redemption", () => {
       const approvalRequired = true;
       expect(approvalRequired).toBe(true);
     });
   });
 
-  describe('Error Handling', () => {
-    it('should reject BTC as output (use unstake)', () => {
+  describe("Error Handling", () => {
+    it("should reject BTC as output (use unstake)", () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_ASSET,
         `Cannot redeem to BTC. Use EvmUnstake for LBTC → BTC.`,
@@ -138,7 +136,7 @@ describe('EvmRedeem Interface', () => {
       expect(error.code).toBe(ValidationErrorCode.INVALID_ASSET);
     });
 
-    it('should reject chains without BTC.b support', () => {
+    it("should reject chains without BTC.b support", () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_CHAIN,
         `BTC.b is not available on ethereum. Cannot redeem.`,
@@ -147,24 +145,24 @@ describe('EvmRedeem Interface', () => {
       expect(error.code).toBe(ValidationErrorCode.INVALID_CHAIN);
     });
 
-    it('should handle insufficient LBTC balance', () => {
+    it("should handle insufficient LBTC balance", () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
         `Insufficient LBTC balance for redemption.`,
       );
 
-      expect(error.message).toContain('Insufficient');
+      expect(error.message).toContain("Insufficient");
     });
   });
 
-  describe('Chain Support', () => {
-    it('should support Avalanche chains', () => {
+  describe("Chain Support", () => {
+    it("should support Avalanche chains", () => {
       const supportedChains = [Chain.AVALANCHE, Chain.AVALANCHE_FUJI];
-      
+
       // Chains are CAIP-2 format (e.g., eip155:43114)
-      supportedChains.forEach(chain => {
+      supportedChains.forEach((chain) => {
         expect(chain).toBeDefined();
-        expect(typeof chain).toBe('string');
+        expect(typeof chain).toBe("string");
       });
 
       // Verify they are the correct Avalanche chain IDs
@@ -173,35 +171,34 @@ describe('EvmRedeem Interface', () => {
     });
   });
 
-  describe('Event Emissions', () => {
-    it('should emit progress events', () => {
+  describe("Event Emissions", () => {
+    it("should emit progress events", () => {
       const handler = vi.fn((progress: { status: string; txHash?: string }) => {
         expect(progress.status).toBeDefined();
       });
 
-      handler({ status: 'completed', txHash: '0x123' });
+      handler({ status: "completed", txHash: "0x123" });
       expect(handler).toHaveBeenCalledOnce();
     });
   });
 
-  describe('Public Properties', () => {
-    it('should expose status property', () => {
+  describe("Public Properties", () => {
+    it("should expose status property", () => {
       type HasStatus = { readonly status: string };
-      const obj: HasStatus = { status: 'idle' };
-      expect(obj.status).toBe('idle');
+      const obj: HasStatus = { status: "idle" };
+      expect(obj.status).toBe("idle");
     });
 
-    it('should expose amount property', () => {
+    it("should expose amount property", () => {
       type HasAmount = { readonly amount?: string };
-      const obj: HasAmount = { amount: '0.1' };
-      expect(obj.amount).toBe('0.1');
+      const obj: HasAmount = { amount: "0.1" };
+      expect(obj.amount).toBe("0.1");
     });
 
-    it('should expose txHash after execute', () => {
+    it("should expose txHash after execute", () => {
       type HasTxHash = { readonly txHash?: string };
-      const obj: HasTxHash = { txHash: '0x123' };
+      const obj: HasTxHash = { txHash: "0x123" };
       expect(obj.txHash).toBeDefined();
     });
   });
 });
-

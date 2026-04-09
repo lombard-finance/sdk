@@ -1,19 +1,19 @@
-import { Env } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
+import { Env } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { getChain } from '../common/chains';
-import { envSelector } from '../stories/arg-types';
-import { Button } from '../stories/components/Button';
-import { CodeBlock } from '../stories/components/CodeBlock';
-import { functionType } from '../stories/components/decorators';
-import useQuery from '../stories/hooks/useQuery';
-import { getLbtcContractAddresses } from './lbtc-addresses';
+import { getChain } from "../common/chains";
+import { envSelector } from "../stories/arg-types";
+import { Button } from "../stories/components/Button";
+import { CodeBlock } from "../stories/components/CodeBlock";
+import { functionType } from "../stories/components/decorators";
+import useQuery from "../stories/hooks/useQuery";
+import { getLbtcContractAddresses } from "./lbtc-addresses";
 
 const meta = {
-  title: 'tokens/getLbtcContractAddresses',
+  title: "tokens/getLbtcContractAddresses",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('read')],
+  tags: ["autodocs"],
+  decorators: [functionType("read")],
   argTypes: {
     ...envSelector,
   },
@@ -31,13 +31,13 @@ export const Production: Story = {
 
 export const Testnet: Story = {
   args: {
-    env: 'testnet',
+    env: "testnet",
   },
 };
 
 export const Development: Story = {
   args: {
-    env: 'dev',
+    env: "dev",
   },
 };
 
@@ -136,7 +136,7 @@ export function StoryView(props: StoryViewProps) {
                     return (
                       <tr key={chainId}>
                         <td>
-                          <strong>{chain?.name || 'Unknown'}</strong> ({chainId}
+                          <strong>{chain?.name || "Unknown"}</strong> ({chainId}
                           )
                         </td>
                         <td>

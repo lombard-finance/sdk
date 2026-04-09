@@ -8,10 +8,17 @@
  * - Error information for failed requests
  */
 
-import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, Clock, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import {
+  AlertCircle,
+  CheckCircle,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Loader2,
+} from "lucide-react";
+import { useState } from "react";
 
-import type { NetworkLogEntry } from '../types';
+import type { NetworkLogEntry } from "../types";
 
 interface NetworkLogProps {
   /** Network log entries */
@@ -24,11 +31,15 @@ interface NetworkLogProps {
   maxHeight?: string;
 }
 
-export function NetworkLog({ entries, onClear, maxHeight = '400px' }: NetworkLogProps) {
+export function NetworkLog({
+  entries,
+  onClear,
+  maxHeight = "400px",
+}: NetworkLogProps) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const toggleExpand = (id: string) => {
-    setExpandedIds(prev => {
+    setExpandedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -44,7 +55,9 @@ export function NetworkLog({ entries, onClear, maxHeight = '400px' }: NetworkLog
       <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
         <Clock className="w-8 h-8 mb-2 opacity-50" />
         <p className="text-sm">No API requests yet</p>
-        <p className="text-xs opacity-75 mt-1">Requests will appear here when you use SDK methods</p>
+        <p className="text-xs opacity-75 mt-1">
+          Requests will appear here when you use SDK methods
+        </p>
       </div>
     );
   }
@@ -54,7 +67,7 @@ export function NetworkLog({ entries, onClear, maxHeight = '400px' }: NetworkLog
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700">
         <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-          {entries.length} request{entries.length !== 1 ? 's' : ''}
+          {entries.length} request{entries.length !== 1 ? "s" : ""}
         </span>
         <button
           onClick={onClear}
@@ -66,12 +79,14 @@ export function NetworkLog({ entries, onClear, maxHeight = '400px' }: NetworkLog
 
       {/* Entries List */}
       <div className="flex-1 overflow-y-auto" style={{ maxHeight }}>
-        {entries.map(entry => (
+        {entries.map((entry) => (
           <NetworkEntry
             key={entry.request.id}
             entry={entry}
             isExpanded={expandedIds.has(entry.request.id)}
-            onToggle={() => { toggleExpand(entry.request.id); }}
+            onToggle={() => {
+              toggleExpand(entry.request.id);
+            }}
           />
         ))}
       </div>
@@ -93,25 +108,26 @@ function NetworkEntry({ entry, isExpanded, onToggle }: NetworkEntryProps) {
   const { request, response, isPending, isFailed } = entry;
 
   // Method color
-  const methodColor = {
-    GET: 'text-emerald-600 dark:text-emerald-400',
-    POST: 'text-blue-600 dark:text-blue-400',
-    PUT: 'text-amber-600 dark:text-amber-400',
-    DELETE: 'text-red-600 dark:text-red-400',
-    PATCH: 'text-purple-600 dark:text-purple-400',
-  }[request.method] || 'text-gray-600 dark:text-gray-400';
+  const methodColor =
+    {
+      GET: "text-emerald-600 dark:text-emerald-400",
+      POST: "text-blue-600 dark:text-blue-400",
+      PUT: "text-amber-600 dark:text-amber-400",
+      DELETE: "text-red-600 dark:text-red-400",
+      PATCH: "text-purple-600 dark:text-purple-400",
+    }[request.method] || "text-gray-600 dark:text-gray-400";
 
   // Status indicator
   const StatusIcon = isPending
     ? () => <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
     : isFailed
-    ? () => <AlertCircle className="w-3.5 h-3.5 text-red-500" />
-    : () => <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />;
+      ? () => <AlertCircle className="w-3.5 h-3.5 text-red-500" />
+      : () => <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />;
 
   // Extract path from URL
   const urlPath = (() => {
     try {
-      const url = new URL(request.url, 'http://localhost');
+      const url = new URL(request.url, "http://localhost");
       return url.pathname + url.search;
     } catch {
       return request.url;
@@ -119,7 +135,9 @@ function NetworkEntry({ entry, isExpanded, onToggle }: NetworkEntryProps) {
   })();
 
   return (
-    <div className={`border-b border-gray-100 dark:border-gray-700/50 ${isFailed ? 'bg-red-50/50 dark:bg-red-900/10' : ''}`}>
+    <div
+      className={`border-b border-gray-100 dark:border-gray-700/50 ${isFailed ? "bg-red-50/50 dark:bg-red-900/10" : ""}`}
+    >
       {/* Entry Header */}
       <button
         onClick={onToggle}
@@ -133,7 +151,9 @@ function NetworkEntry({ entry, isExpanded, onToggle }: NetworkEntryProps) {
 
         <StatusIcon />
 
-        <span className={`text-xs font-mono font-bold ${methodColor} w-10 flex-shrink-0`}>
+        <span
+          className={`text-xs font-mono font-bold ${methodColor} w-10 flex-shrink-0`}
+        >
           {request.method}
         </span>
 
@@ -143,7 +163,9 @@ function NetworkEntry({ entry, isExpanded, onToggle }: NetworkEntryProps) {
 
         {response && (
           <>
-            <span className={`text-xs font-mono ${isFailed ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
+            <span
+              className={`text-xs font-mono ${isFailed ? "text-red-600 dark:text-red-400" : "text-gray-500 dark:text-gray-400"}`}
+            >
               {response.status}
             </span>
             <span className="text-xs text-gray-400 dark:text-gray-500">
@@ -164,16 +186,27 @@ function NetworkEntry({ entry, isExpanded, onToggle }: NetworkEntryProps) {
         <div className="px-3 pb-3 space-y-2">
           {/* Request */}
           <div>
-            <h4 style={{ fontSize: '10px', lineHeight: '14px' }} className="font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+            <h4
+              style={{ fontSize: "10px", lineHeight: "14px" }}
+              className="font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
+            >
               Request
             </h4>
             <div className="bg-gray-50 dark:bg-gray-800 rounded p-2 overflow-x-auto max-w-full">
               {request.payload ? (
-                <pre style={{ fontSize: '11px', lineHeight: '16px' }} className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all font-mono m-0">
+                <pre
+                  style={{ fontSize: "11px", lineHeight: "16px" }}
+                  className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all font-mono m-0"
+                >
                   {JSON.stringify(request.payload, null, 2)}
                 </pre>
               ) : (
-                <span style={{ fontSize: '11px' }} className="text-gray-400 italic">No payload</span>
+                <span
+                  style={{ fontSize: "11px" }}
+                  className="text-gray-400 italic"
+                >
+                  No payload
+                </span>
               )}
             </div>
           </div>
@@ -181,21 +214,39 @@ function NetworkEntry({ entry, isExpanded, onToggle }: NetworkEntryProps) {
           {/* Response */}
           {response && (
             <div>
-              <h4 style={{ fontSize: '10px', lineHeight: '14px' }} className="font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+              <h4
+                style={{ fontSize: "10px", lineHeight: "14px" }}
+                className="font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
+              >
                 Response
-                {response.error && <span className="text-red-500 ml-2">Error</span>}
+                {response.error && (
+                  <span className="text-red-500 ml-2">Error</span>
+                )}
               </h4>
-              <div className={`rounded p-2 overflow-x-auto max-w-full ${isFailed ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-800'}`}>
+              <div
+                className={`rounded p-2 overflow-x-auto max-w-full ${isFailed ? "bg-red-50 dark:bg-red-900/20" : "bg-gray-50 dark:bg-gray-800"}`}
+              >
                 {response.error ? (
-                  <pre style={{ fontSize: '11px', lineHeight: '16px' }} className="text-red-600 dark:text-red-400 whitespace-pre-wrap break-all font-mono m-0">
+                  <pre
+                    style={{ fontSize: "11px", lineHeight: "16px" }}
+                    className="text-red-600 dark:text-red-400 whitespace-pre-wrap break-all font-mono m-0"
+                  >
                     {response.error}
                   </pre>
                 ) : response.data ? (
-                  <pre style={{ fontSize: '11px', lineHeight: '16px' }} className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all font-mono m-0">
+                  <pre
+                    style={{ fontSize: "11px", lineHeight: "16px" }}
+                    className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-all font-mono m-0"
+                  >
                     {JSON.stringify(response.data, null, 2)}
                   </pre>
                 ) : (
-                  <span style={{ fontSize: '11px' }} className="text-gray-400 italic">No data</span>
+                  <span
+                    style={{ fontSize: "11px" }}
+                    className="text-gray-400 italic"
+                  >
+                    No data
+                  </span>
                 )}
               </div>
             </div>
@@ -213,4 +264,3 @@ function NetworkEntry({ entry, isExpanded, onToggle }: NetworkEntryProps) {
     </div>
   );
 }
-

@@ -1,23 +1,23 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from "@storybook/react";
 
-import { chainSelector } from '../stories/arg-types';
-import { Button } from '../stories/components/Button';
-import { CodeBlock } from '../stories/components/CodeBlock';
-import { ConnectButton } from '../stories/components/ConnectButton';
-import { functionType } from '../stories/components/decorators/function-type';
-import { wagmiDecorator } from '../stories/components/decorators/wagmi-decorator';
+import { chainSelector } from "../stories/arg-types";
+import { Button } from "../stories/components/Button";
+import { CodeBlock } from "../stories/components/CodeBlock";
+import { ConnectButton } from "../stories/components/ConnectButton";
+import { functionType } from "../stories/components/decorators/function-type";
+import { wagmiDecorator } from "../stories/components/decorators/wagmi-decorator";
 import {
   canPerformAction,
   useConnection,
-} from '../stories/hooks/useConnection';
-import useQuery from '../stories/hooks/useQuery';
-import { addChain,AddChainParameters, ChainId } from './chains';
+} from "../stories/hooks/useConnection";
+import useQuery from "../stories/hooks/useQuery";
+import { addChain, AddChainParameters, ChainId } from "./chains";
 
 const meta = {
-  title: 'write/addChain',
+  title: "write/addChain",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('write')],
+  tags: ["autodocs"],
+  decorators: [wagmiDecorator, functionType("write")],
   argTypes: { ...chainSelector },
 } satisfies Meta<typeof StoryView>;
 
@@ -31,7 +31,7 @@ export const WithParams: Story = {
   },
 };
 
-type Props = Omit<AddChainParameters, 'provider'>;
+type Props = Omit<AddChainParameters, "provider">;
 
 export function StoryView(props: Props) {
   const connection = useConnection();

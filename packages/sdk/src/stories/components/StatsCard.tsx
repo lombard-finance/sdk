@@ -2,7 +2,7 @@ interface StatsCardProps {
   title: string;
   value: number | string;
   subtitle?: string;
-  variant?: 'default' | 'success' | 'warning' | 'info' | 'danger';
+  variant?: "default" | "success" | "warning" | "info" | "danger";
 }
 
 /**
@@ -13,10 +13,10 @@ export function StatsCard({
   title,
   value,
   subtitle,
-  variant = 'default',
+  variant = "default",
 }: StatsCardProps) {
-  const borderClass = variant !== 'default' ? `border-${variant}` : '';
-  const textClass = variant !== 'default' ? `text-${variant}` : '';
+  const borderClass = variant !== "default" ? `border-${variant}` : "";
+  const textClass = variant !== "default" ? `text-${variant}` : "";
 
   return (
     <div className={`card ${borderClass}`}>

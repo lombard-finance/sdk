@@ -6,11 +6,11 @@
  * @module chains/btc/actions/stakeAndDeploy/config/types
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
-import type { z } from 'zod';
+import type { Env } from "@lombard.finance/sdk-common";
+import type { z } from "zod";
 
-import type { AssetId, Chain, DeployProtocol } from '../../../../../core';
-import type { BtcCoreContext } from '../../../../../shared/context';
+import type { AssetId, Chain, DeployProtocol } from "../../../../../core";
+import type { BtcCoreContext } from "../../../../../shared/context";
 
 /**
  * Route definition
@@ -48,7 +48,7 @@ export interface StakeAndBakeRestoreResult {
  * StakeAndDeploy produces LBTC then deploys to a vault.
  */
 export interface StakeAndDeployChainConfig {
-  chainType: 'evm';
+  chainType: "evm";
   routes: StakeAndDeployRouteDefinition[];
   destChains: Chain[];
   /** Supported output assets - StakeAndDeploy produces LBTC */

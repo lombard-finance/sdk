@@ -1,9 +1,9 @@
-import { Env } from '@lombard.finance/sdk-common';
-import { SuiClient } from '@mysten/sui/client';
-import type { WalletAccount } from '@wallet-standard/core';
-import BigNumber from 'bignumber.js';
+import { Env } from "@lombard.finance/sdk-common";
+import { SuiClient } from "@mysten/sui/client";
+import type { WalletAccount } from "@wallet-standard/core";
+import BigNumber from "bignumber.js";
 
-import { LBTC_DECIMALS } from '../../const';
+import { LBTC_DECIMALS } from "../../const";
 
 interface IGetBalanceParams {
   walletAccount: WalletAccount;

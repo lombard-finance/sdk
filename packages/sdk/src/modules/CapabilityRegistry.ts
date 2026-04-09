@@ -16,11 +16,11 @@ import type {
   SdkModule,
   ServiceOf,
   SharedToken,
-} from '@lombard.finance/sdk-common';
+} from "@lombard.finance/sdk-common";
 
-import type { LombardConfig } from '../config/types';
-import { getProviderGetter } from '../config/types';
-import { LombardError } from '../shared/errors';
+import type { LombardConfig } from "../config/types";
+import { getProviderGetter } from "../config/types";
+import { LombardError } from "../shared/errors";
 
 /**
  * Capability Registry
@@ -49,7 +49,7 @@ export class CapabilityRegistry<
     modules: readonly AnyModule[],
     private readonly config: LombardConfig,
   ) {
-    modules.forEach(mod => this.modules.set(mod.id, mod));
+    modules.forEach((mod) => this.modules.set(mod.id, mod));
   }
 
   /**

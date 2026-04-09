@@ -5,17 +5,17 @@
  * provider getters, partner configuration, and custom asset registration.
  */
 
-import type { AnyModule, Env } from '@lombard.finance/sdk-common';
+import type { AnyModule, Env } from "@lombard.finance/sdk-common";
 
-import type { AssetId, Chain } from '../core';
-import type { Logger } from '../shared/context/types';
+import type { AssetId, Chain } from "../core";
+import type { Logger } from "../shared/context/types";
 import type {
   BtcProvider,
   EvmProvider,
   SolanaProvider,
   StarknetProvider,
   SuiProvider,
-} from './providers';
+} from "./providers";
 
 /**
  * Provider getter function
@@ -55,19 +55,19 @@ export function getProviderGetter<T = unknown>(
 ): ProviderGetter<T> | undefined {
   let getter: ProviderGetter<unknown> | undefined;
   switch (key) {
-    case 'evm':
+    case "evm":
       getter = providers.evm;
       break;
-    case 'bitcoin':
+    case "bitcoin":
       getter = providers.bitcoin;
       break;
-    case 'solana':
+    case "solana":
       getter = providers.solana;
       break;
-    case 'sui':
+    case "sui":
       getter = providers.sui;
       break;
-    case 'starknet':
+    case "starknet":
       getter = providers.starknet;
       break;
     default:
@@ -172,7 +172,7 @@ export interface ResolvedLombardConfig extends LombardConfig {
    * This is fetched asynchronously during createLombardSDK() to allow
    * for dynamic updates without SDK releases.
    */
-  catalog: import('../core/assets/types').AssetCatalog;
+  catalog: import("../core/assets/types").AssetCatalog;
 }
 
 export type LombardSDKOptions = CreateConfigOptions;
@@ -194,7 +194,7 @@ export interface PartnerConfig {
  */
 export interface CustomAsset {
   /** Asset type */
-  type: 'spl' | 'erc20' | 'native';
+  type: "spl" | "erc20" | "native";
 
   /** Contract address (for token assets) */
   address?: string;

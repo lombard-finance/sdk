@@ -9,24 +9,24 @@
  * @module chains/btc/actions/stake/config/evm
  */
 
-import type { EvmService } from '@lombard.finance/sdk-common';
-import { Env } from '@lombard.finance/sdk-common';
-import type { EIP1193Provider } from 'viem';
+import type { EvmService } from "@lombard.finance/sdk-common";
+import { Env } from "@lombard.finance/sdk-common";
+import type { EIP1193Provider } from "viem";
 
-import type { ChainId } from '../../../../../common/chains';
-import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
-import { LombardError } from '../../../../../shared/errors';
-import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
-import { evmAddressSchema } from '../../../../../shared/validation';
-import { Token } from '../../../../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../../../../tokens/tokens';
-import { isEvmChain } from '../../../../../utils/chain';
-import { toSatoshi } from '../../../../../utils/satoshi';
-import type { ChainConfig, FeeAuthConfig } from './types';
+import type { ChainId } from "../../../../../common/chains";
+import { AssetId, Chain, getAllAssetChains } from "../../../../../core";
+import { LombardError } from "../../../../../shared/errors";
+import { ensureCorrectChain } from "../../../../../shared/evm/switchChain";
+import { evmAddressSchema } from "../../../../../shared/validation";
+import { Token } from "../../../../../tokens/token-addresses";
+import { getTokenContractInfo } from "../../../../../tokens/tokens";
+import { isEvmChain } from "../../../../../utils/chain";
+import { toSatoshi } from "../../../../../utils/satoshi";
+import type { ChainConfig, FeeAuthConfig } from "./types";
 
 /**
  * Chains that require fee authorization (unsubsidized chains).
- * 
+ *
  * These chains require users to sign a fee authorization message
  * before minting LBTC. On subsidized chains, Lombard covers the fees.
  */
@@ -43,7 +43,7 @@ const UNSUBSIDIZED_CHAINS = [Chain.ETHEREUM, Chain.SEPOLIA] as const;
  */
 const feeAuthConfig: FeeAuthConfig = {
   async getMintingFee(ctx, chainId) {
-    const evm = ctx.capabilities.require('evm') as EvmService;
+    const evm = ctx.capabilities.require("evm") as EvmService;
     return evm.getMintingFee(chainId as ChainId);
   },
 
@@ -68,7 +68,10 @@ const feeAuthConfig: FeeAuthConfig = {
 
     // Check expiration - expirationDate is Unix timestamp in seconds
     // Convert to milliseconds for Date comparison
-    if (result.expirationDate && new Date(Number(result.expirationDate) * 1000) < new Date()) {
+    if (
+      result.expirationDate &&
+      new Date(Number(result.expirationDate) * 1000) < new Date()
+    ) {
       return null;
     }
 
@@ -82,10 +85,10 @@ const feeAuthConfig: FeeAuthConfig = {
   },
 
   async authorizeFee(ctx, { chainId, recipient, fee }) {
-    const evm = ctx.capabilities.require('evm') as EvmService;
-    const provider = await ctx.getProvider('evm');
+    const evm = ctx.capabilities.require("evm") as EvmService;
+    const provider = await ctx.getProvider("evm");
     if (!provider) {
-      throw LombardError.providerMissing(String(chainId), 'evm');
+      throw LombardError.providerMissing(String(chainId), "evm");
     }
 
     // Ensure wallet is on the correct chain before signing
@@ -133,7 +136,7 @@ const feeAuthConfig: FeeAuthConfig = {
  * Supported chains are derived from ASSET_CATALOG[AssetId.LBTC].deployments.
  */
 export const evmConfig: ChainConfig = {
-  chainType: 'evm',
+  chainType: "evm",
 
   routes: [
     {
@@ -149,7 +152,7 @@ export const evmConfig: ChainConfig = {
   // Derived from ASSET_CATALOG - all EVM chains where LBTC is deployed
   // Note: This includes all chains across all environments
   // The `routes` config above filters by source chain + env
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain => {
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) => {
     return isEvmChain(chain);
   }),
 
@@ -166,10 +169,10 @@ export const evmConfig: ChainConfig = {
   },
 
   async getSignature(ctx, recipient, chainId) {
-    const evm = ctx.capabilities.require('evm') as EvmService;
-    const provider = await ctx.getProvider('evm');
+    const evm = ctx.capabilities.require("evm") as EvmService;
+    const provider = await ctx.getProvider("evm");
     if (!provider) {
-      throw LombardError.providerMissing(String(chainId), 'evm');
+      throw LombardError.providerMissing(String(chainId), "evm");
     }
 
     // Ensure wallet is on the correct chain before signing

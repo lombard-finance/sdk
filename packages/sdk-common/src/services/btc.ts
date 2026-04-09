@@ -8,7 +8,7 @@
 /**
  * Network mode for Bitcoin operations
  */
-export type BtcNetworkMode = 'mainnet' | 'testnet';
+export type BtcNetworkMode = "mainnet" | "testnet";
 
 /**
  * BTC Service Interface

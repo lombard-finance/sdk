@@ -9,15 +9,11 @@
  * @module chains/evm/actions/redeem/config/evm
  */
 
-import { Env } from '@lombard.finance/sdk-common';
+import { Env } from "@lombard.finance/sdk-common";
 
-import {
-  AssetId,
-  Chain,
-  getEvmAssetChains,
-} from '../../../../../core';
-import { bitcoinAddressSchema } from '../../../../../shared/validation';
-import type { ChainConfig } from './types';
+import { AssetId, Chain, getEvmAssetChains } from "../../../../../core";
+import { bitcoinAddressSchema } from "../../../../../shared/validation";
+import type { ChainConfig } from "./types";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Catalog-Derived Chain Lists
@@ -43,7 +39,7 @@ const BTCB_TESTNET_CHAINS = getEvmAssetChains(AssetId.BTCb, [
  * Source chains derived from BTC.b deployments in ASSET_CATALOG.
  */
 export const evmConfig: ChainConfig = {
-  chainType: 'evm',
+  chainType: "evm",
 
   routes: [
     // BTC.b → BTC (to Bitcoin Mainnet)
@@ -78,7 +74,7 @@ export function isRedeemSupported(
   env: Env,
 ): boolean {
   return evmConfig.routes.some(
-    route =>
+    (route) =>
       route.assetIn === assetIn &&
       route.sourceChains.includes(sourceChain) &&
       route.envs.includes(env),

@@ -260,9 +260,9 @@ describe("ExchangeRateSchema (JSON Schema)", () => {
     expect(ExchangeRateSchema.properties).toHaveProperty("chainId");
     // With Zod derivation, required may be absent or empty
     if ("required" in ExchangeRateSchema) {
-      expect(
-        (ExchangeRateSchema as Record<string, unknown>).required,
-      ).toEqual(expect.arrayContaining([]));
+      expect((ExchangeRateSchema as Record<string, unknown>).required).toEqual(
+        expect.arrayContaining([]),
+      );
     }
   });
 });

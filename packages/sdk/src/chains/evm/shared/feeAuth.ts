@@ -12,17 +12,17 @@
  * @module chains/evm/shared/feeAuth
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
-import type { EIP1193Provider } from 'viem';
+import type { Env } from "@lombard.finance/sdk-common";
+import type { EIP1193Provider } from "viem";
 
-import { getNetworkFeeSignature } from '../../../api-functions';
-import { storeNetworkFeeSignature } from '../../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
-import type { ChainId } from '../../../common/chains';
-import { requiresAutoMintFee } from '../../../common/fee-requirements';
-import { getMintingFee } from '../../../contract-functions';
-import { signNetworkFee } from '../../../contract-functions/signNetworkFee/signNetworkFee';
-import { Token } from '../../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../../tokens/tokens';
+import { getNetworkFeeSignature } from "../../../api-functions";
+import { storeNetworkFeeSignature } from "../../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature";
+import type { ChainId } from "../../../common/chains";
+import { requiresAutoMintFee } from "../../../common/fee-requirements";
+import { getMintingFee } from "../../../contract-functions";
+import { signNetworkFee } from "../../../contract-functions/signNetworkFee/signNetworkFee";
+import { Token } from "../../../tokens/token-addresses";
+import { getTokenContractInfo } from "../../../tokens/tokens";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types

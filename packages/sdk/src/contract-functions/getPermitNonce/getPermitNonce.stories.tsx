@@ -1,16 +1,16 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
-import { functionType } from '../../stories/components/decorators';
-import useQuery from '../../stories/hooks/useQuery';
-import { getPermitNonce } from './getPermitNonce';
+import { Button } from "../../stories/components/Button";
+import { CodeBlock } from "../../stories/components/CodeBlock";
+import { functionType } from "../../stories/components/decorators";
+import useQuery from "../../stories/hooks/useQuery";
+import { getPermitNonce } from "./getPermitNonce";
 
 const meta = {
-  title: 'read/getPermitNonce',
+  title: "read/getPermitNonce",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('read')],
+  tags: ["autodocs"],
+  decorators: [functionType("read")],
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -19,7 +19,7 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    owner: '0x1234567890123456789012345678901234567890',
+    owner: "0x1234567890123456789012345678901234567890",
     chainId: 1,
   },
 };

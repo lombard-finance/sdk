@@ -13,75 +13,75 @@ npm install @lombard.finance/sdk @lombard.finance/sdk-solana
 ### Connecting to a Wallet
 
 ```typescript
-import { connectWallet, WalletType } from '@lombard.finance/sdk-solana';
+import { connectWallet, WalletType } from "@lombard.finance/sdk-solana";
 
 // Connect to Phantom wallet
 const { publicKey, walletProvider } = await connectWallet({
-  walletType: 'phantom',
-  network: 'mainnet',
+  walletType: "phantom",
+  network: "mainnet",
 });
 
-console.log('Connected wallet address:', publicKey);
+console.log("Connected wallet address:", publicKey);
 ```
 
 ### Checking Balances
 
 ```typescript
-import { getBalance } from '@lombard.finance/sdk-solana';
+import { getBalance } from "@lombard.finance/sdk-solana";
 
 // Get SOL balance
 const { total, decimals } = await getBalance({
-  publicKey: '5YNmS1R9nNSCDzb5a7mMJ1dwK9uHeAAF4CYxjdePDovp',
+  publicKey: "5YNmS1R9nNSCDzb5a7mMJ1dwK9uHeAAF4CYxjdePDovp",
 });
 
-console.log('SOL Balance:', total.toString());
+console.log("SOL Balance:", total.toString());
 
 // Get SPL token balance
 const tokenBalance = await getBalance({
-  publicKey: '5YNmS1R9nNSCDzb5a7mMJ1dwK9uHeAAF4CYxjdePDovp',
-  tokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC token address
+  publicKey: "5YNmS1R9nNSCDzb5a7mMJ1dwK9uHeAAF4CYxjdePDovp",
+  tokenAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC token address
 });
 
-console.log('Token Balance:', tokenBalance.total.toString());
+console.log("Token Balance:", tokenBalance.total.toString());
 ```
 
 ### Sending Transactions
 
 ```typescript
-import { sendTransaction } from '@lombard.finance/sdk-solana';
+import { sendTransaction } from "@lombard.finance/sdk-solana";
 
 // Send SOL
 const result = await sendTransaction({
   from: walletProvider,
-  to: 'ReceipientSolanaAddress',
-  amount: '0.1',
+  to: "ReceipientSolanaAddress",
+  amount: "0.1",
 });
 
-console.log('Transaction signature:', result.signature);
+console.log("Transaction signature:", result.signature);
 
 // Send SPL token
 const tokenResult = await sendTransaction({
   from: walletProvider,
-  to: 'ReceipientSolanaAddress',
-  amount: '10',
-  tokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC token address
+  to: "ReceipientSolanaAddress",
+  amount: "10",
+  tokenAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC token address
   decimals: 6,
 });
 
-console.log('Token transaction signature:', tokenResult.signature);
+console.log("Token transaction signature:", tokenResult.signature);
 ```
 
 ### Signing Messages
 
 ```typescript
-import { signMessage } from '@lombard.finance/sdk-solana';
+import { signMessage } from "@lombard.finance/sdk-solana";
 
 const { signature, publicKey } = await signMessage({
-  message: 'Hello, Solana!',
+  message: "Hello, Solana!",
   publicKey: walletProvider.publicKey.toString(),
 });
 
-console.log('Signature:', signature);
+console.log("Signature:", signature);
 ```
 
 ### Generating BTC deposit address
@@ -121,8 +121,8 @@ to the provided recipient address.
 ```javascript
 const txHash = await claimLBTC(provider, {
   recipientAddress: address,
-  amount: '10000',
-  network: 'mainnet-beta',
+  amount: "10000",
+  network: "mainnet-beta",
   // The signatures (obtained from `getDepositsByAddress`)
   proofSignature: selectedOutput.proof,
   rawPayload: selectedOutput.raw_payload,
@@ -136,8 +136,8 @@ given BTC address.
 
 ```javascript
 const txHash = await unstakeLBTC(provider, {
-  amount: '10000',
+  amount: "10000",
   btcAddress,
-  network: 'mainnet-beta',
+  network: "mainnet-beta",
 });
 ```

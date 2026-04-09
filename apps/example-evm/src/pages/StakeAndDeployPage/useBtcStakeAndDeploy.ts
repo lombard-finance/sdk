@@ -1,19 +1,14 @@
-import {
-  Chain,
-  createConfig,
-  DeployProtocol,
-  Env,
-} from '@lombard.finance/sdk';
+import { Chain, createConfig, DeployProtocol, Env } from "@lombard.finance/sdk";
 import {
   useBtcStakeAndBake as useBtcStakeAndBakeHook,
   useLombardSDK,
-} from '@lombard.finance/sdk-react';
-import { useCallback } from 'react';
+} from "@lombard.finance/sdk-react";
+import { useCallback } from "react";
 
-import { getEnvironment } from '../../lib/config';
+import { getEnvironment } from "../../lib/config";
 
-export type { StakeAndBakeStatus } from '@lombard.finance/sdk-react';
-export type { StakeAndBakeProgressInfo as StakeAndBakeProgress } from '@lombard.finance/sdk-react';
+export type { StakeAndBakeStatus } from "@lombard.finance/sdk-react";
+export type { StakeAndBakeProgressInfo as StakeAndBakeProgress } from "@lombard.finance/sdk-react";
 
 /**
  * Hook for managing Stake-and-Deploy flow (BTC → LBTC → Vault)
@@ -31,7 +26,11 @@ export function useBtcStakeAndDeploy(
 ) {
   const currentEnv = env ?? getEnvironment();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(
     () =>
       createConfig({
         env: currentEnv,

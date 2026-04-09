@@ -7,9 +7,9 @@
  * @module core/assets/types
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
+import type { Env } from "@lombard.finance/sdk-common";
 
-import type { Chain } from '../chains';
+import type { Chain } from "../chains";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Asset Identifiers
@@ -25,44 +25,44 @@ import type { Chain } from '../chains';
  */
 export const AssetId = {
   // Bitcoin assets
-  BTC: 'BTC',
-  BTCb: 'BTC.b',
-  LBTC: 'LBTC',
-  BTCK: 'BTCK',
-  cbBTC: 'cbBTC',
-  WBTC: 'WBTC',
-  WBTCN: 'wBTCN',
-  eBTC: 'eBTC',
-  BTCBinance: 'BTCB',
+  BTC: "BTC",
+  BTCb: "BTC.b",
+  LBTC: "LBTC",
+  BTCK: "BTCK",
+  cbBTC: "cbBTC",
+  WBTC: "WBTC",
+  WBTCN: "wBTCN",
+  eBTC: "eBTC",
+  BTCBinance: "BTCB",
 
   // Solana assets
-  SOL: 'SOL',
-  L_SOL: 'L-SOL',
+  SOL: "SOL",
+  L_SOL: "L-SOL",
 
   // Sui assets
-  SUI: 'SUI',
-  L_SUI: 'L-SUI',
+  SUI: "SUI",
+  L_SUI: "L-SUI",
 
   // Ethereum assets
-  ETH: 'ETH',
-  L_ETH: 'L-ETH',
+  ETH: "ETH",
+  L_ETH: "L-ETH",
 
   // Zcash assets
-  ZEC: 'ZEC',
-  L_ZEC: 'L-ZEC',
+  ZEC: "ZEC",
+  L_ZEC: "L-ZEC",
 
   // XRP assets
-  XRP: 'XRP',
-  L_XRP: 'L-XRP',
+  XRP: "XRP",
+  L_XRP: "L-XRP",
 
   // Dogecoin assets
-  DOGE: 'DOGE',
-  L_DOGE: 'L-DOGE',
+  DOGE: "DOGE",
+  L_DOGE: "L-DOGE",
 
   // Stablecoin assets (for BSA)
-  USDC: 'USDC',
-  USDT: 'USDT',
-  DAI: 'DAI',
+  USDC: "USDC",
+  USDT: "USDT",
+  DAI: "DAI",
 } as const;
 
 export type AssetId = (typeof AssetId)[keyof typeof AssetId];
@@ -123,15 +123,15 @@ export interface AssetCatalog {
 export function assetValueToKey(value: string): string {
   return (
     Object.keys(AssetId).find(
-      key => AssetId[key as keyof typeof AssetId] === value,
-    ) ?? ''
+      (key) => AssetId[key as keyof typeof AssetId] === value,
+    ) ?? ""
   );
 }
 
 /** Type guard to check if a value is a valid AssetId */
 export function isAssetId(value: unknown): value is AssetId {
   return (
-    typeof value === 'string' &&
+    typeof value === "string" &&
     Object.values(AssetId).includes(value as AssetId)
   );
 }

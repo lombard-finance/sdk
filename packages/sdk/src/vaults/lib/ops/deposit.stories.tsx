@@ -1,26 +1,26 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { Button } from '../../../stories/components/Button';
-import { CodeBlock } from '../../../stories/components/CodeBlock';
-import { ConnectButton } from '../../../stories/components/ConnectButton';
+import { Button } from "../../../stories/components/Button";
+import { CodeBlock } from "../../../stories/components/CodeBlock";
+import { ConnectButton } from "../../../stories/components/ConnectButton";
 import {
   functionType,
   wagmiDecorator,
-} from '../../../stories/components/decorators';
-import { ErrorBlock } from '../../../stories/components/error-block';
+} from "../../../stories/components/decorators";
+import { ErrorBlock } from "../../../stories/components/error-block";
 import {
   canPerformAction,
   useConnection,
-} from '../../../stories/hooks/useConnection';
-import useQuery from '../../../stories/hooks/useQuery';
-import { Vault } from '../config';
-import { deposit,DepositParameters } from './deposit';
+} from "../../../stories/hooks/useConnection";
+import useQuery from "../../../stories/hooks/useQuery";
+import { Vault } from "../config";
+import { deposit, DepositParameters } from "./deposit";
 
 const meta = {
-  title: 'vault/ops/deposit',
+  title: "vault/ops/deposit",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('write')],
+  tags: ["autodocs"],
+  decorators: [wagmiDecorator, functionType("write")],
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -30,14 +30,14 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     vaultKey: Vault.Veda,
-    amount: '0.0001',
+    amount: "0.0001",
     approve: true,
   },
 };
 
 type SignNetworkFeeProps = Omit<
   DepositParameters,
-  'account' | 'chainId' | 'provider'
+  "account" | "chainId" | "provider"
 >;
 
 export function StoryView(props: SignNetworkFeeProps) {

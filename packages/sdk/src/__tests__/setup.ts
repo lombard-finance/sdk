@@ -4,7 +4,7 @@
  * This file runs before each test suite and sets up the testing environment.
  */
 
-import { afterEach, beforeEach } from 'vitest';
+import { afterEach, beforeEach } from "vitest";
 
 // Global test setup
 beforeEach(() => {

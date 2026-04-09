@@ -1,34 +1,34 @@
-import { oft } from '@layerzerolabs/oft-v2-solana-sdk';
-import { Env } from '@lombard.finance/sdk-common';
+import { oft } from "@layerzerolabs/oft-v2-solana-sdk";
+import { Env } from "@lombard.finance/sdk-common";
 import {
   publicKey as umiPublicKey,
   Signer,
   WrappedInstruction,
-} from '@metaplex-foundation/umi';
-import { createSignerFromWalletAdapter } from '@metaplex-foundation/umi-signer-wallet-adapters';
-import { toWeb3JsInstruction } from '@metaplex-foundation/umi-web3js-adapters';
-import { getAssociatedTokenAddressSync } from '@solana/spl-token';
+} from "@metaplex-foundation/umi";
+import { createSignerFromWalletAdapter } from "@metaplex-foundation/umi-signer-wallet-adapters";
+import { toWeb3JsInstruction } from "@metaplex-foundation/umi-web3js-adapters";
+import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import {
   ComputeBudgetProgram,
   PublicKey as Web3PublicKey,
   Transaction,
-} from '@solana/web3.js';
-import BigNumber from 'bignumber.js';
+} from "@solana/web3.js";
+import BigNumber from "bignumber.js";
 
 import {
   envToNetwork,
   getConfig,
   getLBTCAddress,
   getRpcEndpoint,
-} from '../const/getConfig';
-import { getConnection } from '../const/rpcUrls';
-import { ISolanaWalletProvider } from '../types';
+} from "../const/getConfig";
+import { getConnection } from "../const/rpcUrls";
+import { ISolanaWalletProvider } from "../types";
 import {
   getMinimalUmiInstance,
   getRecipientBytes32,
   validateBridgeAmount,
-} from '../utils/bridgeUtils';
-import { quoteBridgeFee } from './quoteBridgeFee';
+} from "../utils/bridgeUtils";
+import { quoteBridgeFee } from "./quoteBridgeFee";
 
 const LBTC_DECIMALS = 8;
 const BRDIGE_COMPUTE_UNITS = 400000;
@@ -66,14 +66,14 @@ export async function sendBridgeTransaction({
   options = new Uint8Array(),
 }: SendBridgeTransactionParams): Promise<string> {
   if (!provider.publicKey) {
-    throw new Error('Wallet provider not connected.');
+    throw new Error("Wallet provider not connected.");
   }
   if (!provider.signTransaction) {
-    throw new Error('Wallet provider does not support signing transactions.');
+    throw new Error("Wallet provider does not support signing transactions.");
   }
 
   if (!destinationLzEndpointId) {
-    throw new Error('Destination chain LayerZero Endpoint ID is required.');
+    throw new Error("Destination chain LayerZero Endpoint ID is required.");
   }
 
   const network = envToNetwork[env];
@@ -109,9 +109,9 @@ export async function sendBridgeTransaction({
       to: recipientAddress,
       amountLD: Number(amountLd),
       minAmountLD: 1,
-      extraOptions: '',
-      composeMsg: '',
-      oftCmd: '',
+      extraOptions: "",
+      composeMsg: "",
+      oftCmd: "",
     },
   });
 
@@ -183,7 +183,7 @@ export async function sendBridgeTransaction({
         blockhash: blockhash,
         lastValidBlockHeight: lastValidBlockHeight,
       },
-      'confirmed',
+      "confirmed",
     );
 
     if (confirmation.value.err) {
@@ -198,33 +198,33 @@ export async function sendBridgeTransaction({
       handleError(error);
     }
     throw new Error(
-      'An unknown error occurred while sending the LayerZero bridge transaction.',
+      "An unknown error occurred while sending the LayerZero bridge transaction.",
     );
   }
 }
 
 const handleError = (error: Error) => {
-  console.error('Error sending Solana LayerZero transaction:', error);
+  console.error("Error sending Solana LayerZero transaction:", error);
 
   if (
-    error.message.includes('slippage') ||
-    error.message.includes('MinimumAmount')
+    error.message.includes("slippage") ||
+    error.message.includes("MinimumAmount")
   ) {
     throw new Error(
-      'Bridge failed due to slippage or minimum amount not met. Please try again or adjust parameters.',
+      "Bridge failed due to slippage or minimum amount not met. Please try again or adjust parameters.",
     );
   }
-  if (error.message.includes('insufficient funds')) {
+  if (error.message.includes("insufficient funds")) {
     throw new Error(
-      'Insufficient SOL balance to cover transaction and bridge fees.',
+      "Insufficient SOL balance to cover transaction and bridge fees.",
     );
   }
   if (
-    error.message.includes('Readonly Signer') ||
-    error.message.includes('identity')
+    error.message.includes("Readonly Signer") ||
+    error.message.includes("identity")
   ) {
     throw new Error(
-      'Wallet connection issue: Readonly signer detected or identity not set. Ensure wallet is fully connected.',
+      "Wallet connection issue: Readonly signer detected or identity not set. Ensure wallet is fully connected.",
     );
   }
   throw new Error(

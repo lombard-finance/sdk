@@ -1,7 +1,7 @@
-import { Buffer } from 'node:buffer';
-import type { Preview } from '@storybook/react';
+import { Buffer } from "node:buffer";
+import type { Preview } from "@storybook/react";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 window.Buffer = Buffer;
 

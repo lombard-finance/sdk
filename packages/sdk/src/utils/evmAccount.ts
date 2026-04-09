@@ -1,11 +1,11 @@
-import type { Address } from 'viem';
+import type { Address } from "viem";
 
-import type { EvmProvider } from '../config/providers';
+import type { EvmProvider } from "../config/providers";
 
 export class WalletError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
-    this.name = 'WalletError';
+    this.name = "WalletError";
   }
 }
 
@@ -20,19 +20,19 @@ export async function getActiveEvmAccount(
 ): Promise<Address> {
   try {
     const accounts = (await provider.request({
-      method: 'eth_accounts',
+      method: "eth_accounts",
     })) as string[] | undefined;
 
     const account =
       accounts?.[0] ??
       (
         (await provider.request({
-          method: 'eth_requestAccounts',
+          method: "eth_requestAccounts",
         })) as string[] | undefined
       )?.[0];
 
     if (!account) {
-      throw new WalletError('Wallet not connected');
+      throw new WalletError("Wallet not connected");
     }
 
     return account as Address;
@@ -40,7 +40,7 @@ export async function getActiveEvmAccount(
     if (error instanceof WalletError) {
       throw error;
     }
-    throw new WalletError('Failed to retrieve wallet account', {
+    throw new WalletError("Failed to retrieve wallet account", {
       cause: error as Error,
     });
   }

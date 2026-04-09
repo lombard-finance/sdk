@@ -1,5 +1,11 @@
-import { getWallets, isSuiChain } from '@mysten/wallet-standard';
-import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { getWallets, isSuiChain } from "@mysten/wallet-standard";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 interface SuiWalletState {
   address: string | null;
@@ -38,7 +44,7 @@ export function SuiWalletProvider({ children }: { children: ReactNode }) {
   const getSuiWallets = useCallback(() => {
     return getWallets()
       .get()
-      .filter(w => w.chains.some(chain => isSuiChain(chain)));
+      .filter((w) => w.chains.some((chain) => isSuiChain(chain)));
   }, []);
 
   // Check for auto-connected wallets on mount
@@ -60,7 +66,7 @@ export function SuiWalletProvider({ children }: { children: ReactNode }) {
     checkConnection();
 
     const walletsApi = getWallets();
-    const unsubscribe = walletsApi.on('register', () => {
+    const unsubscribe = walletsApi.on("register", () => {
       checkConnection();
     });
 
@@ -78,36 +84,36 @@ export function SuiWalletProvider({ children }: { children: ReactNode }) {
 
       if (wallets.length === 0) {
         throw new Error(
-          'No Sui wallet detected. Please install Sui Wallet or Suiet extension.',
+          "No Sui wallet detected. Please install Sui Wallet or Suiet extension.",
         );
       }
 
       const targetWallet = wallets[0];
 
-      const connectFeature = targetWallet.features['standard:connect'] as
+      const connectFeature = targetWallet.features["standard:connect"] as
         | {
             connect: () => Promise<{ accounts: Array<{ address: string }> }>;
           }
         | undefined;
 
       if (!connectFeature) {
-        throw new Error('Wallet does not support connection.');
+        throw new Error("Wallet does not support connection.");
       }
 
       const result = await connectFeature.connect();
       const account = result?.accounts?.[0];
 
       if (!account) {
-        throw new Error('No account returned from wallet');
+        throw new Error("No account returned from wallet");
       }
 
       setWallet(targetWallet);
       setWalletAccount(account);
       setAddress(account.address);
     } catch (err) {
-      console.error('Failed to connect Sui wallet:', err);
+      console.error("Failed to connect Sui wallet:", err);
       setError(
-        err instanceof Error ? err.message : 'Failed to connect Sui wallet',
+        err instanceof Error ? err.message : "Failed to connect Sui wallet",
       );
     } finally {
       setIsConnecting(false);
@@ -116,8 +122,8 @@ export function SuiWalletProvider({ children }: { children: ReactNode }) {
 
   const disconnect = useCallback(async () => {
     try {
-      if (wallet && wallet.features['standard:disconnect']) {
-        const disconnectFeature = wallet.features['standard:disconnect'] as {
+      if (wallet && wallet.features["standard:disconnect"]) {
+        const disconnectFeature = wallet.features["standard:disconnect"] as {
           disconnect: () => Promise<void>;
         };
         await disconnectFeature.disconnect();
@@ -127,7 +133,7 @@ export function SuiWalletProvider({ children }: { children: ReactNode }) {
       setWalletAccount(null);
       setAddress(null);
     } catch (err) {
-      console.error('Failed to disconnect Sui wallet:', err);
+      console.error("Failed to disconnect Sui wallet:", err);
     }
   }, [wallet]);
 

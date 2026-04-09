@@ -1,6 +1,6 @@
-import { Env } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import { Env } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
 
 import {
   SOLANA_DEVNET_CHAIN,
@@ -10,27 +10,27 @@ import {
   STARKNET_SEPOLIA_CHAIN,
   SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
-} from '../common/chains';
-import { envSelector } from '../stories/arg-types';
-import { Button } from '../stories/components/Button';
-import { CodeBlock } from '../stories/components/CodeBlock';
-import { functionType } from '../stories/components/decorators';
+} from "../common/chains";
+import { envSelector } from "../stories/arg-types";
+import { Button } from "../stories/components/Button";
+import { CodeBlock } from "../stories/components/CodeBlock";
+import { functionType } from "../stories/components/decorators";
 import {
   getSolanaTokenAddress,
   getStarknetTokenAddress,
   getSuiTokenAddress,
-} from './token-addresses';
+} from "./token-addresses";
 
 const meta = {
-  title: 'tokens/cross-chain-addresses',
+  title: "tokens/cross-chain-addresses",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('read')],
+  tags: ["autodocs"],
+  decorators: [functionType("read")],
   argTypes: {
     ...envSelector,
     blockchain: {
-      options: ['Sui', 'Solana', 'Starknet'],
-      control: { type: 'select' },
+      options: ["Sui", "Solana", "Starknet"],
+      control: { type: "select" },
     },
   },
 } satisfies Meta<typeof StoryView>;
@@ -41,34 +41,34 @@ type Story = StoryObj<typeof meta>;
 
 export const SuiMainnet: Story = {
   args: {
-    blockchain: 'Sui',
-    env: 'prod',
+    blockchain: "Sui",
+    env: "prod",
   },
 };
 
 export const SolanaMainnet: Story = {
   args: {
-    blockchain: 'Solana',
-    env: 'prod',
+    blockchain: "Solana",
+    env: "prod",
   },
 };
 
 export const StarknetMainnet: Story = {
   args: {
-    blockchain: 'Starknet',
-    env: 'prod',
+    blockchain: "Starknet",
+    env: "prod",
   },
 };
 
 export const SuiTestnet: Story = {
   args: {
-    blockchain: 'Sui',
-    env: 'testnet',
+    blockchain: "Sui",
+    env: "testnet",
   },
 };
 
 interface StoryViewProps {
-  blockchain: 'Sui' | 'Solana' | 'Starknet';
+  blockchain: "Sui" | "Solana" | "Starknet";
   env?: Env;
 }
 
@@ -112,48 +112,48 @@ export function StoryView(props: StoryViewProps) {
   const handleFetch = () => {
     const newResults: Record<string, string | undefined> = {};
 
-    if (props.blockchain === 'Sui') {
-      newResults['Sui Mainnet'] = getSuiTokenAddress(
+    if (props.blockchain === "Sui") {
+      newResults["Sui Mainnet"] = getSuiTokenAddress(
         SUI_MAINNET_CHAIN,
         props.env,
       );
-      newResults['Sui Testnet'] = getSuiTokenAddress(
+      newResults["Sui Testnet"] = getSuiTokenAddress(
         SUI_TESTNET_CHAIN,
         props.env,
       );
-    } else if (props.blockchain === 'Solana') {
-      newResults['Solana Mainnet'] = getSolanaTokenAddress(
+    } else if (props.blockchain === "Solana") {
+      newResults["Solana Mainnet"] = getSolanaTokenAddress(
         SOLANA_MAINNET_CHAIN,
         props.env,
       );
-      newResults['Solana Testnet'] = getSolanaTokenAddress(
+      newResults["Solana Testnet"] = getSolanaTokenAddress(
         SOLANA_TESTNET_CHAIN,
         props.env,
       );
-      newResults['Solana Devnet'] = getSolanaTokenAddress(
+      newResults["Solana Devnet"] = getSolanaTokenAddress(
         SOLANA_DEVNET_CHAIN,
         props.env,
       );
-    } else if (props.blockchain === 'Starknet') {
-      newResults['Starknet Mainnet (Token)'] = getStarknetTokenAddress(
+    } else if (props.blockchain === "Starknet") {
+      newResults["Starknet Mainnet (Token)"] = getStarknetTokenAddress(
         STARKNET_MAINNET_CHAIN,
         props.env,
-        'token',
+        "token",
       );
-      newResults['Starknet Mainnet (Asset Router)'] = getStarknetTokenAddress(
+      newResults["Starknet Mainnet (Asset Router)"] = getStarknetTokenAddress(
         STARKNET_MAINNET_CHAIN,
         props.env,
-        'assetRouter',
+        "assetRouter",
       );
-      newResults['Starknet Sepolia (Token)'] = getStarknetTokenAddress(
+      newResults["Starknet Sepolia (Token)"] = getStarknetTokenAddress(
         STARKNET_SEPOLIA_CHAIN,
         props.env,
-        'token',
+        "token",
       );
-      newResults['Starknet Sepolia (Asset Router)'] = getStarknetTokenAddress(
+      newResults["Starknet Sepolia (Asset Router)"] = getStarknetTokenAddress(
         STARKNET_SEPOLIA_CHAIN,
         props.env,
-        'assetRouter',
+        "assetRouter",
       );
     }
 
@@ -178,7 +178,7 @@ export function StoryView(props: StoryViewProps) {
               <strong>Blockchain:</strong> {props.blockchain}
             </li>
             <li>
-              <strong>Environment:</strong> {props.env || 'prod (default)'}
+              <strong>Environment:</strong> {props.env || "prod (default)"}
             </li>
           </ul>
         </div>

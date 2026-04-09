@@ -8,42 +8,42 @@
  * @module chains/btc/actions/stake/BtcStake
  */
 
-import type { z } from 'zod';
+import type { z } from "zod";
 
 import type {
-    ChainId,
-    SolanaChain,
-    StarknetChainId,
-    SuiChain,
-} from '../../../../common/chains';
+  ChainId,
+  SolanaChain,
+  StarknetChainId,
+  SuiChain,
+} from "../../../../common/chains";
 import {
-    getChainType,
-    parseChainIdentifier,
-    StepStatus,
-} from '../../../../core';
-import { BtcActionStatus } from '../../../../shared/constants/statusConstants';
-import type { BtcCoreContext } from '../../../../shared/context';
-import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
-import type { StakeEventMap } from '../../../../shared/events';
-import type { MonitorProgress } from '../../../../shared/monitoring';
-import { Token } from '../../../../tokens/token-addresses';
-import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctionedAddress';
+  getChainType,
+  parseChainIdentifier,
+  StepStatus,
+} from "../../../../core";
+import { BtcActionStatus } from "../../../../shared/constants/statusConstants";
+import type { BtcCoreContext } from "../../../../shared/context";
+import { LombardError, ValidationErrorCode } from "../../../../shared/errors";
+import type { StakeEventMap } from "../../../../shared/events";
+import type { MonitorProgress } from "../../../../shared/monitoring";
+import { Token } from "../../../../tokens/token-addresses";
+import { ensureNotSanctionedAddress } from "../../../../utils/ensureNotSanctionedAddress";
 import {
-    assetIdToToken,
-    BaseBtcAction,
-    type StatusConfig,
-    type StepDefinition,
-} from '../shared';
+  assetIdToToken,
+  BaseBtcAction,
+  type StatusConfig,
+  type StepDefinition,
+} from "../shared";
 import {
-    type ChainConfig,
-    type FeeAuthConfig,
-    getChainConfig,
-    isAssetOutSupported,
-    isDestChainSupported,
-    isRouteAvailable,
-    type SignatureResult,
-} from './config';
-import type { BtcStake as IBtcStake,BtcStakeParams } from './types';
+  type ChainConfig,
+  type FeeAuthConfig,
+  getChainConfig,
+  isAssetOutSupported,
+  isDestChainSupported,
+  isRouteAvailable,
+  type SignatureResult,
+} from "./config";
+import type { BtcStake as IBtcStake, BtcStakeParams } from "./types";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -175,7 +175,7 @@ export class BtcStake
     if (!signature) {
       throw new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
-        'Missing signature. Complete authorization first.',
+        "Missing signature. Complete authorization first.",
       );
     }
 
@@ -200,7 +200,7 @@ export class BtcStake
   }
 
   protected getAuthRequiredMessage(): string {
-    return 'Authorization required. Call authorize() first.';
+    return "Authorization required. Call authorize() first.";
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -221,7 +221,7 @@ export class BtcStake
     recipient: string;
     referralCode?: string;
   }): Promise<void> {
-    this.assertStatus(BtcActionStatus.IDLE, 'prepare');
+    this.assertStatus(BtcActionStatus.IDLE, "prepare");
 
     return this.act(async () => {
       const validated = this.validatePrepareParams(params);
@@ -324,7 +324,7 @@ export class BtcStake
         BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION,
         BtcActionStatus.READY,
       ],
-      'authorize',
+      "authorize",
     );
 
     if (this.status === BtcActionStatus.READY) return;
@@ -359,7 +359,7 @@ export class BtcStake
   }
 
   async generateDepositAddress(captchaToken?: string): Promise<string> {
-    this.assertStatus(BtcActionStatus.READY, 'generateDepositAddress');
+    this.assertStatus(BtcActionStatus.READY, "generateDepositAddress");
     this.ensureAuthorized();
 
     if (this._depositAddress) {
@@ -415,7 +415,7 @@ export class BtcStake
     if (!this.authState.mintingFee) {
       throw new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
-        'Minting fee not fetched. Call prepare() first.',
+        "Minting fee not fetched. Call prepare() first.",
       );
     }
     return this.authState.mintingFee;

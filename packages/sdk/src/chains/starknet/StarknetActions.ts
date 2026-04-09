@@ -14,18 +14,18 @@
  * ```
  */
 
-import type { StarknetService } from '@lombard.finance/sdk-common';
+import type { StarknetService } from "@lombard.finance/sdk-common";
 
-import { PartnerConfiguration } from '../../client/PartnerConfiguration';
-import type { LombardConfig } from '../../config/types';
-import { getProviderGetter } from '../../config/types';
-import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
-import type { StarknetCoreContext } from '../../shared/context';
-import { StarknetUnstake } from './actions/unstake/StarknetUnstake';
+import { PartnerConfiguration } from "../../client/PartnerConfiguration";
+import type { LombardConfig } from "../../config/types";
+import { getProviderGetter } from "../../config/types";
+import { CapabilityRegistry } from "../../modules/CapabilityRegistry";
+import type { StarknetCoreContext } from "../../shared/context";
+import { StarknetUnstake } from "./actions/unstake/StarknetUnstake";
 import type {
   IStarknetUnstake,
   StarknetUnstakeParams,
-} from './actions/unstake/types';
+} from "./actions/unstake/types";
 
 /**
  * Create Starknet core context from config
@@ -33,12 +33,12 @@ import type {
  */
 function createStarknetCoreContext(config: LombardConfig): StarknetCoreContext {
   const registry = new CapabilityRegistry(config.modules, config);
-  const starknet = registry.require('starknet') as StarknetService;
+  const starknet = registry.require("starknet") as StarknetService;
 
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
-    getProvider: async key => {
+    getProvider: async (key) => {
       const getter = getProviderGetter(config.providers, key);
       if (!getter) return undefined;
       return getter();

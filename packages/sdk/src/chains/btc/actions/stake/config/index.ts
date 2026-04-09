@@ -8,14 +8,14 @@
  * @module chains/btc/actions/stake/config
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
+import type { Env } from "@lombard.finance/sdk-common";
 
-import type { AssetId, Chain, ChainType } from '../../../../../core';
-import { evmConfig } from './evm';
-import { solanaConfig } from './solana';
-import { starknetConfig } from './starknet';
-import { suiConfig } from './sui';
-import type { ChainConfig } from './types';
+import type { AssetId, Chain, ChainType } from "../../../../../core";
+import { evmConfig } from "./evm";
+import { solanaConfig } from "./solana";
+import { starknetConfig } from "./starknet";
+import { suiConfig } from "./sui";
+import type { ChainConfig } from "./types";
 
 // Re-export types
 export type {
@@ -25,13 +25,13 @@ export type {
   RouteDefinition,
   SignatureResult,
   StoredFeeSignature,
-} from './types';
+} from "./types";
 
 // Re-export individual configs
-export { evmConfig } from './evm';
-export { solanaConfig } from './solana';
-export { starknetConfig } from './starknet';
-export { suiConfig } from './sui';
+export { evmConfig } from "./evm";
+export { solanaConfig } from "./solana";
+export { starknetConfig } from "./starknet";
+export { suiConfig } from "./sui";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Registry
@@ -90,7 +90,7 @@ export function isRouteAvailable(
   if (!sourceChain) return true; // No source chain specified, allow all
 
   return config.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

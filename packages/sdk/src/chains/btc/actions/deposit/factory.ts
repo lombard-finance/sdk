@@ -7,11 +7,11 @@
  * @module chains/btc/actions/deposit/factory
  */
 
-import type { LombardConfig } from '../../../../config/types';
-import type { BtcCoreContext } from '../../../../shared/context';
-import { createBtcCoreContext } from '../../../../shared/context';
-import { BtcDeposit } from './BtcDeposit';
-import type { BtcDepositParams } from './types';
+import type { LombardConfig } from "../../../../config/types";
+import type { BtcCoreContext } from "../../../../shared/context";
+import { createBtcCoreContext } from "../../../../shared/context";
+import { BtcDeposit } from "./BtcDeposit";
+import type { BtcDepositParams } from "./types";
 
 /**
  * Create BtcDeposit action from config

@@ -1,20 +1,20 @@
-import { Env } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
+import { Env } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { envSelector } from '../stories/arg-types';
-import { Button } from '../stories/components/Button';
-import { CodeBlock } from '../stories/components/CodeBlock';
-import { functionType, wagmiDecorator } from '../stories/components/decorators';
-import { ErrorBlock } from '../stories/components/error-block';
-import { EXAMPLE_EVM_ADDRESS } from '../stories/constants';
-import useQuery from '../stories/hooks/useQuery';
-import { getPositionsSummary } from './get-positions-summary';
+import { envSelector } from "../stories/arg-types";
+import { Button } from "../stories/components/Button";
+import { CodeBlock } from "../stories/components/CodeBlock";
+import { functionType, wagmiDecorator } from "../stories/components/decorators";
+import { ErrorBlock } from "../stories/components/error-block";
+import { EXAMPLE_EVM_ADDRESS } from "../stories/constants";
+import useQuery from "../stories/hooks/useQuery";
+import { getPositionsSummary } from "./get-positions-summary";
 
 const meta = {
-  title: 'metrics/getPositionsSummary',
+  title: "metrics/getPositionsSummary",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('api-get')],
+  tags: ["autodocs"],
+  decorators: [wagmiDecorator, functionType("api-get")],
   argTypes: { ...envSelector },
 } satisfies Meta<typeof StoryView>;
 

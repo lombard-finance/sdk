@@ -6,20 +6,20 @@ import {
   SimulateContractParameters,
   SimulateContractReturnType,
   WalletClient,
-} from 'viem';
+} from "viem";
 
 import {
   EvmTransactionRequest,
   SignerError,
   validateTransactionRequest,
-} from '../clients/evm-signer-adapter';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../common/chains';
+} from "../clients/evm-signer-adapter";
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from "../common/chains";
 import {
   CommonSignerWriteParameters,
   CommonWriteParameters,
   isProviderFlow,
   isSignerFlow,
-} from '../common/parameters';
+} from "../common/parameters";
 
 /**
  * Minimal type-safe interface for contract simulation arguments.
@@ -71,7 +71,7 @@ export interface ExecuteContractTxResult {
   /** The transaction hash */
   txHash: Hex;
   /** The simulation result (for debugging) */
-  request: SimulateContractReturnType['request'];
+  request: SimulateContractReturnType["request"];
 }
 
 /**
@@ -117,7 +117,7 @@ export async function executeContractTransaction({
   // Validate that we have either provider or signer
   if (!isProviderFlow(params) && !isSignerFlow(params)) {
     throw new SignerError(
-      'INVALID_PARAMETERS',
+      "INVALID_PARAMETERS",
       'Must provide either "provider" or "signer" in parameters',
       { params, operation },
     );
@@ -133,8 +133,8 @@ export async function executeContractTransaction({
     );
   } catch (error) {
     throw new SignerError(
-      'SIMULATION_FAILED',
-      `Failed to simulate ${operation} transaction: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      "SIMULATION_FAILED",
+      `Failed to simulate ${operation} transaction: ${error instanceof Error ? error.message : "Unknown error"}`,
       {
         operation,
         simulateArgs,
@@ -148,7 +148,7 @@ export async function executeContractTransaction({
   // Validate simulation result
   if (!request.account) {
     throw new SignerError(
-      'INVALID_SIMULATION',
+      "INVALID_SIMULATION",
       `Simulation succeeded but no account was set for ${operation}`,
       { operation, request },
     );
@@ -156,7 +156,7 @@ export async function executeContractTransaction({
 
   if (!request.address) {
     throw new SignerError(
-      'INVALID_SIMULATION',
+      "INVALID_SIMULATION",
       `Simulation succeeded but no target address was set for ${operation}`,
       { operation, request },
     );
@@ -169,8 +169,8 @@ export async function executeContractTransaction({
     // Provider flow: use wallet client
     if (!walletClient) {
       throw new SignerError(
-        'MISSING_WALLET_CLIENT',
-        'Provider flow requires a wallet client',
+        "MISSING_WALLET_CLIENT",
+        "Provider flow requires a wallet client",
         { operation, params },
       );
     }
@@ -179,8 +179,8 @@ export async function executeContractTransaction({
       txHash = await walletClient.writeContract(request);
     } catch (error) {
       throw new SignerError(
-        'PROVIDER_TRANSACTION_FAILED',
-        `Failed to execute ${operation} via provider: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        "PROVIDER_TRANSACTION_FAILED",
+        `Failed to execute ${operation} via provider: ${error instanceof Error ? error.message : "Unknown error"}`,
         {
           operation,
           request,
@@ -195,7 +195,7 @@ export async function executeContractTransaction({
 
       if (!chain) {
         throw new SignerError(
-          'UNSUPPORTED_CHAIN',
+          "UNSUPPORTED_CHAIN",
           `Chain ${params.chainId} not supported`,
           { chainId: params.chainId },
         );
@@ -225,7 +225,7 @@ export async function executeContractTransaction({
       validateTransactionRequest(evmTx, operation);
 
       // Sign and broadcast using the signer adapter
-      txHash = await params.signer.sign(evmTx, async signedTx => {
+      txHash = await params.signer.sign(evmTx, async (signedTx) => {
         // Dispatch callback: broadcast the signed transaction
         return await publicClient.sendRawTransaction({
           serializedTransaction: signedTx,
@@ -233,8 +233,8 @@ export async function executeContractTransaction({
       });
     } catch (error) {
       throw new SignerError(
-        'SIGNER_TRANSACTION_FAILED',
-        `Failed to execute ${operation} via signer: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        "SIGNER_TRANSACTION_FAILED",
+        `Failed to execute ${operation} via signer: ${error instanceof Error ? error.message : "Unknown error"}`,
         {
           operation,
           request,
@@ -265,9 +265,9 @@ export async function waitForTransactionReceipt(
       hash: txHash,
     });
 
-    if (receipt.status === 'reverted') {
+    if (receipt.status === "reverted") {
       throw new SignerError(
-        'TRANSACTION_REVERTED',
+        "TRANSACTION_REVERTED",
         `${operation} transaction reverted`,
         {
           operation,
@@ -287,8 +287,8 @@ export async function waitForTransactionReceipt(
     }
 
     throw new SignerError(
-      'RECEIPT_WAIT_FAILED',
-      `Failed to wait for ${operation} transaction receipt: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      "RECEIPT_WAIT_FAILED",
+      `Failed to wait for ${operation} transaction receipt: ${error instanceof Error ? error.message : "Unknown error"}`,
       {
         operation,
         txHash,

@@ -24,14 +24,14 @@ import type {
   Chain,
   StepStatus,
   StrategyProgress,
-} from '../../../../core';
-import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
-import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
-import type { LombardError } from '../../../../shared/errors';
-import type { FeeAuthState } from '../../shared/feeAuth';
+} from "../../../../core";
+import type { MonitorableAction } from "../../../../shared/actions/BaseAction";
+import type { EvmOperationStatus } from "../../../../shared/constants/statusConstants";
+import type { LombardError } from "../../../../shared/errors";
+import type { FeeAuthState } from "../../shared/feeAuth";
 
 // Re-export status for convenience
-export { EvmOperationStatus as EvmRedeemStatus } from '../../../../shared/constants/statusConstants';
+export { EvmOperationStatus as EvmRedeemStatus } from "../../../../shared/constants/statusConstants";
 
 /**
  * EVM Redeem parameters
@@ -62,8 +62,7 @@ export interface EvmRedeemPrepareParams {
 /**
  * EVM Redeem progress
  */
-export interface EvmRedeemProgress
-  extends StrategyProgress<EvmOperationStatus> {
+export interface EvmRedeemProgress extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
   steps: {
     redeeming: StepStatus;

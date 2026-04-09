@@ -5,10 +5,10 @@
  */
 
 // EVM chain actions
-export { EvmActions, evmActions } from '../chains/evm/EvmActions';
+export { EvmActions, evmActions } from "../chains/evm/EvmActions";
 
 // Shared EVM utilities (fee authorization)
-export type { FeeAuthState } from '../chains/evm/shared/feeAuth';
+export type { FeeAuthState } from "../chains/evm/shared/feeAuth";
 
 // EVM types and direct actions
 export type {
@@ -31,42 +31,48 @@ export type {
   IEvmDeposit,
   IEvmRedeem,
   IEvmStake,
-  IEvmUnstake
-} from '../chains/evm';
+  IEvmUnstake,
+} from "../chains/evm";
 export {
   EvmDeployStatus,
   EvmDepositStatus,
   EvmRedeemStatus,
   EvmStakeStatus,
-  EvmUnstakeStatus
-} from '../chains/evm';
+  EvmUnstakeStatus,
+} from "../chains/evm";
 
 // EVM status
-export { EvmOperationStatus } from '../shared/constants/statusConstants';
+export { EvmOperationStatus } from "../shared/constants/statusConstants";
 
 // EVM module
 export type {
   FeeAuthorizationResult,
-  StoredFeeSignature
-} from '../modules/evmModule';
-export { evmModule, type EvmService } from '../modules/evmModule';
+  StoredFeeSignature,
+} from "../modules/evmModule";
+export { evmModule, type EvmService } from "../modules/evmModule";
 
 // EVM signer support
 export {
   createAccountFromSigner,
-  createWalletClientFromSigner, type DispatchCallback,
+  createWalletClientFromSigner,
+  type DispatchCallback,
   type EvmTransactionRequest,
   type SignerAdapter,
-SignerError,
-  validateTransactionRequest} from '../clients/evm-signer-adapter';
+  SignerError,
+  validateTransactionRequest,
+} from "../clients/evm-signer-adapter";
 
 // EVM chain utilities
 export {
-  addChain, type AddChainParameters,
-allChains,
+  addChain,
+  type AddChainParameters,
+  allChains,
   bob,
-  bobSepolia, CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP,
-  CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId, getChain,
+  bobSepolia,
+  CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP,
+  CHAIN_ID_TO_VIEM_CHAIN_MAP,
+  ChainId,
+  getChain,
   getLlamaChainName,
   isEthereumChain,
   isKatanaChain,
@@ -78,18 +84,19 @@ allChains,
   megaeth,
   monad,
   stable,
-  tac} from '../common/chains';
+  tac,
+} from "../common/chains";
 
 // Fee requirements
 export {
   AUTO_MINT_FEE_CHAINS,
-  requiresAutoMintFee
-} from '../common/fee-requirements';
+  requiresAutoMintFee,
+} from "../common/fee-requirements";
 
 // EVM token addresses
 export {
   EVM_LBTC_ADDRESSES,
   getTokenAddressForChain,
   getTokenByAddress,
-  TOKEN_ADDRESSES
-} from '../tokens/token-addresses';
+  TOKEN_ADDRESSES,
+} from "../tokens/token-addresses";

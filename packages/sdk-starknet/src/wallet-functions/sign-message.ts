@@ -1,16 +1,16 @@
-import { ec, Signature, typedData, WalletAccount } from 'starknet';
+import { ec, Signature, typedData, WalletAccount } from "starknet";
 
-import { getPublicKey, recoverFullPublicKeys } from '../utils/account';
+import { getPublicKey, recoverFullPublicKeys } from "../utils/account";
 import {
   ChainParameters,
   makeDestinationChainId,
   StarknetChainId,
-} from '../utils/chains';
-import { Address } from '../utils/common';
-import { getRpcProvider } from '../utils/rpc-providers';
-import { normalizeSignature } from '../utils/signature';
-import { SIGN_MESSAGE_TYPED_DATA } from '../utils/typed-data';
-import { WalletName } from '../utils/wallet-account';
+} from "../utils/chains";
+import { Address } from "../utils/common";
+import { getRpcProvider } from "../utils/rpc-providers";
+import { normalizeSignature } from "../utils/signature";
+import { SIGN_MESSAGE_TYPED_DATA } from "../utils/typed-data";
+import { WalletName } from "../utils/wallet-account";
 
 type SignMessageParameters = {
   message: string;
@@ -47,10 +47,10 @@ export async function signMessage({
   chainId = StarknetChainId.SN_MAIN,
 }: SignMessageParameters): Promise<SignMessageResult> {
   const personalMessageTypedData = SIGN_MESSAGE_TYPED_DATA(chainId, message);
-  const skipVerify = process.env.SKIP_STARKNET_VERIFY === 'true';
+  const skipVerify = process.env.SKIP_STARKNET_VERIFY === "true";
 
-  if (walletAccount.walletProvider.name.toLowerCase().includes('kelpr')) {
-    console.warn('Keplr wallet is not fully supported.');
+  if (walletAccount.walletProvider.name.toLowerCase().includes("kelpr")) {
+    console.warn("Keplr wallet is not fully supported.");
   }
 
   const hashMsg = await walletAccount.hashMessage(personalMessageTypedData);
@@ -84,14 +84,14 @@ export async function signMessage({
   if (rs instanceof ec.starkCurve.Signature) {
     const fullPubKeys = recoverFullPublicKeys(rs, hashMsg);
 
-    verifiedOffChain = fullPubKeys.map(fpk => {
+    verifiedOffChain = fullPubKeys.map((fpk) => {
       return {
         fullPubKey: fpk,
         verified: typedData.verifyMessage(hashMsg, rs, fpk),
       };
     });
 
-    const tfpk = verifiedOffChain.find(x =>
+    const tfpk = verifiedOffChain.find((x) =>
       x.fullPubKey.includes(pubKey.slice(2)),
     );
     if (tfpk) verifiedOffChain = [tfpk];
@@ -103,7 +103,7 @@ export async function signMessage({
     signature,
     signatureHex:
       rs instanceof ec.starkCurve.Signature ? `0x${rs.toCompactHex()}` : rs,
-    account: `0x${walletAccount.address.slice(2).padStart(64, '0')}`,
+    account: `0x${walletAccount.address.slice(2).padStart(64, "0")}`,
     pubKey,
     verifiedOnChain,
     verifiedOffChain,
@@ -112,7 +112,7 @@ export async function signMessage({
 
 type SignLbtcDestinationAddrStarknetParameters = Omit<
   SignMessageParameters,
-  'message'
+  "message"
 >;
 
 export async function signLbtcDestinationAddrStarknet({

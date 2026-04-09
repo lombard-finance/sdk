@@ -10,14 +10,16 @@
  * @module chains/btc/actions/deposit/config/solana
  */
 
-import type { SolanaService } from '@lombard.finance/sdk-common';
-import { Env } from '@lombard.finance/sdk-common';
+import type { SolanaService } from "@lombard.finance/sdk-common";
+import { Env } from "@lombard.finance/sdk-common";
 
-import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
-import { solanaAddressSchema } from '../../../../../shared/validation';
-import { chainToSolanaNetwork, isSolanaChain } from '../../../../../utils/chain';
-import type { DepositChainConfig } from './types';
-
+import { AssetId, Chain, getAllAssetChains } from "../../../../../core";
+import { solanaAddressSchema } from "../../../../../shared/validation";
+import {
+  chainToSolanaNetwork,
+  isSolanaChain,
+} from "../../../../../utils/chain";
+import type { DepositChainConfig } from "./types";
 
 /**
  * Solana chain configuration for BTC deposit
@@ -26,7 +28,7 @@ import type { DepositChainConfig } from './types';
  * Requires the @lombard.finance/sdk-solana module to be installed.
  */
 export const solanaDepositConfig: DepositChainConfig = {
-  chainType: 'solana',
+  chainType: "solana",
 
   routes: [
     {
@@ -35,7 +37,7 @@ export const solanaDepositConfig: DepositChainConfig = {
     },
   ],
 
-  destChains: getAllAssetChains(AssetId.BTCb).filter(chain =>
+  destChains: getAllAssetChains(AssetId.BTCb).filter((chain) =>
     isSolanaChain(chain),
   ),
 
@@ -46,7 +48,7 @@ export const solanaDepositConfig: DepositChainConfig = {
   getFeeAuthConfig: () => null,
 
   async signDestination(ctx, _recipient, chainId) {
-    const solana = ctx.capabilities.require('solana') as SolanaService;
+    const solana = ctx.capabilities.require("solana") as SolanaService;
     const network = chainToSolanaNetwork(chainId as string);
     const { signature } = await solana.signLbtcDestination({
       network,

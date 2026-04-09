@@ -6,10 +6,10 @@
  */
 
 // Events
-export * from './events';
+export * from "./events";
 
 // Errors
-export * from './errors';
+export * from "./errors";
 
 // Deposit utilities
 export {
@@ -27,7 +27,7 @@ export {
   MIN_CLAIM_AMOUNT_BTC,
   REQUIRED_CONFIRMATIONS,
   type StatusSeverity,
-} from './deposits';
+} from "./deposits";
 
 // Monitoring utilities
 export {
@@ -36,7 +36,7 @@ export {
   monitorDeposit,
   type MonitorOptions,
   type MonitorProgress,
-} from './monitoring';
+} from "./monitoring";
 
 // Validation schemas (selective exports for public API)
 export {
@@ -51,4 +51,4 @@ export {
   // Helpers
   validate,
   validateOrThrow,
-} from './validation';
+} from "./validation";

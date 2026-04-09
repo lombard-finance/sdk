@@ -6,4 +6,4 @@
  * @module shared/actions
  */
 
-export { BaseAction, type MonitorableAction } from './BaseAction';
+export { BaseAction, type MonitorableAction } from "./BaseAction";

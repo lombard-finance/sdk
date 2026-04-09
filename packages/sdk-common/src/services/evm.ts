@@ -5,7 +5,7 @@
  * Used by strategies for contract interactions and fee authorization.
  */
 
-import type { EvmProvider } from '../providers';
+import type { EvmProvider } from "../providers";
 
 /**
  * Chain ID type (numeric EVM chain identifier)

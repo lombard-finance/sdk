@@ -1,11 +1,11 @@
-import axios from 'axios';
-import BigNumber from 'bignumber.js';
+import axios from "axios";
+import BigNumber from "bignumber.js";
 
-import { getApiConfig } from '../../../common/api-config';
-import { ChainId } from '../../../common/chains';
-import { IEnvParam } from '../../../common/parameters';
-import { orderBy } from '../../../utils/array';
-import { isVedaVaultChain, Vault, VAULTS, VedaVaultChain } from '../config';
+import { getApiConfig } from "../../../common/api-config";
+import { ChainId } from "../../../common/chains";
+import { IEnvParam } from "../../../common/parameters";
+import { orderBy } from "../../../utils/array";
+import { isVedaVaultChain, Vault, VAULTS, VedaVaultChain } from "../config";
 
 type PerformanceEntry = {
   aggregation_period: string;
@@ -39,7 +39,7 @@ const normalizeSevenSeasPerformance = (
     return payload;
   }
 
-  if ('Response' in payload) {
+  if ("Response" in payload) {
     const response = payload.Response;
     if (Array.isArray(response)) {
       return response;
@@ -73,7 +73,7 @@ export async function getVaultApy({
     env,
   });
 
-  const apys = response.map(r => {
+  const apys = response.map((r) => {
     const allocations = Object.entries(r.chain_allocation)
       .map(([network, value]) => [
         NETWORK_TO_CHAIN_ID_MAP[network],
@@ -88,7 +88,7 @@ export async function getVaultApy({
         {} as Partial<Record<ChainId, BigNumber>>,
       );
 
-    const breakdown = r.real_apy_breakdown.map(b => ({
+    const breakdown = r.real_apy_breakdown.map((b) => ({
       allocations: BigNumber(b.allocation),
       apy: BigNumber(b.apy),
       chainId: NETWORK_TO_CHAIN_ID_MAP[b.chain],
@@ -103,7 +103,7 @@ export async function getVaultApy({
     };
   });
 
-  return orderBy(apys, a => a.timestamp.getTime(), 'desc');
+  return orderBy(apys, (a) => a.timestamp.getTime(), "desc");
 }
 
 type GetVaultPerformanceParameters = {
@@ -114,13 +114,13 @@ type GetVaultPerformanceParameters = {
 
 const CHAIN_ID_TO_NETWORK_MAP: Record<VedaVaultChain, string> = {
   // NOTE: For now only `ethereum` is supported by the API.
-  [ChainId.ethereum]: 'ethereum',
+  [ChainId.ethereum]: "ethereum",
 
   // NOTE: The following networks are not supported for now. The API is supposed
   // to return the aggregated data for all vault chains.
-  [ChainId.base]: 'base',
-  [ChainId.binanceSmartChain]: 'bnb',
-  [ChainId.corn]: 'corn',
+  [ChainId.base]: "base",
+  [ChainId.binanceSmartChain]: "bnb",
+  [ChainId.corn]: "corn",
 };
 
 const NETWORK_TO_CHAIN_ID_MAP: Record<string, VedaVaultChain> = {
@@ -146,12 +146,12 @@ async function getVaultPerformance({
 
   if (!isVedaVaultChain(chainId)) {
     throw new Error(
-      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
+      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(", ")}`,
     );
   }
 
   const network = CHAIN_ID_TO_NETWORK_MAP[chainId];
-  if (network !== 'ethereum') {
+  if (network !== "ethereum") {
     throw new Error(
       `Unsupported network ${network}. Please switch to 'ethereum'.`,
     );
@@ -166,7 +166,7 @@ async function getVaultPerformance({
 
   const params = new URLSearchParams({
     aggregation_period: String(aggregationPeriod),
-    historical: 'true',
+    historical: "true",
   });
   const url = `${bffApiUrl}/sevenseas-api/performance/${network}/${vault.vaultContract.address}?${params.toString()}`;
 

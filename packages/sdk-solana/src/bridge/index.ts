@@ -1,8 +1,8 @@
-import BigNumber from 'bignumber.js';
+import BigNumber from "bignumber.js";
 
-import { getOftAmountCanBeSent as getOftAmountCanBeSentActual } from './getOftAmountCanBeSent';
-import { quoteBridgeFee as quoteBridgeFeeActual } from './quoteBridgeFee';
-import { sendBridgeTransaction as sendBridgeTransactionActual } from './sendBridgeTransaction';
+import { getOftAmountCanBeSent as getOftAmountCanBeSentActual } from "./getOftAmountCanBeSent";
+import { quoteBridgeFee as quoteBridgeFeeActual } from "./quoteBridgeFee";
+import { sendBridgeTransaction as sendBridgeTransactionActual } from "./sendBridgeTransaction";
 type QuoteBridgeFeeParams = Parameters<typeof quoteBridgeFeeActual>[0];
 type QuoteBridgeFeeResult = Awaited<ReturnType<typeof quoteBridgeFeeActual>>;
 type SendBridgeTransactionParams = Parameters<
@@ -35,9 +35,9 @@ export async function loadBridgeFunctions(): Promise<BridgeFunctions> {
     return loadedFunctions;
   }
 
-  const quoteModule = await import('./quoteBridgeFee');
-  const sendModule = await import('./sendBridgeTransaction');
-  const getOftAmountCanBeSentModule = await import('./getOftAmountCanBeSent');
+  const quoteModule = await import("./quoteBridgeFee");
+  const sendModule = await import("./sendBridgeTransaction");
+  const getOftAmountCanBeSentModule = await import("./getOftAmountCanBeSent");
   loadedFunctions = {
     quoteBridgeFee: quoteModule.quoteBridgeFee,
     sendBridgeTransaction: sendModule.sendBridgeTransaction,

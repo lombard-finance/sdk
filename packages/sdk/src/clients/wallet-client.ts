@@ -3,9 +3,9 @@ import {
   custom,
   EIP1193Provider,
   WalletClient,
-} from 'viem';
+} from "viem";
 
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from '../common/chains';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from "../common/chains";
 
 type MakeClientParameters = {
   provider: EIP1193Provider;

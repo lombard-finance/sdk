@@ -7,15 +7,15 @@
  * @module __tests__/integration/automint-fee.integration.test.ts
  */
 
-import { Env } from '@lombard.finance/sdk-common';
-import BigNumber from 'bignumber.js';
-import { describe, expect, it } from 'vitest';
+import { Env } from "@lombard.finance/sdk-common";
+import BigNumber from "bignumber.js";
+import { describe, expect, it } from "vitest";
 
-import { ChainId } from '../../common/chains';
-import { getMintingFee } from '../../contract-functions/getLBTCMintingFee/getLBTCMintingFee';
-import { Token,TOKEN_ADDRESSES } from '../../tokens/token-addresses';
+import { ChainId } from "../../common/chains";
+import { getMintingFee } from "../../contract-functions/getLBTCMintingFee/getLBTCMintingFee";
+import { Token, TOKEN_ADDRESSES } from "../../tokens/token-addresses";
 
-const RUN_CONTRACT_CHECKS = process.env.ENABLE_CONTRACT_CHECKS === 'true';
+const RUN_CONTRACT_CHECKS = process.env.ENABLE_CONTRACT_CHECKS === "true";
 const runIfEnabled = RUN_CONTRACT_CHECKS ? describe : describe.skip;
 
 const TIMEOUT = 90_000;
@@ -29,9 +29,9 @@ function hasTokenAddress(token: Token, chainId: ChainId, env: Env): boolean {
   return Boolean(entry);
 }
 
-runIfEnabled('Automint Fee Contract Reads', () => {
+runIfEnabled("Automint Fee Contract Reads", () => {
   it(
-    'returns non-zero LBTC minting fee on Sepolia stage and Ethereum prod',
+    "returns non-zero LBTC minting fee on Sepolia stage and Ethereum prod",
     async () => {
       if (hasTokenAddress(Token.LBTC, ChainId.sepolia, Env.stage)) {
         const sepoliaStageFee = await getMintingFee({
@@ -39,7 +39,7 @@ runIfEnabled('Automint Fee Contract Reads', () => {
           chainId: ChainId.sepolia,
           env: Env.stage,
         });
-        expectNonZeroFee(sepoliaStageFee, 'Sepolia (stage) LBTC');
+        expectNonZeroFee(sepoliaStageFee, "Sepolia (stage) LBTC");
       }
 
       if (hasTokenAddress(Token.LBTC, ChainId.ethereum, Env.prod)) {
@@ -48,14 +48,14 @@ runIfEnabled('Automint Fee Contract Reads', () => {
           chainId: ChainId.ethereum,
           env: Env.prod,
         });
-        expectNonZeroFee(ethereumProdFee, 'Ethereum (prod) LBTC');
+        expectNonZeroFee(ethereumProdFee, "Ethereum (prod) LBTC");
       }
     },
     TIMEOUT,
   );
 
   it(
-    'returns non-zero BTC.b minting fee on Sepolia stage when configured',
+    "returns non-zero BTC.b minting fee on Sepolia stage when configured",
     async () => {
       if (!hasTokenAddress(Token.BTCb, ChainId.sepolia, Env.stage)) {
         return;
@@ -67,7 +67,7 @@ runIfEnabled('Automint Fee Contract Reads', () => {
         env: Env.stage,
       });
 
-      expectNonZeroFee(sepoliaStageFee, 'Sepolia (stage) BTC.b');
+      expectNonZeroFee(sepoliaStageFee, "Sepolia (stage) BTC.b");
     },
     TIMEOUT,
   );

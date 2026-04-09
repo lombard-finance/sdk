@@ -1,4 +1,4 @@
-import { ErrorCode } from '../types/errors';
+import { ErrorCode } from "../types/errors";
 
 /**
  * Error parameters

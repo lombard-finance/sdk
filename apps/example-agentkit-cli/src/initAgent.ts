@@ -14,10 +14,14 @@ import { CHAINS } from "./config.js";
 export async function initAgent(networkId: string) {
   const chain = CHAINS[networkId];
   if (!chain) {
-    throw new Error(`Unsupported network: ${networkId}. Use one of: ${Object.keys(CHAINS).join(", ")}`);
+    throw new Error(
+      `Unsupported network: ${networkId}. Use one of: ${Object.keys(CHAINS).join(", ")}`,
+    );
   }
 
-  const account = privateKeyToAccount(process.env.WALLET_PRIVATE_KEY as `0x${string}`);
+  const account = privateKeyToAccount(
+    process.env.WALLET_PRIVATE_KEY as `0x${string}`,
+  );
   const walletClient = createWalletClient({
     account,
     chain,
@@ -30,10 +34,7 @@ export async function initAgent(networkId: string) {
 
   const agentkit = await AgentKit.from({
     walletProvider,
-    actionProviders: [
-      walletActionProvider(),
-      lombardActionProvider(),
-    ],
+    actionProviders: [walletActionProvider(), lombardActionProvider()],
   });
 
   const tools = await getLangChainTools(agentkit);

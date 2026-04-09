@@ -1,48 +1,48 @@
-import { Env } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import { Env } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
 
-import { DefiProtocol } from '../../defi/defi-registry';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
-import { ConnectButton } from '../../stories/components/ConnectButton';
+import { DefiProtocol } from "../../defi/defi-registry";
+import { Button } from "../../stories/components/Button";
+import { CodeBlock } from "../../stories/components/CodeBlock";
+import { ConnectButton } from "../../stories/components/ConnectButton";
 import {
   functionType,
   wagmiDecorator,
-} from '../../stories/components/decorators';
+} from "../../stories/components/decorators";
 import {
   canPerformAction,
   useConnection,
-} from '../../stories/hooks/useConnection';
-import useQuery from '../../stories/hooks/useQuery';
-import { Token } from '../../tokens/token-addresses';
-import { ISignStakeAndBakeParams, signStakeAndBake } from './signStakeAndBake';
+} from "../../stories/hooks/useConnection";
+import useQuery from "../../stories/hooks/useQuery";
+import { Token } from "../../tokens/token-addresses";
+import { ISignStakeAndBakeParams, signStakeAndBake } from "./signStakeAndBake";
 
 const meta = {
-  title: 'write/signStakeAndBake',
+  title: "write/signStakeAndBake",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('write')],
+  tags: ["autodocs"],
+  decorators: [wagmiDecorator, functionType("write")],
   argTypes: {
     token: {
-      options: ['BTC', Token.LBTC, Token.BTCb],
-      control: { type: 'select' },
+      options: ["BTC", Token.LBTC, Token.BTCb],
+      control: { type: "select" },
       description:
-        'Token to stake (BTC converts to LBTC, BTCb uses approve mode)',
+        "Token to stake (BTC converts to LBTC, BTCb uses approve mode)",
     },
     vault: {
       options: Object.values(DefiProtocol),
-      control: { type: 'select' },
-      description: 'Vault to stake into (Veda: LBTC/BTC, Silo: BTCb)',
+      control: { type: "select" },
+      description: "Vault to stake into (Veda: LBTC/BTC, Silo: BTCb)",
     },
     env: {
       options: [Env.prod, Env.testnet, Env.stage, Env.dev],
-      control: { type: 'select' },
-      description: 'Environment (affects contract addresses)',
+      control: { type: "select" },
+      description: "Environment (affects contract addresses)",
     },
     value: {
-      control: { type: 'text' },
-      description: 'Amount to stake (in token units)',
+      control: { type: "text" },
+      description: "Amount to stake (in token units)",
     },
   },
 } satisfies Meta<typeof StoryView>;
@@ -52,9 +52,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const PermitFlow_LBTC_Ethereum: Story = {
-  name: 'Permit Flow: LBTC on Ethereum',
+  name: "Permit Flow: LBTC on Ethereum",
   args: {
-    value: '10000',
+    value: "10000",
     token: Token.LBTC,
     vault: DefiProtocol.Veda,
     env: Env.prod,
@@ -62,19 +62,19 @@ export const PermitFlow_LBTC_Ethereum: Story = {
 };
 
 export const PermitFlow_BTC_Ethereum: Story = {
-  name: 'Permit Flow: BTC to LBTC on Ethereum',
+  name: "Permit Flow: BTC to LBTC on Ethereum",
   args: {
-    value: '10000',
-    token: 'BTC',
+    value: "10000",
+    token: "BTC",
     vault: DefiProtocol.Veda,
     env: Env.prod,
   },
 };
 
 export const ApproveFlow_BTCb_Fuji: Story = {
-  name: 'Approve Flow: BTCb on Avalanche Fuji',
+  name: "Approve Flow: BTCb on Avalanche Fuji",
   args: {
-    value: '5000',
+    value: "5000",
     token: Token.BTCb,
     vault: DefiProtocol.Silo,
     env: Env.testnet,
@@ -83,7 +83,7 @@ export const ApproveFlow_BTCb_Fuji: Story = {
 
 type SignStakeAndBakeParams = Omit<
   ISignStakeAndBakeParams,
-  'account' | 'chainId' | 'provider'
+  "account" | "chainId" | "provider"
 > & {
   vault?: DefiProtocol;
   env?: Env;
@@ -95,7 +95,7 @@ export function StoryView(props: SignStakeAndBakeParams) {
 
   const request = async () => {
     if (!canPerformAction(connection)) {
-      alert('Not connected.');
+      alert("Not connected.");
       return;
     }
 
@@ -151,14 +151,14 @@ export function StoryView(props: SignStakeAndBakeParams) {
           <p>
             <strong>Mode:</strong> {data.mode}
           </p>
-          {data.mode === 'permit' && (
+          {data.mode === "permit" && (
             <p>
               <strong>Signature:</strong> <code>{data.signature}</code>
             </p>
           )}
-          {data.mode === 'approve' && data.approvalTxHash && (
+          {data.mode === "approve" && data.approvalTxHash && (
             <p>
-              <strong>Transaction Hash:</strong>{' '}
+              <strong>Transaction Hash:</strong>{" "}
               <code>{data.approvalTxHash}</code>
             </p>
           )}
@@ -190,7 +190,7 @@ export function StoryView(props: SignStakeAndBakeParams) {
               mode: data.mode,
               signature: data.signature,
               approvalTxHash: data.approvalTxHash,
-              typedData: data.typedData ? JSON.parse(data.typedData) : '',
+              typedData: data.typedData ? JSON.parse(data.typedData) : "",
             }}
           />
         </>

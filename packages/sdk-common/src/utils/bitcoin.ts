@@ -1,9 +1,9 @@
-let bitcoinPromise: Promise<typeof import('bitcoinjs-lib')> | null = null;
+let bitcoinPromise: Promise<typeof import("bitcoinjs-lib")> | null = null;
 
-const initBitcoin = async (): Promise<typeof import('bitcoinjs-lib')> => {
+const initBitcoin = async (): Promise<typeof import("bitcoinjs-lib")> => {
   try {
-    const module = await import('bitcoinjs-lib');
-    const ecc = await import('@bitcoinerlab/secp256k1');
+    const module = await import("bitcoinjs-lib");
+    const ecc = await import("@bitcoinerlab/secp256k1");
     try {
       module.initEccLib(ecc);
     } catch (err) {
@@ -17,12 +17,12 @@ const initBitcoin = async (): Promise<typeof import('bitcoinjs-lib')> => {
     bitcoinPromise = null;
     throw new Error(
       `Failed to initialize bitcoinjs-lib: ${err instanceof Error ? err.message : String(err)}. ` +
-        'Ensure bitcoinjs-lib and @bitcoinerlab/secp256k1 peer dependencies are installed.',
+        "Ensure bitcoinjs-lib and @bitcoinerlab/secp256k1 peer dependencies are installed.",
     );
   }
 };
 
-export const getBitcoin = async (): Promise<typeof import('bitcoinjs-lib')> => {
+export const getBitcoin = async (): Promise<typeof import("bitcoinjs-lib")> => {
   if (!bitcoinPromise) {
     bitcoinPromise = initBitcoin();
   }

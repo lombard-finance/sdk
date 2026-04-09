@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
-import { handleMempoolApiError } from './mempool/error';
-import { getBtcApiConfig,TNetworkMode } from './mempool/mempool';
+import { handleMempoolApiError } from "./mempool/error";
+import { getBtcApiConfig, TNetworkMode } from "./mempool/mempool";
 
 interface Response {
   height: number;

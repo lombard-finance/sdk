@@ -1,18 +1,18 @@
-import { BN, Program } from '@coral-xyz/anchor';
-import { getOutputScript } from '@lombard.finance/sdk-common';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { PublicKey } from '@solana/web3.js';
+import { BN, Program } from "@coral-xyz/anchor";
+import { getOutputScript } from "@lombard.finance/sdk-common";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { PublicKey } from "@solana/web3.js";
 
-import { DEFAULT_ENV, getConfig, networkToEnv } from '../../const/getConfig';
-import { getConnection } from '../../const/rpcUrls';
-import { getLbtcIdl } from '../../idl/getLbtcIdl';
-import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
+import { DEFAULT_ENV, getConfig, networkToEnv } from "../../const/getConfig";
+import { getConnection } from "../../const/rpcUrls";
+import { getLbtcIdl } from "../../idl/getLbtcIdl";
+import { ISolanaWalletProvider, SolanaNetwork } from "../../types";
 import {
   ErrorCode,
   sendAndConfirmTransaction,
   SolanaSdkError,
-} from '../../utils';
-import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
+} from "../../utils";
+import { createOrGetAssociatedTokenAccount } from "../../utils/tokenAccount";
 
 export interface UnstakeLBTCParams {
   /**
@@ -55,9 +55,9 @@ export async function unstakeLBTC(
     // Validate provider has a connected wallet
     if (!provider.publicKey) {
       throw SolanaSdkError.wrap(
-        new Error('Wallet not connected'),
+        new Error("Wallet not connected"),
         ErrorCode.UNSTAKE_REJECTED,
-        'Please connect your Solana wallet and ensure it is on the correct network.',
+        "Please connect your Solana wallet and ensure it is on the correct network.",
       );
     }
 
@@ -68,14 +68,14 @@ export async function unstakeLBTC(
     });
 
     const scriptPubKey = Buffer.from(
-      (await getOutputScript(btcAddress, env)).replace(/^0x/, ''),
-      'hex',
+      (await getOutputScript(btcAddress, env)).replace(/^0x/, ""),
+      "hex",
     );
 
     const mint = new PublicKey(lbtcTokenMint);
 
     const [configPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('lbtc_config')],
+      [Buffer.from("lbtc_config")],
       new PublicKey(program.programId),
     );
 
@@ -104,7 +104,7 @@ export async function unstakeLBTC(
     const requestedAmount = BigInt(amount);
     if (userBalance < requestedAmount) {
       throw SolanaSdkError.wrap(
-        new Error('Insufficient LBTC balance'),
+        new Error("Insufficient LBTC balance"),
         ErrorCode.UNSTAKE_REJECTED,
         `Insufficient LBTC balance. You have ${tokenBalance.value.uiAmountString} LBTC but requested to unstake ${Number(amount) / 1e8} LBTC.`,
       );
@@ -126,7 +126,7 @@ export async function unstakeLBTC(
       instruction: tx,
       connection,
       provider,
-      debugLabel: 'Unstake LBTC',
+      debugLabel: "Unstake LBTC",
     });
 
     return signature;
@@ -134,7 +134,7 @@ export async function unstakeLBTC(
     throw SolanaSdkError.wrap(
       error,
       ErrorCode.UNSTAKE_REJECTED,
-      'LBTC unstake operation failed',
+      "LBTC unstake operation failed",
     );
   }
 }

@@ -28,21 +28,21 @@
  */
 export const CHAIN_PREFIXES = {
   // Official CAIP-2 namespaces
-  BIP122: 'bip122',
-  EIP155: 'eip155',
-  SOLANA: 'solana',
-  STARKNET: 'starknet',
+  BIP122: "bip122",
+  EIP155: "eip155",
+  SOLANA: "solana",
+  STARKNET: "starknet",
 
   // Unofficial namespaces (internal use)
-  SUI: 'sui',
-  ZCASH: 'zcash',
-  RIPPLE: 'ripple',
-  DOGECOIN: 'dogecoin',
-  HYPERLIQUID: 'hyperliquid',
+  SUI: "sui",
+  ZCASH: "zcash",
+  RIPPLE: "ripple",
+  DOGECOIN: "dogecoin",
+  HYPERLIQUID: "hyperliquid",
 } as const;
 
 /** CAIP-2 separator between namespace and reference */
-export const CAIP2_SEPARATOR = ':' as const;
+export const CAIP2_SEPARATOR = ":" as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Chain Constants
@@ -59,11 +59,11 @@ export const Chain = {
   // Bitcoin chains (BIP122: first 32 chars of genesis block hash in little-endian)
   BITCOIN_MAINNET: caip2(
     CHAIN_PREFIXES.BIP122,
-    '000000000019d6689c085ae165831e93',
+    "000000000019d6689c085ae165831e93",
   ),
   BITCOIN_SIGNET: caip2(
     CHAIN_PREFIXES.BIP122,
-    '00000008819873e925422c1ff0f99f7c',
+    "00000008819873e925422c1ff0f99f7c",
   ),
 
   // EVM chains (EIP155: numeric chain ID)
@@ -97,40 +97,40 @@ export const Chain = {
   // Solana chains (first 32 chars of genesis hash)
   SOLANA_MAINNET: caip2(
     CHAIN_PREFIXES.SOLANA,
-    '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+    "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
   ),
   SOLANA_DEVNET: caip2(
     CHAIN_PREFIXES.SOLANA,
-    'EtWTRABZaYq6iMfeYKouRu166VU2xqa1',
+    "EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
   ),
   SOLANA_TESTNET: caip2(
     CHAIN_PREFIXES.SOLANA,
-    '4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z',
+    "4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z",
   ),
 
   // Sui chains (unofficial namespace, using cluster names)
-  SUI_MAINNET: caip2(CHAIN_PREFIXES.SUI, 'mainnet'),
-  SUI_TESTNET: caip2(CHAIN_PREFIXES.SUI, 'testnet'),
-  SUI_DEVNET: caip2(CHAIN_PREFIXES.SUI, 'devnet'),
+  SUI_MAINNET: caip2(CHAIN_PREFIXES.SUI, "mainnet"),
+  SUI_TESTNET: caip2(CHAIN_PREFIXES.SUI, "testnet"),
+  SUI_DEVNET: caip2(CHAIN_PREFIXES.SUI, "devnet"),
 
   // Starknet chains (uses network identifiers)
-  STARKNET_MAINNET: caip2(CHAIN_PREFIXES.STARKNET, 'SN_MAIN'),
-  STARKNET_SEPOLIA: caip2(CHAIN_PREFIXES.STARKNET, 'SN_SEPOLIA'),
+  STARKNET_MAINNET: caip2(CHAIN_PREFIXES.STARKNET, "SN_MAIN"),
+  STARKNET_SEPOLIA: caip2(CHAIN_PREFIXES.STARKNET, "SN_SEPOLIA"),
 
   // Zcash (unofficial namespace)
-  ZCASH_MAINNET: caip2(CHAIN_PREFIXES.ZCASH, 'mainnet'),
-  ZCASH_TESTNET: caip2(CHAIN_PREFIXES.ZCASH, 'testnet'),
+  ZCASH_MAINNET: caip2(CHAIN_PREFIXES.ZCASH, "mainnet"),
+  ZCASH_TESTNET: caip2(CHAIN_PREFIXES.ZCASH, "testnet"),
 
   // Ripple (unofficial namespace)
-  RIPPLE_MAINNET: caip2(CHAIN_PREFIXES.RIPPLE, 'mainnet'),
-  RIPPLE_TESTNET: caip2(CHAIN_PREFIXES.RIPPLE, 'testnet'),
+  RIPPLE_MAINNET: caip2(CHAIN_PREFIXES.RIPPLE, "mainnet"),
+  RIPPLE_TESTNET: caip2(CHAIN_PREFIXES.RIPPLE, "testnet"),
 
   // Dogecoin (unofficial namespace)
-  DOGECOIN_MAINNET: caip2(CHAIN_PREFIXES.DOGECOIN, 'mainnet'),
-  DOGECOIN_TESTNET: caip2(CHAIN_PREFIXES.DOGECOIN, 'testnet'),
+  DOGECOIN_MAINNET: caip2(CHAIN_PREFIXES.DOGECOIN, "mainnet"),
+  DOGECOIN_TESTNET: caip2(CHAIN_PREFIXES.DOGECOIN, "testnet"),
 
   // Custodial (unofficial namespace)
-  HYPERLIQUID: caip2(CHAIN_PREFIXES.HYPERLIQUID, 'mainnet'),
+  HYPERLIQUID: caip2(CHAIN_PREFIXES.HYPERLIQUID, "mainnet"),
 } as const;
 
 export type Chain = (typeof Chain)[keyof typeof Chain];
@@ -140,15 +140,15 @@ export type Chain = (typeof Chain)[keyof typeof Chain];
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type ChainType =
-  | 'bitcoin'
-  | 'evm'
-  | 'solana'
-  | 'sui'
-  | 'starknet'
-  | 'zcash'
-  | 'ripple'
-  | 'dogecoin'
-  | 'hyperliquid';
+  | "bitcoin"
+  | "evm"
+  | "solana"
+  | "sui"
+  | "starknet"
+  | "zcash"
+  | "ripple"
+  | "dogecoin"
+  | "hyperliquid";
 
 export interface ChainMetadata {
   /** Human-readable chain name */
@@ -163,12 +163,12 @@ export interface ChainMetadata {
   nativeCurrency?: string;
   /** UI badge variant */
   badgeVariant:
-    | 'primary'
-    | 'secondary'
-    | 'success'
-    | 'danger'
-    | 'warning'
-    | 'info';
+    | "primary"
+    | "secondary"
+    | "success"
+    | "danger"
+    | "warning"
+    | "info";
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -179,14 +179,14 @@ export interface ChainMetadata {
 export function chainValueToKey(value: string): string {
   return (
     Object.keys(Chain).find(
-      key => Chain[key as keyof typeof Chain] === value,
-    ) ?? ''
+      (key) => Chain[key as keyof typeof Chain] === value,
+    ) ?? ""
   );
 }
 
 /** Type guard to check if a value is a valid Chain */
 export function isChain(value: unknown): value is Chain {
   return (
-    typeof value === 'string' && Object.values(Chain).includes(value as Chain)
+    typeof value === "string" && Object.values(Chain).includes(value as Chain)
   );
 }

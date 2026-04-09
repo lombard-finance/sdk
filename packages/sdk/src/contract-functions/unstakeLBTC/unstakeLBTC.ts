@@ -1,35 +1,35 @@
-import { getOutputScript } from '@lombard.finance/sdk-common';
-import BigNumber from 'bignumber.js';
-import { Address, erc20Abi, Hex, parseGwei } from 'viem';
+import { getOutputScript } from "@lombard.finance/sdk-common";
+import BigNumber from "bignumber.js";
+import { Address, erc20Abi, Hex, parseGwei } from "viem";
 
-import { makePublicClient } from '../../clients/public-client';
-import { makeWalletClient } from '../../clients/wallet-client';
+import { makePublicClient } from "../../clients/public-client";
+import { makeWalletClient } from "../../clients/wallet-client";
 import {
   CHAIN_ID_TO_VIEM_CHAIN_MAP,
   ChainId,
   isKatanaChain,
-} from '../../common/chains';
+} from "../../common/chains";
 import {
   CommonSignerWriteParameters,
   CommonWriteParameters,
   isProviderFlow,
-} from '../../common/parameters';
-import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
-import { AddressKind, Token } from '../../tokens/token-addresses';
+} from "../../common/parameters";
+import ASSET_ROUTER_ABI from "../../tokens/abi/ASSET_ROUTER_ABI";
+import { AddressKind, Token } from "../../tokens/token-addresses";
 import {
   fromBaseDenomination,
   getTokenContractInfo,
   isUpgradedAbi,
   retrieveTokenProperties,
   toBaseDenomination,
-} from '../../tokens/tokens';
-import { UnsupportedTokenFlow } from '../../utils/err';
-import { estimateGasFees } from '../../utils/gas';
-import toBigInt from '../../utils/numbers';
+} from "../../tokens/tokens";
+import { UnsupportedTokenFlow } from "../../utils/err";
+import { estimateGasFees } from "../../utils/gas";
+import toBigInt from "../../utils/numbers";
 import {
   executeContractTransaction,
   waitForTransactionReceipt,
-} from '../../utils/transaction-executor';
+} from "../../utils/transaction-executor";
 
 /**
  * Supported redemption flows.
@@ -159,10 +159,10 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
     tokenOut,
   } = params;
   const flow = AVAILABLE_FLOWS.find(
-    af => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
+    (af) => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
   );
   if (!flow) {
-    throw new UnsupportedTokenFlow(tokenIn, tokenOut || 'BTC', chainId, env);
+    throw new UnsupportedTokenFlow(tokenIn, tokenOut || "BTC", chainId, env);
   }
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
@@ -190,7 +190,7 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
   const tokenInBalanceRaw = await publicClient.readContract({
     address: IN.address,
     abi: IN.abi as typeof erc20Abi,
-    functionName: 'balanceOf',
+    functionName: "balanceOf",
     args: [accountAddress],
   });
   const tokenInBalance = fromBaseDenomination(tokenInBalanceRaw, IN.decimals);
@@ -203,7 +203,7 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
   // -> BTC
   if (!tokenOut) {
     if (!btcAddress) {
-      throw new Error('Missing parameter: `btcAddress`.');
+      throw new Error("Missing parameter: `btcAddress`.");
     }
     const outputScript = await getOutputScript(btcAddress, env);
 
@@ -223,14 +223,14 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
       const assetRouterContractAddress = (await publicClient.readContract({
         address: adapter.address,
         abi: adapter.abi,
-        functionName: 'getAssetRouter',
+        functionName: "getAssetRouter",
       })) as Address;
 
       // 2. Check allowance
       const allowance = await publicClient.readContract({
         address: IN.address,
         abi: IN.abi,
-        functionName: 'allowance',
+        functionName: "allowance",
         args: [accountAddress, adapter.address],
       });
 
@@ -243,16 +243,16 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
             address: IN.address,
             abi: IN.abi,
             account: accountAddress as `0x${string}` | undefined,
-            functionName: 'approve',
+            functionName: "approve",
             args: [adapter.address, toBigInt(amount)],
           },
-          operation: 'BTC.b approval',
+          operation: "BTC.b approval",
         });
 
         const receipt = await waitForTransactionReceipt(
           publicClient,
           txHash,
-          'BTC.b approval',
+          "BTC.b approval",
         );
 
         console.info(
@@ -271,7 +271,7 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
           address: assetRouterContractAddress,
           abi: ASSET_ROUTER_ABI,
           account: accountAddress as `0x${string}` | undefined,
-          functionName: 'redeemForBtc',
+          functionName: "redeemForBtc",
           args: [
             accountAddress,
             adapter.address,
@@ -279,7 +279,7 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
             toBigInt(amount),
           ],
         },
-        operation: 'BTC.b redeemForBtc',
+        operation: "BTC.b redeemForBtc",
       });
 
       return txHash;
@@ -293,13 +293,13 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
       chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
       functionName:
         isUpgradedAbi(IN.abi) || tokenIn === Token.BTCb
-          ? 'redeemForBtc' // upgraded
-          : 'redeem', // legacy
+          ? "redeemForBtc" // upgraded
+          : "redeem", // legacy
       args: [outputScript, toBigInt(amount)],
     } as const;
 
     const gasEstimationData = isKatanaChain(chainId)
-      ? await estimateGasFees(publicClient, callData, parseGwei('1'))
+      ? await estimateGasFees(publicClient, callData, parseGwei("1"))
       : {};
 
     const { txHash } = await executeContractTransaction({
@@ -329,12 +329,12 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
     address: IN.address,
     account: accountAddress,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
-    functionName: 'redeem',
+    functionName: "redeem",
     args: [toBigInt(amount)],
   } as const;
 
   const gasEstimationData = isKatanaChain(chainId)
-    ? await estimateGasFees(publicClient, callData, parseGwei('1'))
+    ? await estimateGasFees(publicClient, callData, parseGwei("1"))
     : {};
 
   const { txHash } = await executeContractTransaction({

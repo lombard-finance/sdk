@@ -1,9 +1,9 @@
-import { makeWalletClient } from '../../clients/wallet-client';
-import { CommonWriteParameters } from '../../common/parameters';
+import { makeWalletClient } from "../../clients/wallet-client";
+import { CommonWriteParameters } from "../../common/parameters";
 
 export type SignLbtcDestinationAddrParams = Omit<
   CommonWriteParameters,
-  'env' | 'rpcUrl'
+  "env" | "rpcUrl"
 >;
 
 /**

@@ -16,19 +16,19 @@ import type {
   BtcService,
   EvmService,
   ProviderKey,
-} from '@lombard.finance/sdk-common';
+} from "@lombard.finance/sdk-common";
 
-import { PartnerConfiguration } from '../../client/PartnerConfiguration';
+import { PartnerConfiguration } from "../../client/PartnerConfiguration";
 // Note: EvmService is imported for createEvmCoreContext
-import type { LombardConfig } from '../../config/types';
-import { getProviderGetter } from '../../config/types';
-import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
+import type { LombardConfig } from "../../config/types";
+import { getProviderGetter } from "../../config/types";
+import { CapabilityRegistry } from "../../modules/CapabilityRegistry";
 import type {
   BtcCoreContext,
   CoreContext,
   EvmCoreContext,
   ProviderResolver,
-} from './types';
+} from "./types";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Provider Resolution
@@ -38,7 +38,7 @@ import type {
  * Create a provider resolver from config
  */
 function createProviderResolver(config: LombardConfig): ProviderResolver {
-  return async key => {
+  return async (key) => {
     const getter = getProviderGetter(config.providers, key as ProviderKey);
     if (!getter) {
       return undefined;
@@ -105,8 +105,8 @@ export function createBtcCoreContext(config: LombardConfig): BtcCoreContext {
   const registry = getCapabilityRegistry(config);
 
   // Type assertions needed because registry doesn't know module types at compile time
-  const btc = registry.require('btc') as BtcService;
-  const api = registry.require('api') as ApiService;
+  const btc = registry.require("btc") as BtcService;
+  const api = registry.require("api") as ApiService;
 
   return {
     ...baseContext,
@@ -126,7 +126,7 @@ export function createEvmCoreContext(config: LombardConfig): EvmCoreContext {
   const registry = getCapabilityRegistry(config);
 
   // Type assertion needed because registry doesn't know module types at compile time
-  const evm = registry.require('evm') as EvmService;
+  const evm = registry.require("evm") as EvmService;
 
   return {
     ...baseContext,

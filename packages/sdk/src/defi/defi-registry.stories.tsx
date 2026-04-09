@@ -1,24 +1,24 @@
-import { Env } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import { Env } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
 
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from '../common/chains';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from "../common/chains";
 import {
   DEFI_REGISTRY,
   DefiProtocol,
   DefiProtocols,
   type StakeAndBakeToken,
-} from './defi-registry';
+} from "./defi-registry";
 
 const meta = {
-  title: 'registry/defiRegistry',
+  title: "registry/defiRegistry",
   component: DefiRegistryViewer,
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   parameters: {
     docs: {
       description: {
         component:
-          'Visual explorer for the DeFi Registry. Shows which tokens are supported on which protocols, chains, and environments for stake-and-bake operations.',
+          "Visual explorer for the DeFi Registry. Shows which tokens are supported on which protocols, chains, and environments for stake-and-bake operations.",
       },
     },
   },
@@ -29,7 +29,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const RegistryExplorer: Story = {
-  name: 'Registry Explorer',
+  name: "Registry Explorer",
 };
 
 function DefiRegistryViewer() {
@@ -38,7 +38,7 @@ function DefiRegistryViewer() {
   );
   const [expandedTokens, setExpandedTokens] = useState<Set<string>>(new Set());
   const [expandedEnvs, setExpandedEnvs] = useState<Set<string>>(new Set());
-  const [filterEnv, setFilterEnv] = useState<Env | 'all'>('all');
+  const [filterEnv, setFilterEnv] = useState<Env | "all">("all");
 
   const toggleProtocol = (protocol: string) => {
     const newSet = new Set(expandedProtocols);
@@ -88,7 +88,7 @@ function DefiRegistryViewer() {
       env: Env;
       chainId: number;
       chainName: string;
-      mode: 'permit' | 'approve';
+      mode: "permit" | "approve";
       domainName: string;
       spenderAddress: string;
       amountStrategy: string;
@@ -143,8 +143,8 @@ function DefiRegistryViewer() {
       for (const token of tokens) {
         const entries = getEntriesForToken(protocol, token);
         totalConfigs += entries.length;
-        permitCount += entries.filter(e => e.mode === 'permit').length;
-        approveCount += entries.filter(e => e.mode === 'approve').length;
+        permitCount += entries.filter((e) => e.mode === "permit").length;
+        approveCount += entries.filter((e) => e.mode === "approve").length;
       }
     }
 
@@ -225,12 +225,12 @@ function DefiRegistryViewer() {
             id="envFilter"
             className="form-select"
             value={filterEnv}
-            onChange={e => {
-              setFilterEnv(e.target.value as Env | 'all');
+            onChange={(e) => {
+              setFilterEnv(e.target.value as Env | "all");
             }}
           >
             <option value="all">All Environments</option>
-            {Object.values(Env).map(env => (
+            {Object.values(Env).map((env) => (
               <option key={env} value={env}>
                 {env}
               </option>
@@ -245,8 +245,8 @@ function DefiRegistryViewer() {
               setExpandedProtocols(new Set(protocols));
               setExpandedTokens(
                 new Set(
-                  protocols.flatMap(p =>
-                    getTokensForProtocol(p).map(t => `${p}-${t}`),
+                  protocols.flatMap((p) =>
+                    getTokensForProtocol(p).map((t) => `${p}-${t}`),
                   ),
                 ),
               );
@@ -271,7 +271,7 @@ function DefiRegistryViewer() {
       {/* Tree View */}
       <div className="card">
         <div className="card-body">
-          {protocols.map(protocol => {
+          {protocols.map((protocol) => {
             const isProtocolExpanded = expandedProtocols.has(protocol);
             const tokens = getTokensForProtocol(protocol);
 
@@ -281,26 +281,24 @@ function DefiRegistryViewer() {
                 <button
                   type="button"
                   className="btn btn-link text-start w-100 text-decoration-none p-2"
-                  style={{ border: '1px solid #dee2e6', borderRadius: '4px' }}
+                  style={{ border: "1px solid #dee2e6", borderRadius: "4px" }}
                   onClick={() => {
                     toggleProtocol(protocol);
                   }}
                 >
-                  <span className="me-2">
-                    {isProtocolExpanded ? '▼' : '▶'}
-                  </span>
+                  <span className="me-2">{isProtocolExpanded ? "▼" : "▶"}</span>
                   <strong>
                     {DefiProtocols[protocol as DefiProtocol]?.name || protocol}
                   </strong>
                   <span className="badge bg-secondary ms-2">
-                    {tokens.length} token{tokens.length !== 1 ? 's' : ''}
+                    {tokens.length} token{tokens.length !== 1 ? "s" : ""}
                   </span>
                 </button>
 
                 {/* Tokens Level */}
                 {isProtocolExpanded && (
                   <div className="ms-4 mt-2">
-                    {tokens.map(token => {
+                    {tokens.map((token) => {
                       const tokenKey = `${protocol}-${token}`;
                       const isTokenExpanded = expandedTokens.has(tokenKey);
                       const allEntries = getEntriesForToken(protocol, token);
@@ -320,10 +318,10 @@ function DefiRegistryViewer() {
 
                       // Filter by selected environment
                       const filteredEnvs =
-                        filterEnv === 'all'
+                        filterEnv === "all"
                           ? Object.keys(envGroups)
                           : Object.keys(envGroups).filter(
-                              env => env === filterEnv,
+                              (env) => env === filterEnv,
                             );
 
                       if (filteredEnvs.length === 0) return null;
@@ -335,28 +333,28 @@ function DefiRegistryViewer() {
                             type="button"
                             className="btn btn-link text-start w-100 text-decoration-none p-2"
                             style={{
-                              border: '1px solid #dee2e6',
-                              borderRadius: '4px',
-                              backgroundColor: '#f8f9fa',
+                              border: "1px solid #dee2e6",
+                              borderRadius: "4px",
+                              backgroundColor: "#f8f9fa",
                             }}
                             onClick={() => {
                               toggleToken(tokenKey);
                             }}
                           >
                             <span className="me-2">
-                              {isTokenExpanded ? '▼' : '▶'}
+                              {isTokenExpanded ? "▼" : "▶"}
                             </span>
                             <strong>{token}</strong>
                             <span className="badge bg-info ms-2">
                               {filteredEnvs.length} env
-                              {filteredEnvs.length !== 1 ? 's' : ''}
+                              {filteredEnvs.length !== 1 ? "s" : ""}
                             </span>
                           </button>
 
                           {/* Environments Level */}
                           {isTokenExpanded && (
                             <div className="ms-4 mt-2">
-                              {filteredEnvs.map(env => {
+                              {filteredEnvs.map((env) => {
                                 const envKey = `${tokenKey}-${env}`;
                                 const isEnvExpanded = expandedEnvs.has(envKey);
                                 const entries = envGroups[env as Env];
@@ -368,30 +366,30 @@ function DefiRegistryViewer() {
                                       type="button"
                                       className="btn btn-link text-start w-100 text-decoration-none p-2"
                                       style={{
-                                        border: '1px solid #dee2e6',
-                                        borderRadius: '4px',
-                                        backgroundColor: '#e9ecef',
+                                        border: "1px solid #dee2e6",
+                                        borderRadius: "4px",
+                                        backgroundColor: "#e9ecef",
                                       }}
                                       onClick={() => {
                                         toggleEnv(envKey);
                                       }}
                                     >
                                       <span className="me-2">
-                                        {isEnvExpanded ? '▼' : '▶'}
+                                        {isEnvExpanded ? "▼" : "▶"}
                                       </span>
                                       <span className="badge bg-secondary me-2">
                                         {env}
                                       </span>
                                       <span className="text-muted">
                                         {entries.length} chain
-                                        {entries.length !== 1 ? 's' : ''}
+                                        {entries.length !== 1 ? "s" : ""}
                                       </span>
                                     </button>
 
                                     {/* Chains Level (Details) */}
                                     {isEnvExpanded && (
                                       <div className="ms-4 mt-2">
-                                        {entries.map(entry => (
+                                        {entries.map((entry) => (
                                           <div
                                             key={`${entry.chainId}`}
                                             className="card mb-2"
@@ -405,9 +403,9 @@ function DefiRegistryViewer() {
                                                 </span>
                                                 <span
                                                   className={`badge ms-2 ${
-                                                    entry.mode === 'permit'
-                                                      ? 'bg-success'
-                                                      : 'bg-warning'
+                                                    entry.mode === "permit"
+                                                      ? "bg-success"
+                                                      : "bg-warning"
                                                   }`}
                                                 >
                                                   {entry.mode.toUpperCase()}
@@ -417,7 +415,7 @@ function DefiRegistryViewer() {
                                               {/* Details */}
                                               <div className="small">
                                                 <p className="mb-1">
-                                                  <strong>Domain:</strong>{' '}
+                                                  <strong>Domain:</strong>{" "}
                                                   <code>
                                                     {entry.domainName}
                                                   </code>
@@ -430,25 +428,25 @@ function DefiRegistryViewer() {
                                                   </code>
                                                 </p>
                                                 <p className="mb-1">
-                                                  <strong>Amount:</strong>{' '}
+                                                  <strong>Amount:</strong>{" "}
                                                   <code>
                                                     {entry.amountStrategy}
                                                   </code>
                                                   {entry.amountStrategy ===
-                                                    'btcToLbtc' && (
+                                                    "btcToLbtc" && (
                                                     <small className="text-info ms-1">
                                                       (BTC→LBTC)
                                                     </small>
                                                   )}
                                                 </p>
                                                 <p className="mb-1">
-                                                  <strong>Deadline:</strong>{' '}
+                                                  <strong>Deadline:</strong>{" "}
                                                   <code>
                                                     {entry.deadlineStrategy}
                                                   </code>
                                                 </p>
                                                 <p className="mb-0">
-                                                  <strong>Nonce:</strong>{' '}
+                                                  <strong>Nonce:</strong>{" "}
                                                   <code>
                                                     {entry.nonceStrategy}
                                                   </code>

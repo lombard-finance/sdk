@@ -1,30 +1,30 @@
-import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
+import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { makeTokenSelector } from '../../stories/arg-types';
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
-import { ConnectButton } from '../../stories/components/ConnectButton';
+import { makeTokenSelector } from "../../stories/arg-types";
+import { Button } from "../../stories/components/Button";
+import { CodeBlock } from "../../stories/components/CodeBlock";
+import { ConnectButton } from "../../stories/components/ConnectButton";
 import {
   functionType,
   wagmiDecorator,
-} from '../../stories/components/decorators';
+} from "../../stories/components/decorators";
 import {
   canPerformAction,
   useConnection,
-} from '../../stories/hooks/useConnection';
-import useQuery from '../../stories/hooks/useQuery';
-import { Token } from '../../tokens/token-addresses';
-import { depositToken } from './depositToken';
+} from "../../stories/hooks/useConnection";
+import useQuery from "../../stories/hooks/useQuery";
+import { Token } from "../../tokens/token-addresses";
+import { depositToken } from "./depositToken";
 
 const meta = {
-  title: 'write/depositToken',
+  title: "write/depositToken",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('write')],
+  tags: ["autodocs"],
+  decorators: [wagmiDecorator, functionType("write")],
   argTypes: {
-    ...makeTokenSelector([Token.BTCK, Token.BTCb], 'tokenIn'),
-    ...makeTokenSelector([Token.LBTC], 'tokenOut'),
+    ...makeTokenSelector([Token.BTCK, Token.BTCb], "tokenIn"),
+    ...makeTokenSelector([Token.LBTC], "tokenOut"),
   },
 } satisfies Meta<typeof StoryView>;
 
@@ -43,7 +43,7 @@ export const WithParams: Story = {
 
 type StoryProps = Omit<
   Parameters<typeof depositToken>[0],
-  'account' | 'chainId' | 'provider'
+  "account" | "chainId" | "provider"
 >;
 
 export function StoryView(props: StoryProps) {

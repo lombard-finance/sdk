@@ -11,9 +11,9 @@ import type {
   Chain,
   StepStatus,
   StrategyProgress,
-} from '../../../../core';
-import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
-import type { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+} from "../../../../core";
+import type { MonitorableAction } from "../../../../shared/actions/BaseAction";
+import type { NonEvmUnstakeStatus } from "../../../../shared/constants/statusConstants";
 
 /**
  * Solana Redeem parameters
@@ -28,8 +28,7 @@ export interface SolanaRedeemParams {
 /**
  * Solana Redeem progress
  */
-export interface SolanaRedeemProgress
-  extends StrategyProgress<NonEvmUnstakeStatus> {
+export interface SolanaRedeemProgress extends StrategyProgress<NonEvmUnstakeStatus> {
   status: NonEvmUnstakeStatus;
   steps: {
     burning: StepStatus;

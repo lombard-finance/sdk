@@ -7,16 +7,16 @@
  */
 
 // Types and constants
-export type { AssetCatalog, AssetEntry, Deployment } from './types';
+export type { AssetCatalog, AssetEntry, Deployment } from "./types";
 export {
   AssetId,
   assetValueToKey,
   getAssetDisplayName,
   isAssetId,
-} from './types';
+} from "./types";
 
 // Catalog
-export { ASSET_CATALOG } from './catalog';
+export { ASSET_CATALOG } from "./catalog";
 
 // Query functions
 export {
@@ -37,4 +37,4 @@ export {
   getSupportedAssets,
   isAssetDeployed,
   usesAssetRouter,
-} from './utils';
+} from "./utils";

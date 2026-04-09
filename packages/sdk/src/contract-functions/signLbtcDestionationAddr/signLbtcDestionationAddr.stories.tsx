@@ -1,24 +1,24 @@
-import type { Meta } from '@storybook/react';
+import type { Meta } from "@storybook/react";
 
-import { Button } from '../../stories/components/Button';
-import { CodeBlock } from '../../stories/components/CodeBlock';
-import { ConnectButton } from '../../stories/components/ConnectButton';
+import { Button } from "../../stories/components/Button";
+import { CodeBlock } from "../../stories/components/CodeBlock";
+import { ConnectButton } from "../../stories/components/ConnectButton";
 import {
   functionType,
   wagmiDecorator,
-} from '../../stories/components/decorators';
+} from "../../stories/components/decorators";
 import {
   canPerformAction,
   useConnection,
-} from '../../stories/hooks/useConnection';
-import useQuery from '../../stories/hooks/useQuery';
-import { signLbtcDestinationAddr } from './signLbtcDestinationAddr';
+} from "../../stories/hooks/useConnection";
+import useQuery from "../../stories/hooks/useQuery";
+import { signLbtcDestinationAddr } from "./signLbtcDestinationAddr";
 
 const meta = {
-  title: 'write/signLbtcDestionationAddr',
+  title: "write/signLbtcDestionationAddr",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('write')],
+  tags: ["autodocs"],
+  decorators: [wagmiDecorator, functionType("write")],
 } satisfies Meta<typeof StoryView>;
 
 export default meta;

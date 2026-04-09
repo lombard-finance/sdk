@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-import { SolanaSdkError } from '../../../utils/errors';
+import { SolanaSdkError } from "../../../utils/errors";
 
 interface ErrorDisplayProps {
   error: SolanaSdkError | Error | undefined;
@@ -10,7 +10,7 @@ interface ErrorDisplayProps {
 
 export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   error,
-  title = 'Error',
+  title = "Error",
   children,
 }) => {
   const errorCode = error instanceof SolanaSdkError ? error.code : undefined;

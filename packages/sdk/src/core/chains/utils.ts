@@ -19,9 +19,9 @@ import {
   STARKNET_SEPOLIA_CHAIN,
   StarknetChainId,
   SuiChain,
-} from '../../common/chains';
-import { LombardError, ValidationErrorCode } from '../../shared/errors';
-import { CHAIN_CATALOG } from './catalog';
+} from "../../common/chains";
+import { LombardError, ValidationErrorCode } from "../../shared/errors";
+import { CHAIN_CATALOG } from "./catalog";
 import {
   CAIP2_SEPARATOR,
   Chain,
@@ -29,23 +29,23 @@ import {
   ChainMetadata,
   ChainType,
   isChain,
-} from './types';
+} from "./types";
 
 /**
  * Maps CAIP-2 Solana genesis hash references to legacy SolanaChain constants.
- * 
+ *
  * CAIP-2 uses the first 32 chars of the genesis block hash as the reference,
  * while the legacy system uses network names like 'mainnet-beta', 'devnet', 'testnet'.
- * 
+ *
  * Genesis hashes:
  * - Mainnet: 5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp (full hash starts with 5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc65hiGPAejCtx5...)
  * - Devnet: EtWTRABZaYq6iMfeYKouRu166VU2xqa1 (full hash starts with EtWTRABZaYq6iMfeYKouRu166VU2xqa1dT5ZqE8CjGWRXc...)
  * - Testnet: 4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z (full hash starts with 4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zUEzxnuRbtRMp8...)
  */
 const SOLANA_GENESIS_TO_CHAIN: Record<string, SolanaChain> = {
-  '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': SOLANA_MAINNET_CHAIN,
-  'EtWTRABZaYq6iMfeYKouRu166VU2xqa1': SOLANA_DEVNET_CHAIN,
-  '4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z': SOLANA_TESTNET_CHAIN,
+  "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": SOLANA_MAINNET_CHAIN,
+  EtWTRABZaYq6iMfeYKouRu166VU2xqa1: SOLANA_DEVNET_CHAIN,
+  "4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z": SOLANA_TESTNET_CHAIN,
 };
 
 /**
@@ -69,7 +69,9 @@ const STARKNET_NETWORK_TO_CHAIN_ID: Record<string, StarknetChainId> = {
  * @param network - The network name from CAIP-2 (e.g., "SN_SEPOLIA")
  * @returns The Starknet hex chain ID, or undefined if not found
  */
-function starknetNetworkToChainId(network: string): StarknetChainId | undefined {
+function starknetNetworkToChainId(
+  network: string,
+): StarknetChainId | undefined {
   return STARKNET_NETWORK_TO_CHAIN_ID[network];
 }
 
@@ -100,7 +102,7 @@ export function isMainnet(chain: Chain): boolean {
 
 /** Check if a chain is an EVM chain */
 export function isEvmChain(chain: Chain): boolean {
-  return CHAIN_CATALOG[chain].type === 'evm';
+  return CHAIN_CATALOG[chain].type === "evm";
 }
 
 /** Get block explorer URL for an address */
@@ -126,21 +128,21 @@ export function getExplorerTxUrl(
 /** Get all mainnet chains */
 export function getMainnetChains(): Chain[] {
   return (Object.keys(CHAIN_CATALOG) as Chain[]).filter(
-    chain => !CHAIN_CATALOG[chain].isTestnet,
+    (chain) => !CHAIN_CATALOG[chain].isTestnet,
   );
 }
 
 /** Get all testnet chains */
 export function getTestnetChains(): Chain[] {
   return (Object.keys(CHAIN_CATALOG) as Chain[]).filter(
-    chain => CHAIN_CATALOG[chain].isTestnet,
+    (chain) => CHAIN_CATALOG[chain].isTestnet,
   );
 }
 
 /** Get all chains of a specific type */
 export function getChainsByType(type: ChainType): Chain[] {
   return (Object.keys(CHAIN_CATALOG) as Chain[]).filter(
-    chain => CHAIN_CATALOG[chain].type === type,
+    (chain) => CHAIN_CATALOG[chain].type === type,
   );
 }
 
@@ -164,15 +166,15 @@ export function parseChainIdentifier(
   const solanaPrefix = withSeparator(CHAIN_PREFIXES.SOLANA);
   if (chain.startsWith(solanaPrefix)) {
     const reference = chain.slice(solanaPrefix.length);
-    
+
     // First check if it's already in legacy format (e.g., 'mainnet-beta', 'devnet')
     const legacyChain = `solana:${reference}`;
     if (isSolanaChain(legacyChain)) return legacyChain as SolanaChain;
-    
+
     // Otherwise, map CAIP-2 genesis hash to legacy format
     const mappedChain = SOLANA_GENESIS_TO_CHAIN[reference];
     if (mappedChain) return mappedChain;
-    
+
     throw new LombardError(
       ValidationErrorCode.INVALID_CHAIN,
       `Invalid Solana chain: ${chain}`,
@@ -227,7 +229,7 @@ export function evmChainIdToChain(chainId: ChainId): Chain {
 export interface ChainTypeMetadata {
   type: string;
   label: string;
-  variant: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+  variant: "primary" | "secondary" | "success" | "danger" | "warning" | "info";
 }
 
 /** @deprecated Use getChainMetadata instead */
@@ -240,6 +242,6 @@ export function getChainTypeMetadata(chain: Chain | string): ChainTypeMetadata {
       variant: meta.badgeVariant,
     };
   }
-  const prefix = chain.split(':')[0];
-  return { type: prefix, label: prefix.toUpperCase(), variant: 'secondary' };
+  const prefix = chain.split(":")[0];
+  return { type: prefix, label: prefix.toUpperCase(), variant: "secondary" };
 }

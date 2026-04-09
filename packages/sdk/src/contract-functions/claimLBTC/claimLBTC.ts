@@ -1,17 +1,17 @@
-import { Hash, parseGwei } from 'viem';
+import { Hash, parseGwei } from "viem";
 
-import { makePublicClient } from '../../clients/public-client';
-import { makeWalletClient } from '../../clients/wallet-client';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from '../../common/chains';
-import { CommonWriteParameters } from '../../common/parameters';
-import { AddressKind, Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../tokens/tokens';
-import { estimateGasFees } from '../../utils/gas';
-import { ensureHex } from '../../utils/hex';
+import { makePublicClient } from "../../clients/public-client";
+import { makeWalletClient } from "../../clients/wallet-client";
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP, isKatanaChain } from "../../common/chains";
+import { CommonWriteParameters } from "../../common/parameters";
+import { AddressKind, Token } from "../../tokens/token-addresses";
+import { getTokenContractInfo } from "../../tokens/tokens";
+import { estimateGasFees } from "../../utils/gas";
+import { ensureHex } from "../../utils/hex";
 import {
   BasculeDepositStatus,
   getBasculeDepositStatus,
-} from '../getBasculeDepositStatus';
+} from "../getBasculeDepositStatus";
 
 export interface IClaimLBTCParams extends CommonWriteParameters {
   /**
@@ -65,11 +65,11 @@ export async function mintToken({
   token = Token.LBTC,
 }: IClaimLBTCParams & { token?: Token }) {
   if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
-    throw new Error('Unsupported token');
+    throw new Error("Unsupported token");
   }
 
   if (token === Token.BTCK && !isKatanaChain(chainId)) {
-    throw new Error('Operation not permitted');
+    throw new Error("Operation not permitted");
   }
 
   const tokenContract = await getTokenContractInfo(
@@ -89,15 +89,15 @@ export async function mintToken({
     switch (basculeStatus) {
       case BasculeDepositStatus.UNREPORTED:
         throw new Error(
-          'The deposit cannot be claimed because it is unreported or potentially still pending, please try again later.',
+          "The deposit cannot be claimed because it is unreported or potentially still pending, please try again later.",
         );
       case BasculeDepositStatus.WITHDRAWN:
         throw new Error(
-          'The deposit cannot be claimed because it is withdrawn already.',
+          "The deposit cannot be claimed because it is withdrawn already.",
         );
       default: // unknown bascule deposit status
         throw new Error(
-          'The deposit cannot be claimed because it is blocked by bridge security.',
+          "The deposit cannot be claimed because it is blocked by bridge security.",
         );
     }
   }
@@ -111,12 +111,12 @@ export async function mintToken({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: tokenContract.abi,
     functionName:
-      token === Token.BTCK || token === Token.BTCb ? 'mintV1' : 'mint',
+      token === Token.BTCK || token === Token.BTCb ? "mintV1" : "mint",
     args: [ensureHex(data), ensureHex(proofSignature)],
   } as const;
 
   const gasEstimationData = isKatanaChain(chainId)
-    ? await estimateGasFees(publicClient, callData, parseGwei('1'))
+    ? await estimateGasFees(publicClient, callData, parseGwei("1"))
     : {};
 
   const { request } = await publicClient.simulateContract({

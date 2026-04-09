@@ -1,6 +1,6 @@
-import { Buffer } from 'node:buffer';
+import { Buffer } from "node:buffer";
 
-import { BN } from '@coral-xyz/anchor';
+import { BN } from "@coral-xyz/anchor";
 
 /**
  * Result of parsing signatures from a proof
@@ -38,7 +38,7 @@ export const parseSignaturesFromProof = (
     return { signatures: [], indices: [] };
   }
 
-  const rawProof = proofSignature.startsWith('0x')
+  const rawProof = proofSignature.startsWith("0x")
     ? proofSignature.slice(2)
     : proofSignature;
 
@@ -144,13 +144,15 @@ export const parseSignaturesFromProof = (
       );
 
       // 4f. Check if it's an empty placeholder (64 zero bytes)
-      const signatureBytesCheck = Buffer.from(signatureHex, 'hex');
+      const signatureBytesCheck = Buffer.from(signatureHex, "hex");
       // Double-check buffer length in case of unforeseen slicing issues
       if (signatureBytesCheck.length !== 64) {
         continue;
       }
 
-      const isEmptyPlaceholder = signatureBytesCheck.every(byte => byte === 0);
+      const isEmptyPlaceholder = signatureBytesCheck.every(
+        (byte) => byte === 0,
+      );
 
       if (isEmptyPlaceholder) {
         // Skip placeholders
@@ -166,7 +168,7 @@ export const parseSignaturesFromProof = (
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     // Catch any unexpected errors during parsing
-    console.error('Error parsing signature proof:', errorMessage);
+    console.error("Error parsing signature proof:", errorMessage);
     return { signatures: [], indices: [] };
   }
 };

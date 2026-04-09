@@ -22,7 +22,7 @@ export interface CreateDebugLoggerOptions {
  *          This function will only print to the console if `options.debug` was true.
  */
 export function createDebugLogger(options: CreateDebugLoggerOptions = {}) {
-  const { debug = false, prefix = '' } = options;
+  const { debug = false, prefix = "" } = options;
   const logs: string[] = [];
 
   // Return the actual logger function
@@ -33,23 +33,23 @@ export function createDebugLogger(options: CreateDebugLoggerOptions = {}) {
     }
 
     // Format arguments: stringify objects, keep others as strings
-    const formattedArgs = args.map(arg =>
-      typeof arg === 'object' && arg !== null
+    const formattedArgs = args.map((arg) =>
+      typeof arg === "object" && arg !== null
         ? JSON.stringify(arg)
         : String(arg),
     );
 
     // Construct the final log message with optional prefix
     const logMessage = prefix
-      ? `${prefix} ${formattedArgs.join(' ')}`
-      : formattedArgs.join(' ');
+      ? `${prefix} ${formattedArgs.join(" ")}`
+      : formattedArgs.join(" ");
 
     // Log to the console
     console.log(logMessage);
   };
 
   const printLogs = (): void => {
-    console.log(logs.join('\n'));
+    console.log(logs.join("\n"));
   };
 
   return { debugLog, printLogs };

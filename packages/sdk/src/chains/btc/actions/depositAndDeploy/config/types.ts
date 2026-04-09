@@ -6,11 +6,11 @@
  * @module chains/btc/actions/depositAndDeploy/config/types
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
-import type { z } from 'zod';
+import type { Env } from "@lombard.finance/sdk-common";
+import type { z } from "zod";
 
-import type { AssetId, Chain, DeployProtocol } from '../../../../../core';
-import type { BtcCoreContext } from '../../../../../shared/context';
+import type { AssetId, Chain, DeployProtocol } from "../../../../../core";
+import type { BtcCoreContext } from "../../../../../shared/context";
 
 /**
  * Route definition
@@ -35,7 +35,7 @@ export interface DepositAndDeployAuthResult {
  * DepositAndDeploy produces BTC.b then deploys to a vault (e.g., Silo on Avalanche).
  */
 export interface DepositAndDeployChainConfig {
-  chainType: 'evm';
+  chainType: "evm";
   routes: DepositAndDeployRouteDefinition[];
   destChains: Chain[];
   /** Supported output assets - DepositAndDeploy produces BTC.b */

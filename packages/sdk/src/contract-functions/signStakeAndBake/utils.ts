@@ -1,11 +1,11 @@
-import { Env } from '@lombard.finance/sdk-common';
-import BigNumber from 'bignumber.js';
+import { Env } from "@lombard.finance/sdk-common";
+import BigNumber from "bignumber.js";
 
-import { getExchangeRatio } from '../../api-functions/getLBTCExchangeRate/get-exchange-ratio';
-import { StakeAndBakeToken } from '../../defi/defi-registry';
-import { AddressKind, Token } from '../../tokens/token-addresses';
-import { getTokenContractInfo } from '../../tokens/tokens';
-import { ISignStakeAndBakeParams } from './signStakeAndBake';
+import { getExchangeRatio } from "../../api-functions/getLBTCExchangeRate/get-exchange-ratio";
+import { StakeAndBakeToken } from "../../defi/defi-registry";
+import { AddressKind, Token } from "../../tokens/token-addresses";
+import { getTokenContractInfo } from "../../tokens/tokens";
+import { ISignStakeAndBakeParams } from "./signStakeAndBake";
 
 /**
  * Calculate the permit value, applying BTC -> LBTC conversion if needed.
@@ -15,7 +15,7 @@ export const getPermitValue = async (
   value: BigNumber.Value,
   env: Env,
 ): Promise<BigNumber> => {
-  if (!token || token === 'BTC') {
+  if (!token || token === "BTC") {
     return await calculateStakeAndBakeLBTCAmount(value, env);
   }
   return new BigNumber(value);
@@ -27,10 +27,10 @@ export const getPermitValue = async (
  */
 export const getStakeAndBakeTokenContract = async (
   token: StakeAndBakeToken,
-  chainId: ISignStakeAndBakeParams['chainId'],
+  chainId: ISignStakeAndBakeParams["chainId"],
   env: Env,
 ): Promise<Awaited<ReturnType<typeof getTokenContractInfo>>> => {
-  if (!token || token === 'BTC' || token === Token.LBTC) {
+  if (!token || token === "BTC" || token === Token.LBTC) {
     return await getTokenContractInfo(Token.LBTC, chainId, env);
   }
   // For BTCb, use AddressKind.Token (ERC20 contract for permit/approve)
@@ -56,6 +56,6 @@ export async function calculateStakeAndBakeLBTCAmount(
 
     return lbtcAmount;
   } catch {
-    throw new Error('Failed to get exchange ratio for stake and bake');
+    throw new Error("Failed to get exchange ratio for stake and bake");
   }
 }

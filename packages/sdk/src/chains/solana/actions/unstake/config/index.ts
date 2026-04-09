@@ -4,5 +4,5 @@
  * @module chains/solana/actions/unstake/config
  */
 
-export { isBtcUnstakeSupported,solanaToBtcConfig } from './btc';
-export type { ChainConfig, RouteDefinition } from './types';
+export { isBtcUnstakeSupported, solanaToBtcConfig } from "./btc";
+export type { ChainConfig, RouteDefinition } from "./types";

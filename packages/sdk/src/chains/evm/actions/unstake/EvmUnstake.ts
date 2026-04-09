@@ -18,34 +18,34 @@
  * @module chains/evm/actions/unstake/EvmUnstake
  */
 
-import type { EIP1193Provider } from 'viem';
-import { z } from 'zod';
+import type { EIP1193Provider } from "viem";
+import { z } from "zod";
 
-import type { ChainId } from '../../../../common/chains';
-import { redeemToken } from '../../../../contract-functions';
-import { AssetId, parseChainIdentifier, StepStatus } from '../../../../core';
-import { BaseAction } from '../../../../shared/actions/BaseAction';
-import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
-import type { EvmCoreContext } from '../../../../shared/context';
-import { LombardError } from '../../../../shared/errors';
-import type { UnstakeEventMap } from '../../../../shared/events';
+import type { ChainId } from "../../../../common/chains";
+import { redeemToken } from "../../../../contract-functions";
+import { AssetId, parseChainIdentifier, StepStatus } from "../../../../core";
+import { BaseAction } from "../../../../shared/actions/BaseAction";
+import { EvmOperationStatus } from "../../../../shared/constants/statusConstants";
+import type { EvmCoreContext } from "../../../../shared/context";
+import { LombardError } from "../../../../shared/errors";
+import type { UnstakeEventMap } from "../../../../shared/events";
 import {
   evmAmountSchema,
   validatePrepareParams,
-} from '../../../../shared/validation';
-import { Token } from '../../../../tokens/token-addresses';
+} from "../../../../shared/validation";
+import { Token } from "../../../../tokens/token-addresses";
 import {
   authorizeFee as authorizeFeeShared,
   checkFeeAuthorization,
   createInitialFeeAuthState,
   type FeeAuthState,
-} from '../../shared/feeAuth';
-import { evmToBtcbConfig, evmToBtcConfig } from './config';
+} from "../../shared/feeAuth";
+import { evmToBtcbConfig, evmToBtcConfig } from "./config";
 import type {
   EvmUnstakeParams,
   EvmUnstakePrepareParams,
   IEvmUnstake,
-} from './types';
+} from "./types";
 
 export class EvmUnstake
   extends BaseAction<UnstakeEventMap, EvmOperationStatus>
@@ -86,7 +86,7 @@ export class EvmUnstake
   }
 
   async prepare(params: EvmUnstakePrepareParams): Promise<void> {
-    this.assertStatus(EvmOperationStatus.IDLE, 'prepare');
+    this.assertStatus(EvmOperationStatus.IDLE, "prepare");
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
@@ -100,12 +100,12 @@ export class EvmUnstake
       // Fee auth is only required for BTC.b output on unsubsidized chains
       if (this.isBtcbOutput) {
         // Get EVM account for fee auth check
-        const provider = await this.ctx.getProvider('evm');
+        const provider = await this.ctx.getProvider("evm");
         if (!provider) {
-          throw LombardError.providerMissing(this.params.sourceChain, 'evm');
+          throw LombardError.providerMissing(this.params.sourceChain, "evm");
         }
         const accounts = await (provider as EIP1193Provider).request({
-          method: 'eth_accounts',
+          method: "eth_accounts",
         });
         const account = accounts[0] as `0x${string}`;
 
@@ -155,22 +155,25 @@ export class EvmUnstake
    * Signs the fee authorization and stores it on the server.
    */
   async authorizeFee(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION, 'authorizeFee');
+    this.assertStatus(
+      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
+      "authorizeFee",
+    );
 
     if (!this._feeAuth.feeInSatoshis) {
-      throw LombardError.missingParameter('feeInSatoshis');
+      throw LombardError.missingParameter("feeInSatoshis");
     }
 
     return this.act(async () => {
       const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
-      const provider = await this.ctx.getProvider('evm');
+      const provider = await this.ctx.getProvider("evm");
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
+        throw LombardError.providerMissing(this.params.sourceChain, "evm");
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
+        method: "eth_accounts",
       });
       const account = accounts[0] as `0x${string}`;
 
@@ -195,21 +198,21 @@ export class EvmUnstake
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(EvmOperationStatus.READY, 'execute');
+    this.assertStatus(EvmOperationStatus.READY, "execute");
 
     return this.act(async () => {
-      const provider = await this.ctx.getProvider('evm');
+      const provider = await this.ctx.getProvider("evm");
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
+        throw LombardError.providerMissing(this.params.sourceChain, "evm");
       }
 
       // Get the connected EVM account address from the provider
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
+        method: "eth_accounts",
       });
       const evmAccount = accounts[0] as `0x${string}`;
       if (!evmAccount) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
+        throw LombardError.providerMissing(this.params.sourceChain, "evm");
       }
 
       const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
@@ -224,7 +227,9 @@ export class EvmUnstake
       // For BTCb output: account = recipient (same EVM address receives BTCb)
       const txHash = await redeemToken({
         provider: provider as EIP1193Provider,
-        account: isBtcbOutput ? (this._recipient! as `0x${string}`) : evmAccount,
+        account: isBtcbOutput
+          ? (this._recipient! as `0x${string}`)
+          : evmAccount,
         amount: this._amount!,
         btcAddress: isBtcbOutput ? undefined : this._recipient!,
         chainId,

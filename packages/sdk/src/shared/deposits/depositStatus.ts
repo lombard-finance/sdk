@@ -16,8 +16,8 @@ import {
   type Deposit,
   ENotarizationStatus,
   ESessionState,
-} from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
-import { MIN_STAKE_AMOUNT_BTC } from '../../common/constants';
+} from "../../api-functions/getDepositsByAddress/getDepositsByAddress";
+import { MIN_STAKE_AMOUNT_BTC } from "../../common/constants";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -46,21 +46,26 @@ export const MIN_CLAIM_AMOUNT_BTC = MIN_STAKE_AMOUNT_BTC;
  * Possible deposit statuses - ordered by lifecycle
  */
 export type DepositStatus =
-  | 'pending_confirmations' // Waiting for BTC block confirmations
-  | 'pending_notarization' // Confirmations complete, waiting for notarization service
-  | 'claimable' // Notarization approved, ready to be claimed manually
-  | 'claiming' // Claim transaction submitted
-  | 'claimed' // Successfully claimed (has claimTxHash)
-  | 'auto_claimed' // Claimed via GMP (cross-chain messaging)
-  | 'expired' // Signature expired, needs re-auth
-  | 'failed' // Notarization failed
-  | 'restricted' // Sanctioned or restricted
-  | 'too_small'; // Amount below minimum
+  | "pending_confirmations" // Waiting for BTC block confirmations
+  | "pending_notarization" // Confirmations complete, waiting for notarization service
+  | "claimable" // Notarization approved, ready to be claimed manually
+  | "claiming" // Claim transaction submitted
+  | "claimed" // Successfully claimed (has claimTxHash)
+  | "auto_claimed" // Claimed via GMP (cross-chain messaging)
+  | "expired" // Signature expired, needs re-auth
+  | "failed" // Notarization failed
+  | "restricted" // Sanctioned or restricted
+  | "too_small"; // Amount below minimum
 
 /**
  * Status severity for UI styling
  */
-export type StatusSeverity = 'info' | 'warning' | 'success' | 'error' | 'neutral';
+export type StatusSeverity =
+  | "info"
+  | "warning"
+  | "success"
+  | "error"
+  | "neutral";
 
 /**
  * Status display configuration
@@ -173,12 +178,12 @@ export function getDepositStatus(
 ): DepositStatus {
   // 1. Check for sanctioned/restricted first
   if (deposit.sanctioned) {
-    return 'restricted';
+    return "restricted";
   }
 
   // 2. Check if already claimed
   if (deposit.isClaimed || deposit.claimTxHash) {
-    return 'claimed';
+    return "claimed";
   }
 
   // 3. Check for GMP auto-claim (definitive success, overrides expired/failed)
@@ -186,13 +191,13 @@ export function getDepositStatus(
     deposit.notarizationStatus ===
     ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED
   ) {
-    return 'auto_claimed';
+    return "auto_claimed";
   }
 
   // 4. Check if amount is too small (permanent, re-auth won't help)
   const amountBtc = deposit.amount?.toNumber?.() ?? Number(deposit.amount);
   if (amountBtc > 0 && amountBtc < MIN_STAKE_AMOUNT_BTC) {
-    return 'too_small';
+    return "too_small";
   }
 
   // 5. Check for notarization failure (terminal, overrides expired)
@@ -200,12 +205,12 @@ export function getDepositStatus(
     deposit.notarizationStatus ===
     ENotarizationStatus.NOTARIZATION_STATUS_FAILED
   ) {
-    return 'failed';
+    return "failed";
   }
 
   // 6. Check if the notarization session has expired (recoverable via re-auth)
   if (deposit.sessionState === ESessionState.SESSION_STATE_EXPIRED) {
-    return 'expired';
+    return "expired";
   }
 
   // 7. Determine status based on notarization status and proof availability
@@ -218,8 +223,7 @@ export function getDepositStatus(
     deposit.blockHeight,
   );
   const hasEnoughConfirmations =
-    currentBlockHeight === undefined ||
-    confirmations >= requiredConfirmations;
+    currentBlockHeight === undefined || confirmations >= requiredConfirmations;
 
   switch (notarizationStatus) {
     case ENotarizationStatus.NOTARIZATION_STATUS_PENDING:
@@ -227,26 +231,26 @@ export function getDepositStatus(
       // Still in notarization queue
       // If we know block height and not enough confirmations, show that
       if (currentBlockHeight !== undefined && !hasEnoughConfirmations) {
-        return 'pending_confirmations';
+        return "pending_confirmations";
       }
       // Otherwise, we're waiting for notarization
-      return 'pending_notarization';
+      return "pending_notarization";
 
     case ENotarizationStatus.NOTARIZATION_STATUS_SESSION_APPROVED:
       // Notarization approved
       if (hasProof) {
-        return 'claimable';
+        return "claimable";
       }
       // Edge case: approved but no proof yet (should be rare)
-      return 'pending_notarization';
+      return "pending_notarization";
 
     case ENotarizationStatus.NOTARIZATION_STATUS_UNSPECIFIED:
     default:
       // Unknown status - check confirmations if we can
       if (currentBlockHeight !== undefined && !hasEnoughConfirmations) {
-        return 'pending_confirmations';
+        return "pending_confirmations";
       }
-      return 'pending_notarization';
+      return "pending_notarization";
   }
 }
 
@@ -260,83 +264,83 @@ export function getDepositStatusDisplay(
   status: DepositStatus,
 ): DepositStatusDisplay {
   switch (status) {
-    case 'pending_confirmations':
+    case "pending_confirmations":
       return {
-        label: 'Pending Confirmations',
-        severity: 'warning',
+        label: "Pending Confirmations",
+        severity: "warning",
         description: `Waiting for Bitcoin block confirmations (${REQUIRED_CONFIRMATIONS} required)`,
         isTerminal: false,
         requiresAction: false,
       };
-    case 'pending_notarization':
+    case "pending_notarization":
       return {
-        label: 'Pending Notarization',
-        severity: 'info',
+        label: "Pending Notarization",
+        severity: "info",
         description:
-          'Confirmations complete, waiting for notarization service to generate proof',
+          "Confirmations complete, waiting for notarization service to generate proof",
         isTerminal: false,
         requiresAction: false,
       };
-    case 'claimable':
+    case "claimable":
       return {
-        label: 'Claimable',
-        severity: 'success',
-        description: 'Ready to mint - proof available, claim to receive tokens',
-        isTerminal: false,
-        requiresAction: true,
-      };
-    case 'claiming':
-      return {
-        label: 'Claiming',
-        severity: 'info',
-        description: 'Claim transaction in progress',
-        isTerminal: false,
-        requiresAction: false,
-      };
-    case 'claimed':
-      return {
-        label: 'Claimed',
-        severity: 'neutral',
-        description: 'Tokens have been minted to your address',
-        isTerminal: true,
-        requiresAction: false,
-      };
-    case 'auto_claimed':
-      return {
-        label: 'Auto-Claimed',
-        severity: 'success',
-        description: 'Automatically claimed via cross-chain messaging (GMP)',
-        isTerminal: true,
-        requiresAction: false,
-      };
-    case 'expired':
-      return {
-        label: 'Expired',
-        severity: 'error',
-        description: 'Fee signature expired, requires re-authorization',
+        label: "Claimable",
+        severity: "success",
+        description: "Ready to mint - proof available, claim to receive tokens",
         isTerminal: false,
         requiresAction: true,
       };
-    case 'failed':
+    case "claiming":
       return {
-        label: 'Failed',
-        severity: 'error',
-        description: 'Notarization failed - contact support',
+        label: "Claiming",
+        severity: "info",
+        description: "Claim transaction in progress",
+        isTerminal: false,
+        requiresAction: false,
+      };
+    case "claimed":
+      return {
+        label: "Claimed",
+        severity: "neutral",
+        description: "Tokens have been minted to your address",
         isTerminal: true,
         requiresAction: false,
       };
-    case 'restricted':
+    case "auto_claimed":
       return {
-        label: 'Restricted',
-        severity: 'error',
-        description: 'This deposit is restricted or sanctioned',
+        label: "Auto-Claimed",
+        severity: "success",
+        description: "Automatically claimed via cross-chain messaging (GMP)",
         isTerminal: true,
         requiresAction: false,
       };
-    case 'too_small':
+    case "expired":
       return {
-        label: 'Too Small',
-        severity: 'neutral',
+        label: "Expired",
+        severity: "error",
+        description: "Fee signature expired, requires re-authorization",
+        isTerminal: false,
+        requiresAction: true,
+      };
+    case "failed":
+      return {
+        label: "Failed",
+        severity: "error",
+        description: "Notarization failed - contact support",
+        isTerminal: true,
+        requiresAction: false,
+      };
+    case "restricted":
+      return {
+        label: "Restricted",
+        severity: "error",
+        description: "This deposit is restricted or sanctioned",
+        isTerminal: true,
+        requiresAction: false,
+      };
+    case "too_small":
+      return {
+        label: "Too Small",
+        severity: "neutral",
         description: `Amount below minimum claimable amount (${MIN_STAKE_AMOUNT_BTC} BTC)`,
         isTerminal: true,
         requiresAction: false,
@@ -359,7 +363,7 @@ export function isDepositClaimable(
   deposit: Deposit,
   currentBlockHeight?: number,
 ): boolean {
-  return getDepositStatus(deposit, currentBlockHeight) === 'claimable';
+  return getDepositStatus(deposit, currentBlockHeight) === "claimable";
 }
 
 /**
@@ -375,7 +379,7 @@ export function isDepositPending(
 ): boolean {
   const status = getDepositStatus(deposit, currentBlockHeight);
   return (
-    status === 'pending_confirmations' || status === 'pending_notarization'
+    status === "pending_confirmations" || status === "pending_notarization"
   );
 }
 
@@ -410,4 +414,3 @@ export function depositRequiresAction(
   const display = getDepositStatusDisplay(status);
   return display.requiresAction;
 }
-

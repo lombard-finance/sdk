@@ -1,9 +1,9 @@
-import { AxiosError } from 'axios';
+import { AxiosError } from "axios";
 
-const ADBLOCKER_ERROR_CODE = 'ERR_NETWORK';
+const ADBLOCKER_ERROR_CODE = "ERR_NETWORK";
 
 const ADBLOCK_ERROR_MSG =
-  'This may be due to your Adblocker. Please disable any Adblocker and refresh the page to restore full functionality.';
+  "This may be due to your Adblocker. Please disable any Adblocker and refresh the page to restore full functionality.";
 
 /**
  * Handles the error from the mempool.space API.

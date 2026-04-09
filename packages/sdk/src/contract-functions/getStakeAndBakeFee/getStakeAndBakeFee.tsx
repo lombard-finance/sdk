@@ -1,18 +1,18 @@
-import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
-import BigNumber from 'bignumber.js';
-import { getContract } from 'viem';
+import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
+import BigNumber from "bignumber.js";
+import { getContract } from "viem";
 
-import { makePublicClient } from '../../clients/public-client';
-import { CommonParameters } from '../../common/parameters';
+import { makePublicClient } from "../../clients/public-client";
+import { CommonParameters } from "../../common/parameters";
 import {
   DefiProtocol,
   DefiProtocols,
   StakeAndBakeToken,
-} from '../../defi/defi-registry';
-import { Token } from '../../tokens/token-addresses';
-import { getErrorMessage } from '../../utils/err';
-import { fromSatoshi } from '../../utils/satoshi';
-import { getStakeAndBakeConfig } from '../signStakeAndBake/validation';
+} from "../../defi/defi-registry";
+import { Token } from "../../tokens/token-addresses";
+import { getErrorMessage } from "../../utils/err";
+import { fromSatoshi } from "../../utils/satoshi";
+import { getStakeAndBakeConfig } from "../signStakeAndBake/validation";
 
 /**
  * Default token mapping for each protocol.

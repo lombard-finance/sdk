@@ -1,16 +1,16 @@
-import { Env } from '@lombard.finance/sdk-common';
-import { describe, expect,it } from 'vitest';
+import { Env } from "@lombard.finance/sdk-common";
+import { describe, expect, it } from "vitest";
 
-import { DEFI_REGISTRY, DefiProtocol } from '../../../defi/defi-registry';
-import { Token } from '../../../tokens/token-addresses';
+import { DEFI_REGISTRY, DefiProtocol } from "../../../defi/defi-registry";
+import { Token } from "../../../tokens/token-addresses";
 
-describe('DEFI_REGISTRY', () => {
-  it('should have Veda protocol with LBTC support', () => {
+describe("DEFI_REGISTRY", () => {
+  it("should have Veda protocol with LBTC support", () => {
     expect(DEFI_REGISTRY[DefiProtocol.Veda]).toBeDefined();
     expect(DEFI_REGISTRY[DefiProtocol.Veda][Token.LBTC]).toBeDefined();
   });
 
-  it('should have Silo only on testnet for BTCb', () => {
+  it("should have Silo only on testnet for BTCb", () => {
     // Silo is defined for BTCb
     const siloBtcb = DEFI_REGISTRY[DefiProtocol.Silo][Token.BTCb];
     expect(siloBtcb).toBeDefined();
@@ -22,4 +22,3 @@ describe('DEFI_REGISTRY', () => {
     expect(siloBtcb?.[Env.prod]).toBeUndefined();
   });
 });
-

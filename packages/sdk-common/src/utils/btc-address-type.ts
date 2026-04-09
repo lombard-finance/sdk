@@ -1,9 +1,9 @@
-import { address } from 'bitcoinjs-lib';
+import { address } from "bitcoinjs-lib";
 
 export enum BtcAddressType {
-  p2tr = 'p2tr',
-  p2wpkh = 'p2wpkh',
-  p2wsh = 'p2wsh',
+  p2tr = "p2tr",
+  p2wpkh = "p2wpkh",
+  p2wsh = "p2wsh",
 }
 
 export function getBtcAddressType(btcAddress: string): BtcAddressType {
@@ -18,5 +18,5 @@ export function getBtcAddressType(btcAddress: string): BtcAddressType {
     if (data.length === 32) return BtcAddressType.p2tr;
   }
 
-  throw new Error('Invalid BTC address');
+  throw new Error("Invalid BTC address");
 }

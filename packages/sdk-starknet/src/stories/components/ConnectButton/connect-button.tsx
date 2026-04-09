@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { StarknetChainId } from '../../../utils/chains';
-import { useConnection } from '../../hooks/use-connection';
+import { StarknetChainId } from "../../../utils/chains";
+import { useConnection } from "../../hooks/use-connection";
 
 export type ConnectButtonProps = {
   desiredChainId?: StarknetChainId;
@@ -33,23 +33,23 @@ export function ConnectButton({ desiredChainId, label }: ConnectButtonProps) {
     return (
       <div
         style={{
-          display: 'inline-flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: '5px',
-          border: '1px solid var(--bs-gray-900)',
-          borderRadius: '5px',
-          padding: '5px',
-          height: '38px',
+          display: "inline-flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "5px",
+          border: "1px solid var(--bs-gray-900)",
+          borderRadius: "5px",
+          padding: "5px",
+          height: "38px",
         }}
       >
         <span
           style={{
-            background: 'var(--bs-green)',
-            color: '#ffffff',
-            borderRadius: '5px',
-            padding: '2px',
-            fontSize: '0.8em',
+            background: "var(--bs-green)",
+            color: "#ffffff",
+            borderRadius: "5px",
+            padding: "2px",
+            fontSize: "0.8em",
           }}
         >
           connected
@@ -57,10 +57,10 @@ export function ConnectButton({ desiredChainId, label }: ConnectButtonProps) {
 
         <span
           style={{
-            background: 'var(--bs-gray-100)',
-            borderRadius: '5px',
-            padding: '2px',
-            fontSize: '0.8em',
+            background: "var(--bs-gray-100)",
+            borderRadius: "5px",
+            padding: "2px",
+            fontSize: "0.8em",
           }}
         >
           {account.address}
@@ -68,11 +68,11 @@ export function ConnectButton({ desiredChainId, label }: ConnectButtonProps) {
 
         <span
           style={{
-            background: chainId ? 'var(--bs-gray-200)' : 'var(--bs-red)',
-            color: chainId ? 'var(--bs-black)' : 'var(--bs-white)',
-            borderRadius: '5px',
-            padding: '2px',
-            fontSize: '0.8em',
+            background: chainId ? "var(--bs-gray-200)" : "var(--bs-red)",
+            color: chainId ? "var(--bs-black)" : "var(--bs-white)",
+            borderRadius: "5px",
+            padding: "2px",
+            fontSize: "0.8em",
           }}
         >
           {chainId}
@@ -81,13 +81,13 @@ export function ConnectButton({ desiredChainId, label }: ConnectButtonProps) {
         <button
           type="button"
           style={{
-            background: 'var(--bs-danger)',
-            color: 'var(--bs-white)',
-            border: '0',
-            borderRadius: '5px',
-            padding: '2px',
-            fontSize: '0.8em',
-            cursor: 'pointer',
+            background: "var(--bs-danger)",
+            color: "var(--bs-white)",
+            border: "0",
+            borderRadius: "5px",
+            padding: "2px",
+            fontSize: "0.8em",
+            cursor: "pointer",
           }}
           onClick={() => disconnect()}
         >
@@ -101,12 +101,12 @@ export function ConnectButton({ desiredChainId, label }: ConnectButtonProps) {
     <button
       className="btn"
       style={{
-        border: '1px solid var(--bs-gray-900)',
+        border: "1px solid var(--bs-gray-900)",
       }}
       type="button"
       onClick={() => connect(desiredChainId)}
     >
-      {label || 'Connect wallet'}
+      {label || "Connect wallet"}
     </button>
   );
 }

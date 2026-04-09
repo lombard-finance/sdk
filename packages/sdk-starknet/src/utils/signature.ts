@@ -1,7 +1,7 @@
-import { ArraySignatureType, ec, WeierstrassSignatureType } from 'starknet';
+import { ArraySignatureType, ec, WeierstrassSignatureType } from "starknet";
 
-import { ERR_UNKNOWN_SIGNATURE_FORMAT, ERR_UNSUPPORTED_WALLET } from './err';
-import { WalletName } from './wallet-account';
+import { ERR_UNKNOWN_SIGNATURE_FORMAT, ERR_UNSUPPORTED_WALLET } from "./err";
+import { WalletName } from "./wallet-account";
 
 export type NormalizedSignature = WeierstrassSignatureType;
 
@@ -18,17 +18,17 @@ export function normalizeSignature(
     sigR = r;
     sigS = s;
   } else if (
-    walletName === 'Braavos' ||
-    (signature.length === 3 && signature[0] === '1')
+    walletName === "Braavos" ||
+    (signature.length === 3 && signature[0] === "1")
   ) {
     // Braavos: [version, r, s]
     const [_version, r, s] = signature;
     sigR = r;
     sigS = s;
   } else if (
-    walletName === 'Keplr' ||
+    walletName === "Keplr" ||
     (signature.length === 5 &&
-      signature.filter(x => x.startsWith('0x')).length === 5)
+      signature.filter((x) => x.startsWith("0x")).length === 5)
   ) {
     // Probably Keplr: [r low, r high, s low, s high, version]
 

@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
-import { getApiConfig } from '../../common/api-config';
-import { IEnvParam } from '../../common/parameters';
-import { getErrorMessage } from '../../utils/err';
+import { getApiConfig } from "../../common/api-config";
+import { IEnvParam } from "../../common/parameters";
+import { getErrorMessage } from "../../utils/err";
 
-const URL = 'api/v1/referral-system/referrer/';
+const URL = "api/v1/referral-system/referrer/";
 
 export interface ISetReferralParams extends IEnvParam {
   /**

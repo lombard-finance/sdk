@@ -1,1 +1,1 @@
-export { ConnectButton, type ConnectButtonProps } from './connect-button';
+export { ConnectButton, type ConnectButtonProps } from "./connect-button";

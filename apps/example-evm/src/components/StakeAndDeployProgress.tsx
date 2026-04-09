@@ -1,11 +1,11 @@
-import { DeployProtocol } from '@lombard.finance/sdk';
-import { useCallback, useState } from 'react';
+import { DeployProtocol } from "@lombard.finance/sdk";
+import { useCallback, useState } from "react";
 
-import { getStatusColor } from '../lib/status-colors';
+import { getStatusColor } from "../lib/status-colors";
 import type {
   StakeAndBakeProgress,
   StakeAndBakeStatus,
-} from '../pages/StakeAndDeployPage/useBtcStakeAndDeploy';
+} from "../pages/StakeAndDeployPage/useBtcStakeAndDeploy";
 
 interface StakeAndDeployProgressProps {
   depositAddress: string | null;
@@ -30,32 +30,34 @@ export function StakeAndDeployProgress({
   targetChain,
 }: StakeAndDeployProgressProps) {
   const getProgressPercentage = () => {
-    if (status.phase === 'complete') return 100;
-    if (status.phase === 'depositing') return 90;
+    if (status.phase === "complete") return 100;
+    if (status.phase === "depositing") return 90;
     if (progress.confirmations && progress.requiredConfirmations) {
       return Math.min(
         (progress.confirmations / progress.requiredConfirmations) * 80,
         80,
       );
     }
-    if (status.phase === 'waiting-deposit') return 30;
-    if (status.phase === 'authorizing') return 20;
-    if (status.phase === 'preparing') return 10;
+    if (status.phase === "waiting-deposit") return 30;
+    if (status.phase === "authorizing") return 20;
+    if (status.phase === "preparing") return 10;
     return 5;
   };
 
   const getVaultUrl = () => {
     if (protocol === DeployProtocol.Veda) {
-      return 'https://lombard.finance/vaults';
+      return "https://lombard.finance/vaults";
     }
-    return 'https://silo.finance';
+    return "https://silo.finance";
   };
 
   return (
     <div className="space-y-4">
       {/* Status */}
       <div className="rounded-md border border-gray-300 bg-white p-4">
-        <div className={`mb-2 text-sm font-medium ${getStatusColor(status.phase)}`}>
+        <div
+          className={`mb-2 text-sm font-medium ${getStatusColor(status.phase)}`}
+        >
           {status.message}
         </div>
 
@@ -71,7 +73,7 @@ export function StakeAndDeployProgress({
         {progress.confirmations !== undefined &&
           progress.requiredConfirmations && (
             <div className="mt-2 text-sm text-gray-600">
-              Confirmations: {progress.confirmations} /{' '}
+              Confirmations: {progress.confirmations} /{" "}
               {progress.requiredConfirmations}
             </div>
           )}
@@ -89,17 +91,17 @@ export function StakeAndDeployProgress({
       )}
 
       {/* Vault Info */}
-      {(status.phase === 'depositing' || status.phase === 'complete') && (
+      {(status.phase === "depositing" || status.phase === "complete") && (
         <div className="rounded-md border border-green-300 bg-green-50 p-4">
           <div className="mb-2 font-medium text-green-900">
             🎯 Vault Deployment
           </div>
           <div className="space-y-2 text-sm text-green-800">
             <div>
-              <span className="font-medium">Protocol:</span>{' '}
+              <span className="font-medium">Protocol:</span>{" "}
               {protocol === DeployProtocol.Veda
-                ? 'Lombard DeFi Vault (Veda)'
-                : 'Silo Finance'}
+                ? "Lombard DeFi Vault (Veda)"
+                : "Silo Finance"}
             </div>
             <div>
               <span className="font-medium">Chain:</span> {targetChain}
@@ -117,7 +119,7 @@ export function StakeAndDeployProgress({
       )}
 
       {/* Instructions */}
-      {status.phase === 'waiting-deposit' && (
+      {status.phase === "waiting-deposit" && (
         <div className="rounded-md border border-gray-300 bg-gray-50 p-4">
           <div className="mb-2 font-medium">📝 Next Steps:</div>
           <ol className="list-decimal space-y-1 pl-5 text-sm text-gray-600">
@@ -128,11 +130,11 @@ export function StakeAndDeployProgress({
               Wait for {progress.requiredConfirmations || 6} confirmations
             </li>
             <li>
-              LBTC will be minted and automatically deposited to{' '}
-              {protocol === DeployProtocol.Veda ? 'Veda' : 'Silo'} vault
+              LBTC will be minted and automatically deposited to{" "}
+              {protocol === DeployProtocol.Veda ? "Veda" : "Silo"} vault
             </li>
             <li>
-              Track your position on the{' '}
+              Track your position on the{" "}
               <a
                 href={getVaultUrl()}
                 target="_blank"
@@ -147,14 +149,14 @@ export function StakeAndDeployProgress({
       )}
 
       {/* Complete */}
-      {status.phase === 'complete' && (
+      {status.phase === "complete" && (
         <div className="rounded-md border border-green-300 bg-green-50 p-4">
           <div className="mb-2 text-lg font-medium text-green-900">
             ✅ Stake and Deploy Complete!
           </div>
           <div className="mb-3 text-sm text-green-800">
-            Your BTC has been staked to LBTC and deposited to the{' '}
-            {protocol === DeployProtocol.Veda ? 'Veda' : 'Silo'} vault on{' '}
+            Your BTC has been staked to LBTC and deposited to the{" "}
+            {protocol === DeployProtocol.Veda ? "Veda" : "Silo"} vault on{" "}
             {targetChain}.
           </div>
           <div className="space-y-2">
@@ -177,19 +179,25 @@ export function StakeAndDeployProgress({
       )}
 
       {/* Cancel/Reset button for non-complete phases */}
-      {status.phase !== 'complete' && (
+      {status.phase !== "complete" && (
         <button
           onClick={onReset}
           className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
         >
-          {status.phase === 'error' ? 'Start Over' : 'Cancel'}
+          {status.phase === "error" ? "Start Over" : "Cancel"}
         </button>
       )}
     </div>
   );
 }
 
-function DepositAddress({ depositAddress, children }: { depositAddress: string; children?: React.ReactNode }) {
+function DepositAddress({
+  depositAddress,
+  children,
+}: {
+  depositAddress: string;
+  children?: React.ReactNode;
+}) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
@@ -204,14 +212,16 @@ function DepositAddress({ depositAddress, children }: { depositAddress: string; 
         Send BTC to this address:
       </div>
       <div className="mb-2 flex items-center gap-2 rounded-md bg-white p-3">
-        <span className="flex-1 break-all font-mono text-sm">{depositAddress}</span>
+        <span className="flex-1 break-all font-mono text-sm">
+          {depositAddress}
+        </span>
         <button
           type="button"
           onClick={handleCopy}
           title="Copy address"
           className="shrink-0 rounded p-1 text-gray-400 hover:text-gray-600 transition-colors"
         >
-          {copied ? '✓' : '⧉'}
+          {copied ? "✓" : "⧉"}
         </button>
       </div>
       {children}

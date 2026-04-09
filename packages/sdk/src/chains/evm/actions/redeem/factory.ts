@@ -4,11 +4,11 @@
  * @module chains/evm/actions/redeem/factory
  */
 
-import type { LombardConfig } from '../../../../config/types';
-import type { EvmCoreContext } from '../../../../shared/context';
-import { createEvmCoreContext } from '../../../../shared/context';
-import { EvmRedeem } from './EvmRedeem';
-import type { EvmRedeemParams } from './types';
+import type { LombardConfig } from "../../../../config/types";
+import type { EvmCoreContext } from "../../../../shared/context";
+import { createEvmCoreContext } from "../../../../shared/context";
+import { EvmRedeem } from "./EvmRedeem";
+import type { EvmRedeemParams } from "./types";
 
 /**
  * Create EvmRedeem action from config

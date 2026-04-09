@@ -5,30 +5,30 @@
  * protocol/token/env/chain support is declarative and composable.
  */
 
-import { Env } from '@lombard.finance/sdk-common';
-import { Abi } from 'viem';
+import { Env } from "@lombard.finance/sdk-common";
+import { Abi } from "viem";
 
-import { ChainId } from '../common/chains';
-import { ContractInfo } from '../common/contract-info';
-import { AssetId } from '../core/assets';
-import { Token } from '../tokens/token-addresses';
-import { SILO_VAULT_SPENDER_ABI } from '../vaults/abi';
+import { ChainId } from "../common/chains";
+import { ContractInfo } from "../common/contract-info";
+import { AssetId } from "../core/assets";
+import { Token } from "../tokens/token-addresses";
+import { SILO_VAULT_SPENDER_ABI } from "../vaults/abi";
 import {
   VEDA_VAULT_SPENDER_CONTRACTS,
   VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
   VedaVaultStakeAndBakeChain,
-} from '../vaults/lib/config';
+} from "../vaults/lib/config";
 
 /**
  * Approval mode for stake and bake operations.
  * - `permit`: Off-chain EIP-2612 signature (gasless for user, backend pays gas)
  * - `approve`: On-chain ERC-20 approval transaction (user pays gas)
  */
-export type ApprovalMode = 'permit' | 'approve';
+export type ApprovalMode = "permit" | "approve";
 
-export type StakeAndBakeAmountStrategy = 'identity' | 'btcToLbtc';
-export type StakeAndBakeDeadlineStrategy = 'expiry' | 'zero';
-export type StakeAndBakeNonceStrategy = 'chain' | 'skip';
+export type StakeAndBakeAmountStrategy = "identity" | "btcToLbtc";
+export type StakeAndBakeDeadlineStrategy = "expiry" | "zero";
+export type StakeAndBakeNonceStrategy = "chain" | "skip";
 
 export interface StakeAndBakeStrategyConfig {
   amountStrategy: StakeAndBakeAmountStrategy;
@@ -60,7 +60,7 @@ const ALL_ENVS = Object.values(Env) as Env[];
 // VEDA_VAULT_STAKE_AND_BAKE_CHAINS is imported and used directly below
 
 export const SILO_VAULT_SPENDER_CONTRACT_GASTALD_FUJI: `0x${string}` =
-  '0xFe1e76D9e065e879A9D1914482f0F13d85F39877';
+  "0xFe1e76D9e065e879A9D1914482f0F13d85F39877";
 
 function mapChains<const C extends readonly ChainId[]>(
   chains: C,
@@ -95,7 +95,7 @@ function getVedaSpenderContract(
 const _DefiRegistryTokens = {
   LBTC: Token.LBTC,
   BTCb: Token.BTCb,
-  BTC: 'BTC',
+  BTC: "BTC",
 } as const;
 
 export type DefiRegistryToken =
@@ -108,56 +108,56 @@ export type DefiRegistryToken =
  * All other protocol references should use these values.
  */
 export const DefiProtocol = {
-  Veda: 'veda',
-  Silo: 'silo',
+  Veda: "veda",
+  Silo: "silo",
 } as const;
 
 export type DefiProtocol = (typeof DefiProtocol)[keyof typeof DefiProtocol];
 
 export const DefiProtocols = {
   [DefiProtocol.Veda]: {
-    name: 'Lombard DeFi Vault',
-    url: 'https://lombard.finance',
+    name: "Lombard DeFi Vault",
+    url: "https://lombard.finance",
   },
   [DefiProtocol.Silo]: {
-    name: 'Silo Finance Vault',
-    url: 'https://silo.finance',
+    name: "Silo Finance Vault",
+    url: "https://silo.finance",
   },
 } as const;
 
-const VEDA_LBTC_PERMIT_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
-  mode: 'permit',
-  domainName: 'Lombard Staked Bitcoin',
-  domainVersion: '1',
-  deadlineStrategy: 'expiry',
-  nonceStrategy: 'chain',
+const VEDA_LBTC_PERMIT_APPROVAL: StakeAndBakeStrategyConfig["approval"] = {
+  mode: "permit",
+  domainName: "Lombard Staked Bitcoin",
+  domainVersion: "1",
+  deadlineStrategy: "expiry",
+  nonceStrategy: "chain",
 };
 
-const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
-  mode: 'approve',
-  domainName: 'Bitcoin',
-  domainVersion: '1',
-  deadlineStrategy: 'zero',
-  nonceStrategy: 'skip',
+const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig["approval"] = {
+  mode: "approve",
+  domainName: "Bitcoin",
+  domainVersion: "1",
+  deadlineStrategy: "zero",
+  nonceStrategy: "skip",
 };
 
 /**
  * DeFi Registry: Token approval configurations by vault, token, env, and chain.
- * 
+ *
  * TODO: Update the format of this registry to match asset catalog and chain catalog
  */
 export const DEFI_REGISTRY: StakeAndBakeRegistry = {
   [DefiProtocol.Veda]: {
     [Token.LBTC]: mapEnvs(ALL_ENVS, () =>
-      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, chain => ({
-        amountStrategy: 'identity',
+      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, (chain) => ({
+        amountStrategy: "identity",
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
         spenderContract: getVedaSpenderContract(chain),
       })),
     ),
     BTC: mapEnvs(ALL_ENVS, () =>
-      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, chain => ({
-        amountStrategy: 'btcToLbtc',
+      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, (chain) => ({
+        amountStrategy: "btcToLbtc",
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
         spenderContract: getVedaSpenderContract(chain),
       })),
@@ -167,8 +167,8 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
     [Token.BTCb]: {
       // Silo on Avalanche Fuji is only available on testnet (Gastald backend)
       // Stage environment does not support Avalanche Fuji
-      [Env.testnet]: mapChains([ChainId.avalancheFuji], chain => ({
-        amountStrategy: 'identity',
+      [Env.testnet]: mapChains([ChainId.avalancheFuji], (chain) => ({
+        amountStrategy: "identity",
         approval: { ...SILO_BTCB_APPROVE_APPROVAL },
         spenderContract: {
           abi: SILO_VAULT_SPENDER_ABI as Abi,
@@ -247,9 +247,9 @@ export function getAvailableProtocols(
 ): DefiProtocol[] {
   // Map asset IDs to registry tokens
   const tokenMap: Partial<Record<AssetId, StakeAndBakeToken[]>> = {
-    [AssetId.LBTC]: [Token.LBTC, 'BTC'],
+    [AssetId.LBTC]: [Token.LBTC, "BTC"],
     [AssetId.BTCb]: [Token.BTCb],
-    [AssetId.BTC]: ['BTC'],
+    [AssetId.BTC]: ["BTC"],
   };
 
   const tokens = tokenMap[assetId];
@@ -259,7 +259,8 @@ export function getAvailableProtocols(
 
   for (const [protocol, tokenStrategyMap] of Object.entries(DEFI_REGISTRY)) {
     for (const token of tokens) {
-      const tokenRegistry = tokenStrategyMap[token as keyof typeof tokenStrategyMap];
+      const tokenRegistry =
+        tokenStrategyMap[token as keyof typeof tokenStrategyMap];
       if (!tokenRegistry) continue;
 
       const envRegistry = tokenRegistry[env];
@@ -286,10 +287,10 @@ export function getAvailableProtocolsWithMetadata(
   env: Env,
 ): Array<{ value: DefiProtocol; label: string; url: string }> {
   const protocols = getAvailableProtocols(assetId, env);
-  
-  return protocols.map(protocol => ({
+
+  return protocols.map((protocol) => ({
     value: protocol,
     label: DefiProtocols[protocol]?.name ?? protocol,
-    url: DefiProtocols[protocol]?.url ?? '',
+    url: DefiProtocols[protocol]?.url ?? "",
   }));
 }

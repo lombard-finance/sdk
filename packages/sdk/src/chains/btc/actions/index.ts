@@ -5,10 +5,10 @@
  */
 
 // Stake action
-export * from './stake';
+export * from "./stake";
 
 // Deposit action
-export * from './deposit';
+export * from "./deposit";
 
 // StakeAndDeploy action
-export * from './stakeAndDeploy';
+export * from "./stakeAndDeploy";

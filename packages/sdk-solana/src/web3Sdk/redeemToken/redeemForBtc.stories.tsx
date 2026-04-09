@@ -1,8 +1,8 @@
-import { Env } from '@lombard.finance/sdk-common';
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import { Env } from "@lombard.finance/sdk-common";
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
 
-import { envToNetwork } from '../../const/getConfig';
+import { envToNetwork } from "../../const/getConfig";
 import {
   Button,
   CodeBlock,
@@ -10,11 +10,11 @@ import {
   ErrorDisplay,
   ResultDisplay,
   SectionCard,
-} from '../../stories/components';
-import { functionType } from '../../stories/decorators/function-type';
-import { useConnect } from '../../stories/hooks/useConnect';
-import useQuery from '../../stories/hooks/useQuery';
-import { redeemForBtc } from './redeemForBtc';
+} from "../../stories/components";
+import { functionType } from "../../stories/decorators/function-type";
+import { useConnect } from "../../stories/hooks/useConnect";
+import useQuery from "../../stories/hooks/useQuery";
+import { redeemForBtc } from "./redeemForBtc";
 
 interface RedeemForBtcStoryArgs {
   environment: Env;
@@ -44,12 +44,12 @@ export const StoryView = ({
   const provider = connectionData?.provider;
 
   const request = async () => {
-    if (!provider || !address) throw new Error('Wallet not connected.');
+    if (!provider || !address) throw new Error("Wallet not connected.");
     if (!btcAddress)
-      throw new Error('Destination Bitcoin address is required (set in args).');
+      throw new Error("Destination Bitcoin address is required (set in args).");
     const parsedAmount = parseFloat(amount);
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0)
-      throw new Error('Amount must be a positive number in BTC (set in args).');
+      throw new Error("Amount must be a positive number in BTC (set in args).");
 
     const amountSats = Math.round(parsedAmount * 1e8).toString();
 
@@ -65,9 +65,9 @@ export const StoryView = ({
       });
       return result;
     } catch (err: unknown) {
-      if (err instanceof Error && err.message.includes('Debug logs:')) {
-        const parts = err.message.split('Debug logs:\n');
-        setTransactionLogs(parts[1]?.split('\n') || []);
+      if (err instanceof Error && err.message.includes("Debug logs:")) {
+        const parts = err.message.split("Debug logs:\n");
+        setTransactionLogs(parts[1]?.split("\n") || []);
       }
       throw err;
     }
@@ -137,15 +137,12 @@ export const StoryView = ({
             />
           )}
           {(error || connectError) && (
-            <ErrorDisplay
-              error={error || connectError}
-              title="Redeem Error"
-            />
+            <ErrorDisplay error={error || connectError} title="Redeem Error" />
           )}
 
           {transactionLogs && transactionLogs.length > 0 && (
             <SectionCard title="Transaction Logs (Debug)">
-              <CodeBlock text={transactionLogs.join('\n')} />
+              <CodeBlock text={transactionLogs.join("\n")} />
             </SectionCard>
           )}
         </>
@@ -155,10 +152,10 @@ export const StoryView = ({
 };
 
 const meta: Meta<typeof StoryView> = {
-  title: 'write/redeemForBtc (Asset Router)',
+  title: "write/redeemForBtc (Asset Router)",
   component: StoryView,
-  tags: ['autodocs'],
-  decorators: [functionType('write')],
+  tags: ["autodocs"],
+  decorators: [functionType("write")],
   parameters: {
     docs: {
       description: {
@@ -174,26 +171,26 @@ const meta: Meta<typeof StoryView> = {
   },
   args: {
     environment: Env.stage,
-    amount: '0.0002',
-    btcAddress: '',
-    tokenMint: '',
+    amount: "0.0002",
+    btcAddress: "",
+    tokenMint: "",
   },
   argTypes: {
     environment: {
-      control: { type: 'select' },
+      control: { type: "select" },
       options: Object.values(Env),
     },
     amount: {
-      control: { type: 'text' },
-      description: 'Amount to redeem in BTC (e.g. 0.0002)',
+      control: { type: "text" },
+      description: "Amount to redeem in BTC (e.g. 0.0002)",
     },
     btcAddress: {
-      control: { type: 'text' },
-      description: 'Destination Bitcoin address (taproot, segwit, etc.)',
+      control: { type: "text" },
+      description: "Destination Bitcoin address (taproot, segwit, etc.)",
     },
     tokenMint: {
-      control: { type: 'text' },
-      description: 'BTC.b mint address override (leave empty for default)',
+      control: { type: "text" },
+      description: "BTC.b mint address override (leave empty for default)",
     },
   },
 };

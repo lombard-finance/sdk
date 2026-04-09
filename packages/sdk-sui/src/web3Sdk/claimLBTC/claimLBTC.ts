@@ -1,12 +1,12 @@
-import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
-import type { SuiTransactionBlockResponse } from '@mysten/sui/client';
-import { SuiClient } from '@mysten/sui/client';
-import { Transaction } from '@mysten/sui/transactions';
-import { SuiChain, SuiSignTransactionFeature } from '@mysten/wallet-standard';
-import { WalletWithFeatures } from '@wallet-standard/base';
-import type { WalletAccount } from '@wallet-standard/core';
+import { DEFAULT_ENV, Env } from "@lombard.finance/sdk-common";
+import type { SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { SuiClient } from "@mysten/sui/client";
+import { Transaction } from "@mysten/sui/transactions";
+import { SuiChain, SuiSignTransactionFeature } from "@mysten/wallet-standard";
+import { WalletWithFeatures } from "@wallet-standard/base";
+import type { WalletAccount } from "@wallet-standard/core";
 
-import { getConfig } from '../../const';
+import { getConfig } from "../../const";
 
 type Not0xPrefixedHex = string;
 
@@ -20,7 +20,7 @@ interface IClaimLBTCParams {
   env?: Env;
 }
 
-const SIGN_TRANSACTION_V2_FEATURE = 'sui:signTransaction';
+const SIGN_TRANSACTION_V2_FEATURE = "sui:signTransaction";
 
 /**
  * Claims LBTC.
@@ -51,15 +51,15 @@ export async function claimLBTC({
       transaction.object(consortiumAddress),
       transaction.object(denyList),
       transaction.object(bascule),
-      transaction.pure.vector('u8', Array.from(Buffer.from(payload, 'hex'))),
-      transaction.pure.vector('u8', Array.from(Buffer.from(proof, 'hex'))),
+      transaction.pure.vector("u8", Array.from(Buffer.from(payload, "hex"))),
+      transaction.pure.vector("u8", Array.from(Buffer.from(proof, "hex"))),
     ],
     typeArguments: [LBTC],
   });
 
   if (wallet.features[SIGN_TRANSACTION_V2_FEATURE]) {
     const signedTransaction = await wallet.features[
-      'sui:signTransaction'
+      "sui:signTransaction"
     ].signTransaction({
       chain: chainId,
       transaction,
@@ -76,7 +76,7 @@ export async function claimLBTC({
 
   const signedTransaction = await wallet.features[
     // @ts-ignore The current wallet standard interface version doesn't support this type
-    'sui:signTransactionBlock'
+    "sui:signTransactionBlock"
   ].signTransactionBlock({
     chain: chainId,
     transactionBlock: transaction,

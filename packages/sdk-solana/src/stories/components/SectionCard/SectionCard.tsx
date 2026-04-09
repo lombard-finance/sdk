@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface SectionCardProps {
   title?: string;
@@ -11,9 +11,9 @@ interface SectionCardProps {
 export const SectionCard: React.FC<SectionCardProps> = ({
   title,
   children,
-  className = 'mb-4',
-  titleClassName = '',
-  bodyClassName = '',
+  className = "mb-4",
+  titleClassName = "",
+  bodyClassName = "",
 }) => {
   return (
     <div className={`card ${className}`}>

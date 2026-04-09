@@ -1,9 +1,9 @@
-import { AssetId, Chain, createConfig, Env } from '@lombard.finance/sdk';
-import { solanaModule } from '@lombard.finance/sdk-solana';
-import { useNonEvmUnstake, useLombardSDK } from '@lombard.finance/sdk-react';
-import { useCallback } from 'react';
+import { AssetId, Chain, createConfig, Env } from "@lombard.finance/sdk";
+import { solanaModule } from "@lombard.finance/sdk-solana";
+import { useNonEvmUnstake, useLombardSDK } from "@lombard.finance/sdk-react";
+import { useCallback } from "react";
 
-import { getEnvironment } from '../../lib/config';
+import { getEnvironment } from "../../lib/config";
 
 /**
  * Form data for Solana unstaking
@@ -19,7 +19,7 @@ export interface SolanaUnstakingFormData {
 /**
  * Unstaking status for UI
  */
-export type { UnstakingStatus as SolanaUnstakingStatus } from '@lombard.finance/sdk-react';
+export type { UnstakingStatus as SolanaUnstakingStatus } from "@lombard.finance/sdk-react";
 
 /**
  * Hook for managing Solana unstaking flow (LBTC → BTC)
@@ -31,19 +31,20 @@ export type { UnstakingStatus as SolanaUnstakingStatus } from '@lombard.finance/
 export function useSolanaUnstaking(solanaAddress?: string | null, env?: Env) {
   const currentEnv = env ?? getEnvironment();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
-    () => {
-      if (!solanaAddress) return undefined;
-      return createConfig({
-        env: currentEnv,
-        providers: {
-          ...(window.solana && { solana: () => window.solana! }),
-        },
-        modules: [solanaModule()],
-      });
-    },
-    [solanaAddress, currentEnv],
-  );
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(() => {
+    if (!solanaAddress) return undefined;
+    return createConfig({
+      env: currentEnv,
+      providers: {
+        ...(window.solana && { solana: () => window.solana! }),
+      },
+      modules: [solanaModule()],
+    });
+  }, [solanaAddress, currentEnv]);
 
   const {
     unstake: unstakeCore,
@@ -51,7 +52,7 @@ export function useSolanaUnstaking(solanaAddress?: string | null, env?: Env) {
     txHash,
     status,
     error: unstakeError,
-  } = useNonEvmUnstake(sdk, 'solana');
+  } = useNonEvmUnstake(sdk, "solana");
 
   const unstake = useCallback(
     (formData: SolanaUnstakingFormData) =>

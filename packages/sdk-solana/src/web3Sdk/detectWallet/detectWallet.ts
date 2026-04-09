@@ -2,13 +2,13 @@ import {
   InjectedWallet,
   SolanaWalletProvider,
   WindowWithSolanaInjectedWallets,
-} from '../../types/walletProviders';
+} from "../../types/walletProviders";
 
 export function getSolanaWalletProvider<T extends InjectedWallet>(
   injectedWallet: T,
 ): SolanaWalletProvider<T> {
   let walletProvider = undefined;
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     const WINDOW = window as WindowWithSolanaInjectedWallets;
 
     switch (injectedWallet) {

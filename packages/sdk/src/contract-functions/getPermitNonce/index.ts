@@ -1,1 +1,1 @@
-export * from './getPermitNonce';
+export * from "./getPermitNonce";

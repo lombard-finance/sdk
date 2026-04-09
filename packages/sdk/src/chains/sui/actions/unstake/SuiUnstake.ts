@@ -6,25 +6,25 @@
  * @module chains/sui/actions/unstake/SuiUnstake
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
-import { z } from 'zod';
+import type { Env } from "@lombard.finance/sdk-common";
+import { z } from "zod";
 
-import { Chain, StepStatus } from '../../../../core';
-import { BaseAction } from '../../../../shared/actions/BaseAction';
-import { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
-import type { SuiCoreContext } from '../../../../shared/context';
-import { LombardError } from '../../../../shared/errors';
-import type { UnstakeEventMap } from '../../../../shared/events';
+import { Chain, StepStatus } from "../../../../core";
+import { BaseAction } from "../../../../shared/actions/BaseAction";
+import { NonEvmUnstakeStatus } from "../../../../shared/constants/statusConstants";
+import type { SuiCoreContext } from "../../../../shared/context";
+import { LombardError } from "../../../../shared/errors";
+import type { UnstakeEventMap } from "../../../../shared/events";
 import {
   amountSchema,
   validatePrepareParams,
-} from '../../../../shared/validation';
-import { isBtcUnstakeSupported,suiToBtcConfig } from './config';
+} from "../../../../shared/validation";
+import { isBtcUnstakeSupported, suiToBtcConfig } from "./config";
 import type {
   ISuiUnstake,
   SuiUnstakeParams,
   SuiUnstakePrepareParams,
-} from './types';
+} from "./types";
 
 /**
  * Get Sui chain ID from Chain constant
@@ -32,11 +32,11 @@ import type {
 function getSuiChainId(chain: Chain): string {
   switch (chain) {
     case Chain.SUI_MAINNET:
-      return 'sui:mainnet';
+      return "sui:mainnet";
     case Chain.SUI_TESTNET:
-      return 'sui:testnet';
+      return "sui:testnet";
     default:
-      return 'sui:testnet';
+      return "sui:testnet";
   }
 }
 
@@ -79,7 +79,7 @@ export class SuiUnstake
   }
 
   async prepare(params: SuiUnstakePrepareParams): Promise<void> {
-    this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
+    this.assertStatus(NonEvmUnstakeStatus.IDLE, "prepare");
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
@@ -96,14 +96,14 @@ export class SuiUnstake
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(NonEvmUnstakeStatus.READY, 'execute');
+    this.assertStatus(NonEvmUnstakeStatus.READY, "execute");
 
     return this.act(async () => {
       const amount = this._amount;
       const recipient = this._recipient;
 
       if (!amount || !recipient) {
-        throw LombardError.missingParameter('amount or recipient');
+        throw LombardError.missingParameter("amount or recipient");
       }
 
       // Emit burning step

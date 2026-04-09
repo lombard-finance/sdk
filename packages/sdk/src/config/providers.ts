@@ -7,24 +7,24 @@ export type {
   SolanaProvider,
   StarknetProvider,
   SuiProvider,
-} from '@lombard.finance/sdk-common';
+} from "@lombard.finance/sdk-common";
 import type {
   BtcProvider,
   EvmProvider,
   SolanaProvider,
   StarknetProvider,
   SuiProvider,
-} from '@lombard.finance/sdk-common';
+} from "@lombard.finance/sdk-common";
 
 /**
  * Type guard to check if a provider is an EVM provider
  */
 export function isEvmProvider(provider: unknown): provider is EvmProvider {
   return (
-    typeof provider === 'object' &&
+    typeof provider === "object" &&
     provider !== null &&
-    'request' in provider &&
-    typeof (provider as EvmProvider).request === 'function'
+    "request" in provider &&
+    typeof (provider as EvmProvider).request === "function"
   );
 }
 
@@ -33,10 +33,10 @@ export function isEvmProvider(provider: unknown): provider is EvmProvider {
  */
 export function isBtcProvider(provider: unknown): provider is BtcProvider {
   return (
-    typeof provider === 'object' &&
+    typeof provider === "object" &&
     provider !== null &&
-    'getAddresses' in provider &&
-    typeof (provider as BtcProvider).getAddresses === 'function'
+    "getAddresses" in provider &&
+    typeof (provider as BtcProvider).getAddresses === "function"
   );
 }
 
@@ -47,10 +47,10 @@ export function isSolanaProvider(
   provider: unknown,
 ): provider is SolanaProvider {
   return (
-    typeof provider === 'object' &&
+    typeof provider === "object" &&
     provider !== null &&
-    'publicKey' in provider &&
-    'signAndSendTransaction' in provider
+    "publicKey" in provider &&
+    "signAndSendTransaction" in provider
   );
 }
 
@@ -59,10 +59,10 @@ export function isSolanaProvider(
  */
 export function isSuiProvider(provider: unknown): provider is SuiProvider {
   return (
-    typeof provider === 'object' &&
+    typeof provider === "object" &&
     provider !== null &&
-    'getAddress' in provider &&
-    'signAndExecuteTransactionBlock' in provider
+    "getAddress" in provider &&
+    "signAndExecuteTransactionBlock" in provider
   );
 }
 
@@ -73,9 +73,9 @@ export function isStarknetProvider(
   provider: unknown,
 ): provider is StarknetProvider {
   return (
-    typeof provider === 'object' &&
+    typeof provider === "object" &&
     provider !== null &&
-    'address' in provider &&
-    'execute' in provider
+    "address" in provider &&
+    "execute" in provider
   );
 }

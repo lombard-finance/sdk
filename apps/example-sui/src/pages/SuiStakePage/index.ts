@@ -1,1 +1,1 @@
-export { SuiStakePage } from './SuiStakePage';
+export { SuiStakePage } from "./SuiStakePage";
