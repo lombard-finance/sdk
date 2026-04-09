@@ -328,7 +328,7 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
       [SOLANA_MAINNET_CHAIN]: 'LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek',
     },
     [Env.testnet]: {
-      [SOLANA_DEVNET_CHAIN]: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
+      [SOLANA_DEVNET_CHAIN]: '1BTCPX3qyFtBvhQvJaHntfzZfB8qcJmJXfoRnD3vAgh',
     },
     [Env.dev]: {
       [SOLANA_DEVNET_CHAIN]: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
