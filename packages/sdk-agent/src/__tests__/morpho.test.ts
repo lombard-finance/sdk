@@ -326,10 +326,11 @@ describe("getMorphoPosition", () => {
     expect(typeof getMorphoPosition.execute).toBe("function");
   });
 
-  it("returns position data with collateral and borrows", async () => {
+  it("returns position data with correct LTV from oracle price", async () => {
     mockApiResponse({ marketByUniqueKey: MOCK_MARKET });
     // position() returns [supplyShares, borrowShares, collateral]
-    mockReadContract.mockResolvedValueOnce([0n, 50000000n, 10000000n]);
+    // 0.0001 LBTC = 10000 raw (8 decimals), borrowed 10 USDC = 10000000 raw (6 decimals)
+    mockReadContract.mockResolvedValueOnce([0n, 10000000n, 10000n]);
     // market() returns [totalSupplyAssets, totalSupplyShares, totalBorrowAssets, totalBorrowShares, lastUpdate, fee]
     mockReadContract.mockResolvedValueOnce([
       4000000000000n,
@@ -339,19 +340,46 @@ describe("getMorphoPosition", () => {
       1000000n,
       0n,
     ]);
+    // oracle price(): price of 1e8 LBTC in USDC, scaled by 1e36
+    // If 1 LBTC ~ $100,000 USDC, then price = 100000 * 1e6 * 1e36 / 1e8 = 1e39
+    // So 0.0001 LBTC = $10 USDC collateral value
+    // Borrowing 10 USDC against $10 collateral = 100% LTV
+    const oraclePrice = 10n ** 39n; // ~$100k per LBTC
+    mockReadContract.mockResolvedValueOnce(oraclePrice);
 
     const result = await getMorphoPosition.execute(validParams);
-    expect(result.collateral).toBe("0.1"); // 10000000 / 1e8
+    expect(result.collateral).toBe("0.0001"); // 10000 / 1e8
+    expect(result.borrowAssets).toBe("10"); // 10000000 / 1e6
     expect(result.loanAsset).toBe("USDC");
     expect(result.collateralAsset).toBe("LBTC");
     expect(result.lltv).toBe("86%");
+    // 10 USDC borrowed / $10 collateral value = ~100% LTV -> Liquidatable
+    expect(result.healthStatus).toBe("Liquidatable");
+    expect(parseFloat(result.currentLtv)).toBeGreaterThan(86); // Over LLTV
     expect(result.error).toBeUndefined();
+  });
+
+  it("returns healthy status for low LTV", async () => {
+    mockApiResponse({ marketByUniqueKey: MOCK_MARKET });
+    // 0.0001 LBTC collateral, borrowed only 1 USDC
+    mockReadContract.mockResolvedValueOnce([0n, 1000000n, 10000n]);
+    mockReadContract.mockResolvedValueOnce([
+      4000000000000n, 4000000000000n, 3000000000000n, 3000000000000n, 1000000n, 0n,
+    ]);
+    const oraclePrice = 10n ** 39n; // ~$100k per LBTC -> 0.0001 LBTC = $10
+    mockReadContract.mockResolvedValueOnce(oraclePrice);
+
+    const result = await getMorphoPosition.execute(validParams);
+    // 1 USDC / $10 = 10% LTV -> Healthy (well below 86% LLTV)
+    expect(result.healthStatus).toBe("Healthy");
+    expect(parseFloat(result.currentLtv)).toBeCloseTo(10, 0);
   });
 
   it("returns empty position for no collateral", async () => {
     mockApiResponse({ marketByUniqueKey: MOCK_MARKET });
     mockReadContract.mockResolvedValueOnce([0n, 0n, 0n]);
     mockReadContract.mockResolvedValueOnce([0n, 0n, 0n, 0n, 0n, 0n]);
+    mockReadContract.mockResolvedValueOnce(10n ** 39n); // oracle price still needed
 
     const result = await getMorphoPosition.execute(validParams);
     expect(result.collateral).toBe("0");

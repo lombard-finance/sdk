@@ -117,6 +117,20 @@ const morphoPositionAbi = [
   },
 ] as const;
 
+/** Morpho oracles expose price() returning collateral price in loan token terms, scaled by 1e36 */
+const morphoOracleAbi = [
+  {
+    name: "price",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+] as const;
+
+/** Morpho Blue uses 1e36 as the oracle price scale factor */
+const ORACLE_PRICE_SCALE = 10n ** 36n;
+
 // ─── GraphQL Queries ────────────────────────────────────────────────
 
 const LBTC_MARKETS_QUERY = `{
@@ -518,7 +532,8 @@ export const getMorphoPosition: ToolDefinition<
         env: config.env,
       });
 
-      const [positionResult, marketState] = await Promise.all([
+      // Read on-chain: position, market totals, and oracle price
+      const [positionResult, marketState, oraclePrice] = await Promise.all([
         client.readContract({
           address: MORPHO_BLUE_ADDRESS,
           abi: morphoPositionAbi,
@@ -530,6 +545,11 @@ export const getMorphoPosition: ToolDefinition<
           abi: morphoPositionAbi,
           functionName: "market",
           args: [marketId as `0x${string}`],
+        }),
+        client.readContract({
+          address: market.oracleAddress as Address,
+          abi: morphoOracleAbi,
+          functionName: "price",
         }),
       ]);
 
@@ -550,23 +570,25 @@ export const getMorphoPosition: ToolDefinition<
         market.loanAsset.decimals,
       );
 
-      // Calculate LTV (simplified: borrow USD / collateral USD)
-      // Using market state APYs as proxy for oracle price is imprecise,
-      // but for display purposes we use the API's USD values
+      // Calculate LTV using the same formula as Morpho Blue:
+      // LTV = borrowAssets / (collateral * oraclePrice / ORACLE_PRICE_SCALE)
+      // Rearranged to avoid precision loss:
+      // LTV = (borrowAssets * ORACLE_PRICE_SCALE) / (collateral * oraclePrice)
       const lltvNum = Number(market.lltv) / 1e18;
       let currentLtv = 0;
       let healthStatus = "No position";
 
       if (collateralRaw > 0n) {
-        if (borrowAssetsRaw > 0n) {
-          // Rough LTV estimate: we can't get oracle price without calling it,
-          // so we report the raw values and let the user compare
+        if (borrowAssetsRaw > 0n && oraclePrice > 0n) {
+          // collateralValue = collateral * oraclePrice / ORACLE_PRICE_SCALE (in loan asset units)
+          const collateralValueScaled =
+            collateralRaw * (oraclePrice as bigint);
+          // LTV as a ratio (0 to 1)
           currentLtv =
-            (Number(borrowAssets) *
-              (market.state.supplyAssetsUsd /
-                (market.state.supplyAssetsUsd +
-                  market.state.borrowAssetsUsd))) /
-              Number(collateral) || 0;
+            Number(
+              (borrowAssetsRaw * ORACLE_PRICE_SCALE * 10000n) /
+                collateralValueScaled,
+            ) / 10000;
           healthStatus =
             currentLtv < lltvNum * 0.8
               ? "Healthy"
