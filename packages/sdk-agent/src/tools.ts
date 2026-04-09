@@ -431,8 +431,8 @@ export const getStrategies: ToolDefinition<
 > = {
   name: "get_strategies",
   description:
-    "List available yield strategies (DeFi vaults) where LBTC can be deployed for additional yield. " +
-    "Returns vault name, chain, current APY, and TVL for each strategy.",
+    "List available yield strategies where LBTC can be deployed for additional yield. " +
+    "Currently includes Bitcoin Earn (passive vault yield). Returns name, chain, APY, and TVL.",
   parameters: StrategiesSchema as Record<string, unknown>,
   schema: StrategiesZod,
   // Vault data is mainnet-only regardless of chainId
@@ -451,7 +451,7 @@ export const getStrategies: ToolDefinition<
       return {
         strategies: [
           {
-            vault: "Veda",
+            vault: "Bitcoin Earn",
             chain: "Ethereum",
             apy: latestApy
               ? `${(parseFloat(String(latestApy.apy)) * 100).toFixed(2)}%`
@@ -666,7 +666,7 @@ export const prepareDeployToVault: ToolDefinition<{
 }> = {
   name: "prepare_deploy_to_vault",
   description:
-    "Prepare a transaction to deploy LBTC into a DeFi vault for yield. Returns parameters for wallet signing.",
+    "Prepare a transaction to deploy LBTC into Bitcoin Earn for passive yield. Returns parameters for wallet signing.",
   parameters: DeployToVaultSchema as Record<string, unknown>,
   schema: DeployToVaultZod,
   execute: async (params) => {
@@ -681,7 +681,7 @@ export const prepareDeployToVault: ToolDefinition<{
         chainId: config.chainId,
         token: "LBTC",
       },
-      description: `Deploy ${amount} LBTC to ${protocol} vault on ${config.name}`,
+      description: `Deploy ${amount} LBTC to Bitcoin Earn on ${config.name}`,
     };
   },
 };
@@ -692,7 +692,7 @@ export const prepareVaultWithdrawal: ToolDefinition<{
 }> = {
   name: "prepare_vault_withdrawal",
   description:
-    "Prepare a withdrawal from a DeFi vault. Withdrawals are queued and may take time to process.",
+    "Prepare a withdrawal from Bitcoin Earn. Withdrawals are queued and may take time to process.",
   parameters: VaultWithdrawalSchema as Record<string, unknown>,
   schema: VaultWithdrawalZod,
   execute: async (params) => {
@@ -706,7 +706,7 @@ export const prepareVaultWithdrawal: ToolDefinition<{
         chainId: config.chainId,
         vault: "veda",
       },
-      description: `Withdraw ${amount} shares from Veda vault on ${config.name}. Withdrawals are queued and may take time to process.`,
+      description: `Withdraw ${amount} shares from Bitcoin Earn on ${config.name}. Withdrawals are queued and may take time to process.`,
     };
   },
 };
@@ -761,8 +761,8 @@ export const getVaultPositions: ToolDefinition<
 > = {
   name: "get_vault_positions",
   description:
-    "Get a user's vault positions including shares held and their estimated LBTC value. " +
-    "Currently supports the Veda vault on Ethereum mainnet.",
+    "Get a user's Bitcoin Earn positions including shares held and their estimated LBTC value. " +
+    "Currently supports Bitcoin Earn on Ethereum mainnet.",
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
@@ -792,7 +792,7 @@ export const getVaultPositions: ToolDefinition<
         shares: sharesData.balance.toString(),
         shareValue: shareVal.toString(),
         estimatedLbtcValue: sharesData.balanceLbtc.toString(),
-        vault: "Veda",
+        vault: "Bitcoin Earn",
         chain: config.name,
       };
     } catch (err) {
@@ -800,7 +800,7 @@ export const getVaultPositions: ToolDefinition<
         shares: "",
         shareValue: "",
         estimatedLbtcValue: "",
-        vault: "Veda",
+        vault: "Bitcoin Earn",
         chain: config.name,
         error:
           err instanceof Error
