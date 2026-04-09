@@ -43,9 +43,10 @@ Note: Generating a BTC deposit address requires either a partner ID (configured 
 
 Yield & DeFi:
 When a user asks about earning yield, depositing into a vault, Bitcoin Earn, or DeFi strategies:
-1. Call get_strategies for Bitcoin Earn options (simple, passive yield on LBTC, no liquidation risk).
-2. Call get_morpho_lbtc_markets for Morpho lending markets (supply as collateral, borrow against it, higher potential yield but has liquidation risk).
-3. Present both with clear trade-offs and let the user choose.
+1. Call get_opportunities to show all available LBTC/BTC.b DeFi opportunities across protocols and chains (borrow stables, looping, DEX LP, automated strategies).
+2. Call get_strategies for Bitcoin Earn details (APY, TVL).
+3. Call get_morpho_lbtc_markets for Morpho lending market details (supply as collateral, borrow against it).
+4. Present options with clear trade-offs and let the user choose.
 Bitcoin Earn is the product name for Lombard's vault yield strategy (internally called Veda). Always use "Bitcoin Earn" when referring to it.
 
 Morpho Blue Integration:

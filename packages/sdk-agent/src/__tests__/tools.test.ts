@@ -104,8 +104,8 @@ describe("prepareClaimDeposit", () => {
 });
 
 describe("allTools", () => {
-  it("has 23 entries", () => {
-    expect(allTools).toHaveLength(23);
+  it("has 24 entries", () => {
+    expect(allTools).toHaveLength(24);
   });
 
   it("contains all expected tools including new ones", () => {
@@ -125,6 +125,7 @@ describe("allTools", () => {
     expect(names).toContain("get_morpho_position");
     expect(names).toContain("get_token_balance");
     expect(names).toContain("prepare_morpho_repay");
+    expect(names).toContain("get_opportunities");
   });
 
   it("each tool has name, description, parameters, schema, and execute", () => {

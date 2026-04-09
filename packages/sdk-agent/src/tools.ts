@@ -59,6 +59,8 @@ import {
   ExchangeRateZod,
   LbtcApySchema,
   LbtcApyZod,
+  OpportunitiesSchema,
+  OpportunitiesZod,
   StakeSchema,
   StakeZod,
   StrategiesSchema,
@@ -462,6 +464,69 @@ export const getStrategies: ToolDefinition<
       };
     } catch {
       return { strategies: [], error: "Unable to fetch vault data" };
+    }
+  },
+};
+
+// ─── Opportunities Tool ─────────────────────────────────────────────
+
+const BFF_BASE_URL =
+  process.env.LOMBARD_BFF_URL || "https://bff.stage.lombard-fi.com";
+
+export const getOpportunities: ToolDefinition<
+  { category?: string; chain?: string; protocol?: string },
+  {
+    opportunities: Array<{
+      id: string;
+      name: string;
+      category: string;
+      protocol: string;
+      chain: string;
+      tokens: Record<string, string | undefined>;
+      metrics: Record<string, number | undefined>;
+      luxMultiplier?: string;
+      description?: string;
+      url?: string;
+    }>;
+    error?: string;
+  }
+> = {
+  name: "get_opportunities",
+  description:
+    "List LBTC and BTC.b DeFi opportunities across protocols and chains. " +
+    "Includes borrow-stables, looping, DEX LP, automated strategies, and more. " +
+    "Filter by category (borrow-stables, looping, dex-lp, automated-strategy, other), chain, or protocol.",
+  parameters: OpportunitiesSchema as Record<string, unknown>,
+  schema: OpportunitiesZod,
+  execute: async (params) => {
+    const { category, chain, protocol } = OpportunitiesZod.parse(params);
+    try {
+      const queryParts: string[] = [];
+      if (category) queryParts.push(`category=${encodeURIComponent(category)}`);
+      if (chain) queryParts.push(`chain=${encodeURIComponent(chain)}`);
+      if (protocol)
+        queryParts.push(`protocol=${encodeURIComponent(protocol)}`);
+      const qs = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+
+      const res = await fetch(`${BFF_BASE_URL}/opportunities-api${qs}`);
+      if (!res.ok) {
+        throw new Error(`BFF returned ${res.status}`);
+      }
+      const data = (await res.json()) as {
+        opportunities: Array<Record<string, unknown>>;
+      };
+      return {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        opportunities: data.opportunities as any[],
+      };
+    } catch (err) {
+      return {
+        opportunities: [],
+        error:
+          err instanceof Error
+            ? err.message
+            : "Failed to fetch opportunities",
+      };
     }
   },
 };
@@ -1180,6 +1245,7 @@ export const allTools: AnyToolDefinition[] = [
   getDepositStatusTool,
   getUnstakeStatusTool,
   getStrategies,
+  getOpportunities,
   getDepositBtcAddress,
   checkFeeAuthorization,
   prepareBtcDeposit,

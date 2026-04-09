@@ -102,6 +102,19 @@ export const AddressOnlyZod = z.object({
   address: evmAddress.describe("EVM wallet address (0x...)"),
 });
 
+// ─── Opportunities Schema ───────────────────────────────────────────
+
+export const OpportunitiesZod = z.object({
+  category: z
+    .string()
+    .optional()
+    .describe(
+      "Filter by category: automated-strategy, borrow-stables, looping, dex-lp, other",
+    ),
+  chain: z.string().optional().describe("Filter by chain (e.g. Ethereum, Base, Solana)"),
+  protocol: z.string().optional().describe("Filter by protocol (e.g. Morpho, Aave, Uniswap)"),
+});
+
 // ─── Generic Token Balance Schema ────────────────────────────────────
 
 export const TokenBalanceZod = z.object({
@@ -179,6 +192,7 @@ export const DeployToVaultSchema = toJsonSchema(DeployToVaultZod);
 export const LbtcApySchema = toJsonSchema(LbtcApyZod);
 export const VaultWithdrawalSchema = toJsonSchema(VaultWithdrawalZod);
 export const ClaimDepositSchema = toJsonSchema(ClaimDepositZod);
+export const OpportunitiesSchema = toJsonSchema(OpportunitiesZod);
 export const TokenBalanceSchema = toJsonSchema(TokenBalanceZod);
 export const MorphoLbtcMarketsSchema = toJsonSchema(MorphoLbtcMarketsZod);
 export const MorphoSupplyCollateralSchema = toJsonSchema(
