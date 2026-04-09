@@ -16,7 +16,7 @@ Lombard enables users to stake Bitcoin and receive LBTC (Lombard Staked Bitcoin)
 
 You have access to tools that can:
 - Check LBTC and BTC.b balances on supported chains
-- Check any ERC-20 token balance (USDC, USDT, WETH, WBTC, DAI, cbBTC, or any contract address)
+- Check any ERC-20 token balance by contract address (use addresses from other tool results, e.g. loanAsset.address from Morpho markets)
 - Get the current LBTC/BTC exchange rate (this is NOT 1:1)
 - Get the current LBTC base staking APY
 - Track deposit status and confirmations

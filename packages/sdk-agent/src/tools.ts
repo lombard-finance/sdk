@@ -326,43 +326,7 @@ export const getBalance: ToolDefinition<
   },
 };
 
-// ─── Well-known ERC-20 tokens (Ethereum mainnet) ────────────────────
-
-const WELL_KNOWN_TOKENS: Record<
-  string,
-  { address: Address; decimals: number; symbol: string }
-> = {
-  usdc: {
-    address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    decimals: 6,
-    symbol: "USDC",
-  },
-  usdt: {
-    address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    decimals: 6,
-    symbol: "USDT",
-  },
-  dai: {
-    address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-    decimals: 18,
-    symbol: "DAI",
-  },
-  weth: {
-    address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    decimals: 18,
-    symbol: "WETH",
-  },
-  wbtc: {
-    address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-    decimals: 8,
-    symbol: "WBTC",
-  },
-  cbbtc: {
-    address: "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-    decimals: 8,
-    symbol: "cbBTC",
-  },
-};
+// ─── Generic ERC-20 balance reading ─────────────────────────────────
 
 const erc20BalanceAbi = [
   {
@@ -389,7 +353,7 @@ const erc20BalanceAbi = [
 ] as const;
 
 export const getTokenBalance: ToolDefinition<
-  { token: string; address: string; chainId: number },
+  { tokenAddress: string; address: string; chainId: number },
   {
     balance: string;
     symbol: string;
@@ -401,67 +365,39 @@ export const getTokenBalance: ToolDefinition<
   name: "get_token_balance",
   description:
     "Check the balance of any ERC-20 token for a wallet address. " +
-    "Accepts a token contract address (0x...) or a common symbol: USDC, USDT, WETH, WBTC, DAI, cbBTC. " +
-    "Use this for tokens beyond LBTC and BTC.b (e.g. checking borrowed USDC from Morpho).",
+    "Requires the token contract address (0x...). Get addresses from other tool results " +
+    "(e.g. loanAsset.address from get_morpho_lbtc_markets). " +
+    "Reads symbol and decimals directly from the contract. " +
+    "Use this for tokens beyond LBTC and BTC.b.",
   parameters: TokenBalanceSchema as Record<string, unknown>,
   schema: TokenBalanceZod,
   execute: async (params) => {
-    const { token, address, chainId } = TokenBalanceZod.parse(params);
+    const { tokenAddress, address, chainId } = TokenBalanceZod.parse(params);
     const config = getChainConfig(chainId);
     const client = makePublicClient({
       chainId: config.chainId,
       env: config.env,
     });
 
-    // Resolve token: symbol lookup or direct address
-    let tokenAddress: Address;
-    let decimals: number;
-    let symbol: string;
-
-    const known = WELL_KNOWN_TOKENS[token.toLowerCase()];
-    if (known) {
-      tokenAddress = known.address;
-      decimals = known.decimals;
-      symbol = known.symbol;
-    } else if (/^0x[a-fA-F0-9]{40}$/.test(token)) {
-      tokenAddress = token as Address;
-      // Read decimals and symbol from the contract
-      try {
-        const [d, s] = await Promise.all([
-          client.readContract({
-            address: tokenAddress,
-            abi: erc20BalanceAbi,
-            functionName: "decimals",
-          }),
-          client.readContract({
-            address: tokenAddress,
-            abi: erc20BalanceAbi,
-            functionName: "symbol",
-          }),
-        ]);
-        decimals = d;
-        symbol = s;
-      } catch {
-        decimals = 18;
-        symbol = "UNKNOWN";
-      }
-    } else {
-      return {
-        balance: "",
-        symbol: token,
-        tokenAddress: "",
-        chain: config.name,
-        error: `Unknown token "${token}". Provide a contract address (0x...) or use one of: USDC, USDT, WETH, WBTC, DAI, cbBTC.`,
-      };
-    }
-
     try {
-      const balance = await client.readContract({
-        address: tokenAddress,
-        abi: erc20BalanceAbi,
-        functionName: "balanceOf",
-        args: [address as Address],
-      });
+      const [balance, decimals, symbol] = await Promise.all([
+        client.readContract({
+          address: tokenAddress as Address,
+          abi: erc20BalanceAbi,
+          functionName: "balanceOf",
+          args: [address as Address],
+        }),
+        client.readContract({
+          address: tokenAddress as Address,
+          abi: erc20BalanceAbi,
+          functionName: "decimals",
+        }),
+        client.readContract({
+          address: tokenAddress as Address,
+          abi: erc20BalanceAbi,
+          functionName: "symbol",
+        }),
+      ]);
       return {
         balance: formatUnits(balance, decimals),
         symbol,
@@ -471,7 +407,7 @@ export const getTokenBalance: ToolDefinition<
     } catch (err) {
       return {
         balance: "",
-        symbol,
+        symbol: "",
         tokenAddress,
         chain: config.name,
         error:

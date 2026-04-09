@@ -105,11 +105,9 @@ export const AddressOnlyZod = z.object({
 // ─── Generic Token Balance Schema ────────────────────────────────────
 
 export const TokenBalanceZod = z.object({
-  token: z
-    .string()
-    .describe(
-      "Token contract address (0x...) or common symbol (USDC, USDT, WETH, WBTC, DAI, cbBTC)",
-    ),
+  tokenAddress: evmAddress.describe(
+    "ERC-20 token contract address (0x...). Get this from tool results like get_morpho_lbtc_markets, not from memory.",
+  ),
   address: evmAddress.describe("EVM wallet address to check balance for"),
   chainId: chainId,
 });

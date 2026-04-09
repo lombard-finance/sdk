@@ -220,7 +220,9 @@ function formatMarket(m: MorphoMarketRaw) {
   return {
     marketId: m.marketId,
     loanAsset: m.loanAsset.symbol,
+    loanAssetAddress: m.loanAsset.address,
     collateralAsset: m.collateralAsset.symbol,
+    collateralAssetAddress: m.collateralAsset.address,
     supplyApy: `${(m.state.supplyApy * 100).toFixed(2)}%`,
     borrowApy: `${(m.state.borrowApy * 100).toFixed(2)}%`,
     tvlUsd: `$${tvlUsd >= 1_000_000 ? `${(tvlUsd / 1_000_000).toFixed(2)}M` : tvlUsd >= 1_000 ? `${(tvlUsd / 1_000).toFixed(1)}K` : tvlUsd.toFixed(0)}`,
@@ -489,7 +491,9 @@ export const getMorphoPosition: ToolDefinition<
     collateral: string;
     borrowAssets: string;
     loanAsset: string;
+    loanAssetAddress: string;
     collateralAsset: string;
+    collateralAssetAddress: string;
     lltv: string;
     currentLtv: string;
     healthStatus: string;
@@ -499,7 +503,7 @@ export const getMorphoPosition: ToolDefinition<
   name: "get_morpho_position",
   description:
     "Get the user's position in a Morpho Blue market: collateral deposited, amount borrowed, " +
-    "current LTV, and health status. Use this after supplying collateral or borrowing.",
+    "current LTV, and health status. Returns token addresses for use with get_token_balance.",
   parameters: MorphoPositionSchema as Record<string, unknown>,
   schema: MorphoPositionZod,
   execute: async (params) => {
@@ -508,7 +512,9 @@ export const getMorphoPosition: ToolDefinition<
       collateral: "0",
       borrowAssets: "0",
       loanAsset: "",
+      loanAssetAddress: "",
       collateralAsset: "LBTC",
+      collateralAssetAddress: LBTC_ADDRESS,
       lltv: "",
       currentLtv: "0%",
       healthStatus: "No position",
@@ -604,7 +610,9 @@ export const getMorphoPosition: ToolDefinition<
         collateral,
         borrowAssets,
         loanAsset: market.loanAsset.symbol,
+        loanAssetAddress: market.loanAsset.address,
         collateralAsset: "LBTC",
+        collateralAssetAddress: market.collateralAsset.address,
         lltv: `${(lltvNum * 100).toFixed(0)}%`,
         currentLtv: `${(currentLtv * 100).toFixed(1)}%`,
         healthStatus,
