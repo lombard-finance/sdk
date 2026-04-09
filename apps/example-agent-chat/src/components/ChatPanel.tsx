@@ -1,5 +1,6 @@
+import type { Message } from "@ai-sdk/react";
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAccount } from "wagmi";
@@ -26,33 +27,98 @@ interface ChatPanelProps {
   onClose: () => void;
 }
 
+// ─── Per-wallet session persistence ─────────────────────────────────
+
+const STORAGE_PREFIX = "lombard_chat_";
+
+function storageKey(addr: string): string {
+  return `${STORAGE_PREFIX}${addr.toLowerCase()}`;
+}
+
+function loadMessages(addr: string | undefined): Message[] {
+  if (!addr) return [];
+  try {
+    const raw = localStorage.getItem(storageKey(addr));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMessages(addr: string | undefined, messages: Message[]): void {
+  if (!addr) return;
+  try {
+    // Only persist user and assistant text messages (skip tool invocations with large data)
+    const serializable = messages.map((m) => ({
+      id: m.id,
+      role: m.role,
+      content: m.content,
+      createdAt: m.createdAt,
+    }));
+    localStorage.setItem(storageKey(addr), JSON.stringify(serializable));
+  } catch {
+    // localStorage full or unavailable — silently ignore
+  }
+}
+
+// ─── ChatPanel ──────────────────────────────────────────────────────
+
 export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const { address, chain } = useAccount();
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevAddressRef = useRef<string | undefined>(undefined);
   const [walletEvents, setWalletEvents] = useState<WalletEvent[]>([]);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, append, setMessages } =
-    useChat({
-      api: "/api/chat",
-      body: {
-        walletContext: address
-          ? { address, chainId: chain?.id, chainName: chain?.name }
-          : null,
-      },
-    });
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    append,
+    setMessages,
+  } = useChat({
+    api: "/api/chat",
+    id: address ? `chat-${address.toLowerCase()}` : "chat-anonymous",
+    initialMessages: loadMessages(address),
+    body: {
+      walletContext: address
+        ? { address, chainId: chain?.id, chainName: chain?.name }
+        : null,
+    },
+  });
 
-  // Track wallet changes and insert a visual divider
+  // Persist messages to localStorage on change
+  const saveRef = useRef(saveMessages);
+  saveRef.current = saveMessages;
+  const addressRef = useRef(address);
+  addressRef.current = address;
+
+  useEffect(() => {
+    saveRef.current(addressRef.current, messages);
+  }, [messages]);
+
+  // Clear history for current wallet
+  const clearHistory = useCallback(() => {
+    setMessages([]);
+    if (address) {
+      localStorage.removeItem(storageKey(address));
+    }
+  }, [address, setMessages]);
+
+  // Track wallet changes: save outgoing session, restore incoming session
   useEffect(() => {
     if (prevAddressRef.current === undefined) {
-      // First render, just record the address
       prevAddressRef.current = address;
       return;
     }
     if (address !== prevAddressRef.current) {
       prevAddressRef.current = address;
-      // Clear chat history when wallet changes since context is different
-      setMessages([]);
+      // Restore the new wallet's session (useChat already has initialMessages,
+      // but on re-render we need to explicitly set them)
+      setMessages(loadMessages(address));
       setWalletEvents((prev) => [
         ...prev,
         {
@@ -74,26 +140,68 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   if (!open) return null;
 
   const suggestions = address
-    ? ["My balance", "Deposit address", "Deposit status", "Yield strategies", "Exchange rate"]
-    : ["What is LBTC?", "Exchange rate", "Yield strategies", "How does staking work?"];
+    ? [
+        "My balance",
+        "Deposit address",
+        "Deposit status",
+        "Yield strategies",
+        "Exchange rate",
+      ]
+    : [
+        "What is LBTC?",
+        "Exchange rate",
+        "Yield strategies",
+        "How does staking work?",
+      ];
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl">
+    <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col border-l border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-black)] px-4 py-3">
         <div className="flex items-center gap-2.5">
           <img src={logoCircle} alt="" className="h-7 w-7" />
-          <span className="font-semibold text-sm text-white">Lombard Assistant</span>
+          <span className="font-semibold text-sm text-white">
+            Lombard Assistant
+          </span>
         </div>
-        <button
-          onClick={onClose}
-          className="text-[var(--color-text-muted)] hover:text-white transition-colors rounded-full p-1"
-          aria-label="Close chat"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-1">
+          {messages.length > 0 && (
+            <button
+              onClick={clearHistory}
+              className="text-[var(--color-text-muted)] hover:text-white transition-colors rounded-full p-1 text-xs"
+              aria-label="Clear chat history"
+              title="Clear chat history"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+              </svg>
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="text-[var(--color-text-muted)] hover:text-white transition-colors rounded-full p-1"
+            aria-label="Close chat"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Quick actions — always visible */}
@@ -111,7 +219,10 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[var(--color-bg)]">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[var(--color-bg)]"
+      >
         {/* Wallet change notifications */}
         {walletEvents.map((evt) => (
           <div key={evt.id} className="flex items-center gap-2 py-1">
@@ -137,17 +248,83 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           <MessageBubble
             key={msg.id}
             message={msg as unknown as Record<string, unknown>}
-            onTxError={(err) => append({ role: "user", content: `Transaction failed with error: "${err}". What should I do?` })}
+            onTxError={(err) =>
+              append({
+                role: "user",
+                content: `Transaction failed with error: "${err}". What should I do?`,
+              })
+            }
             onTxSuccess={(msg) => append({ role: "user", content: msg })}
           />
         ))}
 
+        {/* Contextual follow-up suggestions based on last assistant message */}
+        {!isLoading &&
+          messages.length > 0 &&
+          (() => {
+            const lastAssistant = [...messages]
+              .reverse()
+              .find((m) => m.role === "assistant");
+            if (!lastAssistant) return null;
+            const text = (lastAssistant.content || "").toLowerCase();
+            const followUps: string[] = [];
+
+            if (
+              (text.includes("collateral") && text.includes("supplied")) ||
+              (text.includes("supply") && text.includes("confirmed"))
+            ) {
+              followUps.push(
+                "Borrow USDC against my collateral",
+                "Check my Morpho position",
+                "What's my current LTV?",
+              );
+            } else if (
+              text.includes("borrow") &&
+              (text.includes("confirmed") || text.includes("submitted"))
+            ) {
+              followUps.push(
+                "Check my Morpho position",
+                "What's my current LTV?",
+                "My balance",
+              );
+            } else if (text.includes("morpho") && text.includes("market")) {
+              followUps.push(
+                "Supply LBTC as collateral",
+                "Which market has the best rates?",
+              );
+            }
+
+            if (followUps.length === 0) return null;
+            return (
+              <div className="flex flex-wrap gap-2 pt-2">
+                {followUps.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => append({ role: "user", content: s })}
+                    className="rounded-[60px] border border-[var(--color-teal)]/30 bg-[var(--color-teal)]/5 px-3 py-1 text-xs text-[var(--color-teal)] hover:bg-[var(--color-teal)]/15 transition-colors"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
+
         {isLoading && (
           <div className="flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
             <div className="flex gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)] animate-bounce" style={{ animationDelay: "0ms" }} />
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)] animate-bounce" style={{ animationDelay: "150ms" }} />
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)] animate-bounce" style={{ animationDelay: "300ms" }} />
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)] animate-bounce"
+                style={{ animationDelay: "0ms" }}
+              />
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)] animate-bounce"
+                style={{ animationDelay: "150ms" }}
+              />
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)] animate-bounce"
+                style={{ animationDelay: "300ms" }}
+              />
             </div>
             Thinking...
           </div>
@@ -163,7 +340,11 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           <input
             value={input}
             onChange={handleInputChange}
-            placeholder={address ? "Ask about your balances, staking..." : "Ask about Lombard..."}
+            placeholder={
+              address
+                ? "Ask about your balances, staking..."
+                : "Ask about Lombard..."
+            }
             className="flex-1 rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none focus:border-[var(--color-teal)] transition-colors"
           />
           <button
@@ -171,7 +352,14 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
             disabled={isLoading || !input.trim()}
             className="rounded-[60px] bg-[var(--color-primary)] p-2.5 text-[var(--color-black)] disabled:opacity-40 hover:bg-[var(--color-primary-dark)] transition-colors"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
             </svg>
           </button>
@@ -181,37 +369,64 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   );
 }
 
+/**
+ * Wraps bare 0x addresses/hashes in backticks so the markdown code renderer
+ * can truncate them. Skips addresses already inside backticks.
+ */
+function formatAddresses(text: string): string {
+  // Match 0x + 40+ hex chars that are NOT already inside backticks
+  return text.replace(/(?<!`)(?<!\w)(0x[a-fA-F0-9]{40,})(?!`)(?!\w)/g, "`$1`");
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function MessageBubble({ message, onTxError, onTxSuccess }: { message: Record<string, any>; onTxError?: (error: string) => void; onTxSuccess?: (msg: string) => void }) {
+function MessageBubble({
+  message,
+  onTxError,
+  onTxSuccess,
+}: {
+  message: Record<string, any>;
+  onTxError?: (error: string) => void;
+  onTxSuccess?: (msg: string) => void;
+}) {
   const isUser = message.role === "user";
 
   const txActions: TxResult[] = [];
+  const seen = new Set<string>();
+
+  function tryExtract(r: Record<string, unknown> | undefined) {
+    if (r?.action === "sdk_execute" && r.method && r.description && r.params) {
+      // Deduplicate by method + description
+      const key = `${r.method}:${r.description}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        txActions.push(r as unknown as TxResult);
+      }
+    }
+  }
+
+  // Check parts array (Vercel AI SDK v4 format)
   const parts = (message.parts || []) as Array<Record<string, unknown>>;
   for (const part of parts) {
     if (part.type === "tool-invocation") {
       const inv = part.toolInvocation as Record<string, unknown> | undefined;
       if (inv?.state === "result") {
-        const r = inv.result as Record<string, unknown> | undefined;
-        if (r?.action === "sdk_execute" && r.method && r.description && r.params) {
-          txActions.push(r as unknown as TxResult);
-        }
+        tryExtract(inv.result as Record<string, unknown> | undefined);
       }
     }
   }
-  // Fallback: also check legacy toolInvocations array
-  if (txActions.length === 0) {
-    for (const inv of (message.toolInvocations || []) as Array<Record<string, unknown>>) {
-      const r = inv.result as Record<string, unknown> | undefined;
-      if (r?.action === "sdk_execute" && r.method && r.description && r.params) {
-        txActions.push(r as unknown as TxResult);
-      }
+  // Check toolInvocations array (Vercel AI SDK v3 / legacy format)
+  for (const inv of (message.toolInvocations || []) as Array<
+    Record<string, unknown>
+  >) {
+    if (inv.state === "result") {
+      tryExtract(inv.result as Record<string, unknown> | undefined);
     }
   }
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
+        className={`max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed overflow-hidden break-words ${
           isUser
             ? "bg-[var(--color-chat-user-bg)] text-[var(--color-chat-user-text)]"
             : "bg-[var(--color-chat-assistant-bg)] text-[var(--color-chat-assistant-text)]"
@@ -221,29 +436,68 @@ function MessageBubble({ message, onTxError, onTxSuccess }: { message: Record<st
           remarkPlugins={[remarkGfm]}
           components={{
             p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-            strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-            ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
-            ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
+            strong: ({ children }) => (
+              <strong className="font-semibold">{children}</strong>
+            ),
+            ul: ({ children }) => (
+              <ul className="list-disc pl-4 mb-2">{children}</ul>
+            ),
+            ol: ({ children }) => (
+              <ol className="list-decimal pl-4 mb-2">{children}</ol>
+            ),
             li: ({ children }) => <li className="mb-0.5">{children}</li>,
             table: ({ children }) => (
               <div className="overflow-x-auto my-2">
-                <table className="w-full text-xs border-collapse">{children}</table>
+                <table className="w-full text-xs border-collapse">
+                  {children}
+                </table>
               </div>
             ),
-            thead: ({ children }) => <thead className="border-b border-[var(--color-border-strong)]">{children}</thead>,
-            th: ({ children }) => <th className="text-left px-2 py-1 font-semibold">{children}</th>,
-            td: ({ children }) => <td className="px-2 py-1 border-t border-[var(--color-border)]">{children}</td>,
-            code: ({ children }) => (
-              <code className="bg-[var(--color-border)] rounded px-1 py-0.5 text-xs font-mono">{children}</code>
+            thead: ({ children }) => (
+              <thead className="border-b border-[var(--color-border-strong)]">
+                {children}
+              </thead>
             ),
+            th: ({ children }) => (
+              <th className="text-left px-2 py-1 font-semibold">{children}</th>
+            ),
+            td: ({ children }) => (
+              <td className="px-2 py-1 border-t border-[var(--color-border)]">
+                {children}
+              </td>
+            ),
+            code: ({ children }) => {
+              const text = String(children);
+              // Truncate long hex addresses/hashes with tooltip
+              if (/^0x[a-fA-F0-9]{40,}$/.test(text)) {
+                return (
+                  <code
+                    className="bg-[var(--color-border)] rounded px-1 py-0.5 text-xs font-mono cursor-help"
+                    title={text}
+                  >
+                    {text.slice(0, 6)}...{text.slice(-4)}
+                  </code>
+                );
+              }
+              return (
+                <code className="bg-[var(--color-border)] rounded px-1 py-0.5 text-xs font-mono break-all">
+                  {children}
+                </code>
+              );
+            },
             a: ({ href, children }) => (
-              <a href={href} target="_blank" rel="noopener noreferrer" className="text-[var(--color-teal)] underline">
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--color-teal)] underline"
+              >
                 {children}
               </a>
             ),
           }}
         >
-          {message.content as string}
+          {formatAddresses(message.content as string)}
         </Markdown>
 
         {txActions.map((tx, i) => (

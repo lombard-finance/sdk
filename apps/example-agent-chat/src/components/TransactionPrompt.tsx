@@ -17,6 +17,8 @@ const METHOD_LABELS: Record<string, string> = {
   "evm.claimDeposit": "Claim Deposit",
   "evm.withdrawFromVault": "Withdraw from Vault",
   "btc.generateDepositAddress": "Generate BTC Deposit Address",
+  "morpho.supplyCollateral": "Supply Collateral to Morpho",
+  "morpho.borrow": "Borrow from Morpho",
 };
 
 /** Chain IDs that map to Env.testnet in the SDK. */
@@ -104,10 +106,15 @@ export function TransactionPrompt({
         });
 
         // If already ADDRESS_READY (existing deposit), return it directly
-        if (stake.status === BtcActionStatus.ADDRESS_READY && stake.depositAddress) {
+        if (
+          stake.status === BtcActionStatus.ADDRESS_READY &&
+          stake.depositAddress
+        ) {
           setBtcDepositAddress(stake.depositAddress);
           setStatus("success");
-          onSuccess?.(`Your existing BTC deposit address is ${stake.depositAddress}. You can send BTC to this address to receive LBTC.`);
+          onSuccess?.(
+            `Your existing BTC deposit address is ${stake.depositAddress}. You can send BTC to this address to receive LBTC.`,
+          );
           return;
         }
 
@@ -124,7 +131,9 @@ export function TransactionPrompt({
           const btcAddr = await stake.generateDepositAddress();
           setBtcDepositAddress(btcAddr);
           setStatus("success");
-          onSuccess?.(`BTC deposit address generated: ${btcAddr}. Send BTC to this address to receive LBTC on ${chain?.name || "Ethereum"}. What is the minimum stake amount and current exchange rate?`);
+          onSuccess?.(
+            `BTC deposit address generated: ${btcAddr}. Send BTC to this address to receive LBTC on ${chain?.name || "Ethereum"}. What is the minimum stake amount and current exchange rate?`,
+          );
           return;
         }
 
@@ -132,7 +141,9 @@ export function TransactionPrompt({
         if (stake.depositAddress) {
           setBtcDepositAddress(stake.depositAddress);
           setStatus("success");
-          onSuccess?.(`BTC deposit address: ${stake.depositAddress}. Send BTC to this address to receive LBTC.`);
+          onSuccess?.(
+            `BTC deposit address: ${stake.depositAddress}. Send BTC to this address to receive LBTC.`,
+          );
           return;
         }
 
@@ -220,16 +231,70 @@ export function TransactionPrompt({
           });
           break;
         }
+        case "morpho.borrow":
+        case "morpho.supplyCollateral": {
+          const txs =
+            (params.transactions as {
+              to: string;
+              data: string;
+              label: string;
+            }[]) || [];
+          if (txs.length === 0) throw new Error("No transactions to execute");
+          const { makePublicClient } = await import("@lombard.finance/sdk");
+          const publicClient = makePublicClient({ chainId: sdkChainId, env });
+          // Send each transaction sequentially (approve, then supply)
+          for (let i = 0; i < txs.length; i++) {
+            const tx = txs[i];
+            hash = await provider.request({
+              method: "eth_sendTransaction",
+              params: [
+                {
+                  from: address,
+                  to: tx.to,
+                  data: tx.data,
+                },
+              ],
+            });
+            // Wait for confirmation before sending the next one
+            if (i < txs.length - 1) {
+              await publicClient.waitForTransactionReceipt({
+                hash: hash as `0x${string}`,
+              });
+            }
+          }
+          break;
+        }
         default:
           throw new Error(`Unknown method: ${method}`);
       }
 
       setTxHash(hash);
       setStatus("success");
-      onSuccess?.(`Transaction submitted successfully with hash ${hash}. What should I do next?`);
+      onSuccess?.(
+        `Transaction submitted successfully with hash ${hash}. What should I do next?`,
+      );
     } catch (err) {
-      // Sanitize error: show first line only, strip internal details
-      const raw = err instanceof Error ? err.message : "Transaction failed";
+      // Detect user rejection (EIP-1193 code 4001 or common rejection patterns)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errObj = err as any;
+      const code = errObj?.code ?? errObj?.cause?.code;
+      const raw = err instanceof Error ? err.message : String(err);
+      const isRejection =
+        code === 4001 ||
+        code === "ACTION_REJECTED" ||
+        /user (rejected|denied|cancelled)/i.test(raw) ||
+        /request.*reject/i.test(raw);
+
+      if (isRejection) {
+        setError(
+          "Transaction rejected. Click Execute to try again when ready.",
+        );
+        setStatus("error");
+        // Don't notify the AI about user rejections
+        return;
+      }
+
+      // Sanitize other errors: show first line only, strip internal details
       const firstLine = raw
         .split("\n")[0]
         .replace(/https?:\/\/[^\s]+/g, "")
@@ -255,28 +320,42 @@ export function TransactionPrompt({
       </p>
 
       <div className="space-y-1 mb-3">
-        {Object.entries(params)
-          .filter(([k]) => !["chainId"].includes(k))
-          .map(([key, value]) => {
-            const str = String(value);
-            const isAddress = str.startsWith("0x") && str.length > 20;
-            const display = isAddress
-              ? `${str.slice(0, 6)}...${str.slice(-4)}`
-              : str;
-            return (
-              <div key={key} className="flex justify-between text-xs gap-2">
-                <span className="text-[var(--color-text-muted)] capitalize shrink-0">
-                  {key.replace(/([A-Z])/g, " $1").trim()}
-                </span>
-                <span
-                  className="text-[var(--color-text)] font-mono truncate text-right"
-                  title={isAddress ? str : undefined}
-                >
-                  {display}
-                </span>
-              </div>
-            );
-          })}
+        {(method === "morpho.supplyCollateral" || method === "morpho.borrow") &&
+        Array.isArray(params.transactions)
+          ? (params.transactions as { to: string; label: string }[]).map(
+              (tx, i) => (
+                <div key={i} className="flex justify-between text-xs gap-2">
+                  <span className="text-[var(--color-text-muted)] shrink-0">
+                    Step {i + 1}
+                  </span>
+                  <span className="text-[var(--color-text)] truncate text-right">
+                    {tx.label}
+                  </span>
+                </div>
+              ),
+            )
+          : Object.entries(params)
+              .filter(([k]) => !["chainId"].includes(k))
+              .map(([key, value]) => {
+                const str = String(value);
+                const isAddress = str.startsWith("0x") && str.length > 20;
+                const display = isAddress
+                  ? `${str.slice(0, 6)}...${str.slice(-4)}`
+                  : str;
+                return (
+                  <div key={key} className="flex justify-between text-xs gap-2">
+                    <span className="text-[var(--color-text-muted)] capitalize shrink-0">
+                      {key.replace(/([A-Z])/g, " $1").trim()}
+                    </span>
+                    <span
+                      className="text-[var(--color-text)] font-mono truncate text-right"
+                      title={isAddress ? str : undefined}
+                    >
+                      {display}
+                    </span>
+                  </div>
+                );
+              })}
       </div>
 
       {status === "idle" && (

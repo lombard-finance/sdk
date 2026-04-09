@@ -104,8 +104,8 @@ describe("prepareClaimDeposit", () => {
 });
 
 describe("allTools", () => {
-  it("has 17 entries", () => {
-    expect(allTools).toHaveLength(17);
+  it("has 21 entries", () => {
+    expect(allTools).toHaveLength(21);
   });
 
   it("contains all expected tools including new ones", () => {
@@ -119,6 +119,10 @@ describe("allTools", () => {
     expect(names).toContain("get_vault_positions");
     expect(names).toContain("prepare_claim_deposit");
     expect(names).toContain("prepare_vault_withdrawal");
+    expect(names).toContain("get_morpho_lbtc_markets");
+    expect(names).toContain("prepare_morpho_supply_collateral");
+    expect(names).toContain("prepare_morpho_borrow");
+    expect(names).toContain("get_morpho_position");
   });
 
   it("each tool has name, description, parameters, schema, and execute", () => {
@@ -157,6 +161,10 @@ describe("toolsByName", () => {
     expect(toolsByName).toHaveProperty("get_lbtc_apy");
     expect(toolsByName).toHaveProperty("get_vault_positions");
     expect(toolsByName).toHaveProperty("prepare_claim_deposit");
+    expect(toolsByName).toHaveProperty("get_morpho_lbtc_markets");
+    expect(toolsByName).toHaveProperty("prepare_morpho_supply_collateral");
+    expect(toolsByName).toHaveProperty("prepare_morpho_borrow");
+    expect(toolsByName).toHaveProperty("get_morpho_position");
   });
 });
 

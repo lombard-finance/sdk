@@ -22,12 +22,15 @@ import {
   getExchangeRatio,
   getLBTCExchangeRate,
   getNetworkFeeSignature,
+  getPointsByAddress,
+  getPositionsSummary,
   getSharesByAddress,
   getShareValue,
   getTokenContractInfo,
   getUnstakesByAddress,
   getVaultApy,
   getVaultTVL,
+  getVaultWithdrawals,
   makePublicClient,
   requiresAutoMintFee,
   Token,
@@ -40,8 +43,12 @@ import { getChainConfig } from "./chains";
 import {
   AddressAndChainSchema,
   AddressAndChainZod,
+  AddressOnlySchema,
+  AddressOnlyZod,
   BalanceSchema,
   BalanceZod,
+  CancelWithdrawalSchema,
+  CancelWithdrawalZod,
   ClaimDepositSchema,
   ClaimDepositZod,
   DeployToVaultSchema,
@@ -642,8 +649,7 @@ export const getLbtcApy: ToolDefinition<
         baseApy: "",
         effectiveApy: "",
         description: "",
-        error:
-          err instanceof Error ? err.message : "Failed to fetch LBTC APY",
+        error: err instanceof Error ? err.message : "Failed to fetch LBTC APY",
       };
     }
   },
@@ -793,6 +799,280 @@ export const prepareClaimDeposit: ToolDefinition<
   },
 };
 
+// ─── Cancel Withdrawal Tool ────────────────────────────────────────
+
+export const prepareCancelWithdrawal: ToolDefinition<
+  { chainId: number },
+  {
+    action: string;
+    method: string;
+    params: { chainId: number };
+    description: string;
+  }
+> = {
+  name: "prepare_cancel_withdrawal",
+  description:
+    "Cancel a pending vault withdrawal that has not yet been processed. " +
+    "Returns transaction parameters for the user's wallet to sign.",
+  parameters: CancelWithdrawalSchema as Record<string, unknown>,
+  schema: CancelWithdrawalZod,
+  execute: async (params) => {
+    const { chainId } = CancelWithdrawalZod.parse(params);
+    const config = getChainConfig(chainId);
+    return {
+      action: "sdk_execute",
+      method: "evm.cancelWithdrawal",
+      params: {
+        chainId: config.chainId,
+      },
+      description: `Cancel pending vault withdrawal on ${config.name}. Your wallet will prompt you to sign the cancellation transaction.`,
+    };
+  },
+};
+
+// ─── Vault Withdrawals Tool ────────────────────────────────────────
+
+export const getVaultWithdrawalsTool: ToolDefinition<
+  { address: string; chainId: number },
+  {
+    withdrawals: {
+      open: Array<{
+        txHash: string;
+        shareAmount: string;
+        deadline: number;
+        timestamp: number;
+      }>;
+      fulfilled: Array<{
+        txHash: string;
+        shareAmount: string;
+        amount: string;
+        fulfilledTxHash: string | null;
+      }>;
+      cancelled: Array<{
+        txHash: string;
+        shareAmount: string;
+        timestamp: number;
+      }>;
+      expired: Array<{
+        txHash: string;
+        shareAmount: string;
+        timestamp: number;
+      }>;
+    };
+    chain: string;
+    error?: string;
+  }
+> = {
+  name: "get_vault_withdrawals",
+  description:
+    "Get all vault withdrawals for an address, including open (pending), fulfilled, cancelled, and expired withdrawals.",
+  parameters: AddressAndChainSchema as Record<string, unknown>,
+  schema: AddressAndChainZod,
+  execute: async (params) => {
+    const { address, chainId } = AddressAndChainZod.parse(params);
+    const config = getChainConfig(chainId);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data: any = await withTimeout(
+        getVaultWithdrawals({
+          account: address as Address,
+          chainId: config.chainId,
+          vaultKey: Vault.Veda,
+          env: config.env,
+        }),
+        15_000,
+        "getVaultWithdrawals",
+      );
+      return {
+        withdrawals: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          open: data.open.map((w: any) => ({
+            txHash: w.txHash,
+            shareAmount: w.shareAmount.toString(),
+            deadline: w.deadline,
+            timestamp: w.timestamp,
+          })),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          fulfilled: data.fulfilled.map((w: any) => ({
+            txHash: w.txHash,
+            shareAmount: w.shareAmount.toString(),
+            amount: w.amount?.toString() ?? "unknown",
+            fulfilledTxHash: w.fulfilledTxHash ?? null,
+          })),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          cancelled: data.cancelled.map((w: any) => ({
+            txHash: w.txHash,
+            shareAmount: w.shareAmount.toString(),
+            timestamp: w.timestamp,
+          })),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          expired: data.expired.map((w: any) => ({
+            txHash: w.txHash,
+            shareAmount: w.shareAmount.toString(),
+            timestamp: w.timestamp,
+          })),
+        },
+        chain: config.name,
+      };
+    } catch (err) {
+      return {
+        withdrawals: { open: [], fulfilled: [], cancelled: [], expired: [] },
+        chain: config.name,
+        error:
+          err instanceof Error
+            ? err.message
+            : "Failed to fetch vault withdrawals",
+      };
+    }
+  },
+};
+
+// ─── Lux Points Tool ──────────────────────────────────────────────
+
+export const getLuxPoints: ToolDefinition<
+  { address: string },
+  {
+    points: {
+      totalPoints: number;
+      holdingPoints: number;
+      protocolPoints: number;
+      referralPoints: number;
+      badgesPoints: number;
+      protocolPointsBreakdown: Record<string, number>;
+    };
+    season: number;
+    error?: string;
+  }
+> = {
+  name: "get_lux_points",
+  description:
+    "Get the Lux reward points for a wallet address. Returns the current season's points " +
+    "including holding, protocol, referral, and badge points.",
+  parameters: AddressOnlySchema as Record<string, unknown>,
+  schema: AddressOnlyZod,
+  execute: async (params) => {
+    const { address } = AddressOnlyZod.parse(params);
+    try {
+      const data = await withTimeout(
+        getPointsByAddress({
+          address,
+          env: Env.prod,
+          season: 2,
+        }),
+        10_000,
+        "getPointsByAddress",
+      );
+      return {
+        points: {
+          totalPoints: data.totalPoints,
+          holdingPoints: data.holdingPoints,
+          protocolPoints: data.protocolPoints,
+          referralPoints: data.referralPoints,
+          badgesPoints: data.badgesPoints,
+          protocolPointsBreakdown: data.protocolPointsBreakdown,
+        },
+        season: 2,
+      };
+    } catch (err) {
+      return {
+        points: {
+          totalPoints: 0,
+          holdingPoints: 0,
+          protocolPoints: 0,
+          referralPoints: 0,
+          badgesPoints: 0,
+          protocolPointsBreakdown: {},
+        },
+        season: 2,
+        error:
+          err instanceof Error ? err.message : "Failed to fetch Lux points",
+      };
+    }
+  },
+};
+
+// ─── Positions Summary Tool ───────────────────────────────────────
+
+export const getPositionsSummaryTool: ToolDefinition<
+  { address: string },
+  {
+    btcPriceUsd: string;
+    btcValue: string;
+    btcPnl: string;
+    positions: Array<{
+      token: string | undefined;
+      type: string;
+      balance: string;
+      pnl: string;
+      rate: string;
+    }>;
+    lastUpdated: string;
+    inProgress: boolean;
+    error?: string;
+  }
+> = {
+  name: "get_positions_summary",
+  description:
+    "Get an aggregated portfolio summary for a wallet address, including total BTC value, " +
+    "profit/loss, and a breakdown of individual positions (holdings and DeFi).",
+  parameters: AddressOnlySchema as Record<string, unknown>,
+  schema: AddressOnlyZod,
+  execute: async (params) => {
+    const { address } = AddressOnlyZod.parse(params);
+    try {
+      const data = await withTimeout(
+        getPositionsSummary({
+          account: address as Address,
+          env: Env.prod,
+        }),
+        10_000,
+        "getPositionsSummary",
+      );
+      return {
+        btcPriceUsd: data.btcPrice.price.toString(),
+        btcValue: data.btcValue.toString(),
+        btcPnl: data.btcPnl.toString(),
+        positions: data.snapshot.map((p) => ({
+          token: p.token,
+          type: p.type,
+          balance: p.balance.toString(),
+          pnl: p.pnl.toString(),
+          rate: p.rate.toString(),
+        })),
+        lastUpdated: data.lastUpdated.toISOString(),
+        inProgress: data.inProgress,
+      };
+    } catch (err) {
+      return {
+        btcPriceUsd: "",
+        btcValue: "",
+        btcPnl: "",
+        positions: [],
+        lastUpdated: "",
+        inProgress: false,
+        error:
+          err instanceof Error
+            ? err.message
+            : "Failed to fetch positions summary",
+      };
+    }
+  },
+};
+
+import {
+  getMorphoLbtcMarkets,
+  getMorphoPosition,
+  prepareMorphoBorrow,
+  prepareMorphoSupplyCollateral,
+} from "./morpho";
+
+export {
+  getMorphoLbtcMarkets,
+  getMorphoPosition,
+  prepareMorphoBorrow,
+  prepareMorphoSupplyCollateral,
+};
+
 /**
  * All Lombard tools as an array.
  */
@@ -814,6 +1094,10 @@ export const allTools: AnyToolDefinition[] = [
   getLbtcApy,
   getVaultPositions,
   prepareClaimDeposit,
+  getMorphoLbtcMarkets,
+  prepareMorphoSupplyCollateral,
+  prepareMorphoBorrow,
+  getMorphoPosition,
 ];
 
 /**
