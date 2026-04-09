@@ -140,6 +140,14 @@ export const MorphoBorrowZod = z.object({
   address: evmAddress.describe("EVM wallet address borrowing the asset"),
 });
 
+export const MorphoRepayZod = z.object({
+  marketId: morphoMarketId,
+  amount: amount.describe(
+    "Amount of loan asset to repay (e.g. '1' for 1 USDC)",
+  ),
+  address: evmAddress.describe("EVM wallet address repaying the debt"),
+});
+
 export const MorphoPositionZod = z.object({
   marketId: morphoMarketId,
   address: evmAddress.describe("EVM wallet address to check position for"),
@@ -177,4 +185,5 @@ export const MorphoSupplyCollateralSchema = toJsonSchema(
   MorphoSupplyCollateralZod,
 );
 export const MorphoBorrowSchema = toJsonSchema(MorphoBorrowZod);
+export const MorphoRepaySchema = toJsonSchema(MorphoRepayZod);
 export const MorphoPositionSchema = toJsonSchema(MorphoPositionZod);

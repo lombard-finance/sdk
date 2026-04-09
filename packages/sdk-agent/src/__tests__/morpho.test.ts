@@ -4,6 +4,7 @@ import {
   getMorphoLbtcMarkets,
   getMorphoPosition,
   prepareMorphoBorrow,
+  prepareMorphoRepay,
   prepareMorphoSupplyCollateral,
 } from "../morpho";
 
@@ -313,6 +314,58 @@ describe("prepareMorphoBorrow", () => {
 });
 
 // ─── getMorphoPosition ──────────────────────────────────────────────
+
+// ─── prepareMorphoRepay ─────────────────────────────────────────────
+
+describe("prepareMorphoRepay", () => {
+  const validParams = {
+    marketId: MOCK_MARKET.marketId,
+    amount: "1",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+  };
+
+  it("has correct name and schema", () => {
+    expect(prepareMorphoRepay.name).toBe("prepare_morpho_repay");
+    expect(prepareMorphoRepay.parameters).toHaveProperty("properties");
+    expect(typeof prepareMorphoRepay.execute).toBe("function");
+  });
+
+  it("returns sdk_execute with approve + repay transactions", async () => {
+    mockApiResponse({ marketByUniqueKey: MOCK_MARKET });
+
+    const result = await prepareMorphoRepay.execute(validParams);
+    expect(result.action).toBe("sdk_execute");
+    expect(result.method).toBe("morpho.repay");
+
+    const params = result.params as {
+      chainId: number;
+      transactions: { to: string; data: string; label: string }[];
+    };
+    expect(params.chainId).toBe(1);
+    expect(params.transactions).toHaveLength(2);
+
+    // Approve targets the loan asset (USDC)
+    expect(params.transactions[0].to.toLowerCase()).toBe(
+      MOCK_MARKET.loanAsset.address.toLowerCase(),
+    );
+    expect(params.transactions[0].label).toContain("Approve");
+
+    // Repay targets Morpho Blue
+    expect(params.transactions[1].to.toLowerCase()).toBe(
+      "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb".toLowerCase(),
+    );
+    expect(params.transactions[1].label).toContain("Repay");
+    expect(result.description).toContain("USDC");
+  });
+
+  it("returns error when market not found", async () => {
+    mockApiResponse({ marketByUniqueKey: null });
+
+    const result = await prepareMorphoRepay.execute(validParams);
+    expect(result.action).toBe("error");
+    expect(result.error).toContain("not found");
+  });
+});
 
 describe("getMorphoPosition", () => {
   const validParams = {

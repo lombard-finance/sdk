@@ -1156,6 +1156,7 @@ import {
   getMorphoLbtcMarkets,
   getMorphoPosition,
   prepareMorphoBorrow,
+  prepareMorphoRepay,
   prepareMorphoSupplyCollateral,
 } from "./morpho";
 
@@ -1163,6 +1164,7 @@ export {
   getMorphoLbtcMarkets,
   getMorphoPosition,
   prepareMorphoBorrow,
+  prepareMorphoRepay,
   prepareMorphoSupplyCollateral,
 };
 
@@ -1191,6 +1193,7 @@ export const allTools: AnyToolDefinition[] = [
   getMorphoLbtcMarkets,
   prepareMorphoSupplyCollateral,
   prepareMorphoBorrow,
+  prepareMorphoRepay,
   getMorphoPosition,
 ];
 

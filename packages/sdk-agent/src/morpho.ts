@@ -17,6 +17,8 @@ import {
   MorphoLbtcMarketsZod,
   MorphoPositionSchema,
   MorphoPositionZod,
+  MorphoRepaySchema,
+  MorphoRepayZod,
   MorphoSupplyCollateralSchema,
   MorphoSupplyCollateralZod,
 } from "./schemas";
@@ -113,6 +115,25 @@ const morphoPositionAbi = [
       { name: "totalBorrowShares", type: "uint128" },
       { name: "lastUpdate", type: "uint128" },
       { name: "fee", type: "uint128" },
+    ],
+  },
+] as const;
+
+const morphoRepayAbi = [
+  {
+    name: "repay",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      MARKET_PARAMS_TUPLE,
+      { name: "assets", type: "uint256" },
+      { name: "shares", type: "uint256" },
+      { name: "onBehalf", type: "address" },
+      { name: "data", type: "bytes" },
+    ],
+    outputs: [
+      { name: "assetsRepaid", type: "uint256" },
+      { name: "sharesRepaid", type: "uint256" },
     ],
   },
 ] as const;
@@ -478,6 +499,109 @@ export const prepareMorphoBorrow: ToolDefinition<
           err instanceof Error
             ? err.message
             : "Failed to prepare Morpho borrow",
+      };
+    }
+  },
+};
+
+// ─── Repay Tool ─────────────────────────────────────────────────────
+
+export const prepareMorphoRepay: ToolDefinition<
+  z.infer<typeof MorphoRepayZod>,
+  {
+    action: string;
+    method?: string;
+    params?: Record<string, unknown>;
+    marketId: string;
+    description: string;
+    error?: string;
+  }
+> = {
+  name: "prepare_morpho_repay",
+  description:
+    "Prepare transactions to repay borrowed assets on a Morpho Blue market. " +
+    "Returns two unsigned transactions: (1) ERC-20 approve for the Morpho contract, " +
+    "and (2) repay call. The user must have the loan asset in their wallet.",
+  parameters: MorphoRepaySchema as Record<string, unknown>,
+  schema: MorphoRepayZod,
+  execute: async (params) => {
+    const { marketId, amount, address } = MorphoRepayZod.parse(params);
+
+    try {
+      const data = await queryMorphoApi<{
+        marketByUniqueKey: MorphoMarketRaw | null;
+      }>(marketByIdQuery(marketId));
+
+      const market = data.marketByUniqueKey;
+      if (!market) {
+        return {
+          action: "error",
+          marketId,
+          description: "",
+          error: `Market ${marketId} not found on Morpho.`,
+        };
+      }
+
+      const repayAmount = parseUnits(amount, market.loanAsset.decimals);
+
+      // 1. ERC-20 approve for the loan asset
+      const approveData = encodeFunctionData({
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [MORPHO_BLUE_ADDRESS, repayAmount],
+      });
+
+      // 2. Repay
+      const marketParams = {
+        loanToken: market.loanAsset.address as Address,
+        collateralToken: market.collateralAsset.address as Address,
+        oracle: market.oracleAddress as Address,
+        irm: market.irmAddress as Address,
+        lltv: BigInt(market.lltv),
+      };
+
+      const repayData = encodeFunctionData({
+        abi: morphoRepayAbi,
+        functionName: "repay",
+        args: [
+          marketParams,
+          repayAmount,
+          0n, // shares = 0 means repay by asset amount
+          address as Address, // onBehalf
+          "0x" as `0x${string}`, // data (no callback)
+        ],
+      });
+
+      return {
+        action: "sdk_execute",
+        method: "morpho.repay",
+        params: {
+          chainId: 1,
+          transactions: [
+            {
+              to: market.loanAsset.address,
+              data: approveData,
+              label: `Approve Morpho to spend ${amount} ${market.loanAsset.symbol}`,
+            },
+            {
+              to: MORPHO_BLUE_ADDRESS,
+              data: repayData,
+              label: `Repay ${amount} ${market.loanAsset.symbol} on ${market.loanAsset.symbol}/LBTC market`,
+            },
+          ],
+        },
+        marketId,
+        description: `Repay ${amount} ${market.loanAsset.symbol} on the ${market.loanAsset.symbol}/${market.collateralAsset.symbol} Morpho market. This requires two transactions: approve + repay.`,
+      };
+    } catch (err) {
+      return {
+        action: "error",
+        marketId,
+        description: "",
+        error:
+          err instanceof Error
+            ? err.message
+            : "Failed to prepare Morpho repay",
       };
     }
   },

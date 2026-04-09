@@ -19,6 +19,7 @@ const METHOD_LABELS: Record<string, string> = {
   "btc.generateDepositAddress": "Generate BTC Deposit Address",
   "morpho.supplyCollateral": "Supply Collateral to Morpho",
   "morpho.borrow": "Borrow from Morpho",
+  "morpho.repay": "Repay on Morpho",
 };
 
 /** Chain IDs that map to Env.testnet in the SDK. */
@@ -231,6 +232,7 @@ export function TransactionPrompt({
           });
           break;
         }
+        case "morpho.repay":
         case "morpho.borrow":
         case "morpho.supplyCollateral": {
           const txs =
@@ -320,7 +322,7 @@ export function TransactionPrompt({
       </p>
 
       <div className="space-y-1 mb-3">
-        {(method === "morpho.supplyCollateral" || method === "morpho.borrow") &&
+        {(method === "morpho.supplyCollateral" || method === "morpho.borrow" || method === "morpho.repay") &&
         Array.isArray(params.transactions)
           ? (params.transactions as { to: string; label: string }[]).map(
               (tx, i) => (
