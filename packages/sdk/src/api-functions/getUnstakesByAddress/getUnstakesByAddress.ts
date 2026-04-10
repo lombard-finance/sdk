@@ -269,7 +269,7 @@ function mapUnstakeEntry(
   const isNative = Boolean(d.to_chain && d.to_address);
 
   let toAddress: string | undefined = d.to_address;
-  if (!isNative && d.output_script) {
+  if (!isNative && d.output_script && !toAddress) {
     try {
       toAddress = bitcoin.address.fromOutputScript(
         Buffer.from(d.output_script.replace(/^0x/, ''), 'hex'),
