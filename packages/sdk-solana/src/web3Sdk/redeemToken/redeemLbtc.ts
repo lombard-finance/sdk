@@ -72,7 +72,7 @@ export async function redeemLbtcForBtc(ctx: RedeemContext): Promise<string> {
   const payerTokenAccount = await getAssociatedTokenAddress(
     mint,
     payer,
-    true,
+    false,
     tokenProgramId,
     ASSOCIATED_TOKEN_PROGRAM_ID,
   );
