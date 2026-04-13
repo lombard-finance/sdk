@@ -13,7 +13,7 @@ export const DEFAULT_ENV: Env = 'prod';
  */
 export const envToNetwork: Record<Env, SolanaNetwork> = {
   prod: SolanaNetwork.mainnet,
-  testnet: SolanaNetwork.testnet,
+  testnet: SolanaNetwork.devnet,
   stage: SolanaNetwork.devnet,
   dev: SolanaNetwork.devnet,
   ibc: SolanaNetwork.devnet,
