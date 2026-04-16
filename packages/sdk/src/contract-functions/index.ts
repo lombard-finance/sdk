@@ -21,3 +21,7 @@ export * from './getBtceShares';
 export * from './getEarnPosition';
 export * from './getSharesByAddress';
 export * from './getShareValue';
+
+// VAULT WRITE functions:
+export * from './unwrapBtceToLbtcv';
+export * from './wrapToBtce';

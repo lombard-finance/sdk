@@ -2,6 +2,8 @@
 
 - Added `getBtceShares()` to read a user's BTCe wrapper vault balance on Ethereum, Base, or BSC. BTCe is an ERC4626 wrapper around the Veda vault's LBTCv share token.
 - Added `getEarnPosition()` to compute the user's full Bitcoin Earn position (LBTCv + BTCe) on a single chain. Routes BTCe shares through the wrapper's `convertToAssets` to value them in LBTCv terms before summing and applying the Veda accountant rate, so the math stays correct if the wrapper ever drifts off the current 1:1 peg.
+- Added `wrapToBtce()` for wrapping a supported deposit asset (LBTCv, LBTC, wBTC, etc.) into BTCe shares via the wrapper's multi-asset `deposit(token, assets, receiver, minShareAmount)` overload. Caller is responsible for approving the deposit token to the BTCe contract first (use `approveToken`).
+- Added `unwrapBtceToLbtcv()` for unwrapping BTCe back into LBTCv via `withdraw(assets, receiver, owner)`. Throws if the requested amount exceeds the wrapper's `maxWithdraw(owner)`. To complete the round-trip to LBTC, follow up with `queueWithdraw()` from the SDK.
 - Added BTCe vault config exports: `BTCE_VAULT_CHAINS`, `BTCE_VAULT_CONTRACTS`, `BtceVaultChain`, `isBtceVaultChain`.
 - Clarified `getSharesByAddress()` JSDoc: the function returns LBTCv direct holdings only and does not include BTCe-wrapped positions. Use `getEarnPosition()` for the full Bitcoin Earn view.
 

@@ -91,3 +91,13 @@ export {
   getShareValue,
   type IGetShareValueParameters,
 } from '../contract-functions/getShareValue/getShareValue';
+
+// Contract functions - VAULT WRITE
+export {
+  unwrapBtceToLbtcv,
+  type UnwrapBtceToLbtcvParameters,
+} from '../contract-functions/unwrapBtceToLbtcv/unwrapBtceToLbtcv';
+export {
+  wrapToBtce,
+  type WrapToBtceParameters,
+} from '../contract-functions/wrapToBtce/wrapToBtce';
