@@ -548,6 +548,9 @@ export {
 
 // Vault:
 export {
+  BTCE_VAULT_CHAINS,
+  BTCE_VAULT_CONTRACTS,
+  type BtceVaultChain,
   cancelWithdraw, type CancelWithdrawParameters, deposit, type DepositParameters,
 getVaultApy,
   type GetVaultApyParameters,
@@ -562,7 +565,8 @@ getVaultApy,
   getVaultWithdrawals,
   getVaultWithdrawalsAllChains,
   type GetVaultWithdrawalsAllChainsParameters,
-  type GetVaultWithdrawalsParameters,   queueWithdraw, type QueueWithdrawParameters, Vault, type VaultDeposit,
+  type GetVaultWithdrawalsParameters,   isBtceVaultChain,
+  queueWithdraw, type QueueWithdrawParameters, Vault, type VaultDeposit,
   type VaultWithdrawal,
   type VaultWithdrawals
 } from './vaults';
