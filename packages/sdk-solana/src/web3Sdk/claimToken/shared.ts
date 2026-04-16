@@ -255,7 +255,6 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
         payer: provider.publicKey,
         config: consortiumConfigPDA,
         session: sessionPDA,
-        validatedPayload: validatedPayloadPDA,
         systemProgram: SystemProgram.programId,
       })
       .transaction();
