@@ -14,7 +14,8 @@ export const BFF_WS_URL_STAGE =
 export const RPC_URLS: Record<SolanaNetwork, string> = {
   [SolanaNetwork.mainnet]: `${BFF_BASE_URL_PROD}/solana`,
   [SolanaNetwork.testnet]: 'https://api.testnet.solana.com',
-  [SolanaNetwork.devnet]: `${BFF_BASE_URL_PROD}/solana_devnet`,
+  // [SolanaNetwork.devnet]: `${BFF_BASE_URL_PROD}/solana_devnet`,
+  [SolanaNetwork.devnet]: 'https://api.devnet.solana.com',
 };
 
 export const WS_URLS: Record<SolanaNetwork, string> = {
