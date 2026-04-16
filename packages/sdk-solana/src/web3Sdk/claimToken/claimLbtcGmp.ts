@@ -163,20 +163,19 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   }
   const mintAuthority = mintAccount.mintAuthority;
 
-  const recipientTokenAta = new PublicKey(
-    await createOrGetAssociatedTokenAccount({
-      provider,
-      connection,
-      ownerAddress: tokenRecipient.toBase58(),
-      mintAddress: mint.toBase58(),
-      allowOwnerOffCurve: true,
-    }),
-  );
+  // Ensure the recipient's token account exists
+  await createOrGetAssociatedTokenAccount({
+    provider,
+    connection,
+    ownerAddress: tokenRecipient.toBase58(),
+    mintAddress: mint.toBase58(),
+    allowOwnerOffCurve: true,
+  });
 
   // Build handle_message instruction
   const handleIx = await mailboxProgram.methods
     .handleMessage(payloadHashArray)
-    .accounts({
+      .accounts({
       handler: provider.publicKey,
       config: mailboxConfigPDA,
       messageInfo: messageInfoPDA,
@@ -190,7 +189,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
     { pubkey: assetRouterConfigPDA, isSigner: false, isWritable: false },
     { pubkey: messageHandledPDA, isSigner: false, isWritable: true },
     { pubkey: tokenProgramId, isSigner: false, isWritable: false },
-    { pubkey: recipientTokenAta, isSigner: false, isWritable: true },
+    { pubkey: tokenRecipient, isSigner: false, isWritable: true },
     { pubkey: mint, isSigner: false, isWritable: true },
     { pubkey: mintAuthority, isSigner: false, isWritable: false },
     { pubkey: tokenAuthorityPDA, isSigner: false, isWritable: false },
