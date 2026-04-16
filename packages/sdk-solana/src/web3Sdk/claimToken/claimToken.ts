@@ -1,7 +1,7 @@
 import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 
-import { getConfig, networkToEnv } from '../../const/getConfig';
+import { DEFAULT_ENV, getConfig } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';
 import { getAssetRouterIdl } from '../../idl/getAssetRouterIdl';
 import { getConsortiumIdl } from '../../idl/getConsortiumIdl';
@@ -34,7 +34,7 @@ export async function claimToken(
   provider: ISolanaWalletProvider,
   params: ClaimTokenParams,
 ): Promise<string> {
-  const { network, env: envOverride, rawPayload, rpcUrl, debug = false } = params;
+  const { network, env = DEFAULT_ENV, rawPayload, rpcUrl, debug = false } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
   try {
@@ -42,8 +42,8 @@ export async function claimToken(
       throw new Error('Wallet not found');
     }
 
-    const env = envOverride ?? networkToEnv[network];
     const config = getConfig(env);
+
     if (!config.assetRouter) {
       throw new Error(`Asset Router not configured for network: ${network}`);
     }
