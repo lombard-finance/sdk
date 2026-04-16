@@ -51,7 +51,7 @@ export async function wrapToBtce({
   provider,
   rpcUrl,
 }: WrapToBtceParameters): Promise<Hash> {
-  if (!isAddress(tokenAddress)) {
+  if (!isAddress(tokenAddress, { strict: false })) {
     throw new Error(`Invalid token address: ${tokenAddress}`);
   }
 
