@@ -57,7 +57,7 @@ export const solanaToBtcbConfig: ChainConfig = {
       destChain: Chain.SOLANA_DEVNET,
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
-      envs: [Env.stage, Env.dev],
+      envs: [Env.stage, Env.dev, Env.testnet],
     },
   ],
 

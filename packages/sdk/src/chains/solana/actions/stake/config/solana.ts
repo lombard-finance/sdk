@@ -20,7 +20,7 @@ export const solanaStakeConfig: ChainConfig = {
       chain: Chain.SOLANA_DEVNET,
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
-      envs: [Env.stage, Env.dev],
+      envs: [Env.stage, Env.dev, Env.testnet],
     },
   ],
 
