@@ -21,7 +21,7 @@ export const solanaRedeemConfig: ChainConfig = {
       destChain: Chain.BITCOIN_SIGNET,
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
-      envs: [Env.stage, Env.dev],
+      envs: [Env.testnet, Env.stage, Env.dev],
     },
   ],
 
