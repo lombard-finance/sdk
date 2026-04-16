@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
