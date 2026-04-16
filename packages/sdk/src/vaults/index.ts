@@ -1,6 +1,13 @@
 // Config:
 
-export { Vault, VEDA_VAULT_STAKE_AND_BAKE_CHAINS } from './lib/config';
+export {
+  BTCE_VAULT_CHAINS,
+  BTCE_VAULT_CONTRACTS,
+  type BtceVaultChain,
+  isBtceVaultChain,
+  Vault,
+  VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
+} from './lib/config';
 
 // Ops - Deposit:
 
