@@ -5,6 +5,12 @@
 
 ---
 
+# 4.5.2
+
+- Fixed `mapUnstakeEntry` overwriting an already-present `to_address` with a value derived from `output_script`. The script-based derivation now only runs when `toAddress` is not yet set.
+
+---
+
 # 4.5.1
 
 - **Solana companion package** (`@lombard.finance/sdk-solana` ≥1.2.2): consortium `claimToken()` uses epoch-seeded session PDAs and an updated Consortium IDL. Upgrade the Solana package when targeting the upgraded consortium program. This `@lombard.finance/sdk` release documents that dependency; see `packages/sdk-solana/CHANGELOG.md` for details.

@@ -101,7 +101,7 @@ jobs:
 
       - name: Publish
         working-directory: ./packages/${{ github.event.inputs.package }}/
-        run: npm publish --tag ${{ github.event.inputs.tag }}
+        run: npm publish --tag ${{ github.event.inputs.tag }} --registry https://registry.npmjs.org
 
       - name: Send Slack message for SDK publish
         uses: slackapi/slack-github-action@v2.1.1
