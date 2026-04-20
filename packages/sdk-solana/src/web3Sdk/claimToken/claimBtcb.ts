@@ -3,7 +3,7 @@ import { PublicKey, SystemProgram } from '@solana/web3.js';
 
 import { sendAndConfirmTransaction } from '../../utils';
 import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
-import { ALREADY_MINTED_TX_HASH } from '../claimLBTC';
+import { ALREADY_MINTED_TX_HASH } from './constants';
 import {
   assertBtcbDepositRecipientMatchesWallet,
   ClaimContext,

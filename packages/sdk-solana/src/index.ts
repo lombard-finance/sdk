@@ -20,7 +20,6 @@ export * from './bridge';
 // Add these specific exports to make them easier to import
 export { loadBridgeFunctions } from './bridge';
 export { getOftAmountCanBeSent } from './bridge/getOftAmountCanBeSent';
-export { claimLBTC } from './web3Sdk/claimLBTC/claimLBTC';
 
 // Optional chain module (Service-First): used by the core SDK CapabilityRegistry.
 // This MUST be exported from the package entrypoint so integrators can register:

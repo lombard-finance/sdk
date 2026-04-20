@@ -206,8 +206,8 @@ const meta: Meta<typeof StoryView> = {
 3. Wait for backend to notarize the deposit (Consortium validation)
 4. Call \`claimToken\` to mint tokens via Asset Router's \`mint_from_payload\`
 
-Unlike the legacy \`claimLBTC\` (which uses a 3-step on-chain process), this function
-performs a single transaction — the Consortium validation is handled entirely by the backend.`,
+The Consortium validation is handled entirely by the backend, so the on-chain flow
+is a single transaction.`,
       },
     },
   },

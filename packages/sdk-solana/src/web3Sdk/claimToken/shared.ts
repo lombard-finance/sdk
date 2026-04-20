@@ -11,7 +11,7 @@ import { sha256 } from 'js-sha256';
 import { IConfig } from '../../const/getConfig';
 import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import { sendAndConfirmTransaction } from '../../utils';
-import { parseSignaturesFromProof } from '../claimLBTC/utils/signatureUtils';
+import { parseSignaturesFromProof } from './utils/signatureUtils';
 
 // ── PDA seeds ──
 

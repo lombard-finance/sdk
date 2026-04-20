@@ -113,17 +113,19 @@ const depositAddress = await generateDepositBtcAddress({
 
 ```
 
-### Claiming LBTC
+### Claiming tokens (Asset Router)
 
-This operation mints the deposited amount of BTC into LBTC and transfers that
-to the provided recipient address.
+Mints BTC.b or LBTC on Solana from a notarized deposit payload using the
+Asset Router program. Replaces the previous `claimLBTC` helper.
 
-```javascript
-const txHash = await claimLBTC(provider, {
+```typescript
+import { claimToken } from '@lombard.finance/sdk-solana';
+
+const txHash = await claimToken(provider, {
   recipientAddress: address,
-  amount: '10000',
+  tokenMint: getConfig(Env.prod).btcbTokenMint, // or lbtcTokenMint
   network: 'mainnet-beta',
-  // The signatures (obtained from `getDepositsByAddress`)
+  // Obtained from `getDepositsByAddress`
   proofSignature: selectedOutput.proof,
   rawPayload: selectedOutput.raw_payload,
 });
