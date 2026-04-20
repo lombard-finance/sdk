@@ -188,8 +188,8 @@ describe('BTC Deposit Config', () => {
       expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.stage)).toBe(true);
     });
 
-    it('should NOT allow Bitcoin Signet source in testnet', () => {
-      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.testnet)).toBe(false);
+    it('should allow Bitcoin Signet source in testnet', () => {
+      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.testnet)).toBe(true);
     });
 
     it('should NOT allow Bitcoin Signet source in ibc', () => {
