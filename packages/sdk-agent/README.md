@@ -88,7 +88,7 @@ import { allTools, toolsByName } from "@lombard.finance/sdk-agent";
 
 | Tool | Description |
 | ---- | ----------- |
-| `get_deposit_btc_address` | Look up an existing BTC deposit address for staking |
+| `get_deposit_btc_address` | Get a BTC deposit address for staking, or instructions to generate one |
 | `check_fee_authorization` | Check fee authorization status before address generation |
 | `prepare_btc_deposit` | Generate a new BTC deposit address (triggers wallet signing) |
 | `get_deposit_status` | Track deposit confirmations and claimability |
@@ -111,7 +111,6 @@ import { allTools, toolsByName } from "@lombard.finance/sdk-agent";
 | `get_vault_positions` | Check Bitcoin Earn positions (shares and LBTC value) |
 | `prepare_deploy_to_vault` | Deploy LBTC into Bitcoin Earn for additional yield |
 | `prepare_vault_withdrawal` | Withdraw from Bitcoin Earn |
-| `prepare_cancel_withdrawal` | Cancel a pending vault withdrawal |
 
 ### Morpho Blue (Lending and Borrowing)
 
@@ -122,13 +121,6 @@ import { allTools, toolsByName } from "@lombard.finance/sdk-agent";
 | `prepare_morpho_borrow` | Borrow against LBTC collateral |
 | `prepare_morpho_repay` | Repay borrowed assets |
 | `get_morpho_position` | Check collateral, borrows, LTV, and health status |
-
-### Rewards and Portfolio
-
-| Tool | Description |
-| ---- | ----------- |
-| `get_lux_points` | Check Lux reward points (holding, protocol, referral) |
-| `get_positions_summary` | Aggregated portfolio summary with total BTC value |
 
 ## System Prompt
 
