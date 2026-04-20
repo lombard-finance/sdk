@@ -236,8 +236,8 @@ const prodConfig: IConfig = {
   bridge: 'Lomva5kTftuXE8992qRufkaeq3XrXV47qv3C1W9xW6Z',
   lombardTokenPool: 'Lomb8TTCwJKEhZrJ1J8UbsCRjNSf7NNQUEr4qo3dkSk',
   ledgerChainId: '0387b25e8e61f2ce4838b04795b231f09ee73ffd391da018bef4bc5c4975897b',
-  solanaRoutingChainId: '0x02296998a6f8e2a784db5d9f95e18fc23f70441a1039446801089879b08c7ef0',
-  bitcoinRoutingChainId: '0xff0000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f',
+  solanaRoutingChainId: '02296998a6f8e2a784db5d9f95e18fc23f70441a1039446801089879b08c7ef0',
+  bitcoinRoutingChainId: 'ff0000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f',
 };
 
 /**
