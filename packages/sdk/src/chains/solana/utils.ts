@@ -10,7 +10,6 @@ import type { SolanaChain } from '../../common/chains';
 import {
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
-  SOLANA_TESTNET_CHAIN,
 } from '../../common/chains';
 
 /**
