@@ -6,9 +6,6 @@ export * from './signLbtcDestinationAddrSolana';
 export * from './signMessage';
 export * from './signTermsOfService';
 
-// LBTC operations
-export * from './unstakeLBTC';
-
 // Asset Router operations (Ledger v2)
 export * from './claimToken';
 export * from './deposit';

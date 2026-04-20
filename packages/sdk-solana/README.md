@@ -131,24 +131,6 @@ const txHash = await claimToken(provider, {
 });
 ```
 
-### Unstaking LBTC (legacy)
-
-> **Deprecated:** prefer **Redeeming tokens for BTC (Asset Router)** below using
-> `redeemForBtc` with `tokenMint` set to your environment’s LBTC mint
-> (`getConfig(env).lbtcTokenMint`). `unstakeLBTC` calls the legacy LBTC program
-> `redeem` instruction directly and may be removed in a future major version.
-
-This operation burns a given amount of LBTC and initiates transfer of BTC to the
-given BTC address.
-
-```javascript
-const txHash = await unstakeLBTC(provider, {
-  amount: '10000',
-  btcAddress,
-  network: 'mainnet-beta',
-});
-```
-
 ### Redeeming tokens for BTC (Asset Router)
 
 Burns BTC.b or LBTC on Solana and sends a GMP message through the Mailbox to

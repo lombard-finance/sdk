@@ -5,9 +5,10 @@ All notable changes to `@lombard.finance/sdk-solana` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Deprecated
+### Removed
 
-- `unstakeLBTC` and `UnstakeLBTCParams` — legacy LBTC-program `redeem` path; use `redeemForBtc` with `tokenMint` set to `getConfig(env).lbtcTokenMint` for LBTC → BTC (see migration notes under [2.0.0]). Marked `@deprecated` in JSDoc; removal planned for a future major version.
+- **BREAKING:** `unstakeLBTC` function and `UnstakeLBTCParams` type — legacy LBTC-program `redeem` path. Use `redeemForBtc` with `tokenMint` set to `getConfig(env).lbtcTokenMint` for LBTC → BTC (see migration notes under [2.0.0]).
+- **BREAKING:** `claimLBTC` function and related legacy helpers — replaced by `claimToken` (Asset Router `mint_from_payload` flow).
 
 ## [2.0.0] - 2026-03-19
 
