@@ -8,12 +8,12 @@ import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SolanaRedeem } from '../../../chains/solana/actions/redeem/SolanaRedeem';
+import { envToSolanaChain } from '../../../chains/solana/utils';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
 import { NonEvmUnstakeStatus } from '../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../shared/context';
 import { getSolanaTokenAddress, Token } from '../../../tokens/token-addresses';
-import { envToSolanaChain } from '../../../chains/solana/utils';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Mock Setup
@@ -78,9 +78,15 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
       expect(redeem.status).toBe(NonEvmUnstakeStatus.IDLE);
     });
 
-    it('should throw for prod env (not yet supported)', () => {
+    it('should initialize with IDLE status in prod env', () => {
       const prodCtx = createMockContext({ env: Env.prod });
-      expect(() => new SolanaRedeem(prodCtx, validParams)).toThrow();
+      const prodParams = {
+        ...validParams,
+        sourceChain: Chain.SOLANA_MAINNET,
+        destChain: Chain.BITCOIN_MAINNET,
+      };
+      const redeem = new SolanaRedeem(prodCtx, prodParams);
+      expect(redeem.status).toBe(NonEvmUnstakeStatus.IDLE);
     });
 
     it('should throw for unsupported source chain', () => {

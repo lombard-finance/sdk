@@ -316,9 +316,15 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
       expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
     });
 
-    it('should throw for prod env (not yet supported)', () => {
+    it('should initialize with IDLE status in prod env on mainnet', () => {
       const prodCtx = createMockContext({ env: Env.prod });
-      expect(() => new SolanaUnstake(prodCtx, validParams)).toThrow();
+      const prodParams = {
+        ...validParams,
+        sourceChain: Chain.SOLANA_MAINNET,
+        destChain: Chain.SOLANA_MAINNET,
+      };
+      const unstake = new SolanaUnstake(prodCtx, prodParams);
+      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
     });
 
     it('should throw for unsupported source chain', () => {

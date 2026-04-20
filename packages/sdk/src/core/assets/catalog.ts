@@ -57,7 +57,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.prod,
           chain: Chain.SOLANA_MAINNET,
-          address: 'LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek',
+          address: 'LBTCgU4b3wsFKsPwBn1rRZDx5DoFutM6RPiEt1TPDsY',
         },
         {
           env: Env.prod,
@@ -196,6 +196,11 @@ export const ASSET_CATALOG: AssetCatalog = {
           chain: Chain.AVALANCHE,
           address: '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
           bridgeAdapter: '0x85D1D52e11290F174444d21C2a167bEDBE36e4d2',
+        },
+        {
+          env: Env.prod,
+          chain: Chain.SOLANA_MAINNET,
+          address: 'BTCbKVgfW4xMqTWEmxVwc6pzg2c5YtQWxSpBuQDhUrpu',
         },
 
         // Testnet

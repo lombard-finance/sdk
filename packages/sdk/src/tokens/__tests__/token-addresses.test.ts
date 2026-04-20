@@ -247,7 +247,7 @@ describe('Token Addresses', () => {
           Env.prod,
         );
 
-        expect(address).toBe('LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek');
+        expect(address).toBe('LBTCgU4b3wsFKsPwBn1rRZDx5DoFutM6RPiEt1TPDsY');
         expect(address).toBeDefined();
       });
 

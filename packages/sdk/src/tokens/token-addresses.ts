@@ -27,7 +27,6 @@ import {
   isValidChain,
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
-  SOLANA_TESTNET_CHAIN,
   SolanaChain,
   STARKNET_MAINNET_CHAIN,
   STARKNET_SEPOLIA_CHAIN,
@@ -325,7 +324,7 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
 > = {
   [Token.LBTC]: {
     [Env.prod]: {
-      [SOLANA_MAINNET_CHAIN]: 'LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek',
+      [SOLANA_MAINNET_CHAIN]: 'LBTCgU4b3wsFKsPwBn1rRZDx5DoFutM6RPiEt1TPDsY',
     },
     [Env.testnet]: {
       [SOLANA_DEVNET_CHAIN]: '1BTCPX3qyFtBvhQvJaHntfzZfB8qcJmJXfoRnD3vAgh',
@@ -338,6 +337,9 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
     },
   },
   [Token.BTCb]: {
+    [Env.prod]: {
+      [SOLANA_MAINNET_CHAIN]: 'BTCbKVgfW4xMqTWEmxVwc6pzg2c5YtQWxSpBuQDhUrpu',
+    },
     [Env.dev]: {
       [SOLANA_DEVNET_CHAIN]: 'BTCB3ripBAut19jM8kDPVbJHb2ZdR2GcZvGZkCmFPtV8',
     },

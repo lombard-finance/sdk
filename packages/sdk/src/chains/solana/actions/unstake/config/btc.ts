@@ -53,6 +53,13 @@ export const solanaToBtcbConfig: ChainConfig = {
 
   routes: [
     {
+      sourceChains: [Chain.SOLANA_MAINNET],
+      destChain: Chain.SOLANA_MAINNET,
+      assetIn: AssetId.LBTC,
+      assetOut: AssetId.BTCb,
+      envs: [Env.prod],
+    },
+    {
       sourceChains: [Chain.SOLANA_DEVNET],
       destChain: Chain.SOLANA_DEVNET,
       assetIn: AssetId.LBTC,
