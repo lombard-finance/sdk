@@ -1,1 +1,1 @@
-export * from "./claimLBTC";
+export * from './claimLBTC';

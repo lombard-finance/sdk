@@ -1,17 +1,17 @@
-import axios from "axios";
-import BigNumber from "bignumber.js";
-import { Address, Hash } from "viem";
+import axios from 'axios';
+import BigNumber from 'bignumber.js';
+import { Address, Hash } from 'viem';
 
-import { getApiConfig } from "../../../common/api-config";
-import { ChainId } from "../../../common/chains";
-import { IEnvParam } from "../../../common/parameters";
+import { getApiConfig } from '../../../common/api-config';
+import { ChainId } from '../../../common/chains';
+import { IEnvParam } from '../../../common/parameters';
 import {
   fromBaseDenomination,
   getAssetInfo,
   TokenInfo,
-} from "../../../tokens/tokens";
-import { orderBy, unique } from "../../../utils/array";
-import { ensureHex } from "../../../utils/hex";
+} from '../../../tokens/tokens';
+import { orderBy, unique } from '../../../utils/array';
+import { ensureHex } from '../../../utils/hex';
 import {
   isVedaVaultChain,
   NETWORK_TO_VEDA_VAULT_CHAIN_MAP,
@@ -19,7 +19,7 @@ import {
   VAULTS,
   VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
   VedaVaultChain,
-} from "../config";
+} from '../config';
 
 type SevenSeasDepositEntry = {
   block_number: number;
@@ -49,7 +49,7 @@ const normalizeSevenSeasDeposits = (
     return payload;
   }
 
-  if ("Response" in payload) {
+  if ('Response' in payload) {
     const response = payload.Response;
     if (Array.isArray(response)) {
       return response;
@@ -82,7 +82,7 @@ export type VaultDeposit = {
   /** The amount of shares received */
   shareAmount: BigNumber;
   /** The deposit token */
-  token?: Omit<TokenInfo, "abi">;
+  token?: Omit<TokenInfo, 'abi'>;
   /** The user wallet address that made the deposit */
   toAddress: Address;
 };
@@ -111,7 +111,7 @@ export async function getVaultDeposits({
 
   if (!isVedaVaultChain(chainId)) {
     throw new Error(
-      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(", ")}`,
+      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
   }
 
@@ -128,10 +128,10 @@ export async function getVaultDeposits({
   const entries = normalizeSevenSeasDeposits(data);
 
   const depositAssetsAddresses = unique(
-    entries.map((d) => ensureHex(d.deposit_asset)),
+    entries.map(d => ensureHex(d.deposit_asset)),
   );
 
-  const depositAssets: Record<Address, Omit<TokenInfo, "abi"> | undefined> = {};
+  const depositAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> = {};
   for (const asset of depositAssetsAddresses) {
     const assetInfo = await getAssetInfo(asset, chainId, rpcUrl);
     if (assetInfo) {
@@ -145,7 +145,7 @@ export async function getVaultDeposits({
     }
   }
 
-  const deposits = entries.map((d) => {
+  const deposits = entries.map(d => {
     const token = depositAssets[ensureHex(d.deposit_asset)];
     const amount = fromBaseDenomination(d.deposit_amount, token?.decimals || 0);
     const shareAmount = fromBaseDenomination(d.share_amount, vault.decimals);
@@ -163,7 +163,7 @@ export async function getVaultDeposits({
     return vaultDeposit;
   });
 
-  return orderBy(deposits, (d) => d.blockNumber, "desc");
+  return orderBy(deposits, d => d.blockNumber, 'desc');
 }
 
 export type GetVaultDepositsAllChainsParameters = {
@@ -194,8 +194,8 @@ export async function getVaultDepositsAllChains({
   }
 
   // Fetch deposits from all supported chains in parallel
-  const depositsPromises = vault.chains.map((chainId) =>
-    getVaultDeposits({ account, chainId, vaultKey, rpcUrl }).catch((error) => {
+  const depositsPromises = vault.chains.map(chainId =>
+    getVaultDeposits({ account, chainId, vaultKey, rpcUrl }).catch(error => {
       console.error(`Failed to fetch deposits for chain ${chainId}:`, error);
       return []; // Return empty array on error to not break the entire query
     }),
@@ -205,5 +205,5 @@ export async function getVaultDepositsAllChains({
 
   // Flatten and sort all deposits by block number (newest first)
   const allDeposits = depositsArrays.flat();
-  return orderBy(allDeposits, (d) => d.blockNumber, "desc");
+  return orderBy(allDeposits, d => d.blockNumber, 'desc');
 }

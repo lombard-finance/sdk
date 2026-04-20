@@ -6,11 +6,11 @@
  * @module chains/evm/actions/stake/factory
  */
 
-import type { LombardConfig } from "../../../../config/types";
-import type { EvmCoreContext } from "../../../../shared/context";
-import { createEvmCoreContext } from "../../../../shared/context";
-import { EvmStake } from "./EvmStake";
-import type { EvmStakeParams } from "./types";
+import type { LombardConfig } from '../../../../config/types';
+import type { EvmCoreContext } from '../../../../shared/context';
+import { createEvmCoreContext } from '../../../../shared/context';
+import { EvmStake } from './EvmStake';
+import type { EvmStakeParams } from './types';
 
 /**
  * Create EvmStake action from config

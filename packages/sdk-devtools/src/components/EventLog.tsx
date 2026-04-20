@@ -8,9 +8,9 @@
  * @module sdk-devtools/components/EventLog
  */
 
-import { Terminal, Trash2, Zap } from "lucide-react";
+import { Terminal, Trash2, Zap } from 'lucide-react';
 
-import type { DevToolsEvent } from "../types";
+import type { DevToolsEvent } from '../types';
 
 export interface EventLogProps {
   /** Events to display */
@@ -37,12 +37,12 @@ export interface EventLogProps {
 export function EventLog({
   events,
   onClear,
-  title = "SDK Event Log",
+  title = 'SDK Event Log',
   showInfoBanner = true,
-  className = "",
+  className = '',
 }: EventLogProps) {
   // Count SDK events
-  const sdkEventCount = events.filter((e) => e.isSDKEvent).length;
+  const sdkEventCount = events.filter(e => e.isSDKEvent).length;
 
   return (
     <div className={`h-full flex flex-col ${className}`}>
@@ -73,11 +73,8 @@ export function EventLog({
       {/* Info banner about SDK events */}
       {showInfoBanner && (
         <div className="px-3 py-1 bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700/50 text-[10px] text-gray-500">
-          💡 These events are emitted by the SDK's{" "}
-          <code className="text-gray-900 dark:text-white font-semibold">
-            action.on()
-          </code>{" "}
-          method
+          💡 These events are emitted by the SDK's{' '}
+          <code className="text-gray-900 dark:text-white font-semibold">action.on()</code> method
         </div>
       )}
 
@@ -89,7 +86,7 @@ export function EventLog({
           </div>
         ) : (
           <div className="space-y-0.5">
-            {events.map((event) => (
+            {events.map(event => (
               <EventRow key={event.id} event={event} />
             ))}
           </div>
@@ -135,30 +132,30 @@ function EventRow({ event }: { event: DevToolsEvent }) {
 
 function formatTime(timestamp: number): string {
   const date = new Date(timestamp);
-  const time = date.toLocaleTimeString("en-US", {
+  const time = date.toLocaleTimeString('en-US', {
     hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
   });
-  const ms = String(date.getMilliseconds()).padStart(3, "0");
+  const ms = String(date.getMilliseconds()).padStart(3, '0');
   return `${time}.${ms}`;
 }
 
 function getEventColor(type: string): string {
-  if (type === "error" || type === "failed") return "text-red-400";
-  if (type === "completed") return "text-green-400";
-  if (type === "status-change") return "text-cyan-400";
-  if (type === "progress") return "text-blue-400";
-  if (type === "loading") return "text-yellow-400";
-  return "text-gray-400";
+  if (type === 'error' || type === 'failed') return 'text-red-400';
+  if (type === 'completed') return 'text-green-400';
+  if (type === 'status-change') return 'text-cyan-400';
+  if (type === 'progress') return 'text-blue-400';
+  if (type === 'loading') return 'text-yellow-400';
+  return 'text-gray-400';
 }
 
 function formatEventData(data: unknown): string {
-  if (data === null || data === undefined) return "—";
-  if (typeof data === "string") return data;
-  if (typeof data === "boolean") return data ? "true" : "false";
-  if (typeof data === "object") {
+  if (data === null || data === undefined) return '—';
+  if (typeof data === 'string') return data;
+  if (typeof data === 'boolean') return data ? 'true' : 'false';
+  if (typeof data === 'object') {
     try {
       return JSON.stringify(data);
     } catch {
@@ -167,3 +164,4 @@ function formatEventData(data: unknown): string {
   }
   return String(data);
 }
+

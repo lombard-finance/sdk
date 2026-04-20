@@ -1,16 +1,16 @@
-import { type ReactNode } from "react";
+import { type ReactNode } from 'react';
 
 interface BadgeProps {
   children: ReactNode;
   variant?:
-    | "primary"
-    | "secondary"
-    | "success"
-    | "danger"
-    | "warning"
-    | "info"
-    | "light"
-    | "dark";
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'danger'
+    | 'warning'
+    | 'info'
+    | 'light'
+    | 'dark';
   className?: string;
 }
 
@@ -20,8 +20,8 @@ interface BadgeProps {
  */
 export function Badge({
   children,
-  variant = "secondary",
-  className = "",
+  variant = 'secondary',
+  className = '',
 }: BadgeProps) {
   return <span className={`badge bg-${variant} ${className}`}>{children}</span>;
 }

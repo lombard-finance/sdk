@@ -4,10 +4,10 @@
  * @module chains/solana/actions/unstake/factory
  */
 
-import type { LombardConfig } from "../../../../config/types";
-import type { SolanaCoreContext } from "../../../../shared/context";
-import { SolanaUnstake } from "./SolanaUnstake";
-import type { ISolanaUnstake, SolanaUnstakeParams } from "./types";
+import type { LombardConfig } from '../../../../config/types';
+import type { SolanaCoreContext } from '../../../../shared/context';
+import { SolanaUnstake } from './SolanaUnstake';
+import type { ISolanaUnstake,SolanaUnstakeParams } from './types';
 
 /**
  * Create Solana unstake from context
@@ -29,6 +29,6 @@ export function solanaUnstake(
   _params: SolanaUnstakeParams,
 ): ISolanaUnstake {
   throw new Error(
-    "solanaUnstake() from config is not yet supported. Use sdk.chain.solana.unstake() instead.",
+    'solanaUnstake() from config is not yet supported. Use sdk.chain.solana.unstake() instead.',
   );
 }

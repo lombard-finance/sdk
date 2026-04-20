@@ -1,10 +1,10 @@
-import { Env } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
+import { Env } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { Button, ErrorDisplay, ResultDisplay } from "../stories/components";
-import { functionType } from "../stories/decorators/function-type";
-import useQuery from "../stories/hooks/useQuery";
-import { getOftAmountCanBeSent } from "./getOftAmountCanBeSent";
+import { Button, ErrorDisplay, ResultDisplay } from '../stories/components';
+import { functionType } from '../stories/decorators/function-type';
+import useQuery from '../stories/hooks/useQuery';
+import { getOftAmountCanBeSent } from './getOftAmountCanBeSent';
 
 interface GetOftAmountStoryArgs {
   env: Env;
@@ -13,7 +13,7 @@ interface GetOftAmountStoryArgs {
 
 export const StoryView = ({ env, destinationEid }: GetOftAmountStoryArgs) => {
   const request = async () => {
-    if (!destinationEid) throw new Error("Destination EID is required.");
+    if (!destinationEid) throw new Error('Destination EID is required.');
     try {
       const amount = await getOftAmountCanBeSent({
         env,
@@ -21,7 +21,7 @@ export const StoryView = ({ env, destinationEid }: GetOftAmountStoryArgs) => {
       });
       return amount.toString();
     } catch (err) {
-      console.error("Fetch Amount Error:", err);
+      console.error('Fetch Amount Error:', err);
       throw err;
     }
   };
@@ -57,26 +57,26 @@ export const StoryView = ({ env, destinationEid }: GetOftAmountStoryArgs) => {
 };
 
 const meta: Meta<typeof StoryView> = {
-  title: "read/getOftAmountCanBeSent",
+  title: 'read/getOftAmountCanBeSent',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("read")],
+  tags: ['autodocs'],
+  decorators: [functionType('read')],
   parameters: {
     docs: {
       description: {
         component:
-          "Fetches the rate-limited amount of OFT (like LBTC) that can be sent from Solana using `getOftAmountCanBeSent`.",
+          'Fetches the rate-limited amount of OFT (like LBTC) that can be sent from Solana using `getOftAmountCanBeSent`.',
       },
     },
   },
   argTypes: {
     env: {
-      control: "select",
+      control: 'select',
       options: Object.values(Env),
     },
     destinationEid: {
-      control: "number",
-      name: "Destination EID",
+      control: 'number',
+      name: 'Destination EID',
     },
   },
   args: {

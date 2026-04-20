@@ -12,13 +12,10 @@ export async function POST(request: Request) {
   const { messages, walletContext } = await request.json();
 
   if (!Array.isArray(messages) || messages.length === 0) {
-    return new Response(
-      JSON.stringify({ error: "messages must be a non-empty array" }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return new Response(JSON.stringify({ error: "messages must be a non-empty array" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   // Extend the SDK's default system prompt with wallet context

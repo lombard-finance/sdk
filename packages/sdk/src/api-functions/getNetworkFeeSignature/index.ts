@@ -1,1 +1,1 @@
-export * from "./getNetworkFeeSignature";
+export * from './getNetworkFeeSignature';

@@ -9,9 +9,9 @@ import type {
   Chain,
   StepStatus,
   StrategyProgress,
-} from "../../../../core";
-import type { MonitorableAction } from "../../../../shared/actions/BaseAction";
-import type { LombardError } from "../../../../shared/errors";
+} from '../../../../core';
+import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
+import type { LombardError } from '../../../../shared/errors';
 
 /**
  * EVM Deposit status
@@ -24,11 +24,11 @@ import type { LombardError } from "../../../../shared/errors";
  * Use `isLoading` for operation-in-progress state (no transitional statuses).
  */
 export enum EvmDepositStatus {
-  IDLE = "idle",
-  NEEDS_APPROVAL = "needs-approval",
-  READY = "ready",
-  BRIDGING = "bridging",
-  COMPLETED = "completed",
+  IDLE = 'idle',
+  NEEDS_APPROVAL = 'needs-approval',
+  READY = 'ready',
+  BRIDGING = 'bridging',
+  COMPLETED = 'completed',
 }
 
 /**

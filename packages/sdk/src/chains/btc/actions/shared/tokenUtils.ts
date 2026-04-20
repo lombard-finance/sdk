@@ -26,8 +26,8 @@
  * @module chains/btc/actions/shared/tokenUtils
  */
 
-import { AssetId } from "../../../../core/assets";
-import { Token } from "../../../../tokens/token-addresses";
+import { AssetId } from '../../../../core/assets';
+import { Token } from '../../../../tokens/token-addresses';
 
 /**
  * Maps an AssetId to its corresponding Token value for API calls.
@@ -65,3 +65,4 @@ export function assetIdToToken(
       return defaultToken;
   }
 }
+

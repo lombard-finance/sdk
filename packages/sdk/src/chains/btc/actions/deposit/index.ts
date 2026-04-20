@@ -5,10 +5,10 @@
  */
 
 // Main action class
-export { BtcDeposit } from "./BtcDeposit";
+export { BtcDeposit } from './BtcDeposit';
 
 // Factory functions
-export { btcDeposit, createBtcDeposit } from "./factory";
+export { btcDeposit, createBtcDeposit } from './factory';
 
 // Types
 export type {
@@ -16,8 +16,8 @@ export type {
   BtcDepositPrepareParams,
   BtcDepositProgress,
   BtcDeposit as IBtcDeposit,
-} from "./types";
-export { BtcActionStatus } from "./types";
+} from './types';
+export { BtcActionStatus } from './types';
 
 // Configuration types (for advanced usage)
-export type { DepositChainConfig, DepositRouteDefinition } from "./config";
+export type { DepositChainConfig, DepositRouteDefinition } from './config';

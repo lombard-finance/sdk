@@ -1,44 +1,44 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
 import {
   Button,
   ConnectButton,
   ErrorDisplay,
   ResultDisplay,
-} from "../../stories/components";
-import { functionType } from "../../stories/decorators/function-type";
-import { useConnect } from "../../stories/hooks/useConnect";
-import useQuery from "../../stories/hooks/useQuery";
-import { SolanaNetwork } from "../../types";
-import { getBalance } from "./getBalance";
+} from '../../stories/components';
+import { functionType } from '../../stories/decorators/function-type';
+import { useConnect } from '../../stories/hooks/useConnect';
+import useQuery from '../../stories/hooks/useQuery';
+import { SolanaNetwork } from '../../types';
+import { getBalance } from './getBalance';
 
 const meta: Meta<typeof StoryView> = {
-  title: "read/getBalance",
+  title: 'read/getBalance',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("read")],
+  tags: ['autodocs'],
+  decorators: [functionType('read')],
   parameters: {
     docs: {
       description: {
         component:
-          "Demonstrates fetching SOL or SPL token balances using the `getBalance` SDK function.",
+          'Demonstrates fetching SOL or SPL token balances using the `getBalance` SDK function.',
       },
     },
   },
   args: {
     network: SolanaNetwork.devnet,
-    rpcUrl: "",
-    tokenAddress: "",
+    rpcUrl: '',
+    tokenAddress: '',
   },
   argTypes: {
     network: {
-      control: { type: "select" },
+      control: { type: 'select' },
       options: Object.values(SolanaNetwork),
     },
-    rpcUrl: { control: { type: "text" }, name: "RPC URL (Optional)" },
+    rpcUrl: { control: { type: 'text' }, name: 'RPC URL (Optional)' },
     tokenAddress: {
-      control: { type: "text" },
-      name: "Token Address (Optional, blank for SOL)",
+      control: { type: 'text' },
+      name: 'Token Address (Optional, blank for SOL)',
     },
   },
 };
@@ -68,7 +68,7 @@ export function StoryView({
 
   const request = async () => {
     if (!address) {
-      throw new Error("Wallet not connected.");
+      throw new Error('Wallet not connected.');
     }
     try {
       const result = await getBalance({
@@ -79,7 +79,7 @@ export function StoryView({
       });
       return result;
     } catch (error) {
-      console.error("Balance fetch error:", error);
+      console.error('Balance fetch error:', error);
       throw error;
     }
   };
@@ -91,7 +91,7 @@ export function StoryView({
     refetch,
   } = useQuery(request, [address, network, rpcUrl, tokenAddress], false);
 
-  const displayToken = tokenAddress || "SOL (Native)";
+  const displayToken = tokenAddress || 'SOL (Native)';
 
   const error = fetchError || connectError;
 

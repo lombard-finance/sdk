@@ -6,11 +6,11 @@
  * @module core/assets/utils
  */
 
-import type { Env } from "@lombard.finance/sdk-common";
+import type { Env } from '@lombard.finance/sdk-common';
 
-import { type Chain, isEvmChain } from "../chains";
-import { ASSET_CATALOG } from "./catalog";
-import type { AssetCatalog, AssetId, Deployment } from "./types";
+import { type Chain, isEvmChain } from '../chains';
+import { ASSET_CATALOG } from './catalog';
+import type { AssetCatalog, AssetId, Deployment } from './types';
 
 const DEFAULT_DECIMALS = 8;
 
@@ -24,7 +24,7 @@ function findDeployment(
   const entry = catalog.assets[asset];
   if (!entry) return undefined;
   return entry.deployments.find(
-    (d) => d.env === env && (d.chain === chain || d.chains?.includes(chain)),
+    d => d.env === env && (d.chain === chain || d.chains?.includes(chain)),
   );
 }
 
@@ -108,7 +108,7 @@ export function getAssetByAddress(
   for (const [assetId, entry] of Object.entries(catalog.assets)) {
     if (!entry) continue;
     const deployment = entry.deployments.find(
-      (d) =>
+      d =>
         d.env === env &&
         (d.chain === chain || d.chains?.includes(chain)) &&
         d.address.toLowerCase() === normalized,
@@ -177,7 +177,7 @@ export function getAllAssetChains(
   const chainSet = new Set<Chain>();
   for (const d of entry.deployments) {
     if (d.chain) chainSet.add(d.chain);
-    if (d.chains) d.chains.forEach((c) => chainSet.add(c));
+    if (d.chains) d.chains.forEach(c => chainSet.add(c));
   }
   return Array.from(chainSet);
 }
@@ -201,7 +201,7 @@ export function getAssetChainsForEnvs(
   for (const d of entry.deployments) {
     if (!envs.includes(d.env)) continue;
     if (d.chain) chainSet.add(d.chain);
-    if (d.chains) d.chains.forEach((c) => chainSet.add(c));
+    if (d.chains) d.chains.forEach(c => chainSet.add(c));
   }
   return Array.from(chainSet);
 }
@@ -230,7 +230,8 @@ export function getEvmAssetChains(
   envs: Env[],
   catalog: AssetCatalog = ASSET_CATALOG,
 ): Chain[] {
-  return getAssetChainsForEnvs(asset, envs, catalog).filter((chain) =>
+
+  return getAssetChainsForEnvs(asset, envs, catalog).filter(chain =>
     isEvmChain(chain),
   );
 }
@@ -252,15 +253,11 @@ export function getChainsWithAllAssets(
   if (assets.length === 0) return [];
 
   // Get chains for first asset
-  const firstAssetChains = new Set(
-    getAssetChainsForEnvs(assets[0], envs, catalog),
-  );
+  const firstAssetChains = new Set(getAssetChainsForEnvs(assets[0], envs, catalog));
 
   // Intersect with chains for remaining assets
   for (let i = 1; i < assets.length; i++) {
-    const assetChains = new Set(
-      getAssetChainsForEnvs(assets[i], envs, catalog),
-    );
+    const assetChains = new Set(getAssetChainsForEnvs(assets[i], envs, catalog));
     for (const chain of firstAssetChains) {
       if (!assetChains.has(chain)) {
         firstAssetChains.delete(chain);
@@ -283,7 +280,8 @@ export function getEvmChainsWithAllAssets(
   envs: Env[],
   catalog: AssetCatalog = ASSET_CATALOG,
 ): Chain[] {
-  return getChainsWithAllAssets(assets, envs, catalog).filter((chain) =>
+
+  return getChainsWithAllAssets(assets, envs, catalog).filter(chain =>
     isEvmChain(chain),
   );
 }

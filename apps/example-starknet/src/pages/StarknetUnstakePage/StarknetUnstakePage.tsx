@@ -1,10 +1,10 @@
-import { Env } from "@lombard.finance/sdk";
+import { Env } from '@lombard.finance/sdk';
 
-import { StarknetUnstakingForm } from "../../components/StarknetUnstakingForm";
-import { StarknetUnstakingProgress } from "../../components/StarknetUnstakingProgress";
-import { StarknetWalletConnect } from "../../components/StarknetWalletConnect";
-import { useStarknetWallet } from "../../hooks/useStarknetWallet";
-import { useStarknetUnstaking } from "./useStarknetUnstaking";
+import { StarknetUnstakingForm } from '../../components/StarknetUnstakingForm';
+import { StarknetUnstakingProgress } from '../../components/StarknetUnstakingProgress';
+import { StarknetWalletConnect } from '../../components/StarknetWalletConnect';
+import { useStarknetWallet } from '../../hooks/useStarknetWallet';
+import { useStarknetUnstaking } from './useStarknetUnstaking';
 
 /**
  * Starknet Unstake Page
@@ -90,19 +90,14 @@ export function StarknetUnstakePage({ env }: { env: Env }) {
           )}
 
           {isStarknetConnected ? (
-            status.phase === "idle" ? (
+            status.phase === 'idle' ? (
               <StarknetUnstakingForm
                 onSubmit={unstake}
                 isSubmitting={isInitializing}
                 env={env}
               />
             ) : (
-              <StarknetUnstakingProgress
-                status={status}
-                txHash={txHash}
-                env={env}
-                onReset={reset}
-              />
+              <StarknetUnstakingProgress status={status} txHash={txHash} env={env} onReset={reset} />
             )
           ) : (
             <div className="card">
@@ -111,6 +106,7 @@ export function StarknetUnstakePage({ env }: { env: Env }) {
               </p>
             </div>
           )}
+
         </div>
       </div>
     </div>

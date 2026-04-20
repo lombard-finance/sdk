@@ -1,23 +1,23 @@
-import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../../common/chains";
-import { chainSelector } from "../../stories/arg-types";
-import { Button } from "../../stories/components/Button";
-import { CodeBlock } from "../../stories/components/CodeBlock";
-import { functionType } from "../../stories/components/decorators";
-import { EXAMPLE_EVM_ADDRESS } from "../../stories/constants";
-import useQuery from "../../stories/hooks/useQuery";
+import { ChainId } from '../../common/chains';
+import { chainSelector } from '../../stories/arg-types';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { functionType } from '../../stories/components/decorators';
+import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
+import useQuery from '../../stories/hooks/useQuery';
 import {
   getNetworkFeeSignature,
   IGetNetworkFeeSignatureParams,
-} from "./getNetworkFeeSignature";
+} from './getNetworkFeeSignature';
 
 const meta = {
-  title: "api/getNetworkFeeSignature",
+  title: 'api/getNetworkFeeSignature',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("api-get")],
+  tags: ['autodocs'],
+  decorators: [functionType('api-get')],
   argTypes: { ...chainSelector },
 } satisfies Meta<typeof StoryView>;
 

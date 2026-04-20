@@ -1,25 +1,25 @@
-import { describe, expect, it, type Mock, vi } from "vitest";
-vi.mock("./make-request", async () => {
+import { describe, expect, it, type Mock, vi } from 'vitest';
+vi.mock('./make-request', async () => {
   return {
     makeRequest: vi.fn(async () => undefined),
   };
 });
 
-import { Env } from "@lombard.finance/sdk-common";
+import { Env } from '@lombard.finance/sdk-common';
 
-import { getChainNameById } from "../../common/blockchain-identifier";
-import { ChainId } from "../../common/chains";
-import { Token, TOKEN_ADDRESSES } from "../../tokens/token-addresses";
-import { DAY, now, toUnix } from "../../utils/time";
-import { getDepositBtcAddress } from "./getDepositBtcAddress";
-import { makeRequest } from "./make-request";
-import { IDepositAddress, IGetDepositBtcAddressesParameters } from "./types";
+import { getChainNameById } from '../../common/blockchain-identifier';
+import { ChainId } from '../../common/chains';
+import { Token, TOKEN_ADDRESSES } from '../../tokens/token-addresses';
+import { DAY, now, toUnix } from '../../utils/time';
+import { getDepositBtcAddress } from './getDepositBtcAddress';
+import { makeRequest } from './make-request';
+import { IDepositAddress, IGetDepositBtcAddressesParameters } from './types';
 
-const ACCOUNT_ADDRESS_A = "0x1111111111111111111111111111111111111111";
+const ACCOUNT_ADDRESS_A = '0x1111111111111111111111111111111111111111';
 
-const DEPOSIT_ADDRESS_A = "bc1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-const DEPOSIT_ADDRESS_B = "bc1bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
-const DEPOSIT_ADDRESS_C = "bc1ccccccccccccccccccccccccccccccccccccccc";
+const DEPOSIT_ADDRESS_A = 'bc1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const DEPOSIT_ADDRESS_B = 'bc1bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+const DEPOSIT_ADDRESS_C = 'bc1ccccccccccccccccccccccccccccccccccccccc';
 
 const makeDepositAddress = (
   depositAddress: string,
@@ -30,11 +30,11 @@ const makeDepositAddress = (
 ) =>
   ({
     btc_address: depositAddress,
-    type: "ADDRESS_TYPE_DEPOSIT",
+    type: 'ADDRESS_TYPE_DEPOSIT',
     deposit_metadata: {
       to_address: toAddress,
       to_blockchain: getChainNameById(chainId),
-      referral: "lombard",
+      referral: 'lombard',
       ...(token != null
         ? {
             token_address: TOKEN_ADDRESSES[token]?.[Env.prod]?.[chainId],
@@ -45,10 +45,10 @@ const makeDepositAddress = (
     created_at: createdAt.toString(),
   }) as IDepositAddress;
 
-describe("getDepositBtcAddress", () => {
+describe('getDepositBtcAddress', () => {
   it.each([
     [
-      "Wants LBTC on Ethereum, should return the most recent LBTC address",
+      'Wants LBTC on Ethereum, should return the most recent LBTC address',
       [
         makeDepositAddress(
           DEPOSIT_ADDRESS_A,
@@ -71,7 +71,7 @@ describe("getDepositBtcAddress", () => {
     ],
 
     [
-      "Wants LBTC on Ethereum, no token information in the API response, should return the most recent LBTC address",
+      'Wants LBTC on Ethereum, no token information in the API response, should return the most recent LBTC address',
       [
         makeDepositAddress(
           DEPOSIT_ADDRESS_A,
@@ -92,7 +92,7 @@ describe("getDepositBtcAddress", () => {
     ],
 
     [
-      "Wants LBTC on Katana, only NativeLBTC address, should throw an error",
+      'Wants LBTC on Katana, only NativeLBTC address, should throw an error',
       [
         makeDepositAddress(
           DEPOSIT_ADDRESS_A,
@@ -108,7 +108,7 @@ describe("getDepositBtcAddress", () => {
     ],
 
     [
-      "Wants NativeLBTC on Katana, should return the most recent NativeLBTC address",
+      'Wants NativeLBTC on Katana, should return the most recent NativeLBTC address',
       [
         makeDepositAddress(
           DEPOSIT_ADDRESS_A,
@@ -138,7 +138,7 @@ describe("getDepositBtcAddress", () => {
     ],
 
     [
-      "Wants BTCK (alias of NativeLBTC) on Katana, should return the most recent NativeLBTC address",
+      'Wants BTCK (alias of NativeLBTC) on Katana, should return the most recent NativeLBTC address',
       [
         makeDepositAddress(
           DEPOSIT_ADDRESS_A,
@@ -161,7 +161,7 @@ describe("getDepositBtcAddress", () => {
     ],
 
     [
-      "Wants NativeLBTC on Katana, no token information in the API response, should throw an error",
+      'Wants NativeLBTC on Katana, no token information in the API response, should throw an error',
       [
         makeDepositAddress(
           DEPOSIT_ADDRESS_A,
@@ -182,7 +182,7 @@ describe("getDepositBtcAddress", () => {
     ],
 
     [
-      "Wants LBTC on Ethereum, should return the most recent LBTC address (legacy call)",
+      'Wants LBTC on Ethereum, should return the most recent LBTC address (legacy call)',
       [
         makeDepositAddress(
           DEPOSIT_ADDRESS_A,
@@ -217,7 +217,7 @@ describe("getDepositBtcAddress", () => {
     ],
 
     [
-      "Wants NativeLBTC on Ethereum, no token address for NativeLBTC on Ethereum, should throw an error.",
+      'Wants NativeLBTC on Ethereum, no token address for NativeLBTC on Ethereum, should throw an error.',
       [
         makeDepositAddress(
           DEPOSIT_ADDRESS_A,
@@ -231,7 +231,7 @@ describe("getDepositBtcAddress", () => {
       undefined,
     ],
   ])(
-    "$0",
+    '$0',
     async (
       _description: string,
       API_RESPONSE: IDepositAddress[],
@@ -243,7 +243,7 @@ describe("getDepositBtcAddress", () => {
         address: ACCOUNT_ADDRESS_A,
         chainId,
         env: Env.prod,
-        partnerId: "lombard",
+        partnerId: 'lombard',
       };
 
       (makeRequest as Mock).mockImplementation(async () => API_RESPONSE);

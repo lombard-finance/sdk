@@ -6,11 +6,11 @@
  * @module chains/solana/actions/redeem/config/solana
  */
 
-import { Env } from "@lombard.finance/sdk-common";
+import { Env } from '@lombard.finance/sdk-common';
 
-import { AssetId, Chain } from "../../../../../core";
-import { bitcoinAddressSchema } from "../../../../../shared/validation";
-import type { ChainConfig } from "./types";
+import { AssetId, Chain } from '../../../../../core';
+import { bitcoinAddressSchema } from '../../../../../shared/validation';
+import type { ChainConfig } from './types';
 
 /**
  * BTC.b → BTC redeem configuration on Solana
@@ -19,7 +19,7 @@ import type { ChainConfig } from "./types";
  * to trigger a BTC payout on the Bitcoin network.
  */
 export const solanaRedeemConfig: ChainConfig = {
-  chainType: "solana",
+  chainType: 'solana',
 
   routes: [
     {
@@ -45,7 +45,7 @@ export function isRedeemSupported(
   env: Env,
 ): boolean {
   return solanaRedeemConfig.routes.some(
-    (route) =>
+    route =>
       route.sourceChains.includes(sourceChain) &&
       route.destChain === destChain &&
       route.assetIn === assetIn &&

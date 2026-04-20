@@ -1,26 +1,26 @@
-import { Env } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
+import { Env } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../common/chains";
-import { chainSelector, envSelector } from "../stories/arg-types";
-import { Button } from "../stories/components/Button";
-import { CodeBlock } from "../stories/components/CodeBlock";
-import { functionType } from "../stories/components/decorators";
-import useQuery from "../stories/hooks/useQuery";
-import { Token } from "./token-addresses";
-import { isUpgradedContract } from "./tokens";
+import { ChainId } from '../common/chains';
+import { chainSelector, envSelector } from '../stories/arg-types';
+import { Button } from '../stories/components/Button';
+import { CodeBlock } from '../stories/components/CodeBlock';
+import { functionType } from '../stories/components/decorators';
+import useQuery from '../stories/hooks/useQuery';
+import { Token } from './token-addresses';
+import { isUpgradedContract } from './tokens';
 
 const meta = {
-  title: "tokens/isUpgradedContract",
+  title: 'tokens/isUpgradedContract',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("read")],
+  tags: ['autodocs'],
+  decorators: [functionType('read')],
   argTypes: {
     ...chainSelector,
     ...envSelector,
     token: {
       options: [Token.LBTC, Token.BTCK],
-      control: { type: "select" },
+      control: { type: 'select' },
     },
   },
 } satisfies Meta<typeof StoryView>;
@@ -99,13 +99,13 @@ export function StoryView(props: StoryViewProps) {
         actionName={isUpgradedContract.name}
       />
 
-      {typeof data === "boolean" && (
+      {typeof data === 'boolean' && (
         <div className="mt-3">
-          <div className={`alert ${data ? "alert-success" : "alert-info"}`}>
-            <strong>Status:</strong>{" "}
+          <div className={`alert ${data ? 'alert-success' : 'alert-info'}`}>
+            <strong>Status:</strong>{' '}
             {data
-              ? "✅ Contract is upgraded (uses enhanced ABI)"
-              : "ℹ️ Contract uses legacy ABI"}
+              ? '✅ Contract is upgraded (uses enhanced ABI)'
+              : 'ℹ️ Contract uses legacy ABI'}
           </div>
         </div>
       )}

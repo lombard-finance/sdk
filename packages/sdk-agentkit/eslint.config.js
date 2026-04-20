@@ -1,15 +1,15 @@
-import rootConfig from "../../eslint.config.js";
+import rootConfig from '../../eslint.config.js';
 
 export default [
   {
-    ignores: ["vite.config.ts", "vitest.config.ts"],
+    ignores: ['vite.config.ts', 'vitest.config.ts'],
   },
   ...rootConfig,
   {
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ['**/*.ts', '**/*.tsx'],
     rules: {
-      "react-hooks/rules-of-hooks": "off",
-      "react-hooks/exhaustive-deps": "off",
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/exhaustive-deps': 'off',
     },
   },
 ];

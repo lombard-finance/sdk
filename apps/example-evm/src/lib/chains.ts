@@ -1,4 +1,4 @@
-import { Chain, Env } from "@lombard.finance/sdk";
+import { Chain, Env } from '@lombard.finance/sdk';
 
 /**
  * Chain options for different environments
@@ -16,27 +16,27 @@ export interface ChainOption {
 export function getAvailableChains(env: Env): ChainOption[] {
   if (env === Env.prod) {
     return [
-      { value: Chain.ETHEREUM, label: "Ethereum" },
-      { value: Chain.BASE, label: "Base" },
-      { value: Chain.BSC, label: "BNB Chain" },
-      { value: Chain.KATANA, label: "Katana" },
-      { value: Chain.SONIC, label: "Sonic" },
-      { value: Chain.MONAD, label: "Monad" },
-      { value: Chain.STABLE, label: "Stable" },
+      { value: Chain.ETHEREUM, label: 'Ethereum' },
+      { value: Chain.BASE, label: 'Base' },
+      { value: Chain.BSC, label: 'BNB Chain' },
+      { value: Chain.KATANA, label: 'Katana' },
+      { value: Chain.SONIC, label: 'Sonic' },
+      { value: Chain.MONAD, label: 'Monad' },
+      { value: Chain.STABLE, label: 'Stable' },
     ];
   } else if (env === Env.testnet) {
     return [
-      { value: Chain.BASE_SEPOLIA, label: "Base Sepolia" },
-      { value: Chain.SEPOLIA, label: "Sepolia" },
-      { value: Chain.BSC_TESTNET, label: "BNB Testnet" },
-      { value: Chain.AVALANCHE_FUJI, label: "Fuji" },
+      { value: Chain.BASE_SEPOLIA, label: 'Base Sepolia' },
+      { value: Chain.SEPOLIA, label: 'Sepolia' },
+      { value: Chain.BSC_TESTNET, label: 'BNB Testnet' },
+      { value: Chain.AVALANCHE_FUJI, label: 'Fuji' },
     ];
   } else {
     // stage
     return [
-      { value: Chain.BASE_SEPOLIA, label: "Base Sepolia" },
-      { value: Chain.SEPOLIA, label: "Sepolia" },
-      { value: Chain.BSC_TESTNET, label: "BNB Testnet" },
+      { value: Chain.BASE_SEPOLIA, label: 'Base Sepolia' },
+      { value: Chain.SEPOLIA, label: 'Sepolia' },
+      { value: Chain.BSC_TESTNET, label: 'BNB Testnet' },
     ];
   }
 }
@@ -49,19 +49,19 @@ export function getAvailableChains(env: Env): ChainOption[] {
 export function getBtcbUnstakeChains(env: Env): ChainOption[] {
   if (env === Env.prod) {
     return [
-      { value: Chain.ETHEREUM, label: "Ethereum" },
-      { value: Chain.KATANA, label: "Katana" },
-      { value: Chain.MONAD, label: "Monad" },
-      { value: Chain.STABLE, label: "Stable" },
+      { value: Chain.ETHEREUM, label: 'Ethereum' },
+      { value: Chain.KATANA, label: 'Katana' },
+      { value: Chain.MONAD, label: 'Monad' },
+      { value: Chain.STABLE, label: 'Stable' },
     ];
   } else if (env === Env.testnet) {
     return [
-      { value: Chain.SEPOLIA, label: "Sepolia" },
-      { value: Chain.AVALANCHE_FUJI, label: "Fuji" },
+      { value: Chain.SEPOLIA, label: 'Sepolia' },
+      { value: Chain.AVALANCHE_FUJI, label: 'Fuji' },
     ];
   } else {
     // stage
-    return [{ value: Chain.SEPOLIA, label: "Sepolia" }];
+    return [{ value: Chain.SEPOLIA, label: 'Sepolia' }];
   }
 }
 

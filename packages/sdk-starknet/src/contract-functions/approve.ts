@@ -1,11 +1,11 @@
-import { toBaseDenomination } from "@lombard.finance/sdk-common/utils/numbers";
+import { toBaseDenomination } from '@lombard.finance/sdk-common/utils/numbers';
 
-import { getTokenContract, TokenParameters } from "../tokens/lib/tokens";
-import { StarknetChainId } from "../utils/chains";
-import { Address } from "../utils/common";
-import { EnvParameters } from "../utils/env";
-import { getRpcProvider } from "../utils/rpc-providers";
-import { WalletAccountParameters } from "../utils/wallet-account";
+import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
+import { StarknetChainId } from '../utils/chains';
+import { Address } from '../utils/common';
+import { EnvParameters } from '../utils/env';
+import { getRpcProvider } from '../utils/rpc-providers';
+import { WalletAccountParameters } from '../utils/wallet-account';
 
 type ApproveParameters = {
   /** The approved amount. */
@@ -32,7 +32,7 @@ export async function approve({
   // Read decimals using SDK RPC (avoid wallet rate limits)
   const readOnlyContract = getTokenContract({
     chainId,
-    contractType: "token",
+    contractType: 'token',
     provider: rpcProvider,
     token,
     env,
@@ -44,7 +44,7 @@ export async function approve({
   // Use walletAccount for write operation (signing tx)
   const tokenContract = getTokenContract({
     chainId,
-    contractType: "token",
+    contractType: 'token',
     provider: walletAccount,
     token,
     env,

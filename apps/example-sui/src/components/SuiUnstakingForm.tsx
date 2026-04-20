@@ -1,12 +1,7 @@
-import {
-  AssetId,
-  Chain,
-  Env,
-  MIN_REDEEM_AMOUNT_BTC,
-} from "@lombard.finance/sdk";
-import { useState } from "react";
+import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
+import { useState } from 'react';
 
-import type { UnstakingFormData } from "../lib/types";
+import type { UnstakingFormData } from '../lib/types';
 
 interface SuiUnstakingFormProps {
   onSubmit: (data: UnstakingFormData) => Promise<void>;
@@ -41,7 +36,7 @@ export function SuiUnstakingForm({
   suiAddress,
 }: SuiUnstakingFormProps) {
   const [amount, setAmount] = useState(String(MIN_REDEEM_AMOUNT_BTC));
-  const [recipient, setRecipient] = useState("");
+  const [recipient, setRecipient] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const sourceChain = getSuiChain(env);
@@ -51,7 +46,7 @@ export function SuiUnstakingForm({
     e.preventDefault();
 
     if (!recipient) {
-      alert("Please enter your Bitcoin address");
+      alert('Please enter your Bitcoin address');
       return;
     }
 
@@ -86,7 +81,7 @@ export function SuiUnstakingForm({
             step="0.00000001"
             min={MIN_REDEEM_AMOUNT_BTC}
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={e => setAmount(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             placeholder={String(MIN_REDEEM_AMOUNT_BTC)}
             required
@@ -107,7 +102,7 @@ export function SuiUnstakingForm({
           <input
             id="sourceChain"
             type="text"
-            value={env === Env.prod ? "Sui Mainnet" : "Sui Testnet"}
+            value={env === Env.prod ? 'Sui Mainnet' : 'Sui Testnet'}
             disabled
             className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
           />
@@ -124,7 +119,7 @@ export function SuiUnstakingForm({
           <input
             id="destChain"
             type="text"
-            value={env === Env.prod ? "Bitcoin Mainnet" : "Bitcoin Signet"}
+            value={env === Env.prod ? 'Bitcoin Mainnet' : 'Bitcoin Signet'}
             disabled
             className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
           />
@@ -142,15 +137,15 @@ export function SuiUnstakingForm({
             id="recipient"
             type="text"
             value={recipient}
-            onChange={(e) => setRecipient(e.target.value)}
+            onChange={e => setRecipient(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm"
-            placeholder={env === Env.prod ? "bc1q..." : "tb1q..."}
+            placeholder={env === Env.prod ? 'bc1q...' : 'tb1q...'}
             required
           />
           <p className="text-xs text-secondary mt-1">
             {env === Env.prod
-              ? "Your Bitcoin mainnet address (bc1q...)"
-              : "Your Bitcoin testnet address (tb1q...)"}
+              ? 'Your Bitcoin mainnet address (bc1q...)'
+              : 'Your Bitcoin testnet address (tb1q...)'}
           </p>
         </div>
 
@@ -158,7 +153,7 @@ export function SuiUnstakingForm({
         {suiAddress && (
           <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-xs text-green-900">
-              ✓ Sui wallet connected:{" "}
+              ✓ Sui wallet connected:{' '}
               <code className="font-mono">
                 {suiAddress.slice(0, 8)}...{suiAddress.slice(-6)}
               </code>
@@ -178,9 +173,9 @@ export function SuiUnstakingForm({
             Processing...
           </>
         ) : !suiAddress ? (
-          "Connect Sui Wallet to Continue"
+          'Connect Sui Wallet to Continue'
         ) : (
-          "Burn LBTC"
+          'Burn LBTC'
         )}
       </button>
     </form>

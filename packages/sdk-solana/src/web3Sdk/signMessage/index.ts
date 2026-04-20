@@ -1,1 +1,1 @@
-export * from "./signMessage";
+export * from './signMessage';

@@ -7,10 +7,10 @@
  * @module shared/evm/switchChain
  */
 
-import type { EIP1193Provider } from "viem";
+import type { EIP1193Provider } from 'viem';
 
-import { addChain, type ChainId } from "../../common/chains";
-import { LombardError, ValidationErrorCode } from "../errors";
+import { addChain, type ChainId } from '../../common/chains';
+import { LombardError, ValidationErrorCode } from '../errors';
 
 /**
  * Request to switch wallet to the target chain
@@ -26,7 +26,7 @@ export async function requestChainSwitch(
 ): Promise<void> {
   try {
     await provider.request({
-      method: "wallet_switchEthereumChain",
+      method: 'wallet_switchEthereumChain',
       params: [{ chainId: `0x${targetChainId.toString(16)}` }],
     });
   } catch (error) {
@@ -38,7 +38,7 @@ export async function requestChainSwitch(
         await addChain({ provider, chainId: targetChainId });
         // After adding, try to switch again
         await provider.request({
-          method: "wallet_switchEthereumChain",
+          method: 'wallet_switchEthereumChain',
           params: [{ chainId: `0x${targetChainId.toString(16)}` }],
         });
         return;
@@ -49,13 +49,13 @@ export async function requestChainSwitch(
         if (addErr.code === 4001) {
           throw new LombardError(
             ValidationErrorCode.INVALID_PARAMETER,
-            "User rejected adding chain to wallet.",
+            'User rejected adding chain to wallet.',
           );
         }
 
         throw new LombardError(
           ValidationErrorCode.INVALID_CHAIN,
-          `Failed to add chain ${targetChainId} to wallet: ${addErr.message || "Unknown error"}`,
+          `Failed to add chain ${targetChainId} to wallet: ${addErr.message || 'Unknown error'}`,
         );
       }
     }
@@ -64,13 +64,13 @@ export async function requestChainSwitch(
     if (err.code === 4001) {
       throw new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
-        "User rejected chain switch request.",
+        'User rejected chain switch request.',
       );
     }
 
     throw new LombardError(
       ValidationErrorCode.INVALID_CHAIN,
-      `Failed to switch to chain ${targetChainId}: ${err.message || "Unknown error"}`,
+      `Failed to switch to chain ${targetChainId}: ${err.message || 'Unknown error'}`,
     );
   }
 }
@@ -85,7 +85,7 @@ export async function getCurrentChainId(
   provider: EIP1193Provider,
 ): Promise<number> {
   const chainIdHex = (await provider.request({
-    method: "eth_chainId",
+    method: 'eth_chainId',
   })) as string;
   return parseInt(chainIdHex, 16);
 }

@@ -10,13 +10,13 @@ import type {
   DeployProtocol,
   StepStatus,
   StrategyProgress,
-} from "../../../../core";
-import type { MonitorableAction } from "../../../../shared/actions/BaseAction";
-import type { EvmOperationStatus } from "../../../../shared/constants/statusConstants";
-import type { LombardError } from "../../../../shared/errors";
+} from '../../../../core';
+import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
+import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
+import type { LombardError } from '../../../../shared/errors';
 
 // Re-export status for convenience
-export { EvmOperationStatus as EvmDeployStatus } from "../../../../shared/constants/statusConstants";
+export { EvmOperationStatus as EvmDeployStatus } from '../../../../shared/constants/statusConstants';
 
 /**
  * EVM Deploy parameters
@@ -47,7 +47,8 @@ export interface EvmDeployPrepareParams {
 /**
  * EVM Deploy progress
  */
-export interface EvmDeployProgress extends StrategyProgress<EvmOperationStatus> {
+export interface EvmDeployProgress
+  extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
   steps: {
     approval: StepStatus;

@@ -1,8 +1,8 @@
-import { Env } from "@lombard.finance/sdk";
-import { Outlet } from "react-router-dom";
+import { Env } from '@lombard.finance/sdk';
+import { Outlet } from 'react-router-dom';
 
-import { Header } from "../Header";
-import { Sidebar } from "./Sidebar";
+import { Header } from '../Header';
+import { Sidebar } from './Sidebar';
 
 interface LayoutProps {
   env: Env;

@@ -1,7 +1,7 @@
-import { Buffer } from "node:buffer"; // Use buffer package for cross-platform compatibility
+import { Buffer } from 'node:buffer'; // Use buffer package for cross-platform compatibility
 
-import { PublicKey } from "@solana/web3.js";
-import { keccak256 } from "js-sha3";
+import { PublicKey } from '@solana/web3.js';
+import { keccak256 } from 'js-sha3';
 
 /**
  * Represents the unique identifier for a deposit, derived from transaction details.
@@ -38,11 +38,11 @@ export function generateDepositId(
   txId: string,
   txVout: number,
 ): DepositId {
-  const txIdBuffer = Buffer.from(txId, "hex");
+  const txIdBuffer = Buffer.from(txId, 'hex');
   const reversedTxIdBuffer = txIdBuffer.reverse();
 
   if (reversedTxIdBuffer.length !== 32) {
-    throw new Error("txId must be a 32-byte array.");
+    throw new Error('txId must be a 32-byte array.');
   }
 
   const prefix = Buffer.alloc(32, 0);
@@ -69,7 +69,7 @@ export function generateDepositId(
     dataToHash.byteLength,
   );
   const hashString = keccak256(dataToHashUint8Array);
-  const hashBuffer = Buffer.from(hashString, "hex");
+  const hashBuffer = Buffer.from(hashString, 'hex');
 
   return new Uint8Array(hashBuffer);
 }

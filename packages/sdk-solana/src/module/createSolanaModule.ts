@@ -7,9 +7,9 @@
  * @module module/createSolanaModule
  */
 
-import type { ChainModule, SolanaService } from "@lombard.finance/sdk-common";
+import type { ChainModule, SolanaService } from '@lombard.finance/sdk-common';
 
-import { SolanaServiceImpl } from "../services/SolanaServiceImpl";
+import { SolanaServiceImpl } from '../services/SolanaServiceImpl';
 
 /**
  * Create Solana module
@@ -26,13 +26,13 @@ import { SolanaServiceImpl } from "../services/SolanaServiceImpl";
  * });
  * ```
  */
-export function solanaModule(): ChainModule<"solana", SolanaService> {
+export function solanaModule(): ChainModule<'solana', SolanaService> {
   return {
-    id: "solana",
-    chain: "solana",
-    requiresProviders: ["solana"],
+    id: 'solana',
+    chain: 'solana',
+    requiresProviders: ['solana'],
     register(ctx) {
-      return new SolanaServiceImpl(() => ctx.getProvider("solana"));
+      return new SolanaServiceImpl(() => ctx.getProvider('solana'));
     },
   };
 }

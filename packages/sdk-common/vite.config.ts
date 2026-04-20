@@ -1,29 +1,29 @@
-import path from "node:path";
+import path from 'node:path';
 
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite';
 
-import packageJson from "./package.json";
+import packageJson from './package.json';
 
 export default defineConfig({
   plugins: [],
   build: {
     sourcemap: false,
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: path.resolve(__dirname, 'src/index.ts'),
     },
     rollupOptions: {
       output: [
         {
-          format: "es",
-          dir: "dist",
-          entryFileNames: "[name].js",
-          chunkFileNames: "[name].js",
+          format: 'es',
+          dir: 'dist',
+          entryFileNames: '[name].js',
+          chunkFileNames: '[name].js',
         },
         {
-          format: "commonjs",
-          dir: "dist",
-          entryFileNames: "[name].cjs",
-          chunkFileNames: "[name].cjs",
+          format: 'commonjs',
+          dir: 'dist',
+          entryFileNames: '[name].cjs',
+          chunkFileNames: '[name].cjs',
         },
       ],
       plugins: [],

@@ -1,9 +1,5 @@
-import {
-  createLombardSDK,
-  type LombardConfig,
-  type LombardSDK,
-} from "@lombard.finance/sdk";
-import { type DependencyList, useEffect, useState } from "react";
+import { createLombardSDK, type LombardConfig, type LombardSDK } from '@lombard.finance/sdk';
+import { type DependencyList, useEffect, useState } from 'react';
 
 export interface UseLombardSDKReturn {
   sdk: LombardSDK | null;
@@ -49,9 +45,7 @@ export function useLombardSDK(
         config = configFn();
       } catch (err) {
         if (mounted) {
-          setError(
-            err instanceof Error ? err.message : "Failed to initialize SDK",
-          );
+          setError(err instanceof Error ? err.message : 'Failed to initialize SDK');
           setIsInitializing(false);
         }
         return;
@@ -78,7 +72,7 @@ export function useLombardSDK(
       } catch (err) {
         if (mounted) {
           setError(
-            err instanceof Error ? err.message : "Failed to initialize SDK",
+            err instanceof Error ? err.message : 'Failed to initialize SDK',
           );
         }
       } finally {

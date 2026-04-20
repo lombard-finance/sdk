@@ -1,1 +1,1 @@
-export * from "./getStakeAndBakeFee";
+export * from './getStakeAndBakeFee';

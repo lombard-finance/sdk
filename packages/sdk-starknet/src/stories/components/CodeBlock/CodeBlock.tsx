@@ -1,4 +1,4 @@
-import "./CodeBlockStyles.css";
+import './CodeBlockStyles.css';
 
 interface ICodeBlockProps {
   text?: unknown;
@@ -25,9 +25,9 @@ export function CodeBlock({
       style={
         isError
           ? {
-              color: "white",
-              background: "red",
-              borderColor: "darkred",
+              color: 'white',
+              background: 'red',
+              borderColor: 'darkred',
             }
           : undefined
       }

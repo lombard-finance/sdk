@@ -7,18 +7,18 @@
  * @module chains/btc/actions/depositAndDeploy/config
  */
 
-import type { Env } from "@lombard.finance/sdk-common";
+import type { Env } from '@lombard.finance/sdk-common';
 
-import type { AssetId, Chain } from "../../../../../core";
-import { DEFI_REGISTRY, DefiProtocol } from "../../../../../defi";
-import { evmDepositAndDeployConfig } from "./evm";
-import type { DepositAndDeployChainConfig } from "./types";
+import type { AssetId, Chain } from '../../../../../core';
+import { DEFI_REGISTRY,DefiProtocol } from '../../../../../defi';
+import { evmDepositAndDeployConfig } from './evm';
+import type { DepositAndDeployChainConfig } from './types';
 
 export type {
   DepositAndDeployAuthResult,
   DepositAndDeployChainConfig,
   DepositAndDeployRouteDefinition,
-} from "./types";
+} from './types';
 
 /**
  * The default config for DepositAndDeploy
@@ -61,7 +61,7 @@ export function isProtocolSupported(protocol: string): boolean {
  */
 export function getVaultKey(protocol: string): string {
   if (!isProtocolSupported(protocol)) {
-    const supportedProtocols = Object.keys(DEFI_REGISTRY).join(", ");
+    const supportedProtocols = Object.keys(DEFI_REGISTRY).join(', ');
     throw new Error(
       `Unsupported protocol: ${protocol}. ` +
         `Supported protocols: ${supportedProtocols}`,
@@ -85,7 +85,7 @@ export function getSupportedProtocols(assetId: AssetId): DefiProtocol[] {
  */
 export function isRouteAvailable(sourceChain: Chain, env: Env): boolean {
   return depositAndDeployConfig.routes.some(
-    (route) =>
+    route =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }
@@ -103,7 +103,7 @@ export function isProtocolChainSupported(
 
   // Check BTCb token (used by DepositAndDeploy)
   const btcbRegistry =
-    protocolRegistry["BTCb" as keyof typeof protocolRegistry];
+    protocolRegistry['BTCb' as keyof typeof protocolRegistry];
   if (!btcbRegistry) return false;
 
   const envRegistry = btcbRegistry[env];

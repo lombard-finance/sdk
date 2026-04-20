@@ -1,26 +1,26 @@
-import { Env } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
+import { Env } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { Button } from "../../stories/components/Button";
-import { CodeBlock } from "../../stories/components/CodeBlock";
-import { ConnectButton } from "../../stories/components/ConnectButton";
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
   wagmiDecorator,
-} from "../../stories/components/decorators";
+} from '../../stories/components/decorators';
 import {
   canPerformAction,
   useConnection,
-} from "../../stories/hooks/useConnection";
-import useQuery from "../../stories/hooks/useQuery";
-import { DAY, now, toUnix } from "../../utils/time";
-import { ISignNetworkFeeParams, signNetworkFee } from "./signNetworkFee";
+} from '../../stories/hooks/useConnection';
+import useQuery from '../../stories/hooks/useQuery';
+import { DAY, now, toUnix } from '../../utils/time';
+import { ISignNetworkFeeParams, signNetworkFee } from './signNetworkFee';
 
 const meta = {
-  title: "write/signNetworkFee",
+  title: 'write/signNetworkFee',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [wagmiDecorator, functionType("write")],
+  tags: ['autodocs'],
+  decorators: [wagmiDecorator, functionType('write')],
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -29,7 +29,7 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    fee: "1100",
+    fee: '1100',
     expiry: toUnix(now() + DAY),
     env: Env.prod,
   },
@@ -37,7 +37,7 @@ export const WithParams: Story = {
 
 type SignNetworkFeeProps = Omit<
   ISignNetworkFeeParams,
-  "account" | "chainId" | "provider"
+  'account' | 'chainId' | 'provider'
 >;
 
 export function StoryView(props: SignNetworkFeeProps) {
@@ -79,12 +79,12 @@ export function StoryView(props: SignNetworkFeeProps) {
 
       <div
         style={{
-          padding: "20px 0 0",
-          fontFamily: "monospace",
-          fontSize: "0.8em",
+          padding: '20px 0 0',
+          fontFamily: 'monospace',
+          fontSize: '0.8em',
         }}
       >
-        <span style={{ fontWeight: "800" }}>24 hours from now:</span>{" "}
+        <span style={{ fontWeight: '800' }}>24 hours from now:</span>{' '}
         {toUnix(now() + DAY)}
       </div>
 

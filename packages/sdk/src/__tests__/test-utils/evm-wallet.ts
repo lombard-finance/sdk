@@ -1,11 +1,11 @@
-import type { Chain, PublicClient, WalletClient } from "viem";
-import { createPublicClient, createWalletClient, http } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { avalancheFuji, sepolia } from "viem/chains";
+import type { Chain, PublicClient, WalletClient } from 'viem';
+import { createPublicClient, createWalletClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { avalancheFuji, sepolia } from 'viem/chains';
 
 const CHAIN_MAP = {
   sepolia,
-  "avalanche-fuji": avalancheFuji,
+  'avalanche-fuji': avalancheFuji,
 };
 
 interface TestEvmWallet {
@@ -21,7 +21,7 @@ export async function createTestEvmWallet(
 ): Promise<TestEvmWallet> {
   const chain = CHAIN_MAP[chainName];
   const account = privateKeyToAccount(privateKey);
-
+  
   const walletClient = createWalletClient({
     account,
     chain,
@@ -35,3 +35,4 @@ export async function createTestEvmWallet(
 
   return { walletClient, publicClient, account, chain };
 }
+

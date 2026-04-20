@@ -18,4 +18,4 @@ export {
   type StakeAndBakeToken,
   VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
   type VedaVaultStakeAndBakeChain,
-} from "../defi";
+} from '../defi';

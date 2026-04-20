@@ -10,25 +10,28 @@
  * @module chains/btc/actions/deposit/BtcDeposit
  */
 
-import type { z } from "zod";
+import type { z } from 'zod';
 
-import type { ChainId, SolanaChain } from "../../../../common/chains";
+import type {
+  ChainId,
+  SolanaChain,
+} from '../../../../common/chains';
 import {
   getChainType,
   parseChainIdentifier,
   StepStatus,
-} from "../../../../core";
-import type { BtcCoreContext } from "../../../../shared/context";
-import { LombardError, ValidationErrorCode } from "../../../../shared/errors";
-import type { DepositEventMap } from "../../../../shared/events";
-import type { MonitorProgress } from "../../../../shared/monitoring";
-import { Token } from "../../../../tokens/token-addresses";
+} from '../../../../core';
+import type { BtcCoreContext } from '../../../../shared/context';
+import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
+import type { DepositEventMap } from '../../../../shared/events';
+import type { MonitorProgress } from '../../../../shared/monitoring';
+import { Token } from '../../../../tokens/token-addresses';
 import {
   assetIdToToken,
   BaseBtcAction,
   type StatusConfig,
   type StepDefinition,
-} from "../shared";
+} from '../shared';
 import {
   type DepositChainConfig,
   type DepositFeeAuthConfig,
@@ -36,13 +39,13 @@ import {
   isAssetOutSupported,
   isDestChainSupported,
   isRouteAvailable,
-} from "./config";
+} from './config';
 import {
   BtcActionStatus,
   type BtcDeposit as IBtcDeposit,
   type BtcDepositParams,
   type BtcDepositPrepareParams,
-} from "./types";
+} from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -188,7 +191,7 @@ export class BtcDeposit
 
   /**
    * Override to ensure we have a signature before generating deposit address.
-   *
+   * 
    * When fee auth exists on server but signature isn't available locally,
    * we fall back to signing the destination address.
    */
@@ -216,8 +219,8 @@ export class BtcDeposit
 
   protected getAuthRequiredMessage(): string {
     return this.feeAuthConfig
-      ? "Fee authorization required. Call authorizeFee() first."
-      : "Address confirmation required. Call confirmAddress() first.";
+      ? 'Fee authorization required. Call authorizeFee() first.'
+      : 'Address confirmation required. Call confirmAddress() first.';
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -225,7 +228,7 @@ export class BtcDeposit
   // ─────────────────────────────────────────────────────────────────────────
 
   async prepare(params: BtcDepositPrepareParams): Promise<void> {
-    this.assertStatus(BtcActionStatus.IDLE, "prepare");
+    this.assertStatus(BtcActionStatus.IDLE, 'prepare');
 
     return this.act(async () => {
       const validated = this.validatePrepareParams(params);
@@ -235,7 +238,9 @@ export class BtcDeposit
       this._referralCode = validated.referralCode;
 
       // Get fee auth config for this destination chain (needed for both resume and new flow)
-      this.feeAuthConfig = this.config.getFeeAuthConfig(this.params.destChain);
+      this.feeAuthConfig = this.config.getFeeAuthConfig(
+        this.params.destChain,
+      );
 
       // Check for existing deposit address (resume flow)
       const hasExistingDeposit = await this.resumeFromExistingDeposit(
@@ -320,7 +325,7 @@ export class BtcDeposit
   async authorizeFee(): Promise<void> {
     this.assertStatus(
       [BtcActionStatus.NEEDS_FEE_AUTHORIZATION, BtcActionStatus.READY],
-      "authorizeFee",
+      'authorizeFee',
     );
 
     if (this.status === BtcActionStatus.READY) return;
@@ -328,7 +333,7 @@ export class BtcDeposit
     if (!this.feeAuthConfig) {
       throw new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
-        "Fee authorization is not required for this destination chain. Use confirmAddress() instead.",
+        'Fee authorization is not required for this destination chain. Use confirmAddress() instead.',
       );
     }
 
@@ -338,7 +343,7 @@ export class BtcDeposit
     if (!this.authState.mintingFee) {
       throw new LombardError(
         ValidationErrorCode.INVALID_STATE,
-        "Minting fee not available. Call prepare() first.",
+        'Minting fee not available. Call prepare() first.',
       );
     }
 
@@ -358,7 +363,7 @@ export class BtcDeposit
   async confirmAddress(): Promise<void> {
     this.assertStatus(
       [BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION, BtcActionStatus.READY],
-      "confirmAddress",
+      'confirmAddress',
     );
 
     if (this.status === BtcActionStatus.READY) return;
@@ -366,7 +371,7 @@ export class BtcDeposit
     if (this.feeAuthConfig) {
       throw new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
-        "This destination chain requires fee authorization. Use authorizeFee() instead.",
+        'This destination chain requires fee authorization. Use authorizeFee() instead.',
       );
     }
 

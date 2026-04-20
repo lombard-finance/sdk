@@ -1,1 +1,1 @@
-export * from "./generateDepositBtcAddress";
+export * from './generateDepositBtcAddress';

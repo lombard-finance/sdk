@@ -1,11 +1,11 @@
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import { makePublicClient } from "../../clients/public-client";
-import { CommonParameters } from "../../common/parameters";
-import { Token } from "../../tokens/token-addresses";
-import { getTokenContractInfo } from "../../tokens/tokens";
-import { determineEnv } from "../../utils/env";
-import { fromSatoshi } from "../../utils/satoshi";
+import { makePublicClient } from '../../clients/public-client';
+import { CommonParameters } from '../../common/parameters';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { determineEnv } from '../../utils/env';
+import { fromSatoshi } from '../../utils/satoshi';
 
 /**
  * Get the total supply of LBTC tokens.
@@ -33,7 +33,7 @@ export async function getLBTCTotalSupply({
   const totalSupplyRaw = await publicClient.readContract({
     abi: lbtcContract.abi,
     address: lbtcContract.address,
-    functionName: "totalSupply",
+    functionName: 'totalSupply',
   });
 
   return fromSatoshi(String(totalSupplyRaw));

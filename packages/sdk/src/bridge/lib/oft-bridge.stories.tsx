@@ -1,27 +1,27 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../../common/chains";
-import { Button } from "../../stories/components/Button";
-import { CodeBlock } from "../../stories/components/CodeBlock";
-import { ConnectButton } from "../../stories/components/ConnectButton";
+import { ChainId } from '../../common/chains';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
   wagmiDecorator,
-} from "../../stories/components/decorators";
-import { ErrorBlock } from "../../stories/components/error-block";
+} from '../../stories/components/decorators';
+import { ErrorBlock } from '../../stories/components/error-block';
 import {
   canPerformAction,
   useConnection,
-} from "../../stories/hooks/useConnection";
-import useQuery from "../../stories/hooks/useQuery";
-import { OFT_BRIDGE_CHAINS } from "./config";
-import { bridgeOFT, BridgeOFTParameters } from "./oft-bridge";
+} from '../../stories/hooks/useConnection';
+import useQuery from '../../stories/hooks/useQuery';
+import { OFT_BRIDGE_CHAINS } from './config';
+import { bridgeOFT,BridgeOFTParameters } from './oft-bridge';
 
 const meta = {
-  title: "bridge/bridgeOFT",
+  title: 'bridge/bridgeOFT',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [wagmiDecorator, functionType("write")],
+  tags: ['autodocs'],
+  decorators: [wagmiDecorator, functionType('write')],
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -31,22 +31,22 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     to: ChainId.corn,
-    amount: "0.0001",
+    amount: '0.0001',
     approve: true,
-    env: "prod",
+    env: 'prod',
   },
   argTypes: {
     to: {
       mapping: ChainId,
       options: OFT_BRIDGE_CHAINS.map(
-        (ch) => Object.entries(ChainId).find(([, v]) => v === ch)?.[0],
+        ch => Object.entries(ChainId).find(([, v]) => v === ch)?.[0],
       ),
-      control: { type: "select" },
+      control: { type: 'select' },
     },
   },
 };
 
-type Props = Omit<BridgeOFTParameters, "account" | "chainId" | "provider">;
+type Props = Omit<BridgeOFTParameters, 'account' | 'chainId' | 'provider'>;
 
 export function StoryView(props: Props) {
   const connection = useConnection();

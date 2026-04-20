@@ -1,26 +1,26 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../../../common/chains";
-import { Button } from "../../../stories/components/Button";
-import { CodeBlock } from "../../../stories/components/CodeBlock";
+import { ChainId } from '../../../common/chains';
+import { Button } from '../../../stories/components/Button';
+import { CodeBlock } from '../../../stories/components/CodeBlock';
 import {
   functionType,
   wagmiDecorator,
-} from "../../../stories/components/decorators";
-import { ErrorBlock } from "../../../stories/components/error-block";
-import { EXAMPLE_EVM_ADDRESS } from "../../../stories/constants";
-import useQuery from "../../../stories/hooks/useQuery";
-import { Vault } from "../config";
+} from '../../../stories/components/decorators';
+import { ErrorBlock } from '../../../stories/components/error-block';
+import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
+import useQuery from '../../../stories/hooks/useQuery';
+import { Vault } from '../config';
 import {
   getVaultWithdrawals,
   GetVaultWithdrawalsParameters,
-} from "./get-vault-withdrawals";
+} from './get-vault-withdrawals';
 
 const meta = {
-  title: "vault/ops/getVaultWithdrawals",
+  title: 'vault/ops/getVaultWithdrawals',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [wagmiDecorator, functionType("api-get")],
+  tags: ['autodocs'],
+  decorators: [wagmiDecorator, functionType('api-get')],
 } satisfies Meta<typeof StoryView>;
 
 export default meta;

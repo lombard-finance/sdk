@@ -1,11 +1,11 @@
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey } from '@solana/web3.js';
 
 export enum InjectedWallet {
-  PHANTOM = "phantom",
-  OKX = "okx",
-  COINBASE = "coinbase",
-  BACKPACK = "backpack",
-  SOLFLARE = "solflare",
+  PHANTOM = 'phantom',
+  OKX = 'okx',
+  COINBASE = 'coinbase',
+  BACKPACK = 'backpack',
+  SOLFLARE = 'solflare',
 }
 
 /**

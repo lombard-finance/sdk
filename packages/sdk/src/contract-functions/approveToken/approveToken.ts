@@ -1,18 +1,18 @@
-import { Env } from "@lombard.finance/sdk-common";
-import BigNumber from "bignumber.js";
-import { Address, Hash } from "viem";
+import { Env } from '@lombard.finance/sdk-common';
+import BigNumber from 'bignumber.js';
+import { Address, Hash } from 'viem';
 
-import { makePublicClient } from "../../clients/public-client";
-import { makeWalletClient } from "../../clients/wallet-client";
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from "../../common/chains";
-import { CommonWriteParameters, IEnvParam } from "../../common/parameters";
-import { Token } from "../../tokens/token-addresses";
+import { makePublicClient } from '../../clients/public-client';
+import { makeWalletClient } from '../../clients/wallet-client';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from '../../common/chains';
+import { CommonWriteParameters, IEnvParam } from '../../common/parameters';
+import { Token } from '../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
   toBaseDenomination,
-} from "../../tokens/tokens";
-import toBigInt from "../../utils/numbers";
+} from '../../tokens/tokens';
+import toBigInt from '../../utils/numbers';
 
 export interface IApproveTokenParams extends CommonWriteParameters, IEnvParam {
   /**
@@ -72,7 +72,7 @@ export async function approveToken({
     account,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: tokenInfo.abi,
-    functionName: "approve",
+    functionName: 'approve',
     args: [spender, amountBase],
   });
 
@@ -118,7 +118,7 @@ export async function getTokenAllowance({
   const allowanceRaw = (await publicClient.readContract({
     address: tokenInfo.address,
     abi: tokenInfo.abi,
-    functionName: "allowance",
+    functionName: 'allowance',
     args: [owner, spender],
   })) as bigint;
 

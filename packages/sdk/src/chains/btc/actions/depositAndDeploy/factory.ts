@@ -6,9 +6,9 @@
  * @module chains/btc/actions/depositAndDeploy/factory
  */
 
-import type { BtcCoreContext } from "../../../../shared/context";
-import { BtcDepositAndDeploy } from "./BtcDepositAndDeploy";
-import type { BtcDepositAndDeployParams } from "./types";
+import type { BtcCoreContext } from '../../../../shared/context';
+import { BtcDepositAndDeploy } from './BtcDepositAndDeploy';
+import type { BtcDepositAndDeployParams } from './types';
 
 /**
  * Create a BTC DepositAndDeploy action

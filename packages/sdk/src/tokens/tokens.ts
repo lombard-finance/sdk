@@ -11,19 +11,19 @@
  * @module tokens/tokens
  */
 
-import { DEFAULT_ENV, Env } from "@lombard.finance/sdk-common";
-import BigNumber from "bignumber.js";
-import { type Abi, Address, erc20Abi, PublicClient, zeroAddress } from "viem";
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
+import BigNumber from 'bignumber.js';
+import { type Abi, Address, erc20Abi, PublicClient, zeroAddress } from 'viem';
 
-import { makePublicClient } from "../clients/public-client";
-import { ChainId } from "../common/chains";
-import { TokenContractAddressNotFoundError } from "../utils/err";
-import BRIDGE_TOKEN_ADAPTER_ABI from "./abi/BRIDGE_TOKEN_ADAPTER_ABI";
-import BTCK_ABI from "./abi/BTCK_ABI";
-import { LBTC_ABI } from "./abi/LBTC_ABI";
-import NATIVE_LBTC_ABI from "./abi/NATIVE_LBTC_ABI";
-import STLBTC_ABI from "./abi/STLBTC_ABI";
-import { AddressKind, Token, TOKEN_ADDRESSES } from "./token-addresses";
+import { makePublicClient } from '../clients/public-client';
+import { ChainId } from '../common/chains';
+import { TokenContractAddressNotFoundError } from '../utils/err';
+import BRIDGE_TOKEN_ADAPTER_ABI from './abi/BRIDGE_TOKEN_ADAPTER_ABI';
+import BTCK_ABI from './abi/BTCK_ABI';
+import { LBTC_ABI } from './abi/LBTC_ABI';
+import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
+import STLBTC_ABI from './abi/STLBTC_ABI';
+import { AddressKind, Token,TOKEN_ADDRESSES } from './token-addresses';
 
 export type TokenInfo = {
   address: Address;
@@ -35,10 +35,10 @@ export type TokenInfo = {
 const MAYBE_UPGRADED_CONTRACT_ABI = [
   {
     inputs: [],
-    name: "getAssetRouter",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'getAssetRouter',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 const UPGRADED_CONTRACT_POINTER = MAYBE_UPGRADED_CONTRACT_ABI[0].name;
@@ -60,7 +60,7 @@ export async function isUpgradedContract(
   try {
     const assetRouter = await publicClient.readContract({
       abi: MAYBE_UPGRADED_CONTRACT_ABI,
-      address: typeof address === "string" ? address : address.adapter,
+      address: typeof address === 'string' ? address : address.adapter,
       functionName: UPGRADED_CONTRACT_POINTER,
     });
     return assetRouter !== zeroAddress;
@@ -110,7 +110,7 @@ export const isUpgradedAbi = (
   abi: unknown,
 ): abi is typeof STLBTC_ABI | typeof NATIVE_LBTC_ABI => {
   const redeemForBtcAbi = (abi as Abi).find(
-    (a) => a.type === "function" && a.name === UPGRADED_CONTRACT_POINTER,
+    a => a.type === 'function' && a.name === UPGRADED_CONTRACT_POINTER,
   );
   return redeemForBtcAbi != null;
 };
@@ -163,7 +163,7 @@ export async function getTokenContractInfo<
 
   return {
     abi,
-    address: typeof address === "string" ? address : address[addressKind],
+    address: typeof address === 'string' ? address : address[addressKind],
     chainId,
   };
 }
@@ -180,19 +180,19 @@ export const retrieveTokenProperties = async <
       {
         address: tokenContractInfo.address,
         abi: tokenContractInfo.abi as Abi,
-        functionName: "symbol",
+        functionName: 'symbol',
       },
       {
         address: tokenContractInfo.address,
         abi: tokenContractInfo.abi as Abi,
-        functionName: "decimals",
+        functionName: 'decimals',
       },
     ],
   });
 
   if (
-    symbolResult.status === "success" &&
-    decimalsResult.status === "success"
+    symbolResult.status === 'success' &&
+    decimalsResult.status === 'success'
   ) {
     return {
       address: tokenContractInfo.address,

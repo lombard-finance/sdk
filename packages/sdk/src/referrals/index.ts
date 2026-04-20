@@ -1,1 +1,1 @@
-export * from "./ReferralsClient";
+export * from './ReferralsClient';

@@ -1,2 +1,2 @@
-export * from "./decodeBasculeDepositStatus";
-export * from "./getBasculeDepositStatus";
+export * from './decodeBasculeDepositStatus';
+export * from './getBasculeDepositStatus';

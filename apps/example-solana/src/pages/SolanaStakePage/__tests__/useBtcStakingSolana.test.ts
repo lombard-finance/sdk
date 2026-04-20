@@ -1,5 +1,5 @@
-import { renderHook } from "@testing-library/react";
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
+import { renderHook } from '@testing-library/react';
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Mocks (using vi.hoisted to avoid hoisting issues)
@@ -13,7 +13,7 @@ const {
   capturedConfigFactory,
 } = vi.hoisted(() => ({
   mockCreateConfig: vi.fn(),
-  mockSolanaModule: vi.fn().mockReturnValue("solana-module"),
+  mockSolanaModule: vi.fn().mockReturnValue('solana-module'),
   mockStake: vi.fn(),
   mockReset: vi.fn(),
   capturedConfigFactory: { current: null as (() => unknown) | null },
@@ -24,27 +24,27 @@ const defaultStakeReturn = {
   reset: mockReset,
   depositAddress: null as string | null,
   stakeAmount: null as string | null,
-  status: { phase: "idle", message: "" },
+  status: { phase: 'idle', message: '' },
   progress: null,
   error: null as string | null,
   isLoading: false,
 };
 
-vi.mock("@lombard.finance/sdk", () => ({
+vi.mock('@lombard.finance/sdk', () => ({
   createConfig: mockCreateConfig,
   Chain: {
-    BITCOIN_MAINNET: "bitcoin-mainnet",
-    BITCOIN_SIGNET: "bitcoin-signet",
-    SOLANA_MAINNET: "solana-mainnet",
+    BITCOIN_MAINNET: 'bitcoin-mainnet',
+    BITCOIN_SIGNET: 'bitcoin-signet',
+    SOLANA_MAINNET: 'solana-mainnet',
   },
-  Env: { prod: "prod", stage: "stage", testnet: "testnet" },
+  Env: { prod: 'prod', stage: 'stage', testnet: 'testnet' },
 }));
 
-vi.mock("@lombard.finance/sdk-solana", () => ({
+vi.mock('@lombard.finance/sdk-solana', () => ({
   solanaModule: mockSolanaModule,
 }));
 
-vi.mock("@lombard.finance/sdk-react", () => ({
+vi.mock('@lombard.finance/sdk-react', () => ({
   useLombardSDK: vi.fn((factory: () => unknown) => {
     capturedConfigFactory.current = factory;
     return { sdk: null, isInitializing: false, error: null };
@@ -52,15 +52,15 @@ vi.mock("@lombard.finance/sdk-react", () => ({
   useBtcStake: vi.fn(() => defaultStakeReturn),
 }));
 
-vi.mock("../../../lib/config", () => ({
-  getEnvironment: vi.fn(() => "stage"),
+vi.mock('../../../lib/config', () => ({
+  getEnvironment: vi.fn(() => 'stage'),
 }));
 
-import { Env } from "@lombard.finance/sdk";
-import { useLombardSDK, useBtcStake } from "@lombard.finance/sdk-react";
-import { useBtcStakingSolana } from "../useBtcStakingSolana";
+import { Env } from '@lombard.finance/sdk';
+import { useLombardSDK, useBtcStake } from '@lombard.finance/sdk-react';
+import { useBtcStakingSolana } from '../useBtcStakingSolana';
 
-describe("useBtcStakingSolana", () => {
+describe('useBtcStakingSolana', () => {
   const mockSolana = { isPhantom: true };
 
   beforeEach(() => {
@@ -70,7 +70,7 @@ describe("useBtcStakingSolana", () => {
     defaultStakeReturn.reset = mockReset;
     defaultStakeReturn.depositAddress = null;
     defaultStakeReturn.stakeAmount = null;
-    defaultStakeReturn.status = { phase: "idle", message: "" };
+    defaultStakeReturn.status = { phase: 'idle', message: '' };
     defaultStakeReturn.error = null;
   });
 
@@ -78,7 +78,7 @@ describe("useBtcStakingSolana", () => {
     vi.unstubAllGlobals();
   });
 
-  it("returns undefined config when window.solana is not present", () => {
+  it('returns undefined config when window.solana is not present', () => {
     const { unmount } = renderHook(() => useBtcStakingSolana());
 
     expect(capturedConfigFactory.current).toBeTruthy();
@@ -89,9 +89,9 @@ describe("useBtcStakingSolana", () => {
     unmount();
   });
 
-  it("creates SDK config with solana provider when window.solana exists", () => {
-    vi.stubGlobal("solana", mockSolana);
-    mockCreateConfig.mockReturnValue("mock-config");
+  it('creates SDK config with solana provider when window.solana exists', () => {
+    vi.stubGlobal('solana', mockSolana);
+    mockCreateConfig.mockReturnValue('mock-config');
 
     const { unmount } = renderHook(() => useBtcStakingSolana());
 
@@ -100,9 +100,9 @@ describe("useBtcStakingSolana", () => {
 
     expect(mockCreateConfig).toHaveBeenCalledWith(
       expect.objectContaining({
-        env: "stage",
+        env: 'stage',
         providers: { solana: expect.any(Function) },
-        modules: ["solana-module"],
+        modules: ['solana-module'],
       }),
     );
 
@@ -112,39 +112,39 @@ describe("useBtcStakingSolana", () => {
     unmount();
   });
 
-  it("includes solanaModule in config modules", () => {
-    vi.stubGlobal("solana", mockSolana);
-    mockCreateConfig.mockReturnValue("mock-config");
+  it('includes solanaModule in config modules', () => {
+    vi.stubGlobal('solana', mockSolana);
+    mockCreateConfig.mockReturnValue('mock-config');
 
     const { unmount } = renderHook(() => useBtcStakingSolana());
     capturedConfigFactory.current!();
 
     expect(mockSolanaModule).toHaveBeenCalled();
     const callArgs = mockCreateConfig.mock.calls[0][0];
-    expect(callArgs.modules).toEqual(["solana-module"]);
+    expect(callArgs.modules).toEqual(['solana-module']);
 
     unmount();
   });
 
-  it("passes partnerId to config when provided", () => {
-    vi.stubGlobal("solana", mockSolana);
-    mockCreateConfig.mockReturnValue("mock-config");
+  it('passes partnerId to config when provided', () => {
+    vi.stubGlobal('solana', mockSolana);
+    mockCreateConfig.mockReturnValue('mock-config');
 
-    const { unmount } = renderHook(() => useBtcStakingSolana("partner-123"));
+    const { unmount } = renderHook(() => useBtcStakingSolana('partner-123'));
     capturedConfigFactory.current!();
 
     expect(mockCreateConfig).toHaveBeenCalledWith(
       expect.objectContaining({
-        partner: { partnerId: "partner-123" },
+        partner: { partnerId: 'partner-123' },
       }),
     );
 
     unmount();
   });
 
-  it("does not include partner when partnerId is not provided", () => {
-    vi.stubGlobal("solana", mockSolana);
-    mockCreateConfig.mockReturnValue("mock-config");
+  it('does not include partner when partnerId is not provided', () => {
+    vi.stubGlobal('solana', mockSolana);
+    mockCreateConfig.mockReturnValue('mock-config');
 
     const { unmount } = renderHook(() => useBtcStakingSolana());
     capturedConfigFactory.current!();
@@ -155,8 +155,8 @@ describe("useBtcStakingSolana", () => {
     unmount();
   });
 
-  it("uses BITCOIN_MAINNET as sourceChain for prod env", () => {
-    vi.stubGlobal("solana", mockSolana);
+  it('uses BITCOIN_MAINNET as sourceChain for prod env', () => {
+    vi.stubGlobal('solana', mockSolana);
 
     const mockSdk = { chain: {} };
     vi.mocked(useLombardSDK).mockReturnValue({
@@ -170,21 +170,21 @@ describe("useBtcStakingSolana", () => {
     );
 
     result.current.stake({
-      amount: "0.5",
-      destChain: "solana-mainnet" as never,
-      destAddress: "solana-recipient",
-      assetOut: "lbtc" as never,
+      amount: '0.5',
+      destChain: 'solana-mainnet' as never,
+      destAddress: 'solana-recipient',
+      assetOut: 'lbtc' as never,
     });
 
     expect(mockStake).toHaveBeenCalledWith(
-      expect.objectContaining({ sourceChain: "bitcoin-mainnet" }),
+      expect.objectContaining({ sourceChain: 'bitcoin-mainnet' }),
     );
 
     unmount();
   });
 
-  it("uses BITCOIN_SIGNET as sourceChain for non-prod env", () => {
-    vi.stubGlobal("solana", mockSolana);
+  it('uses BITCOIN_SIGNET as sourceChain for non-prod env', () => {
+    vi.stubGlobal('solana', mockSolana);
 
     const mockSdk = { chain: {} };
     vi.mocked(useLombardSDK).mockReturnValue({
@@ -198,21 +198,21 @@ describe("useBtcStakingSolana", () => {
     );
 
     result.current.stake({
-      amount: "0.1",
-      destChain: "solana-mainnet" as never,
-      destAddress: "solana-recipient",
-      assetOut: "lbtc" as never,
+      amount: '0.1',
+      destChain: 'solana-mainnet' as never,
+      destAddress: 'solana-recipient',
+      assetOut: 'lbtc' as never,
     });
 
     expect(mockStake).toHaveBeenCalledWith(
-      expect.objectContaining({ sourceChain: "bitcoin-signet" }),
+      expect.objectContaining({ sourceChain: 'bitcoin-signet' }),
     );
 
     unmount();
   });
 
-  it("passes sdk to useBtcStake", () => {
-    vi.stubGlobal("solana", mockSolana);
+  it('passes sdk to useBtcStake', () => {
+    vi.stubGlobal('solana', mockSolana);
 
     const mockSdk = { chain: {} };
     vi.mocked(useLombardSDK).mockReturnValue({

@@ -4,7 +4,7 @@
  * Determines which chains require network fee authorization for auto-minting.
  */
 
-import type { ChainId } from "./chains";
+import type { ChainId } from './chains';
 
 /**
  * Chains that require network fee authorization (auto-mint fee)

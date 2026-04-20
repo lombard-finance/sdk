@@ -1,17 +1,17 @@
-import { DEFAULT_ENV, Env } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
-import { useCallback, useState } from "react";
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
+import { useCallback, useState } from 'react';
 
-import { ChainId, SOLANA_DEVNET_CHAIN } from "../../common/chains";
-import { allChainSelector, makeTokenSelector } from "../../stories/arg-types";
-import { Button } from "../../stories/components/Button";
-import { CodeBlock } from "../../stories/components/CodeBlock";
-import { functionType } from "../../stories/components/decorators";
-import { EXAMPLE_EVM_ADDRESS } from "../../stories/constants";
-import useQuery from "../../stories/hooks/useQuery";
-import { Token } from "../../tokens/token-addresses";
-import { getDepositBtcAddress } from "./getDepositBtcAddress";
-import { IGetDepositBtcAddressParameters } from "./types";
+import { ChainId, SOLANA_DEVNET_CHAIN } from '../../common/chains';
+import { allChainSelector, makeTokenSelector } from '../../stories/arg-types';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { functionType } from '../../stories/components/decorators';
+import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
+import useQuery from '../../stories/hooks/useQuery';
+import { Token } from '../../tokens/token-addresses';
+import { getDepositBtcAddress } from './getDepositBtcAddress';
+import { IGetDepositBtcAddressParameters } from './types';
 
 // --- EVM story (original) ---
 
@@ -70,7 +70,7 @@ function SolanaGetStoryView({
     setConnectError(null);
     const phantom = getPhantom();
     if (!phantom) {
-      setConnectError("Phantom wallet not found. Please install it.");
+      setConnectError('Phantom wallet not found. Please install it.');
       return;
     }
     try {
@@ -89,7 +89,7 @@ function SolanaGetStoryView({
 
   const { data, error, isLoading, refetch } = useQuery(
     () => {
-      if (!address) throw new Error("Connect wallet first.");
+      if (!address) throw new Error('Connect wallet first.');
       return getDepositBtcAddress({
         address,
         token,
@@ -108,8 +108,8 @@ function SolanaGetStoryView({
         {!address ? (
           <Button onClick={handleConnect}>Connect Phantom</Button>
         ) : (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <span style={{ fontFamily: "monospace", fontSize: 13 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span style={{ fontFamily: 'monospace', fontSize: 13 }}>
               {address.slice(0, 6)}...{address.slice(-4)}
             </span>
             <Button size="small" onClick={handleDisconnect}>
@@ -120,7 +120,7 @@ function SolanaGetStoryView({
       </div>
 
       {connectError && (
-        <div style={{ color: "red", marginBottom: 8, fontSize: 13 }}>
+        <div style={{ color: 'red', marginBottom: 8, fontSize: 13 }}>
           {connectError}
         </div>
       )}
@@ -142,10 +142,10 @@ function SolanaGetStoryView({
 // --- Meta ---
 
 const meta = {
-  title: "api/getDepositBtcAddress",
+  title: 'api/getDepositBtcAddress',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("api-get")],
+  tags: ['autodocs'],
+  decorators: [functionType('api-get')],
   argTypes: {
     ...allChainSelector,
     ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]),
@@ -164,18 +164,18 @@ export const EVM: Story = {
     address: EXAMPLE_EVM_ADDRESS,
     chainId: ChainId.ethereum,
     env: DEFAULT_ENV,
-    partnerId: "lombard",
+    partnerId: 'lombard',
   },
 };
 
 export const SolanaBTCb: StoryObj<typeof SolanaGetStoryView> = {
-  name: "Solana — BTC.b",
-  render: (args) => <SolanaGetStoryView {...args} />,
+  name: 'Solana — BTC.b',
+  render: args => <SolanaGetStoryView {...args} />,
   args: {
     token: Token.BTCb,
     chainId: SOLANA_DEVNET_CHAIN,
     env: Env.dev,
-    partnerId: "test",
+    partnerId: 'test',
   },
   argTypes: {
     ...makeTokenSelector([Token.LBTC, Token.BTCb]),
@@ -183,13 +183,13 @@ export const SolanaBTCb: StoryObj<typeof SolanaGetStoryView> = {
 };
 
 export const SolanaLBTC: StoryObj<typeof SolanaGetStoryView> = {
-  name: "Solana — LBTC",
-  render: (args) => <SolanaGetStoryView {...args} />,
+  name: 'Solana — LBTC',
+  render: args => <SolanaGetStoryView {...args} />,
   args: {
     token: Token.LBTC,
     chainId: SOLANA_DEVNET_CHAIN,
     env: Env.dev,
-    partnerId: "test",
+    partnerId: 'test',
   },
   argTypes: {
     ...makeTokenSelector([Token.LBTC, Token.BTCb]),

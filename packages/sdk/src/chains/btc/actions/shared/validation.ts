@@ -7,10 +7,10 @@
  * @module chains/btc/actions/shared/validation
  */
 
-import type { Env } from "@lombard.finance/sdk-common";
+import type { Env } from '@lombard.finance/sdk-common';
 
-import type { AssetId, Chain } from "../../../../core";
-import { LombardError, ValidationErrorCode } from "../../../../shared/errors";
+import type { AssetId, Chain } from '../../../../core';
+import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -76,14 +76,14 @@ export function isDestChainSupported(
  * Check if a route is available for the given source chain and environment
  */
 export function isRouteAvailable(
-  routes: ValidatableConfig["routes"],
+  routes: ValidatableConfig['routes'],
   sourceChain: Chain | undefined,
   env: Env,
 ): boolean {
   if (!sourceChain) return true; // No source chain specified, allow all
 
   return routes.some(
-    (route) =>
+    route =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }
@@ -129,10 +129,10 @@ export function validateBtcActionParams(
 ): void {
   // 1. Validate asset output
   if (!isAssetSupported(config.supportedAssetsOut, params.assetOut)) {
-    const supported = config.supportedAssetsOut.join(", ");
+    const supported = config.supportedAssetsOut.join(', ');
     const alternative = context.alternativeAction
       ? ` Use ${context.alternativeAction} instead.`
-      : "";
+      : '';
 
     throw new LombardError(
       ValidationErrorCode.INVALID_ASSET,
@@ -176,7 +176,7 @@ export function validateProtocol(
     throw new LombardError(
       ValidationErrorCode.INVALID_PARAMETER,
       `Protocol ${protocol} is not supported for ${actionName}. ` +
-        `Supported: ${supportedProtocols.join(", ")}`,
+        `Supported: ${supportedProtocols.join(', ')}`,
     );
   }
 }

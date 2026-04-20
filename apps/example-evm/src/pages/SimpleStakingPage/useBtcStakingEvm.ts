@@ -1,9 +1,9 @@
-import { Chain, createConfig, Env } from "@lombard.finance/sdk";
-import { useBtcStake, useLombardSDK } from "@lombard.finance/sdk-react";
-import { useCallback } from "react";
+import { Chain, createConfig, Env } from '@lombard.finance/sdk';
+import { useBtcStake, useLombardSDK } from '@lombard.finance/sdk-react';
+import { useCallback } from 'react';
 
-import { getEnvironment } from "../../lib/config";
-import type { StakingFormData } from "../../lib/types";
+import { getEnvironment } from '../../lib/config';
+import type { StakingFormData } from '../../lib/types';
 
 /**
  * Hook for managing Bitcoin staking to EVM chains
@@ -16,11 +16,7 @@ import type { StakingFormData } from "../../lib/types";
 export function useBtcStakingEvm(partnerId?: string, env?: Env) {
   const currentEnv = env ?? getEnvironment();
 
-  const {
-    sdk,
-    isInitializing,
-    error: sdkError,
-  } = useLombardSDK(
+  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
     () =>
       createConfig({
         env: currentEnv,

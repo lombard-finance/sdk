@@ -1,29 +1,31 @@
-import { renderHook, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useLombardSDK } from "../src/hooks/useLombardSDK";
+import { useLombardSDK } from '../src/hooks/useLombardSDK';
 
 const mockSdk = { chain: {} };
 const mockCreateLombardSDK = vi.fn();
 
-vi.mock("@lombard.finance/sdk", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@lombard.finance/sdk")>();
+vi.mock('@lombard.finance/sdk', async importOriginal => {
+  const actual = await importOriginal<typeof import('@lombard.finance/sdk')>();
   return {
     ...actual,
     createLombardSDK: (...args: unknown[]) => mockCreateLombardSDK(...args),
   };
 });
 
-const mockConfig = { env: "testnet" } as never;
+const mockConfig = { env: 'testnet' } as never;
 
-describe("useLombardSDK", () => {
+describe('useLombardSDK', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockCreateLombardSDK.mockResolvedValue(mockSdk);
   });
 
-  it("initializes SDK when configFn returns a config", async () => {
-    const { result } = renderHook(() => useLombardSDK(() => mockConfig, []));
+  it('initializes SDK when configFn returns a config', async () => {
+    const { result } = renderHook(() =>
+      useLombardSDK(() => mockConfig, []),
+    );
 
     expect(result.current.isInitializing).toBe(true);
 
@@ -36,8 +38,10 @@ describe("useLombardSDK", () => {
     expect(result.current.error).toBeNull();
   });
 
-  it("skips initialization when configFn returns undefined", async () => {
-    const { result } = renderHook(() => useLombardSDK(() => undefined, []));
+  it('skips initialization when configFn returns undefined', async () => {
+    const { result } = renderHook(() =>
+      useLombardSDK(() => undefined, []),
+    );
 
     await waitFor(() => {
       expect(result.current.isInitializing).toBe(false);
@@ -48,43 +52,46 @@ describe("useLombardSDK", () => {
     expect(result.current.error).toBeNull();
   });
 
-  it("sets error when createLombardSDK rejects", async () => {
-    mockCreateLombardSDK.mockRejectedValue(new Error("Network error"));
+  it('sets error when createLombardSDK rejects', async () => {
+    mockCreateLombardSDK.mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderHook(() => useLombardSDK(() => mockConfig, []));
+    const { result } = renderHook(() =>
+      useLombardSDK(() => mockConfig, []),
+    );
 
     await waitFor(() => {
       expect(result.current.isInitializing).toBe(false);
     });
 
     expect(result.current.sdk).toBeNull();
-    expect(result.current.error).toBe("Network error");
+    expect(result.current.error).toBe('Network error');
   });
 
-  it("reinitializes when deps change", async () => {
+  it('reinitializes when deps change', async () => {
     const secondSdk = { chain: { evm: {} } };
     mockCreateLombardSDK
       .mockResolvedValueOnce(mockSdk)
       .mockResolvedValueOnce(secondSdk);
 
     const { result, rerender } = renderHook(
-      ({ dep }: { dep: string }) => useLombardSDK(() => mockConfig, [dep]),
-      { initialProps: { dep: "v1" } },
+      ({ dep }: { dep: string }) =>
+        useLombardSDK(() => mockConfig, [dep]),
+      { initialProps: { dep: 'v1' } },
     );
 
     await waitFor(() => expect(result.current.sdk).toBe(mockSdk));
 
-    rerender({ dep: "v2" });
+    rerender({ dep: 'v2' });
 
     await waitFor(() => expect(result.current.sdk).toBe(secondSdk));
 
     expect(mockCreateLombardSDK).toHaveBeenCalledTimes(2);
   });
 
-  it("ignores stale response after unmount", async () => {
+  it('ignores stale response after unmount', async () => {
     let resolveInit!: (value: unknown) => void;
     mockCreateLombardSDK.mockReturnValue(
-      new Promise((resolve) => {
+      new Promise(resolve => {
         resolveInit = resolve;
       }),
     );
@@ -100,10 +107,10 @@ describe("useLombardSDK", () => {
     expect(result.current.sdk).toBeNull();
   });
 
-  it("sets error when configFn throws synchronously", async () => {
+  it('sets error when configFn throws synchronously', async () => {
     const { result } = renderHook(() =>
       useLombardSDK(() => {
-        throw new Error("Bad config");
+        throw new Error('Bad config');
       }, []),
     );
 
@@ -113,10 +120,10 @@ describe("useLombardSDK", () => {
 
     expect(mockCreateLombardSDK).not.toHaveBeenCalled();
     expect(result.current.sdk).toBeNull();
-    expect(result.current.error).toBe("Bad config");
+    expect(result.current.error).toBe('Bad config');
   });
 
-  it("resets sdk and error when config transitions to undefined", async () => {
+  it('resets sdk and error when config transitions to undefined', async () => {
     const { result, rerender } = renderHook(
       ({ ready }: { ready: boolean }) =>
         useLombardSDK(() => (ready ? mockConfig : undefined), [ready]),

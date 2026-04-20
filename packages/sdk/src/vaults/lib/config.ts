@@ -1,14 +1,14 @@
-import { Abi, Address } from "viem";
+import { Abi, Address } from 'viem';
 
-import { ChainId } from "../../common/chains";
-import { Token } from "../../tokens/token-addresses";
-import VEDA_VAULT_ABI from "../abi/VEDA_VAULT_ABI.json";
-import VEDA_VAULT_ACCOUNTANT_ABI from "../abi/VEDA_VAULT_ACCOUNTANT_ABI.json";
-import VEDA_VAULT_BASE_ASSET_ABI from "../abi/VEDA_VAULT_BASE_ASSET_ABI.json";
-import VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI from "../abi/VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI.json";
-import VEDA_VAULT_LENS_ABI from "../abi/VEDA_VAULT_LENS_ABI.json";
-import VEDA_VAULT_SPENDER_ABI from "../abi/VEDA_VAULT_SPENDER_ABI.json";
-import VEDA_VAULT_TELLER_ABI from "../abi/VEDA_VAULT_TELLER_ABI.json";
+import { ChainId } from '../../common/chains';
+import { Token } from '../../tokens/token-addresses';
+import VEDA_VAULT_ABI from '../abi/VEDA_VAULT_ABI.json';
+import VEDA_VAULT_ACCOUNTANT_ABI from '../abi/VEDA_VAULT_ACCOUNTANT_ABI.json';
+import VEDA_VAULT_BASE_ASSET_ABI from '../abi/VEDA_VAULT_BASE_ASSET_ABI.json';
+import VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI from '../abi/VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI.json';
+import VEDA_VAULT_LENS_ABI from '../abi/VEDA_VAULT_LENS_ABI.json';
+import VEDA_VAULT_SPENDER_ABI from '../abi/VEDA_VAULT_SPENDER_ABI.json';
+import VEDA_VAULT_TELLER_ABI from '../abi/VEDA_VAULT_TELLER_ABI.json';
 
 type ContractInfo = {
   abi: Abi;
@@ -28,10 +28,10 @@ export const isVedaVaultChain = (chainId: number): chainId is VedaVaultChain =>
   VEDA_VAULT_CHAINS.includes(chainId as VedaVaultChain);
 
 export const VEDA_VAULT_CHAIN_TO_NETWORK_MAP: Record<VedaVaultChain, string> = {
-  [ChainId.ethereum]: "ethereum",
-  [ChainId.base]: "base",
-  [ChainId.corn]: "corn",
-  [ChainId.binanceSmartChain]: "bnb",
+  [ChainId.ethereum]: 'ethereum',
+  [ChainId.base]: 'base',
+  [ChainId.corn]: 'corn',
+  [ChainId.binanceSmartChain]: 'bnb',
 };
 
 export const NETWORK_TO_VEDA_VAULT_CHAIN_MAP: Record<string, VedaVaultChain> = {
@@ -58,32 +58,32 @@ export const isVedaVaultStakeAndBakeChain = (
 
 export const VEDA_VAULT_DEFAULT_CHAIN_ID: VedaVaultChain = ChainId.ethereum;
 
-export const VEDA_VAULT_CONTRACT = "0x5401b8620E5FB570064CA9114fd1e135fd77D57c";
+export const VEDA_VAULT_CONTRACT = '0x5401b8620E5FB570064CA9114fd1e135fd77D57c';
 export const VEDA_VAULT_ACCOUNTANT_CONTRACT =
-  "0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE";
+  '0x28634D0c5edC67CF2450E74deA49B90a4FF93dCE';
 export const VEDA_VAULT_LENS_CONTRACT =
-  "0x5232bc0F5999f8dA604c42E1748A13a170F94A1B";
+  '0x5232bc0F5999f8dA604c42E1748A13a170F94A1B';
 
 export const VEDA_VAULT_TELLER_CONTRACTS: Record<VedaVaultChain, ContractInfo> =
   {
     [ChainId.ethereum]: {
       abi: VEDA_VAULT_TELLER_ABI as Abi,
-      address: "0x4E8f5128F473C6948127f9Cbca474a6700F99bab",
+      address: '0x4E8f5128F473C6948127f9Cbca474a6700F99bab',
       chainId: ChainId.ethereum,
     },
     [ChainId.base]: {
       abi: VEDA_VAULT_TELLER_ABI as Abi,
-      address: "0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3",
+      address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
       chainId: ChainId.base,
     },
     [ChainId.binanceSmartChain]: {
       abi: VEDA_VAULT_TELLER_ABI as Abi,
-      address: "0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3",
+      address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
       chainId: ChainId.binanceSmartChain,
     },
     [ChainId.corn]: {
       abi: VEDA_VAULT_TELLER_ABI as Abi,
-      address: "0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3",
+      address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
       chainId: ChainId.corn,
     },
   } as const;
@@ -95,13 +95,13 @@ export const VEDA_VAULT_SPENDER_CONTRACTS: Record<
 > = {
   [ChainId.ethereum]: {
     abi: VEDA_VAULT_SPENDER_ABI as Abi,
-    address: "0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef",
+    address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
     chainId: ChainId.ethereum,
   },
   // Testnets:
   [ChainId.sepolia]: {
     abi: VEDA_VAULT_SPENDER_ABI as Abi,
-    address: "0x77eD6a84fEF665156e81247ECbd43A847B8A6398",
+    address: '0x77eD6a84fEF665156e81247ECbd43A847B8A6398',
     chainId: ChainId.sepolia,
   },
 } as const;
@@ -112,40 +112,40 @@ export const VEDA_VAULT_WITHDRAW_QUEUE_CONTRACTS: Record<
 > = {
   [ChainId.ethereum]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
-    address: "0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8",
+    address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
     chainId: ChainId.ethereum,
   },
   [ChainId.base]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
-    address: "0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8",
+    address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
     chainId: ChainId.ethereum,
   },
   [ChainId.binanceSmartChain]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
-    address: "0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8",
+    address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
     chainId: ChainId.ethereum,
   },
   [ChainId.corn]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
-    address: "0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8",
+    address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
     chainId: ChainId.ethereum,
   },
 };
 
 export const VEDA_VAULT_BASE_ASSET = {
   abi: VEDA_VAULT_BASE_ASSET_ABI,
-  symbol: "WBTC",
-  displayName: "wBTC",
-  address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+  symbol: 'WBTC',
+  displayName: 'wBTC',
+  address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
   decimals: 8,
 };
 
 export enum Vault {
-  Veda = "veda",
+  Veda = 'veda',
 }
 
 export const VaultNameMap = {
-  [Vault.Veda]: "Veda / Lombard DeFi Vault",
+  [Vault.Veda]: 'Veda / Lombard DeFi Vault',
 } as const;
 
 export const VAULTS = {
@@ -178,7 +178,7 @@ export const VAULTS = {
     tellerContracts: VEDA_VAULT_TELLER_CONTRACTS,
     withdrawQueueContracts: VEDA_VAULT_WITHDRAW_QUEUE_CONTRACTS,
 
-    queueWithdrawDiscountPercent: "0.01",
-    queueWithdrawDaysValid: "14",
+    queueWithdrawDiscountPercent: '0.01',
+    queueWithdrawDaysValid: '14',
   },
 } as const;

@@ -5,8 +5,8 @@
  * during their execution lifecycle.
  */
 
-import type { StrategyProgress } from "../core/types";
-import type { LombardError } from "./errors";
+import type { StrategyProgress } from '../core/types';
+import type { LombardError } from './errors';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Event emitter requires bivariant `any` for type-safe event handler signatures
 type StrategyEventHandlerMap = Record<string, (...args: any[]) => void>;
@@ -18,19 +18,19 @@ type StrategyEventHandlerMap = Record<string, (...args: any[]) => void>;
  */
 export const StakeEvent = {
   /** Progress update with detailed step information */
-  Progress: "progress",
+  Progress: 'progress',
 
   /** Status change (e.g., 'idle' → 'preparing' → 'ready') */
-  StatusChange: "status-change",
+  StatusChange: 'status-change',
 
   /** Operation completed successfully */
-  Completed: "completed",
+  Completed: 'completed',
 
   /** Operation failed */
-  Failed: "failed",
+  Failed: 'failed',
 
   /** Error occurred */
-  Error: "error",
+  Error: 'error',
 } as const;
 
 export type StakeEvent = (typeof StakeEvent)[keyof typeof StakeEvent];
@@ -41,11 +41,11 @@ export type StakeEvent = (typeof StakeEvent)[keyof typeof StakeEvent];
  * Emitted by all deposit strategies (EVM, etc.)
  */
 export const DepositEvent = {
-  Progress: "progress",
-  StatusChange: "status-change",
-  Completed: "completed",
-  Failed: "failed",
-  Error: "error",
+  Progress: 'progress',
+  StatusChange: 'status-change',
+  Completed: 'completed',
+  Failed: 'failed',
+  Error: 'error',
 } as const;
 
 export type DepositEvent = (typeof DepositEvent)[keyof typeof DepositEvent];
@@ -56,11 +56,11 @@ export type DepositEvent = (typeof DepositEvent)[keyof typeof DepositEvent];
  * Emitted by all redeem strategies (cross-chain asset redemptions)
  */
 export const RedeemEvent = {
-  Progress: "progress",
-  StatusChange: "status-change",
-  Completed: "completed",
-  Failed: "failed",
-  Error: "error",
+  Progress: 'progress',
+  StatusChange: 'status-change',
+  Completed: 'completed',
+  Failed: 'failed',
+  Error: 'error',
 } as const;
 
 export type RedeemEvent = (typeof RedeemEvent)[keyof typeof RedeemEvent];
@@ -71,11 +71,11 @@ export type RedeemEvent = (typeof RedeemEvent)[keyof typeof RedeemEvent];
  * Emitted by all unstake strategies (LBTC → BTC or BTC.b)
  */
 export const UnstakeEvent = {
-  Progress: "progress",
-  StatusChange: "status-change",
-  Completed: "completed",
-  Failed: "failed",
-  Error: "error",
+  Progress: 'progress',
+  StatusChange: 'status-change',
+  Completed: 'completed',
+  Failed: 'failed',
+  Error: 'error',
 } as const;
 
 export type UnstakeEvent = (typeof UnstakeEvent)[keyof typeof UnstakeEvent];
@@ -86,11 +86,11 @@ export type UnstakeEvent = (typeof UnstakeEvent)[keyof typeof UnstakeEvent];
  * Emitted by deploy strategies (deploying L-Assets to DeFi protocols)
  */
 export const DeployEvent = {
-  Progress: "progress",
-  StatusChange: "status-change",
-  Completed: "completed",
-  Failed: "failed",
-  Error: "error",
+  Progress: 'progress',
+  StatusChange: 'status-change',
+  Completed: 'completed',
+  Failed: 'failed',
+  Error: 'error',
 } as const;
 
 export type DeployEvent = (typeof DeployEvent)[keyof typeof DeployEvent];
@@ -101,11 +101,11 @@ export type DeployEvent = (typeof DeployEvent)[keyof typeof DeployEvent];
  * Emitted by withdraw strategies (withdrawing vault shares from DeFi protocols)
  */
 export const WithdrawEvent = {
-  Progress: "progress",
-  StatusChange: "status-change",
-  Completed: "completed",
-  Failed: "failed",
-  Error: "error",
+  Progress: 'progress',
+  StatusChange: 'status-change',
+  Completed: 'completed',
+  Failed: 'failed',
+  Error: 'error',
 } as const;
 
 export type WithdrawEvent = (typeof WithdrawEvent)[keyof typeof WithdrawEvent];
@@ -116,11 +116,11 @@ export type WithdrawEvent = (typeof WithdrawEvent)[keyof typeof WithdrawEvent];
  * Emitted by bridge strategies (cross-chain L-Asset transfers)
  */
 export const BridgeEvent = {
-  Progress: "progress",
-  StatusChange: "status-change",
-  Completed: "completed",
-  Failed: "failed",
-  Error: "error",
+  Progress: 'progress',
+  StatusChange: 'status-change',
+  Completed: 'completed',
+  Failed: 'failed',
+  Error: 'error',
 } as const;
 
 export type BridgeEvent = (typeof BridgeEvent)[keyof typeof BridgeEvent];
@@ -131,11 +131,11 @@ export type BridgeEvent = (typeof BridgeEvent)[keyof typeof BridgeEvent];
  * Emitted by stake-and-deploy strategies (BTC → LBTC → Vault in one operation)
  */
 export const StakeAndDeployEvent = {
-  Progress: "progress",
-  StatusChange: "status-change",
-  Completed: "completed",
-  Failed: "failed",
-  Error: "error",
+  Progress: 'progress',
+  StatusChange: 'status-change',
+  Completed: 'completed',
+  Failed: 'failed',
+  Error: 'error',
 } as const;
 
 export type StakeAndDeployEvent =
@@ -148,11 +148,11 @@ export type StakeAndDeployEvent =
  * Similar to StakeAndDeploy but produces BTC.b instead of LBTC.
  */
 export const DepositAndDeployEvent = {
-  Progress: "progress",
-  StatusChange: "status-change",
-  Completed: "completed",
-  Failed: "failed",
-  Error: "error",
+  Progress: 'progress',
+  StatusChange: 'status-change',
+  Completed: 'completed',
+  Failed: 'failed',
+  Error: 'error',
 } as const;
 
 export type DepositAndDeployEvent =

@@ -1,17 +1,17 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { useEffect, useState } from "react";
+import type { Meta, StoryObj } from '@storybook/react';
+import { useEffect, useState } from 'react';
 
 import {
   Button,
   ConnectButton,
   ErrorDisplay,
   ResultDisplay,
-} from "../../stories/components";
-import { functionType } from "../../stories/decorators/function-type";
-import { useConnect } from "../../stories/hooks/useConnect";
-import useQuery from "../../stories/hooks/useQuery";
-import { SolanaSdkError } from "../../utils/errors";
-import { signMessage } from "./signMessage";
+} from '../../stories/components';
+import { functionType } from '../../stories/decorators/function-type';
+import { useConnect } from '../../stories/hooks/useConnect';
+import useQuery from '../../stories/hooks/useQuery';
+import { SolanaSdkError } from '../../utils/errors';
+import { signMessage } from './signMessage';
 
 type SignMessageProps = {
   message: string;
@@ -28,22 +28,22 @@ export function StoryView(props: SignMessageProps) {
   const isConnected = !!connectionData;
   const provider = connectionData?.provider;
 
-  const [message, setMessage] = useState<string>(props.message || "");
+  const [message, setMessage] = useState<string>(props.message || '');
 
   useEffect(() => {
-    setMessage(props.message || "");
+    setMessage(props.message || '');
   }, [props.message]);
 
   const request = async () => {
     if (!provider)
-      throw new Error("Wallet not connected or provider unavailable.");
-    if (!message) throw new Error("Message cannot be empty.");
+      throw new Error('Wallet not connected or provider unavailable.');
+    if (!message) throw new Error('Message cannot be empty.');
 
     try {
       const result = await signMessage(provider, message);
       return result.signature;
     } catch (err: unknown) {
-      console.error("Sign Message Error:", err);
+      console.error('Sign Message Error:', err);
       throw err instanceof Error ? err : SolanaSdkError.wrap(err);
     }
   };
@@ -93,23 +93,23 @@ export function StoryView(props: SignMessageProps) {
 }
 
 const meta: Meta<typeof StoryView> = {
-  title: "write/signMessage",
+  title: 'write/signMessage',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("write")],
+  tags: ['autodocs'],
+  decorators: [functionType('write')],
   parameters: {
     docs: {
       description: {
         component:
-          "Demonstrates signing an arbitrary message using the `signMessage` SDK function.",
+          'Demonstrates signing an arbitrary message using the `signMessage` SDK function.',
       },
     },
   },
   args: {
-    message: "Hello from Lombard! Please sign this message.",
+    message: 'Hello from Lombard! Please sign this message.',
   },
   argTypes: {
-    message: { control: { type: "text" } },
+    message: { control: { type: 'text' } },
   },
 };
 

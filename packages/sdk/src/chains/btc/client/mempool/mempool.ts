@@ -1,15 +1,15 @@
-export type TNetworkMode = "mainnet" | "testnet";
+export type TNetworkMode = 'mainnet' | 'testnet';
 
 interface IApiConfig {
   mempoolApiUrl: string;
 }
 
 const stageConfig: IApiConfig = {
-  mempoolApiUrl: "https://mempool.space/signet",
+  mempoolApiUrl: 'https://mempool.space/signet',
 };
 
 const prodConfig: IApiConfig = {
-  mempoolApiUrl: "https://mempool.space",
+  mempoolApiUrl: 'https://mempool.space',
 };
 
 /**
@@ -20,4 +20,4 @@ const prodConfig: IApiConfig = {
  * @returns The configuration.
  */
 export const getBtcApiConfig = (mode: TNetworkMode): IApiConfig =>
-  mode === "mainnet" ? prodConfig : stageConfig;
+  mode === 'mainnet' ? prodConfig : stageConfig;

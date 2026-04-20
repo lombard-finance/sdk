@@ -1,4 +1,4 @@
-import { WalletAccount } from "starknet";
+import { WalletAccount } from 'starknet';
 
 export type WalletAccountParameters = {
   /** The starknet wallet account object */
@@ -6,4 +6,4 @@ export type WalletAccountParameters = {
 };
 
 /** Known wallets */
-export type WalletName = "Braavos" | "Argent X" | "Keplr" | "OKX Wallet";
+export type WalletName = 'Braavos' | 'Argent X' | 'Keplr' | 'OKX Wallet';

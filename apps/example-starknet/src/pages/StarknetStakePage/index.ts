@@ -1,1 +1,1 @@
-export { StarknetStakePage } from "./StarknetStakePage";
+export { StarknetStakePage } from './StarknetStakePage';

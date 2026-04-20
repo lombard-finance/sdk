@@ -1,4 +1,4 @@
-import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 import {
   Address,
   ByteArray,
@@ -7,11 +7,11 @@ import {
   keccak256,
   PublicClient,
   zeroAddress,
-} from "viem";
+} from 'viem';
 
-import { Deposit } from "../../api-functions/getDepositsByAddress/getDepositsByAddress";
-import { makePublicClient } from "../../clients/public-client";
-import { makeWalletClient } from "../../clients/wallet-client";
+import { Deposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
+import { makePublicClient } from '../../clients/public-client';
+import { makeWalletClient } from '../../clients/wallet-client';
 import {
   ChainId,
   isEthereumChain,
@@ -19,18 +19,18 @@ import {
   isMegaethChain,
   isMonadChain,
   isStableChain,
-} from "../../common/chains";
-import { CommonOptionalWriteParameters } from "../../common/parameters";
-import ASSET_ROUTER_ABI from "../../tokens/abi/ASSET_ROUTER_ABI";
-import KATANA_BASCULE_ABI from "../../tokens/abi/KATANA_BASCULE_ABI";
-import LBTC_BASCULE_ABI from "../../tokens/abi/LBTC_BASCULE_ABI.json";
-import { AddressKind, Token } from "../../tokens/token-addresses";
-import { getTokenContractInfo, isUpgradedAbi } from "../../tokens/tokens";
-import { getErrorMessage } from "../../utils/err";
+} from '../../common/chains';
+import { CommonOptionalWriteParameters } from '../../common/parameters';
+import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
+import KATANA_BASCULE_ABI from '../../tokens/abi/KATANA_BASCULE_ABI';
+import LBTC_BASCULE_ABI from '../../tokens/abi/LBTC_BASCULE_ABI.json';
+import { AddressKind, Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
+import { getErrorMessage } from '../../utils/err';
 import {
   calcMintIDFromDecoded,
   decodeGmpMintPayload,
-} from "./decodeBasculeDepositStatus";
+} from './decodeBasculeDepositStatus';
 
 /**
  * The bascule drawbridge deposit status.
@@ -51,7 +51,8 @@ export enum BasculeDepositStatus {
   WITHDRAWN = 2,
 }
 
-export interface IGetBasculeDepositStatusParameters extends CommonOptionalWriteParameters {
+export interface IGetBasculeDepositStatusParameters
+  extends CommonOptionalWriteParameters {
   /**
    * The deposit for which the bascule status will be checked.
    * You can omit `rawPayload` parameter if `deposit` is provided.
@@ -131,26 +132,26 @@ export async function getBasculeDepositStatus({
     basculeContractAddress = (await publicClient.readContract({
       abi: tokenContractInfo.abi,
       address: tokenContractInfo.address,
-      functionName: "getBascule",
+      functionName: 'getBascule',
     })) as Address;
   } else if (isUpgradedAbi(tokenContractInfo.abi) && token === Token.LBTC) {
     // Upgraded contract - get bascule from Asset Router
     const assetRouterAddress = (await publicClient.readContract({
       abi: tokenContractInfo.abi,
       address: tokenContractInfo.address,
-      functionName: "getAssetRouter",
+      functionName: 'getAssetRouter',
     })) as Address;
 
     basculeContractAddress = (await publicClient.readContract({
       abi: ASSET_ROUTER_ABI,
       address: assetRouterAddress,
-      functionName: "bascule",
+      functionName: 'bascule',
     })) as Address;
   } else {
     basculeContractAddress = (await publicClient.readContract({
       abi: tokenContractInfo.abi,
       address: tokenContractInfo.address,
-      functionName: "Bascule",
+      functionName: 'Bascule',
     })) as Address;
   }
 
@@ -184,7 +185,7 @@ export async function getBasculeDepositStatus({
   try {
     // For Katana chains, use proper GMP payload decoding to calculate mintID
     if (shouldCheckMintHistory) {
-      const prefixedPayload = payload.startsWith("0x")
+      const prefixedPayload = payload.startsWith('0x')
         ? payload
         : `0x${payload}`;
       const decoded = decodeGmpMintPayload(prefixedPayload);
@@ -193,7 +194,7 @@ export async function getBasculeDepositStatus({
       const [, status] = (await publicClient.readContract({
         abi: KATANA_BASCULE_ABI,
         address: basculeContractAddress,
-        functionName: "mintHistory",
+        functionName: 'mintHistory',
         args: [mintId],
       })) as [unknown, BasculeDepositStatus];
 
@@ -202,7 +203,7 @@ export async function getBasculeDepositStatus({
 
     // For non-Katana chains, use the simple method
     const basculeDepositId = keccak256(
-      Buffer.from(payload.slice(8), "hex") as unknown as ByteArray,
+      Buffer.from(payload.slice(8), 'hex') as unknown as ByteArray,
     );
 
     const basculeContract = getContract({

@@ -1,12 +1,12 @@
-import { Program } from "@coral-xyz/anchor";
-import { getMint } from "@solana/spl-token";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { Program } from '@coral-xyz/anchor';
+import { getMint } from '@solana/spl-token';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
 
-import { getMailboxIdl } from "../../idl/getMailboxIdl";
-import { sendAndConfirmTransaction } from "../../utils";
-import { createOrGetAssociatedTokenAccount } from "../../utils/tokenAccount";
-import { ALREADY_MINTED_TX_HASH } from "../claimLBTC";
-import { ClaimContext, executeConsortiumSession } from "./shared";
+import { getMailboxIdl } from '../../idl/getMailboxIdl';
+import { sendAndConfirmTransaction } from '../../utils';
+import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
+import { ALREADY_MINTED_TX_HASH } from '../claimLBTC';
+import { ClaimContext, executeConsortiumSession } from './shared';
 
 /**
  * LBTC GMP flow via Consortium + Mailbox + Asset Router gmp_receive.
@@ -18,22 +18,11 @@ import { ClaimContext, executeConsortiumSession } from "./shared";
  */
 export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   const {
-    provider,
-    connection,
-    params,
-    config,
-    payloadBytes,
-    payloadHash,
-    payloadHashArray,
-    payer,
-    assetRouterProgramId,
-    consortiumProgramId,
-    consortiumProgram,
-    assetRouterConfigPDA,
-    tokenAuthorityPDA,
-    validatedPayloadPDA,
-    arConfig,
-    debugLog,
+    provider, connection, params, config,
+    payloadBytes, payloadHash, payloadHashArray,
+    payer, assetRouterProgramId, consortiumProgramId,
+    consortiumProgram, assetRouterConfigPDA, tokenAuthorityPDA,
+    validatedPayloadPDA, arConfig, debugLog,
   } = ctx;
 
   if (payloadBytes.length < 296) {
@@ -44,13 +33,12 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
 
   // message_handled PDA — check if already fully processed
   const [messageHandledPDA] = PublicKey.findProgramAddressSync(
-    [Buffer.from("message_handled"), payloadHash],
+    [Buffer.from('message_handled'), payloadHash],
     assetRouterProgramId,
   );
-  const messageHandledAccount =
-    await connection.getAccountInfo(messageHandledPDA);
+  const messageHandledAccount = await connection.getAccountInfo(messageHandledPDA);
   if (messageHandledAccount) {
-    debugLog("Message already handled (LBTC already minted)");
+    debugLog('Message already handled (LBTC already minted)');
     return ALREADY_MINTED_TX_HASH;
   }
 
@@ -59,16 +47,15 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
 
   // ── Step 4: post_session_payload ──
   const [sessionPayloadPDA] = PublicKey.findProgramAddressSync(
-    [Buffer.from("session_payload"), payer.toBytes(), payloadHash],
+    [Buffer.from('session_payload'), payer.toBytes(), payloadHash],
     consortiumProgramId,
   );
 
-  const sessionPayloadAccount =
-    await connection.getAccountInfo(sessionPayloadPDA);
+  const sessionPayloadAccount = await connection.getAccountInfo(sessionPayloadPDA);
   if (sessionPayloadAccount) {
-    debugLog("Session payload already exists, skipping post_session_payload");
+    debugLog('Session payload already exists, skipping post_session_payload');
   } else {
-    debugLog("post_session_payload...");
+    debugLog('post_session_payload...');
     const postPayloadTx = await consortiumProgram.methods
       .postSessionPayload(
         payloadHashArray,
@@ -86,17 +73,15 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       instruction: postPayloadTx,
       connection,
       provider,
-      debugLabel: "Consortium post_session_payload",
+      debugLabel: 'Consortium post_session_payload',
       skipPreflight: params.skipPreflight ?? false,
     });
-    debugLog("post_session_payload completed");
+    debugLog('post_session_payload completed');
   }
 
   // ── Step 5: deliver_message (mailbox) ──
   if (!config.mailbox) {
-    throw new Error(
-      `Mailbox program not configured for network: ${params.network}`,
-    );
+    throw new Error(`Mailbox program not configured for network: ${params.network}`);
   }
   const mailboxProgramId = new PublicKey(config.mailbox);
   const mailboxProgram = new Program(
@@ -105,33 +90,31 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   );
 
   const [mailboxConfigPDA] = PublicKey.findProgramAddressSync(
-    [Buffer.from("mailbox_config")],
+    [Buffer.from('mailbox_config')],
     mailboxProgramId,
   );
   const [messageInfoPDA] = PublicKey.findProgramAddressSync(
-    [Buffer.from("message"), payloadHash],
+    [Buffer.from('message'), payloadHash],
     mailboxProgramId,
   );
 
   if (!config.ledgerChainId) {
-    throw new Error(
-      `Ledger chain ID not configured for network: ${params.network}`,
-    );
+    throw new Error(`Ledger chain ID not configured for network: ${params.network}`);
   }
-  const ledgerChainId = Buffer.from(config.ledgerChainId, "hex");
-  debugLog("Ledger chain ID:", config.ledgerChainId);
+  const ledgerChainId = Buffer.from(config.ledgerChainId, 'hex');
+  debugLog('Ledger chain ID:', config.ledgerChainId);
 
   const [inboundMessagePathPDA] = PublicKey.findProgramAddressSync(
-    [Buffer.from("inbound_message_path"), ledgerChainId],
+    [Buffer.from('inbound_message_path'), ledgerChainId],
     mailboxProgramId,
   );
-  debugLog("Inbound message path PDA:", inboundMessagePathPDA.toBase58());
+  debugLog('Inbound message path PDA:', inboundMessagePathPDA.toBase58());
 
   const messageInfoAccount = await connection.getAccountInfo(messageInfoPDA);
   if (messageInfoAccount) {
-    debugLog("Message already delivered, skipping deliver_message");
+    debugLog('Message already delivered, skipping deliver_message');
   } else {
-    debugLog("deliver_message...");
+    debugLog('deliver_message...');
     const deliverTx = await mailboxProgram.methods
       .deliverMessage(payloadHashArray)
       .accounts({
@@ -149,23 +132,23 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       instruction: deliverTx,
       connection,
       provider,
-      debugLabel: "Mailbox deliver_message",
+      debugLabel: 'Mailbox deliver_message',
       skipPreflight: params.skipPreflight ?? false,
     });
-    debugLog("deliver_message completed");
+    debugLog('deliver_message completed');
   }
 
   // ── Step 6: handle_message (mailbox → asset router gmp_receive CPI) ──
-  debugLog("handle_message...");
+  debugLog('handle_message...');
 
   // Extract fields from GMP payload
   const msgRecipient = new PublicKey(payloadBytes.subarray(100, 132));
   const mint = new PublicKey(payloadBytes.subarray(232, 264));
   const tokenRecipient = new PublicKey(payloadBytes.subarray(264, 296));
 
-  debugLog("GMP recipient (asset router):", msgRecipient.toBase58());
-  debugLog("Mint:", mint.toBase58());
-  debugLog("Token recipient:", tokenRecipient.toBase58());
+  debugLog('GMP recipient (asset router):', msgRecipient.toBase58());
+  debugLog('Mint:', mint.toBase58());
+  debugLog('Token recipient:', tokenRecipient.toBase58());
 
   // Resolve token program and mint authority
   const mintAccountInfo = await connection.getAccountInfo(mint);
@@ -174,14 +157,9 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   }
   const tokenProgramId = mintAccountInfo.owner;
 
-  const mintAccount = await getMint(
-    connection,
-    mint,
-    undefined,
-    tokenProgramId,
-  );
+  const mintAccount = await getMint(connection, mint, undefined, tokenProgramId);
   if (!mintAccount.mintAuthority) {
-    throw new Error("Mint has no mint authority");
+    throw new Error('Mint has no mint authority');
   }
   const mintAuthority = mintAccount.mintAuthority;
 
@@ -196,7 +174,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   // Build handle_message instruction
   const handleIx = await mailboxProgram.methods
     .handleMessage(payloadHashArray)
-    .accounts({
+      .accounts({
       handler: provider.publicKey,
       config: mailboxConfigPDA,
       messageInfo: messageInfoPDA,
@@ -221,57 +199,51 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   const effectiveBasculeGmpProgramId = arConfig.basculeGmpProgramId;
 
   if (effectiveBasculeGmpProgramId) {
-    debugLog("Bascule GMP program:", effectiveBasculeGmpProgramId.toBase58());
+    debugLog('Bascule GMP program:', effectiveBasculeGmpProgramId.toBase58());
 
     const [basculeValidatorPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("bascule_validator")],
+      [Buffer.from('bascule_validator')],
       assetRouterProgramId,
     );
     const [basculeGmpConfigPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("bascule_gmp_config")],
+      [Buffer.from('bascule_gmp_config')],
       effectiveBasculeGmpProgramId,
     );
     const [basculeGmpAccountRolesPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("account_roles"), basculeGmpConfigPDA.toBytes()],
+      [Buffer.from('account_roles'), basculeGmpConfigPDA.toBytes()],
       effectiveBasculeGmpProgramId,
     );
     const [basculeGmpMintPayloadPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("mint_payload"), payloadHash],
+      [Buffer.from('mint_payload'), payloadHash],
       effectiveBasculeGmpProgramId,
     );
 
     handleIx.keys.push(
       { pubkey: basculeValidatorPDA, isSigner: false, isWritable: false },
-      {
-        pubkey: effectiveBasculeGmpProgramId,
-        isSigner: false,
-        isWritable: false,
-      },
+      { pubkey: effectiveBasculeGmpProgramId, isSigner: false, isWritable: false },
       { pubkey: basculeGmpConfigPDA, isSigner: false, isWritable: false },
       { pubkey: basculeGmpAccountRolesPDA, isSigner: false, isWritable: false },
       { pubkey: basculeGmpMintPayloadPDA, isSigner: false, isWritable: true },
     );
   } else {
-    debugLog("Bascule GMP not enabled, adding placeholder accounts");
+    debugLog('Bascule GMP not enabled, adding placeholder accounts');
     for (let i = 0; i < 5; i++) {
-      handleIx.keys.push({
-        pubkey: assetRouterProgramId,
-        isSigner: false,
-        isWritable: false,
-      });
+      handleIx.keys.push(
+        { pubkey: assetRouterProgramId, isSigner: false, isWritable: false },
+      );
     }
   }
 
-  debugLog("handle_message account count:", handleIx.keys.length);
+  debugLog('handle_message account count:', handleIx.keys.length);
 
   const { signature } = await sendAndConfirmTransaction({
     instruction: handleIx,
     connection,
     provider,
-    debugLabel: "Mailbox handle_message",
+    debugLabel: 'Mailbox handle_message',
     skipPreflight: params.skipPreflight ?? false,
   });
 
-  debugLog("LBTC mint successful! Signature:", signature);
+  debugLog('LBTC mint successful! Signature:', signature);
   return signature;
 }

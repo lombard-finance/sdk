@@ -10,11 +10,11 @@
  * @module chains/evm/actions/stake/config/evm
  */
 
-import { Env } from "@lombard.finance/sdk-common";
+import { Env } from '@lombard.finance/sdk-common';
 
-import { Chain, DeployProtocol } from "../../../../../core";
-import { evmAddressSchema } from "../../../../../shared/validation";
-import type { ChainConfig } from "./types";
+import { Chain, DeployProtocol } from '../../../../../core';
+import { evmAddressSchema } from '../../../../../shared/validation';
+import type { ChainConfig } from './types';
 
 /**
  * EVM chain configuration for stake operations
@@ -22,7 +22,7 @@ import type { ChainConfig } from "./types";
  * Supports staking LBTC to Veda and Silo protocols.
  */
 export const evmConfig: ChainConfig = {
-  chainType: "evm",
+  chainType: 'evm',
 
   routes: [
     // Veda - Ethereum
@@ -70,7 +70,7 @@ export const evmConfig: ChainConfig = {
  */
 export function isSourceChainSupported(chain: Chain, env: Env): boolean {
   return evmConfig.routes.some(
-    (route) => route.sourceChains.includes(chain) && route.envs.includes(env),
+    route => route.sourceChains.includes(chain) && route.envs.includes(env),
   );
 }
 
@@ -83,7 +83,7 @@ export function isProtocolSupported(
   env: Env,
 ): boolean {
   return evmConfig.routes.some(
-    (route) =>
+    route =>
       route.sourceChains.includes(chain) &&
       route.protocols.includes(protocol) &&
       route.envs.includes(env),

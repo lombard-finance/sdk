@@ -1,16 +1,16 @@
-import { Env } from "@lombard.finance/sdk";
-import { useState } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Env } from '@lombard.finance/sdk';
+import { useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
-import { Layout } from "./components/layout/Layout";
-import { SuiWalletProvider } from "./contexts/SuiWalletContext";
-import { getEnvironment } from "./lib/config";
-import { SuiStakePage } from "./pages/SuiStakePage";
-import { SuiUnstakePage } from "./pages/SuiUnstakePage";
+import { Layout } from './components/layout/Layout';
+import { SuiWalletProvider } from './contexts/SuiWalletContext';
+import { getEnvironment } from './lib/config';
+import { SuiStakePage } from './pages/SuiStakePage';
+import { SuiUnstakePage } from './pages/SuiUnstakePage';
 
 function App() {
   const [env, setEnv] = useState<Env>(() => {
-    const stored = localStorage.getItem("lombard-env");
+    const stored = localStorage.getItem('lombard-env');
     if (stored && Object.values(Env).includes(stored as Env)) {
       return stored as Env;
     }
@@ -18,9 +18,9 @@ function App() {
   });
 
   const handleEnvChange = (newEnv: Env) => {
-    if (confirm("Changing environment will reload all examples. Continue?")) {
+    if (confirm('Changing environment will reload all examples. Continue?')) {
       setEnv(newEnv);
-      localStorage.setItem("lombard-env", newEnv);
+      localStorage.setItem('lombard-env', newEnv);
     }
   };
 

@@ -1,17 +1,17 @@
-import { Env } from "@lombard.finance/sdk-common";
-import BigNumber from "bignumber.js";
-import { Abi, Address } from "viem";
+import { Env } from '@lombard.finance/sdk-common';
+import BigNumber from 'bignumber.js';
+import { Abi, Address } from 'viem';
 
-import { makePublicClient } from "../../../clients/public-client";
-import { ChainId } from "../../../common/chains";
-import { Token } from "../../../tokens/token-addresses";
+import { makePublicClient } from '../../../clients/public-client';
+import { ChainId } from '../../../common/chains';
+import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
   toBaseDenomination,
-} from "../../../tokens/tokens";
-import toBigInt from "../../../utils/numbers";
-import { isVedaVaultChain, Vault, VAULTS } from "../config";
+} from '../../../tokens/tokens';
+import toBigInt from '../../../utils/numbers';
+import { isVedaVaultChain, Vault, VAULTS } from '../config';
 
 export type PreviewVaultDepositParameters = {
   /** The deposit amount in human-readable format (e.g., "0.001"). */
@@ -60,13 +60,13 @@ export async function previewVaultDeposit({
 
   if (!isVedaVaultChain(chainId)) {
     throw new Error(
-      `Unsupported chain id: ${chainId}. Supported chains: ${vault.chains.join(", ")}`,
+      `Unsupported chain id: ${chainId}. Supported chains: ${vault.chains.join(', ')}`,
     );
   }
 
-  const supportedChains = vault.tokens[token as keyof typeof vault.tokens] as
-    | readonly ChainId[]
-    | undefined;
+  const supportedChains = vault.tokens[
+    token as keyof typeof vault.tokens
+  ] as readonly ChainId[] | undefined;
   if (!supportedChains || !supportedChains.includes(chainId)) {
     throw new Error(
       `Token ${token} is not supported on chain ${chainId} for vault ${vaultKey}`,
@@ -75,7 +75,7 @@ export async function previewVaultDeposit({
 
   const amount = BigNumber(amountRaw);
   if (amount.isNegative() || amount.isZero()) {
-    throw new Error("Deposit amount must be greater than zero");
+    throw new Error('Deposit amount must be greater than zero');
   }
 
   // Lens is Ethereum-only. Resolve the token's Ethereum address.
@@ -117,7 +117,7 @@ export async function previewVaultDeposit({
   const shares = await ethPublicClient.readContract({
     address: lensAddress,
     abi: lensAbi,
-    functionName: "previewDeposit",
+    functionName: 'previewDeposit',
     args: [ethTokenAddress, amountBase, vaultAddress, accountantAddress],
   });
 

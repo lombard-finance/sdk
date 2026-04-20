@@ -7,17 +7,17 @@
  * @module __tests__/helpers/createTestConfig
  */
 
-import type { AnyModule, ProviderKey } from "@lombard.finance/sdk-common";
+import type { AnyModule, ProviderKey } from '@lombard.finance/sdk-common';
 
 import type {
   CreateConfigOptions,
   ResolvedLombardConfig,
-} from "../../config/types";
-import { ASSET_CATALOG } from "../../core/assets/catalog";
-import { apiModule } from "../../modules/apiModule";
-import { btcModule } from "../../modules/btcModule";
-import { evmModule } from "../../modules/evmModule";
-import { LombardError } from "../../shared/errors";
+} from '../../config/types';
+import { ASSET_CATALOG } from '../../core/assets/catalog';
+import { apiModule } from '../../modules/apiModule';
+import { btcModule } from '../../modules/btcModule';
+import { evmModule } from '../../modules/evmModule';
+import { LombardError } from '../../shared/errors';
 
 function mergeModules(provided: readonly AnyModule[] | undefined): AnyModule[] {
   const modules = new Map<string, AnyModule>();
@@ -34,7 +34,7 @@ function mergeModules(provided: readonly AnyModule[] | undefined): AnyModule[] {
 }
 
 function hasProvider(
-  config: Pick<ResolvedLombardConfig, "providers">,
+  config: Pick<ResolvedLombardConfig, 'providers'>,
   key: ProviderKey,
 ): boolean {
   return Boolean(config.providers?.[key]);
@@ -42,7 +42,7 @@ function hasProvider(
 
 function ensureProviders(
   modules: readonly AnyModule[],
-  config: Pick<ResolvedLombardConfig, "providers">,
+  config: Pick<ResolvedLombardConfig, 'providers'>,
 ): void {
   for (const mod of modules) {
     for (const key of mod.requiresProviders ?? []) {
@@ -66,7 +66,7 @@ export function createTestConfig(
   options: CreateConfigOptions,
 ): ResolvedLombardConfig {
   if (!options.env) {
-    throw LombardError.missingParameter("env");
+    throw LombardError.missingParameter('env');
   }
 
   const modules = mergeModules(

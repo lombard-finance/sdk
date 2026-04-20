@@ -1,11 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState } from 'react';
 
 import {
   InjectedWallet,
   ISolanaWalletProvider,
-} from "../../types/walletProviders";
-import { ErrorCode, SolanaSdkError } from "../../utils";
-import { getSolanaWalletProvider } from "../../web3Sdk/detectWallet/detectWallet";
+} from '../../types/walletProviders';
+import { ErrorCode, SolanaSdkError } from '../../utils';
+import { getSolanaWalletProvider } from '../../web3Sdk/detectWallet/detectWallet';
 
 interface ConnectRequest {
   walletName: InjectedWallet;
@@ -57,9 +57,9 @@ export function useConnect(): UseConnectResponse {
         console.error(`Error connecting to ${walletName}:`, connectError);
         if (
           connectError instanceof Error &&
-          connectError.message.includes("User rejected the request")
+          connectError.message.includes('User rejected the request')
         ) {
-          throw new Error("Connection rejected by user.");
+          throw new Error('Connection rejected by user.');
         }
         throw new Error(
           `Failed to connect to ${walletName}. Ensure it's available and unlocked.`,
@@ -89,7 +89,7 @@ export function useConnect(): UseConnectResponse {
       try {
         await requestConnect(request);
       } catch (err) {
-        console.error("Connection Hook Error:", err);
+        console.error('Connection Hook Error:', err);
         setConnectionData(null);
         setCurrentWalletName(null);
         setError(SolanaSdkError.wrap(err, ErrorCode.CONNECTION_ERROR));
@@ -109,7 +109,7 @@ export function useConnect(): UseConnectResponse {
         await connectionData.provider.disconnect();
         console.log(`${currentWalletName} disconnected.`);
       } catch (err) {
-        console.error("Error during provider disconnect:", err);
+        console.error('Error during provider disconnect:', err);
       }
     }
     setConnectionData(null);

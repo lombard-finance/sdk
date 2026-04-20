@@ -1,6 +1,6 @@
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import { SolanaNetwork } from "./network";
+import { SolanaNetwork } from './network';
 
 /**
  * Parameters for getting a balance

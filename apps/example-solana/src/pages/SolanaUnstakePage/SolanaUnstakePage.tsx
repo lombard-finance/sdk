@@ -1,12 +1,12 @@
-import { Env } from "@lombard.finance/sdk";
-import { useState } from "react";
+import { Env } from '@lombard.finance/sdk';
+import { useState } from 'react';
 
-import { SolanaUnstakingForm } from "../../components/SolanaUnstakingForm";
-import { SolanaUnstakingProgress } from "../../components/SolanaUnstakingProgress";
-import { SolanaWalletConnect } from "../../components/SolanaWalletConnect";
-import { useSolanaWallet } from "../../hooks/useSolanaWallet";
-import type { SolanaUnstakingFormData } from "./useSolanaUnstaking";
-import { useSolanaUnstaking } from "./useSolanaUnstaking";
+import { SolanaUnstakingForm } from '../../components/SolanaUnstakingForm';
+import { SolanaUnstakingProgress } from '../../components/SolanaUnstakingProgress';
+import { SolanaWalletConnect } from '../../components/SolanaWalletConnect';
+import { useSolanaWallet } from '../../hooks/useSolanaWallet';
+import type { SolanaUnstakingFormData } from './useSolanaUnstaking';
+import { useSolanaUnstaking } from './useSolanaUnstaking';
 
 interface SolanaUnstakePageProps {
   env: Env;
@@ -26,7 +26,7 @@ interface SolanaUnstakePageProps {
  */
 export function SolanaUnstakePage({ env, onReset }: SolanaUnstakePageProps) {
   const [isUnstaking, setIsUnstaking] = useState(false);
-  const [sourceChain, setSourceChain] = useState("");
+  const [sourceChain, setSourceChain] = useState('');
   const { address: solanaAddress } = useSolanaWallet();
 
   const {
@@ -44,7 +44,7 @@ export function SolanaUnstakePage({ env, onReset }: SolanaUnstakePageProps) {
     try {
       await unstake(formData);
     } catch (err) {
-      console.error("Unstaking failed:", err);
+      console.error('Unstaking failed:', err);
       setIsUnstaking(false);
     }
   };
@@ -104,6 +104,7 @@ export function SolanaUnstakePage({ env, onReset }: SolanaUnstakePageProps) {
               onReset={handleReset}
             />
           )}
+
         </div>
       </div>
     </div>

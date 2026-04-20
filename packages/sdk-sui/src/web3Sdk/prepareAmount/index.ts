@@ -1,1 +1,1 @@
-export * from "./prepareCoinsTransaction";
+export * from './prepareCoinsTransaction';

@@ -1,10 +1,10 @@
-import { WalletAccount } from "starknet";
+import { WalletAccount } from 'starknet';
 
-import { ChainParameters, StarknetChainId } from "../utils/chains";
-import { signMessage } from "./sign-message";
+import { ChainParameters, StarknetChainId } from '../utils/chains';
+import { signMessage } from './sign-message';
 
 const SIGN_MESSAGE =
-  "I have read and agreed to the terms of service: https://docs.lombard.finance/legals/terms-of-service";
+  'I have read and agreed to the terms of service: https://docs.lombard.finance/legals/terms-of-service';
 
 interface SignTermsOfServiceParams extends ChainParameters {
   walletAccount: WalletAccount;

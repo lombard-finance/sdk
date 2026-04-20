@@ -1,6 +1,6 @@
-import "./CodeBlockStyles.css";
+import './CodeBlockStyles.css';
 
-import { JSX } from "react";
+import { JSX } from 'react';
 
 interface ICodeBlockProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

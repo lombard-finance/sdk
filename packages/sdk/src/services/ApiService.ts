@@ -10,7 +10,7 @@
  * @module services/ApiService
  */
 
-import type { Env } from "@lombard.finance/sdk-common";
+import type { Env } from '@lombard.finance/sdk-common';
 import type {
   ApiService as IApiService,
   DepositInfo,
@@ -20,21 +20,21 @@ import type {
   GetFeeSignatureParams,
   StoreFeeSignatureParams,
   StoreStakeAndBakeParams,
-} from "@lombard.finance/sdk-common";
+} from '@lombard.finance/sdk-common';
 
-import { generateDepositBtcAddress } from "../api-functions/generateDepositBtcAddress/generateDepositBtcAddress";
-import { getDepositBtcAddress } from "../api-functions/getDepositBtcAddress/getDepositBtcAddress";
-import { getDepositsByAddress } from "../api-functions/getDepositsByAddress/getDepositsByAddress";
-import { getNetworkFeeSignature } from "../api-functions/getNetworkFeeSignature/getNetworkFeeSignature";
-import { storeNetworkFeeSignature } from "../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature";
-import { storeStakeAndBakeSignature } from "../api-functions/storeStakeAndBakeSignature/storeStakeAndBakeSignature";
+import { generateDepositBtcAddress } from '../api-functions/generateDepositBtcAddress/generateDepositBtcAddress';
+import { getDepositBtcAddress } from '../api-functions/getDepositBtcAddress/getDepositBtcAddress';
+import { getDepositsByAddress } from '../api-functions/getDepositsByAddress/getDepositsByAddress';
+import { getNetworkFeeSignature } from '../api-functions/getNetworkFeeSignature/getNetworkFeeSignature';
+import { storeNetworkFeeSignature } from '../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
+import { storeStakeAndBakeSignature } from '../api-functions/storeStakeAndBakeSignature/storeStakeAndBakeSignature';
 import type {
   ChainId,
   SolanaChain,
   StarknetChainId,
   SuiChain,
-} from "../common/chains";
-import { Token } from "../tokens/token-addresses";
+} from '../common/chains';
+import { Token } from '../tokens/token-addresses';
 
 type DestChainId = ChainId | SolanaChain | SuiChain | StarknetChainId;
 
@@ -102,8 +102,8 @@ export class ApiService implements IApiService {
       env: this.env,
     });
 
-    return deposits.map((d) => ({
-      depositAddress: d.depositAddress ?? "",
+    return deposits.map(d => ({
+      depositAddress: d.depositAddress ?? '',
       blockHeight: d.blockHeight,
       isClaimed: d.isClaimed,
       txid: d.txHash,

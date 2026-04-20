@@ -6,12 +6,12 @@
  * @module __tests__/integration/evm-redeem.integration.test.ts
  */
 
-import { Env } from "@lombard.finance/sdk-common";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Env } from '@lombard.finance/sdk-common';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
 
-import { evmRedeem } from "../../chains/evm/actions/redeem";
-import { AssetId, Chain, evmActions } from "../../index";
-import { createTestConfig as createConfig } from "../helpers/createTestConfig";
+import { evmRedeem } from '../../chains/evm/actions/redeem';
+import { AssetId, Chain, evmActions } from '../../index';
+import { createTestConfig as createConfig } from '../helpers/createTestConfig';
 
 // Mock EIP1193 Provider
 const createMockProvider = () => ({
@@ -20,21 +20,21 @@ const createMockProvider = () => ({
   removeListener: vi.fn(),
   request: vi.fn().mockImplementation(async ({ method }) => {
     switch (method) {
-      case "eth_chainId":
-        return "0xa86a"; // Avalanche mainnet
-      case "eth_accounts":
-        return ["0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0"];
-      case "eth_call":
-        return "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000";
-      case "eth_sendTransaction":
-        return "0xmocktxhash";
+      case 'eth_chainId':
+        return '0xa86a'; // Avalanche mainnet
+      case 'eth_accounts':
+        return ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0'];
+      case 'eth_call':
+        return '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000';
+      case 'eth_sendTransaction':
+        return '0xmocktxhash';
       default:
         return null;
     }
   }),
 });
 
-describe("EVM Redeem Integration", () => {
+describe('EVM Redeem Integration', () => {
   let mockProvider: ReturnType<typeof createMockProvider>;
 
   beforeEach(() => {
@@ -42,8 +42,8 @@ describe("EVM Redeem Integration", () => {
     mockProvider = createMockProvider();
   });
 
-  describe("Action Creation", () => {
-    it("should create redeem action using evmActions namespace", () => {
+  describe('Action Creation', () => {
+    it('should create redeem action using evmActions namespace', () => {
       const config = createConfig({
         env: Env.prod,
         providers: { evm: () => mockProvider },
@@ -58,10 +58,10 @@ describe("EVM Redeem Integration", () => {
       });
 
       expect(redeem).toBeDefined();
-      expect(redeem.status).toBe("idle");
+      expect(redeem.status).toBe('idle');
     });
 
-    it("should create redeem action using factory", () => {
+    it('should create redeem action using factory', () => {
       const config = createConfig({
         env: Env.prod,
         providers: { evm: () => mockProvider },
@@ -75,12 +75,12 @@ describe("EVM Redeem Integration", () => {
       });
 
       expect(redeem).toBeDefined();
-      expect(redeem.status).toBe("idle");
+      expect(redeem.status).toBe('idle');
     });
   });
 
-  describe("Status Transitions", () => {
-    it("should start in idle status", () => {
+  describe('Status Transitions', () => {
+    it('should start in idle status', () => {
       const config = createConfig({
         env: Env.prod,
         providers: { evm: () => mockProvider },
@@ -93,14 +93,14 @@ describe("EVM Redeem Integration", () => {
         destChain: Chain.AVALANCHE,
       });
 
-      expect(redeem.status).toBe("idle");
+      expect(redeem.status).toBe('idle');
       expect(redeem.isLoading).toBe(false);
       expect(redeem.error).toBeNull();
     });
   });
 
-  describe("Chain Validation", () => {
-    it("should require same source and destination chain", () => {
+  describe('Chain Validation', () => {
+    it('should require same source and destination chain', () => {
       const config = createConfig({
         env: Env.prod,
         providers: { evm: () => mockProvider },
@@ -118,8 +118,8 @@ describe("EVM Redeem Integration", () => {
     });
   });
 
-  describe("Asset Validation", () => {
-    it("should require LBTC as input", () => {
+  describe('Asset Validation', () => {
+    it('should require LBTC as input', () => {
       const config = createConfig({
         env: Env.prod,
         providers: { evm: () => mockProvider },
@@ -136,7 +136,7 @@ describe("EVM Redeem Integration", () => {
       expect(redeem).toBeDefined();
     });
 
-    it("should require BTCb as output", () => {
+    it('should require BTCb as output', () => {
       const config = createConfig({
         env: Env.prod,
         providers: { evm: () => mockProvider },
@@ -154,3 +154,4 @@ describe("EVM Redeem Integration", () => {
     });
   });
 });
+

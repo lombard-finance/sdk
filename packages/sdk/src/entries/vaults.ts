@@ -33,4 +33,4 @@ export {
   type VaultDeposit,
   type VaultWithdrawal,
   type VaultWithdrawals,
-} from "../vaults";
+} from '../vaults';

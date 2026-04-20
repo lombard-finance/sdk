@@ -1,5 +1,5 @@
-import { Env } from "../env";
-import { getBitcoin } from "./bitcoin";
+import { Env } from '../env';
+import { getBitcoin } from './bitcoin';
 
 /**
  * Get output script from address.
@@ -18,6 +18,6 @@ export async function getOutputScript(
     address,
     env === Env.prod ? bitcoin.networks.bitcoin : bitcoin.networks.testnet,
   );
-  const outputScript = outputScriptBuf.toString("hex");
+  const outputScript = outputScriptBuf.toString('hex');
   return `0x${outputScript}`;
 }

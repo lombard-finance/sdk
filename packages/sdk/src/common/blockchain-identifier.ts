@@ -1,4 +1,4 @@
-import { DEFAULT_ENV, Env } from "@lombard.finance/sdk-common";
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 
 import {
   ChainId,
@@ -12,48 +12,48 @@ import {
   SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
   SuiChain,
-} from "./chains";
-import { featureConfig } from "./feature-config";
+} from './chains';
+import { featureConfig } from './feature-config';
 
 export const BlockchainIdentifier = {
-  eth: "DESTINATION_BLOCKCHAIN_ETHEREUM",
-  ethOld: "BLOCKCHAIN_ETHEREUM",
+  eth: 'DESTINATION_BLOCKCHAIN_ETHEREUM',
+  ethOld: 'BLOCKCHAIN_ETHEREUM',
 
-  avalanche: "DESTINATION_BLOCKCHAIN_AVALANCHE",
-  avalancheOld: "BLOCKCHAIN_AVALANCHE",
+  avalanche: 'DESTINATION_BLOCKCHAIN_AVALANCHE',
+  avalancheOld: 'BLOCKCHAIN_AVALANCHE',
 
-  base: "DESTINATION_BLOCKCHAIN_BASE",
-  baseOld: "BLOCKCHAIN_BASE",
+  base: 'DESTINATION_BLOCKCHAIN_BASE',
+  baseOld: 'BLOCKCHAIN_BASE',
 
-  bsc: "DESTINATION_BLOCKCHAIN_BSC",
-  bscOld: "BLOCKCHAIN_BSC",
+  bsc: 'DESTINATION_BLOCKCHAIN_BSC',
+  bscOld: 'BLOCKCHAIN_BSC',
 
-  katana: "DESTINATION_BLOCKCHAIN_KATANA",
-  katanaOld: "BLOCKCHAIN_KATANA",
+  katana: 'DESTINATION_BLOCKCHAIN_KATANA',
+  katanaOld: 'BLOCKCHAIN_KATANA',
 
-  sui: "DESTINATION_BLOCKCHAIN_SUI",
-  suiOld: "BLOCKCHAIN_SUI",
+  sui: 'DESTINATION_BLOCKCHAIN_SUI',
+  suiOld: 'BLOCKCHAIN_SUI',
 
-  sonic: "DESTINATION_BLOCKCHAIN_SONIC",
-  sonicOld: "BLOCKCHAIN_SONIC",
+  sonic: 'DESTINATION_BLOCKCHAIN_SONIC',
+  sonicOld: 'BLOCKCHAIN_SONIC',
 
-  solana: "DESTINATION_BLOCKCHAIN_SOLANA",
-  solanaOld: "BLOCKCHAIN_SOLANA",
+  solana: 'DESTINATION_BLOCKCHAIN_SOLANA',
+  solanaOld: 'BLOCKCHAIN_SOLANA',
 
-  starknet: "DESTINATION_BLOCKCHAIN_STARKNET",
-  starknetOld: "BLOCKCHAIN_STARKNET",
+  starknet: 'DESTINATION_BLOCKCHAIN_STARKNET',
+  starknetOld: 'BLOCKCHAIN_STARKNET',
 
-  monad: "DESTINATION_BLOCKCHAIN_MONAD",
-  monadOld: "BLOCKCHAIN_MONAD",
+  monad: 'DESTINATION_BLOCKCHAIN_MONAD',
+  monadOld: 'BLOCKCHAIN_MONAD',
 
-  stable: "DESTINATION_BLOCKCHAIN_STABLE",
-  stableOld: "BLOCKCHAIN_STABLE",
+  stable: 'DESTINATION_BLOCKCHAIN_STABLE',
+  stableOld: 'BLOCKCHAIN_STABLE',
 
-  megaeth: "DESTINATION_BLOCKCHAIN_MEGAETH",
-  megaethOld: "BLOCKCHAIN_MEGAETH",
+  megaeth: 'DESTINATION_BLOCKCHAIN_MEGAETH',
+  megaethOld: 'BLOCKCHAIN_MEGAETH',
 
-  bitcoin: "DESTINATION_BLOCKCHAIN_BITCOIN",
-  bitcoinOld: "BLOCKCHAIN_BITCOIN",
+  bitcoin: 'DESTINATION_BLOCKCHAIN_BITCOIN',
+  bitcoinOld: 'BLOCKCHAIN_BITCOIN',
 } as const;
 
 export type BlockchainIdentifier =
@@ -71,8 +71,7 @@ export function getChainNameById(
   }
 
   if (
-    (featureConfig.isAvalancheMainnetEnabled &&
-      chainId === ChainId.avalanche) ||
+    (featureConfig.isAvalancheMainnetEnabled && chainId === ChainId.avalanche) ||
     (featureConfig.isAvalancheFujiEnabled && chainId === ChainId.avalancheFuji)
   ) {
     return BlockchainIdentifier.avalanche;

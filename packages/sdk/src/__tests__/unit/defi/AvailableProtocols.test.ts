@@ -5,19 +5,19 @@
  * using the DEFI_REGISTRY as the source of truth.
  */
 
-import { Env } from "@lombard.finance/sdk-common";
-import { describe, expect, it } from "vitest";
+import { Env } from '@lombard.finance/sdk-common';
+import { describe, expect, it } from 'vitest';
 
-import { AssetId } from "../../../core/assets";
+import { AssetId } from '../../../core/assets';
 import {
   DefiProtocol,
   getAvailableProtocols,
   getAvailableProtocolsWithMetadata,
-} from "../../../defi/defi-registry";
+} from '../../../defi/defi-registry';
 
-describe("getAvailableProtocols", () => {
-  describe("LBTC protocols", () => {
-    it("should return Veda for LBTC in prod", () => {
+describe('getAvailableProtocols', () => {
+  describe('LBTC protocols', () => {
+    it('should return Veda for LBTC in prod', () => {
       const protocols = getAvailableProtocols(AssetId.LBTC, Env.prod);
 
       expect(protocols).toContain(DefiProtocol.Veda);
@@ -25,34 +25,34 @@ describe("getAvailableProtocols", () => {
       expect(protocols).not.toContain(DefiProtocol.Silo);
     });
 
-    it("should return Veda for LBTC in testnet", () => {
+    it('should return Veda for LBTC in testnet', () => {
       const protocols = getAvailableProtocols(AssetId.LBTC, Env.testnet);
 
       expect(protocols).toContain(DefiProtocol.Veda);
     });
 
-    it("should return Veda for LBTC in stage", () => {
+    it('should return Veda for LBTC in stage', () => {
       const protocols = getAvailableProtocols(AssetId.LBTC, Env.stage);
 
       expect(protocols).toContain(DefiProtocol.Veda);
     });
   });
 
-  describe("BTCb protocols", () => {
-    it("should NOT return Silo for BTCb in prod (Avalanche mainnet not enabled)", () => {
+  describe('BTCb protocols', () => {
+    it('should NOT return Silo for BTCb in prod (Avalanche mainnet not enabled)', () => {
       const protocols = getAvailableProtocols(AssetId.BTCb, Env.prod);
 
       // Silo for BTCb is only configured for Env.testnet in DEFI_REGISTRY
       expect(protocols).not.toContain(DefiProtocol.Silo);
     });
 
-    it("should return Silo for BTCb in testnet (Avalanche Fuji enabled)", () => {
+    it('should return Silo for BTCb in testnet (Avalanche Fuji enabled)', () => {
       const protocols = getAvailableProtocols(AssetId.BTCb, Env.testnet);
 
       expect(protocols).toContain(DefiProtocol.Silo);
     });
 
-    it("should NOT return Silo for BTCb in stage (not configured)", () => {
+    it('should NOT return Silo for BTCb in stage (not configured)', () => {
       const protocols = getAvailableProtocols(AssetId.BTCb, Env.stage);
 
       // DEFI_REGISTRY only has Silo BTCb config for testnet, not stage
@@ -60,44 +60,38 @@ describe("getAvailableProtocols", () => {
     });
   });
 
-  describe("unsupported assets", () => {
-    it("should return empty array for unsupported asset", () => {
+  describe('unsupported assets', () => {
+    it('should return empty array for unsupported asset', () => {
       // Using a made-up asset ID that's not in the registry
-      const protocols = getAvailableProtocols(
-        "unsupported" as AssetId,
-        Env.prod,
-      );
+      const protocols = getAvailableProtocols('unsupported' as AssetId, Env.prod);
 
       expect(protocols).toEqual([]);
     });
   });
 });
 
-describe("getAvailableProtocolsWithMetadata", () => {
-  it("should return protocol metadata for LBTC in prod", () => {
+describe('getAvailableProtocolsWithMetadata', () => {
+  it('should return protocol metadata for LBTC in prod', () => {
     const protocols = getAvailableProtocolsWithMetadata(AssetId.LBTC, Env.prod);
 
     expect(protocols.length).toBeGreaterThan(0);
 
-    const veda = protocols.find((p) => p.value === DefiProtocol.Veda);
+    const veda = protocols.find(p => p.value === DefiProtocol.Veda);
     expect(veda).toBeDefined();
-    expect(veda?.label).toBe("Lombard DeFi Vault");
-    expect(veda?.url).toBe("https://lombard.finance");
+    expect(veda?.label).toBe('Lombard DeFi Vault');
+    expect(veda?.url).toBe('https://lombard.finance');
   });
 
-  it("should return Silo metadata for BTCb in testnet", () => {
-    const protocols = getAvailableProtocolsWithMetadata(
-      AssetId.BTCb,
-      Env.testnet,
-    );
+  it('should return Silo metadata for BTCb in testnet', () => {
+    const protocols = getAvailableProtocolsWithMetadata(AssetId.BTCb, Env.testnet);
 
-    const silo = protocols.find((p) => p.value === DefiProtocol.Silo);
+    const silo = protocols.find(p => p.value === DefiProtocol.Silo);
     expect(silo).toBeDefined();
-    expect(silo?.label).toBe("Silo Finance Vault");
-    expect(silo?.url).toBe("https://silo.finance");
+    expect(silo?.label).toBe('Silo Finance Vault');
+    expect(silo?.url).toBe('https://silo.finance');
   });
 
-  it("should return empty array when no protocols available", () => {
+  it('should return empty array when no protocols available', () => {
     // BTCb in prod has no protocols (Silo only on Avalanche, not in prod config)
     const protocols = getAvailableProtocolsWithMetadata(AssetId.BTCb, Env.prod);
 

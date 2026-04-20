@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address } from 'viem';
 
 /**
  * Address kinds for tokens that have multiple contract addresses.
@@ -58,13 +58,13 @@ export enum AddressKind {
    * The bridge adapter contract address (BridgeTokenAdapter).
    * Used for burn/mint/transfer operations and as the spender for bridge approvals.
    */
-  Adapter = "adapter",
+  Adapter = 'adapter',
 
   /**
    * The token contract address (standard ERC20).
    * Used for permit signatures, balance queries, and standard ERC20 operations.
    */
-  Token = "token",
+  Token = 'token',
 }
 
 /**

@@ -1,13 +1,13 @@
-import { Connection } from "@solana/web3.js";
-import BigNumber from "bignumber.js";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { Connection } from '@solana/web3.js';
+import BigNumber from 'bignumber.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { INVALID_ADDRESS_ERROR } from "../../const/known-errors";
-import { getBalance } from "./getBalance";
+import { INVALID_ADDRESS_ERROR } from '../../const/known-errors';
+import { getBalance } from './getBalance';
 
 // Mock @solana/web3.js
-vi.mock("@solana/web3.js", async () => {
-  const actual = await vi.importActual("@solana/web3.js");
+vi.mock('@solana/web3.js', async () => {
+  const actual = await vi.importActual('@solana/web3.js');
   return {
     ...actual,
     Connection: vi.fn().mockImplementation(() => ({
@@ -15,7 +15,7 @@ vi.mock("@solana/web3.js", async () => {
       getTokenAccountsByOwner: vi.fn().mockResolvedValue({
         value: [
           {
-            pubkey: "token-account-pubkey",
+            pubkey: 'token-account-pubkey',
           },
         ],
       }),
@@ -24,7 +24,7 @@ vi.mock("@solana/web3.js", async () => {
           data: {
             parsed: {
               info: {
-                amount: "1000000", // 1 token with 6 decimals
+                amount: '1000000', // 1 token with 6 decimals
                 decimals: 6,
               },
             },
@@ -32,9 +32,9 @@ vi.mock("@solana/web3.js", async () => {
         },
       }),
     })),
-    PublicKey: vi.fn().mockImplementation((key) => {
-      if (key === "invalid-key") {
-        throw new Error("Invalid public key");
+    PublicKey: vi.fn().mockImplementation(key => {
+      if (key === 'invalid-key') {
+        throw new Error('Invalid public key');
       }
       return {
         toString: () => key,
@@ -43,7 +43,7 @@ vi.mock("@solana/web3.js", async () => {
   };
 });
 
-describe("getBalance", () => {
+describe('getBalance', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -52,9 +52,9 @@ describe("getBalance", () => {
     vi.clearAllMocks();
   });
 
-  it("should get SOL balance correctly", async () => {
+  it('should get SOL balance correctly', async () => {
     const result = await getBalance({
-      publicKey: "valid-public-key",
+      publicKey: 'valid-public-key',
     });
 
     expect(result).toEqual({
@@ -63,15 +63,15 @@ describe("getBalance", () => {
     });
   });
 
-  it("should throw INVALID_ADDRESS_ERROR for invalid public key", async () => {
+  it('should throw INVALID_ADDRESS_ERROR for invalid public key', async () => {
     await expect(
       getBalance({
-        publicKey: "invalid-key",
+        publicKey: 'invalid-key',
       }),
     ).rejects.toThrow(INVALID_ADDRESS_ERROR.message);
   });
 
-  it("should return zero balance if no token accounts found", async () => {
+  it('should return zero balance if no token accounts found', async () => {
     // Override the mock for this specific test
     const connectionMock: unknown = {
       getTokenAccountsByOwner: vi.fn().mockResolvedValue({
@@ -83,8 +83,8 @@ describe("getBalance", () => {
     );
 
     const result = await getBalance({
-      publicKey: "valid-public-key",
-      tokenAddress: "token-address",
+      publicKey: 'valid-public-key',
+      tokenAddress: 'token-address',
     });
 
     expect(result).toEqual({

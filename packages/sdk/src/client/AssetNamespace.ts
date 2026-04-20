@@ -14,7 +14,7 @@
  * ```
  */
 
-import { DEFAULT_ENV, Env } from "@lombard.finance/sdk-common";
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 
 import {
   ASSET_CATALOG,
@@ -33,7 +33,7 @@ import {
   getSupportedAssets,
   isAssetDeployed,
   usesAssetRouter,
-} from "../core";
+} from '../core';
 
 export class AssetNamespace {
   private readonly catalog: AssetCatalog;

@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
 
 interface SolanaWalletState {
   address: string | null;
@@ -32,7 +26,7 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
   // Check if wallet is already connected on mount
   useEffect(() => {
     const checkConnection = async () => {
-      if (typeof window === "undefined" || !window.solana) return;
+      if (typeof window === 'undefined' || !window.solana) return;
 
       try {
         const response = await window.solana.connect({ onlyIfTrusted: true });
@@ -41,7 +35,7 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
         }
       } catch (err) {
         // Silent error - wallet not connected yet
-        console.debug("Solana wallet not connected:", err);
+        console.debug('Solana wallet not connected:', err);
       }
     };
 
@@ -50,7 +44,7 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
 
   // Listen for wallet account changes
   useEffect(() => {
-    if (typeof window === "undefined" || !window.solana) return;
+    if (typeof window === 'undefined' || !window.solana) return;
 
     const handleAccountChange = (...args: unknown[]) => {
       const publicKey = args[0] as { toString(): string } | null;
@@ -61,17 +55,17 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    window.solana.on("accountChanged", handleAccountChange);
+    window.solana.on('accountChanged', handleAccountChange);
 
     return () => {
-      window.solana?.removeListener("accountChanged", handleAccountChange);
+      window.solana?.removeListener('accountChanged', handleAccountChange);
     };
   }, []);
 
   const connect = useCallback(async () => {
-    if (typeof window === "undefined" || !window.solana) {
+    if (typeof window === 'undefined' || !window.solana) {
       setError(
-        "Solana wallet (Phantom) not detected. Please install Phantom wallet.",
+        'Solana wallet (Phantom) not detected. Please install Phantom wallet.',
       );
       return;
     }
@@ -85,20 +79,20 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
         setAddress(response.publicKey.toString());
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to connect wallet");
+      setError(err instanceof Error ? err.message : 'Failed to connect wallet');
     } finally {
       setIsConnecting(false);
     }
   }, []);
 
   const disconnect = useCallback(async () => {
-    if (typeof window === "undefined" || !window.solana) return;
+    if (typeof window === 'undefined' || !window.solana) return;
 
     try {
       await window.solana.disconnect();
       setAddress(null);
     } catch (err) {
-      console.error("Failed to disconnect wallet:", err);
+      console.error('Failed to disconnect wallet:', err);
     }
   }, []);
 

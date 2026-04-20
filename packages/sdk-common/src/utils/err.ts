@@ -1,4 +1,4 @@
-import { AxiosError } from "axios";
+import { AxiosError } from 'axios';
 
 /**
  * Extract a readable error message from any error object
@@ -7,7 +7,7 @@ import { AxiosError } from "axios";
  */
 export function extractErrorMessage(error: unknown): string {
   // If error is already a string, return it
-  if (typeof error === "string") {
+  if (typeof error === 'string') {
     return error;
   }
 
@@ -15,11 +15,11 @@ export function extractErrorMessage(error: unknown): string {
   const hasDataMessage = (
     err: unknown,
   ): err is { data: { message: string } } => {
-    if (err === null || typeof err !== "object") return false;
-    if (!("data" in err) || err.data === null || typeof err.data !== "object")
+    if (err === null || typeof err !== 'object') return false;
+    if (!('data' in err) || err.data === null || typeof err.data !== 'object')
       return false;
-    if (!("message" in err.data)) return false;
-    return typeof err.data.message === "string";
+    if (!('message' in err.data)) return false;
+    return typeof err.data.message === 'string';
   };
 
   if (hasDataMessage(error)) {
@@ -28,15 +28,15 @@ export function extractErrorMessage(error: unknown): string {
 
   // Handle standard Error objects and Axios errors
   if (error instanceof Error) {
-    if ("isAxiosError" in error && error.isAxiosError) {
+    if ('isAxiosError' in error && error.isAxiosError) {
       return extractAxiosErrorMessage(error as unknown as AxiosError);
     }
     return error.message;
   }
 
   // Handle generic objects with a message property
-  if (error !== null && typeof error === "object") {
-    if ("message" in error && typeof error.message === "string") {
+  if (error !== null && typeof error === 'object') {
+    if ('message' in error && typeof error.message === 'string') {
       return error.message;
     }
 
@@ -45,11 +45,11 @@ export function extractErrorMessage(error: unknown): string {
       return JSON.stringify(error);
     } catch {
       // If JSON.stringify fails, return a generic message
-      return "Unknown error object";
+      return 'Unknown error object';
     }
   }
 
-  return "Unknown error";
+  return 'Unknown error';
 }
 
 /**
@@ -60,18 +60,18 @@ export function extractErrorMessage(error: unknown): string {
 function extractAxiosErrorMessage(error: AxiosError): string {
   if (error.response) {
     const responseData = error.response.data;
-    if (responseData && typeof responseData === "object") {
+    if (responseData && typeof responseData === 'object') {
       if (
-        "message" in responseData &&
+        'message' in responseData &&
         responseData.message &&
-        typeof responseData.message === "string"
+        typeof responseData.message === 'string'
       ) {
         return responseData.message;
       }
       try {
         return JSON.stringify(responseData);
       } catch {
-        return "Error in API response";
+        return 'Error in API response';
       }
     }
     return `HTTP error ${error.response.status}: ${error.response.statusText}`;
@@ -81,5 +81,5 @@ function extractAxiosErrorMessage(error: AxiosError): string {
     return error.message;
   }
 
-  return "Network error";
+  return 'Network error';
 }

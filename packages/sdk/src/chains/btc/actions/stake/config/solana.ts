@@ -10,24 +10,21 @@
  * @module chains/btc/actions/stake/config/solana
  */
 
-import type { SolanaService } from "@lombard.finance/sdk-common";
-import { Env } from "@lombard.finance/sdk-common";
+import type { SolanaService } from '@lombard.finance/sdk-common';
+import { Env } from '@lombard.finance/sdk-common';
 
-import { AssetId, Chain, getAllAssetChains } from "../../../../../core";
-import {
-  LombardError,
-  ValidationErrorCode,
-} from "../../../../../shared/errors";
-import { solanaAddressSchema } from "../../../../../shared/validation";
-import { isSolanaChain } from "../../../../../utils/chain";
-import type { ChainConfig } from "./types";
+import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
+import { LombardError, ValidationErrorCode } from '../../../../../shared/errors';
+import { solanaAddressSchema } from '../../../../../shared/validation';
+import { isSolanaChain } from '../../../../../utils/chain';
+import type { ChainConfig } from './types';
 
 /**
  * Map CAIP-2 Solana chain identifier to SolanaNetwork format.
- *
+ * 
  * The Solana SDK's signLbtcDestination expects network names like 'devnet', 'mainnet-beta',
  * but the SDK uses CAIP-2 chain identifiers with genesis hash references.
- *
+ * 
  * @param chainId - CAIP-2 chain identifier (e.g., 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1')
  * @returns SolanaNetwork format (e.g., 'devnet')
  */
@@ -35,20 +32,20 @@ function chainToSolanaNetwork(chainId: string): string {
   // Map from CAIP-2 genesis hash references to SolanaNetwork names
   const CHAIN_TO_NETWORK: Record<string, string> = {
     // CAIP-2 format using genesis hash
-    [Chain.SOLANA_MAINNET]: "mainnet-beta",
-    [Chain.SOLANA_DEVNET]: "devnet",
-    [Chain.SOLANA_TESTNET]: "testnet",
+    [Chain.SOLANA_MAINNET]: 'mainnet-beta',
+    [Chain.SOLANA_DEVNET]: 'devnet',
+    [Chain.SOLANA_TESTNET]: 'testnet',
     // Legacy format (solana:network-name)
-    "solana:mainnet-beta": "mainnet-beta",
-    "solana:devnet": "devnet",
-    "solana:testnet": "testnet",
+    'solana:mainnet-beta': 'mainnet-beta',
+    'solana:devnet': 'devnet',
+    'solana:testnet': 'testnet',
   };
 
   const network = CHAIN_TO_NETWORK[chainId];
   if (!network) {
     throw new LombardError(
       ValidationErrorCode.INVALID_CHAIN,
-      `Unknown Solana chain: ${chainId}. Expected one of: ${Object.keys(CHAIN_TO_NETWORK).join(", ")}`,
+      `Unknown Solana chain: ${chainId}. Expected one of: ${Object.keys(CHAIN_TO_NETWORK).join(', ')}`,
     );
   }
   return network;
@@ -61,7 +58,7 @@ function chainToSolanaNetwork(chainId: string): string {
  * Requires the @lombard.finance/sdk-solana module to be installed.
  */
 export const solanaConfig: ChainConfig = {
-  chainType: "solana",
+  chainType: 'solana',
 
   routes: [
     {
@@ -75,7 +72,7 @@ export const solanaConfig: ChainConfig = {
   ],
 
   // Derived from ASSET_CATALOG - Solana chains where LBTC is deployed
-  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) =>
+  destChains: getAllAssetChains(AssetId.LBTC).filter(chain =>
     isSolanaChain(chain),
   ),
 
@@ -88,7 +85,7 @@ export const solanaConfig: ChainConfig = {
   getFeeAuthConfig: () => null,
 
   async getSignature(ctx, _recipient, chainId) {
-    const solana = ctx.capabilities.require("solana") as SolanaService;
+    const solana = ctx.capabilities.require('solana') as SolanaService;
     // Convert CAIP-2 chain ID to SolanaNetwork format (e.g., 'devnet')
     const network = chainToSolanaNetwork(chainId as string);
     const { signature } = await solana.signLbtcDestination({

@@ -1,6 +1,6 @@
-import { ISolanaWalletProvider, SolanaNetwork } from "../../types";
-import { getUnifiedChainId } from "../getUnifiedChainId";
-import { signMessage } from "../signMessage";
+import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
+import { getUnifiedChainId } from '../getUnifiedChainId';
+import { signMessage } from '../signMessage';
 
 interface signLbtcDestionationSolanaParams {
   provider: ISolanaWalletProvider;

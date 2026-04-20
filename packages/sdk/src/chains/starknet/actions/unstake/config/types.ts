@@ -4,10 +4,10 @@
  * @module chains/starknet/actions/unstake/config/types
  */
 
-import type { Env } from "@lombard.finance/sdk-common";
-import type { z } from "zod";
+import type { Env } from '@lombard.finance/sdk-common';
+import type { z } from 'zod';
 
-import type { Chain, ChainType } from "../../../../../core";
+import type { Chain, ChainType } from '../../../../../core';
 
 /**
  * Route definition for Starknet unstake operations

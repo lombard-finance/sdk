@@ -27,18 +27,18 @@
  */
 
 import type {
-  AssetId,
-  Chain,
-  StepStatus,
-  StrategyProgress,
-} from "../../../../core";
-import type { MonitorableAction } from "../../../../shared/actions/BaseAction";
-import type { EvmOperationStatus } from "../../../../shared/constants/statusConstants";
-import type { LombardError } from "../../../../shared/errors";
-import type { FeeAuthState } from "../../shared/feeAuth";
+    AssetId,
+    Chain,
+    StepStatus,
+    StrategyProgress,
+} from '../../../../core';
+import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
+import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
+import type { LombardError } from '../../../../shared/errors';
+import type { FeeAuthState } from '../../shared/feeAuth';
 
 // Re-export status for convenience
-export { EvmOperationStatus as EvmStakeStatus } from "../../../../shared/constants/statusConstants";
+export { EvmOperationStatus as EvmStakeStatus } from '../../../../shared/constants/statusConstants';
 
 /**
  * EVM Stake parameters

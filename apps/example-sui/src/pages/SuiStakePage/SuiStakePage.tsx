@@ -1,12 +1,12 @@
-import { Chain, Env } from "@lombard.finance/sdk";
-import { useState } from "react";
+import { Chain, Env } from '@lombard.finance/sdk';
+import { useState } from 'react';
 
-import { StakingForm } from "../../components/StakingForm";
-import { StakingProgress } from "../../components/StakingProgress";
-import { SuiWalletConnect } from "../../components/SuiWalletConnect";
-import { useSuiWallet } from "../../hooks/useSuiWallet";
-import type { StakingFormData } from "../../lib/types";
-import { useBtcStakingSui } from "./useBtcStakingSui";
+import { StakingForm } from '../../components/StakingForm';
+import { StakingProgress } from '../../components/StakingProgress';
+import { SuiWalletConnect } from '../../components/SuiWalletConnect';
+import { useSuiWallet } from '../../hooks/useSuiWallet';
+import type { StakingFormData } from '../../lib/types';
+import { useBtcStakingSui } from './useBtcStakingSui';
 
 interface SuiStakePageProps {
   env: Env;
@@ -41,12 +41,12 @@ function getSuiChain(env: Env): Chain {
 export function SuiStakePage({ env }: SuiStakePageProps) {
   const [isStaking, setIsStaking] = useState(false);
   const [partnerId, setPartnerIdState] = useState(
-    () => localStorage.getItem("lombard-partnerId") || "test",
+    () => localStorage.getItem('lombard-partnerId') || 'test',
   );
 
   const setPartnerId = (value: string) => {
     setPartnerIdState(value);
-    localStorage.setItem("lombard-partnerId", value);
+    localStorage.setItem('lombard-partnerId', value);
   };
 
   const {
@@ -75,7 +75,7 @@ export function SuiStakePage({ env }: SuiStakePageProps) {
         destChain: getSuiChain(env),
       });
     } catch (err) {
-      console.error("Staking failed:", err);
+      console.error('Staking failed:', err);
       setIsStaking(false);
     }
   };
@@ -122,7 +122,7 @@ export function SuiStakePage({ env }: SuiStakePageProps) {
               id="partnerId"
               type="text"
               value={partnerId}
-              onChange={(e) => setPartnerId(e.target.value)}
+              onChange={e => setPartnerId(e.target.value)}
               placeholder="Enter your partner ID"
               className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
               disabled={isStaking}
@@ -160,6 +160,7 @@ export function SuiStakePage({ env }: SuiStakePageProps) {
               targetChain="Sui"
             />
           )}
+
         </div>
       </div>
     </div>

@@ -1,20 +1,19 @@
-import { createPublicClient, http, parseEther } from "viem";
-import { sepolia, avalancheFuji } from "viem/chains";
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
-import { RpcProvider } from "starknet";
-import dotenv from "dotenv";
+import { createPublicClient, http, parseEther } from 'viem';
+import { sepolia, avalancheFuji } from 'viem/chains';
+import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
+import { RpcProvider } from 'starknet';
+import dotenv from 'dotenv';
 
-dotenv.config({ path: ".env.test" });
+dotenv.config({ path: '.env.test' });
 
 // BFF RPC URLs (same as frontend uses)
-const BFF_RPC_BASE = "https://bff.prod.lombard-fi.com/multi-rpc/proxy";
+const BFF_RPC_BASE = 'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
 const RPC_URLS = {
   sepolia: `${BFF_RPC_BASE}/eth_sepolia`,
-  fuji: "https://api.avax-test.network/ext/bc/C/rpc",
-  solanaDevnet: "https://api.devnet.solana.com",
-  starknetSepolia:
-    "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/demo",
+  fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
+  solanaDevnet: 'https://api.devnet.solana.com',
+  starknetSepolia: 'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/demo',
 };
 
 interface WalletBalances {
@@ -35,25 +34,25 @@ async function checkBalances(): Promise<WalletBalances[]> {
         chain: sepolia,
         transport: http(RPC_URLS.sepolia),
       });
-
+      
       const sepoliaEthBalance = await sepoliaClient.getBalance({
         address: process.env.TEST_EVM_ADDRESS as `0x${string}`,
       });
 
       results.push({
-        chain: "Sepolia",
+        chain: 'Sepolia',
         address: process.env.TEST_EVM_ADDRESS,
         native: `${(Number(sepoliaEthBalance) / 1e18).toFixed(4)} ETH`,
-        lbtc: "...",
-        btcb: "...",
+        lbtc: '...',
+        btcb: '...',
       });
     } catch (e) {
       results.push({
-        chain: "Sepolia",
-        address: process.env.TEST_EVM_ADDRESS || "N/A",
-        native: "Error fetching",
-        lbtc: "...",
-        btcb: "...",
+        chain: 'Sepolia',
+        address: process.env.TEST_EVM_ADDRESS || 'N/A',
+        native: 'Error fetching',
+        lbtc: '...',
+        btcb: '...',
       });
     }
   }
@@ -71,19 +70,19 @@ async function checkBalances(): Promise<WalletBalances[]> {
       });
 
       results.push({
-        chain: "Avalanche Fuji",
+        chain: 'Avalanche Fuji',
         address: process.env.TEST_EVM_ADDRESS,
         native: `${(Number(fujiAvaxBalance) / 1e18).toFixed(4)} AVAX`,
-        lbtc: "...",
-        btcb: "...",
+        lbtc: '...',
+        btcb: '...',
       });
     } catch (e) {
       results.push({
-        chain: "Avalanche Fuji",
-        address: process.env.TEST_EVM_ADDRESS || "N/A",
-        native: "Error fetching",
-        lbtc: "...",
-        btcb: "...",
+        chain: 'Avalanche Fuji',
+        address: process.env.TEST_EVM_ADDRESS || 'N/A',
+        native: 'Error fetching',
+        lbtc: '...',
+        btcb: '...',
       });
     }
   }
@@ -91,24 +90,24 @@ async function checkBalances(): Promise<WalletBalances[]> {
   // Solana Devnet
   if (process.env.TEST_SOLANA_PUBLIC_KEY) {
     try {
-      const connection = new Connection(RPC_URLS.solanaDevnet, "confirmed");
+      const connection = new Connection(RPC_URLS.solanaDevnet, 'confirmed');
       const pubkey = new PublicKey(process.env.TEST_SOLANA_PUBLIC_KEY);
       const solBalance = await connection.getBalance(pubkey);
 
       results.push({
-        chain: "Solana Devnet",
+        chain: 'Solana Devnet',
         address: process.env.TEST_SOLANA_PUBLIC_KEY,
         native: `${(solBalance / LAMPORTS_PER_SOL).toFixed(4)} SOL`,
-        lbtc: "...",
-        btcb: "N/A",
+        lbtc: '...',
+        btcb: 'N/A',
       });
     } catch (e) {
       results.push({
-        chain: "Solana Devnet",
-        address: process.env.TEST_SOLANA_PUBLIC_KEY || "N/A",
-        native: "Error fetching",
-        lbtc: "...",
-        btcb: "N/A",
+        chain: 'Solana Devnet',
+        address: process.env.TEST_SOLANA_PUBLIC_KEY || 'N/A',
+        native: 'Error fetching',
+        lbtc: '...',
+        btcb: 'N/A',
       });
     }
   }
@@ -116,25 +115,25 @@ async function checkBalances(): Promise<WalletBalances[]> {
   // Sui Testnet
   if (process.env.TEST_SUI_ADDRESS) {
     try {
-      const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
+      const suiClient = new SuiClient({ url: getFullnodeUrl('testnet') });
       const suiBalance = await suiClient.getBalance({
         owner: process.env.TEST_SUI_ADDRESS,
       });
 
       results.push({
-        chain: "Sui Testnet",
+        chain: 'Sui Testnet',
         address: process.env.TEST_SUI_ADDRESS,
         native: `${(Number(suiBalance.totalBalance) / 1e9).toFixed(4)} SUI`,
-        lbtc: "...",
-        btcb: "N/A",
+        lbtc: '...',
+        btcb: 'N/A',
       });
     } catch (e) {
       results.push({
-        chain: "Sui Testnet",
-        address: process.env.TEST_SUI_ADDRESS || "N/A",
-        native: "Error fetching",
-        lbtc: "...",
-        btcb: "N/A",
+        chain: 'Sui Testnet',
+        address: process.env.TEST_SUI_ADDRESS || 'N/A',
+        native: 'Error fetching',
+        lbtc: '...',
+        btcb: 'N/A',
       });
     }
   }
@@ -144,30 +143,29 @@ async function checkBalances(): Promise<WalletBalances[]> {
     try {
       const provider = new RpcProvider({ nodeUrl: RPC_URLS.starknetSepolia });
       // ETH contract on Starknet Sepolia
-      const ethContractAddress =
-        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7";
+      const ethContractAddress = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7';
       const balance = await provider.callContract({
         contractAddress: ethContractAddress,
-        entrypoint: "balanceOf",
+        entrypoint: 'balanceOf',
         calldata: [process.env.TEST_STARKNET_ADDRESS],
       });
       const balanceLow = BigInt(balance[0]);
       const ethValue = Number(balanceLow) / 1e18;
 
       results.push({
-        chain: "Starknet Sepolia",
+        chain: 'Starknet Sepolia',
         address: process.env.TEST_STARKNET_ADDRESS,
         native: `${ethValue.toFixed(4)} ETH`,
-        lbtc: "...",
-        btcb: "N/A",
+        lbtc: '...',
+        btcb: 'N/A',
       });
     } catch (e) {
       results.push({
-        chain: "Starknet Sepolia",
-        address: process.env.TEST_STARKNET_ADDRESS || "N/A",
-        native: "Error fetching",
-        lbtc: "...",
-        btcb: "N/A",
+        chain: 'Starknet Sepolia',
+        address: process.env.TEST_STARKNET_ADDRESS || 'N/A',
+        native: 'Error fetching',
+        lbtc: '...',
+        btcb: 'N/A',
       });
     }
   }
@@ -176,13 +174,14 @@ async function checkBalances(): Promise<WalletBalances[]> {
 }
 
 async function main() {
-  console.log("Checking test wallet balances...\n");
-
+  console.log('Checking test wallet balances...\n');
+  
   const balances = await checkBalances();
-
+  
   console.table(balances);
-
-  console.log("\n⚠️  Fund wallets from faucets if balances are low!");
+  
+  console.log('\n⚠️  Fund wallets from faucets if balances are low!');
 }
 
 main();
+

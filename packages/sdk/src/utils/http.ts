@@ -10,10 +10,10 @@
  * @module utils/http
  */
 
-import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
-import type { Logger } from "../shared/context/types";
-import { SDK_RUNTIME, SDK_VERSION } from "../version";
+import type { Logger } from '../shared/context/types';
+import { SDK_RUNTIME, SDK_VERSION } from '../version';
 
 /**
  * HTTP request options
@@ -23,7 +23,7 @@ export interface HttpRequestOptions {
   url: string;
 
   /** HTTP method (defaults to GET) */
-  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
   /** Base URL for the request */
   baseURL?: string;
@@ -71,8 +71,8 @@ export interface HttpResponse<T> {
  */
 export function getSdkHeaders(): Record<string, string> {
   return {
-    "X-SDK-Version": SDK_VERSION,
-    "X-SDK-Runtime": SDK_RUNTIME,
+    'X-SDK-Version': SDK_VERSION,
+    'X-SDK-Runtime': SDK_RUNTIME,
   };
 }
 
@@ -103,7 +103,7 @@ export async function httpRequest<T = unknown>(
 ): Promise<HttpResponse<T>> {
   const {
     url,
-    method = "GET",
+    method = 'GET',
     baseURL,
     params,
     body,
@@ -117,7 +117,7 @@ export async function httpRequest<T = unknown>(
   // Merge SDK headers with custom headers
   const mergedHeaders = {
     ...getSdkHeaders(),
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     ...headers,
   };
 
@@ -133,7 +133,7 @@ export async function httpRequest<T = unknown>(
 
   // Log request if logger provided
   if (logger) {
-    logger.debug("HTTP Request", {
+    logger.debug('HTTP Request', {
       method,
       url: baseURL ? `${baseURL}${url}` : url,
       params,
@@ -147,7 +147,7 @@ export async function httpRequest<T = unknown>(
 
     // Log successful response
     if (logger) {
-      logger.debug("HTTP Response", {
+      logger.debug('HTTP Response', {
         method,
         url: baseURL ? `${baseURL}${url}` : url,
         status: response.status,
@@ -167,7 +167,7 @@ export async function httpRequest<T = unknown>(
     // Log error
     if (logger) {
       const axiosError = axios.isAxiosError(error) ? error : null;
-      logger.error("HTTP Error", {
+      logger.error('HTTP Error', {
         method,
         url: baseURL ? `${baseURL}${url}` : url,
         status: axiosError?.response?.status,
@@ -185,9 +185,9 @@ export async function httpRequest<T = unknown>(
  */
 export async function httpGet<T = unknown>(
   url: string,
-  options: Omit<HttpRequestOptions, "url" | "method" | "body"> = {},
+  options: Omit<HttpRequestOptions, 'url' | 'method' | 'body'> = {},
 ): Promise<HttpResponse<T>> {
-  return httpRequest<T>({ ...options, url, method: "GET" });
+  return httpRequest<T>({ ...options, url, method: 'GET' });
 }
 
 /**
@@ -196,9 +196,9 @@ export async function httpGet<T = unknown>(
 export async function httpPost<T = unknown>(
   url: string,
   body?: unknown,
-  options: Omit<HttpRequestOptions, "url" | "method" | "body"> = {},
+  options: Omit<HttpRequestOptions, 'url' | 'method' | 'body'> = {},
 ): Promise<HttpResponse<T>> {
-  return httpRequest<T>({ ...options, url, method: "POST", body });
+  return httpRequest<T>({ ...options, url, method: 'POST', body });
 }
 
 /**
@@ -207,9 +207,9 @@ export async function httpPost<T = unknown>(
 export async function httpPut<T = unknown>(
   url: string,
   body?: unknown,
-  options: Omit<HttpRequestOptions, "url" | "method" | "body"> = {},
+  options: Omit<HttpRequestOptions, 'url' | 'method' | 'body'> = {},
 ): Promise<HttpResponse<T>> {
-  return httpRequest<T>({ ...options, url, method: "PUT", body });
+  return httpRequest<T>({ ...options, url, method: 'PUT', body });
 }
 
 /**
@@ -217,7 +217,8 @@ export async function httpPut<T = unknown>(
  */
 export async function httpDelete<T = unknown>(
   url: string,
-  options: Omit<HttpRequestOptions, "url" | "method" | "body"> = {},
+  options: Omit<HttpRequestOptions, 'url' | 'method' | 'body'> = {},
 ): Promise<HttpResponse<T>> {
-  return httpRequest<T>({ ...options, url, method: "DELETE" });
+  return httpRequest<T>({ ...options, url, method: 'DELETE' });
 }
+

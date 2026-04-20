@@ -8,7 +8,7 @@ const HEX_REGEX = /^[0-9a-fA-F]+$/;
  * padStart restores missing leading zeros to the full 64-char hex representation.
  */
 export function normalizeStarknetAddress(address: string): string {
-  if (!address || !address.startsWith("0x")) {
+  if (!address || !address.startsWith('0x')) {
     throw new Error(
       `Invalid Starknet address: must start with 0x, got "${address}"`,
     );
@@ -23,8 +23,8 @@ export function normalizeStarknetAddress(address: string): string {
   }
 
   if (!HEX_REGEX.test(hexPart)) {
-    throw new Error("Invalid Starknet address: contains non-hex characters");
+    throw new Error('Invalid Starknet address: contains non-hex characters');
   }
 
-  return `0x${hexPart.padStart(STARKNET_HEX_LENGTH, "0")}`;
+  return `0x${hexPart.padStart(STARKNET_HEX_LENGTH, '0')}`;
 }

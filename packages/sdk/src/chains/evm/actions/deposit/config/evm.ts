@@ -7,11 +7,15 @@
  * @module chains/evm/actions/deposit/config/evm
  */
 
-import { Env } from "@lombard.finance/sdk-common";
+import { Env } from '@lombard.finance/sdk-common';
 
-import { AssetId, Chain, getEvmAssetChains } from "../../../../../core";
-import { evmAddressSchema } from "../../../../../shared/validation";
-import type { ChainConfig } from "./types";
+import {
+  AssetId,
+  Chain,
+  getEvmAssetChains,
+} from '../../../../../core';
+import { evmAddressSchema } from '../../../../../shared/validation';
+import type { ChainConfig } from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Catalog-Derived Chain Lists
@@ -22,12 +26,7 @@ import type { ChainConfig } from "./types";
  */
 const DEPOSIT_PROD_SOURCE_CHAINS = getEvmAssetChains(AssetId.BTCb, [Env.prod]);
 
-const DEPOSIT_TESTNET_SOURCE_CHAINS = getEvmAssetChains(AssetId.BTCb, [
-  Env.testnet,
-  Env.stage,
-  Env.dev,
-  Env.ibc,
-]);
+const DEPOSIT_TESTNET_SOURCE_CHAINS = getEvmAssetChains(AssetId.BTCb, [Env.testnet, Env.stage, Env.dev, Env.ibc]);
 
 /** Dest chains: EVM chains with LBTC deployed */
 const LBTC_PROD_CHAINS = getEvmAssetChains(AssetId.LBTC, [Env.prod]);
@@ -50,7 +49,7 @@ const LBTC_TESTNET_CHAINS = getEvmAssetChains(AssetId.LBTC, [
  * Dest chains derived from LBTC deployments.
  */
 export const evmConfig: ChainConfig = {
-  chainType: "evm",
+  chainType: 'evm',
 
   routes: [
     // Production: BTCb → LBTC
@@ -83,7 +82,7 @@ export function isDepositSupported(
   env: Env,
 ): boolean {
   return evmConfig.routes.some(
-    (route) =>
+    route =>
       route.assetsIn.includes(assetIn) &&
       route.sourceChains.includes(sourceChain) &&
       route.envs.includes(env),

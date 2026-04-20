@@ -10,18 +10,15 @@
  * @module __tests__/unit/btc/BtcDeposit.test.ts
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from 'vitest';
 
-import type {
-  BtcDepositParams,
-  BtcDepositPrepareParams,
-} from "../../../chains/btc/actions/deposit/types";
-import { AssetId, Chain } from "../../../core";
-import { LombardError, ValidationErrorCode } from "../../../shared/errors";
+import type { BtcDepositParams, BtcDepositPrepareParams } from '../../../chains/btc/actions/deposit/types';
+import { AssetId, Chain } from '../../../core';
+import { LombardError, ValidationErrorCode } from '../../../shared/errors';
 
-describe("BtcDeposit Interface", () => {
-  describe("BtcDepositParams", () => {
-    it("should accept valid deposit parameters", () => {
+describe('BtcDeposit Interface', () => {
+  describe('BtcDepositParams', () => {
+    it('should accept valid deposit parameters', () => {
       const params: BtcDepositParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
@@ -31,7 +28,7 @@ describe("BtcDeposit Interface", () => {
       expect(params.destChain).toBe(Chain.AVALANCHE);
     });
 
-    it("should require BTCb as output asset", () => {
+    it('should require BTCb as output asset', () => {
       const validParams: BtcDepositParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
@@ -41,7 +38,7 @@ describe("BtcDeposit Interface", () => {
       expect(validParams.assetOut).toBe(AssetId.BTCb);
     });
 
-    it("should support optional source chain", () => {
+    it('should support optional source chain', () => {
       const params: BtcDepositParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
@@ -51,7 +48,7 @@ describe("BtcDeposit Interface", () => {
       expect(params.sourceChain).toBe(Chain.BITCOIN_MAINNET);
     });
 
-    it("should support Avalanche chains for BTC.b", () => {
+    it('should support Avalanche chains for BTC.b', () => {
       const mainnetParams: BtcDepositParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
@@ -67,159 +64,156 @@ describe("BtcDeposit Interface", () => {
     });
   });
 
-  describe("BtcDepositPrepareParams", () => {
-    it("should accept valid prepare parameters", () => {
+  describe('BtcDepositPrepareParams', () => {
+    it('should accept valid prepare parameters', () => {
       const params: BtcDepositPrepareParams = {
-        amount: "0.1",
-        recipient: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0",
+        amount: '0.1',
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       };
 
-      expect(params.amount).toBe("0.1");
+      expect(params.amount).toBe('0.1');
       expect(params.recipient).toBeDefined();
     });
 
-    it("should support optional referral code", () => {
+    it('should support optional referral code', () => {
       const params: BtcDepositPrepareParams = {
-        amount: "0.1",
-        recipient: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0",
-        referralCode: "REF123",
+        amount: '0.1',
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+        referralCode: 'REF123',
       };
 
-      expect(params.referralCode).toBe("REF123");
+      expect(params.referralCode).toBe('REF123');
     });
   });
 
-  describe("Status Transitions", () => {
-    it("should define all required status values for deposit", () => {
+  describe('Status Transitions', () => {
+    it('should define all required status values for deposit', () => {
       const statuses = [
-        "idle",
-        "needs_fee_authorization",
-        "needs_address_confirmation",
-        "ready",
-        "address_ready",
+        'idle',
+        'needs_fee_authorization',
+        'needs_address_confirmation',
+        'ready',
+        'address_ready',
       ];
 
-      statuses.forEach((status) => {
-        expect(typeof status).toBe("string");
+      statuses.forEach(status => {
+        expect(typeof status).toBe('string');
       });
     });
 
-    it("should define correct status flow", () => {
+    it('should define correct status flow', () => {
       const statusFlow = {
-        "idle -> prepare":
-          "needs_fee_authorization or needs_address_confirmation",
-        "needs_fee_authorization -> authorize": "ready",
-        "needs_address_confirmation -> authorize": "ready",
-        "ready -> generateDepositAddress": "address_ready",
+        'idle -> prepare': 'needs_fee_authorization or needs_address_confirmation',
+        'needs_fee_authorization -> authorize': 'ready',
+        'needs_address_confirmation -> authorize': 'ready',
+        'ready -> generateDepositAddress': 'address_ready',
       };
 
       expect(Object.keys(statusFlow).length).toBeGreaterThan(0);
     });
   });
 
-  describe("Method Signatures", () => {
-    it("should define prepare method", () => {
+  describe('Method Signatures', () => {
+    it('should define prepare method', () => {
       type PrepareMethod = (params: BtcDepositPrepareParams) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });
 
-    it("should define authorize method", () => {
+    it('should define authorize method', () => {
       type AuthorizeMethod = () => Promise<void>;
       const testType: AuthorizeMethod = async () => {};
       expect(testType).toBeDefined();
     });
 
-    it("should define generateDepositAddress method", () => {
+    it('should define generateDepositAddress method', () => {
       type GenerateAddressMethod = () => Promise<string>;
       const testType: GenerateAddressMethod = async () =>
-        "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
+        'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
       expect(testType).toBeDefined();
     });
 
-    it("should define execute method", () => {
+    it('should define execute method', () => {
       type ExecuteMethod = () => Promise<{ depositAddress: string }>;
       const testType: ExecuteMethod = async () => ({
-        depositAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
       });
       expect(testType).toBeDefined();
     });
 
-    it("should define monitorDeposit method", () => {
+    it('should define monitorDeposit method', () => {
       type MonitorMethod = () => Promise<unknown>;
       const testType: MonitorMethod = async () => undefined;
       expect(testType).toBeDefined();
     });
   });
 
-  describe("Event Emissions", () => {
-    it("should emit progress events", () => {
-      const handler = vi.fn(
-        (progress: { status: string; steps?: Record<string, string> }) => {
-          expect(progress.status).toBeDefined();
-        },
-      );
+  describe('Event Emissions', () => {
+    it('should emit progress events', () => {
+      const handler = vi.fn((progress: { status: string; steps?: Record<string, string> }) => {
+        expect(progress.status).toBeDefined();
+      });
 
       handler({
-        status: "address_ready",
-        steps: { created: "complete", verifying: "idle", issuing: "idle" },
+        status: 'address_ready',
+        steps: { created: 'complete', verifying: 'idle', issuing: 'idle' },
       });
 
       expect(handler).toHaveBeenCalledOnce();
     });
 
-    it("should emit status-change events", () => {
+    it('should emit status-change events', () => {
       const handler = vi.fn((status: string) => {
-        expect(typeof status).toBe("string");
+        expect(typeof status).toBe('string');
       });
 
-      handler("ready");
-      expect(handler).toHaveBeenCalledWith("ready");
+      handler('ready');
+      expect(handler).toHaveBeenCalledWith('ready');
     });
   });
 
-  describe("Public Properties", () => {
-    it("should expose status property", () => {
+  describe('Public Properties', () => {
+    it('should expose status property', () => {
       type HasStatus = { readonly status: string };
-      const obj: HasStatus = { status: "idle" };
-      expect(obj.status).toBe("idle");
+      const obj: HasStatus = { status: 'idle' };
+      expect(obj.status).toBe('idle');
     });
 
-    it("should expose amount property after prepare", () => {
+    it('should expose amount property after prepare', () => {
       type HasAmount = { readonly amount?: string };
-      const obj: HasAmount = { amount: "0.1" };
-      expect(obj.amount).toBe("0.1");
+      const obj: HasAmount = { amount: '0.1' };
+      expect(obj.amount).toBe('0.1');
     });
 
-    it("should expose recipient property after prepare", () => {
+    it('should expose recipient property after prepare', () => {
       type HasRecipient = { readonly recipient?: string };
       const obj: HasRecipient = {
-        recipient: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
       };
       expect(obj.recipient).toBeDefined();
     });
 
-    it("should expose depositAddress property after generate", () => {
+    it('should expose depositAddress property after generate', () => {
       type HasDepositAddress = { readonly depositAddress?: string };
       const obj: HasDepositAddress = {
-        depositAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
       };
       expect(obj.depositAddress).toBeDefined();
     });
   });
 
-  describe("Error Handling", () => {
-    it("should reject LBTC as output asset", () => {
+  describe('Error Handling', () => {
+    it('should reject LBTC as output asset', () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_ASSET,
         `Asset LBTC is not supported for BTC deposits. Use BtcStake instead.`,
       );
 
       expect(error.code).toBe(ValidationErrorCode.INVALID_ASSET);
-      expect(error.message).toContain("BtcStake");
+      expect(error.message).toContain('BtcStake');
     });
 
-    it("should reject unsupported destination chains", () => {
+    it('should reject unsupported destination chains', () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_CHAIN,
         `Destination chain ethereum is not supported for BTC deposits.`,
@@ -228,31 +222,32 @@ describe("BtcDeposit Interface", () => {
       expect(error.code).toBe(ValidationErrorCode.INVALID_CHAIN);
     });
 
-    it("should handle user rejection during authorization", () => {
-      const error = LombardError.userRejected("deposit authorization");
-      expect(error.message).toContain("deposit authorization");
+    it('should handle user rejection during authorization', () => {
+      const error = LombardError.userRejected('deposit authorization');
+      expect(error.message).toContain('deposit authorization');
     });
   });
 
-  describe("Fee Authorization", () => {
-    it("should require fee auth for Ethereum mainnet only", () => {
+  describe('Fee Authorization', () => {
+    it('should require fee auth for Ethereum mainnet only', () => {
       // Fee authorization is only required for Ethereum mainnet
       const feeAuthChains = [Chain.ETHEREUM];
       const noFeeAuthChains = [Chain.AVALANCHE, Chain.AVALANCHE_FUJI];
 
       expect(feeAuthChains).toContain(Chain.ETHEREUM);
-      noFeeAuthChains.forEach((chain) => {
+      noFeeAuthChains.forEach(chain => {
         expect(feeAuthChains).not.toContain(chain);
       });
     });
 
-    it("should use address confirmation for non-Ethereum chains", () => {
+    it('should use address confirmation for non-Ethereum chains', () => {
       // Avalanche uses address confirmation, not fee auth
       const addressConfirmationChains = [Chain.AVALANCHE, Chain.AVALANCHE_FUJI];
-
-      addressConfirmationChains.forEach((chain) => {
+      
+      addressConfirmationChains.forEach(chain => {
         expect(chain).not.toBe(Chain.ETHEREUM);
       });
     });
   });
 });
+

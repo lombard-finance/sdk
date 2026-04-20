@@ -1,13 +1,13 @@
-import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
-import BigNumber from "bignumber.js";
-import * as bitcoin from "bitcoinjs-lib";
-import { Hex, trim } from "viem";
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import BigNumber from 'bignumber.js';
+import * as bitcoin from 'bitcoinjs-lib';
+import { Hex, trim } from 'viem';
 
-import { getApiConfig } from "../../common/api-config";
+import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
   getChainIdByName,
-} from "../../common/blockchain-identifier";
+} from '../../common/blockchain-identifier';
 import {
   ChainId,
   isSolanaChain,
@@ -17,8 +17,8 @@ import {
   SolanaChain,
   StarknetChainId,
   SuiChain,
-} from "../../common/chains";
-import { IEnvParam } from "../../common/parameters";
+} from '../../common/chains';
+import { IEnvParam } from '../../common/parameters';
 import {
   AddressKind,
   getSolanaTokenAddress,
@@ -26,13 +26,13 @@ import {
   getSuiTokenAddress,
   Token,
   TOKEN_ADDRESSES,
-} from "../../tokens/token-addresses";
-import { fetchAllPaginated } from "../../utils/pagination";
-import { fromSatoshi } from "../../utils/satoshi";
+} from '../../tokens/token-addresses';
+import { fetchAllPaginated } from '../../utils/pagination';
+import { fromSatoshi } from '../../utils/satoshi';
 import {
   ENotarizationStatus,
   ESessionState,
-} from "../getDepositsByAddress/getDepositsByAddress";
+} from '../getDepositsByAddress/getDepositsByAddress';
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -43,10 +43,10 @@ import {
  */
 export enum PayoutTxStatus {
   /** The payout transaction has been sent; unstake completed */
-  Completed = "Completed",
+  Completed = 'Completed',
 
   /** The payout transaction has not been sent; unstake pending */
-  Pending = "Pending",
+  Pending = 'Pending',
 }
 
 /**
@@ -151,7 +151,7 @@ export interface Unstake {
   fromChainId: ChainId | SuiChain | SolanaChain | StarknetChainId;
 
   /** Destination chain identifier (undefined for BTC unstakes). */
-  toChainId?: ChainId | SuiChain | SolanaChain | StarknetChainId | "bitcoin";
+  toChainId?: ChainId | SuiChain | SolanaChain | StarknetChainId | 'bitcoin';
 
   /** Block height where the unstake was confirmed. */
   blockHeight: number;
@@ -226,12 +226,12 @@ export async function fetchUnstakesByAddress({
   env = DEFAULT_ENV,
   options,
 }: IGetUnstakesByAddressParameters): Promise<Unstake[]> {
-  if (!address) throw new Error("No address specified.");
+  if (!address) throw new Error('No address specified.');
 
   const { baseApiUrl } = getApiConfig(env);
 
   // pad address to 64 characters if needed
-  if (address.startsWith("0x") && address.slice(2).length === 63) {
+  if (address.startsWith('0x') && address.slice(2).length === 63) {
     address = `0x0${address.slice(2)}`;
   }
 
@@ -239,15 +239,15 @@ export async function fetchUnstakesByAddress({
 
   const unstakes = await fetchAllPaginated({
     endpoint,
-    extractItems: (data) => (data as UnstakesResponse)?.unstakes ?? [],
+    extractItems: data => (data as UnstakesResponse)?.unstakes ?? [],
     query: {
-      show_redeems: options?.show_redeems ? "true" : undefined,
-      show_unstakes: options?.show_unstakes ? "true" : undefined,
-      to_native: options?.to_native ? "true" : undefined,
+      show_redeems: options?.show_redeems ? 'true' : undefined,
+      show_unstakes: options?.show_unstakes ? 'true' : undefined,
+      to_native: options?.to_native ? 'true' : undefined,
     },
   });
 
-  return unstakes.map((d) => mapUnstakeEntry(d, env));
+  return unstakes.map(d => mapUnstakeEntry(d, env));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -264,7 +264,7 @@ export async function fetchUnstakesByAddress({
  */
 function mapUnstakeEntry(
   d: UnstakeEntry,
-  env: IEnvParam["env"] = DEFAULT_ENV,
+  env: IEnvParam['env'] = DEFAULT_ENV,
 ): Unstake {
   const isNative = Boolean(d.to_chain && d.to_address);
 
@@ -272,13 +272,13 @@ function mapUnstakeEntry(
   if (!isNative && d.output_script) {
     try {
       toAddress = bitcoin.address.fromOutputScript(
-        Buffer.from(d.output_script.replace(/^0x/, ""), "hex"),
-        env === "prod" ? bitcoin.networks.bitcoin : bitcoin.networks.testnet,
+        Buffer.from(d.output_script.replace(/^0x/, ''), 'hex'),
+        env === 'prod' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet,
       );
     } catch {
       toAddress = undefined;
     }
-  } else if (toAddress?.startsWith("0x")) {
+  } else if (toAddress?.startsWith('0x')) {
     toAddress = trim(toAddress as Hex);
   }
 
@@ -290,7 +290,7 @@ function mapUnstakeEntry(
   const toChainId = d.to_chain
     ? d.to_chain === BlockchainIdentifier.bitcoin ||
       d.to_chain === BlockchainIdentifier.bitcoinOld
-      ? "bitcoin"
+      ? 'bitcoin'
       : getChainIdByName(d.to_chain, env)
     : undefined;
 
@@ -300,7 +300,7 @@ function mapUnstakeEntry(
       let address = TOKEN_ADDRESSES?.[toToken]?.[env]?.[toChainId];
       if (address) {
         address =
-          typeof address === "string" ? address : address[AddressKind.Adapter];
+          typeof address === 'string' ? address : address[AddressKind.Adapter];
       }
       toTokenAddress = address;
     }

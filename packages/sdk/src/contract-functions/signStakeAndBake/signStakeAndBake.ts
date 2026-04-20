@@ -1,22 +1,22 @@
-import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
-import BigNumber from "bignumber.js";
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import BigNumber from 'bignumber.js';
 
-import { CommonWriteParameters } from "../../common/parameters";
+import { CommonWriteParameters } from '../../common/parameters';
 import {
   ApprovalMode,
   DefiProtocol,
   StakeAndBakeToken,
-} from "../../defi/defi-registry";
-import { DAY, now, toUnix } from "../../utils/time";
-import { getPermitNonce } from "../getPermitNonce/getPermitNonce";
-import { handleApproveFlow } from "./handleApprove";
-import { handlePermitFlow } from "./handlePermit";
-import { buildTypedData } from "./typed-data-builder";
+} from '../../defi/defi-registry';
+import { DAY, now, toUnix } from '../../utils/time';
+import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
+import { handleApproveFlow } from './handleApprove';
+import { handlePermitFlow } from './handlePermit';
+import { buildTypedData } from './typed-data-builder';
 import {
   calculateStakeAndBakeLBTCAmount,
   getStakeAndBakeTokenContract,
-} from "./utils";
-import { getStakeAndBakeConfig } from "./validation";
+} from './utils';
+import { getStakeAndBakeConfig } from './validation';
 
 export interface ISignStakeAndBakeParams extends CommonWriteParameters {
   /**
@@ -95,7 +95,7 @@ export async function signStakeAndBake({
   value,
   // TODO: Rename vaultKey to protocol
   vaultKey: protocol = DefiProtocol.Veda,
-  token = "BTC",
+  token = 'BTC',
   chainId,
   provider,
   rpcUrl,
@@ -107,7 +107,7 @@ export async function signStakeAndBake({
 
   // Calculate permit value (with conversion if needed)
   const permitValue =
-    strategy.amountStrategy === "btcToLbtc"
+    strategy.amountStrategy === 'btcToLbtc'
       ? await calculateStakeAndBakeLBTCAmount(value, env)
       : new BigNumber(value);
 
@@ -118,11 +118,11 @@ export async function signStakeAndBake({
 
   // Calculate deadline based on expiry behavior
   const deadline =
-    strategy.approval.deadlineStrategy === "zero" ? 0n : BigInt(expiry);
+    strategy.approval.deadlineStrategy === 'zero' ? 0n : BigInt(expiry);
 
   // Get nonce if required
   const nonce =
-    strategy.approval.nonceStrategy === "chain"
+    strategy.approval.nonceStrategy === 'chain'
       ? BigInt(await getPermitNonce({ owner: account, chainId, rpcUrl, env }))
       : 0n;
 
@@ -141,7 +141,7 @@ export async function signStakeAndBake({
   });
 
   // Delegate to appropriate handler based on mode
-  if (strategy.approval.mode === "approve") {
+  if (strategy.approval.mode === 'approve') {
     return handleApproveFlow({
       account,
       chainId,

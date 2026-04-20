@@ -1,31 +1,31 @@
-import { Env } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
+import { Env } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../common/chains";
+import { ChainId } from '../common/chains';
 import {
   chainSelector,
   envSelector,
   makeTokenSelector,
-} from "../stories/arg-types";
-import { Button } from "../stories/components/Button";
-import { CodeBlock } from "../stories/components/CodeBlock";
-import { functionType } from "../stories/components/decorators";
-import useQuery from "../stories/hooks/useQuery";
-import { AddressKind, Token } from "./token-addresses";
-import { getTokenContractInfo } from "./tokens";
+} from '../stories/arg-types';
+import { Button } from '../stories/components/Button';
+import { CodeBlock } from '../stories/components/CodeBlock';
+import { functionType } from '../stories/components/decorators';
+import useQuery from '../stories/hooks/useQuery';
+import { AddressKind, Token } from './token-addresses';
+import { getTokenContractInfo } from './tokens';
 
 const meta = {
-  title: "tokens/getTokenContractInfo",
+  title: 'tokens/getTokenContractInfo',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("read")],
+  tags: ['autodocs'],
+  decorators: [functionType('read')],
   argTypes: {
     ...chainSelector,
     ...envSelector,
     ...makeTokenSelector([Token.LBTC, Token.BTCb, Token.BTCK]),
     addressKind: {
       options: Object.values(AddressKind),
-      control: { type: "select" },
+      control: { type: 'select' },
     },
   },
 } satisfies Meta<typeof StoryView>;

@@ -7,24 +7,16 @@
  * @module sdk-devtools/provider
  */
 
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, type ReactNode,useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { DevToolsBridge } from "../bridge/DevToolsBridge";
+import { DevToolsBridge } from '../bridge/DevToolsBridge';
 import type {
   DevToolsConfig,
   DevToolsEvent,
   MonitorableAction,
   NetworkLogEntry,
   RegisteredAction,
-} from "../types";
+} from '../types';
 
 // ─────────────────────────────────────────────────────────────────
 // Context Type
@@ -87,9 +79,9 @@ export interface DevToolsProviderProps {
 
   /**
    * Whether DevTools is enabled.
-   *
+   * 
    * Default: `process.env.NODE_ENV !== 'production'`
-   *
+   * 
    * For development/testing tools (like sdk-demo), you may want to always
    * enable DevTools with `enabled={true}` regardless of environment, so
    * developers can debug production SDK endpoints.
@@ -105,7 +97,7 @@ export interface DevToolsProviderProps {
  * DevTools Provider
  *
  * Wrap your app with this provider to enable DevTools functionality.
- *
+ * 
  * The `enabled` prop defaults to `false` in production (NODE_ENV === 'production')
  * as a safety net. However, you can explicitly override this:
  * - `enabled={true}` - Always enable (useful for dev tools testing prod SDK)
@@ -121,7 +113,7 @@ export interface DevToolsProviderProps {
  *     </DevToolsProvider>
  *   );
  * }
- *
+ * 
  * // Always enable (for developer tools/playgrounds)
  * function DevToolApp() {
  *   return (
@@ -135,106 +127,84 @@ export interface DevToolsProviderProps {
 export function DevToolsProvider({
   children,
   config,
-  enabled = process.env.NODE_ENV !== "production",
+  enabled = process.env.NODE_ENV !== 'production',
 }: DevToolsProviderProps) {
   // Create bridge as state to ensure proper lifecycle with React StrictMode
   const [bridge] = useState(() => new DevToolsBridge(config));
 
   // State for React re-renders
   const [events, setEvents] = useState<DevToolsEvent[]>([]);
-  const [actions, setActions] = useState<Map<string, RegisteredAction>>(
-    new Map(),
-  );
+  const [actions, setActions] = useState<Map<string, RegisteredAction>>(new Map());
   const [networkLog, setNetworkLog] = useState<NetworkLogEntry[]>([]);
-
+  
   // Counter to force effect re-run after mount
   const [mountId, setMountId] = useState(0);
-
+  
   // Increment mount counter on mount to ensure subscription runs
   useEffect(() => {
-    setMountId((prev) => prev + 1);
+    setMountId(prev => prev + 1);
   }, []);
 
   // Subscribe to bridge updates
   useEffect(() => {
     if (!enabled || mountId === 0) return;
 
-    console.log(
-      "[DevToolsProvider] Setting up event subscriptions, mountId:",
-      mountId,
-    );
+    console.log('[DevToolsProvider] Setting up event subscriptions, mountId:', mountId);
 
     // IMPORTANT: Sync existing events immediately on subscription setup
     // This catches any events that were captured before the subscription was ready
     // (e.g., during React StrictMode's double-mount, or if action was registered early)
     const existingEvents = bridge.getEvents();
     const existingActions = bridge.getActions();
-
+    
     if (existingEvents.length > 0) {
-      console.log(
-        "[DevToolsProvider] Syncing existing events:",
-        existingEvents.length,
-      );
+      console.log('[DevToolsProvider] Syncing existing events:', existingEvents.length);
       setEvents(existingEvents);
     }
-
+    
     if (existingActions.size > 0) {
-      console.log(
-        "[DevToolsProvider] Syncing existing actions:",
-        existingActions.size,
-      );
+      console.log('[DevToolsProvider] Syncing existing actions:', existingActions.size);
       setActions(existingActions);
     }
 
     // Subscribe to new events going forward
     const unsubEvent = bridge.onEvent((event) => {
-      console.log("[DevToolsProvider] Event received:", event);
+      console.log('[DevToolsProvider] Event received:', event);
       const newEvents = bridge.getEvents();
-      console.log("[DevToolsProvider] Setting events:", newEvents.length);
+      console.log('[DevToolsProvider] Setting events:', newEvents.length);
       setEvents(newEvents);
     });
 
-    const unsubState = bridge.onStateChange((newActions) => {
-      console.log(
-        "[DevToolsProvider] State changed:",
-        newActions.size,
-        "actions",
-      );
+    const unsubState = bridge.onStateChange(newActions => {
+      console.log('[DevToolsProvider] State changed:', newActions.size, 'actions');
       setActions(newActions);
     });
 
     // Subscribe to network log changes
-    const unsubNetwork = bridge.onNetworkChange((entries) => {
-      console.log(
-        "[DevToolsProvider] Network log updated:",
-        entries.length,
-        "entries",
-      );
+    const unsubNetwork = bridge.onNetworkChange(entries => {
+      console.log('[DevToolsProvider] Network log updated:', entries.length, 'entries');
       setNetworkLog(entries);
     });
 
     // Sync existing network log
     const existingNetworkLog = bridge.getNetworkLog();
     if (existingNetworkLog.length > 0) {
-      console.log(
-        "[DevToolsProvider] Syncing existing network log:",
-        existingNetworkLog.length,
-      );
+      console.log('[DevToolsProvider] Syncing existing network log:', existingNetworkLog.length);
       setNetworkLog(existingNetworkLog);
     }
 
     return () => {
-      console.log("[DevToolsProvider] Cleaning up subscriptions");
+      console.log('[DevToolsProvider] Cleaning up subscriptions');
       unsubEvent();
       unsubState();
       unsubNetwork();
     };
   }, [enabled, bridge, mountId]);
-
+  
   // Cleanup bridge on unmount only
   useEffect(() => {
     return () => {
-      console.log("[DevToolsProvider] Destroying bridge");
+      console.log('[DevToolsProvider] Destroying bridge');
       bridge.destroy();
     };
   }, [bridge]);
@@ -335,7 +305,7 @@ export function useDevToolsContext(): DevToolsContextValue {
 
   if (!context) {
     throw new Error(
-      "useDevToolsContext must be used within a DevToolsProvider",
+      'useDevToolsContext must be used within a DevToolsProvider',
     );
   }
 
@@ -367,5 +337,7 @@ export function useRegisterAction(
   useEffect(() => {
     if (!action) return;
     return registerAction(name, action, category ? { category } : undefined);
+     
   }, [name, action, registerAction]);
 }
+

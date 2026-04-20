@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useContext } from 'react';
 
-import { EvmWalletContext } from "../contexts/EvmWalletContext";
+import { EvmWalletContext } from '../contexts/EvmWalletContext';
 
 /**
  * Hook to access shared EVM wallet state.

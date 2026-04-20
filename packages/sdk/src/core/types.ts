@@ -6,8 +6,8 @@
  * @module core/types
  */
 
-import type { AssetId } from "./assets";
-import type { Chain } from "./chains";
+import type { AssetId } from './assets';
+import type { Chain } from './chains';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Strategy Types
@@ -17,12 +17,12 @@ import type { Chain } from "./chains";
  * Common strategy statuses across all operation types
  */
 export const StrategyStatus = {
-  IDLE: "idle",
-  PREPARING: "preparing",
-  READY: "ready",
-  EXECUTING: "executing",
-  COMPLETED: "completed",
-  FAILED: "failed",
+  IDLE: 'idle',
+  PREPARING: 'preparing',
+  READY: 'ready',
+  EXECUTING: 'executing',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
 } as const;
 
 export type StrategyStatus =
@@ -32,10 +32,10 @@ export type StrategyStatus =
  * Step status for progress tracking
  */
 export const StepStatus = {
-  IDLE: "idle",
-  PENDING: "pending",
-  COMPLETE: "complete",
-  FAILED: "failed",
+  IDLE: 'idle',
+  PENDING: 'pending',
+  COMPLETE: 'complete',
+  FAILED: 'failed',
 } as const;
 
 export type StepStatus = (typeof StepStatus)[keyof typeof StepStatus];
@@ -94,7 +94,7 @@ export interface RouteParams {
 export {
   type DefiProtocol,
   DefiProtocol as DeployProtocol,
-} from "../defi/defi-registry";
+} from '../defi/defi-registry';
 
 /**
  * Deploy configuration for stake-and-deploy operations
@@ -115,3 +115,4 @@ export interface DeployConfig {
   /** Optional: Protocol-specific options */
   options?: Record<string, unknown>;
 }
+

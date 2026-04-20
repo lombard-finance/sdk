@@ -25,37 +25,37 @@
  * @module chains/evm/actions/stake/EvmStake
  */
 
-import BigNumber from "bignumber.js";
-import type { EIP1193Provider } from "viem";
-import { z } from "zod";
+import BigNumber from 'bignumber.js';
+import type { EIP1193Provider } from 'viem';
+import { z } from 'zod';
 
-import { makePublicClient } from "../../../../clients/public-client";
-import { ChainId } from "../../../../common/chains";
+import { makePublicClient } from '../../../../clients/public-client';
+import { ChainId } from '../../../../common/chains';
 import {
   approveToken,
   getTokenAllowance,
-} from "../../../../contract-functions/approveToken";
-import { depositToken } from "../../../../contract-functions/deposit";
-import { parseChainIdentifier, StepStatus } from "../../../../core";
-import { BaseAction } from "../../../../shared/actions/BaseAction";
-import { EvmOperationStatus } from "../../../../shared/constants/statusConstants";
-import type { EvmCoreContext } from "../../../../shared/context";
-import { LombardError } from "../../../../shared/errors";
-import type { StakeEventMap } from "../../../../shared/events";
+} from '../../../../contract-functions/approveToken';
+import { depositToken } from '../../../../contract-functions/deposit';
+import { parseChainIdentifier, StepStatus } from '../../../../core';
+import { BaseAction } from '../../../../shared/actions/BaseAction';
+import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
+import type { EvmCoreContext } from '../../../../shared/context';
+import { LombardError } from '../../../../shared/errors';
+import type { StakeEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
   validatePrepareParams,
-} from "../../../../shared/validation";
-import { AddressKind, Token } from "../../../../tokens/token-addresses";
-import { getTokenContractInfo } from "../../../../tokens/tokens";
-import { waitForTransactionReceipt } from "../../../../utils/transaction-executor";
+} from '../../../../shared/validation';
+import { AddressKind, Token } from '../../../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../../../tokens/tokens';
+import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import {
   authorizeFee as authorizeFeeShared,
   checkFeeAuthorization,
   createInitialFeeAuthState,
   type FeeAuthState,
-} from "../../shared/feeAuth";
-import type { EvmStakeParams, EvmStakePrepareParams, IEvmStake } from "./types";
+} from '../../shared/feeAuth';
+import type { EvmStakeParams, EvmStakePrepareParams, IEvmStake } from './types';
 
 /**
  * Chains that require ERC20 approval for BTC.b staking (to the Adapter)
@@ -106,24 +106,24 @@ export class EvmStake
   }
 
   async prepare(params: EvmStakePrepareParams): Promise<void> {
-    this.assertStatus(EvmOperationStatus.IDLE, "prepare");
+    this.assertStatus(EvmOperationStatus.IDLE, 'prepare');
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params);
       this._amount = validated.amount;
 
-      const provider = await this.ctx.getProvider("evm");
+      const provider = await this.ctx.getProvider('evm');
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: "eth_accounts",
+        method: 'eth_accounts',
       });
       const account = (accounts as string[])[0] as `0x${string}`;
 
       if (!account) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
       this._account = account;
 
@@ -205,18 +205,18 @@ export class EvmStake
    * Must be called when status is NEEDS_APPROVAL.
    */
   async approve(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.NEEDS_APPROVAL, "approve");
+    this.assertStatus(EvmOperationStatus.NEEDS_APPROVAL, 'approve');
 
     return this.act(async () => {
       if (!this._account || !this._spenderAddress || !this._amount) {
         throw LombardError.missingParameter(
-          "account, spenderAddress, or amount",
+          'account, spenderAddress, or amount',
         );
       }
 
-      const provider = await this.ctx.getProvider("evm");
+      const provider = await this.ctx.getProvider('evm');
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
       const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
@@ -234,7 +234,7 @@ export class EvmStake
 
       // Wait for approval to be confirmed on-chain
       const publicClient = makePublicClient({ chainId, env: this.ctx.env });
-      await waitForTransactionReceipt(publicClient, txHash, "BTC.b approval");
+      await waitForTransactionReceipt(publicClient, txHash, 'BTC.b approval');
 
       // Mark approval as done
       this._needsApproval = false;
@@ -249,17 +249,17 @@ export class EvmStake
   async authorizeFee(): Promise<void> {
     this.assertStatus(
       EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-      "authorizeFee",
+      'authorizeFee',
     );
 
     return this.act(async () => {
       if (!this._feeAuth.feeInSatoshis) {
-        throw LombardError.missingParameter("feeInSatoshis");
+        throw LombardError.missingParameter('feeInSatoshis');
       }
 
-      const provider = await this.ctx.getProvider("evm");
+      const provider = await this.ctx.getProvider('evm');
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
       const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
@@ -288,24 +288,24 @@ export class EvmStake
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(EvmOperationStatus.READY, "execute");
+    this.assertStatus(EvmOperationStatus.READY, 'execute');
 
     return this.act(async () => {
-      const provider = await this.ctx.getProvider("evm");
+      const provider = await this.ctx.getProvider('evm');
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
       const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
       // Get account from provider
       const accounts = await (provider as EIP1193Provider).request({
-        method: "eth_accounts",
+        method: 'eth_accounts',
       });
       const account = (accounts as string[])[0] as `0x${string}`;
 
       if (!account) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
       this.emitProgress({

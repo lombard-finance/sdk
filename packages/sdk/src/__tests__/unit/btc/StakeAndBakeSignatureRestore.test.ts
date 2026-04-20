@@ -9,11 +9,11 @@
  * @module __tests__/unit/btc/StakeAndBakeSignatureRestore.test.ts
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-describe("StakeAndBake Signature Restoration Logic", () => {
-  describe("Expiration Check", () => {
-    it("should reject expired signatures", () => {
+describe('StakeAndBake Signature Restoration Logic', () => {
+  describe('Expiration Check', () => {
+    it('should reject expired signatures', () => {
       // Simulate expiration check logic from restoreStakeAndBakeSignature
       const checkExpiration = (expirationDate: string): boolean => {
         const expirationMs = Number(expirationDate) * 1000;
@@ -33,7 +33,7 @@ describe("StakeAndBake Signature Restoration Logic", () => {
       expect(checkExpiration(almostExpiredTimestamp)).toBe(true);
     });
 
-    it("should handle edge case of exactly now (within tolerance)", () => {
+    it('should handle edge case of exactly now (within tolerance)', () => {
       // Note: The actual implementation uses `< Date.now()` which means
       // a signature expiring at the current second is considered expired.
       // This is the safer behavior to avoid race conditions.
@@ -52,7 +52,7 @@ describe("StakeAndBake Signature Restoration Logic", () => {
     });
   });
 
-  describe("Signature Restoration Result Handling", () => {
+  describe('Signature Restoration Result Handling', () => {
     interface StakeAndBakeRestoreResult {
       hasSignature: boolean;
       signature?: string;
@@ -66,22 +66,22 @@ describe("StakeAndBake Signature Restoration Logic", () => {
       return result?.hasSignature === true;
     };
 
-    it("should skip authorization when valid signature exists", () => {
+    it('should skip authorization when valid signature exists', () => {
       const validResult: StakeAndBakeRestoreResult = {
         hasSignature: true,
-        signature: "0xabc123",
-        depositAmount: "20000",
+        signature: '0xabc123',
+        depositAmount: '20000',
         expirationDate: String(Math.floor(Date.now() / 1000) + 86400),
       };
 
       expect(shouldSkipAuthorization(validResult)).toBe(true);
     });
 
-    it("should require authorization when result is null", () => {
+    it('should require authorization when result is null', () => {
       expect(shouldSkipAuthorization(null)).toBe(false);
     });
 
-    it("should require authorization when hasSignature is false", () => {
+    it('should require authorization when hasSignature is false', () => {
       const noSignatureResult: StakeAndBakeRestoreResult = {
         hasSignature: false,
       };
@@ -89,12 +89,12 @@ describe("StakeAndBake Signature Restoration Logic", () => {
       expect(shouldSkipAuthorization(noSignatureResult)).toBe(false);
     });
 
-    it("should skip authorization even if signature string is undefined (server has it)", () => {
+    it('should skip authorization even if signature string is undefined (server has it)', () => {
       // In some cases, the API may not return the actual signature string
       // but still indicate that a valid signature exists
       const hasSignatureNoString: StakeAndBakeRestoreResult = {
         hasSignature: true,
-        depositAmount: "20000",
+        depositAmount: '20000',
         expirationDate: String(Math.floor(Date.now() / 1000) + 86400),
       };
 
@@ -102,7 +102,7 @@ describe("StakeAndBake Signature Restoration Logic", () => {
     });
   });
 
-  describe("Status Flow Documentation", () => {
+  describe('Status Flow Documentation', () => {
     /**
      * Documents the expected status transitions for BtcStakeAndDeploy.prepare()
      *
@@ -119,60 +119,55 @@ describe("StakeAndBake Signature Restoration Logic", () => {
      * IDLE → prepare() → NEEDS_DEPLOY_AUTHORIZATION (re-auth needed)
      */
 
-    it("should document scenario 1: fresh start requires authorization", () => {
+    it('should document scenario 1: fresh start requires authorization', () => {
       const hasDeposit = false;
       const hasValidSignature = false;
 
-      const expectedStatus =
-        !hasDeposit && !hasValidSignature
-          ? "NEEDS_DEPLOY_AUTHORIZATION"
-          : "READY";
+      const expectedStatus = !hasDeposit && !hasValidSignature
+        ? 'NEEDS_DEPLOY_AUTHORIZATION'
+        : 'READY';
 
-      expect(expectedStatus).toBe("NEEDS_DEPLOY_AUTHORIZATION");
+      expect(expectedStatus).toBe('NEEDS_DEPLOY_AUTHORIZATION');
     });
 
-    it("should document scenario 2: existing signature skips to READY", () => {
+    it('should document scenario 2: existing signature skips to READY', () => {
       const _hasDeposit = false; // Not used in this scenario - signature alone determines status
       const hasValidSignature = true;
 
-      const expectedStatus = hasValidSignature
-        ? "READY"
-        : "NEEDS_DEPLOY_AUTHORIZATION";
+      const expectedStatus = hasValidSignature ? 'READY' : 'NEEDS_DEPLOY_AUTHORIZATION';
 
-      expect(expectedStatus).toBe("READY");
+      expect(expectedStatus).toBe('READY');
     });
 
-    it("should document scenario 3: existing deposit + signature → ADDRESS_READY", () => {
+    it('should document scenario 3: existing deposit + signature → ADDRESS_READY', () => {
       const hasDeposit = true;
       const hasValidSignature = true;
 
-      const expectedStatus =
-        hasDeposit && hasValidSignature
-          ? "ADDRESS_READY"
-          : "NEEDS_DEPLOY_AUTHORIZATION";
+      const expectedStatus = hasDeposit && hasValidSignature
+        ? 'ADDRESS_READY'
+        : 'NEEDS_DEPLOY_AUTHORIZATION';
 
-      expect(expectedStatus).toBe("ADDRESS_READY");
+      expect(expectedStatus).toBe('ADDRESS_READY');
     });
 
-    it("should document scenario 4: deposit exists but signature expired → re-auth", () => {
+    it('should document scenario 4: deposit exists but signature expired → re-auth', () => {
       const hasDeposit = true;
       const hasValidSignature = false;
 
-      const expectedStatus =
-        hasDeposit && !hasValidSignature
-          ? "NEEDS_DEPLOY_AUTHORIZATION"
-          : "ADDRESS_READY";
+      const expectedStatus = hasDeposit && !hasValidSignature
+        ? 'NEEDS_DEPLOY_AUTHORIZATION'
+        : 'ADDRESS_READY';
 
-      expect(expectedStatus).toBe("NEEDS_DEPLOY_AUTHORIZATION");
+      expect(expectedStatus).toBe('NEEDS_DEPLOY_AUTHORIZATION');
     });
   });
 
-  describe("Error Handling", () => {
-    it("should treat API errors as no-signature-found", async () => {
+  describe('Error Handling', () => {
+    it('should treat API errors as no-signature-found', async () => {
       // Simulate the error handling in restoreStakeAndBakeSignature
       const restoreWithErrorHandling = async (): Promise<null> => {
         try {
-          throw new Error("Network error");
+          throw new Error('Network error');
         } catch {
           return null;
         }
@@ -184,7 +179,7 @@ describe("StakeAndBake Signature Restoration Logic", () => {
   });
 });
 
-describe("getUserStakeAndBakeSignature API Response Parsing", () => {
+describe('getUserStakeAndBakeSignature API Response Parsing', () => {
   interface ApiResponse {
     user_destination_address: string;
     signature: string;
@@ -201,23 +196,21 @@ describe("getUserStakeAndBakeSignature API Response Parsing", () => {
     chainId: data.chain_id,
   });
 
-  it("should correctly parse snake_case API response to camelCase", () => {
+  it('should correctly parse snake_case API response to camelCase', () => {
     const apiResponse: ApiResponse = {
-      user_destination_address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0",
-      signature: "0xabc123def456",
-      expiration_date: "1704067200", // Unix timestamp
-      deposit_amount: "20000",
-      chain_id: "1",
+      user_destination_address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      signature: '0xabc123def456',
+      expiration_date: '1704067200', // Unix timestamp
+      deposit_amount: '20000',
+      chain_id: '1',
     };
 
     const parsed = parseApiResponse(apiResponse);
 
-    expect(parsed.userDestinationAddress).toBe(
-      "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0",
-    );
-    expect(parsed.signature).toBe("0xabc123def456");
-    expect(parsed.expirationDate).toBe("1704067200");
-    expect(parsed.depositAmount).toBe("20000");
-    expect(parsed.chainId).toBe("1");
+    expect(parsed.userDestinationAddress).toBe('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
+    expect(parsed.signature).toBe('0xabc123def456');
+    expect(parsed.expirationDate).toBe('1704067200');
+    expect(parsed.depositAmount).toBe('20000');
+    expect(parsed.chainId).toBe('1');
   });
 });

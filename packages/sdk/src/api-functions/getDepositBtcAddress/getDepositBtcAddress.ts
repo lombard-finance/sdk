@@ -1,25 +1,25 @@
-import { Address, pad } from "viem";
+import { Address, pad } from 'viem';
 
-import { getChainNameById } from "../../common/blockchain-identifier";
+import { getChainNameById } from '../../common/blockchain-identifier';
 import {
   isSolanaChain,
   isStarknetChainId,
   isSuiChain,
   isValidChain,
-} from "../../common/chains";
+} from '../../common/chains';
 import {
   AddressKind,
   getSolanaTokenAddress,
   getStarknetTokenAddress,
   getSuiTokenAddress,
   Token,
-} from "../../tokens/token-addresses";
-import { getTokenContractInfo } from "../../tokens/tokens";
-import { makeRequest } from "./make-request";
+} from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { makeRequest } from './make-request';
 import type {
   IGetDepositBtcAddressesParameters,
   IGetDepositBtcAddressParameters,
-} from "./types";
+} from './types';
 
 /**
  * Returns the current address for depositing BTC by given parameters.
@@ -43,7 +43,7 @@ export async function getDepositBtcAddress({
   let depositAddress: string | undefined = undefined;
 
   if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(tokenParam)) {
-    throw new Error("Unsupported token");
+    throw new Error('Unsupported token');
   }
 
   // Filter deposit addresses by the destination token
@@ -73,7 +73,8 @@ export async function getDepositBtcAddress({
     }
 
     if (isSolanaChain(chainId)) {
-      const solanaToken = tokenParam === Token.BTCb ? Token.BTCb : Token.LBTC;
+      const solanaToken =
+        tokenParam === Token.BTCb ? Token.BTCb : Token.LBTC;
       const tokenAddress = getSolanaTokenAddress(chainId, env, solanaToken);
       if (tokenAddress) {
         tokenAddressFilter = {
@@ -84,7 +85,7 @@ export async function getDepositBtcAddress({
 
     if (isStarknetChainId(chainId)) {
       // api returns the address of the asset router contract
-      const tokenAddress = getStarknetTokenAddress(chainId, env, "assetRouter");
+      const tokenAddress = getStarknetTokenAddress(chainId, env, 'assetRouter');
       if (tokenAddress) {
         tokenAddressFilter = {
           token_address: tokenAddress.toLowerCase(),
@@ -101,14 +102,14 @@ export async function getDepositBtcAddress({
 
   const addresses = (_addresses || [])
     .filter(
-      (a) =>
+      a =>
         // filter by chain id
         a.deposit_metadata.to_blockchain.toLowerCase() ===
           getChainNameById(chainId).toLowerCase() &&
         // filter by address
         a.deposit_metadata.to_address.toLowerCase() === address.toLowerCase(),
     )
-    .filter((a) => {
+    .filter(a => {
       if (!tokenAddressFilter) {
         return false;
       }

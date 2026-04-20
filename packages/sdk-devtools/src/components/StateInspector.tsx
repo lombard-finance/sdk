@@ -7,8 +7,8 @@
  * @module sdk-devtools/components/StateInspector
  */
 
-import { Check, ChevronDown, ChevronRight, Copy } from "lucide-react";
-import { useCallback, useState } from "react";
+import { Check,ChevronDown, ChevronRight, Copy } from 'lucide-react';
+import { useCallback,useState } from 'react';
 
 export interface StateInspectorProps {
   /** State object to inspect */
@@ -31,9 +31,9 @@ export interface StateInspectorProps {
  */
 export function StateInspector({
   state,
-  title = "State",
+  title = 'State',
   defaultExpandDepth = 2,
-  className = "",
+  className = '',
 }: StateInspectorProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -42,11 +42,9 @@ export function StateInspector({
     try {
       await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
       setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      setTimeout(() => { setCopied(false); }, 2000);
     } catch (err) {
-      console.error("Failed to copy:", err);
+      console.error('Failed to copy:', err);
     }
   }, [state]);
 
@@ -57,9 +55,7 @@ export function StateInspector({
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <button
-          onClick={() => {
-            setIsExpanded(!isExpanded);
-          }}
+          onClick={() => { setIsExpanded(!isExpanded); }}
           className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
         >
           {isExpanded ? (
@@ -70,9 +66,7 @@ export function StateInspector({
           {title}
         </button>
         <button
-          onClick={() => {
-            void handleCopy();
-          }}
+          onClick={() => { void handleCopy(); }}
           className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
           title="Copy state as JSON"
         >
@@ -120,7 +114,7 @@ function StateTree({
   const [isOpen, setIsOpen] = useState(depth < defaultExpandDepth);
 
   const indent = depth * 12;
-  const isExpandable = value !== null && typeof value === "object";
+  const isExpandable = value !== null && typeof value === 'object';
 
   // Render primitive values
   if (!isExpandable) {
@@ -129,11 +123,7 @@ function StateTree({
         className="flex items-baseline gap-1 font-mono text-xs"
         style={{ marginLeft: indent }}
       >
-        {keyName && (
-          <span className="text-purple-600 dark:text-purple-400">
-            {keyName}:
-          </span>
-        )}
+        {keyName && <span className="text-purple-600 dark:text-purple-400">{keyName}:</span>}
         <ValueDisplay value={value} />
       </div>
     );
@@ -144,11 +134,7 @@ function StateTree({
     if (value.length === 0) {
       return (
         <div className="font-mono text-xs" style={{ marginLeft: indent }}>
-          {keyName && (
-            <span className="text-purple-600 dark:text-purple-400">
-              {keyName}:{" "}
-            </span>
-          )}
+          {keyName && <span className="text-purple-600 dark:text-purple-400">{keyName}: </span>}
           <span className="text-gray-400 dark:text-gray-500">[]</span>
         </div>
       );
@@ -157,9 +143,7 @@ function StateTree({
     return (
       <div style={{ marginLeft: indent }}>
         <button
-          onClick={() => {
-            setIsOpen(!isOpen);
-          }}
+          onClick={() => { setIsOpen(!isOpen); }}
           className="flex items-center gap-1 font-mono text-xs hover:bg-gray-200 dark:hover:bg-gray-800 rounded px-1 -ml-1"
         >
           {isOpen ? (
@@ -167,11 +151,7 @@ function StateTree({
           ) : (
             <ChevronRight className="w-3 h-3 text-gray-400 dark:text-gray-500" />
           )}
-          {keyName && (
-            <span className="text-purple-600 dark:text-purple-400">
-              {keyName}:
-            </span>
-          )}
+          {keyName && <span className="text-purple-600 dark:text-purple-400">{keyName}:</span>}
           <span className="text-gray-500">[{value.length}]</span>
         </button>
         {isOpen && (
@@ -196,12 +176,8 @@ function StateTree({
   if (entries.length === 0) {
     return (
       <div className="font-mono text-xs" style={{ marginLeft: indent }}>
-        {keyName && (
-          <span className="text-purple-600 dark:text-purple-400">
-            {keyName}:{" "}
-          </span>
-        )}
-        <span className="text-gray-400 dark:text-gray-500">{"{}"}</span>
+        {keyName && <span className="text-purple-600 dark:text-purple-400">{keyName}: </span>}
+        <span className="text-gray-400 dark:text-gray-500">{'{}'}</span>
       </div>
     );
   }
@@ -209,9 +185,7 @@ function StateTree({
   return (
     <div style={{ marginLeft: indent }}>
       <button
-        onClick={() => {
-          setIsOpen(!isOpen);
-        }}
+        onClick={() => { setIsOpen(!isOpen); }}
         className="flex items-center gap-1 font-mono text-xs hover:bg-gray-200 dark:hover:bg-gray-800 rounded px-1 -ml-1"
       >
         {isOpen ? (
@@ -219,11 +193,7 @@ function StateTree({
         ) : (
           <ChevronRight className="w-3 h-3 text-gray-400 dark:text-gray-500" />
         )}
-        {keyName && (
-          <span className="text-purple-600 dark:text-purple-400">
-            {keyName}:
-          </span>
-        )}
+        {keyName && <span className="text-purple-600 dark:text-purple-400">{keyName}:</span>}
         <span className="text-gray-500">{`{${entries.length}}`}</span>
       </button>
       {isOpen && (
@@ -254,22 +224,17 @@ function ValueDisplay({ value }: { value: unknown }) {
   if (value === undefined) {
     return <span className="text-gray-400 dark:text-gray-500">undefined</span>;
   }
-  if (typeof value === "boolean") {
-    return (
-      <span className="text-blue-600 dark:text-blue-400">{String(value)}</span>
-    );
+  if (typeof value === 'boolean') {
+    return <span className="text-blue-600 dark:text-blue-400">{String(value)}</span>;
   }
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     return <span className="text-green-600 dark:text-green-400">{value}</span>;
   }
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     // Truncate long strings
     const display = value.length > 50 ? `${value.slice(0, 50)}...` : value;
-    return (
-      <span className="text-amber-600 dark:text-yellow-300">"{display}"</span>
-    );
+    return <span className="text-amber-600 dark:text-yellow-300">"{display}"</span>;
   }
-  return (
-    <span className="text-gray-600 dark:text-gray-400">{String(value)}</span>
-  );
+  return <span className="text-gray-600 dark:text-gray-400">{String(value)}</span>;
 }
+

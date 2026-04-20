@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-import { CodeBlock } from "../CodeBlock/CodeBlock";
+import { CodeBlock } from '../CodeBlock/CodeBlock';
 
 interface ResultDisplayProps {
   result: string | object | null | undefined; // Allow objects for JSON stringify
@@ -11,7 +11,7 @@ interface ResultDisplayProps {
 
 export const ResultDisplay: React.FC<ResultDisplayProps> = ({
   result,
-  title = "Result",
+  title = 'Result',
   successMessage,
   isJson = false,
 }) => {

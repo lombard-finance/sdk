@@ -1,18 +1,18 @@
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
   AccountInfo,
   Connection,
   ParsedAccountData,
   PublicKey,
   RpcResponseAndContext,
-} from "@solana/web3.js";
-import BigNumber from "bignumber.js";
+} from '@solana/web3.js';
+import BigNumber from 'bignumber.js';
 
-import { INVALID_ADDRESS_ERROR } from "../../const/known-errors";
-import { DEFAULT_NETWORK, getConnection } from "../../const/rpcUrls";
-import { SOL_DECIMALS, SOL_SCALE } from "../../const/token";
-import { GetBalanceParams, GetBalanceResult } from "../../types/sdkTypes";
-import { ErrorCode, SolanaSdkError } from "../../utils/errors";
+import { INVALID_ADDRESS_ERROR } from '../../const/known-errors';
+import { DEFAULT_NETWORK, getConnection } from '../../const/rpcUrls';
+import { SOL_DECIMALS, SOL_SCALE } from '../../const/token';
+import { GetBalanceParams, GetBalanceResult } from '../../types/sdkTypes';
+import { ErrorCode, SolanaSdkError } from '../../utils/errors';
 
 const isParsedAccountData = (
   accountInfo: RpcResponseAndContext<AccountInfo<
@@ -21,7 +21,7 @@ const isParsedAccountData = (
 ): accountInfo is RpcResponseAndContext<AccountInfo<ParsedAccountData> | null> => {
   if (!accountInfo.value?.data) return false;
   return (
-    typeof (accountInfo.value.data as ParsedAccountData).parsed !== "undefined"
+    typeof (accountInfo.value.data as ParsedAccountData).parsed !== 'undefined'
   );
 };
 
@@ -159,13 +159,13 @@ export async function getBalance({
       // Check if it's a 403 or access denied error (common with public RPC endpoints)
       if (
         error instanceof Error &&
-        (error.message.includes("403") ||
-          error.message.includes("forbidden") ||
-          error.message.includes("access denied"))
+        (error.message.includes('403') ||
+          error.message.includes('forbidden') ||
+          error.message.includes('access denied'))
       ) {
         const errorMessage =
-          "RPC access forbidden (HTTP 403). The public Solana RPC endpoints have strict rate limits " +
-          "and may block requests. For production use, please use a dedicated RPC provider.";
+          'RPC access forbidden (HTTP 403). The public Solana RPC endpoints have strict rate limits ' +
+          'and may block requests. For production use, please use a dedicated RPC provider.';
 
         throw SolanaSdkError.wrap(error, ErrorCode.NETWORK_ERROR, errorMessage);
       }

@@ -33,10 +33,7 @@ app.post("/api/chat", async (req, res) => {
       const reader = response.body.getReader();
       const pump = async () => {
         const { done, value } = await reader.read();
-        if (done) {
-          res.end();
-          return;
-        }
+        if (done) { res.end(); return; }
         res.write(value);
         await pump();
       };

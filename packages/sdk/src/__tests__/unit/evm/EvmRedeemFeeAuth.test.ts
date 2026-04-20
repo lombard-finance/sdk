@@ -7,18 +7,18 @@
  * 3. EvmRedeem correctly handles existing valid signatures
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ChainId } from "../../../common/chains";
-import { requiresAutoMintFee } from "../../../common/fee-requirements";
-import { EvmOperationStatus } from "../../../shared/constants/statusConstants";
+import { ChainId } from '../../../common/chains';
+import { requiresAutoMintFee } from '../../../common/fee-requirements';
+import { EvmOperationStatus } from '../../../shared/constants/statusConstants';
 
 // Mock the fee requirements module
-vi.mock("../../../common/fee-requirements", () => ({
+vi.mock('../../../common/fee-requirements', () => ({
   requiresAutoMintFee: vi.fn(),
 }));
 
-describe("EVM Redeem Fee Authorization", () => {
+describe('EVM Redeem Fee Authorization', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -27,47 +27,43 @@ describe("EVM Redeem Fee Authorization", () => {
     vi.restoreAllMocks();
   });
 
-  describe("requiresAutoMintFee", () => {
-    it("should return true for Ethereum mainnet", () => {
+  describe('requiresAutoMintFee', () => {
+    it('should return true for Ethereum mainnet', () => {
       vi.mocked(requiresAutoMintFee).mockReturnValue(true);
       expect(requiresAutoMintFee(ChainId.ethereum)).toBe(true);
     });
 
-    it("should return true for Sepolia testnet", () => {
+    it('should return true for Sepolia testnet', () => {
       vi.mocked(requiresAutoMintFee).mockReturnValue(true);
       expect(requiresAutoMintFee(ChainId.sepolia)).toBe(true);
     });
 
-    it("should return false for Base (subsidized)", () => {
+    it('should return false for Base (subsidized)', () => {
       vi.mocked(requiresAutoMintFee).mockReturnValue(false);
       expect(requiresAutoMintFee(ChainId.base)).toBe(false);
     });
 
-    it("should return false for BSC (subsidized)", () => {
+    it('should return false for BSC (subsidized)', () => {
       vi.mocked(requiresAutoMintFee).mockReturnValue(false);
       expect(requiresAutoMintFee(ChainId.binanceSmartChain)).toBe(false);
     });
   });
 
-  describe("EvmOperationStatus", () => {
-    it("should have NEEDS_FEE_AUTHORIZATION status", () => {
-      expect(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION).toBe(
-        "needs_fee_authorization",
-      );
+  describe('EvmOperationStatus', () => {
+    it('should have NEEDS_FEE_AUTHORIZATION status', () => {
+      expect(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION).toBe('needs_fee_authorization');
     });
 
-    it("should have all required statuses for EVM redeem flow", () => {
-      expect(EvmOperationStatus.IDLE).toBe("idle");
-      expect(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION).toBe(
-        "needs_fee_authorization",
-      );
-      expect(EvmOperationStatus.READY).toBe("ready");
-      expect(EvmOperationStatus.COMPLETED).toBe("completed");
+    it('should have all required statuses for EVM redeem flow', () => {
+      expect(EvmOperationStatus.IDLE).toBe('idle');
+      expect(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION).toBe('needs_fee_authorization');
+      expect(EvmOperationStatus.READY).toBe('ready');
+      expect(EvmOperationStatus.COMPLETED).toBe('completed');
     });
   });
 
-  describe("Fee Authorization Flow", () => {
-    it("documents expected flow for Ethereum (unsubsidized)", () => {
+  describe('Fee Authorization Flow', () => {
+    it('documents expected flow for Ethereum (unsubsidized)', () => {
       // On Ethereum/Sepolia, the flow should be:
       // IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED
       const expectedFlow = [
@@ -81,7 +77,7 @@ describe("EVM Redeem Fee Authorization", () => {
       expect(expectedFlow[1]).toBe(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
     });
 
-    it("documents expected flow for Base (subsidized)", () => {
+    it('documents expected flow for Base (subsidized)', () => {
       // On Base/BSC (subsidized), the flow should skip fee auth:
       // IDLE → READY → COMPLETED
       const expectedFlow = [
@@ -91,9 +87,7 @@ describe("EVM Redeem Fee Authorization", () => {
       ];
 
       expect(expectedFlow).toHaveLength(3);
-      expect(expectedFlow).not.toContain(
-        EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-      );
+      expect(expectedFlow).not.toContain(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
     });
   });
 });

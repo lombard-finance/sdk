@@ -1,10 +1,10 @@
-import { makeWalletClient } from "../../clients/wallet-client";
-import { ChainId } from "../../common/chains";
+import { makeWalletClient } from '../../clients/wallet-client';
+import { ChainId } from '../../common/chains';
 import {
   ISignStakeAndBakeParams,
   ISignStakeAndBakeResult,
-} from "./signStakeAndBake";
-import { buildTypedData, serializeTypedData } from "./typed-data-builder";
+} from './signStakeAndBake';
+import { buildTypedData, serializeTypedData } from './typed-data-builder';
 
 /**
  * Handle permit flow (off-chain signature).
@@ -12,7 +12,7 @@ import { buildTypedData, serializeTypedData } from "./typed-data-builder";
  */
 export async function handlePermitFlow(params: {
   chainId: ChainId;
-  provider: ISignStakeAndBakeParams["provider"];
+  provider: ISignStakeAndBakeParams['provider'];
   typedData: ReturnType<typeof buildTypedData>;
 }): Promise<ISignStakeAndBakeResult> {
   const { chainId, provider, typedData } = params;
@@ -21,7 +21,7 @@ export async function handlePermitFlow(params: {
   const signature = await walletClient.signTypedData(typedData);
 
   return {
-    mode: "permit",
+    mode: 'permit',
     signature,
     typedData: serializeTypedData(typedData),
   };

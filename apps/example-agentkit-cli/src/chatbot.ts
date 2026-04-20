@@ -42,17 +42,13 @@ async function initializeAgent() {
   console.log(`\nAgent wallet: ${address}`);
   console.log(`Network: ${networkId}`);
 
-  const lombardTools = tools.filter(
-    (t) =>
-      t.name.includes("lbtc") ||
-      t.name.includes("btc") ||
-      t.name.includes("deploy") ||
-      t.name.includes("claim") ||
-      t.name.includes("deposit") ||
-      t.name.includes("unstake") ||
-      t.name.includes("stake"),
+  const lombardTools = tools.filter(t =>
+    t.name.includes("lbtc") || t.name.includes("btc") ||
+    t.name.includes("deploy") || t.name.includes("claim") ||
+    t.name.includes("deposit") || t.name.includes("unstake") ||
+    t.name.includes("stake"),
   );
-  console.log(`Lombard actions: ${lombardTools.map((t) => t.name).join(", ")}`);
+  console.log(`Lombard actions: ${lombardTools.map(t => t.name).join(", ")}`);
 
   return { agent, address };
 }
@@ -62,7 +58,7 @@ async function main() {
   console.log("========================\n");
 
   const required = ["ANTHROPIC_API_KEY", "WALLET_PRIVATE_KEY"];
-  const missing = required.filter((k) => !process.env[k]);
+  const missing = required.filter(k => !process.env[k]);
   if (missing.length > 0) {
     console.error(`Missing env vars: ${missing.join(", ")}`);
     console.error("Copy .env.example to .env and fill in the values.");
@@ -105,9 +101,7 @@ async function main() {
           }
           if ("tools" in chunk) {
             for (const msg of chunk.tools.messages) {
-              console.log(
-                `  [tool: ${msg.name}] ${String(msg.content).slice(0, 200)}`,
-              );
+              console.log(`  [tool: ${msg.name}] ${String(msg.content).slice(0, 200)}`);
             }
           }
         }

@@ -6,11 +6,11 @@
  * @module chains/solana/actions/unstake/config/btc
  */
 
-import { Env } from "@lombard.finance/sdk-common";
+import { Env } from '@lombard.finance/sdk-common';
 
-import { Chain } from "../../../../../core";
-import { bitcoinAddressSchema } from "../../../../../shared/validation";
-import type { ChainConfig } from "./types";
+import { Chain } from '../../../../../core';
+import { bitcoinAddressSchema } from '../../../../../shared/validation';
+import type { ChainConfig } from './types';
 
 /**
  * Solana → BTC configuration
@@ -18,7 +18,7 @@ import type { ChainConfig } from "./types";
  * Burns LBTC on Solana, releases BTC on Bitcoin network.
  */
 export const solanaToBtcConfig: ChainConfig = {
-  chainType: "solana",
+  chainType: 'solana',
 
   routes: [
     // Production: Solana Mainnet → Bitcoin Mainnet
@@ -43,7 +43,7 @@ export const solanaToBtcConfig: ChainConfig = {
  */
 export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return solanaToBtcConfig.routes.some(
-    (route) =>
+    route =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

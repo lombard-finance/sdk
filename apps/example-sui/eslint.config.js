@@ -1,8 +1,8 @@
-import rootConfig from "../../eslint.config.js";
+import rootConfig from '../../eslint.config.js';
 
 export default [
   ...rootConfig,
   {
-    ignores: ["dist/**", "vite.config.ts"],
+    ignores: ['dist/**', 'vite.config.ts'],
   },
 ];

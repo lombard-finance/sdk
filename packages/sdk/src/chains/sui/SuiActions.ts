@@ -14,15 +14,15 @@
  * ```
  */
 
-import type { SuiService } from "@lombard.finance/sdk-common";
+import type { SuiService } from '@lombard.finance/sdk-common';
 
-import { PartnerConfiguration } from "../../client/PartnerConfiguration";
-import type { LombardConfig } from "../../config/types";
-import { getProviderGetter } from "../../config/types";
-import { CapabilityRegistry } from "../../modules/CapabilityRegistry";
-import type { SuiCoreContext } from "../../shared/context";
-import { SuiUnstake } from "./actions/unstake/SuiUnstake";
-import type { ISuiUnstake, SuiUnstakeParams } from "./actions/unstake/types";
+import { PartnerConfiguration } from '../../client/PartnerConfiguration';
+import type { LombardConfig } from '../../config/types';
+import { getProviderGetter } from '../../config/types';
+import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
+import type { SuiCoreContext } from '../../shared/context';
+import { SuiUnstake } from './actions/unstake/SuiUnstake';
+import type { ISuiUnstake, SuiUnstakeParams } from './actions/unstake/types';
 
 /**
  * Create Sui core context from config
@@ -30,12 +30,12 @@ import type { ISuiUnstake, SuiUnstakeParams } from "./actions/unstake/types";
  */
 function createSuiCoreContext(config: LombardConfig): SuiCoreContext {
   const registry = new CapabilityRegistry(config.modules, config);
-  const sui = registry.require("sui") as SuiService;
+  const sui = registry.require('sui') as SuiService;
 
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
-    getProvider: async (key) => {
+    getProvider: async key => {
       const getter = getProviderGetter(config.providers, key);
       if (!getter) return undefined;
       return getter();

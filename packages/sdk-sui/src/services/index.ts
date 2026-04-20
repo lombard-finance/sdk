@@ -4,4 +4,4 @@
  * @module services
  */
 
-export { SuiServiceImpl } from "./SuiServiceImpl";
+export { SuiServiceImpl } from './SuiServiceImpl';

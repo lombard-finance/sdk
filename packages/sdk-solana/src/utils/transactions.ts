@@ -2,16 +2,16 @@ import {
   Connection,
   Transaction,
   TransactionInstruction,
-} from "@solana/web3.js";
+} from '@solana/web3.js';
 
-import { ISolanaWalletProvider } from "../types";
+import { ISolanaWalletProvider } from '../types';
 
 // Helper function to send and confirm transactions
 export async function sendAndConfirmTransaction({
   instruction,
   connection,
   provider,
-  debugLabel = "Transaction",
+  debugLabel = 'Transaction',
   skipPreflight = false,
 }: {
   instruction: Transaction | TransactionInstruction;
@@ -23,7 +23,7 @@ export async function sendAndConfirmTransaction({
   const transaction = new Transaction();
   transaction.add(instruction);
   const { blockhash, lastValidBlockHeight } =
-    await connection.getLatestBlockhash("confirmed");
+    await connection.getLatestBlockhash('confirmed');
   transaction.recentBlockhash = blockhash;
   transaction.feePayer = provider.publicKey;
 
@@ -43,7 +43,7 @@ export async function sendAndConfirmTransaction({
         blockhash,
         lastValidBlockHeight,
       },
-      "confirmed",
+      'confirmed',
     );
 
     if (confirmation.value.err) {
@@ -55,10 +55,10 @@ export async function sendAndConfirmTransaction({
     return { signature, signedTransaction: signedTx };
   } catch (error: unknown) {
     if (
-      typeof error === "object" &&
+      typeof error === 'object' &&
       error !== null &&
-      "name" in error &&
-      "logs" in error
+      'name' in error &&
+      'logs' in error
     ) {
       const logs = (error as { logs: string[] }).logs || [];
       throw new Error(

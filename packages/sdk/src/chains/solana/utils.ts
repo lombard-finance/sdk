@@ -4,7 +4,7 @@
  * @module chains/solana/utils
  */
 
-import type { Env } from "@lombard.finance/sdk-common";
+import type { Env } from '@lombard.finance/sdk-common';
 
 /**
  * Map a Lombard environment to the Solana network string expected by
@@ -15,14 +15,14 @@ import type { Env } from "@lombard.finance/sdk-common";
  */
 export function envToSolanaNetwork(env: Env): string {
   switch (env) {
-    case "prod":
-      return "mainnet-beta";
-    case "testnet":
-      return "testnet";
-    case "stage":
-    case "dev":
-    case "ibc":
+    case 'prod':
+      return 'mainnet-beta';
+    case 'testnet':
+      return 'testnet';
+    case 'stage':
+    case 'dev':
+    case 'ibc':
     default:
-      return "devnet";
+      return 'devnet';
   }
 }

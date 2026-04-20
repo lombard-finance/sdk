@@ -1,4 +1,4 @@
-import { uint256 } from "starknet";
+import { uint256 } from 'starknet';
 
 // Example of the proof hex:
 // 0x
@@ -23,9 +23,9 @@ import { uint256 } from "starknet";
 
 export function parseProofHexToU256Tuples(proofHex: string) {
   let calldataHex = proofHex;
-  if (calldataHex.startsWith("0x")) calldataHex = calldataHex.slice(2);
+  if (calldataHex.startsWith('0x')) calldataHex = calldataHex.slice(2);
   const words = calldataHex.match(/.{64}/g); // each word = 32 bytes = 64 hex chars
-  if (!words) throw new Error("Invalid hex string");
+  if (!words) throw new Error('Invalid hex string');
 
   const offsetToArray = Number.parseInt(words[0], 16) / 32;
   const arrayLength = Number.parseInt(words[offsetToArray], 16);

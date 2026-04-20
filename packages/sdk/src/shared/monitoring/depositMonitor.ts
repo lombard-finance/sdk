@@ -7,11 +7,11 @@
  * @module shared/monitoring/depositMonitor
  */
 
-import { StepStatus } from "../../core";
-import type { BtcService } from "../../modules/btcModule";
+import { StepStatus } from '../../core';
+import type { BtcService } from '../../modules/btcModule';
 
 /** Bitcoin network mode */
-export type NetworkMode = "mainnet" | "testnet";
+export type NetworkMode = 'mainnet' | 'testnet';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -111,7 +111,7 @@ export async function monitorDeposit(
   }
 
   const blockHeight = deposit.blockHeight;
-  if (typeof blockHeight !== "number") {
+  if (typeof blockHeight !== 'number') {
     return undefined;
   }
 
@@ -189,7 +189,7 @@ export function createPollingMonitor(
       }
     } catch (error) {
       // Continue polling on error
-      console.warn("Deposit monitor poll failed:", error);
+      console.warn('Deposit monitor poll failed:', error);
     }
 
     // Schedule next poll

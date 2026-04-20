@@ -29,8 +29,8 @@ import {
   Env,
   generateDepositBtcAddress,
   getDepositBtcAddress,
-} from "@lombard.finance/sdk";
-import { signLbtcDestinationAddrStarknet } from "@lombard.finance/sdk-starknet";
+} from '@lombard.finance/sdk';
+import { signLbtcDestinationAddrStarknet } from '@lombard.finance/sdk-starknet';
 
 let depositAddress = await getDepositBtcAddress({
   address: walletAccount.address, // connected wallet address,
@@ -61,7 +61,7 @@ if (!depositAddress) {
 ### Deposit status
 
 ```javascript
-import { getDepositsByAddress } from "@lombard.finance/sdk";
+import { getDepositsByAddress } from '@lombard.finance/sdk';
 
 const deposits = await getDepositsByAddress({
   address: walletAccount.address, // connected wallet address,
@@ -87,7 +87,7 @@ The above results with an array of:
 ### Minting LBTC
 
 ```javascript
-import { mint, Token } from "@lombard.finance/sdk-starknet";
+import { mint, Token } from '@lombard.finance/sdk-starknet';
 
 const mintParams = {
   amount: d.value, // The deposit amount
@@ -105,7 +105,7 @@ const txHash = await mint(mintParams);
 ### Checking the balance of LBTC
 
 ```javascript
-import { balanceOf, Token, StarknetChain } from "@lombard.finance/sdk-starknet";
+import { balanceOf, Token, StarknetChain } from '@lombard.finance/sdk-starknet';
 
 const tokenBalance = await balanceOf({
   account: walletAccount, // an instance of the WalletAccount class
@@ -117,7 +117,7 @@ const tokenBalance = await balanceOf({
 ### Redeeming LBTC
 
 ```javascript
-import { redeem, Token } from "@lombard.finance/sdk-starknet";
+import { redeem, Token } from '@lombard.finance/sdk-starknet';
 
 const txHash = await redeem({
   amount: amount, // amount to be redeemed, e.g. `BigNumber(0.02)`

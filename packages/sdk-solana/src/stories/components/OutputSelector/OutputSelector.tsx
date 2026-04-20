@@ -1,11 +1,11 @@
-import { Env } from "@lombard.finance/sdk-common";
-import React, { useEffect } from "react";
+import { Env } from '@lombard.finance/sdk-common';
+import React, { useEffect } from 'react';
 
-import { IOutput, useFetchOutputs } from "../../hooks/useFetchOutputs";
-import { Button } from "../Button/Button";
-import { ErrorDisplay } from "../ErrorDisplay/ErrorDisplay";
-import { SelectField } from "../SelectField/SelectField";
-import { Spinner } from "../Spinner";
+import { IOutput, useFetchOutputs } from '../../hooks/useFetchOutputs';
+import { Button } from '../Button/Button';
+import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
+import { SelectField } from '../SelectField/SelectField';
+import { Spinner } from '../Spinner';
 
 interface OutputSelectorProps {
   address: string | undefined;
@@ -22,7 +22,7 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
   isConnected,
   selectedOutput,
   onOutputSelect,
-  className = "",
+  className = '',
 }) => {
   const { outputs, isLoadingOutputs, outputsError, refetchOutputs } =
     useFetchOutputs({
@@ -38,24 +38,24 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
 
   const statusLabel = (status: string) => {
     switch (status) {
-      case "NOTARIZATION_STATUS_SESSION_APPROVED":
-        return "Ready to mint";
-      case "NOTARIZATION_STATUS_PENDING":
-        return "Pending";
-      case "NOTARIZATION_STATUS_SUBMITTED":
-        return "Submitted";
-      case "NOTARIZATION_STATUS_FAILED":
-        return "Failed";
-      case "NOTARIZATION_STATUS_GMP_HANDLED":
-        return "Auto-claimed";
+      case 'NOTARIZATION_STATUS_SESSION_APPROVED':
+        return 'Ready to mint';
+      case 'NOTARIZATION_STATUS_PENDING':
+        return 'Pending';
+      case 'NOTARIZATION_STATUS_SUBMITTED':
+        return 'Submitted';
+      case 'NOTARIZATION_STATUS_FAILED':
+        return 'Failed';
+      case 'NOTARIZATION_STATUS_GMP_HANDLED':
+        return 'Auto-claimed';
       default:
         return status;
     }
   };
 
   const outputOptions = [
-    { value: "", label: "-- Select a Bitcoin transaction --" },
-    ...outputs.map((output) => ({
+    { value: '', label: '-- Select a Bitcoin transaction --' },
+    ...outputs.map(output => ({
       value: output.txid,
       label: `${output.txid.substring(0, 10)}... - ${
         Number.parseFloat(output.value) / 10 ** 8
@@ -64,7 +64,7 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
   ];
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selected = outputs.find((o) => o.txid === e.target.value);
+    const selected = outputs.find(o => o.txid === e.target.value);
     onOutputSelect(selected || null);
   };
 
@@ -80,15 +80,15 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
       ) : outputs.length === 0 ? (
         <div className="alert alert-info">
           No pending Bitcoin outputs found for your address (
-          {address?.substring(0, 6)}...) on {environment}. You might need to
-          stake Bitcoin first or check the selected network.
+          {address?.substring(0, 6)}...) on {environment}. You might need to stake
+          Bitcoin first or check the selected network.
         </div>
       ) : (
         <>
           <SelectField
             id="output-select"
             label="Select Output to Claim"
-            value={selectedOutput?.txid || ""}
+            value={selectedOutput?.txid || ''}
             onChange={handleSelectChange}
             options={outputOptions}
             aria-label="Select Bitcoin transaction to claim"
@@ -102,15 +102,15 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
                   <strong>TxID:</strong> {selectedOutput.txid}
                 </p>
                 <p className="mb-1">
-                  <strong>Amount:</strong>{" "}
+                  <strong>Amount:</strong>{' '}
                   {Number.parseFloat(selectedOutput.value) / 10 ** 8} BTC
                 </p>
                 <p className="mb-1">
-                  <strong>Block Height:</strong>{" "}
-                  {selectedOutput.block_height || "N/A"}
+                  <strong>Block Height:</strong>{' '}
+                  {selectedOutput.block_height || 'N/A'}
                 </p>
                 <p className="mb-1">
-                  <strong>Status:</strong>{" "}
+                  <strong>Status:</strong>{' '}
                   {statusLabel(selectedOutput.notarization_status)}
                 </p>
                 {selectedOutput.token_address && (
@@ -133,7 +133,7 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
           )}
         </>
       )}
-      <div style={{ marginTop: "1rem" }}>
+      <div style={{ marginTop: '1rem' }}>
         <Button
           size="small"
           onClick={refetchOutputs}

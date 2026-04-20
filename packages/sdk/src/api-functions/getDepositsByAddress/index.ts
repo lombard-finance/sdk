@@ -1,1 +1,1 @@
-export * from "./getDepositsByAddress";
+export * from './getDepositsByAddress';

@@ -1,23 +1,23 @@
-import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../../common/chains";
-import { envSelector } from "../../stories/arg-types";
-import { Button } from "../../stories/components/Button";
-import { CodeBlock } from "../../stories/components/CodeBlock";
-import { functionType } from "../../stories/components/decorators";
-import useQuery from "../../stories/hooks/useQuery";
-import { toSatoshi } from "../../utils/satoshi";
+import { ChainId } from '../../common/chains';
+import { envSelector } from '../../stories/arg-types';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { functionType } from '../../stories/components/decorators';
+import useQuery from '../../stories/hooks/useQuery';
+import { toSatoshi } from '../../utils/satoshi';
 import {
   getLBTCExchangeRate,
   IgetLBTCExchangeRateParams,
-} from "./getLBTCExchangeRate";
+} from './getLBTCExchangeRate';
 
 const meta = {
-  title: "api/getLBTCExchangeRate",
+  title: 'api/getLBTCExchangeRate',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("api-get")],
+  tags: ['autodocs'],
+  decorators: [functionType('api-get')],
   argTypes: { ...envSelector },
 } satisfies Meta<typeof StoryView>;
 

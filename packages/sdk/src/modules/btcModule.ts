@@ -10,9 +10,9 @@
 import type {
   BtcService as IBtcService,
   ChainModule,
-} from "@lombard.finance/sdk-common";
+} from '@lombard.finance/sdk-common';
 
-import { BtcService } from "../services/BtcService";
+import { BtcService } from '../services/BtcService';
 
 /**
  * Create BTC module
@@ -28,10 +28,10 @@ import { BtcService } from "../services/BtcService";
  * const stake = sdk.chain.btc.stake({ ... });
  * ```
  */
-export function btcModule(): ChainModule<"btc", IBtcService> {
+export function btcModule(): ChainModule<'btc', IBtcService> {
   return {
-    id: "btc",
-    chain: "btc",
+    id: 'btc',
+    chain: 'btc',
     register() {
       return new BtcService();
     },

@@ -9,46 +9,35 @@
  * @module chains/evm/actions/withdraw/EvmWithdraw
  */
 
-import BigNumber from "bignumber.js";
-import type { EIP1193Provider } from "viem";
-import { z } from "zod";
+import BigNumber from 'bignumber.js';
+import type { EIP1193Provider } from 'viem';
+import { z } from 'zod';
 
-import { makePublicClient } from "../../../../clients/public-client";
-import { makeWalletClient } from "../../../../clients/wallet-client";
-import {
-  CHAIN_ID_TO_VIEM_CHAIN_MAP,
-  type ChainId,
-} from "../../../../common/chains";
-import type { DeployProtocol } from "../../../../core";
-import { parseChainIdentifier, StepStatus } from "../../../../core";
-import { BaseAction } from "../../../../shared/actions/BaseAction";
-import { EvmOperationStatus } from "../../../../shared/constants/statusConstants";
-import type { EvmCoreContext } from "../../../../shared/context";
-import { LombardError, WithdrawErrorCode } from "../../../../shared/errors";
-import type { WithdrawEventMap } from "../../../../shared/events";
+import { makePublicClient } from '../../../../clients/public-client';
+import { makeWalletClient } from '../../../../clients/wallet-client';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP, type ChainId } from '../../../../common/chains';
+import type { DeployProtocol } from '../../../../core';
+import { parseChainIdentifier, StepStatus } from '../../../../core';
+import { BaseAction } from '../../../../shared/actions/BaseAction';
+import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
+import type { EvmCoreContext } from '../../../../shared/context';
+import { LombardError, WithdrawErrorCode } from '../../../../shared/errors';
+import type { WithdrawEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
   validatePrepareParams,
-} from "../../../../shared/validation";
-import {
-  fromBaseDenomination,
-  toBaseDenomination,
-} from "../../../../tokens/tokens";
-import toBigInt from "../../../../utils/numbers";
-import { waitForTransactionReceipt } from "../../../../utils/transaction-executor";
-import {
-  isVedaVaultChain,
-  Vault,
-  VAULTS,
-  type VedaVaultChain,
-} from "../../../../vaults/lib/config";
-import { queueWithdraw } from "../../../../vaults/lib/ops/withdraw";
-import { evmWithdrawConfig } from "./config";
+} from '../../../../shared/validation';
+import { fromBaseDenomination, toBaseDenomination } from '../../../../tokens/tokens';
+import toBigInt from '../../../../utils/numbers';
+import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
+import { isVedaVaultChain, Vault, VAULTS, type VedaVaultChain } from '../../../../vaults/lib/config';
+import { queueWithdraw } from '../../../../vaults/lib/ops/withdraw';
+import { evmWithdrawConfig } from './config';
 import type {
   EvmWithdrawParams,
   EvmWithdrawPrepareParams,
   IEvmWithdraw,
-} from "./types";
+} from './types';
 
 export class EvmWithdraw
   extends BaseAction<WithdrawEventMap, EvmOperationStatus>
@@ -85,7 +74,7 @@ export class EvmWithdraw
   }
 
   async prepare(params: EvmWithdrawPrepareParams): Promise<void> {
-    this.assertStatus(EvmOperationStatus.IDLE, "prepare");
+    this.assertStatus(EvmOperationStatus.IDLE, 'prepare');
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params);
@@ -95,17 +84,17 @@ export class EvmWithdraw
       this.validateProtocol(this.params.protocol);
 
       // Get provider and account
-      const provider = await this.ctx.getProvider("evm");
+      const provider = await this.ctx.getProvider('evm');
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: "eth_accounts",
+        method: 'eth_accounts',
       });
       const account = (accounts as string[])[0] as `0x${string}`;
       if (!account) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
       this._account = account;
@@ -127,7 +116,7 @@ export class EvmWithdraw
       const balanceRaw = await publicClient.readContract({
         address: vault.lensContract.address,
         abi: vault.lensContract.abi,
-        functionName: "balanceOf",
+        functionName: 'balanceOf',
         args: [account, vault.vaultContract.address],
       });
       const balance = fromBaseDenomination(String(balanceRaw), vault.decimals);
@@ -145,13 +134,10 @@ export class EvmWithdraw
       const allowanceRaw = await publicClient.readContract({
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
-        functionName: "allowance",
+        functionName: 'allowance',
         args: [account, vault.withdrawQueueContracts[this._chainId].address],
       });
-      const allowance = fromBaseDenomination(
-        String(allowanceRaw),
-        vault.decimals,
-      );
+      const allowance = fromBaseDenomination(String(allowanceRaw), vault.decimals);
 
       // Check if approval is needed
       this._needsApproval = amount.isGreaterThan(allowance);
@@ -165,10 +151,7 @@ export class EvmWithdraw
       } else {
         this.emitProgress({
           status: EvmOperationStatus.READY,
-          steps: {
-            approval: StepStatus.COMPLETE,
-            queueing: StepStatus.PENDING,
-          },
+          steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING },
         });
         this.updateStatus(EvmOperationStatus.READY);
       }
@@ -176,16 +159,16 @@ export class EvmWithdraw
   }
 
   async approve(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.NEEDS_APPROVAL, "approve");
+    this.assertStatus(EvmOperationStatus.NEEDS_APPROVAL, 'approve');
 
     return this.act(async () => {
       if (!this._account || !this._chainId || !this._amount) {
-        throw LombardError.missingParameter("account, chainId, or amount");
+        throw LombardError.missingParameter('account, chainId, or amount');
       }
 
-      const provider = await this.ctx.getProvider("evm");
+      const provider = await this.ctx.getProvider('evm');
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
       const vault = VAULTS[Vault.Veda];
@@ -206,16 +189,12 @@ export class EvmWithdraw
         chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[this._chainId],
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
-        functionName: "approve",
+        functionName: 'approve',
         args: [vault.withdrawQueueContracts[vedaChainId].address, amountBase],
       });
 
       const txHash = await walletClient.writeContract(request);
-      await waitForTransactionReceipt(
-        publicClient,
-        txHash,
-        "vault share approval",
-      );
+      await waitForTransactionReceipt(publicClient, txHash, 'vault share approval');
 
       this._needsApproval = false;
       this.emitProgress({
@@ -226,16 +205,16 @@ export class EvmWithdraw
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(EvmOperationStatus.READY, "execute");
+    this.assertStatus(EvmOperationStatus.READY, 'execute');
 
     return this.act(async () => {
-      const provider = await this.ctx.getProvider("evm");
+      const provider = await this.ctx.getProvider('evm');
       if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, "evm");
+        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
       if (!this._account || !this._chainId || !this._amount) {
-        throw LombardError.missingParameter("account, chainId, or amount");
+        throw LombardError.missingParameter('account, chainId, or amount');
       }
 
       this.emitProgress({
@@ -275,12 +254,12 @@ export class EvmWithdraw
 
   private validateProtocol(protocol: DeployProtocol): void {
     const isSupported = evmWithdrawConfig.routes.some(
-      (route) =>
+      route =>
         route.protocols.includes(protocol) && route.envs.includes(this.ctx.env),
     );
     if (!isSupported) {
       throw LombardError.invalidParameter(
-        "protocol",
+        'protocol',
         `Protocol ${protocol} is not supported for withdrawals in ${this.ctx.env} environment`,
       );
     }

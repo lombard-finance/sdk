@@ -4,10 +4,10 @@
  * @module chains/solana/actions/redeem/config/types
  */
 
-import type { Env } from "@lombard.finance/sdk-common";
-import type { z } from "zod";
+import type { Env } from '@lombard.finance/sdk-common';
+import type { z } from 'zod';
 
-import type { AssetId, Chain, ChainType } from "../../../../../core";
+import type { AssetId, Chain, ChainType } from '../../../../../core';
 
 /**
  * Route definition for Solana redeem operations (LBTC → BTC.b)

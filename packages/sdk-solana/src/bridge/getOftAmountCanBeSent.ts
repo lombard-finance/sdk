@@ -1,12 +1,12 @@
-import { oft, OftPDA } from "@layerzerolabs/oft-v2-solana-sdk";
-import { Env } from "@lombard.finance/sdk-common";
-import { publicKey } from "@metaplex-foundation/umi";
-import { PublicKey } from "@solana/web3.js";
-import BigNumber from "bignumber.js";
+import { oft, OftPDA } from '@layerzerolabs/oft-v2-solana-sdk';
+import { Env } from '@lombard.finance/sdk-common';
+import { publicKey } from '@metaplex-foundation/umi';
+import { PublicKey } from '@solana/web3.js';
+import BigNumber from 'bignumber.js';
 
-import { getConfig, getRpcEndpoint } from "../const/getConfig";
-import { getMinimalUmiInstance } from "../utils/bridgeUtils";
-import { ErrorCode, SolanaSdkError } from "../utils/errors";
+import { getConfig, getRpcEndpoint } from '../const/getConfig';
+import { getMinimalUmiInstance } from '../utils/bridgeUtils';
+import { ErrorCode, SolanaSdkError } from '../utils/errors';
 
 // Constants
 const LBTC_DECIMALS = 8;
@@ -41,7 +41,7 @@ export async function getOftAmountCanBeSent({
     );
     const peerConfig = await oft.accounts.fetchPeerConfig(umi, peer);
 
-    if (peerConfig.outboundRateLimiter.__option === "None") {
+    if (peerConfig.outboundRateLimiter.__option === 'None') {
       return new BigNumber(0);
     }
 
@@ -71,7 +71,7 @@ export async function getOftAmountCanBeSent({
     throw SolanaSdkError.wrap(
       error,
       ErrorCode.RPC_ERROR,
-      "Failed to fetch Solana OFT rate limit",
+      'Failed to fetch Solana OFT rate limit',
     );
   }
 }

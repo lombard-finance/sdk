@@ -1,1 +1,1 @@
-export { getShareValue, type IGetShareValueParameters } from "./getShareValue";
+export { getShareValue, type IGetShareValueParameters } from './getShareValue';

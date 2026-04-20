@@ -1,17 +1,17 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
 import {
   Button,
   ConnectButton,
   ErrorDisplay,
   ResultDisplay,
-} from "../../stories/components";
-import { functionType } from "../../stories/decorators/function-type";
-import { useConnect } from "../../stories/hooks/useConnect";
-import useQuery from "../../stories/hooks/useQuery";
-import { SolanaNetwork } from "../../types";
-import { SolanaSdkError } from "../../utils";
-import { signLbtcDestinationAddrSolana } from "./signLbtcDestinationAddrSolana";
+} from '../../stories/components';
+import { functionType } from '../../stories/decorators/function-type';
+import { useConnect } from '../../stories/hooks/useConnect';
+import useQuery from '../../stories/hooks/useQuery';
+import { SolanaNetwork } from '../../types';
+import { SolanaSdkError } from '../../utils';
+import { signLbtcDestinationAddrSolana } from './signLbtcDestinationAddrSolana';
 
 interface SignLbtcDestAddrStoryArgs {
   network: SolanaNetwork;
@@ -30,7 +30,7 @@ export const StoryView = ({ network }: SignLbtcDestAddrStoryArgs) => {
   const provider = connectionData?.provider;
 
   const request = async () => {
-    if (!provider || !address) throw new Error("Wallet not connected.");
+    if (!provider || !address) throw new Error('Wallet not connected.');
     try {
       const result = await signLbtcDestinationAddrSolana({
         provider,
@@ -38,7 +38,7 @@ export const StoryView = ({ network }: SignLbtcDestAddrStoryArgs) => {
       });
       return result.signature;
     } catch (err: unknown) {
-      console.error("Error signing destination address:", err);
+      console.error('Error signing destination address:', err);
       throw err instanceof Error ? err : SolanaSdkError.wrap(err);
     }
   };
@@ -98,15 +98,15 @@ export const StoryView = ({ network }: SignLbtcDestAddrStoryArgs) => {
 };
 
 const meta: Meta<typeof StoryView> = {
-  title: "write/signLbtcDestinationAddrSolana",
+  title: 'write/signLbtcDestinationAddrSolana',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("write")],
+  tags: ['autodocs'],
+  decorators: [functionType('write')],
   parameters: {
     docs: {
       description: {
         component:
-          "Demonstrates signing the connected Solana wallet address using `signLbtcDestinationAddrSolana`. This is often required before unstaking.",
+          'Demonstrates signing the connected Solana wallet address using `signLbtcDestinationAddrSolana`. This is often required before unstaking.',
       },
     },
   },
@@ -115,7 +115,7 @@ const meta: Meta<typeof StoryView> = {
   },
   argTypes: {
     network: {
-      control: { type: "select" },
+      control: { type: 'select' },
       options: Object.values(SolanaNetwork),
     },
   },

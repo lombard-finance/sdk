@@ -1,2 +1,2 @@
-export * from "./get-exchange-ratio";
-export * from "./getLBTCExchangeRate";
+export * from './get-exchange-ratio';
+export * from './getLBTCExchangeRate';

@@ -1,13 +1,13 @@
-import { createContext, useCallback, useState, type ReactNode } from "react";
+import { createContext, useCallback, useState, type ReactNode } from 'react';
 
-import { normalizeStarknetAddress } from "../lib/normalizeStarknetAddress";
+import { normalizeStarknetAddress } from '../lib/normalizeStarknetAddress';
 
 /**
  * Starknet wallet IDs
  */
 export enum StarknetWalletId {
-  Braavos = "braavos",
-  ArgentX = "argentX",
+  Braavos = 'braavos',
+  ArgentX = 'argentX',
 }
 
 /**
@@ -33,14 +33,14 @@ interface WindowWithStarknet extends Window {
  */
 const STARKNET_WALLETS = {
   [StarknetWalletId.Braavos]: {
-    name: "Braavos",
-    downloadUrl: "https://braavos.app/download/",
+    name: 'Braavos',
+    downloadUrl: 'https://braavos.app/download/',
     isInstalled: () => !!(window as WindowWithStarknet).starknet_braavos,
     getProvider: () => (window as WindowWithStarknet).starknet_braavos,
   },
   [StarknetWalletId.ArgentX]: {
-    name: "Ready Wallet",
-    downloadUrl: "https://www.ready.co/download-ready-wallet",
+    name: 'Ready Wallet',
+    downloadUrl: 'https://www.ready.co/download-ready-wallet',
     isInstalled: () => !!(window as WindowWithStarknet).starknet_argentX,
     getProvider: () => (window as WindowWithStarknet).starknet_argentX,
   },
@@ -93,7 +93,7 @@ export function StarknetWalletProvider({ children }: { children: ReactNode }) {
 
         if (installed.length === 0) {
           throw new Error(
-            "No Starknet wallet detected. Please install Braavos or Ready Wallet.",
+            'No Starknet wallet detected. Please install Braavos or Ready Wallet.',
           );
         }
 
@@ -115,18 +115,18 @@ export function StarknetWalletProvider({ children }: { children: ReactNode }) {
         const addr = accounts?.[0] || walletProvider.selectedAddress;
 
         if (!addr) {
-          throw new Error("No account returned from wallet");
+          throw new Error('No account returned from wallet');
         }
 
         setProvider(walletProvider);
         setWalletId(targetWalletId);
         setAddress(normalizeStarknetAddress(addr));
       } catch (err) {
-        console.error("Failed to connect Starknet wallet:", err);
+        console.error('Failed to connect Starknet wallet:', err);
         setError(
           err instanceof Error
             ? err.message
-            : "Failed to connect Starknet wallet",
+            : 'Failed to connect Starknet wallet',
         );
       } finally {
         setIsConnecting(false);

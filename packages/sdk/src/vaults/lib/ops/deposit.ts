@@ -1,18 +1,18 @@
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import { makePublicClient } from "../../../clients/public-client";
-import { makeWalletClient } from "../../../clients/wallet-client";
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from "../../../common/chains";
-import { CommonWriteParameters } from "../../../common/parameters";
-import { Token } from "../../../tokens/token-addresses";
+import { makePublicClient } from '../../../clients/public-client';
+import { makeWalletClient } from '../../../clients/wallet-client';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../../common/chains';
+import { CommonWriteParameters } from '../../../common/parameters';
+import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
   toBaseDenomination,
-} from "../../../tokens/tokens";
-import { getErrorMessage } from "../../../utils/err";
-import toBigInt from "../../../utils/numbers";
-import { isVedaVaultChain, Vault, VAULTS } from "../config";
+} from '../../../tokens/tokens';
+import { getErrorMessage } from '../../../utils/err';
+import toBigInt from '../../../utils/numbers';
+import { isVedaVaultChain, Vault, VAULTS } from '../config';
 
 export type DepositParameters = {
   /** The amount to be deposited into the DeFi vault. */
@@ -61,7 +61,7 @@ export async function deposit({
 
   if (!isVedaVaultChain(chainId)) {
     throw new Error(
-      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(", ")}`,
+      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
   }
 
@@ -81,7 +81,7 @@ export async function deposit({
   const allowanceRaw = await publicClient.readContract({
     address: depositToken.address,
     abi: depositToken.abi,
-    functionName: "allowance",
+    functionName: 'allowance',
     args: [account, vault.vaultContract.address],
   });
   const allowance = fromBaseDenomination(
@@ -92,7 +92,7 @@ export async function deposit({
   const balanceRaw = await publicClient.readContract({
     address: depositToken.address,
     abi: depositToken.abi,
-    functionName: "balanceOf",
+    functionName: 'balanceOf',
     args: [account],
   });
   const balance = fromBaseDenomination(
@@ -123,7 +123,7 @@ export async function deposit({
         chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
         address: depositToken.address,
         abi: depositToken.abi,
-        functionName: "approve",
+        functionName: 'approve',
         args: [vault.vaultContract.address, amountBase],
       });
 
@@ -144,7 +144,7 @@ export async function deposit({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     address: vault.tellerContracts[chainId].address,
     abi: vault.tellerContracts[chainId].abi,
-    functionName: "deposit",
+    functionName: 'deposit',
     args: [depositToken.address, amountBase, 0n],
   });
   const txHash = await walletClient.writeContract(request);

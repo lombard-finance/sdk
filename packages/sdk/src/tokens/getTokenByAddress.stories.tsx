@@ -1,29 +1,29 @@
-import { Env } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
+import { Env } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../common/chains";
-import { chainSelector, envSelector } from "../stories/arg-types";
-import { Button } from "../stories/components/Button";
-import { CodeBlock } from "../stories/components/CodeBlock";
-import { functionType } from "../stories/components/decorators";
-import useQuery from "../stories/hooks/useQuery";
-import { AddressKind, getTokenByAddress } from "./token-addresses";
+import { ChainId } from '../common/chains';
+import { chainSelector, envSelector } from '../stories/arg-types';
+import { Button } from '../stories/components/Button';
+import { CodeBlock } from '../stories/components/CodeBlock';
+import { functionType } from '../stories/components/decorators';
+import useQuery from '../stories/hooks/useQuery';
+import { AddressKind, getTokenByAddress } from './token-addresses';
 
 const meta = {
-  title: "tokens/getTokenByAddress",
+  title: 'tokens/getTokenByAddress',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("read")],
+  tags: ['autodocs'],
+  decorators: [functionType('read')],
   argTypes: {
     ...chainSelector,
     ...envSelector,
     tokenAddress: {
-      control: { type: "text" },
-      description: "Token contract address",
+      control: { type: 'text' },
+      description: 'Token contract address',
     },
     addressKind: {
       options: Object.values(AddressKind),
-      control: { type: "select" },
+      control: { type: 'select' },
     },
   },
 } satisfies Meta<typeof StoryView>;
@@ -34,7 +34,7 @@ type Story = StoryObj<typeof meta>;
 
 export const LBTCOnEthereum: Story = {
   args: {
-    tokenAddress: "0x8236a87084f8b84306f72007f36f2618a5634494",
+    tokenAddress: '0x8236a87084f8b84306f72007f36f2618a5634494',
     chainId: ChainId.ethereum,
     env: undefined,
     addressKind: AddressKind.Token,
@@ -43,7 +43,7 @@ export const LBTCOnEthereum: Story = {
 
 export const LBTCOnBase: Story = {
   args: {
-    tokenAddress: "0xecAc9C5F704e954931349Da37F60E39f515c11c1",
+    tokenAddress: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     chainId: ChainId.base,
     env: undefined,
     addressKind: AddressKind.Token,
@@ -52,7 +52,7 @@ export const LBTCOnBase: Story = {
 
 export const UnknownToken: Story = {
   args: {
-    tokenAddress: "0x0000000000000000000000000000000000000000",
+    tokenAddress: '0x0000000000000000000000000000000000000000',
     chainId: ChainId.ethereum,
     env: undefined,
     addressKind: AddressKind.Token,
@@ -100,7 +100,7 @@ export function StoryView(props: StoryViewProps) {
       props.env,
       props.addressKind,
     );
-    return result || "Token not found";
+    return result || 'Token not found';
   };
 
   const { data, error, isLoading, refetch } = useQuery(
@@ -109,7 +109,7 @@ export function StoryView(props: StoryViewProps) {
     false,
   );
 
-  const isFound = data && data !== "Token not found";
+  const isFound = data && data !== 'Token not found';
 
   return (
     <div className="container">
@@ -126,7 +126,7 @@ export function StoryView(props: StoryViewProps) {
           <h5>Query Parameters</h5>
           <ul>
             <li>
-              <strong>Address:</strong>{" "}
+              <strong>Address:</strong>{' '}
               <code className="text-break">{props.tokenAddress}</code>
             </li>
             <li>
@@ -149,10 +149,10 @@ export function StoryView(props: StoryViewProps) {
       {data && (
         <div className="mt-3">
           <div
-            className={`alert ${isFound ? "alert-success" : "alert-warning"}`}
+            className={`alert ${isFound ? 'alert-success' : 'alert-warning'}`}
           >
-            <strong>Result:</strong>{" "}
-            {isFound ? `✅ Found: ${data}` : "⚠️ Token not found"}
+            <strong>Result:</strong>{' '}
+            {isFound ? `✅ Found: ${data}` : '⚠️ Token not found'}
           </div>
         </div>
       )}

@@ -4,5 +4,5 @@
  * @module chains/starknet
  */
 
-export * from "./actions";
-export { StarknetActions, starknetActions } from "./StarknetActions";
+export * from './actions';
+export { StarknetActions, starknetActions } from './StarknetActions';

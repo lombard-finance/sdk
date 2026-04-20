@@ -1,18 +1,18 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../../common/chains";
-import { chainSelector, envSelector } from "../../stories/arg-types";
-import { Button } from "../../stories/components/Button";
-import { CodeBlock } from "../../stories/components/CodeBlock";
-import { functionType } from "../../stories/components/decorators";
-import useQuery from "../../stories/hooks/useQuery";
-import { getLBTCTotalSupply } from "./getLBTCTotalSupply";
+import { ChainId } from '../../common/chains';
+import { chainSelector, envSelector } from '../../stories/arg-types';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { functionType } from '../../stories/components/decorators';
+import useQuery from '../../stories/hooks/useQuery';
+import { getLBTCTotalSupply } from './getLBTCTotalSupply';
 
 const meta = {
-  title: "read/getLBTCTotalSupply",
+  title: 'read/getLBTCTotalSupply',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("read")],
+  tags: ['autodocs'],
+  decorators: [functionType('read')],
   argTypes: { ...chainSelector, ...envSelector },
 } satisfies Meta<typeof StoryView>;
 

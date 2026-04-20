@@ -1,28 +1,28 @@
-import { Env } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
+import { Env } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../../common/chains";
-import { chainSelector } from "../../stories/arg-types";
-import { Button } from "../../stories/components/Button";
-import { CodeBlock } from "../../stories/components/CodeBlock";
-import { ConnectButton } from "../../stories/components/ConnectButton";
+import { ChainId } from '../../common/chains';
+import { chainSelector } from '../../stories/arg-types';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
   wagmiDecorator,
-} from "../../stories/components/decorators";
+} from '../../stories/components/decorators';
 import {
   canPerformAction,
   useConnection,
-} from "../../stories/hooks/useConnection";
-import useQuery from "../../stories/hooks/useQuery";
-import { Vault, VAULTS } from "../../vaults/lib/config";
-import { approveLBTC, IApproveLBTCParams } from "./approveLBTC";
+} from '../../stories/hooks/useConnection';
+import useQuery from '../../stories/hooks/useQuery';
+import { Vault,VAULTS } from '../../vaults/lib/config';
+import { approveLBTC,IApproveLBTCParams } from './approveLBTC';
 
 const meta = {
-  title: "write/approveLBTC",
+  title: 'write/approveLBTC',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [wagmiDecorator, functionType("write")],
+  tags: ['autodocs'],
+  decorators: [wagmiDecorator, functionType('write')],
   argTypes: { ...chainSelector },
 } satisfies Meta<typeof StoryView>;
 
@@ -39,7 +39,7 @@ export const WithParams: Story = {
   },
 };
 
-type Props = Omit<IApproveLBTCParams, "account" | "provider">;
+type Props = Omit<IApproveLBTCParams, 'account' | 'provider'>;
 
 export function StoryView(props: Props) {
   const connection = useConnection();

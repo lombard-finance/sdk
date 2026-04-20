@@ -6,13 +6,13 @@
  * @module client/LombardSDK
  */
 
-import type { Env } from "@lombard.finance/sdk-common";
+import type { Env } from '@lombard.finance/sdk-common';
 
-import { BtcActions } from "../chains/btc/BtcActions";
-import { EvmActions } from "../chains/evm/EvmActions";
-import { SolanaActions } from "../chains/solana/SolanaActions";
-import { StarknetActions } from "../chains/starknet/StarknetActions";
-import { SuiActions } from "../chains/sui/SuiActions";
+import { BtcActions } from '../chains/btc/BtcActions';
+import { EvmActions } from '../chains/evm/EvmActions';
+import { SolanaActions } from '../chains/solana/SolanaActions';
+import { StarknetActions } from '../chains/starknet/StarknetActions';
+import { SuiActions } from '../chains/sui/SuiActions';
 import type {
   AnyProvider,
   BtcProvider,
@@ -20,15 +20,15 @@ import type {
   SolanaProvider,
   StarknetProvider,
   SuiProvider,
-} from "../config/providers";
-import type { ProviderGetters, ResolvedLombardConfig } from "../config/types";
-import { getProviderGetter } from "../config/types";
-import { CapabilityRegistry } from "../modules/CapabilityRegistry";
-import { ReferralsClient } from "../referrals/ReferralsClient";
-import { LombardError, ProviderErrorCode } from "../shared/errors";
-import { ApiNamespace } from "./ApiNamespace";
-import { AssetNamespace } from "./AssetNamespace";
-import { PartnerConfiguration } from "./PartnerConfiguration";
+} from '../config/providers';
+import type { ProviderGetters, ResolvedLombardConfig } from '../config/types';
+import { getProviderGetter } from '../config/types';
+import { CapabilityRegistry } from '../modules/CapabilityRegistry';
+import { ReferralsClient } from '../referrals/ReferralsClient';
+import { LombardError, ProviderErrorCode } from '../shared/errors';
+import { ApiNamespace } from './ApiNamespace';
+import { AssetNamespace } from './AssetNamespace';
+import { PartnerConfiguration } from './PartnerConfiguration';
 
 type ProviderType = keyof ProviderGetters;
 type ProviderCache = Map<ProviderType, AnyProvider>;
@@ -147,11 +147,11 @@ export class LombardSDK<E extends Env = Env> {
    * @returns Provider instance
    * @throws LombardError if provider not configured
    */
-  async getProvider(type: "evm"): Promise<EvmProvider>;
-  async getProvider(type: "bitcoin"): Promise<BtcProvider>;
-  async getProvider(type: "solana"): Promise<SolanaProvider>;
-  async getProvider(type: "sui"): Promise<SuiProvider>;
-  async getProvider(type: "starknet"): Promise<StarknetProvider>;
+  async getProvider(type: 'evm'): Promise<EvmProvider>;
+  async getProvider(type: 'bitcoin'): Promise<BtcProvider>;
+  async getProvider(type: 'solana'): Promise<SolanaProvider>;
+  async getProvider(type: 'sui'): Promise<SuiProvider>;
+  async getProvider(type: 'starknet'): Promise<StarknetProvider>;
   async getProvider(type: ProviderType): Promise<AnyProvider>;
   async getProvider(type: ProviderType): Promise<AnyProvider> {
     const cacheKey = type;
@@ -186,7 +186,7 @@ export class LombardSDK<E extends Env = Env> {
    *
    * @param config - Partner configuration
    */
-  configure(config: Parameters<PartnerConfiguration["update"]>[0]): void {
+  configure(config: Parameters<PartnerConfiguration['update']>[0]): void {
     this.partnerConfig.update(config);
   }
 
@@ -196,7 +196,7 @@ export class LombardSDK<E extends Env = Env> {
    * TODO: Implement asset registration
    */
   registerAsset(_asset: unknown): void {
-    throw new Error("Not implemented yet");
+    throw new Error('Not implemented yet');
   }
 
   /**

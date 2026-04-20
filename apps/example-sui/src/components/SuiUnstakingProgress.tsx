@@ -1,6 +1,6 @@
-import { Chain, Env, getExplorerTxUrl } from "@lombard.finance/sdk";
+import { Chain, Env, getExplorerTxUrl } from '@lombard.finance/sdk';
 
-import type { UnstakingStatus } from "../lib/types";
+import type { UnstakingStatus } from '../lib/types';
 
 interface SuiUnstakingProgressProps {
   txHash: string | null;
@@ -20,26 +20,24 @@ export function SuiUnstakingProgress({
 }: SuiUnstakingProgressProps) {
   const getStatusColor = () => {
     switch (status.phase) {
-      case "complete":
-        return "text-success";
-      case "error":
-        return "text-error";
-      case "confirming":
-      case "executing":
-        return "text-warning";
+      case 'complete':
+        return 'text-success';
+      case 'error':
+        return 'text-error';
+      case 'confirming':
+      case 'executing':
+        return 'text-warning';
       default:
-        return "text-primary";
+        return 'text-primary';
     }
   };
 
-  const isComplete = status.phase === "complete";
-  const hasError = status.phase === "error";
+  const isComplete = status.phase === 'complete';
+  const hasError = status.phase === 'error';
 
   const getExplorerUrl = (hash: string) => {
     const chain = env === Env.prod ? Chain.SUI_MAINNET : Chain.SUI_TESTNET;
-    return (
-      getExplorerTxUrl(chain, hash) ?? `https://suiscan.xyz/mainnet/tx/${hash}`
-    );
+    return getExplorerTxUrl(chain, hash) ?? `https://suiscan.xyz/mainnet/tx/${hash}`;
   };
 
   return (
@@ -83,7 +81,7 @@ export function SuiUnstakingProgress({
             Source Chain
           </label>
           <p className="text-sm font-medium">
-            {env === Env.prod ? "Sui Mainnet" : "Sui Testnet"}
+            {env === Env.prod ? 'Sui Mainnet' : 'Sui Testnet'}
           </p>
         </div>
         <div>
@@ -91,27 +89,24 @@ export function SuiUnstakingProgress({
             Destination Chain
           </label>
           <p className="text-sm font-medium">
-            {env === Env.prod ? "Bitcoin Mainnet" : "Bitcoin Signet"}
+            {env === Env.prod ? 'Bitcoin Mainnet' : 'Bitcoin Signet'}
           </p>
         </div>
       </div>
 
       {/* Action buttons */}
-      {isComplete || hasError ? (
+      {(isComplete || hasError) ? (
         <button onClick={onReset} className="btn btn-secondary w-full">
           Start New Unstake
         </button>
       ) : (
-        <button
-          onClick={onReset}
-          className="btn btn-secondary w-full mt-4 text-sm"
-        >
+        <button onClick={onReset} className="btn btn-secondary w-full mt-4 text-sm">
           Cancel
         </button>
       )}
 
       {/* Instructions */}
-      {status.phase === "confirming" && (
+      {status.phase === 'confirming' && (
         <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <h4 className="font-semibold mb-2 text-sm">Transaction Submitted</h4>
           <p className="text-sm text-secondary">

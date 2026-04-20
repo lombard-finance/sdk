@@ -1,5 +1,5 @@
-import { Env } from "@lombard.finance/sdk";
-import { NavLink } from "react-router-dom";
+import { Env } from '@lombard.finance/sdk';
+import { NavLink } from 'react-router-dom';
 
 interface SidebarProps {
   env: Env;
@@ -9,16 +9,16 @@ interface SidebarProps {
 export function Sidebar({ env, onEnvChange }: SidebarProps) {
   const examples = [
     {
-      id: "staking",
-      title: "Staking",
-      description: "Stake BTC to receive LBTC on Starknet",
-      path: "/staking",
+      id: 'staking',
+      title: 'Staking',
+      description: 'Stake BTC to receive LBTC on Starknet',
+      path: '/staking',
     },
     {
-      id: "unstaking",
-      title: "Unstaking",
-      description: "Burn LBTC on Starknet to receive BTC",
-      path: "/unstaking",
+      id: 'unstaking',
+      title: 'Unstaking',
+      description: 'Burn LBTC on Starknet to receive BTC',
+      path: '/unstaking',
     },
   ];
 
@@ -41,7 +41,7 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
         <select
           id="env-select"
           value={env}
-          onChange={(e) => onEnvChange(e.target.value as Env)}
+          onChange={e => onEnvChange(e.target.value as Env)}
           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
         >
           <option value={Env.stage}>Stage</option>
@@ -51,15 +51,15 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
 
       <nav className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-2">
-          {examples.map((example) => (
+          {examples.map(example => (
             <li key={example.id}>
               <NavLink
                 to={example.path}
                 className={({ isActive }) =>
                   `block p-3 rounded-lg transition-colors ${
                     isActive
-                      ? "bg-capital-green/10 text-primary border-l-4 border-capital-green"
-                      : "text-secondary hover:bg-gray-50 hover:text-primary"
+                      ? 'bg-capital-green/10 text-primary border-l-4 border-capital-green'
+                      : 'text-secondary hover:bg-gray-50 hover:text-primary'
                   }`
                 }
               >

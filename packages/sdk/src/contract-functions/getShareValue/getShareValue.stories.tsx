@@ -1,17 +1,17 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { ChainId } from "../../common/chains";
-import { Button } from "../../stories/components/Button";
-import { functionType } from "../../stories/components/decorators";
-import useQuery from "../../stories/hooks/useQuery";
-import { Vault } from "../../vaults/lib/config";
-import { getShareValue, IGetShareValueParameters } from "./getShareValue";
+import { ChainId } from '../../common/chains';
+import { Button } from '../../stories/components/Button';
+import { functionType } from '../../stories/components/decorators';
+import useQuery from '../../stories/hooks/useQuery';
+import { Vault } from '../../vaults/lib/config';
+import { getShareValue,IGetShareValueParameters } from './getShareValue';
 
 const meta = {
-  title: "read/getShareValue",
+  title: 'read/getShareValue',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [functionType("read")],
+  tags: ['autodocs'],
+  decorators: [functionType('read')],
 } satisfies Meta<typeof StoryView>;
 
 export default meta;
@@ -32,12 +32,7 @@ export function StoryView(props: IGetShareValueParameters) {
     });
   };
 
-  const {
-    data,
-    error: _error,
-    isLoading,
-    refetch,
-  } = useQuery(request, [], false);
+  const { data, error: _error, isLoading, refetch } = useQuery(request, [], false);
 
   const value = data?.toString();
 

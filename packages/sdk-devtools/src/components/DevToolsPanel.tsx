@@ -7,28 +7,20 @@
  * @module sdk-devtools/components/DevToolsPanel
  */
 
-import {
-  Activity,
-  Bug,
-  Database,
-  Maximize2,
-  Minimize2,
-  Terminal,
-  Wifi,
-} from "lucide-react";
-import { useMemo, useState } from "react";
+import { Activity, Bug, Database, Maximize2, Minimize2, Terminal, Wifi } from 'lucide-react';
+import { useMemo,useState } from 'react';
 
-import type { DevToolsEvent, NetworkLogEntry, ReducerLogEntry } from "../types";
-import { EventLog } from "./EventLog";
-import { NetworkLog } from "./NetworkLog";
-import { ReducerLog } from "./ReducerLog";
-import { StateInspector } from "./StateInspector";
+import type { DevToolsEvent, NetworkLogEntry,ReducerLogEntry } from '../types';
+import { EventLog } from './EventLog';
+import { NetworkLog } from './NetworkLog';
+import { ReducerLog } from './ReducerLog';
+import { StateInspector } from './StateInspector';
 
 // ─────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────
 
-type TabId = "events" | "reducer" | "state" | "network";
+type TabId = 'events' | 'reducer' | 'state' | 'network';
 
 export interface DevToolsPanelProps {
   /** SDK events to display */
@@ -81,10 +73,10 @@ export function DevToolsPanel({
   state = {},
   networkLog = [],
   onClearNetworkLog,
-  initialTab = "events",
+  initialTab = 'events',
   defaultMinimized = false,
-  className = "",
-  title = "DevTools",
+  className = '',
+  title = 'DevTools',
   onMinimize,
 }: DevToolsPanelProps) {
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
@@ -102,26 +94,26 @@ export function DevToolsPanel({
   const tabs = useMemo(
     () => [
       {
-        id: "events" as const,
-        label: "Events",
+        id: 'events' as const,
+        label: 'Events',
         icon: Terminal,
         count: events.length,
       },
       {
-        id: "network" as const,
-        label: "Network",
+        id: 'network' as const,
+        label: 'Network',
         icon: Wifi,
         count: networkLog.length,
       },
       {
-        id: "reducer" as const,
-        label: "Actions",
+        id: 'reducer' as const,
+        label: 'Actions',
         icon: Activity,
         count: reducerLogs.length,
       },
       {
-        id: "state" as const,
-        label: "State",
+        id: 'state' as const,
+        label: 'State',
         icon: Database,
         count: null,
       },
@@ -132,9 +124,7 @@ export function DevToolsPanel({
   if (isMinimized) {
     return (
       <button
-        onClick={() => {
-          setIsMinimized(false);
-        }}
+        onClick={() => { setIsMinimized(false); }}
         className={`
           flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg 
           text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors
@@ -154,9 +144,7 @@ export function DevToolsPanel({
   }
 
   return (
-    <div
-      className={`h-full flex flex-col bg-white dark:bg-gray-900 ${className}`}
-    >
+    <div className={`h-full flex flex-col bg-white dark:bg-gray-900 ${className}`}>
       {/* Tab Header */}
       <div className="flex items-center border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
         <div className="flex items-center gap-1 px-2">
@@ -167,18 +155,16 @@ export function DevToolsPanel({
         </div>
 
         <div className="flex-1 flex">
-          {tabs.map((tab) => (
+          {tabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-              }}
+              onClick={() => { setActiveTab(tab.id); }}
               className={`
                 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border-b-2 transition-colors
                 ${
                   activeTab === tab.id
-                    ? "text-cyan-600 dark:text-cyan-400 border-cyan-500 dark:border-cyan-400 bg-white dark:bg-gray-900/50"
-                    : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/30"
+                    ? 'text-cyan-600 dark:text-cyan-400 border-cyan-500 dark:border-cyan-400 bg-white dark:bg-gray-900/50'
+                    : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/30'
                 }
               `}
             >
@@ -205,22 +191,22 @@ export function DevToolsPanel({
 
       {/* Tab Content */}
       <div className="flex-1 min-h-0 overflow-hidden">
-        {activeTab === "events" && (
+        {activeTab === 'events' && (
           <EventLog events={events} onClear={onClearEvents} />
         )}
-        {activeTab === "network" && (
+        {activeTab === 'network' && (
           <NetworkLog
             entries={networkLog}
             onClear={onClearNetworkLog ?? (() => {})}
           />
         )}
-        {activeTab === "reducer" && (
+        {activeTab === 'reducer' && (
           <ReducerLog
             logs={reducerLogs}
             onClear={onClearReducerLogs ?? (() => {})}
           />
         )}
-        {activeTab === "state" && (
+        {activeTab === 'state' && (
           <div className="h-full overflow-auto p-2">
             <StateInspector state={state} title="Current State" />
           </div>
@@ -229,3 +215,4 @@ export function DevToolsPanel({
     </div>
   );
 }
+

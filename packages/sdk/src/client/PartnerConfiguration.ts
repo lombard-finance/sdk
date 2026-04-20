@@ -4,7 +4,7 @@
  * This module handles partner-specific configuration.
  */
 
-import type { PartnerConfig } from "../config/types";
+import type { PartnerConfig } from '../config/types';
 
 /**
  * Partner configuration manager

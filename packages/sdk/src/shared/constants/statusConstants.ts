@@ -44,21 +44,21 @@
  */
 export const BtcActionStatus = {
   /** Initial state - ready for prepare() */
-  IDLE: "idle",
+  IDLE: 'idle',
 
   // Authorization states (mutually exclusive - action uses one based on config)
   /** User needs to sign fee authorization (EVM stake/deposit to Ethereum) */
-  NEEDS_FEE_AUTHORIZATION: "needs_fee_authorization",
+  NEEDS_FEE_AUTHORIZATION: 'needs_fee_authorization',
   /** User needs to confirm destination address (non-Ethereum destinations) */
-  NEEDS_ADDRESS_CONFIRMATION: "needs_address_confirmation",
+  NEEDS_ADDRESS_CONFIRMATION: 'needs_address_confirmation',
   /** User needs to sign vault deploy authorization (stake-and-deploy, deposit-and-deploy) */
-  NEEDS_DEPLOY_AUTHORIZATION: "needs_deploy_authorization",
+  NEEDS_DEPLOY_AUTHORIZATION: 'needs_deploy_authorization',
 
   /** Authorization complete - ready to generate address */
-  READY: "ready",
+  READY: 'ready',
 
   /** Deposit address generated - awaiting BTC deposit */
-  ADDRESS_READY: "address_ready",
+  ADDRESS_READY: 'address_ready',
 } as const;
 
 export type BtcActionStatus =
@@ -81,14 +81,14 @@ export type BtcActionStatus =
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED
  */
 export const EvmOperationStatus = {
-  IDLE: "idle",
+  IDLE: 'idle',
   /** User needs to sign fee authorization (Ethereum/Sepolia only) */
-  NEEDS_FEE_AUTHORIZATION: "needs_fee_authorization",
+  NEEDS_FEE_AUTHORIZATION: 'needs_fee_authorization',
   /** User needs to approve token spending */
-  NEEDS_APPROVAL: "needs-approval",
-  READY: "ready",
-  CONFIRMING: "confirming",
-  COMPLETED: "completed",
+  NEEDS_APPROVAL: 'needs-approval',
+  READY: 'ready',
+  CONFIRMING: 'confirming',
+  COMPLETED: 'completed',
 } as const;
 
 export type EvmOperationStatus =
@@ -98,10 +98,10 @@ export type EvmOperationStatus =
  * Solana/Sui/Starknet Unstake operation statuses
  */
 export const NonEvmUnstakeStatus = {
-  IDLE: "idle",
-  READY: "ready",
-  CONFIRMING: "confirming",
-  COMPLETED: "completed",
+  IDLE: 'idle',
+  READY: 'ready',
+  CONFIRMING: 'confirming',
+  COMPLETED: 'completed',
 } as const;
 
 export type NonEvmUnstakeStatus =

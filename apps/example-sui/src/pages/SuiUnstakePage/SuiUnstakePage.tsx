@@ -1,12 +1,12 @@
-import { Env } from "@lombard.finance/sdk";
-import { useState } from "react";
+import { Env } from '@lombard.finance/sdk';
+import { useState } from 'react';
 
-import { SuiUnstakingForm } from "../../components/SuiUnstakingForm";
-import { SuiUnstakingProgress } from "../../components/SuiUnstakingProgress";
-import { SuiWalletConnect } from "../../components/SuiWalletConnect";
-import { useSuiWallet } from "../../hooks/useSuiWallet";
-import type { UnstakingFormData } from "../../lib/types";
-import { useSuiUnstaking } from "./useSuiUnstaking";
+import { SuiUnstakingForm } from '../../components/SuiUnstakingForm';
+import { SuiUnstakingProgress } from '../../components/SuiUnstakingProgress';
+import { SuiWalletConnect } from '../../components/SuiWalletConnect';
+import { useSuiWallet } from '../../hooks/useSuiWallet';
+import type { UnstakingFormData } from '../../lib/types';
+import { useSuiUnstaking } from './useSuiUnstaking';
 
 interface SuiUnstakePageProps {
   env: Env;
@@ -45,7 +45,7 @@ export function SuiUnstakePage({ env }: SuiUnstakePageProps) {
     try {
       await unstake(formData);
     } catch (err) {
-      console.error("Unstaking failed:", err);
+      console.error('Unstaking failed:', err);
       setIsUnstaking(false);
     }
   };
@@ -96,6 +96,7 @@ export function SuiUnstakePage({ env }: SuiUnstakePageProps) {
               env={env}
             />
           )}
+
         </div>
       </div>
     </div>

@@ -1,12 +1,12 @@
-import type { AnyModule, ProviderKey } from "@lombard.finance/sdk-common";
+import type { AnyModule, ProviderKey } from '@lombard.finance/sdk-common';
 
-import type { CreateConfigOptions, LombardConfig } from "../config/types";
-import { validateAndApplyDefaults } from "../config/validation";
-import { apiModule } from "../modules/apiModule";
-import { btcModule } from "../modules/btcModule";
-import { evmModule } from "../modules/evmModule";
-import { LombardError } from "../shared/errors";
-import { createConsoleLogger } from "../utils/consoleLogger";
+import type { CreateConfigOptions, LombardConfig } from '../config/types';
+import { validateAndApplyDefaults } from '../config/validation';
+import { apiModule } from '../modules/apiModule';
+import { btcModule } from '../modules/btcModule';
+import { evmModule } from '../modules/evmModule';
+import { LombardError } from '../shared/errors';
+import { createConsoleLogger } from '../utils/consoleLogger';
 
 function mergeModules(provided: readonly AnyModule[] | undefined): AnyModule[] {
   const modules = new Map<string, AnyModule>();
@@ -24,7 +24,7 @@ function mergeModules(provided: readonly AnyModule[] | undefined): AnyModule[] {
 
 function ensureProviders(
   modules: readonly AnyModule[],
-  config: Pick<LombardConfig, "providers">,
+  config: Pick<LombardConfig, 'providers'>,
 ): void {
   for (const mod of modules) {
     for (const key of mod.requiresProviders ?? []) {
@@ -36,7 +36,7 @@ function ensureProviders(
 }
 
 function hasProvider(
-  config: Pick<LombardConfig, "providers">,
+  config: Pick<LombardConfig, 'providers'>,
   key: ProviderKey,
 ): boolean {
   return Boolean(config.providers?.[key]);
@@ -79,7 +79,7 @@ export function createConfig(options: CreateConfigOptions): LombardConfig {
   // Resolve logger: explicit logger > debug mode > undefined
   let logger = options.logger;
   if (!logger && options.debug) {
-    logger = createConsoleLogger({ level: "debug" });
+    logger = createConsoleLogger({ level: 'debug' });
   }
 
   return {

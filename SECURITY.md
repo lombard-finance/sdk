@@ -17,12 +17,12 @@ Instead, report vulnerabilities privately via:
 
 ### Response Timeline
 
-| Action             | Timeline           |
-| ------------------ | ------------------ |
-| Acknowledgment     | Within 48 hours    |
-| Initial assessment | Within 1 week      |
-| Fix development    | Varies by severity |
-| Public disclosure  | 90 days after fix  |
+| Action | Timeline |
+|--------|----------|
+| Acknowledgment | Within 48 hours |
+| Initial assessment | Within 1 week |
+| Fix development | Varies by severity |
+| Public disclosure | 90 days after fix |
 
 ### Recognition
 
@@ -30,11 +30,11 @@ We credit security researchers in our release notes (unless you prefer anonymity
 
 ## Supported Versions
 
-| Version | Supported              |
-| ------- | ---------------------- |
-| 4.x.x   | ✅ Yes                 |
+| Version | Supported |
+|---------|-----------|
+| 4.x.x   | ✅ Yes |
 | 3.x.x   | ⚠️ Security fixes only |
-| < 3.0   | ❌ No                  |
+| < 3.0   | ❌ No |
 
 ## Security Best Practices
 

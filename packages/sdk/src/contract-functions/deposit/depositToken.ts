@@ -1,23 +1,23 @@
 /**
  * Asset Router deposit functionality for token swaps
  */
-import BigNumber from "bignumber.js";
-import { Address } from "viem";
+import BigNumber from 'bignumber.js';
+import { Address } from 'viem';
 
-import { makePublicClient } from "../../clients/public-client";
-import { makeWalletClient } from "../../clients/wallet-client";
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from "../../common/chains";
-import { CommonWriteParameters, IEnvParam } from "../../common/parameters";
-import ASSET_ROUTER_ABI from "../../tokens/abi/ASSET_ROUTER_ABI";
-import { AddressKind, Token } from "../../tokens/token-addresses";
+import { makePublicClient } from '../../clients/public-client';
+import { makeWalletClient } from '../../clients/wallet-client';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
+import { CommonWriteParameters, IEnvParam } from '../../common/parameters';
+import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
+import { AddressKind, Token } from '../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenContractInfo,
   retrieveTokenProperties,
   toBaseDenomination,
-} from "../../tokens/tokens";
-import { UnsupportedTokenFlow } from "../../utils/err";
-import toBigInt from "../../utils/numbers";
+} from '../../tokens/tokens';
+import { UnsupportedTokenFlow } from '../../utils/err';
+import toBigInt from '../../utils/numbers';
 
 const AVAILABLE_FLOWS: Array<{
   tokenIn: Token;
@@ -79,8 +79,8 @@ export async function getAssetRouterAddress({
   rpcUrl,
 }: {
   tokenIn: Token;
-  chainId: CommonWriteParameters["chainId"];
-  env?: IEnvParam["env"];
+  chainId: CommonWriteParameters['chainId'];
+  env?: IEnvParam['env'];
   rpcUrl?: string;
 }): Promise<Address> {
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
@@ -95,7 +95,7 @@ export async function getAssetRouterAddress({
   const assetRouterAddress = (await publicClient.readContract({
     address: adapterContractInfo.address,
     abi: adapterContractInfo.abi,
-    functionName: "getAssetRouter",
+    functionName: 'getAssetRouter',
   })) as Address;
 
   return assetRouterAddress;
@@ -132,7 +132,7 @@ export async function depositToken({
   tokenOut = Token.LBTC,
 }: DepositTokenParameters) {
   const flow = AVAILABLE_FLOWS.find(
-    (af) => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
+    af => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
   );
   if (!flow) {
     throw new UnsupportedTokenFlow(tokenIn, tokenOut, chainId, env);
@@ -176,7 +176,7 @@ export async function depositToken({
   const assetRouterAddress = (await publicClient.readContract({
     address: adapterContractInfo.address,
     abi: adapterContractInfo.abi,
-    functionName: "getAssetRouter",
+    functionName: 'getAssetRouter',
   })) as Address;
 
   const amount = BigNumber(amountRaw);
@@ -186,7 +186,7 @@ export async function depositToken({
   const tokenInBalanceRaw = await publicClient.readContract({
     address: IN.address,
     abi: IN.abi,
-    functionName: "balanceOf",
+    functionName: 'balanceOf',
     args: [accountAddress],
   });
   const tokenInBalance = fromBaseDenomination(tokenInBalanceRaw, IN.decimals);
@@ -205,7 +205,7 @@ export async function depositToken({
     address: assetRouterAddress,
     abi: ASSET_ROUTER_ABI,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
-    functionName: "deposit",
+    functionName: 'deposit',
     args: [accountAddress, tokenOutContractInfo.address, amountBigInt],
     account: accountAddress,
   });

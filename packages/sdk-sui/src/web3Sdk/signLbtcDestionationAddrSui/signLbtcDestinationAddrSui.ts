@@ -1,11 +1,11 @@
 import {
   SuiChain,
   SuiSignPersonalMessageFeature,
-} from "@mysten/wallet-standard";
-import { WalletWithFeatures } from "@wallet-standard/base";
-import type { WalletAccount } from "@wallet-standard/core";
+} from '@mysten/wallet-standard';
+import { WalletWithFeatures } from '@wallet-standard/base';
+import type { WalletAccount } from '@wallet-standard/core';
 
-import { getUnifiedChainId } from "../../getUnifiedChainId";
+import { getUnifiedChainId } from '../../getUnifiedChainId';
 
 export const SIGNATURE_SIZE = -132;
 
@@ -34,10 +34,10 @@ export async function signLbtcDestinationAddrSui({
 }> {
   const message = Buffer.from(
     `destination chain id is ${getUnifiedChainId(chainId)}`,
-    "utf8",
+    'utf8',
   ) as unknown as Uint8Array;
 
-  return wallet.features["sui:signPersonalMessage"].signPersonalMessage({
+  return wallet.features['sui:signPersonalMessage'].signPersonalMessage({
     message,
     account,
   });

@@ -1,16 +1,16 @@
-import axios from "axios";
-import { Address, pad } from "viem";
+import axios from 'axios';
+import { Address, pad } from 'viem';
 
-import { getApiConfig } from "../../common/api-config";
+import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
   getChainNameById,
-} from "../../common/blockchain-identifier";
+} from '../../common/blockchain-identifier';
 import {
   IApiError,
   IDepositAddressesResponse,
   IGetDepositBtcAddressesParameters,
-} from "./types";
+} from './types';
 
 export async function makeRequest({
   address,
@@ -32,7 +32,7 @@ export async function makeRequest({
     asc: false,
     limit,
     offset,
-    referralId: partnerId || "lombard",
+    referralId: partnerId || 'lombard',
   };
 
   // remove undefined fields, undefined limit and offset params cause error

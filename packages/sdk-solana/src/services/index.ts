@@ -4,4 +4,4 @@
  * @module services
  */
 
-export { SolanaServiceImpl } from "./SolanaServiceImpl";
+export { SolanaServiceImpl } from './SolanaServiceImpl';

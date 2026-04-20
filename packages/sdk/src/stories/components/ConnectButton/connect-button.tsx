@@ -1,11 +1,11 @@
-import { avalanche, avalancheFuji } from "@wagmi/core/chains";
-import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { useSwitchChain } from "wagmi";
-import { base, bsc, bscTestnet, holesky, mainnet, sepolia } from "wagmi/chains";
+import { avalanche, avalancheFuji } from '@wagmi/core/chains';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useSwitchChain } from 'wagmi';
+import { base, bsc, bscTestnet, holesky, mainnet, sepolia } from 'wagmi/chains';
 
-import { useConnection } from "../../hooks/useConnection";
-import { Spinner } from "../Spinner";
+import { useConnection } from '../../hooks/useConnection';
+import { Spinner } from '../Spinner';
 
 export type ConnectButtonProps = {
   label?: string;
@@ -13,14 +13,14 @@ export type ConnectButtonProps = {
 
 // Available networks for switching
 const AVAILABLE_NETWORKS = [
-  { chain: mainnet, name: "Ethereum" },
-  { chain: base, name: "Base" },
-  { chain: bsc, name: "BSC" },
-  { chain: avalanche, name: "Avalanche" },
-  { chain: holesky, name: "Holesky" },
-  { chain: sepolia, name: "Sepolia" },
-  { chain: bscTestnet, name: "BSC Testnet" },
-  { chain: avalancheFuji, name: "Avalanche Fuji" },
+  { chain: mainnet, name: 'Ethereum' },
+  { chain: base, name: 'Base' },
+  { chain: bsc, name: 'BSC' },
+  { chain: avalanche, name: 'Avalanche' },
+  { chain: holesky, name: 'Holesky' },
+  { chain: sepolia, name: 'Sepolia' },
+  { chain: bscTestnet, name: 'BSC Testnet' },
+  { chain: avalancheFuji, name: 'Avalanche Fuji' },
 ] as const;
 
 export function ConnectButton({ label }: ConnectButtonProps) {
@@ -45,12 +45,12 @@ export function ConnectButton({ label }: ConnectButtonProps) {
       };
 
       updatePosition();
-      window.addEventListener("scroll", updatePosition, true);
-      window.addEventListener("resize", updatePosition);
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
 
       return () => {
-        window.removeEventListener("scroll", updatePosition, true);
-        window.removeEventListener("resize", updatePosition);
+        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', updatePosition);
       };
     }
   }, [showNetworkDropdown]);
@@ -69,34 +69,34 @@ export function ConnectButton({ label }: ConnectButtonProps) {
     }
 
     if (showNetworkDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
       return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener('mousedown', handleClickOutside);
       };
     }
   }, [showNetworkDropdown]);
 
-  if (account.status === "connected") {
+  if (account.status === 'connected') {
     return (
       <div
         style={{
-          display: "inline-flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: "5px",
-          border: "1px solid var(--bs-gray-900)",
-          borderRadius: "5px",
-          padding: "5px",
-          height: "38px",
+          display: 'inline-flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: '5px',
+          border: '1px solid var(--bs-gray-900)',
+          borderRadius: '5px',
+          padding: '5px',
+          height: '38px',
         }}
       >
         <span
           style={{
-            background: "var(--bs-green)",
-            color: "#ffffff",
-            borderRadius: "5px",
-            padding: "2px",
-            fontSize: "0.8em",
+            background: 'var(--bs-green)',
+            color: '#ffffff',
+            borderRadius: '5px',
+            padding: '2px',
+            fontSize: '0.8em',
           }}
         >
           {account.status}
@@ -104,10 +104,10 @@ export function ConnectButton({ label }: ConnectButtonProps) {
 
         <span
           style={{
-            background: "var(--bs-gray-100)",
-            borderRadius: "5px",
-            padding: "2px",
-            fontSize: "0.8em",
+            background: 'var(--bs-gray-100)',
+            borderRadius: '5px',
+            padding: '2px',
+            fontSize: '0.8em',
           }}
         >
           {account.address}
@@ -117,16 +117,16 @@ export function ConnectButton({ label }: ConnectButtonProps) {
           ref={buttonRef}
           type="button"
           style={{
-            background: account.chain ? "var(--bs-gray-200)" : "var(--bs-red)",
-            color: account.chain ? "var(--bs-black)" : "var(--bs-white)",
-            borderRadius: "5px",
-            padding: "2px 6px",
-            fontSize: "0.8em",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
+            background: account.chain ? 'var(--bs-gray-200)' : 'var(--bs-red)',
+            color: account.chain ? 'var(--bs-black)' : 'var(--bs-white)',
+            borderRadius: '5px',
+            padding: '2px 6px',
+            fontSize: '0.8em',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
           }}
           onClick={() => {
             setShowNetworkDropdown(!showNetworkDropdown);
@@ -134,7 +134,7 @@ export function ConnectButton({ label }: ConnectButtonProps) {
           disabled={isSwitchingNetwork}
         >
           {account.chain?.name || account.chainId}
-          <span style={{ fontSize: "0.7em" }}>▼</span>
+          <span style={{ fontSize: '0.7em' }}>▼</span>
         </button>
 
         {showNetworkDropdown &&
@@ -142,37 +142,37 @@ export function ConnectButton({ label }: ConnectButtonProps) {
             <div
               ref={dropdownRef}
               style={{
-                position: "fixed",
+                position: 'fixed',
                 top: `${dropdownPosition.top}px`,
                 left: `${dropdownPosition.left}px`,
-                background: "white",
-                border: "1px solid var(--bs-gray-300)",
-                borderRadius: "5px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                background: 'white',
+                border: '1px solid var(--bs-gray-300)',
+                borderRadius: '5px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                 zIndex: 10000,
-                minWidth: "150px",
-                maxHeight: "300px",
-                overflowY: "auto",
+                minWidth: '150px',
+                maxHeight: '300px',
+                overflowY: 'auto',
               }}
             >
-              {AVAILABLE_NETWORKS.map((network) => {
+              {AVAILABLE_NETWORKS.map(network => {
                 const isCurrentNetwork = account.chainId === network.chain.id;
                 return (
                   <button
                     key={network.chain.id}
                     type="button"
                     style={{
-                      display: "block",
-                      width: "100%",
-                      padding: "8px 12px",
-                      border: "none",
+                      display: 'block',
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: 'none',
                       background: isCurrentNetwork
-                        ? "var(--bs-gray-100)"
-                        : "transparent",
-                      textAlign: "left",
-                      fontSize: "0.8em",
-                      cursor: isCurrentNetwork ? "default" : "pointer",
-                      fontWeight: isCurrentNetwork ? "bold" : "normal",
+                        ? 'var(--bs-gray-100)'
+                        : 'transparent',
+                      textAlign: 'left',
+                      fontSize: '0.8em',
+                      cursor: isCurrentNetwork ? 'default' : 'pointer',
+                      fontWeight: isCurrentNetwork ? 'bold' : 'normal',
                     }}
                     onClick={() => {
                       if (!isCurrentNetwork) {
@@ -181,18 +181,18 @@ export function ConnectButton({ label }: ConnectButtonProps) {
                       }
                     }}
                     disabled={isCurrentNetwork || isSwitchingNetwork}
-                    onMouseEnter={(e) => {
+                    onMouseEnter={e => {
                       if (!isCurrentNetwork) {
-                        e.currentTarget.style.background = "var(--bs-gray-100)";
+                        e.currentTarget.style.background = 'var(--bs-gray-100)';
                       }
                     }}
-                    onMouseLeave={(e) => {
+                    onMouseLeave={e => {
                       if (!isCurrentNetwork) {
-                        e.currentTarget.style.background = "transparent";
+                        e.currentTarget.style.background = 'transparent';
                       }
                     }}
                   >
-                    {isCurrentNetwork && "✓ "}
+                    {isCurrentNetwork && '✓ '}
                     {network.name}
                   </button>
                 );
@@ -204,13 +204,13 @@ export function ConnectButton({ label }: ConnectButtonProps) {
         <button
           type="button"
           style={{
-            background: "var(--bs-danger)",
-            color: "var(--bs-white)",
-            border: "0",
-            borderRadius: "5px",
-            padding: "2px",
-            fontSize: "0.8em",
-            cursor: "pointer",
+            background: 'var(--bs-danger)',
+            color: 'var(--bs-white)',
+            border: '0',
+            borderRadius: '5px',
+            padding: '2px',
+            fontSize: '0.8em',
+            cursor: 'pointer',
           }}
           onClick={() => {
             disconnect();
@@ -222,26 +222,26 @@ export function ConnectButton({ label }: ConnectButtonProps) {
     );
   }
 
-  if (account.status === "disconnected") {
+  if (account.status === 'disconnected') {
     return (
       <button
         className="btn"
         style={{
-          border: "1px solid var(--bs-gray-900)",
+          border: '1px solid var(--bs-gray-900)',
         }}
         type="button"
         onClick={() => {
           connect();
         }}
       >
-        {label || "Connect wallet"}
+        {label || 'Connect wallet'}
       </button>
     );
   }
 
   return (
     <button type="button" disabled className="btn">
-      Awaiting wallet interaction{" "}
+      Awaiting wallet interaction{' '}
       <Spinner color="text-primary" className="ms-2" />
     </button>
   );

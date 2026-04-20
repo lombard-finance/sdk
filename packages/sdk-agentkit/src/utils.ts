@@ -24,7 +24,9 @@ export function toEIP1193Provider(
   const chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
 
   // Use the SDK's makePublicClient for reliable RPC calls
-  const publicClient = chain ? makePublicClient({ chainId }) : null;
+  const publicClient = chain
+    ? makePublicClient({ chainId })
+    : null;
 
   // Use a Proxy to implement the EIP1193 request interface.
   // This avoids complex viem type gymnastics while correctly routing
@@ -116,10 +118,9 @@ export async function getTokenBalance(
   });
 
   // Use decimals from token info when available, default to 8 for BTC-like tokens
-  const decimals =
-    "decimals" in tokenInfo && typeof tokenInfo.decimals === "number"
-      ? tokenInfo.decimals
-      : 8;
+  const decimals = "decimals" in tokenInfo && typeof tokenInfo.decimals === "number"
+    ? tokenInfo.decimals
+    : 8;
   const formatted = formatUnits(balance as bigint, decimals);
 
   return { balance: balance as bigint, formatted, decimals };

@@ -11,14 +11,14 @@
  * @module chains/btc/actions/stake/config/starknet
  */
 
-import type { StarknetService } from "@lombard.finance/sdk-common";
-import { Env } from "@lombard.finance/sdk-common";
-import { pad } from "viem";
+import type { StarknetService } from '@lombard.finance/sdk-common';
+import { Env } from '@lombard.finance/sdk-common';
+import { pad } from 'viem';
 
-import { AssetId, Chain, getAllAssetChains } from "../../../../../core";
-import { starknetAddressSchema } from "../../../../../shared/validation";
-import { isStarknetChain } from "../../../../../utils/chain";
-import type { ChainConfig } from "./types";
+import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
+import { starknetAddressSchema } from '../../../../../shared/validation';
+import { isStarknetChain } from '../../../../../utils/chain';
+import type { ChainConfig } from './types';
 
 /**
  * Starknet chain configuration for BTC stake
@@ -27,7 +27,7 @@ import type { ChainConfig } from "./types";
  * Requires the @lombard.finance/sdk-starknet module to be installed.
  */
 export const starknetConfig: ChainConfig = {
-  chainType: "starknet",
+  chainType: 'starknet',
 
   routes: [
     {
@@ -41,7 +41,7 @@ export const starknetConfig: ChainConfig = {
   ],
 
   // Derived from ASSET_CATALOG - Starknet chains where LBTC is deployed
-  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) =>
+  destChains: getAllAssetChains(AssetId.LBTC).filter(chain =>
     isStarknetChain(chain),
   ),
 
@@ -54,7 +54,7 @@ export const starknetConfig: ChainConfig = {
   getFeeAuthConfig: () => null,
 
   async getSignature(ctx, recipient, chainId) {
-    const starknet = ctx.capabilities.require("starknet") as StarknetService;
+    const starknet = ctx.capabilities.require('starknet') as StarknetService;
     const { signature, pubKey } = await starknet.signLbtcDestination({
       chainId: chainId as string,
     });

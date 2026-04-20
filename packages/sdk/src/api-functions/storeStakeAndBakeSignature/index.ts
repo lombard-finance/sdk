@@ -1,1 +1,1 @@
-export * from "./storeStakeAndBakeSignature";
+export * from './storeStakeAndBakeSignature';

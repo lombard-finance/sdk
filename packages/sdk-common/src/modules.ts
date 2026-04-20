@@ -1,5 +1,5 @@
-import type { Env } from "./env";
-import type { ProviderFor, ProviderKey } from "./providers";
+import type { Env } from './env';
+import type { ProviderFor, ProviderKey } from './providers';
 
 /**
  * Shared token for cross-module state
@@ -72,10 +72,8 @@ export interface SdkModule<TId extends string = string, TService = unknown> {
  * }
  * ```
  */
-export interface ChainModule<
-  TChain extends string = string,
-  TService = unknown,
-> extends SdkModule<TChain, TService> {
+export interface ChainModule<TChain extends string = string, TService = unknown>
+  extends SdkModule<TChain, TService> {
   /** Chain type this module provides services for */
   chain: TChain;
 }
@@ -96,10 +94,8 @@ export type ModuleId<TModule> =
 /**
  * Extract service type from a module by ID
  */
-export type ServiceOf<
-  TModule extends SdkModule<string, unknown>,
-  TId extends string,
-> = TModule extends SdkModule<TId, infer TService> ? TService : never;
+export type ServiceOf<TModule extends SdkModule<string, unknown>, TId extends string> =
+  TModule extends SdkModule<TId, infer TService> ? TService : never;
 
 /**
  * @deprecated Use ServiceOf instead

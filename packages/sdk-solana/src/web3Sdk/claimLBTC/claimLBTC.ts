@@ -1,21 +1,21 @@
-import { AnchorProvider, Program, setProvider } from "@coral-xyz/anchor";
-import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
+import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
 
-import { MintPayload } from "../../common/mintPayload";
-import { getConfig, networkToEnv } from "../../const/getConfig";
-import { getConnection } from "../../const/rpcUrls";
-import { getLbtcIdl } from "../../idl/getLbtcIdl";
-import { ISolanaWalletProvider, SolanaNetwork } from "../../types";
-import { sendAndConfirmTransaction } from "../../utils";
-import { createDebugLogger } from "../../utils/createDebugLogger";
-import { verifyMatchingRecipient } from "../../utils/recipients";
-import { createOrGetAssociatedTokenAccount } from "../../utils/tokenAccount";
-import { checkPayloadStatus } from "./utils";
-import { generateDepositId } from "./utils/generateDepositId";
-import { postMintSignatures } from "./utils/postMintSignatures";
+import { MintPayload } from '../../common/mintPayload';
+import { getConfig, networkToEnv } from '../../const/getConfig';
+import { getConnection } from '../../const/rpcUrls';
+import { getLbtcIdl } from '../../idl/getLbtcIdl';
+import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
+import { sendAndConfirmTransaction } from '../../utils';
+import { createDebugLogger } from '../../utils/createDebugLogger';
+import { verifyMatchingRecipient } from '../../utils/recipients';
+import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
+import { checkPayloadStatus } from './utils';
+import { generateDepositId } from './utils/generateDepositId';
+import { postMintSignatures } from './utils/postMintSignatures';
 
-export const ALREADY_MINTED_TX_HASH = "ALREADY_MINTED";
+export const ALREADY_MINTED_TX_HASH = 'ALREADY_MINTED';
 
 /**
  * Parameters for claiming LBTC tokens on Solana
@@ -78,7 +78,7 @@ export async function claimLBTC(
 
   try {
     if (!provider.publicKey) {
-      throw new Error("Wallet not found");
+      throw new Error('Wallet not found');
     }
 
     const config = getConfig(networkToEnv[network]);
@@ -102,11 +102,11 @@ export async function claimLBTC(
       programId,
     );
     const [configPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("lbtc_config")],
+      [Buffer.from('lbtc_config')],
       programId,
     );
     const [tokenAuth] = PublicKey.findProgramAddressSync(
-      [Buffer.from("token_authority")],
+      [Buffer.from('token_authority')],
       programId,
     );
     const payloadHashArray = Array.from(mintPayload.hashAsBytes());
@@ -132,7 +132,7 @@ export async function claimLBTC(
 
     // Step 1: Create Mint Payload (if it doesn't exist)
     if (!payloadStatus.exists) {
-      debugLog("Adding Create Mint Payload instruction...");
+      debugLog('Adding Create Mint Payload instruction...');
       const createPayloadIx = await program.methods
         .createMintPayload(payloadHashArray, Array.from(mintPayload.bytes()))
         .accounts({
@@ -147,10 +147,10 @@ export async function claimLBTC(
         instruction: createPayloadIx,
         connection,
         provider,
-        debugLabel: "Create Mint Payload",
+        debugLabel: 'Create Mint Payload',
       });
     } else {
-      debugLog("Mint payload already exists, skipping create instruction.");
+      debugLog('Mint payload already exists, skipping create instruction.');
     }
 
     // Step 2: Post Mint Signatures (if not already signed)
@@ -165,13 +165,13 @@ export async function claimLBTC(
         proofSignature,
       });
     } else {
-      debugLog("Payload already signed, skipping post signatures instruction.");
+      debugLog('Payload already signed, skipping post signatures instruction.');
     }
 
     // Extract necessary data from the payload
     const recipient = new PublicKey(recipientAddress);
     const recipientATA = await getAssociatedTokenAddress(mint, recipient);
-    const amount = mintPayload.amount.startsWith("0x")
+    const amount = mintPayload.amount.startsWith('0x')
       ? BigInt(mintPayload.amount)
       : BigInt(`0x${mintPayload.amount}`);
     const depositId = generateDepositId(
@@ -180,7 +180,7 @@ export async function claimLBTC(
       mintPayload.txId,
       Number(mintPayload.vout),
     );
-    const DEPOSIT_SEED = Buffer.from("deposit");
+    const DEPOSIT_SEED = Buffer.from('deposit');
     const [depositPDA] = config.bascule
       ? PublicKey.findProgramAddressSync(
           [DEPOSIT_SEED, depositId],
@@ -212,7 +212,7 @@ export async function claimLBTC(
       instruction: mintTx,
       connection,
       provider,
-      debugLabel: "Mint From Payload",
+      debugLabel: 'Mint From Payload',
     });
 
     return signature;

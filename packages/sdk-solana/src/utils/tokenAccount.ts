@@ -5,10 +5,10 @@ import {
   getAssociatedTokenAddress,
   TOKEN_2022_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+} from '@solana/spl-token';
+import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 
-import { ISolanaWalletProvider } from "../types";
+import { ISolanaWalletProvider } from '../types';
 
 /**
  * Determine the token program that owns a given mint account.
@@ -74,7 +74,7 @@ export async function createOrGetAssociatedTokenAccount({
     const tokenAccount = await getAccount(
       connection,
       associatedTokenAddress,
-      "confirmed",
+      'confirmed',
       tokenProgramId,
     );
 
@@ -93,7 +93,7 @@ export async function createOrGetAssociatedTokenAccount({
 
     transaction.add(createATAInstruction);
 
-    const { blockhash } = await connection.getLatestBlockhash("confirmed");
+    const { blockhash } = await connection.getLatestBlockhash('confirmed');
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = provider.publicKey;
 
@@ -103,7 +103,7 @@ export async function createOrGetAssociatedTokenAccount({
 
     const confirmation = await connection.confirmTransaction(
       signature,
-      "confirmed",
+      'confirmed',
     );
 
     if (confirmation.value.err) {

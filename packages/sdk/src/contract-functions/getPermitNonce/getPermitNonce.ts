@@ -1,11 +1,11 @@
-import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
-import { Address } from "viem";
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import { Address } from 'viem';
 
-import { makePublicClient } from "../../clients/public-client";
-import { CommonParameters } from "../../common/parameters";
-import { Token } from "../../tokens/token-addresses";
-import { getTokenContractInfo } from "../../tokens/tokens";
-import { determineEnv } from "../../utils/env";
+import { makePublicClient } from '../../clients/public-client';
+import { CommonParameters } from '../../common/parameters';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { determineEnv } from '../../utils/env';
 
 export interface IGetPermitNonceParams extends CommonParameters {
   /**
@@ -42,7 +42,7 @@ export async function getPermitNonce({
   const nonce = await publicClient.readContract({
     abi: lbtcContract.abi,
     address: lbtcContract.address,
-    functionName: "nonces",
+    functionName: 'nonces',
     args: [owner],
   });
 

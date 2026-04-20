@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -46,8 +46,8 @@ export async function fetchAllPaginated<T>({
   while (hasMore) {
     const url = new URL(endpoint);
 
-    url.searchParams.set("limit", pageSize.toString());
-    url.searchParams.set("offset", offset.toString());
+    url.searchParams.set('limit', pageSize.toString());
+    url.searchParams.set('offset', offset.toString());
     for (const [key, value] of Object.entries(query)) {
       if (value !== undefined) url.searchParams.set(key, String(value));
     }

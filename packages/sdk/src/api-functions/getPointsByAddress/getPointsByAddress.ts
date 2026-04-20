@@ -1,9 +1,9 @@
-import { DEFAULT_ENV, Env } from "@lombard.finance/sdk-common";
-import axios from "axios";
-import BigNumber from "bignumber.js";
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
+import axios from 'axios';
+import BigNumber from 'bignumber.js';
 
-import { getApiConfig } from "../../common/api-config";
-import { IEnvParam } from "../../common/parameters";
+import { getApiConfig } from '../../common/api-config';
+import { IEnvParam } from '../../common/parameters';
 
 const CURRENT_SEASON = 2;
 
@@ -181,7 +181,7 @@ async function fetchPointsSeason1({
   env,
 }: Omit<
   IGetPointsByAddressParameters,
-  "season"
+  'season'
 >): Promise<IPointsByAddressSeason1> {
   const { data } = await axios.get<IPointsResponseSeason1>(
     getLombardPointsUrl(1, address, env),
@@ -216,7 +216,7 @@ async function fetchPointsSeason2({
   env,
 }: Omit<
   IGetPointsByAddressParameters,
-  "season"
+  'season'
 >): Promise<IPointsByAddressSeason2> {
   const { data } = await axios.get<IPointsResponseSeason2>(
     getLombardPointsUrl(2, address, env),
@@ -291,7 +291,7 @@ export async function getPointsByAddress({
  * @param params - Address and environment parameters.
  */
 export const getLuxSeason1Points = (
-  params: Omit<IGetPointsByAddressParameters, "season">,
+  params: Omit<IGetPointsByAddressParameters, 'season'>,
 ) => getPointsByAddress({ ...params, season: 1 });
 
 /**
@@ -300,5 +300,5 @@ export const getLuxSeason1Points = (
  * @param params - Address and environment parameters.
  */
 export const getLuxSeason2Points = (
-  params: Omit<IGetPointsByAddressParameters, "season">,
+  params: Omit<IGetPointsByAddressParameters, 'season'>,
 ) => getPointsByAddress({ ...params, season: 2 });

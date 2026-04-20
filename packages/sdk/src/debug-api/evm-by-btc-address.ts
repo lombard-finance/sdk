@@ -1,9 +1,9 @@
-import { Env } from "@lombard.finance/sdk-common";
-import axios from "axios";
-import { Address } from "viem";
+import { Env } from '@lombard.finance/sdk-common';
+import axios from 'axios';
+import { Address } from 'viem';
 
-import { getApiConfig } from "../common/api-config";
-import { BlockchainIdentifier } from "../common/blockchain-identifier";
+import { getApiConfig } from '../common/api-config';
+import { BlockchainIdentifier } from '../common/blockchain-identifier';
 
 type EvmByBtcAddressResponse = {
   metadata: {

@@ -6,12 +6,12 @@
  * @module __tests__/integration/btc-deposit.integration.test.ts
  */
 
-import { Env } from "@lombard.finance/sdk-common";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Env } from '@lombard.finance/sdk-common';
+import { beforeEach,describe, expect, it, vi } from 'vitest';
 
-import { btcDeposit } from "../../chains/btc/actions/deposit";
-import { AssetId, Chain } from "../../index";
-import { createTestConfig as createConfig } from "../helpers/createTestConfig";
+import { btcDeposit } from '../../chains/btc/actions/deposit';
+import { AssetId, Chain } from '../../index';
+import { createTestConfig as createConfig } from '../helpers/createTestConfig';
 
 // Mock EIP1193 Provider
 const createMockProvider = () => ({
@@ -20,20 +20,20 @@ const createMockProvider = () => ({
   removeListener: vi.fn(),
   request: vi.fn().mockImplementation(async ({ method }) => {
     switch (method) {
-      case "eth_chainId":
-        return "0xa869"; // Avalanche Fuji
-      case "eth_accounts":
-        return ["0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0"];
-      case "personal_sign":
-      case "eth_signTypedData_v4":
-        return "0xmocksignature";
+      case 'eth_chainId':
+        return '0xa869'; // Avalanche Fuji
+      case 'eth_accounts':
+        return ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0'];
+      case 'personal_sign':
+      case 'eth_signTypedData_v4':
+        return '0xmocksignature';
       default:
         return null;
     }
   }),
 });
 
-describe("BTC Deposit Integration", () => {
+describe('BTC Deposit Integration', () => {
   let mockProvider: ReturnType<typeof createMockProvider>;
 
   beforeEach(() => {
@@ -41,8 +41,8 @@ describe("BTC Deposit Integration", () => {
     mockProvider = createMockProvider();
   });
 
-  describe("Action Creation", () => {
-    it("should create BTC deposit action for Avalanche Fuji", () => {
+  describe('Action Creation', () => {
+    it('should create BTC deposit action for Avalanche Fuji', () => {
       const config = createConfig({
         env: Env.testnet,
         providers: { evm: () => mockProvider },
@@ -54,10 +54,10 @@ describe("BTC Deposit Integration", () => {
       });
 
       expect(deposit).toBeDefined();
-      expect(deposit.status).toBe("idle");
+      expect(deposit.status).toBe('idle');
     });
 
-    it("should reject LBTC as output asset", () => {
+    it('should reject LBTC as output asset', () => {
       const config = createConfig({
         env: Env.testnet,
         providers: { evm: () => mockProvider },
@@ -72,8 +72,8 @@ describe("BTC Deposit Integration", () => {
     });
   });
 
-  describe("Status Transitions", () => {
-    it("should start in idle status", () => {
+  describe('Status Transitions', () => {
+    it('should start in idle status', () => {
       const config = createConfig({
         env: Env.testnet,
         providers: { evm: () => mockProvider },
@@ -84,14 +84,14 @@ describe("BTC Deposit Integration", () => {
         destChain: Chain.AVALANCHE_FUJI,
       });
 
-      expect(deposit.status).toBe("idle");
+      expect(deposit.status).toBe('idle');
       expect(deposit.isLoading).toBe(false);
       expect(deposit.error).toBeNull();
     });
   });
 
-  describe("Property Access", () => {
-    it("should expose action params", () => {
+  describe('Property Access', () => {
+    it('should expose action params', () => {
       const config = createConfig({
         env: Env.testnet,
         providers: { evm: () => mockProvider },
@@ -102,7 +102,8 @@ describe("BTC Deposit Integration", () => {
         destChain: Chain.AVALANCHE_FUJI,
       });
 
-      expect(deposit.status).toBe("idle");
+      expect(deposit.status).toBe('idle');
     });
   });
 });
+

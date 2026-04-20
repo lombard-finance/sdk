@@ -6,20 +6,23 @@
  * @module chains/evm/actions/withdraw/EvmCancelWithdraw
  */
 
-import type { EIP1193Provider } from "viem";
+import type { EIP1193Provider } from 'viem';
 
-import type { ChainId } from "../../../../common/chains";
-import type { DeployProtocol } from "../../../../core";
-import { parseChainIdentifier, StepStatus } from "../../../../core";
-import { BaseAction } from "../../../../shared/actions/BaseAction";
-import { EvmOperationStatus } from "../../../../shared/constants/statusConstants";
-import type { EvmCoreContext } from "../../../../shared/context";
-import { LombardError, WithdrawErrorCode } from "../../../../shared/errors";
-import type { WithdrawEventMap } from "../../../../shared/events";
-import { isVedaVaultChain, Vault } from "../../../../vaults/lib/config";
-import { cancelWithdraw } from "../../../../vaults/lib/ops/withdraw";
-import { evmWithdrawConfig } from "./config";
-import type { EvmCancelWithdrawParams, IEvmCancelWithdraw } from "./types";
+import type { ChainId } from '../../../../common/chains';
+import type { DeployProtocol } from '../../../../core';
+import { parseChainIdentifier, StepStatus } from '../../../../core';
+import { BaseAction } from '../../../../shared/actions/BaseAction';
+import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
+import type { EvmCoreContext } from '../../../../shared/context';
+import { LombardError, WithdrawErrorCode } from '../../../../shared/errors';
+import type { WithdrawEventMap } from '../../../../shared/events';
+import { isVedaVaultChain, Vault } from '../../../../vaults/lib/config';
+import { cancelWithdraw } from '../../../../vaults/lib/ops/withdraw';
+import { evmWithdrawConfig } from './config';
+import type {
+  EvmCancelWithdrawParams,
+  IEvmCancelWithdraw,
+} from './types';
 
 export class EvmCancelWithdraw
   extends BaseAction<WithdrawEventMap, EvmOperationStatus>
@@ -41,23 +44,23 @@ export class EvmCancelWithdraw
   }
 
   async prepare(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.IDLE, "prepare");
+    this.assertStatus(EvmOperationStatus.IDLE, 'prepare');
 
     return this.act(async () => {
       this.validateProtocol(this.params.protocol);
 
       // Get provider and account
-      const provider = await this.ctx.getProvider("evm");
+      const provider = await this.ctx.getProvider('evm');
       if (!provider) {
-        throw LombardError.providerMissing(this.params.chain, "evm");
+        throw LombardError.providerMissing(this.params.chain, 'evm');
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: "eth_accounts",
+        method: 'eth_accounts',
       });
       const account = (accounts as string[])[0] as `0x${string}`;
       if (!account) {
-        throw LombardError.providerMissing(this.params.chain, "evm");
+        throw LombardError.providerMissing(this.params.chain, 'evm');
       }
 
       this._account = account;
@@ -81,16 +84,16 @@ export class EvmCancelWithdraw
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(EvmOperationStatus.READY, "execute");
+    this.assertStatus(EvmOperationStatus.READY, 'execute');
 
     return this.act(async () => {
-      const provider = await this.ctx.getProvider("evm");
+      const provider = await this.ctx.getProvider('evm');
       if (!provider) {
-        throw LombardError.providerMissing(this.params.chain, "evm");
+        throw LombardError.providerMissing(this.params.chain, 'evm');
       }
 
       if (!this._account || !this._chainId) {
-        throw LombardError.missingParameter("account or chainId");
+        throw LombardError.missingParameter('account or chainId');
       }
 
       this.emitProgress({
@@ -122,12 +125,12 @@ export class EvmCancelWithdraw
 
   private validateProtocol(protocol: DeployProtocol): void {
     const isSupported = evmWithdrawConfig.routes.some(
-      (route) =>
+      route =>
         route.protocols.includes(protocol) && route.envs.includes(this.ctx.env),
     );
     if (!isSupported) {
       throw LombardError.invalidParameter(
-        "protocol",
+        'protocol',
         `Protocol ${protocol} is not supported for withdrawals in ${this.ctx.env} environment`,
       );
     }

@@ -1,1 +1,1 @@
-export * from "./setReferral";
+export * from './setReferral';

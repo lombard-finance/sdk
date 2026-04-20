@@ -1,2 +1,2 @@
-export * from "./signStakeAndBake";
-export { getStakeAndBakeConfig } from "./validation";
+export * from './signStakeAndBake';
+export { getStakeAndBakeConfig } from './validation';

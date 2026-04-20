@@ -3,20 +3,20 @@
  * Centralizes EIP-712 structure creation for stake and bake operations.
  */
 
-import type { Address } from "viem";
+import type { Address } from 'viem';
 
-import type { ChainId } from "../../common/chains";
-import type { ApprovalMode } from "../../defi/defi-registry";
+import type { ChainId } from '../../common/chains';
+import type { ApprovalMode } from '../../defi/defi-registry';
 
 /**
  * EIP-712 domain type definition.
  * Standard across all EIP-712 signatures.
  */
 export const EIP712_DOMAIN_TYPES = [
-  { name: "name", type: "string" },
-  { name: "version", type: "string" },
-  { name: "chainId", type: "uint256" },
-  { name: "verifyingContract", type: "address" },
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' },
 ] as const;
 
 /**
@@ -24,11 +24,11 @@ export const EIP712_DOMAIN_TYPES = [
  * Used for gasless token approvals.
  */
 export const PERMIT_MESSAGE_TYPES = [
-  { name: "owner", type: "address" },
-  { name: "spender", type: "address" },
-  { name: "value", type: "uint256" },
-  { name: "nonce", type: "uint256" },
-  { name: "deadline", type: "uint256" },
+  { name: 'owner', type: 'address' },
+  { name: 'spender', type: 'address' },
+  { name: 'value', type: 'uint256' },
+  { name: 'nonce', type: 'uint256' },
+  { name: 'deadline', type: 'uint256' },
 ] as const;
 
 /**
@@ -88,7 +88,7 @@ export interface TypedDataParams {
  * ```
  */
 export function buildTypedData(params: TypedDataParams) {
-  const primaryType = params.mode === "permit" ? "Permit" : "Approve";
+  const primaryType = params.mode === 'permit' ? 'Permit' : 'Approve';
 
   return {
     account: params.account,
@@ -101,7 +101,7 @@ export function buildTypedData(params: TypedDataParams) {
     types: {
       EIP712Domain: EIP712_DOMAIN_TYPES,
       [primaryType]:
-        params.mode === "permit" ? PERMIT_MESSAGE_TYPES : APPROVE_MESSAGE_TYPES,
+        params.mode === 'permit' ? PERMIT_MESSAGE_TYPES : APPROVE_MESSAGE_TYPES,
     },
     primaryType,
     message: {
@@ -132,6 +132,6 @@ export function serializeTypedData(
   typedData: ReturnType<typeof buildTypedData>,
 ): string {
   return JSON.stringify(typedData, (_, v) =>
-    typeof v === "bigint" ? v.toString() : v,
+    typeof v === 'bigint' ? v.toString() : v,
   );
 }

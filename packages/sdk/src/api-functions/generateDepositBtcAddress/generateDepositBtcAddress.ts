@@ -1,36 +1,36 @@
-import axios from "axios";
-import { Address, pad } from "viem";
+import axios from 'axios';
+import { Address, pad } from 'viem';
 
-import { getApiConfig } from "../../common/api-config";
+import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
   getChainNameById,
-} from "../../common/blockchain-identifier";
+} from '../../common/blockchain-identifier';
 import type {
   ChainId,
   SolanaChain,
   StarknetChainId,
   SuiChain,
-} from "../../common/chains";
-import { isSolanaChain } from "../../common/chains";
-import type { IEnvParam } from "../../common/parameters";
+} from '../../common/chains';
+import { isSolanaChain } from '../../common/chains';
+import type { IEnvParam } from '../../common/parameters';
 import {
   AddressKind,
   getSolanaTokenAddress,
   Token,
-} from "../../tokens/token-addresses";
-import { getTokenContractInfo } from "../../tokens/tokens";
+} from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
 import {
   getErrorMessage,
   TokenContractAddressNotFoundError,
-} from "../../utils/err";
+} from '../../utils/err';
 
 /**
  * The address which will be returned if the provided EVM address is sanctioned.
  */
-export const SANCTIONED_ADDRESS = "sanctioned_address";
-const ADDRESS_URL = "api/v1/address/generate";
-const SANCTIONS_MESSAGE = "destination address is under sanctions";
+export const SANCTIONED_ADDRESS = 'sanctioned_address';
+const ADDRESS_URL = 'api/v1/address/generate';
+const SANCTIONS_MESSAGE = 'destination address is under sanctions';
 
 interface IGenerateNewAddressResponse {
   address: string;
@@ -123,7 +123,7 @@ export async function generateDepositBtcAddress({
   if (toChain === BlockchainIdentifier.starknet) {
     address = pad(address as Address, { size: 32 });
     if (!pubKey) {
-      throw new Error("Missing parameter: pubKey");
+      throw new Error('Missing parameter: pubKey');
     }
 
     additionalParams = {
@@ -157,7 +157,8 @@ export async function generateDepositBtcAddress({
   try {
     if (EXTRA_PARAMS_TOKENS.includes(token)) {
       if (isSolanaChain(chainId)) {
-        const solanaToken = token === Token.BTCb ? Token.BTCb : Token.LBTC;
+        const solanaToken =
+          token === Token.BTCb ? Token.BTCb : Token.LBTC;
         const solanaTokenAddress = getSolanaTokenAddress(
           chainId,
           env,

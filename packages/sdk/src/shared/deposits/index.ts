@@ -25,4 +25,5 @@ export {
   MIN_CLAIM_AMOUNT_BTC,
   REQUIRED_CONFIRMATIONS,
   type StatusSeverity,
-} from "./depositStatus";
+} from './depositStatus';
+

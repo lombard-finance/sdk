@@ -1,6 +1,6 @@
-import { getExplorerTxUrl } from "@lombard.finance/sdk";
+import { getExplorerTxUrl } from '@lombard.finance/sdk';
 
-import type { SolanaUnstakingStatus } from "../pages/SolanaUnstakePage/useSolanaUnstaking";
+import type { SolanaUnstakingStatus } from '../pages/SolanaUnstakePage/useSolanaUnstaking';
 
 interface SolanaUnstakingProgressProps {
   txHash: string | null;
@@ -13,10 +13,7 @@ interface SolanaUnstakingProgressProps {
  * Get Solana explorer URL for transaction
  */
 function getSolanaExplorerUrl(txHash: string, chain: string): string {
-  return (
-    getExplorerTxUrl(chain, txHash) ??
-    `https://explorer.solana.com/tx/${txHash}`
-  );
+  return getExplorerTxUrl(chain, txHash) ?? `https://explorer.solana.com/tx/${txHash}`;
 }
 
 /**
@@ -30,25 +27,21 @@ export function SolanaUnstakingProgress({
   sourceChain,
   onReset,
 }: SolanaUnstakingProgressProps) {
-  const isComplete = status.phase === "complete";
-  const isError = status.phase === "error";
-  const isActivelyLoading = ["preparing", "executing"].includes(status.phase);
+  const isComplete = status.phase === 'complete';
+  const isError = status.phase === 'error';
+  const isActivelyLoading = ['preparing', 'executing'].includes(status.phase);
 
   const getStatusColor = () => {
-    if (isError) return "text-error";
-    if (isComplete) return "text-success";
-    if (isActivelyLoading) return "text-warning";
-    return "text-primary";
+    if (isError) return 'text-error';
+    if (isComplete) return 'text-success';
+    if (isActivelyLoading) return 'text-warning';
+    return 'text-primary';
   };
 
   return (
     <div className="card">
       <h2 className="text-2xl font-semibold mb-6">
-        {isComplete
-          ? "Unstake Complete"
-          : isError
-            ? "Unstaking Error"
-            : "Unstaking Progress"}
+        {isComplete ? 'Unstake Complete' : isError ? 'Unstaking Error' : 'Unstaking Progress'}
       </h2>
 
       {/* Status */}
@@ -86,19 +79,17 @@ export function SolanaUnstakingProgress({
         <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <h4 className="font-semibold mb-2 text-sm">What's happening?</h4>
           <ul className="text-sm text-secondary space-y-1">
-            {status.phase === "preparing" && (
+            {status.phase === 'preparing' && (
               <>
                 <li>• Preparing the unstake transaction</li>
                 <li>• Validating amount and Bitcoin recipient address</li>
               </>
             )}
-            {status.phase === "executing" && (
+            {status.phase === 'executing' && (
               <>
                 <li>• Burning LBTC tokens on Solana</li>
                 <li>• Please confirm the transaction in your wallet</li>
-                <li>
-                  • BTC will be released to your Bitcoin address automatically
-                </li>
+                <li>• BTC will be released to your Bitcoin address automatically</li>
               </>
             )}
           </ul>
@@ -112,22 +103,18 @@ export function SolanaUnstakingProgress({
             ✓ Unstake Complete
           </h4>
           <p className="text-sm text-green-800">
-            LBTC has been burned on Solana. BTC will be sent to your Bitcoin
-            address shortly.
+            LBTC has been burned on Solana. BTC will be sent to your Bitcoin address shortly.
           </p>
         </div>
       )}
 
       {/* Action buttons */}
-      {isComplete || isError ? (
+      {(isComplete || isError) ? (
         <button onClick={onReset} className="btn btn-secondary w-full">
           Start New Unstake
         </button>
       ) : (
-        <button
-          onClick={onReset}
-          className="btn btn-secondary w-full mt-4 text-sm"
-        >
+        <button onClick={onReset} className="btn btn-secondary w-full mt-4 text-sm">
           Cancel
         </button>
       )}

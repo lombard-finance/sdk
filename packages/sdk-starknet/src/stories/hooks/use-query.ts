@@ -1,5 +1,5 @@
-import { extractErrorMessage } from "@lombard.finance/sdk-common/utils/err";
-import { useCallback, useEffect, useState } from "react";
+import { extractErrorMessage } from '@lombard.finance/sdk-common/utils/err';
+import { useCallback, useEffect, useState } from 'react';
 
 type QueryFn<T> = () => Promise<T>;
 

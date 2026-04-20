@@ -1,12 +1,12 @@
-import BigNumber from "bignumber.js";
-import { getContract } from "viem";
+import BigNumber from 'bignumber.js';
+import { getContract } from 'viem';
 
-import { makePublicClient } from "../../clients/public-client";
-import { CommonParameters } from "../../common/parameters";
-import { getErrorMessage } from "../../utils/err";
-import { fromSatoshi } from "../../utils/satoshi";
-import { isVedaVaultChain, Vault, VAULTS } from "../../vaults/lib/config";
-import { getShareValue } from "../getShareValue";
+import { makePublicClient } from '../../clients/public-client';
+import { CommonParameters } from '../../common/parameters';
+import { getErrorMessage } from '../../utils/err';
+import { fromSatoshi } from '../../utils/satoshi';
+import { isVedaVaultChain, Vault, VAULTS } from '../../vaults/lib/config';
+import { getShareValue } from '../getShareValue';
 
 export interface IGetSharesByAddressParameters extends CommonParameters {
   /**
@@ -52,7 +52,7 @@ export async function getSharesByAddress({
 
   if (!isVedaVaultChain(chainId)) {
     throw new Error(
-      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(", ")}`,
+      `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
   }
 

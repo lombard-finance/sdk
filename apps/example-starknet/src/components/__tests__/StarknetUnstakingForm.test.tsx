@@ -1,13 +1,13 @@
-import React from "react";
-import { act } from "react";
-import { createRoot, type Root } from "react-dom/client";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import React from 'react';
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { AssetId, Chain, Env } from "@lombard.finance/sdk";
+import { AssetId, Chain, Env } from '@lombard.finance/sdk';
 
-import { StarknetUnstakingForm } from "../StarknetUnstakingForm";
+import { StarknetUnstakingForm } from '../StarknetUnstakingForm';
 
-describe("StarknetUnstakingForm", () => {
+describe('StarknetUnstakingForm', () => {
   let root: Root;
   let container: HTMLDivElement;
 
@@ -20,7 +20,7 @@ describe("StarknetUnstakingForm", () => {
   function renderForm(
     props: Partial<React.ComponentProps<typeof StarknetUnstakingForm>> = {},
   ) {
-    container = document.createElement("div");
+    container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
 
@@ -38,28 +38,23 @@ describe("StarknetUnstakingForm", () => {
     return defaultProps;
   }
 
-  it("submits unstake payload with correct asset types", async () => {
+  it('submits unstake payload with correct asset types', async () => {
     const { onSubmit } = renderForm();
 
     // Fill in recipient field
-    const recipientInput = container.querySelector(
-      "#recipient",
-    ) as HTMLInputElement;
+    const recipientInput = container.querySelector('#recipient') as HTMLInputElement;
     await act(async () => {
       const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        HTMLInputElement.prototype,
-        "value",
+        HTMLInputElement.prototype, 'value',
       )?.set;
-      nativeInputValueSetter?.call(recipientInput, "bc1qtest");
-      recipientInput.dispatchEvent(new Event("input", { bubbles: true }));
-      recipientInput.dispatchEvent(new Event("change", { bubbles: true }));
+      nativeInputValueSetter?.call(recipientInput, 'bc1qtest');
+      recipientInput.dispatchEvent(new Event('input', { bubbles: true }));
+      recipientInput.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-    const form = container.querySelector("form") as HTMLFormElement;
+    const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(
-        new Event("submit", { bubbles: true, cancelable: true }),
-      );
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -69,28 +64,23 @@ describe("StarknetUnstakingForm", () => {
     });
   });
 
-  it("uses testnet chains for non-prod environments", async () => {
+  it('uses testnet chains for non-prod environments', async () => {
     const { onSubmit } = renderForm({ env: Env.stage });
 
     // Fill recipient
-    const recipientInput = container.querySelector(
-      "#recipient",
-    ) as HTMLInputElement;
+    const recipientInput = container.querySelector('#recipient') as HTMLInputElement;
     await act(async () => {
       const setter = Object.getOwnPropertyDescriptor(
-        HTMLInputElement.prototype,
-        "value",
+        HTMLInputElement.prototype, 'value',
       )?.set;
-      setter?.call(recipientInput, "tb1qtest");
-      recipientInput.dispatchEvent(new Event("input", { bubbles: true }));
-      recipientInput.dispatchEvent(new Event("change", { bubbles: true }));
+      setter?.call(recipientInput, 'tb1qtest');
+      recipientInput.dispatchEvent(new Event('input', { bubbles: true }));
+      recipientInput.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-    const form = container.querySelector("form") as HTMLFormElement;
+    const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(
-        new Event("submit", { bubbles: true, cancelable: true }),
-      );
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -100,28 +90,23 @@ describe("StarknetUnstakingForm", () => {
     });
   });
 
-  it("uses mainnet chains for prod environment", async () => {
+  it('uses mainnet chains for prod environment', async () => {
     const { onSubmit } = renderForm({ env: Env.prod });
 
     // Fill recipient
-    const recipientInput = container.querySelector(
-      "#recipient",
-    ) as HTMLInputElement;
+    const recipientInput = container.querySelector('#recipient') as HTMLInputElement;
     await act(async () => {
       const setter = Object.getOwnPropertyDescriptor(
-        HTMLInputElement.prototype,
-        "value",
+        HTMLInputElement.prototype, 'value',
       )?.set;
-      setter?.call(recipientInput, "bc1qtest");
-      recipientInput.dispatchEvent(new Event("input", { bubbles: true }));
-      recipientInput.dispatchEvent(new Event("change", { bubbles: true }));
+      setter?.call(recipientInput, 'bc1qtest');
+      recipientInput.dispatchEvent(new Event('input', { bubbles: true }));
+      recipientInput.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-    const form = container.querySelector("form") as HTMLFormElement;
+    const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(
-        new Event("submit", { bubbles: true, cancelable: true }),
-      );
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -131,35 +116,29 @@ describe("StarknetUnstakingForm", () => {
     });
   });
 
-  it("disables submit button when isSubmitting is true", () => {
+  it('disables submit button when isSubmitting is true', () => {
     renderForm({ isSubmitting: true });
 
-    const button = container.querySelector(
-      'button[type="submit"]',
-    ) as HTMLButtonElement;
+    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
     expect(button.disabled).toBe(true);
-    expect(button.textContent).toBe("Processing...");
+    expect(button.textContent).toBe('Processing...');
   });
 
-  it("displays correct chain labels for non-prod env", () => {
+  it('displays correct chain labels for non-prod env', () => {
     renderForm({ env: Env.testnet });
 
-    const sourceInput = container.querySelector(
-      "#sourceChain",
-    ) as HTMLInputElement;
-    const destInput = container.querySelector("#destChain") as HTMLInputElement;
-    expect(sourceInput.value).toBe("Starknet Sepolia");
-    expect(destInput.value).toBe("Bitcoin Signet");
+    const sourceInput = container.querySelector('#sourceChain') as HTMLInputElement;
+    const destInput = container.querySelector('#destChain') as HTMLInputElement;
+    expect(sourceInput.value).toBe('Starknet Sepolia');
+    expect(destInput.value).toBe('Bitcoin Signet');
   });
 
-  it("displays correct chain labels for prod env", () => {
+  it('displays correct chain labels for prod env', () => {
     renderForm({ env: Env.prod });
 
-    const sourceInput = container.querySelector(
-      "#sourceChain",
-    ) as HTMLInputElement;
-    const destInput = container.querySelector("#destChain") as HTMLInputElement;
-    expect(sourceInput.value).toBe("Starknet Mainnet");
-    expect(destInput.value).toBe("Bitcoin Mainnet");
+    const sourceInput = container.querySelector('#sourceChain') as HTMLInputElement;
+    const destInput = container.querySelector('#destChain') as HTMLInputElement;
+    expect(sourceInput.value).toBe('Starknet Mainnet');
+    expect(destInput.value).toBe('Bitcoin Mainnet');
   });
 });

@@ -1,9 +1,9 @@
-import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
 
-import { ISolanaWalletProvider } from "../../types";
+import { ISolanaWalletProvider } from '../../types';
 
 const SIGN_MESSAGE =
-  "I have read and agreed to the terms of service: https://docs.lombard.finance/legals/terms-of-service";
+  'I have read and agreed to the terms of service: https://docs.lombard.finance/legals/terms-of-service';
 
 interface SignTermsOfServiceParams {
   provider: ISolanaWalletProvider;
@@ -22,7 +22,7 @@ export async function signTermsOfService({
   signature: string;
 }> {
   const { signature } = await provider.signMessage(
-    new Uint8Array(Buffer.from(SIGN_MESSAGE, "utf8")),
+    new Uint8Array(Buffer.from(SIGN_MESSAGE, 'utf8')),
   );
 
   const signatureText = bs58.encode(signature);

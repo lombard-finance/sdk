@@ -1,1 +1,1 @@
-export { SolanaStakePage } from "./SolanaStakePage";
+export { SolanaStakePage } from './SolanaStakePage';

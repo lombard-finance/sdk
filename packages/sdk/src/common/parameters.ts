@@ -1,8 +1,8 @@
-import { Env } from "@lombard.finance/sdk-common";
-import { Address, EIP1193Provider } from "viem";
+import { Env } from '@lombard.finance/sdk-common';
+import { Address, EIP1193Provider } from 'viem';
 
-import { SignerAdapter } from "../clients/evm-signer-adapter";
-import { ChainId } from "./chains";
+import { SignerAdapter } from '../clients/evm-signer-adapter';
+import { ChainId } from './chains';
 
 export interface IEnvParam {
   /**
@@ -76,7 +76,7 @@ export interface CommonSignerWriteParameters extends CommonParameters {
 export function isProviderFlow(
   params: CommonWriteParameters | CommonSignerWriteParameters,
 ): params is CommonWriteParameters {
-  return "provider" in params;
+  return 'provider' in params;
 }
 
 /**
@@ -85,5 +85,5 @@ export function isProviderFlow(
 export function isSignerFlow(
   params: CommonWriteParameters | CommonSignerWriteParameters,
 ): params is CommonSignerWriteParameters {
-  return "signer" in params;
+  return 'signer' in params;
 }

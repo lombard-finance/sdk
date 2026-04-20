@@ -1,21 +1,21 @@
-import React from "react";
-import { act } from "react";
-import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import React from 'react';
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MIN_STAKE_AMOUNT_BTC } from "@lombard.finance/sdk";
+import { MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
 
-import { StakeAndDeployForm } from "../StakeAndDeployForm";
+import { StakeAndDeployForm } from '../StakeAndDeployForm';
 
-describe("StakeAndDeployForm", () => {
+describe('StakeAndDeployForm', () => {
   let root: Root;
   let container: HTMLDivElement;
 
   beforeEach(() => {
     // Mock window.ethereum for wallet button visibility
-    Object.defineProperty(window, "ethereum", {
+    Object.defineProperty(window, 'ethereum', {
       value: {
-        request: vi.fn().mockResolvedValue(["0xabc123"]),
+        request: vi.fn().mockResolvedValue(['0xabc123']),
       },
       writable: true,
       configurable: true,
@@ -26,7 +26,7 @@ describe("StakeAndDeployForm", () => {
     act(() => {
       root?.unmount();
     });
-    Object.defineProperty(window, "ethereum", {
+    Object.defineProperty(window, 'ethereum', {
       value: undefined,
       writable: true,
       configurable: true,
@@ -36,7 +36,7 @@ describe("StakeAndDeployForm", () => {
   function renderForm(
     props: Partial<React.ComponentProps<typeof StakeAndDeployForm>> = {},
   ) {
-    container = document.createElement("div");
+    container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
 
@@ -56,75 +56,61 @@ describe("StakeAndDeployForm", () => {
   it('shows "Stake and Deploy" button', () => {
     renderForm();
 
-    const submitButton = container.querySelector(
-      'button[type="submit"]',
-    ) as HTMLButtonElement;
-    expect(submitButton.textContent).toBe("Stake and Deploy");
+    const submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    expect(submitButton.textContent).toBe('Stake and Deploy');
     expect(submitButton.disabled).toBe(false);
   });
 
   it('shows "Processing..." when loading', () => {
     renderForm({ isLoading: true });
 
-    const submitButton = container.querySelector(
-      'button[type="submit"]',
-    ) as HTMLButtonElement;
-    expect(submitButton.textContent).toContain("Processing");
+    const submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    expect(submitButton.textContent).toContain('Processing');
     expect(submitButton.disabled).toBe(true);
   });
 
-  it("shows wallet icon button when ethereum is available", () => {
+  it('shows wallet icon button when ethereum is available', () => {
     renderForm();
 
-    const walletButton = container.querySelector(
-      'button[title="Use wallet address"]',
-    );
+    const walletButton = container.querySelector('button[title="Use wallet address"]');
     expect(walletButton).toBeTruthy();
   });
 
-  it("does not show wallet icon button when no ethereum provider", () => {
-    Object.defineProperty(window, "ethereum", {
+  it('does not show wallet icon button when no ethereum provider', () => {
+    Object.defineProperty(window, 'ethereum', {
       value: undefined,
       writable: true,
       configurable: true,
     });
     renderForm();
 
-    const walletButton = container.querySelector(
-      'button[title="Use wallet address"]',
-    );
+    const walletButton = container.querySelector('button[title="Use wallet address"]');
     expect(walletButton).toBeFalsy();
   });
 
-  it("fills address when wallet icon button is clicked", async () => {
+  it('fills address when wallet icon button is clicked', async () => {
     renderForm();
 
-    const walletButton = container.querySelector(
-      'button[title="Use wallet address"]',
-    );
+    const walletButton = container.querySelector('button[title="Use wallet address"]');
 
     await act(async () => {
-      walletButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      walletButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    const destInput = container.querySelector(
-      "#destAddress",
-    ) as HTMLInputElement;
-    expect(destInput.value).toBe("0xabc123");
+    const destInput = container.querySelector('#destAddress') as HTMLInputElement;
+    expect(destInput.value).toBe('0xabc123');
   });
 
-  it("displays Stake and Deploy heading", () => {
+  it('displays Stake and Deploy heading', () => {
     renderForm();
 
-    const heading = container.querySelector("h2");
-    expect(heading?.textContent).toBe("Stake and Deploy");
+    const heading = container.querySelector('h2');
+    expect(heading?.textContent).toBe('Stake and Deploy');
   });
 
-  it("shows minimum stake amount", () => {
+  it('shows minimum stake amount', () => {
     renderForm();
 
-    expect(container.textContent).toContain(
-      `Minimum: ${MIN_STAKE_AMOUNT_BTC} BTC`,
-    );
+    expect(container.textContent).toContain(`Minimum: ${MIN_STAKE_AMOUNT_BTC} BTC`);
   });
 });

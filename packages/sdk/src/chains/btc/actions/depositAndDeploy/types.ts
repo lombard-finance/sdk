@@ -14,10 +14,10 @@ import type {
   DeployProtocol,
   StepStatus,
   StrategyProgress,
-} from "../../../../core";
-import type { MonitorableAction } from "../../../../shared/actions/BaseAction";
-import { BtcActionStatus } from "../../../../shared/constants/statusConstants";
-import type { MonitorProgress } from "../../../../shared/monitoring";
+} from '../../../../core';
+import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
+import { BtcActionStatus } from '../../../../shared/constants/statusConstants';
+import type { MonitorProgress } from '../../../../shared/monitoring';
 
 // Re-export for convenience (single export statement avoids duplicate identifier)
 export { BtcActionStatus };
@@ -61,7 +61,8 @@ export interface BtcDepositAndDeployPrepareParams {
 /**
  * BTC DepositAndDeploy progress
  */
-export interface BtcDepositAndDeployProgress extends StrategyProgress<BtcActionStatus> {
+export interface BtcDepositAndDeployProgress
+  extends StrategyProgress<BtcActionStatus> {
   status: BtcActionStatus;
   steps: {
     created: StepStatus;

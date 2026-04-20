@@ -6,11 +6,11 @@
  * @module chains/evm/actions/deploy/config/evm
  */
 
-import { Env } from "@lombard.finance/sdk-common";
+import { Env } from '@lombard.finance/sdk-common';
 
-import { AssetId, Chain, DeployProtocol } from "../../../../../core";
-import { evmAddressSchema } from "../../../../../shared/validation";
-import type { ChainConfig } from "./types";
+import { AssetId, Chain, DeployProtocol } from '../../../../../core';
+import { evmAddressSchema } from '../../../../../shared/validation';
+import type { ChainConfig } from './types';
 
 /**
  * EVM deploy configuration
@@ -20,7 +20,7 @@ import type { ChainConfig } from "./types";
  * - Silo: Avalanche (prod only)
  */
 export const evmConfig: ChainConfig = {
-  chainType: "evm",
+  chainType: 'evm',
 
   routes: [
     // Veda - Ethereum
@@ -73,7 +73,7 @@ export function isDeploySupported(
   env: Env,
 ): boolean {
   return evmConfig.routes.some(
-    (route) =>
+    route =>
       route.asset === asset &&
       route.sourceChains.includes(chain) &&
       route.protocols.includes(protocol) &&

@@ -1,15 +1,15 @@
-import { oft } from "@layerzerolabs/oft-v2-solana-sdk";
-import { Env } from "@lombard.finance/sdk-common";
-import { publicKey as umiPublicKey } from "@metaplex-foundation/umi";
-import BigNumber from "bignumber.js";
+import { oft } from '@layerzerolabs/oft-v2-solana-sdk';
+import { Env } from '@lombard.finance/sdk-common';
+import { publicKey as umiPublicKey } from '@metaplex-foundation/umi';
+import BigNumber from 'bignumber.js';
 
-import { getConfig, getRpcEndpoint } from "../const/getConfig";
-import { ISolanaWalletProvider } from "../types";
+import { getConfig, getRpcEndpoint } from '../const/getConfig';
+import { ISolanaWalletProvider } from '../types';
 import {
   getMinimalUmiInstance,
   getRecipientBytes32,
   validateBridgeAmount,
-} from "../utils/bridgeUtils";
+} from '../utils/bridgeUtils';
 
 interface QuoteBridgeFeeParams {
   env: Env;
@@ -36,11 +36,11 @@ export async function quoteBridgeFee({
   sendParams,
 }: QuoteBridgeFeeParams): Promise<BridgeFeeQuote> {
   if (!provider.publicKey) {
-    throw new Error("Wallet provider not connected. Cannot quote bridge fee.");
+    throw new Error('Wallet provider not connected. Cannot quote bridge fee.');
   }
 
   if (!sendParams.dstEid) {
-    throw new Error("Destination chain LayerZero Endpoint ID is required.");
+    throw new Error('Destination chain LayerZero Endpoint ID is required.');
   }
 
   validateBridgeAmount(new BigNumber(sendParams.amountLD));
@@ -81,12 +81,12 @@ export async function quoteBridgeFee({
       lzTokenFee: quote.lzTokenFee.toString(),
     };
   } catch (error) {
-    console.error("Error quoting Solana LayerZero fee:", error);
+    console.error('Error quoting Solana LayerZero fee:', error);
     if (error instanceof Error) {
       throw new Error(`Failed to get LayerZero bridge quote: ${error.message}`);
     }
     throw new Error(
-      "An unknown error occurred while quoting LayerZero bridge fee.",
+      'An unknown error occurred while quoting LayerZero bridge fee.',
     );
   }
 }

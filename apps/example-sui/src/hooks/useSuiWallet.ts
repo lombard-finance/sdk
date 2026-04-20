@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useContext } from 'react';
 
-import { SuiWalletContext } from "../contexts/SuiWalletContext";
+import { SuiWalletContext } from '../contexts/SuiWalletContext';
 
 /**
  * Hook to access shared Sui wallet state.

@@ -1,7 +1,7 @@
-import bs58 from "bs58";
+import bs58 from 'bs58';
 
-import { ISolanaWalletProvider } from "../../types";
-import { ErrorCode, SolanaSdkError } from "../../utils/errors";
+import { ISolanaWalletProvider } from '../../types';
+import { ErrorCode, SolanaSdkError } from '../../utils/errors';
 
 /**
  * Result of a sign message operation
@@ -37,9 +37,9 @@ export async function signMessage(
     const publicKey = provider.publicKey;
     if (!publicKey) {
       throw SolanaSdkError.wrap(
-        new Error("No public key available"),
+        new Error('No public key available'),
         ErrorCode.NO_ACCOUNT_ERROR,
-        "No account connected",
+        'No account connected',
       );
     }
 
@@ -56,7 +56,7 @@ export async function signMessage(
       throw SolanaSdkError.wrap(
         error,
         ErrorCode.SIGNING_REJECTED,
-        "Message signing was rejected",
+        'Message signing was rejected',
       );
     }
   } catch (error) {

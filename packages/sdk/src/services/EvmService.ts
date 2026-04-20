@@ -7,25 +7,25 @@
  */
 
 import type {
-  Env,
-  EvmChainId,
-  EvmProvider,
-  EvmService as IEvmService,
-  SignNetworkFeeParams,
-  SignNetworkFeeResult,
-  SignStakeAndBakeParams,
-} from "@lombard.finance/sdk-common";
-import BigNumber from "bignumber.js";
-import type { EIP1193Provider } from "viem";
+    Env,
+    EvmChainId,
+    EvmProvider,
+    EvmService as IEvmService,
+    SignNetworkFeeParams,
+    SignNetworkFeeResult,
+    SignStakeAndBakeParams,
+} from '@lombard.finance/sdk-common';
+import BigNumber from 'bignumber.js';
+import type { EIP1193Provider } from 'viem';
 
-import type { ChainId } from "../common/chains";
-import { getMintingFee } from "../contract-functions/getLBTCMintingFee/getLBTCMintingFee";
-import { getStakeAndBakeFee } from "../contract-functions/getStakeAndBakeFee/getStakeAndBakeFee";
-import { signLbtcDestinationAddr } from "../contract-functions/signLbtcDestionationAddr/signLbtcDestinationAddr";
-import { signNetworkFee } from "../contract-functions/signNetworkFee/signNetworkFee";
-import { signStakeAndBake } from "../contract-functions/signStakeAndBake/signStakeAndBake";
-import type { DefiProtocol, StakeAndBakeToken } from "../defi/defi-registry";
-import { Token } from "../tokens/token-addresses";
+import type { ChainId } from '../common/chains';
+import { getMintingFee } from '../contract-functions/getLBTCMintingFee/getLBTCMintingFee';
+import { getStakeAndBakeFee } from '../contract-functions/getStakeAndBakeFee/getStakeAndBakeFee';
+import { signLbtcDestinationAddr } from '../contract-functions/signLbtcDestionationAddr/signLbtcDestinationAddr';
+import { signNetworkFee } from '../contract-functions/signNetworkFee/signNetworkFee';
+import { signStakeAndBake } from '../contract-functions/signStakeAndBake/signStakeAndBake';
+import type { DefiProtocol, StakeAndBakeToken } from '../defi/defi-registry';
+import { Token } from '../tokens/token-addresses';
 
 /**
  * EVM Service

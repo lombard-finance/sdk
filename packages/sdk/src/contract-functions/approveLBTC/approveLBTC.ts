@@ -1,13 +1,13 @@
-import BigNumber from "bignumber.js";
-import { Address, Hash } from "viem";
+import BigNumber from 'bignumber.js';
+import { Address, Hash } from 'viem';
 
-import { makePublicClient } from "../../clients/public-client";
-import { makeWalletClient } from "../../clients/wallet-client";
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from "../../common/chains";
-import { CommonWriteParameters } from "../../common/parameters";
-import { Token } from "../../tokens/token-addresses";
-import { getTokenContractInfo } from "../../tokens/tokens";
-import { toSatoshi } from "../../utils/satoshi";
+import { makePublicClient } from '../../clients/public-client';
+import { makeWalletClient } from '../../clients/wallet-client';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
+import { CommonWriteParameters } from '../../common/parameters';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo } from '../../tokens/tokens';
+import { toSatoshi } from '../../utils/satoshi';
 
 export interface IApproveLBTCParams extends CommonWriteParameters {
   /**
@@ -56,7 +56,7 @@ export async function approveLBTC({
     account,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: lbtcContract.abi,
-    functionName: "approve",
+    functionName: 'approve',
     args: [spender, BigInt(amountSat)],
   });
 

@@ -4,11 +4,11 @@
  * @module chains/evm/actions/deposit/factory
  */
 
-import type { LombardConfig } from "../../../../config/types";
-import type { EvmCoreContext } from "../../../../shared/context";
-import { createEvmCoreContext } from "../../../../shared/context";
-import { EvmDeposit } from "./EvmDeposit";
-import type { EvmDepositParams } from "./types";
+import type { LombardConfig } from '../../../../config/types';
+import type { EvmCoreContext } from '../../../../shared/context';
+import { createEvmCoreContext } from '../../../../shared/context';
+import { EvmDeposit } from './EvmDeposit';
+import type { EvmDepositParams } from './types';
 
 /**
  * Create EvmDeposit action from config

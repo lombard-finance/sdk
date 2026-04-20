@@ -1,12 +1,12 @@
-import { Env } from "@lombard.finance/sdk";
-import { useState } from "react";
+import { Env } from '@lombard.finance/sdk';
+import { useState } from 'react';
 
-import { StakingForm } from "../../components/StakingForm";
-import { StakingProgress } from "../../components/StakingProgress";
-import { WalletConnect } from "../../components/WalletConnect";
-import { useEvmWallet } from "../../hooks/useEvmWallet";
-import type { StakingFormData } from "../../lib/types";
-import { useBtcStakingEvm } from "./useBtcStakingEvm";
+import { StakingForm } from '../../components/StakingForm';
+import { StakingProgress } from '../../components/StakingProgress';
+import { WalletConnect } from '../../components/WalletConnect';
+import { useEvmWallet } from '../../hooks/useEvmWallet';
+import type { StakingFormData } from '../../lib/types';
+import { useBtcStakingEvm } from './useBtcStakingEvm';
 
 interface SimpleStakingPageProps {
   env: Env;
@@ -25,17 +25,15 @@ interface SimpleStakingPageProps {
  */
 export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
   const [isStaking, setIsStaking] = useState(false);
-  const [selectedChain, setSelectedChain] = useState("");
+  const [selectedChain, setSelectedChain] = useState('');
   const { isConnected } = useEvmWallet();
   const [partnerId, setPartnerIdState] = useState(
-    () =>
-      localStorage.getItem("lombard-partnerId") ||
-      (env === Env.prod ? "" : "test"),
+    () => localStorage.getItem('lombard-partnerId') || (env === Env.prod ? '' : 'test'),
   );
 
   const setPartnerId = (value: string) => {
     setPartnerIdState(value);
-    localStorage.setItem("lombard-partnerId", value);
+    localStorage.setItem('lombard-partnerId', value);
   };
 
   const {
@@ -50,17 +48,17 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
   } = useBtcStakingEvm(partnerId, env);
 
   const chainLabels: Record<string, string> = {
-    "eip155:1": "Ethereum",
-    "eip155:8453": "Base",
-    "eip155:56": "BNB Chain",
-    "eip155:747474": "Katana",
-    "eip155:146": "Sonic",
-    "eip155:143": "Monad",
-    "eip155:988": "Stable",
-    "eip155:11155111": "Sepolia",
-    "eip155:84532": "Base Sepolia",
-    "eip155:97": "BNB Testnet",
-    "eip155:43113": "Fuji",
+    'eip155:1': 'Ethereum',
+    'eip155:8453': 'Base',
+    'eip155:56': 'BNB Chain',
+    'eip155:747474': 'Katana',
+    'eip155:146': 'Sonic',
+    'eip155:143': 'Monad',
+    'eip155:988': 'Stable',
+    'eip155:11155111': 'Sepolia',
+    'eip155:84532': 'Base Sepolia',
+    'eip155:97': 'BNB Testnet',
+    'eip155:43113': 'Fuji',
   };
 
   const handleStartStaking = async (formData: StakingFormData) => {
@@ -69,7 +67,7 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
     try {
       await stake(formData);
     } catch (err) {
-      console.error("Staking failed:", err);
+      console.error('Staking failed:', err);
       setIsStaking(false);
     }
   };
@@ -110,7 +108,7 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
               id="partnerId"
               type="text"
               value={partnerId}
-              onChange={(e) => setPartnerId(e.target.value)}
+              onChange={e => setPartnerId(e.target.value)}
               placeholder="Enter your partner ID"
               className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
               disabled={isStaking}
@@ -147,6 +145,7 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
               targetChain={selectedChain}
             />
           )}
+
         </div>
       </div>
     </div>

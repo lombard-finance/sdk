@@ -10,11 +10,11 @@
  * @module chains/btc/actions/stake/config/types
  */
 
-import type { Env } from "@lombard.finance/sdk-common";
-import type { z } from "zod";
+import type { Env } from '@lombard.finance/sdk-common';
+import type { z } from 'zod';
 
-import type { AssetId, Chain, ChainType } from "../../../../../core";
-import type { BtcCoreContext } from "../../../../../shared/context";
+import type { AssetId, Chain, ChainType } from '../../../../../core';
+import type { BtcCoreContext } from '../../../../../shared/context';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Signature Result
@@ -36,7 +36,7 @@ export interface SignatureResult {
 
 /**
  * Stored fee signature result from restore operation
- *
+ * 
  * Note: The API may return hasSignature: true but not the actual signature string.
  * The caller should check hasSignature to determine if a valid signature exists on the server.
  */

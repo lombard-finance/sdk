@@ -57,10 +57,10 @@ DEFI_REGISTRY
 The `getStakeAndBakeConfig()` function queries the registry:
 
 ```typescript
-import { getStakeAndBakeConfig } from "./validation";
+import { getStakeAndBakeConfig } from './validation';
 
 const { tokenConfig, spenderContract } = getStakeAndBakeConfig(
-  "Veda", // Protocol
+  'Veda', // Protocol
   Token.LBTC, // Token
   ChainId.ethereum, // Chain
   Env.prod, // Environment
@@ -128,7 +128,7 @@ export const VEDA_VAULT_SPENDER_CONTRACTS: Record<
   // ... existing contracts
   [ChainId.newChain]: {
     abi: VEDA_VAULT_SPENDER_ABI as Abi,
-    address: "0x...", // Spender contract address on new chain
+    address: '0x...', // Spender contract address on new chain
     chainId: ChainId.newChain,
   },
 };
@@ -154,13 +154,13 @@ export const VEDA_VAULT_SPENDER_CONTRACTS: Record<
 
 // 1. Define approval config (or reuse existing)
 const WBTC_PERMIT_CONFIG: TokenApprovalConfig = {
-  mode: "permit",
+  mode: 'permit',
   eip712Domain: {
-    name: "Wrapped Bitcoin", // Check wBTC contract
-    version: "1",
+    name: 'Wrapped Bitcoin', // Check wBTC contract
+    version: '1',
   },
   requiresNonce: true,
-  expiryBehavior: "standard",
+  expiryBehavior: 'standard',
 };
 
 // 2. Add to DEFI_REGISTRY
@@ -174,8 +174,8 @@ export const DEFI_REGISTRY = {
     },
 
     // Add wBTC
-    [Token.wBTC]: forEnvs([Env.prod, Env.testnet], (env) => {
-      return forChains([ChainId.ethereum, ChainId.base], (chain) => ({
+    [Token.wBTC]: forEnvs([Env.prod, Env.testnet], env => {
+      return forChains([ChainId.ethereum, ChainId.base], chain => ({
         approvalConfig: WBTC_PERMIT_CONFIG,
         spenderContract: VEDA_VAULT_SPENDER_CONTRACTS[chain],
       }));
@@ -196,9 +196,9 @@ export const DEFI_REGISTRY = {
 
 // 1. Add protocol to DefiProtocol enum
 export const DefiProtocol = {
-  Veda: "Veda",
-  Silo: "Silo",
-  Aave: "Aave", // ← ADD THIS
+  Veda: 'Veda',
+  Silo: 'Silo',
+  Aave: 'Aave', // ← ADD THIS
 } as const;
 
 // 2. Add protocol metadata
@@ -210,8 +210,8 @@ export const DefiProtocols = {
     /* existing */
   },
   [DefiProtocol.Aave]: {
-    name: "Aave v3",
-    url: "https://aave.com",
+    name: 'Aave v3',
+    url: 'https://aave.com',
   },
 };
 
@@ -219,12 +219,12 @@ export const DefiProtocols = {
 const AAVE_SPENDER_CONTRACTS = {
   [ChainId.ethereum]: {
     abi: AAVE_POOL_ABI,
-    address: "0xAavePoolAddressOnEthereum",
+    address: '0xAavePoolAddressOnEthereum',
     chainId: ChainId.ethereum,
   },
   [ChainId.base]: {
     abi: AAVE_POOL_ABI,
-    address: "0xAavePoolAddressOnBase",
+    address: '0xAavePoolAddressOnBase',
     chainId: ChainId.base,
   },
 };
@@ -236,7 +236,7 @@ export const DEFI_REGISTRY = {
   Aave: {
     // LBTC uses standard permit
     [Token.LBTC]: forEnvs([Env.prod], () => {
-      return forChains([ChainId.ethereum, ChainId.base], (chain) => ({
+      return forChains([ChainId.ethereum, ChainId.base], chain => ({
         approvalConfig: LBTC_PERMIT_CONFIG, // Reuse existing config
         spenderContract: AAVE_SPENDER_CONTRACTS[chain],
       }));
@@ -249,7 +249,7 @@ export const DEFI_REGISTRY = {
 
 ```typescript
 await signStakeAndBake({
-  vaultKey: "Aave",
+  vaultKey: 'Aave',
   token: Token.LBTC,
   chainId: ChainId.ethereum,
   // ...
@@ -267,13 +267,13 @@ await signStakeAndBake({
 
 // 1. Define approval config for USDC
 const USDC_APPROVE_CONFIG: TokenApprovalConfig = {
-  mode: "approve", // On-chain transaction
+  mode: 'approve', // On-chain transaction
   eip712Domain: {
-    name: "USD Coin",
-    version: "2",
+    name: 'USD Coin',
+    version: '2',
   },
   requiresNonce: false, // Approve doesn't use nonce
-  expiryBehavior: "zero", // Approve uses zero deadline
+  expiryBehavior: 'zero', // Approve uses zero deadline
 };
 
 // 2. Add to Silo registry
@@ -290,7 +290,7 @@ export const DEFI_REGISTRY = {
         approvalConfig: USDC_APPROVE_CONFIG,
         spenderContract: {
           abi: SILO_VAULT_SPENDER_ABI,
-          address: "0xSiloSpenderOnAvalancheFuji",
+          address: '0xSiloSpenderOnAvalancheFuji',
           chainId: ChainId.avalancheFuji,
         },
       }));
@@ -308,7 +308,7 @@ The registry automatically validates:
 ```typescript
 // Example: Unsupported token
 await signStakeAndBake({
-  vaultKey: "Veda",
+  vaultKey: 'Veda',
   token: Token.BTCb, // BTCb not configured for Veda
   chainId: ChainId.ethereum,
 });
@@ -334,7 +334,7 @@ await signStakeAndBake({
 Generate config for multiple chains with same settings:
 
 ```typescript
-forChains([ChainId.ethereum, ChainId.base, ChainId.bsc], (chain) => ({
+forChains([ChainId.ethereum, ChainId.base, ChainId.bsc], chain => ({
   approvalConfig: LBTC_PERMIT_CONFIG,
   spenderContract: SPENDER_CONTRACTS[chain],
 }));
@@ -352,7 +352,7 @@ forChains([ChainId.ethereum, ChainId.base, ChainId.bsc], (chain) => ({
 Generate config for multiple environments:
 
 ```typescript
-forEnvs([Env.prod, Env.testnet], (env) => ({
+forEnvs([Env.prod, Env.testnet], env => ({
   // Config for this env
 }));
 
@@ -439,8 +439,8 @@ Store spender contracts in a map:
 ```typescript
 // At top of file
 const VEDA_VAULT_SPENDER_CONTRACTS = {
-  [ChainId.ethereum]: { abi, address: "0x...", chainId: 1 },
-  [ChainId.base]: { abi, address: "0x...", chainId: 8453 },
+  [ChainId.ethereum]: { abi, address: '0x...', chainId: 1 },
+  [ChainId.base]: { abi, address: '0x...', chainId: 8453 },
   // ...
 };
 
@@ -471,15 +471,15 @@ BTC: forEnvs(Object.values(Env), () => {
 Add test cases in `signStakeAndBake.test.ts`:
 
 ```typescript
-it("should handle NewToken on NewProtocol", async () => {
+it('should handle NewToken on NewProtocol', async () => {
   const result = await signStakeAndBake({
     token: Token.NewToken,
-    vaultKey: "NewProtocol",
+    vaultKey: 'NewProtocol',
     chainId: ChainId.ethereum,
     // ...
   });
 
-  expect(result.mode).toBe("permit"); // or 'approve'
+  expect(result.mode).toBe('permit'); // or 'approve'
   expect(result.signature).toBeTruthy();
 });
 ```

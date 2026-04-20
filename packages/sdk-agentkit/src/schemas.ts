@@ -14,7 +14,9 @@ export const StakeBtcbToLbtcSchema = z.object({
 export const UnstakeLbtcSchema = z.object({
   amount: z
     .string()
-    .describe("Amount of LBTC to unstake in human-readable format (e.g. '0.1')")
+    .describe(
+      "Amount of LBTC to unstake in human-readable format (e.g. '0.1')",
+    )
     .refine((v) => /^\d+(\.\d+)?$/.test(v), "Amount must be a numeric string")
     .refine((v) => parseFloat(v) > 0, "Amount must be positive")
     .refine((v) => parseFloat(v) < 1000, "Amount must be under 1000 BTC"),

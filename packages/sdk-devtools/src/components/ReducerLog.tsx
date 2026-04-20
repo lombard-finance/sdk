@@ -6,10 +6,10 @@
  * @module sdk-devtools/components/ReducerLog
  */
 
-import { Activity, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Activity, ChevronDown, ChevronRight,Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
-import type { ReducerLogEntry } from "../types";
+import type { ReducerLogEntry } from '../types';
 
 export interface ReducerLogProps {
   /** Log entries to display */
@@ -27,7 +27,7 @@ export interface ReducerLogProps {
  *
  * Displays reducer actions in a time-ordered list with expandable details.
  */
-export function ReducerLog({ logs, onClear, className = "" }: ReducerLogProps) {
+export function ReducerLog({ logs, onClear, className = '' }: ReducerLogProps) {
   return (
     <div className={`h-full flex flex-col ${className}`}>
       {/* Header */}
@@ -61,7 +61,7 @@ export function ReducerLog({ logs, onClear, className = "" }: ReducerLogProps) {
           </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-800">
-            {logs.map((log) => (
+            {logs.map(log => (
               <LogEntry key={log.id} log={log} />
             ))}
           </div>
@@ -81,9 +81,7 @@ function LogEntry({ log }: { log: ReducerLogEntry }) {
   return (
     <div className="text-xs">
       <button
-        onClick={() => {
-          setIsExpanded(!isExpanded);
-        }}
+        onClick={() => { setIsExpanded(!isExpanded); }}
         className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors"
       >
         {isExpanded ? (
@@ -94,9 +92,7 @@ function LogEntry({ log }: { log: ReducerLogEntry }) {
         <span className="text-gray-400 dark:text-gray-600 flex-shrink-0 font-mono">
           {formatTime(log.timestamp)}
         </span>
-        <span className="text-cyan-600 dark:text-cyan-400 font-medium">
-          {log.action.type}
-        </span>
+        <span className="text-cyan-600 dark:text-cyan-400 font-medium">{log.action.type}</span>
         {log.action.payload !== undefined && (
           <span className="text-gray-500 truncate">
             {formatPayload(log.action.payload)}
@@ -143,24 +139,25 @@ function LogEntry({ log }: { log: ReducerLogEntry }) {
 
 function formatTime(timestamp: number): string {
   const date = new Date(timestamp);
-  return date.toLocaleTimeString("en-US", {
+  return date.toLocaleTimeString('en-US', {
     hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
   });
 }
 
 function formatPayload(payload: unknown): string {
-  if (payload === null || payload === undefined) return "";
-  if (typeof payload === "string") return `"${payload}"`;
-  if (typeof payload === "object") {
+  if (payload === null || payload === undefined) return '';
+  if (typeof payload === 'string') return `"${payload}"`;
+  if (typeof payload === 'object') {
     try {
       const str = JSON.stringify(payload);
-      return str.length > 50 ? str.slice(0, 50) + "..." : str;
+      return str.length > 50 ? str.slice(0, 50) + '...' : str;
     } catch {
       return String(payload);
     }
   }
   return String(payload);
 }
+

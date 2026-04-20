@@ -1,23 +1,23 @@
-import { Env } from "@lombard.finance/sdk-common";
-import BigNumber from "bignumber.js";
+import { Env } from '@lombard.finance/sdk-common';
+import BigNumber from 'bignumber.js';
 
-import { getApiConfig } from "../../common/api-config";
-import { getChainIdByName } from "../../common/blockchain-identifier";
+import { getApiConfig } from '../../common/api-config';
+import { getChainIdByName } from '../../common/blockchain-identifier';
 import {
   ChainId,
   SolanaChain,
   StarknetChainId,
   SuiChain,
-} from "../../common/chains";
-import { IEnvParam } from "../../common/parameters";
+} from '../../common/chains';
+import { IEnvParam } from '../../common/parameters';
 import {
   AddressKind,
   getTokenByAddress,
   Token,
-} from "../../tokens/token-addresses";
-import { fromBaseDenomination } from "../../tokens/tokens";
-import { fetchAllPaginated } from "../../utils/pagination";
-import { BTC_DECIMALS, fromSatoshi } from "../../utils/satoshi";
+} from '../../tokens/token-addresses';
+import { fromBaseDenomination } from '../../tokens/tokens';
+import { fetchAllPaginated } from '../../utils/pagination';
+import { BTC_DECIMALS, fromSatoshi } from '../../utils/satoshi';
 
 /** The default number of decimals for the deposit amount (value). */
 const DECIMALS = BTC_DECIMALS;
@@ -33,22 +33,22 @@ type Address = string;
  */
 export enum ENotarizationStatus {
   /** Status is unspecified or unknown */
-  NOTARIZATION_STATUS_UNSPECIFIED = "NOTARIZATION_STATUS_UNSPECIFIED",
+  NOTARIZATION_STATUS_UNSPECIFIED = 'NOTARIZATION_STATUS_UNSPECIFIED',
 
   /** Initial status when a deposit transaction is created but not yet processed */
-  NOTARIZATION_STATUS_PENDING = "NOTARIZATION_STATUS_PENDING",
+  NOTARIZATION_STATUS_PENDING = 'NOTARIZATION_STATUS_PENDING',
 
   /** The deposit has been submitted for notarization */
-  NOTARIZATION_STATUS_SUBMITTED = "NOTARIZATION_STATUS_SUBMITTED",
+  NOTARIZATION_STATUS_SUBMITTED = 'NOTARIZATION_STATUS_SUBMITTED',
 
   /** The notarization session was approved successfully */
-  NOTARIZATION_STATUS_SESSION_APPROVED = "NOTARIZATION_STATUS_SESSION_APPROVED",
+  NOTARIZATION_STATUS_SESSION_APPROVED = 'NOTARIZATION_STATUS_SESSION_APPROVED',
 
   /** The notarization session failed */
-  NOTARIZATION_STATUS_FAILED = "NOTARIZATION_STATUS_FAILED",
+  NOTARIZATION_STATUS_FAILED = 'NOTARIZATION_STATUS_FAILED',
 
   /** The notarization session was handled by GMP */
-  NOTARIZATION_STATUS_GMP_HANDLED = "NOTARIZATION_STATUS_GMP_HANDLED",
+  NOTARIZATION_STATUS_GMP_HANDLED = 'NOTARIZATION_STATUS_GMP_HANDLED',
 }
 
 /**
@@ -56,16 +56,16 @@ export enum ENotarizationStatus {
  */
 export enum ESessionState {
   /** Session state is unspecified or unknown */
-  SESSION_STATE_UNSPECIFIED = "SESSION_STATE_UNSPECIFIED",
+  SESSION_STATE_UNSPECIFIED = 'SESSION_STATE_UNSPECIFIED',
 
   /** Session is currently pending */
-  SESSION_STATE_PENDING = "SESSION_STATE_PENDING",
+  SESSION_STATE_PENDING = 'SESSION_STATE_PENDING',
 
   /** Session has completed successfully */
-  SESSION_STATE_COMPLETED = "SESSION_STATE_COMPLETED",
+  SESSION_STATE_COMPLETED = 'SESSION_STATE_COMPLETED',
 
   /** Session has expired without completion */
-  SESSION_STATE_EXPIRED = "SESSION_STATE_EXPIRED",
+  SESSION_STATE_EXPIRED = 'SESSION_STATE_EXPIRED',
 }
 
 export interface NativeDeposit {
@@ -329,7 +329,7 @@ export async function fetchDirectDeposits({
   const { baseApiUrl } = getApiConfig(env);
 
   // pad address to 64 characters if needed
-  if (address.startsWith("0x") && address.slice(2).length === 63) {
+  if (address.startsWith('0x') && address.slice(2).length === 63) {
     address = `0x0${address.slice(2)}`;
   }
 
@@ -337,10 +337,10 @@ export async function fetchDirectDeposits({
 
   const outputs = await fetchAllPaginated({
     endpoint,
-    extractItems: (data) => (data as DirectDepositsResponse)?.outputs ?? [],
+    extractItems: data => (data as DirectDepositsResponse)?.outputs ?? [],
   });
 
-  return outputs.map((d) => mapDirectBtcDeposit(d, env, address));
+  return outputs.map(d => mapDirectBtcDeposit(d, env, address));
 }
 
 /**
@@ -370,10 +370,10 @@ export async function fetchBTCbDeposits({
 
   const deposits = await fetchAllPaginated({
     endpoint,
-    extractItems: (data) => (data as NativeDepositsResponse)?.deposits ?? [],
+    extractItems: data => (data as NativeDepositsResponse)?.deposits ?? [],
   });
 
-  return deposits.map((d) => mapBTCbDeposits(d, env));
+  return deposits.map(d => mapBTCbDeposits(d, env));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -490,15 +490,15 @@ export async function getDepositsByAddress({
   let nativeDeposits: Deposit[] = [];
 
   results.forEach((result, idx) => {
-    if (result.status === "fulfilled") {
+    if (result.status === 'fulfilled') {
       if (idx === 0)
         directDeposits = result.value; // Direct BTC deposits
       else nativeDeposits = result.value; // Native deposits
     } else {
       console.error(
         idx === 0
-          ? "Failed to fetch direct BTC deposits:"
-          : "Failed to fetch native deposits:",
+          ? 'Failed to fetch direct BTC deposits:'
+          : 'Failed to fetch native deposits:',
         result.reason,
       );
     }

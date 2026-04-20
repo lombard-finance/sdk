@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import { SolanaNetwork } from "../../../types";
-import { InjectedWallet } from "../../../types/walletProviders";
-import { DEFAULT_WALLET, UseConnectResponse } from "../../hooks/useConnect";
-import { Button } from "../Button/Button";
-import { SectionCard } from "../index";
+import { SolanaNetwork } from '../../../types';
+import { InjectedWallet } from '../../../types/walletProviders';
+import { DEFAULT_WALLET, UseConnectResponse } from '../../hooks/useConnect';
+import { Button } from '../Button/Button';
+import { SectionCard } from '../index';
 
 export const ConnectButton = ({
   connect,
@@ -17,7 +17,7 @@ export const ConnectButton = ({
   network = SolanaNetwork.mainnet,
 }: Pick<
   UseConnectResponse,
-  "connect" | "disconnect" | "isConnected" | "isLoading" | "error"
+  'connect' | 'disconnect' | 'isConnected' | 'isLoading' | 'error'
 > & {
   walletName?: string;
   address?: string;
@@ -32,7 +32,7 @@ export const ConnectButton = ({
 
   return (
     <SectionCard
-      title={isConnected ? "Wallet Connected" : "Connect Wallet"}
+      title={isConnected ? 'Wallet Connected' : 'Connect Wallet'}
       className="mb-4"
     >
       {!isConnected ? (
@@ -42,13 +42,13 @@ export const ConnectButton = ({
               <select
                 title="Select Wallet"
                 className="form-select"
-                onChange={(e) =>
+                onChange={e =>
                   setSelectedWallet(e.target.value as InjectedWallet)
                 }
                 value={selectedWallet}
                 disabled={isLoading}
               >
-                {Object.values(InjectedWallet).map((opt) => (
+                {Object.values(InjectedWallet).map(opt => (
                   <option key={opt} value={opt}>
                     {opt}
                   </option>
@@ -77,11 +77,11 @@ export const ConnectButton = ({
               <strong>Wallet:</strong> {walletName}
             </p>
             <p className="mb-0">
-              <strong>Address:</strong>{" "}
+              <strong>Address:</strong>{' '}
               <span className="text-monospace small">{address}</span>
             </p>
             <p className="mb-0">
-              <strong>Network:</strong>{" "}
+              <strong>Network:</strong>{' '}
               <span className="text-monospace small">{network}</span>
             </p>
           </div>

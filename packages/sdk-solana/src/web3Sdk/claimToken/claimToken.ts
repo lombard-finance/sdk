@@ -1,14 +1,14 @@
-import { AnchorProvider, Program, setProvider } from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
+import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
+import { PublicKey } from '@solana/web3.js';
 
-import { getConfig, networkToEnv } from "../../const/getConfig";
-import { getConnection } from "../../const/rpcUrls";
-import { getAssetRouterIdl } from "../../idl/getAssetRouterIdl";
-import { getConsortiumIdl } from "../../idl/getConsortiumIdl";
-import { ISolanaWalletProvider } from "../../types";
-import { createDebugLogger } from "../../utils/createDebugLogger";
-import { claimBtcbFromPayload } from "./claimBtcb";
-import { claimLbtcGmp } from "./claimLbtcGmp";
+import { getConfig, networkToEnv } from '../../const/getConfig';
+import { getConnection } from '../../const/rpcUrls';
+import { getAssetRouterIdl } from '../../idl/getAssetRouterIdl';
+import { getConsortiumIdl } from '../../idl/getConsortiumIdl';
+import { ISolanaWalletProvider } from '../../types';
+import { createDebugLogger } from '../../utils/createDebugLogger';
+import { claimBtcbFromPayload } from './claimBtcb';
+import { claimLbtcGmp } from './claimLbtcGmp';
 import {
   ClaimContext,
   ClaimTokenParams,
@@ -19,9 +19,9 @@ import {
   getConsortiumSessionPDA,
   GMP_MESSAGE_V1_SELECTOR,
   parseAssetRouterConfig,
-} from "./shared";
+} from './shared';
 
-export type { ClaimTokenParams } from "./shared";
+export type { ClaimTokenParams } from './shared';
 
 /**
  * Claim tokens (BTC.b or LBTC) on Solana.
@@ -34,18 +34,12 @@ export async function claimToken(
   provider: ISolanaWalletProvider,
   params: ClaimTokenParams,
 ): Promise<string> {
-  const {
-    network,
-    env: envOverride,
-    rawPayload,
-    rpcUrl,
-    debug = false,
-  } = params;
+  const { network, env: envOverride, rawPayload, rpcUrl, debug = false } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
   try {
     if (!provider.publicKey) {
-      throw new Error("Wallet not found");
+      throw new Error('Wallet not found');
     }
 
     const env = envOverride ?? networkToEnv[network];
@@ -78,7 +72,7 @@ export async function claimToken(
     const consortiumProgramId = new PublicKey(config.consortium);
 
     // Parse payload
-    const payloadBytes = Buffer.from(rawPayload, "hex");
+    const payloadBytes = Buffer.from(rawPayload, 'hex');
     if (payloadBytes.length < 4) {
       throw new Error(`Payload too short: ${payloadBytes.length} bytes`);
     }
@@ -87,9 +81,9 @@ export async function claimToken(
     const payloadHash = computePayloadHash(payloadBytes);
     const payloadHashArray = Array.from(payloadHash);
 
-    debugLog("Payload length:", payloadBytes.length);
-    debugLog("Selector:", Buffer.from(selector).toString("hex"));
-    debugLog("Payload hash:", payloadHash.toString("hex"));
+    debugLog('Payload length:', payloadBytes.length);
+    debugLog('Selector:', Buffer.from(selector).toString('hex'));
+    debugLog('Payload hash:', payloadHash.toString('hex'));
 
     // PDAs
     const payer = new PublicKey(provider.publicKey);
@@ -101,7 +95,7 @@ export async function claimToken(
       connection,
       consortiumConfigPDA,
     );
-    debugLog("Current consortium epoch:", currentEpoch.toString());
+    debugLog('Current consortium epoch:', currentEpoch.toString());
 
     const sessionPDA = getConsortiumSessionPDA(
       consortiumProgramId,
@@ -110,24 +104,24 @@ export async function claimToken(
       currentEpoch,
     );
     const [validatedPayloadPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("validated_payload"), payloadHash],
+      [Buffer.from('validated_payload'), payloadHash],
       consortiumProgramId,
     );
     const [assetRouterConfigPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("asset_router_config")],
+      [Buffer.from('asset_router_config')],
       assetRouterProgramId,
     );
     const [tokenAuthorityPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("token_authority")],
+      [Buffer.from('token_authority')],
       assetRouterProgramId,
     );
 
     // Read on-chain Asset Router config
-    debugLog("Asset Router program ID:", assetRouterProgramId.toBase58());
-    debugLog("Asset Router config PDA:", assetRouterConfigPDA.toBase58());
+    debugLog('Asset Router program ID:', assetRouterProgramId.toBase58());
+    debugLog('Asset Router config PDA:', assetRouterConfigPDA.toBase58());
     const configAccountInfo =
       await connection.getAccountInfo(assetRouterConfigPDA);
-    debugLog("Config account exists:", !!configAccountInfo);
+    debugLog('Config account exists:', !!configAccountInfo);
     if (!configAccountInfo) {
       throw new Error(
         `Asset Router config account not found at ${assetRouterConfigPDA.toBase58()} (program: ${assetRouterProgramId.toBase58()})`,
@@ -136,7 +130,7 @@ export async function claimToken(
     const arConfig = parseAssetRouterConfig(configAccountInfo.data);
 
     if (arConfig.paused) {
-      throw new Error("Asset Router contract is paused");
+      throw new Error('Asset Router contract is paused');
     }
 
     const ctx: ClaimContext = {
@@ -164,17 +158,17 @@ export async function claimToken(
 
     // Route based on selector
     if (selector.equals(DEPOSIT_SELECTOR_V1)) {
-      debugLog("Flow: BTC.B direct mint");
+      debugLog('Flow: BTC.B direct mint');
       return await claimBtcbFromPayload(ctx);
     }
 
     if (selector.equals(GMP_MESSAGE_V1_SELECTOR)) {
-      debugLog("Flow: LBTC GMP via Mailbox");
+      debugLog('Flow: LBTC GMP via Mailbox');
       return await claimLbtcGmp(ctx);
     }
 
     throw new Error(
-      `Unknown payload selector: ${Buffer.from(selector).toString("hex")}`,
+      `Unknown payload selector: ${Buffer.from(selector).toString('hex')}`,
     );
   } catch (error: unknown) {
     if (error instanceof Error) {

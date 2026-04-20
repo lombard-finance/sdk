@@ -25,7 +25,7 @@ async function main() {
   console.log("==========================================\n");
 
   const required = ["ANTHROPIC_API_KEY", "WALLET_PRIVATE_KEY"];
-  const missing = required.filter((k) => !process.env[k]);
+  const missing = required.filter(k => !process.env[k]);
   if (missing.length > 0) {
     console.error(`Missing env vars: ${missing.join(", ")}`);
     process.exit(1);
@@ -90,16 +90,12 @@ async function main() {
       console.log("  PASS");
     } catch (error) {
       failed++;
-      console.error(
-        `  FAIL: ${error instanceof Error ? error.message : error}`,
-      );
+      console.error(`  FAIL: ${error instanceof Error ? error.message : error}`);
     }
   }
 
   console.log(`\n==========================================`);
-  console.log(
-    `Results: ${passed} passed, ${failed} failed out of ${TASKS.length}`,
-  );
+  console.log(`Results: ${passed} passed, ${failed} failed out of ${TASKS.length}`);
   process.exit(failed > 0 ? 1 : 0);
 }
 

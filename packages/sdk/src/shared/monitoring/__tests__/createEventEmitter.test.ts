@@ -2,34 +2,34 @@
  * Tests for strongly-typed event emitter factory
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from 'vitest';
 
-import type { StrategyProgress } from "../../../core/types";
-import { DepositEvent, type DepositEventMap } from "../../events";
-import { createEventEmitter } from "../createEventEmitter";
+import type { StrategyProgress } from '../../../core/types';
+import { DepositEvent, type DepositEventMap } from '../../events';
+import { createEventEmitter } from '../createEventEmitter';
 
-describe("createEventEmitter", () => {
-  it("should create an event emitter", () => {
+describe('createEventEmitter', () => {
+  it('should create an event emitter', () => {
     const emitter = createEventEmitter<DepositEventMap>();
     expect(emitter).toBeDefined();
-    expect(typeof emitter.on).toBe("function");
-    expect(typeof emitter.emit).toBe("function");
-    expect(typeof emitter.off).toBe("function");
-    expect(typeof emitter.clear).toBe("function");
+    expect(typeof emitter.on).toBe('function');
+    expect(typeof emitter.emit).toBe('function');
+    expect(typeof emitter.off).toBe('function');
+    expect(typeof emitter.clear).toBe('function');
   });
 
-  it("should register and call event handlers", () => {
+  it('should register and call event handlers', () => {
     const emitter = createEventEmitter<DepositEventMap>();
     const handler = vi.fn();
 
     emitter.on(DepositEvent.StatusChange, handler);
-    emitter.emit(DepositEvent.StatusChange, "ready");
+    emitter.emit(DepositEvent.StatusChange, 'ready');
 
     expect(handler).toHaveBeenCalledOnce();
-    expect(handler).toHaveBeenCalledWith("ready");
+    expect(handler).toHaveBeenCalledWith('ready');
   });
 
-  it("should support multiple handlers for same event", () => {
+  it('should support multiple handlers for same event', () => {
     const emitter = createEventEmitter<DepositEventMap>();
     const handler1 = vi.fn();
     const handler2 = vi.fn();
@@ -42,7 +42,7 @@ describe("createEventEmitter", () => {
     expect(handler2).toHaveBeenCalledOnce();
   });
 
-  it("should remove specific handler with off()", () => {
+  it('should remove specific handler with off()', () => {
     const emitter = createEventEmitter<DepositEventMap>();
     const handler1 = vi.fn();
     const handler2 = vi.fn();
@@ -57,18 +57,18 @@ describe("createEventEmitter", () => {
     expect(handler2).toHaveBeenCalledOnce();
   });
 
-  it("should remove handler with returned unsubscribe function", () => {
+  it('should remove handler with returned unsubscribe function', () => {
     const emitter = createEventEmitter<DepositEventMap>();
     const handler = vi.fn();
 
     const unsubscribe = emitter.on(DepositEvent.StatusChange, handler);
     unsubscribe();
-    emitter.emit(DepositEvent.StatusChange, "ready");
+    emitter.emit(DepositEvent.StatusChange, 'ready');
 
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it("should clear all handlers", () => {
+  it('should clear all handlers', () => {
     const emitter = createEventEmitter<DepositEventMap>();
     const handler1 = vi.fn();
     const handler2 = vi.fn();
@@ -80,16 +80,16 @@ describe("createEventEmitter", () => {
 
     emitter.clear();
 
-    emitter.emit(DepositEvent.StatusChange, "ready");
+    emitter.emit(DepositEvent.StatusChange, 'ready');
     emitter.emit(DepositEvent.Completed);
-    emitter.emit(DepositEvent.Progress, { status: "ready", steps: {} });
+    emitter.emit(DepositEvent.Progress, { status: 'ready', steps: {} });
 
     expect(handler1).not.toHaveBeenCalled();
     expect(handler2).not.toHaveBeenCalled();
     expect(handler3).not.toHaveBeenCalled();
   });
 
-  it("should handle progress events with correct types", () => {
+  it('should handle progress events with correct types', () => {
     const emitter = createEventEmitter<DepositEventMap>();
     const handler = vi.fn((progress: StrategyProgress<string>) => {
       expect(progress.status).toBeDefined();
@@ -98,10 +98,10 @@ describe("createEventEmitter", () => {
 
     emitter.on(DepositEvent.Progress, handler);
     emitter.emit(DepositEvent.Progress, {
-      status: "executing",
+      status: 'executing',
       steps: {
-        approval: "complete",
-        execution: "pending",
+        approval: 'complete',
+        execution: 'pending',
       },
       confirmations: 2,
       requiredConfirmations: 6,
@@ -110,22 +110,22 @@ describe("createEventEmitter", () => {
     expect(handler).toHaveBeenCalledOnce();
   });
 
-  it("should not throw if emitting with no handlers", () => {
+  it('should not throw if emitting with no handlers', () => {
     const emitter = createEventEmitter<DepositEventMap>();
 
     expect(() => {
       emitter.emit(DepositEvent.Completed);
-      emitter.emit(DepositEvent.StatusChange, "ready");
+      emitter.emit(DepositEvent.StatusChange, 'ready');
     }).not.toThrow();
   });
 
-  it("should handle handler errors gracefully", () => {
+  it('should handle handler errors gracefully', () => {
     // Mock console.error to suppress expected error output
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const emitter = createEventEmitter<DepositEventMap>();
     const errorHandler = vi.fn(() => {
-      throw new Error("Handler error");
+      throw new Error('Handler error');
     });
     const normalHandler = vi.fn();
 

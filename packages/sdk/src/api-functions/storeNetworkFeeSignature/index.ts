@@ -1,1 +1,1 @@
-export * from "./storeNetworkFeeSignature";
+export * from './storeNetworkFeeSignature';

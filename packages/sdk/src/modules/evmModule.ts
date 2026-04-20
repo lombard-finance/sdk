@@ -10,9 +10,9 @@
 import type {
   ChainModule,
   EvmService as IEvmService,
-} from "@lombard.finance/sdk-common";
+} from '@lombard.finance/sdk-common';
 
-import { EvmService } from "../services/EvmService";
+import { EvmService } from '../services/EvmService';
 
 /**
  * Create EVM module
@@ -28,10 +28,10 @@ import { EvmService } from "../services/EvmService";
  * const unstake = sdk.chain.evm.unstake({ ... });
  * ```
  */
-export function evmModule(): ChainModule<"evm", IEvmService> {
+export function evmModule(): ChainModule<'evm', IEvmService> {
   return {
-    id: "evm",
-    chain: "evm",
+    id: 'evm',
+    chain: 'evm',
     register(ctx) {
       return new EvmService(ctx.env);
     },
@@ -45,4 +45,4 @@ export type {
   EvmChainId,
   FeeAuthorizationResult,
   StoredFeeSignature,
-} from "@lombard.finance/sdk-common";
+} from '@lombard.finance/sdk-common';

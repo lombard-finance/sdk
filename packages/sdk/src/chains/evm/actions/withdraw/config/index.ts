@@ -4,5 +4,5 @@
  * @module chains/evm/actions/withdraw/config
  */
 
-export { evmWithdrawConfig, isWithdrawSupported } from "./evm";
-export type { WithdrawChainConfig, WithdrawRouteDefinition } from "./types";
+export { evmWithdrawConfig, isWithdrawSupported } from './evm';
+export type { WithdrawChainConfig, WithdrawRouteDefinition } from './types';

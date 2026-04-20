@@ -1,8 +1,8 @@
-import { Env } from "@lombard.finance/sdk-common";
-import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { Env } from '@lombard.finance/sdk-common';
+import axios from 'axios';
+import { useCallback, useEffect, useState } from 'react';
 
-import { ErrorCode, SolanaSdkError } from "../../utils";
+import { ErrorCode, SolanaSdkError } from '../../utils';
 
 // Interfaces (copied from story file)
 export interface IOutput {
@@ -68,11 +68,11 @@ export function useFetchOutputs({
 
     try {
       const apiUrls: Record<Env, string> = {
-        prod: "https://mainnet.prod.lombard.finance",
-        testnet: "https://gastald-testnet.prod.lombard-fi.com",
-        stage: "https://staging.prod.lombard.finance",
-        dev: "https://bft-dev.stage.lombard-fi.com",
-        ibc: "https://ibc.stage.lombard-fi.com",
+        prod: 'https://mainnet.prod.lombard.finance',
+        testnet: 'https://gastald-testnet.prod.lombard-fi.com',
+        stage: 'https://staging.prod.lombard.finance',
+        dev: 'https://bft-dev.stage.lombard-fi.com',
+        ibc: 'https://ibc.stage.lombard-fi.com',
       };
       const baseApiUrl = apiUrls[environment];
 
@@ -82,8 +82,8 @@ export function useFetchOutputs({
 
       const solanaOutputs =
         response.data.outputs?.filter(
-          (output) =>
-            output.to_chain === "DESTINATION_BLOCKCHAIN_SOLANA" &&
+          output =>
+            output.to_chain === 'DESTINATION_BLOCKCHAIN_SOLANA' &&
             !output.claim_tx,
         ) || [];
 
@@ -92,7 +92,7 @@ export function useFetchOutputs({
       if (solanaOutputs.length === 0) {
         setOutputsError(
           new SolanaSdkError(
-            "No outputs found for this address.",
+            'No outputs found for this address.',
             ErrorCode.UNKNOWN_ERROR,
           ),
         );
@@ -102,7 +102,7 @@ export function useFetchOutputs({
         SolanaSdkError.wrap(
           error,
           ErrorCode.RPC_ERROR,
-          "Failed to fetch outputs",
+          'Failed to fetch outputs',
         ),
       );
     } finally {

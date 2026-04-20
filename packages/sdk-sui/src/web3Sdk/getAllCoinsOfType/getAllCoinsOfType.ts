@@ -1,6 +1,6 @@
-import type { CoinStruct } from "@mysten/sui/client";
-import { SuiClient } from "@mysten/sui/client";
-import type { WalletAccount } from "@wallet-standard/core";
+import type { CoinStruct } from '@mysten/sui/client';
+import { SuiClient } from '@mysten/sui/client';
+import type { WalletAccount } from '@wallet-standard/core';
 
 interface IUnstakeLBTCParams {
   walletAccount: WalletAccount;

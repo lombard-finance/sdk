@@ -1,10 +1,10 @@
-import { Program } from "@coral-xyz/anchor";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Program } from '@coral-xyz/anchor';
+import { Connection, PublicKey } from '@solana/web3.js';
 
-import { Lbtc } from "../../../idl/lbtc";
-import { ISolanaWalletProvider } from "../../../types";
-import { sendAndConfirmTransaction } from "../../../utils";
-import { parseSignaturesFromProof } from "./signatureUtils";
+import { Lbtc } from '../../../idl/lbtc';
+import { ISolanaWalletProvider } from '../../../types';
+import { sendAndConfirmTransaction } from '../../../utils';
+import { parseSignaturesFromProof } from './signatureUtils';
 
 export const postMintSignatures = async ({
   connection,
@@ -27,11 +27,11 @@ export const postMintSignatures = async ({
     parseSignaturesFromProof(proofSignature);
 
   if (parsedSignaturesUint8.length === 0 || indices.length === 0) {
-    throw new Error("No valid signatures found in the proof");
+    throw new Error('No valid signatures found in the proof');
   }
 
   // Convert Uint8Array[] to number[][]
-  const signatures = parsedSignaturesUint8.map((sig) => Array.from(sig));
+  const signatures = parsedSignaturesUint8.map(sig => Array.from(sig));
 
   const postSignaturesIx = await program.methods
     .postMintSignatures(payloadHashArray, signatures, indices)
@@ -45,6 +45,6 @@ export const postMintSignatures = async ({
     instruction: postSignaturesIx,
     connection,
     provider,
-    debugLabel: "Post Mint Signatures",
+    debugLabel: 'Post Mint Signatures',
   });
 };

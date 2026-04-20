@@ -1,12 +1,12 @@
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import { makePublicClient } from "../../clients/public-client";
-import { CommonParameters } from "../../common/parameters";
-import ASSET_ROUTER_ABI from "../../tokens/abi/ASSET_ROUTER_ABI";
-import { AddressKind, Token } from "../../tokens/token-addresses";
-import { getTokenContractInfo, isUpgradedAbi } from "../../tokens/tokens";
-import { determineEnv } from "../../utils/env";
-import { fromSatoshi } from "../../utils/satoshi";
+import { makePublicClient } from '../../clients/public-client';
+import { CommonParameters } from '../../common/parameters';
+import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
+import { AddressKind, Token } from '../../tokens/token-addresses';
+import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
+import { determineEnv } from '../../utils/env';
+import { fromSatoshi } from '../../utils/satoshi';
 
 /**
  * Gets LBTC minting fee amount.
@@ -56,7 +56,7 @@ export async function getMintingFee({
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContractAbi,
       address: tokenContract.address,
-      functionName: "getAssetRouter",
+      functionName: 'getAssetRouter',
     });
 
     const assetRouter = {
@@ -67,14 +67,14 @@ export async function getMintingFee({
     rawFeeValue = (await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
-      functionName: "maxMintCommission",
+      functionName: 'maxMintCommission',
       args: [tokenContract.address],
     })) as bigint;
   } else {
     rawFeeValue = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
-      functionName: "getMintFee",
+      functionName: 'getMintFee',
     });
   }
 
@@ -105,7 +105,7 @@ export async function getRedeemFee({
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
-      functionName: "getAssetRouter",
+      functionName: 'getAssetRouter',
     });
 
     const assetRouter = {
@@ -117,7 +117,7 @@ export async function getRedeemFee({
     const toNativeCommissionValue = (await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
-      functionName: "toNativeCommission",
+      functionName: 'toNativeCommission',
       args: [tokenContract.address],
     })) as bigint;
 
@@ -126,7 +126,7 @@ export async function getRedeemFee({
       (await publicClient.readContract({
         abi: assetRouter.abi,
         address: assetRouter.address,
-        functionName: "tokenConfig",
+        functionName: 'tokenConfig',
         args: [tokenContract.address],
       })) as [bigint];
 
@@ -136,7 +136,7 @@ export async function getRedeemFee({
     rawFeeValue = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
-      functionName: "getBurnCommission",
+      functionName: 'getBurnCommission',
     });
   }
 
@@ -168,7 +168,7 @@ export async function getMinRedeemAmount({
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
-      functionName: "getAssetRouter",
+      functionName: 'getAssetRouter',
     });
 
     const assetRouter = {
@@ -179,7 +179,7 @@ export async function getMinRedeemAmount({
     const [, redeemForBtcMinAmountValue] = (await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
-      functionName: "tokenConfig",
+      functionName: 'tokenConfig',
       args: [tokenContract.address],
     })) as [undefined, bigint];
 

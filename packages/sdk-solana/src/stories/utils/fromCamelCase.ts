@@ -9,8 +9,8 @@ export function fromCamelCase(value: string): string {
   return (
     value
       // Insert a space before all caps
-      .replace(/([A-Z])/g, " $1")
+      .replace(/([A-Z])/g, ' $1')
       // Uppercase the first character
-      .replace(/^./, (str) => str.toUpperCase())
+      .replace(/^./, str => str.toUpperCase())
   );
 }

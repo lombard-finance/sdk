@@ -1,27 +1,27 @@
-import { DEFAULT_ENV } from "@lombard.finance/sdk-common";
-import type { Meta, StoryObj } from "@storybook/react";
+import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import { makeTokenSelector } from "../../stories/arg-types";
-import { Button } from "../../stories/components/Button";
-import { CodeBlock } from "../../stories/components/CodeBlock";
-import { ConnectButton } from "../../stories/components/ConnectButton";
+import { makeTokenSelector } from '../../stories/arg-types';
+import { Button } from '../../stories/components/Button';
+import { CodeBlock } from '../../stories/components/CodeBlock';
+import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
   wagmiDecorator,
-} from "../../stories/components/decorators";
+} from '../../stories/components/decorators';
 import {
   canPerformAction,
   useConnection,
-} from "../../stories/hooks/useConnection";
-import useQuery from "../../stories/hooks/useQuery";
-import { Token } from "../../tokens/token-addresses";
-import { mintToken } from "./claimLBTC";
+} from '../../stories/hooks/useConnection';
+import useQuery from '../../stories/hooks/useQuery';
+import { Token } from '../../tokens/token-addresses';
+import { mintToken } from './claimLBTC';
 
 const meta = {
-  title: "write/claimLBTC",
+  title: 'write/claimLBTC',
   component: StoryView,
-  tags: ["autodocs"],
-  decorators: [wagmiDecorator, functionType("write")],
+  tags: ['autodocs'],
+  decorators: [wagmiDecorator, functionType('write')],
   argTypes: {
     ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]),
   },
@@ -33,8 +33,8 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    proofSignature: "",
-    data: "",
+    proofSignature: '',
+    data: '',
     env: DEFAULT_ENV,
     token: Token.LBTC,
   },
@@ -42,7 +42,7 @@ export const WithParams: Story = {
 
 type ClaimLBTCProps = Omit<
   Parameters<typeof mintToken>[0],
-  "account" | "chainId" | "provider"
+  'account' | 'chainId' | 'provider'
 >;
 
 export function StoryView(props: ClaimLBTCProps) {

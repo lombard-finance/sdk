@@ -1,1 +1,1 @@
-export { functionType } from "./function-type";
+export { functionType } from './function-type';

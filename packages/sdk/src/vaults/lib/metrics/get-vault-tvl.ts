@@ -1,18 +1,18 @@
-import axios from "axios";
-import BigNumber from "bignumber.js";
-import { extractChain, PublicClient } from "viem";
-import * as chains from "viem/chains";
+import axios from 'axios';
+import BigNumber from 'bignumber.js';
+import { extractChain, PublicClient } from 'viem';
+import * as chains from 'viem/chains';
 
-import { makePublicClient } from "../../../clients/public-client";
-import { getApiConfig } from "../../../common/api-config";
-import { IEnvParam } from "../../../common/parameters";
-import { Token } from "../../../tokens/token-addresses";
+import { makePublicClient } from '../../../clients/public-client';
+import { getApiConfig } from '../../../common/api-config';
+import { IEnvParam } from '../../../common/parameters';
+import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenContractInfo,
   retrieveTokenProperties,
-} from "../../../tokens/tokens";
-import { Vault, VAULTS, VedaVaultChain } from "../config";
+} from '../../../tokens/tokens';
+import { Vault, VAULTS, VedaVaultChain } from '../config';
 
 export type GetVaultBtcHolding = {
   vaultKey?: Vault;
@@ -55,7 +55,7 @@ export async function getVaultBtcHolding({
       const balanceRaw = await publicClient.readContract({
         abi: tokenContract.abi,
         address: tokenContract.address,
-        functionName: "balanceOf",
+        functionName: 'balanceOf',
         args: [vault.vaultContract.address],
       });
 

@@ -1,4 +1,4 @@
-import { AxiosError } from "axios";
+import { AxiosError } from 'axios';
 
 /** ErrorOptions type for ES2022 compatibility */
 interface ErrorOptions {
@@ -6,24 +6,24 @@ interface ErrorOptions {
 }
 
 export enum ErrorCode {
-  ALREADY_CONNECTED = "ALREADY_CONNECTED",
-  CLAIM_REJECTED = "CLAIM_REJECTED",
-  CONNECTION_ERROR = "CONNECTION_ERROR",
-  CONNECTION_REJECTED = "CONNECTION_REJECTED",
-  CONNECTION_TIMEOUT = "CONNECTION_TIMEOUT",
-  INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
-  INVALID_ADDRESS = "INVALID_ADDRESS",
-  INVALID_AMOUNT = "INVALID_AMOUNT",
-  INVALID_MESSAGE_ERROR = "INVALID_MESSAGE_ERROR",
-  INVALID_PARAMS = "INVALID_PARAMS",
-  NETWORK_ERROR = "NETWORK_ERROR",
-  NO_ACCOUNT_ERROR = "NO_ACCOUNT_ERROR",
-  RPC_ERROR = "RPC_ERROR",
-  SIGNING_REJECTED = "SIGNING_REJECTED",
-  TRANSACTION_FAILED = "TRANSACTION_FAILED",
-  TRANSACTION_REJECTED = "TRANSACTION_REJECTED",
-  UNKNOWN_ERROR = "UNKNOWN_ERROR",
-  UNSTAKE_REJECTED = "UNSTAKE_REJECTED",
+  ALREADY_CONNECTED = 'ALREADY_CONNECTED',
+  CLAIM_REJECTED = 'CLAIM_REJECTED',
+  CONNECTION_ERROR = 'CONNECTION_ERROR',
+  CONNECTION_REJECTED = 'CONNECTION_REJECTED',
+  CONNECTION_TIMEOUT = 'CONNECTION_TIMEOUT',
+  INSUFFICIENT_FUNDS = 'INSUFFICIENT_FUNDS',
+  INVALID_ADDRESS = 'INVALID_ADDRESS',
+  INVALID_AMOUNT = 'INVALID_AMOUNT',
+  INVALID_MESSAGE_ERROR = 'INVALID_MESSAGE_ERROR',
+  INVALID_PARAMS = 'INVALID_PARAMS',
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  NO_ACCOUNT_ERROR = 'NO_ACCOUNT_ERROR',
+  RPC_ERROR = 'RPC_ERROR',
+  SIGNING_REJECTED = 'SIGNING_REJECTED',
+  TRANSACTION_FAILED = 'TRANSACTION_FAILED',
+  TRANSACTION_REJECTED = 'TRANSACTION_REJECTED',
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  UNSTAKE_REJECTED = 'UNSTAKE_REJECTED',
 }
 
 interface CreateSdkErrorParameters {
@@ -45,7 +45,7 @@ export class SolanaSdkError extends Error {
     options?: ErrorOptions,
   ) {
     super(message);
-    this.name = "SolanaSdkError";
+    this.name = 'SolanaSdkError';
     if (options?.cause) {
       this.cause = options.cause;
     }
@@ -58,7 +58,7 @@ export class SolanaSdkError extends Error {
   static wrap(
     error: unknown,
     code = ErrorCode.UNKNOWN_ERROR,
-    customMessage = "Unknown error occurred.",
+    customMessage = 'Unknown error occurred.',
   ) {
     if (error instanceof SolanaSdkError) return error;
 
@@ -77,7 +77,7 @@ export class SolanaSdkError extends Error {
  */
 function extractErrorMessage(error: unknown): string {
   // If error is already a string, return it
-  if (typeof error === "string") {
+  if (typeof error === 'string') {
     return error;
   }
 
@@ -89,7 +89,7 @@ function extractErrorMessage(error: unknown): string {
     const error = err as { data?: { message?: string } };
 
     return Boolean(
-      error?.data?.message && typeof error.data.message === "string",
+      error?.data?.message && typeof error.data.message === 'string',
     );
   };
 
@@ -100,7 +100,7 @@ function extractErrorMessage(error: unknown): string {
   // Handle standard Error objects and Axios errors
   if (error instanceof Error) {
     if (
-      "isAxiosError" in error &&
+      'isAxiosError' in error &&
       (error as unknown as AxiosError).isAxiosError
     ) {
       return extractAxiosErrorMessage(error as unknown as AxiosError);
@@ -109,8 +109,8 @@ function extractErrorMessage(error: unknown): string {
   }
 
   // Handle generic objects with a message property
-  if (error !== null && typeof error === "object") {
-    if ("message" in error && typeof error.message === "string") {
+  if (error !== null && typeof error === 'object') {
+    if ('message' in error && typeof error.message === 'string') {
       return error.message;
     }
 
@@ -119,11 +119,11 @@ function extractErrorMessage(error: unknown): string {
       return JSON.stringify(error);
     } catch {
       // If JSON.stringify fails, return a generic message
-      return "Unknown error object";
+      return 'Unknown error object';
     }
   }
 
-  return "Unknown error";
+  return 'Unknown error';
 }
 
 /**
@@ -134,18 +134,18 @@ function extractErrorMessage(error: unknown): string {
 function extractAxiosErrorMessage(error: AxiosError): string {
   if (error.response) {
     const responseData = error.response.data;
-    if (responseData && typeof responseData === "object") {
+    if (responseData && typeof responseData === 'object') {
       if (
-        "message" in responseData &&
+        'message' in responseData &&
         responseData.message &&
-        typeof responseData.message === "string"
+        typeof responseData.message === 'string'
       ) {
         return responseData.message;
       }
       try {
         return JSON.stringify(responseData);
       } catch {
-        return "Error in API response";
+        return 'Error in API response';
       }
     }
     return `HTTP error ${error.response.status}: ${error.response.statusText}`;
@@ -155,5 +155,5 @@ function extractAxiosErrorMessage(error: AxiosError): string {
     return error.message;
   }
 
-  return "Network error";
+  return 'Network error';
 }

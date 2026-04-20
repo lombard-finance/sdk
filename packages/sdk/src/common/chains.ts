@@ -1,9 +1,9 @@
-import { defineChain, type EIP1193Provider, extractChain } from "viem";
-import { addChain as viem_addChain } from "viem/actions";
-import * as viem_chains from "viem/chains";
+import { defineChain, type EIP1193Provider, extractChain } from 'viem';
+import { addChain as viem_addChain } from 'viem/actions';
+import * as viem_chains from 'viem/chains';
 
-import { makeWalletClient } from "../clients/wallet-client";
-import { featureConfig } from "./feature-config";
+import { makeWalletClient } from '../clients/wallet-client';
+import { featureConfig } from './feature-config';
 
 const {
   avalanche,
@@ -29,24 +29,24 @@ const {
 // FIXME: Remove this custom chain definition once katana is supported by viem
 export const katana = defineChain({
   id: 747474,
-  name: "Katana",
+  name: 'Katana',
   nativeCurrency: {
     decimals: 18,
-    name: "Ether",
-    symbol: "ETH",
+    name: 'Ether',
+    symbol: 'ETH',
   },
   rpcUrls: {
     default: {
-      http: ["https://rpc.katana.network"],
-      webSocket: ["wss://rpc.katana.network"],
+      http: ['https://rpc.katana.network'],
+      webSocket: ['wss://rpc.katana.network'],
     },
   },
   blockExplorers: {
-    default: { name: "Katana Explorer", url: "https://explorer.katanarpc.com" },
+    default: { name: 'Katana Explorer', url: 'https://explorer.katanarpc.com' },
   },
   contracts: {
     multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 1898013, // TODO: Confirm this
     },
   },
@@ -55,83 +55,83 @@ export const katana = defineChain({
 // FIXME: Remove this custom chain definition once TAC is supported by viem
 export const tac = defineChain({
   id: 239,
-  name: "TAC",
+  name: 'TAC',
   nativeCurrency: {
     decimals: 18,
-    name: "TAC",
-    symbol: "TAC",
+    name: 'TAC',
+    symbol: 'TAC',
   },
   rpcUrls: {
     default: {
-      http: ["https://rpc.tac.build"],
+      http: ['https://rpc.tac.build'],
     },
   },
   blockExplorers: {
-    default: { name: "TAC Explorer", url: "https://explorer.tac.build" },
+    default: { name: 'TAC Explorer', url: 'https://explorer.tac.build' },
   },
 });
 
 export const bob = defineChain({
   id: 60808,
-  name: "BOB",
+  name: 'BOB',
   nativeCurrency: {
     decimals: 18,
-    name: "Ether",
-    symbol: "ETH",
+    name: 'Ether',
+    symbol: 'ETH',
   },
   rpcUrls: {
     default: {
-      http: ["https://rpc.gobob.xyz"],
+      http: ['https://rpc.gobob.xyz'],
     },
   },
   blockExplorers: {
-    default: { name: "BOB Explorer", url: "https://explorer.gobob.xyz" },
+    default: { name: 'BOB Explorer', url: 'https://explorer.gobob.xyz' },
   },
 });
 
 export const bobSepolia = defineChain({
   id: 808813,
-  name: "BOB Sepolia",
+  name: 'BOB Sepolia',
   nativeCurrency: {
     decimals: 18,
-    name: "Ether",
-    symbol: "ETH",
+    name: 'Ether',
+    symbol: 'ETH',
   },
   rpcUrls: {
     default: {
-      http: ["https://bob-sepolia.rpc.gobob.xyz"],
+      http: ['https://bob-sepolia.rpc.gobob.xyz'],
     },
   },
   blockExplorers: {
     default: {
-      name: "BOB Sepolia Explorer",
-      url: "https://bob-sepolia.explorer.gobob.xyz/",
+      name: 'BOB Sepolia Explorer',
+      url: 'https://bob-sepolia.explorer.gobob.xyz/',
     },
   },
 });
 
 export const monad = defineChain({
   id: 143,
-  name: "Monad",
+  name: 'Monad',
   nativeCurrency: {
     decimals: 18,
-    name: "Monad",
-    symbol: "MONAD",
+    name: 'Monad',
+    symbol: 'MONAD',
   },
   rpcUrls: {
     default: {
-      http: ["https://monad-mainnet.drpc.org"],
+      http: ['https://monad-mainnet.drpc.org'],
     },
   },
   blockExplorers: {
     default: {
-      name: "Monad Explorer",
-      url: "https://monadvision.com",
+      name: 'Monad Explorer',
+      url: 'https://monadvision.com',
     },
   },
   contracts: {
     multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 9248132,
     },
   },
@@ -139,28 +139,28 @@ export const monad = defineChain({
 
 export const stable = defineChain({
   id: 988,
-  name: "Stable",
+  name: 'Stable',
   nativeCurrency: {
     decimals: 18,
-    name: "gUSDT",
-    symbol: "gUSDT",
+    name: 'gUSDT',
+    symbol: 'gUSDT',
   },
   rpcUrls: {
     default: {
       http: [
-        "https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf",
+        'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf',
       ],
     }, // TODO: Update with the correct RPC URL once the stable network is live
   },
   blockExplorers: {
     default: {
-      name: "Stable Explorer",
-      url: "https://stablescan.xyz",
+      name: 'Stable Explorer',
+      url: 'https://stablescan.xyz',
     },
   },
   contracts: {
     multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 1,
     },
   },
@@ -168,26 +168,26 @@ export const stable = defineChain({
 
 export const megaeth = defineChain({
   id: 4326,
-  name: "MegaETH",
+  name: 'MegaETH',
   nativeCurrency: {
     decimals: 18,
-    name: "Ether",
-    symbol: "ETH",
+    name: 'Ether',
+    symbol: 'ETH',
   },
   rpcUrls: {
     default: {
-      http: ["https://mainnet.megaeth.com/rpc"],
+      http: ['https://mainnet.megaeth.com/rpc'],
     },
   },
   blockExplorers: {
     default: {
-      name: "MegaETH Explorer",
-      url: "https://megaeth.blockscout.com",
+      name: 'MegaETH Explorer',
+      url: 'https://megaeth.blockscout.com',
     },
   },
   contracts: {
     multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 2591807, // TODO: Confirm this
     },
   },
@@ -202,10 +202,10 @@ export const allChains: Record<string, viem_chains.Chain> = {
   megaeth,
 };
 
-export const SUI_DEVNET_CHAIN = "sui:devnet" as const;
-export const SUI_TESTNET_CHAIN = "sui:testnet" as const;
-export const SUI_LOCALNET_CHAIN = "sui:localnet" as const;
-export const SUI_MAINNET_CHAIN = "sui:mainnet" as const;
+export const SUI_DEVNET_CHAIN = 'sui:devnet' as const;
+export const SUI_TESTNET_CHAIN = 'sui:testnet' as const;
+export const SUI_LOCALNET_CHAIN = 'sui:localnet' as const;
+export const SUI_MAINNET_CHAIN = 'sui:mainnet' as const;
 
 export type SuiChain =
   | typeof SUI_DEVNET_CHAIN
@@ -224,9 +224,9 @@ export const isSuiChain = (chainId: unknown): chainId is SuiChain => {
   ).includes(chainId as string);
 };
 
-export const SOLANA_MAINNET_CHAIN = "solana:mainnet-beta" as const;
-export const SOLANA_TESTNET_CHAIN = "solana:testnet" as const;
-export const SOLANA_DEVNET_CHAIN = "solana:devnet" as const;
+export const SOLANA_MAINNET_CHAIN = 'solana:mainnet-beta' as const;
+export const SOLANA_TESTNET_CHAIN = 'solana:testnet' as const;
+export const SOLANA_DEVNET_CHAIN = 'solana:devnet' as const;
 
 export type SolanaChain =
   | typeof SOLANA_MAINNET_CHAIN
@@ -244,8 +244,8 @@ export const isSolanaChain = (chainId: unknown): chainId is SolanaChain => {
 };
 
 // Starknet chain identifiers:
-export const STARKNET_MAINNET_CHAIN = "0x534e5f4d41494e" as const;
-export const STARKNET_SEPOLIA_CHAIN = "0x534e5f5345504f4c4941" as const;
+export const STARKNET_MAINNET_CHAIN = '0x534e5f4d41494e' as const;
+export const STARKNET_SEPOLIA_CHAIN = '0x534e5f5345504f4c4941' as const;
 export type StarknetChainId =
   | typeof STARKNET_MAINNET_CHAIN
   | typeof STARKNET_SEPOLIA_CHAIN;
@@ -310,7 +310,9 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   ...(featureConfig.isMorphEnabled ? { [ChainId.morph]: morph } : {}),
   [ChainId.sonic]: sonic,
   [ChainId.stable]: stable,
-  ...(featureConfig.isSwellchainEnabled ? { [ChainId.swell]: swellchain } : {}),
+  ...(featureConfig.isSwellchainEnabled
+    ? { [ChainId.swell]: swellchain }
+    : {}),
   ...(featureConfig.isTacEnabled ? { [ChainId.tac]: tac } : {}),
   ...(featureConfig.isBobEnabled ? { [ChainId.bob]: bob } : {}),
   // Testnets:
@@ -355,22 +357,22 @@ export const isMegaethChain = (chainId: unknown): chainId is MegaethChain => {
   return ([ChainId.megaeth] as number[]).includes(chainId as number);
 };
 export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
-  [ChainId.ethereum]: "ethereum",
+  [ChainId.ethereum]: 'ethereum',
   ...(featureConfig.isAvalancheMainnetEnabled
-    ? { [ChainId.avalanche]: "avalanche" }
+    ? { [ChainId.avalanche]: 'avalanche' }
     : {}),
-  [ChainId.base]: "base",
-  [ChainId.berachain]: "berachain",
-  [ChainId.binanceSmartChain]: "bsc",
-  [ChainId.corn]: "corn",
-  [ChainId.etherlink]: "etherlink",
-  [ChainId.morph]: "morph",
-  [ChainId.sonic]: "sonic",
-  [ChainId.swell]: "swellchain",
-  [ChainId.megaeth]: "megaeth",
-  [ChainId.monad]: "monad",
-  [ChainId.katana]: "katana",
-  [ChainId.stable]: "stable",
+  [ChainId.base]: 'base',
+  [ChainId.berachain]: 'berachain',
+  [ChainId.binanceSmartChain]: 'bsc',
+  [ChainId.corn]: 'corn',
+  [ChainId.etherlink]: 'etherlink',
+  [ChainId.morph]: 'morph',
+  [ChainId.sonic]: 'sonic',
+  [ChainId.swell]: 'swellchain',
+  [ChainId.megaeth]: 'megaeth',
+  [ChainId.monad]: 'monad',
+  [ChainId.katana]: 'katana',
+  [ChainId.stable]: 'stable',
 } as const;
 type LlamaChain =
   (typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP)[keyof typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP];

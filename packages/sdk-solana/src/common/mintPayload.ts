@@ -1,6 +1,6 @@
-import { PublicKey } from "@solana/web3.js";
-import bs58 from "bs58";
-import { sha256 } from "js-sha256";
+import { PublicKey } from '@solana/web3.js';
+import bs58 from 'bs58';
+import { sha256 } from 'js-sha256';
 
 export class MintPayload {
   prefix: string;
@@ -31,7 +31,7 @@ export class MintPayload {
   }
 
   bytes(): Buffer {
-    return Buffer.from(this.hex(), "hex");
+    return Buffer.from(this.hex(), 'hex');
   }
 
   hash(): string {
@@ -39,12 +39,12 @@ export class MintPayload {
   }
 
   hashAsBytes(): Buffer {
-    return Buffer.from(this.hash(), "hex");
+    return Buffer.from(this.hash(), 'hex');
   }
 
   recipientPubKey(): PublicKey {
     const address = bs58.encode(
-      Buffer.from(this.destinationAddress, "hex") as unknown as Uint8Array,
+      Buffer.from(this.destinationAddress, 'hex') as unknown as Uint8Array,
     );
     return new PublicKey(address);
   }

@@ -34,7 +34,7 @@ export function createProgressEmitter<T>(): ProgressEmitter<T> {
         try {
           listener(progress);
         } catch (error) {
-          console.error("Error in progress listener:", error);
+          console.error('Error in progress listener:', error);
         }
       }
     },

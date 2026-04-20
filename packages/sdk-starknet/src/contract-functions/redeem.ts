@@ -1,17 +1,17 @@
-import { Env, getOutputScript } from "@lombard.finance/sdk-common";
+import { Env, getOutputScript } from '@lombard.finance/sdk-common';
 import {
   BtcAddressType,
   getBtcAddressType,
-} from "@lombard.finance/sdk-common/utils/btc-address-type";
-import { toBaseDenomination } from "@lombard.finance/sdk-common/utils/numbers";
-import { ByteArray, CallData, uint256 } from "starknet";
+} from '@lombard.finance/sdk-common/utils/btc-address-type';
+import { toBaseDenomination } from '@lombard.finance/sdk-common/utils/numbers';
+import { ByteArray, CallData, uint256 } from 'starknet';
 
-import { getTokenContract, TokenParameters } from "../tokens/lib/tokens";
-import { StarknetChainId } from "../utils/chains";
-import { EnvParameters } from "../utils/env";
-import { ERR_UNEXPECTED_OUTPUT_SCRIPT } from "../utils/err";
-import { getRpcProvider } from "../utils/rpc-providers";
-import { WalletAccountParameters } from "../utils/wallet-account";
+import { getTokenContract, TokenParameters } from '../tokens/lib/tokens';
+import { StarknetChainId } from '../utils/chains';
+import { EnvParameters } from '../utils/env';
+import { ERR_UNEXPECTED_OUTPUT_SCRIPT } from '../utils/err';
+import { getRpcProvider } from '../utils/rpc-providers';
+import { WalletAccountParameters } from '../utils/wallet-account';
 
 export type RedeemParameters = TokenParameters &
   WalletAccountParameters &
@@ -47,7 +47,7 @@ export async function redeem({
 
   const tokenContract = getTokenContract({
     ...tokenParams,
-    contractType: "token",
+    contractType: 'token',
     env,
   });
 
@@ -56,7 +56,7 @@ export async function redeem({
 
   const bridgeContract = getTokenContract({
     ...tokenParams,
-    contractType: "bridge",
+    contractType: 'bridge',
     env,
   });
 
@@ -73,7 +73,7 @@ export async function redeem({
     addressType === BtcAddressType.p2wsh
   ) {
     const word = `0x${script.slice(2, 64)}`;
-    const pending_word = `0x${script.slice(64) || "0"}`;
+    const pending_word = `0x${script.slice(64) || '0'}`;
 
     script_pub_key = {
       data: [word],
@@ -96,7 +96,7 @@ export async function redeem({
 
   const { transaction_hash } = await walletAccount.execute({
     contractAddress: bridgeContract.address,
-    entrypoint: "redeem",
+    entrypoint: 'redeem',
     calldata: CallData.compile({
       script_pub_key,
       amount: uint256.bnToUint256(amountBaseDenom.toNumber()),

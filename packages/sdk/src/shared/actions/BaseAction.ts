@@ -27,14 +27,14 @@
  * @module shared/actions/BaseAction
  */
 
-import type { StrategyProgress } from "../../core/types";
-import type { Logger } from "../context/types";
-import { LombardError, ValidationErrorCode, wrapError } from "../errors";
+import type { StrategyProgress } from '../../core/types';
+import type { Logger } from '../context/types';
+import { LombardError, ValidationErrorCode, wrapError } from '../errors';
 import {
   createEventEmitter,
   type EventEmitter,
   type EventHandler,
-} from "../monitoring/createEventEmitter";
+} from '../monitoring/createEventEmitter';
 
 /**
  * Log metadata for structured logging
@@ -124,7 +124,8 @@ export interface MonitorableAction {
 export abstract class BaseAction<
   TEventMap extends Record<string, EventHandler<unknown[]>>,
   TStatus extends string,
-> implements MonitorableAction {
+> implements MonitorableAction
+{
   /** Event emitter for this action */
   protected readonly eventEmitter: EventEmitter<TEventMap>;
 
@@ -162,7 +163,7 @@ export abstract class BaseAction<
    * Uses explicit switch to avoid dynamic property access (security best practice).
    */
   protected log(
-    level: "debug" | "info" | "warn" | "error",
+    level: 'debug' | 'info' | 'warn' | 'error',
     message: string,
     meta?: LogMeta,
   ): void {
@@ -176,16 +177,16 @@ export abstract class BaseAction<
 
     // Explicit method calls to avoid unsafe-dynamic-method security warning
     switch (level) {
-      case "debug":
+      case 'debug':
         this.logger.debug(message, enrichedMeta);
         break;
-      case "info":
+      case 'info':
         this.logger.info(message, enrichedMeta);
         break;
-      case "warn":
+      case 'warn':
         this.logger.warn(message, enrichedMeta);
         break;
-      case "error":
+      case 'error':
         this.logger.error(message, enrichedMeta);
         break;
     }
@@ -260,7 +261,7 @@ export abstract class BaseAction<
     if (!allowed.includes(this._status)) {
       throw new LombardError(
         ValidationErrorCode.INVALID_STATE,
-        `Cannot ${action} while status is ${this._status}, allowed: ${allowed.join(", ")}`,
+        `Cannot ${action} while status is ${this._status}, allowed: ${allowed.join(', ')}`,
       );
     }
   }
@@ -374,11 +375,9 @@ export abstract class BaseAction<
     successStatus?: TStatus,
   ): Promise<T> {
     const startTime = performance.now();
-    const operationName = successStatus ?? "operation";
+    const operationName = successStatus ?? 'operation';
 
-    this.log("debug", `Starting ${operationName}`, {
-      step: String(operationName),
-    });
+    this.log('debug', `Starting ${operationName}`, { step: String(operationName) });
     this.clearError();
     this.setLoading(true);
 
@@ -387,7 +386,7 @@ export abstract class BaseAction<
       const duration = performance.now() - startTime;
 
       this.recordTiming(String(operationName), duration);
-      this.log("info", `Completed ${operationName}`, {
+      this.log('info', `Completed ${operationName}`, {
         step: String(operationName),
         duration: Math.round(duration),
       });
@@ -399,11 +398,10 @@ export abstract class BaseAction<
       return result;
     } catch (error) {
       const duration = performance.now() - startTime;
-      const lombError =
-        error instanceof LombardError ? error : wrapError(error);
+      const lombError = error instanceof LombardError ? error : wrapError(error);
 
       this.recordTiming(String(operationName), duration);
-      this.log("error", `Failed ${operationName}`, {
+      this.log('error', `Failed ${operationName}`, {
         step: String(operationName),
         duration: Math.round(duration),
         errorCode: lombError.code,
@@ -442,54 +440,54 @@ export abstract class BaseAction<
   protected emitProgress(progress: StrategyProgress<TStatus>): void {
     (
       this.eventEmitter as unknown as EventEmitter<
-        Record<"progress", EventHandler<[StrategyProgress<TStatus>]>>
+        Record<'progress', EventHandler<[StrategyProgress<TStatus>]>>
       >
-    ).emit("progress", progress);
+    ).emit('progress', progress);
   }
 
   /** Emit a status change */
   protected emitStatusChange(status: TStatus): void {
     (
       this.eventEmitter as unknown as EventEmitter<
-        Record<"status-change", EventHandler<[TStatus]>>
+        Record<'status-change', EventHandler<[TStatus]>>
       >
-    ).emit("status-change", status);
+    ).emit('status-change', status);
   }
 
   /** Emit completion event */
   protected emitCompleted(): void {
     (
       this.eventEmitter as unknown as EventEmitter<
-        Record<"completed", EventHandler<[]>>
+        Record<'completed', EventHandler<[]>>
       >
-    ).emit("completed");
+    ).emit('completed');
   }
 
   /** Emit failed event */
   protected emitFailed(): void {
     (
       this.eventEmitter as unknown as EventEmitter<
-        Record<"failed", EventHandler<[]>>
+        Record<'failed', EventHandler<[]>>
       >
-    ).emit("failed");
+    ).emit('failed');
   }
 
   /** Emit error event */
   protected emitError(error: LombardError): void {
     (
       this.eventEmitter as unknown as EventEmitter<
-        Record<"error", EventHandler<[LombardError]>>
+        Record<'error', EventHandler<[LombardError]>>
       >
-    ).emit("error", error);
+    ).emit('error', error);
   }
 
   /** Emit loading state change */
   protected emitLoading(isLoading: boolean): void {
     (
       this.eventEmitter as unknown as EventEmitter<
-        Record<"loading", EventHandler<[boolean]>>
+        Record<'loading', EventHandler<[boolean]>>
       >
-    ).emit("loading", isLoading);
+    ).emit('loading', isLoading);
   }
 
   /** Clear all event listeners */

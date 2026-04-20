@@ -1,13 +1,13 @@
-import { Env } from "@lombard.finance/sdk-common";
-import BigNumber from "bignumber.js";
-import { Abi, Address } from "viem";
+import { Env } from '@lombard.finance/sdk-common';
+import BigNumber from 'bignumber.js';
+import { Abi, Address } from 'viem';
 
-import { makePublicClient } from "../../../clients/public-client";
-import { ChainId } from "../../../common/chains";
-import { Token } from "../../../tokens/token-addresses";
-import { getTokenInfo } from "../../../tokens/tokens";
-import { fromBaseDenomination } from "../../../tokens/tokens";
-import { isVedaVaultChain, Vault, VAULTS } from "../config";
+import { makePublicClient } from '../../../clients/public-client';
+import { ChainId } from '../../../common/chains';
+import { Token } from '../../../tokens/token-addresses';
+import { getTokenInfo } from '../../../tokens/tokens';
+import { fromBaseDenomination } from '../../../tokens/tokens';
+import { isVedaVaultChain, Vault, VAULTS } from '../config';
 
 export type GetVaultMinimumDepositParameters = {
   /** The vault identifier. */
@@ -49,13 +49,13 @@ export async function getVaultMinimumDeposit({
 
   if (!isVedaVaultChain(chainId)) {
     throw new Error(
-      `Unsupported chain id: ${chainId}. Supported chains: ${vault.chains.join(", ")}`,
+      `Unsupported chain id: ${chainId}. Supported chains: ${vault.chains.join(', ')}`,
     );
   }
 
-  const supportedChains = vault.tokens[token as keyof typeof vault.tokens] as
-    | readonly ChainId[]
-    | undefined;
+  const supportedChains = vault.tokens[
+    token as keyof typeof vault.tokens
+  ] as readonly ChainId[] | undefined;
   if (!supportedChains || !supportedChains.includes(chainId)) {
     throw new Error(
       `Token ${token} is not supported on chain ${chainId} for vault ${vaultKey}`,
@@ -106,25 +106,25 @@ export async function getVaultMinimumDeposit({
       {
         address: accountantAddress,
         abi: accountantAbi,
-        functionName: "getRateInQuote",
+        functionName: 'getRateInQuote',
         args: [ethTokenAddress],
       },
       {
         address: lensAddress,
         abi: lensAbi,
-        functionName: "previewDeposit",
+        functionName: 'previewDeposit',
         args: [ethTokenAddress, 1n, vaultAddress, accountantAddress],
       },
     ],
   });
 
-  if (rateResult.status !== "success") {
+  if (rateResult.status !== 'success') {
     throw new Error(
       `Failed to get exchange rate for ${token}: ${rateResult.error}`,
     );
   }
 
-  if (previewOneResult.status !== "success") {
+  if (previewOneResult.status !== 'success') {
     throw new Error(
       `Failed to preview deposit for ${token}: ${previewOneResult.error}`,
     );
@@ -132,7 +132,7 @@ export async function getVaultMinimumDeposit({
 
   // If 1 base unit already yields shares, that's the minimum.
   if ((previewOneResult.result as bigint) > 0n) {
-    return fromBaseDenomination("1", tokenDecimals);
+    return fromBaseDenomination('1', tokenDecimals);
   }
 
   // Calculate: minimum base units = ceil(rateInQuote / 10^vaultDecimals)
@@ -144,7 +144,7 @@ export async function getVaultMinimumDeposit({
   const verifyResult = await ethPublicClient.readContract({
     address: lensAddress,
     abi: lensAbi,
-    functionName: "previewDeposit",
+    functionName: 'previewDeposit',
     args: [ethTokenAddress, estimatedMin, vaultAddress, accountantAddress],
   });
 
@@ -164,14 +164,14 @@ export async function getVaultMinimumDeposit({
     contracts: candidates.map((candidate) => ({
       address: lensAddress,
       abi: lensAbi,
-      functionName: "previewDeposit" as const,
+      functionName: 'previewDeposit' as const,
       args: [ethTokenAddress, candidate, vaultAddress, accountantAddress],
     })),
   });
 
   for (let i = 0; i < batchResults.length; i++) {
     const result = batchResults[i];
-    if (result.status === "success" && (result.result as bigint) > 0n) {
+    if (result.status === 'success' && (result.result as bigint) > 0n) {
       return fromBaseDenomination(candidates[i].toString(), tokenDecimals);
     }
   }

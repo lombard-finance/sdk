@@ -6,9 +6,9 @@
  * @module sdk-devtools/components/StepIndicator
  */
 
-import { Check } from "lucide-react";
+import { Check } from 'lucide-react';
 
-import type { FlowStep } from "../types";
+import type { FlowStep } from '../types';
 
 /**
  * Simple step definition (minimal required fields)
@@ -39,13 +39,13 @@ export interface StepIndicatorProps {
 export function StepIndicator({
   steps,
   currentStep,
-  className = "",
+  className = '',
 }: StepIndicatorProps) {
   return (
-    <div
-      className={`flex ${className}`}
-      style={{
-        width: "100%",
+    <div 
+      className={`flex ${className}`} 
+      style={{ 
+        width: '100%',
       }}
     >
       {steps.map((step, index) => {
@@ -55,78 +55,74 @@ export function StepIndicator({
 
         // Determine colors for circle
         const circleStyles: React.CSSProperties = {
-          width: "28px",
-          height: "28px",
-          minWidth: "28px",
-          minHeight: "28px",
-          borderRadius: "6px", // Slightly rounded corners
+          width: '28px',
+          height: '28px',
+          minWidth: '28px',
+          minHeight: '28px',
+          borderRadius: '6px', // Slightly rounded corners
         };
-
+        
         if (isCompleted) {
-          circleStyles.backgroundColor = "#22c55e"; // green-500
-          circleStyles.color = "white";
+          circleStyles.backgroundColor = '#22c55e'; // green-500
+          circleStyles.color = 'white';
         } else if (isCurrent) {
-          circleStyles.backgroundColor = "var(--lombard-green, #00E676)";
-          circleStyles.color = "#111827"; // gray-900
-          circleStyles.fontWeight = "bold";
+          circleStyles.backgroundColor = 'var(--lombard-green, #00E676)';
+          circleStyles.color = '#111827'; // gray-900
+          circleStyles.fontWeight = 'bold';
         } else {
-          circleStyles.backgroundColor = "#e5e7eb"; // gray-200
-          circleStyles.color = "#6b7280"; // gray-500
+          circleStyles.backgroundColor = '#e5e7eb'; // gray-200
+          circleStyles.color = '#6b7280'; // gray-500
         }
 
         return (
-          <div
-            key={step.id}
-            style={{
+          <div 
+            key={step.id} 
+            style={{ 
               flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              position: "relative",
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              position: 'relative',
             }}
           >
             {/* Connector line - positioned absolutely */}
             {!isLast && (
               <div
                 style={{
-                  position: "absolute",
-                  top: "14px", // Half of circle height (28/2)
-                  left: "50%",
-                  right: "-50%",
-                  height: "2px",
-                  backgroundColor: isCompleted ? "#22c55e" : "#e5e7eb",
+                  position: 'absolute',
+                  top: '14px', // Half of circle height (28/2)
+                  left: '50%',
+                  right: '-50%',
+                  height: '2px',
+                  backgroundColor: isCompleted ? '#22c55e' : '#e5e7eb',
                   zIndex: 0,
                 }}
               />
             )}
-
+            
             {/* Step square with rounded corners */}
             <div
               className="flex items-center justify-center text-sm font-medium transition-colors"
               style={{
                 ...circleStyles,
-                position: "relative",
+                position: 'relative',
                 zIndex: 1,
               }}
             >
-              {isCompleted ? (
-                <Check style={{ width: "16px", height: "16px" }} />
-              ) : (
-                index + 1
-              )}
+              {isCompleted ? <Check style={{ width: '16px', height: '16px' }} /> : index + 1}
             </div>
-
+            
             {/* Label below circle */}
             <span
               className="text-xs text-center"
               style={{
-                marginTop: "6px",
-                color: isCompleted
-                  ? "#16a34a" // green-600
-                  : isCurrent
-                    ? "#111827" // gray-900 (black for active)
-                    : "#9ca3af", // gray-400
-                fontWeight: isCompleted || isCurrent ? 500 : 400,
+                marginTop: '6px',
+                color: isCompleted 
+                  ? '#16a34a' // green-600
+                  : isCurrent 
+                    ? '#111827' // gray-900 (black for active)
+                    : '#9ca3af', // gray-400
+                fontWeight: (isCompleted || isCurrent) ? 500 : 400,
               }}
             >
               {step.label}
@@ -149,9 +145,10 @@ export function createSteps(
     ...config,
     status:
       index < currentStep
-        ? "completed"
+        ? 'completed'
         : index === currentStep
-          ? "current"
-          : "pending",
+          ? 'current'
+          : 'pending',
   }));
 }
+

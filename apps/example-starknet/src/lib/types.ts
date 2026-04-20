@@ -1,4 +1,4 @@
-import type { AssetId, Chain } from "@lombard.finance/sdk";
+import type { AssetId, Chain } from '@lombard.finance/sdk';
 
 /**
  * Form data for staking configuration
@@ -15,13 +15,13 @@ export interface StakingFormData {
  */
 export interface StakingStatus {
   phase:
-    | "idle"
-    | "preparing"
-    | "waiting-deposit"
-    | "confirming"
-    | "minting"
-    | "complete"
-    | "error";
+    | 'idle'
+    | 'preparing'
+    | 'waiting-deposit'
+    | 'confirming'
+    | 'minting'
+    | 'complete'
+    | 'error';
   message: string;
 }
 
@@ -50,13 +50,13 @@ export interface UnstakingFormData {
  */
 export interface UnstakingStatus {
   phase:
-    | "idle"
-    | "preparing"
-    | "ready"
-    | "authorizing"
-    | "executing"
-    | "confirming"
-    | "complete"
-    | "error";
+    | 'idle'
+    | 'preparing'
+    | 'ready'
+    | 'authorizing'
+    | 'executing'
+    | 'confirming'
+    | 'complete'
+    | 'error';
   message: string;
 }

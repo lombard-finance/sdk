@@ -12,31 +12,31 @@
  * @module chains/btc/actions/shared/BaseBtcAction
  */
 
-import { z } from "zod";
+import { z } from 'zod';
 
 import {
   ChainId,
   SolanaChain,
   StarknetChainId,
   SuiChain,
-} from "../../../../common/chains";
-import { Chain, StepStatus } from "../../../../core";
-import { BaseAction } from "../../../../shared/actions";
-import type { BtcCoreContext } from "../../../../shared/context";
-import { LombardError, ValidationErrorCode } from "../../../../shared/errors";
+} from '../../../../common/chains';
+import { Chain, StepStatus } from '../../../../core';
+import { BaseAction } from '../../../../shared/actions';
+import type { BtcCoreContext } from '../../../../shared/context';
+import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 import type {
   MonitorProgress,
   NetworkMode,
-} from "../../../../shared/monitoring";
-import { monitorDeposit } from "../../../../shared/monitoring";
-import type { EventHandler } from "../../../../shared/monitoring/createEventEmitter";
+} from '../../../../shared/monitoring';
+import { monitorDeposit } from '../../../../shared/monitoring';
+import type { EventHandler } from '../../../../shared/monitoring/createEventEmitter';
 import {
   btcStakeAmountSchema,
   referralCodeSchema,
   validatePrepareParams as zodValidate,
-} from "../../../../shared/validation";
-import { ensureNotSanctionedAddress } from "../../../../utils/ensureNotSanctionedAddress";
-import { toSatoshi } from "../../../../utils/satoshi";
+} from '../../../../shared/validation';
+import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctionedAddress';
+import { toSatoshi } from '../../../../utils/satoshi';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -203,7 +203,7 @@ export abstract class BaseBtcAction<
   /** Bitcoin network mode for monitoring */
   protected get bitcoinNetwork(): NetworkMode {
     const source = this.params.sourceChain;
-    return source === Chain.BITCOIN_MAINNET ? "mainnet" : "testnet";
+    return source === Chain.BITCOIN_MAINNET ? 'mainnet' : 'testnet';
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -240,14 +240,14 @@ export abstract class BaseBtcAction<
 
   protected ensureRecipient(): string {
     if (!this._recipient) {
-      throw LombardError.missingParameter("recipient");
+      throw LombardError.missingParameter('recipient');
     }
     return this._recipient;
   }
 
   protected ensureAmount(): string {
     if (!this._amount) {
-      throw LombardError.missingParameter("amount");
+      throw LombardError.missingParameter('amount');
     }
     return this._amount;
   }
@@ -256,7 +256,7 @@ export abstract class BaseBtcAction<
     if (!this._depositAddress) {
       throw new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
-        "Deposit address not generated. Call generateDepositAddress() first.",
+        'Deposit address not generated. Call generateDepositAddress() first.',
       );
     }
     return this._depositAddress;
@@ -267,7 +267,7 @@ export abstract class BaseBtcAction<
    * Subclasses can override to provide specific messages
    */
   protected getAuthRequiredMessage(): string {
-    return "Authorization required. Complete the authorization step first.";
+    return 'Authorization required. Complete the authorization step first.';
   }
 
   protected ensureAuthorized(): void {
@@ -336,7 +336,7 @@ export abstract class BaseBtcAction<
   ): Promise<string> {
     const statusConfig = this.getStatusConfig();
 
-    this.assertStatus(statusConfig.ready, "generateDepositAddress");
+    this.assertStatus(statusConfig.ready, 'generateDepositAddress');
     this.ensureAuthorized();
 
     if (this._depositAddress) {
@@ -390,7 +390,7 @@ export abstract class BaseBtcAction<
     const statusConfig = this.getStatusConfig();
 
     return this.act(async () => {
-      this.assertStatus(statusConfig.addressReady, "execute");
+      this.assertStatus(statusConfig.addressReady, 'execute');
 
       if (!this._depositAddress) {
         await this.generateDepositAddressImpl();
@@ -429,7 +429,7 @@ export abstract class BaseBtcAction<
     const recipient = this._recipient;
 
     if (!depositAddress || !recipient) {
-      throw LombardError.missingParameter("depositAddress or recipient");
+      throw LombardError.missingParameter('depositAddress or recipient');
     }
 
     const progress = await monitorDeposit({
@@ -438,7 +438,7 @@ export abstract class BaseBtcAction<
       fetchDeposit: async () => {
         const deposits = await this.ctx.api.getDeposits(recipient);
         const ourDeposit = deposits.find(
-          (deposit) => deposit.depositAddress === depositAddress,
+          deposit => deposit.depositAddress === depositAddress,
         );
 
         if (!ourDeposit) {
@@ -450,7 +450,7 @@ export abstract class BaseBtcAction<
           isClaimed: ourDeposit.isClaimed,
         };
       },
-      onProgress: (p) => {
+      onProgress: p => {
         this.emitProgress({
           status: this.status,
           steps: p.steps,
@@ -478,7 +478,7 @@ export abstract class BaseBtcAction<
     if (!amount) return undefined;
 
     try {
-      const btcProvider = await this.ctx.getProvider("bitcoin");
+      const btcProvider = await this.ctx.getProvider('bitcoin');
       if (!btcProvider) return undefined;
 
       const provider = btcProvider as {
