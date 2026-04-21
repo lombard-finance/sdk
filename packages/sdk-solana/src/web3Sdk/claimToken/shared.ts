@@ -144,14 +144,16 @@ export async function fetchCurrentEpoch(
   consortiumProgram: Program,
   consortiumConfigPDA: PublicKey,
 ): Promise<BN> {
+  // Anchor converts all IDL names to camelCase before building the namespace
+  // and decoding accounts, so field access uses camelCase keys.
   const accountNs = consortiumProgram.account as unknown as Record<
     string,
     { fetch: (address: PublicKey) => Promise<unknown> }
   >;
   const raw = (await accountNs.config.fetch(consortiumConfigPDA)) as {
-    current_epoch: BN;
+    currentEpoch: BN;
   };
-  return raw.current_epoch;
+  return raw.currentEpoch;
 }
 
 // ── fetchAssetRouterConfig ──
@@ -170,24 +172,26 @@ export async function fetchAssetRouterConfig(
   assetRouterProgram: Program,
   configPDA: PublicKey,
 ): Promise<AssetRouterConfig> {
+  // Anchor camelCases IDL names, so `native_mint` → `nativeMint`,
+  // `bascule_gmp` → `basculeGmp`, `ledger_lchain_id` → `ledgerLchainId`.
   const accountNs = assetRouterProgram.account as unknown as Record<
     string,
     { fetch: (address: PublicKey) => Promise<unknown> }
   >;
   const raw = (await accountNs.config.fetch(configPDA)) as {
     paused: boolean;
-    native_mint: PublicKey;
+    nativeMint: PublicKey;
     bascule: PublicKey | null;
-    bascule_gmp: PublicKey | null;
-    ledger_lchain_id: number[];
+    basculeGmp: PublicKey | null;
+    ledgerLchainId: number[];
   };
 
   return {
     paused: raw.paused,
-    nativeMint: raw.native_mint,
+    nativeMint: raw.nativeMint,
     basculeProgramId: raw.bascule ?? null,
-    basculeGmpProgramId: raw.bascule_gmp ?? null,
-    ledgerChainId: new Uint8Array(raw.ledger_lchain_id),
+    basculeGmpProgramId: raw.basculeGmp ?? null,
+    ledgerChainId: new Uint8Array(raw.ledgerLchainId),
   };
 }
 
