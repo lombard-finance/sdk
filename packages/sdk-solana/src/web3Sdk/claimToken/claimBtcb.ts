@@ -120,6 +120,8 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
       effectiveBasculeProgramId,
     );
 
+    debugLog('Asset router program:', assetRouterProgramId.toBase58());
+    debugLog('Bascule program:', effectiveBasculeProgramId.toBase58());
     debugLog('Bascule validator PDA:', basculeValidatorPDA.toBase58());
     debugLog('Bascule data PDA:', basculeDataPDA.toBase58());
     debugLog('Bascule deposit PDA:', basculeDepositPDA.toBase58());

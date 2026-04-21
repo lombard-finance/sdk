@@ -219,6 +219,13 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       effectiveBasculeGmpProgramId,
     );
 
+    debugLog('Asset router program:', assetRouterProgramId.toBase58());
+    debugLog('Bascule GMP program:', effectiveBasculeGmpProgramId.toBase58());
+    debugLog('Bascule validator PDA:', basculeValidatorPDA.toBase58());
+    debugLog('Bascule GMP config PDA:', basculeGmpConfigPDA.toBase58());
+    debugLog('Bascule GMP account roles PDA:', basculeGmpAccountRolesPDA.toBase58());
+    debugLog('Bascule GMP mint payload PDA:', basculeGmpMintPayloadPDA.toBase58());
+
     handleIx.keys.push(
       { pubkey: basculeValidatorPDA, isSigner: false, isWritable: true },
       { pubkey: effectiveBasculeGmpProgramId, isSigner: false, isWritable: false },
