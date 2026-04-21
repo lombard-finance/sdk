@@ -1,5 +1,5 @@
 {
-  "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9",
+  "address": "Lomu595CAtJGF6mpnfeAJ7daZfVdHeRkAdKyfqzXqom",
   "metadata": {
     "name": "mailbox",
     "version": "0.1.0",
@@ -735,7 +735,9 @@
           }
         }
       ],
-      "returns": "bytes"
+      "returns": {
+        "option": "bytes"
+      }
     },
     {
       "name": "initialize",
@@ -762,38 +764,38 @@
               {
                 "kind": "const",
                 "value": [
-                  5,
-                  18,
-                  233,
-                  90,
-                  194,
-                  193,
-                  50,
-                  141,
-                  128,
-                  131,
-                  75,
-                  41,
-                  96,
-                  114,
-                  108,
-                  90,
-                  65,
-                  124,
-                  105,
-                  212,
-                  246,
-                  221,
-                  111,
-                  217,
-                  24,
-                  17,
+                  36,
+                  139,
+                  239,
+                  15,
+                  35,
                   69,
-                  69,
-                  125,
-                  185,
+                  202,
+                  207,
+                  115,
+                  142,
+                  92,
                   67,
-                  232
+                  70,
+                  108,
+                  102,
+                  154,
+                  92,
+                  112,
+                  22,
+                  213,
+                  14,
+                  36,
+                  245,
+                  236,
+                  182,
+                  13,
+                  241,
+                  250,
+                  220,
+                  135,
+                  229,
+                  116
                 ]
               }
             ],
@@ -1108,6 +1110,9 @@
         },
         {
           "name": "outbound_message",
+          "docs": [
+            "so the mailbox program handles its data"
+          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -1151,33 +1156,7 @@
         },
         {
           "name": "sender_config",
-          "optional": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  101,
-                  110,
-                  100,
-                  101,
-                  114,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "sender_authority.owner"
-              }
-            ]
-          }
+          "optional": true
         }
       ],
       "args": [
@@ -1308,6 +1287,58 @@
         {
           "name": "fee_disabled",
           "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "set_treasury",
+      "discriminator": [
+        57,
+        97,
+        196,
+        95,
+        195,
+        206,
+        106,
+        136
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  108,
+                  98,
+                  111,
+                  120,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_treasury",
+          "type": "pubkey"
         }
       ]
     },
@@ -1612,19 +1643,6 @@
       ]
     },
     {
-      "name": "OutboundMessage",
-      "discriminator": [
-        166,
-        139,
-        82,
-        146,
-        129,
-        32,
-        235,
-        239
-      ]
-    },
-    {
       "name": "OutboundMessagePath",
       "discriminator": [
         58,
@@ -1910,91 +1928,96 @@
     },
     {
       "code": 6004,
+      "name": "InvalidPayloadHash",
+      "msg": "Invalid payload hash"
+    },
+    {
+      "code": 6005,
       "name": "InvalidPayloadLength",
       "msg": "Invalid payload size"
     },
     {
-      "code": 6005,
+      "code": 6006,
       "name": "PayloadTooLarge",
       "msg": "Payload too large"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "InvalidPayloadSelector",
       "msg": "Invalid payload selector"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "InvalidMessagePath",
       "msg": "Invalid message path"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "PayloadNotFound",
       "msg": "Payload not found"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "PayloadAlreadyHandled",
       "msg": "Payload already handled"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "InvalidPayloadState",
       "msg": "Invalid payload state"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "InsufficientFunds",
       "msg": "Insufficient funds for fee"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "InvalidFeeConfiguration",
       "msg": "Invalid fee configuration"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "InvalidAdmin",
       "msg": "Invalid admin"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "InvalidPauser",
       "msg": "Invalid pauser"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "PauserAlreadyExists",
       "msg": "Pauser already exists"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "PauserNotFound",
       "msg": "Pauser not found"
     },
     {
-      "code": 6017,
+      "code": 6018,
       "name": "InvalidNonce",
       "msg": "Invalid nonce"
     },
     {
-      "code": 6018,
+      "code": 6019,
       "name": "BufferIOError",
       "msg": "Buffer IO error"
     },
     {
-      "code": 6019,
+      "code": 6020,
       "name": "TreasuryMismatch",
       "msg": "treasury mismatch"
     },
     {
-      "code": 6020,
+      "code": 6021,
       "name": "PublicSendWithFeeDisabled",
       "msg": "public send with fee disabled"
     },
     {
-      "code": 6021,
+      "code": 6022,
       "name": "InvalidDestinationCaller",
       "msg": "Invalid destination caller"
     }
@@ -2258,10 +2281,6 @@
           {
             "name": "nonce",
             "type": "u64"
-          },
-          {
-            "name": "raw_payload",
-            "type": "bytes"
           }
         ]
       }
@@ -2359,19 +2378,6 @@
               "defined": {
                 "name": "MessageV1"
               }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "OutboundMessage",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "defined": {
-              "name": "MessageV1"
             }
           }
         ]
@@ -2598,7 +2604,12 @@
       "name": "ValidatedPayload",
       "type": {
         "kind": "struct",
-        "fields": []
+        "fields": [
+          {
+            "name": "latest_epoch",
+            "type": "u64"
+          }
+        ]
       }
     }
   ]

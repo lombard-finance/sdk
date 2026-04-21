@@ -14,11 +14,11 @@ import {
   ClaimTokenParams,
   computePayloadHash,
   DEPOSIT_SELECTOR_V1,
+  fetchAssetRouterConfig,
   fetchCurrentEpoch,
   getConsortiumConfigPDA,
   getConsortiumSessionPDA,
   GMP_MESSAGE_V1_SELECTOR,
-  parseAssetRouterConfig,
 } from './shared';
 
 export type { ClaimTokenParams } from './shared';
@@ -95,7 +95,7 @@ export async function claimToken(
 
     // Fetch current epoch from on-chain consortium config
     const currentEpoch = await fetchCurrentEpoch(
-      connection,
+      consortiumProgram,
       consortiumConfigPDA,
     );
     debugLog('Current consortium epoch:', currentEpoch.toString());
@@ -119,18 +119,19 @@ export async function claimToken(
       assetRouterProgramId,
     );
 
-    // Read on-chain Asset Router config
+    // Read on-chain Asset Router config via Anchor (IDL-based deserialization)
     debugLog('Asset Router program ID:', assetRouterProgramId.toBase58());
     debugLog('Asset Router config PDA:', assetRouterConfigPDA.toBase58());
-    const configAccountInfo =
-      await connection.getAccountInfo(assetRouterConfigPDA);
-    debugLog('Config account exists:', !!configAccountInfo);
-    if (!configAccountInfo) {
-      throw new Error(
-        `Asset Router config account not found at ${assetRouterConfigPDA.toBase58()} (program: ${assetRouterProgramId.toBase58()})`,
-      );
-    }
-    const arConfig = parseAssetRouterConfig(configAccountInfo.data);
+    const arConfig = await fetchAssetRouterConfig(
+      assetRouterProgram,
+      assetRouterConfigPDA,
+    );
+    debugLog(
+      'Asset Router config — paused:', arConfig.paused,
+      'nativeMint:', arConfig.nativeMint.toBase58(),
+      'bascule:', arConfig.basculeProgramId?.toBase58() ?? 'null',
+      'basculeGmp:', arConfig.basculeGmpProgramId?.toBase58() ?? 'null',
+    );
 
     if (arConfig.paused) {
       throw new Error('Asset Router contract is paused');
