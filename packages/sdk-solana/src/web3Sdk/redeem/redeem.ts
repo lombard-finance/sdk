@@ -69,7 +69,7 @@ export async function redeem(
   const {
     amount, recipient, network,
     env: envOverride, rpcUrl,
-    debug = false, skipPreflight = false,
+    debug = false, skipPreflight = true,
   } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
