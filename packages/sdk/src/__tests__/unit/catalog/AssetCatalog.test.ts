@@ -203,9 +203,9 @@ describe('Asset Catalog', () => {
 
   describe('Unstaking chains availability', () => {
     describe('Testnet environment', () => {
-      it('should include Solana Testnet for LBTC unstaking', () => {
+      it('should include Solana Devnet for LBTC unstaking on testnet env', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.testnet);
-        expect(chains).toContain(Chain.SOLANA_TESTNET);
+        expect(chains).toContain(Chain.SOLANA_DEVNET);
       });
 
       it('should include Sui Testnet for LBTC unstaking', () => {

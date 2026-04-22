@@ -27,7 +27,6 @@ import {
   isValidChain,
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
-  SOLANA_TESTNET_CHAIN,
   SolanaChain,
   STARKNET_MAINNET_CHAIN,
   STARKNET_SEPOLIA_CHAIN,
@@ -325,10 +324,10 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
 > = {
   [Token.LBTC]: {
     [Env.prod]: {
-      [SOLANA_MAINNET_CHAIN]: 'LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek',
+      [SOLANA_MAINNET_CHAIN]: 'LBTCgU4b3wsFKsPwBn1rRZDx5DoFutM6RPiEt1TPDsY',
     },
     [Env.testnet]: {
-      [SOLANA_TESTNET_CHAIN]: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
+      [SOLANA_DEVNET_CHAIN]: '1BTCPX3qyFtBvhQvJaHntfzZfB8qcJmJXfoRnD3vAgh',
     },
     [Env.dev]: {
       [SOLANA_DEVNET_CHAIN]: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
@@ -338,11 +337,17 @@ export const SOLANA_TOKEN_ADDRESSES: TokenAddresses<
     },
   },
   [Token.BTCb]: {
+    [Env.prod]: {
+      [SOLANA_MAINNET_CHAIN]: 'BTCbKVgfW4xMqTWEmxVwc6pzg2c5YtQWxSpBuQDhUrpu',
+    },
     [Env.dev]: {
       [SOLANA_DEVNET_CHAIN]: 'BTCB3ripBAut19jM8kDPVbJHb2ZdR2GcZvGZkCmFPtV8',
     },
     [Env.stage]: {
       [SOLANA_DEVNET_CHAIN]: 'BTCGPAHQSsS9RYcL2Z4B5z6YyAXLatNcnaEwYdczsMZw',
+    },
+    [Env.testnet]: {
+      [SOLANA_DEVNET_CHAIN]: 'BTCb1Xy55DzwPMog9d3ztPau4nqXp6BhUrdGHjTrMYCn',
     },
   },
 };

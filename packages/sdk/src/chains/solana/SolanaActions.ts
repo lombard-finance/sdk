@@ -1,7 +1,12 @@
 /**
  * Solana Actions
  *
- * Provides factory methods for Solana operations (unstake).
+ * Provides factory methods for Solana operations.
+ *
+ * Operations:
+ * - stake: BTC.b → LBTC (stake wrapped BTC to get LBTC)
+ * - unstake: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
+ * - redeem: BTC.b → BTC (cross-chain via Asset Router)
  *
  * Note: Solana module must be registered before using these actions.
  *
@@ -10,7 +15,7 @@
  * import { solanaActions } from '@lombard.finance/sdk';
  *
  * const solana = solanaActions(config);
- * const unstake = solana.unstake({ ... });
+ * const stake = solana.stake({ ... });
  * ```
  */
 
@@ -26,6 +31,11 @@ import type {
   ISolanaRedeem,
   SolanaRedeemParams,
 } from './actions/redeem/types';
+import { SolanaStake } from './actions/stake/SolanaStake';
+import type {
+  ISolanaStake,
+  SolanaStakeParams,
+} from './actions/stake/types';
 import { SolanaUnstake } from './actions/unstake/SolanaUnstake';
 import type {
   ISolanaUnstake,
@@ -71,20 +81,35 @@ export class SolanaActions {
   }
 
   /**
-   * Unstake LBTC → BTC
+   * Stake BTC.b → LBTC
    *
-   * Burns LBTC on Solana and releases BTC on Bitcoin.
+   * Burns BTC.b on Solana and mints LBTC to the recipient via Asset Router.
    *
    * @throws LombardError if solana module is not registered
+   * @throws LombardError if route is not supported
+   */
+  stake(params: SolanaStakeParams): ISolanaStake {
+    return new SolanaStake(this.ctx, params);
+  }
+
+  /**
+   * Unstake LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
+   *
+   * Burns LBTC on Solana and outputs BTC or BTC.b depending on `assetOut`:
+   * - BTC: via LBTC program directly (cross-chain to Bitcoin)
+   * - BTC.b: via Asset Router redeem (same-chain on Solana)
+   *
+   * @throws LombardError if solana module is not registered
+   * @throws LombardError if route is not supported
    */
   unstake(params: SolanaUnstakeParams): ISolanaUnstake {
     return new SolanaUnstake(this.ctx, params);
   }
 
   /**
-   * Redeem BTC.b → BTC
+   * Redeem BTC.b → BTC (cross-chain)
    *
-   * Burns BTC.b on Solana and releases BTC to a Bitcoin address via GMP.
+   * Burns BTC.b on Solana and releases BTC to a Bitcoin address via Asset Router.
    *
    * @throws LombardError if solana module is not registered
    * @throws LombardError if route is not supported

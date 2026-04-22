@@ -1,7 +1,7 @@
 import { AnchorProvider, Program, setProvider } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 
-import { getConfig, networkToEnv } from '../../const/getConfig';
+import { DEFAULT_ENV, getConfig } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';
 import { getAssetRouterIdl } from '../../idl/getAssetRouterIdl';
 import { getConsortiumIdl } from '../../idl/getConsortiumIdl';
@@ -14,11 +14,11 @@ import {
   ClaimTokenParams,
   computePayloadHash,
   DEPOSIT_SELECTOR_V1,
+  fetchAssetRouterConfig,
   fetchCurrentEpoch,
   getConsortiumConfigPDA,
   getConsortiumSessionPDA,
   GMP_MESSAGE_V1_SELECTOR,
-  parseAssetRouterConfig,
 } from './shared';
 
 export type { ClaimTokenParams } from './shared';
@@ -34,7 +34,7 @@ export async function claimToken(
   provider: ISolanaWalletProvider,
   params: ClaimTokenParams,
 ): Promise<string> {
-  const { network, env: envOverride, rawPayload, rpcUrl, debug = false } = params;
+  const { network, env = DEFAULT_ENV, rawPayload, rpcUrl, debug = false } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
   try {
@@ -42,8 +42,8 @@ export async function claimToken(
       throw new Error('Wallet not found');
     }
 
-    const env = envOverride ?? networkToEnv[network];
     const config = getConfig(env);
+
     if (!config.assetRouter) {
       throw new Error(`Asset Router not configured for network: ${network}`);
     }
@@ -72,7 +72,10 @@ export async function claimToken(
     const consortiumProgramId = new PublicKey(config.consortium);
 
     // Parse payload
-    const payloadBytes = Buffer.from(rawPayload, 'hex');
+    const cleanPayload = rawPayload.startsWith('0x')
+      ? rawPayload.slice(2)
+      : rawPayload;
+    const payloadBytes = Buffer.from(cleanPayload, 'hex');
     if (payloadBytes.length < 4) {
       throw new Error(`Payload too short: ${payloadBytes.length} bytes`);
     }
@@ -92,7 +95,7 @@ export async function claimToken(
 
     // Fetch current epoch from on-chain consortium config
     const currentEpoch = await fetchCurrentEpoch(
-      connection,
+      consortiumProgram,
       consortiumConfigPDA,
     );
     debugLog('Current consortium epoch:', currentEpoch.toString());
@@ -116,18 +119,19 @@ export async function claimToken(
       assetRouterProgramId,
     );
 
-    // Read on-chain Asset Router config
+    // Read on-chain Asset Router config via Anchor (IDL-based deserialization)
     debugLog('Asset Router program ID:', assetRouterProgramId.toBase58());
     debugLog('Asset Router config PDA:', assetRouterConfigPDA.toBase58());
-    const configAccountInfo =
-      await connection.getAccountInfo(assetRouterConfigPDA);
-    debugLog('Config account exists:', !!configAccountInfo);
-    if (!configAccountInfo) {
-      throw new Error(
-        `Asset Router config account not found at ${assetRouterConfigPDA.toBase58()} (program: ${assetRouterProgramId.toBase58()})`,
-      );
-    }
-    const arConfig = parseAssetRouterConfig(configAccountInfo.data);
+    const arConfig = await fetchAssetRouterConfig(
+      assetRouterProgram,
+      assetRouterConfigPDA,
+    );
+    debugLog(
+      'Asset Router config — paused:', arConfig.paused,
+      'nativeMint:', arConfig.nativeMint.toBase58(),
+      'bascule:', arConfig.basculeProgramId?.toBase58() ?? 'null',
+      'basculeGmp:', arConfig.basculeGmpProgramId?.toBase58() ?? 'null',
+    );
 
     if (arConfig.paused) {
       throw new Error('Asset Router contract is paused');

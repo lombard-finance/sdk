@@ -12,7 +12,7 @@ export async function sendAndConfirmTransaction({
   connection,
   provider,
   debugLabel = 'Transaction',
-  skipPreflight = false,
+  skipPreflight = true,
 }: {
   instruction: Transaction | TransactionInstruction;
   connection: Connection;

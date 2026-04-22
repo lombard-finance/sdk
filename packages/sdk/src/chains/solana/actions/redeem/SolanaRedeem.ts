@@ -1,19 +1,15 @@
 /**
  * Solana Redeem Action
  *
- * Redeems BTC.b on Solana → BTC on Bitcoin via Asset Router + GMP.
+ * Redeems BTC.b → BTC on Solana via Asset Router redeemForBtc.
+ * Cross-chain burn, analogous to EVM redeem.
  *
  * **Flow:**
- * IDLE → READY → CONFIRMING
- *
- * The flow ends at CONFIRMING because the Solana-side burn and GMP dispatch
- * are complete, but the Bitcoin-side BTC release is a cross-chain async
- * process that the SDK cannot track.
+ * IDLE → READY → COMPLETED
  *
  * @module chains/solana/actions/redeem/SolanaRedeem
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
 import { z } from 'zod';
 
 import { StepStatus } from '../../../../core';
@@ -26,15 +22,15 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
+import { getSolanaTokenAddress, Token } from '../../../../tokens/token-addresses';
 import { toSatoshi } from '../../../../utils/satoshi';
-import { envToSolanaNetwork } from '../../utils';
+import { envToSolanaChain, envToSolanaNetwork } from '../../utils';
 import { isRedeemSupported, solanaRedeemConfig } from './config';
 import type {
   ISolanaRedeem,
   SolanaRedeemParams,
   SolanaRedeemPrepareParams,
 } from './types';
-
 
 export class SolanaRedeem
   extends BaseAction<RedeemEventMap, NonEvmUnstakeStatus>
@@ -43,14 +39,12 @@ export class SolanaRedeem
   private _amount?: string;
   private _recipient?: string;
   private _txHash?: string;
-  private readonly env: Env;
 
   constructor(
     private readonly ctx: SolanaCoreContext,
     private readonly params: SolanaRedeemParams,
   ) {
     super(NonEvmUnstakeStatus.IDLE);
-    this.env = ctx.env;
 
     if (
       !isRedeemSupported(
@@ -58,14 +52,14 @@ export class SolanaRedeem
         params.destChain,
         params.assetIn,
         params.assetOut,
-        this.env,
+        ctx.env,
       )
     ) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
         destChain: params.destChain,
-        env: this.env,
+        env: ctx.env,
       });
     }
   }
@@ -116,27 +110,36 @@ export class SolanaRedeem
       });
 
       const amountInSatoshis = toSatoshi(amount).toString();
-      const network = envToSolanaNetwork(this.env);
+      const network = envToSolanaNetwork(this.ctx.env);
 
-      const { txHash } = await this.ctx.solana.redeemForBtc({
+      const btcbMint: string | undefined = getSolanaTokenAddress(
+        envToSolanaChain(this.ctx.env),
+        this.ctx.env,
+        Token.BTCb,
+      );
+      if (!btcbMint) {
+        throw LombardError.missingParameter('Solana BTC.b mint for this environment');
+      }
+
+      const { signature } = await this.ctx.solana.redeemForBtc({
         amount: amountInSatoshis,
         btcAddress: recipient,
         network,
-        env: this.env,
+        env: this.ctx.env,
+        tokenMint: btcbMint,
       });
 
-      this._txHash = txHash;
+      this._txHash = signature;
 
-      // Solana burn is confirmed and the GMP message has been dispatched.
-      // The Bitcoin-side release is a cross-chain async process that the SDK
-      // cannot track, so the flow stops at CONFIRMING rather than COMPLETED.
       this.emitProgress({
-        status: NonEvmUnstakeStatus.CONFIRMING,
-        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
+        status: NonEvmUnstakeStatus.COMPLETED,
+        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.COMPLETE },
       });
 
-      return { txHash };
-    }, NonEvmUnstakeStatus.CONFIRMING);
+      this.emitCompleted();
+
+      return { txHash: signature };
+    }, NonEvmUnstakeStatus.COMPLETED);
   }
 
   private get prepareSchema() {

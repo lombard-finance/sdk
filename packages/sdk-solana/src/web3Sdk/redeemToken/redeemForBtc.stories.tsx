@@ -2,7 +2,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
-import { envToNetwork } from '../../const/getConfig';
+import { envToNetwork, getConfig } from '../../const/getConfig';
 import {
   Button,
   CodeBlock,
@@ -16,20 +16,27 @@ import { useConnect } from '../../stories/hooks/useConnect';
 import useQuery from '../../stories/hooks/useQuery';
 import { redeemForBtc } from './redeemForBtc';
 
+type RedeemToken = 'BTC.b' | 'LBTC';
+
 interface RedeemForBtcStoryArgs {
   environment: Env;
   amount: string;
   btcAddress: string;
-  tokenMint: string;
+  token: RedeemToken;
 }
+
+const getTokenMint = (token: RedeemToken, config: ReturnType<typeof getConfig>): string | undefined =>
+  token === 'LBTC' ? config.lbtcTokenMint : config.btcbTokenMint ?? undefined;
 
 export const StoryView = ({
   environment,
   amount,
   btcAddress,
-  tokenMint,
+  token,
 }: RedeemForBtcStoryArgs) => {
   const network = envToNetwork[environment];
+  const config = getConfig(environment);
+  const tokenMint = getTokenMint(token, config);
   const [transactionLogs, setTransactionLogs] = useState<string[] | null>(null);
 
   const {
@@ -53,12 +60,18 @@ export const StoryView = ({
 
     const amountSats = Math.round(parsedAmount * 1e8).toString();
 
+    if (!tokenMint) {
+      throw new Error(
+        'No mint for the selected token in this environment (e.g. BTC.b may be unset on mainnet).',
+      );
+    }
+
     setTransactionLogs(null);
     try {
       const result = await redeemForBtc(provider, {
         amount: amountSats,
         btcAddress,
-        tokenMint: tokenMint || undefined,
+        tokenMint,
         network,
         env: environment,
         debug: true,
@@ -80,7 +93,7 @@ export const StoryView = ({
     refetch: handleRedeem,
   } = useQuery(
     request,
-    [provider, address, amount, btcAddress, tokenMint, environment],
+    [provider, address, amount, btcAddress, token, environment],
     false,
   );
 
@@ -112,11 +125,10 @@ export const StoryView = ({
             <p>
               <strong>BTC Address:</strong> {btcAddress || <em>Not set</em>}
             </p>
-            {tokenMint && (
-              <p>
-                <strong>Token Mint Override:</strong> {tokenMint}
-              </p>
-            )}
+            <p>
+              <strong>Token:</strong> {token}
+              {tokenMint ? ` (${tokenMint})` : ' — not configured'}
+            </p>
           </SectionCard>
 
           <div className="d-grid gap-2 my-4">
@@ -133,7 +145,7 @@ export const StoryView = ({
             <ResultDisplay
               result={txHash}
               title="Redeem Transaction Hash"
-              successMessage="Success! BTC.b → BTC redemption transaction submitted."
+              successMessage={`Success! ${token} → BTC redemption transaction submitted.`}
             />
           )}
           {(error || connectError) && (
@@ -162,13 +174,14 @@ const meta: Meta<typeof StoryView> = {
   parameters: {
     docs: {
       description: {
-        component: `Demonstrates redeeming BTC.b → BTC via the Asset Router's \`redeem_for_btc\` instruction.
+        component: `Demonstrates redeeming BTC.b or LBTC → BTC via the Asset Router's \`redeem_for_btc\` instruction.
 
 **Flow:**
-1. Connect a Solana wallet holding BTC.b tokens
-2. Enter the destination Bitcoin address and amount (in satoshis)
-3. Call \`redeemForBtc\` — burns BTC.b and sends a GMP message through the Mailbox
-4. The Lombard protocol processes the GMP message and sends BTC to the specified address`,
+1. Connect a Solana wallet holding BTC.b or LBTC tokens
+2. Enter the destination Bitcoin address and amount (in BTC)
+3. Optionally set the token mint to the LBTC address to redeem LBTC instead of BTC.b
+4. Call \`redeemForBtc\` — burns the token and sends a GMP message through the Mailbox
+5. The Lombard protocol processes the GMP message and sends BTC to the specified address`,
       },
     },
   },
@@ -176,12 +189,17 @@ const meta: Meta<typeof StoryView> = {
     environment: Env.stage,
     amount: '0.0002',
     btcAddress: '',
-    tokenMint: '',
+    token: 'BTC.b',
   },
   argTypes: {
     environment: {
       control: { type: 'select' },
       options: Object.values(Env),
+    },
+    token: {
+      control: { type: 'select' },
+      options: ['BTC.b', 'LBTC'] satisfies RedeemToken[],
+      description: 'Token to redeem for BTC',
     },
     amount: {
       control: { type: 'text' },
@@ -190,10 +208,6 @@ const meta: Meta<typeof StoryView> = {
     btcAddress: {
       control: { type: 'text' },
       description: 'Destination Bitcoin address (taproot, segwit, etc.)',
-    },
-    tokenMint: {
-      control: { type: 'text' },
-      description: 'BTC.b mint address override (leave empty for default)',
     },
   },
 };

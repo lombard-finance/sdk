@@ -1,5 +1,5 @@
 {
-  "address": "LomVyJDZ91jeVbNnTupJXKJTQFakJVMc87CmwDHYt95",
+  "address": "Lom7TQyK45pTUjFmmsuLaBrMVQ5crggYnSuCrjm9ebr",
   "metadata": {
     "name": "asset_router",
     "version": "0.1.0",
@@ -108,7 +108,8 @@
           }
         },
         {
-          "name": "mint"
+          "name": "mint",
+          "writable": true
         },
         {
           "name": "current_auth",
@@ -150,6 +151,63 @@
       "args": [
         {
           "name": "new_auth",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "change_native_mint",
+      "discriminator": [
+        99,
+        12,
+        65,
+        157,
+        67,
+        40,
+        139,
+        151
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "native_mint",
           "type": "pubkey"
         }
       ]
@@ -319,7 +377,7 @@
         },
         {
           "name": "mailbox",
-          "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9"
+          "address": "3TfSFMuw31Je57m5Wcd9ZopGzjrHLHkjh292aEwXvm3h"
         },
         {
           "name": "mailbox_config",
@@ -379,110 +437,6 @@
           "type": "u64"
         }
       ]
-    },
-    {
-      "name": "disable_bascule",
-      "discriminator": [
-        57,
-        164,
-        60,
-        76,
-        249,
-        175,
-        240,
-        28
-      ],
-      "accounts": [
-        {
-          "name": "payer",
-          "signer": true
-        },
-        {
-          "name": "config",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  115,
-                  115,
-                  101,
-                  116,
-                  95,
-                  114,
-                  111,
-                  117,
-                  116,
-                  101,
-                  114,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "enable_bascule",
-      "discriminator": [
-        42,
-        184,
-        103,
-        55,
-        45,
-        231,
-        145,
-        180
-      ],
-      "accounts": [
-        {
-          "name": "payer",
-          "signer": true
-        },
-        {
-          "name": "config",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  97,
-                  115,
-                  115,
-                  101,
-                  116,
-                  95,
-                  114,
-                  111,
-                  117,
-                  116,
-                  101,
-                  114,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        }
-      ],
-      "args": []
     },
     {
       "name": "gmp_receive",
@@ -615,6 +569,66 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "bascule_validator",
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101,
+                  95,
+                  118,
+                  97,
+                  108,
+                  105,
+                  100,
+                  97,
+                  116,
+                  111,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "bascule_gmp_program",
+          "docs": [
+            "When config.bascule_gmp is Some, must be the bascule_gmp program; otherwise optional."
+          ],
+          "optional": true
+        },
+        {
+          "name": "bascule_gmp_config",
+          "docs": [
+            "When config.bascule_gmp is Some, must be bascule_gmp config PDA; otherwise optional."
+          ],
+          "optional": true
+        },
+        {
+          "name": "bascule_gmp_account_roles",
+          "docs": [
+            "When config.bascule_gmp is Some, must be bascule_gmp account_roles for config; otherwise optional."
+          ],
+          "optional": true
+        },
+        {
+          "name": "bascule_gmp_mint_payload",
+          "docs": [
+            "When config.bascule_gmp is Some, must be bascule_gmp mint_payload PDA; otherwise optional."
+          ],
+          "writable": true,
+          "optional": true
         }
       ],
       "args": [
@@ -753,38 +767,38 @@
               {
                 "kind": "const",
                 "value": [
-                  5,
-                  18,
+                  69,
+                  28,
+                  162,
+                  46,
+                  48,
+                  189,
                   234,
-                  77,
-                  227,
-                  43,
-                  95,
-                  61,
-                  233,
-                  140,
-                  62,
-                  195,
-                  41,
-                  12,
-                  98,
-                  129,
-                  217,
-                  16,
-                  222,
-                  194,
+                  68,
+                  97,
                   22,
-                  133,
-                  11,
-                  224,
-                  186,
-                  228,
-                  222,
-                  153,
-                  255,
-                  78,
-                  217,
-                  216
+                  139,
+                  116,
+                  112,
+                  177,
+                  173,
+                  5,
+                  1,
+                  32,
+                  132,
+                  72,
+                  166,
+                  162,
+                  141,
+                  154,
+                  123,
+                  86,
+                  130,
+                  1,
+                  106,
+                  40,
+                  195,
+                  166
                 ]
               }
             ],
@@ -1013,6 +1027,59 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "bascule_validator",
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101,
+                  95,
+                  118,
+                  97,
+                  108,
+                  105,
+                  100,
+                  97,
+                  116,
+                  111,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "bascule_program",
+          "docs": [
+            "When config.bascule is Some, must be the bascule program; otherwise optional."
+          ],
+          "optional": true
+        },
+        {
+          "name": "bascule_data",
+          "docs": [
+            "When config.bascule is Some, must be bascule's BasculeData PDA; otherwise optional."
+          ],
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "bascule_deposit",
+          "docs": [
+            "When config.bascule is Some, must be bascule deposit PDA for this payload; otherwise optional."
+          ],
+          "writable": true,
+          "optional": true
         }
       ],
       "args": [
@@ -1143,6 +1210,23 @@
           }
         },
         {
+          "name": "session_payload",
+          "docs": [
+            "Session payload posted via consortium (payload and hash validated in handler).",
+            "Generally this will be created via post_session_payload instruction of the consortium program."
+          ]
+        },
+        {
+          "name": "consortium_validated_payload",
+          "docs": [
+            "check that the consortium program has validated the payload"
+          ]
+        },
+        {
+          "name": "deposit_payload_spent",
+          "writable": true
+        },
+        {
           "name": "token_program"
         },
         {
@@ -1187,16 +1271,6 @@
           }
         },
         {
-          "name": "consortium_validated_payload",
-          "docs": [
-            "check that the consortium program has validated the payload"
-          ]
-        },
-        {
-          "name": "deposit_payload_spent",
-          "writable": true
-        },
-        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         },
@@ -1207,18 +1281,53 @@
         {
           "name": "instruction_sysvar",
           "address": "Sysvar1nstructions1111111111111111111111111"
-        }
-      ],
-      "args": [
+        },
         {
-          "name": "mint_payload",
-          "type": {
-            "array": [
-              "u8",
-              196
+          "name": "bascule_validator",
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  99,
+                  117,
+                  108,
+                  101,
+                  95,
+                  118,
+                  97,
+                  108,
+                  105,
+                  100,
+                  97,
+                  116,
+                  111,
+                  114
+                ]
+              }
             ]
           }
         },
+        {
+          "name": "bascule_program",
+          "optional": true
+        },
+        {
+          "name": "bascule_data",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "bascule_deposit",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
         {
           "name": "mint_payload_hash",
           "type": {
@@ -1527,7 +1636,7 @@
         },
         {
           "name": "mailbox",
-          "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9"
+          "address": "3TfSFMuw31Je57m5Wcd9ZopGzjrHLHkjh292aEwXvm3h"
         },
         {
           "name": "mailbox_config",
@@ -1716,7 +1825,7 @@
         },
         {
           "name": "mailbox",
-          "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9"
+          "address": "3TfSFMuw31Je57m5Wcd9ZopGzjrHLHkjh292aEwXvm3h"
         },
         {
           "name": "mailbox_config",
@@ -1843,6 +1952,124 @@
         {
           "name": "account",
           "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_bascule",
+      "discriminator": [
+        102,
+        169,
+        8,
+        200,
+        252,
+        203,
+        29,
+        158
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "bascule",
+          "type": {
+            "option": "pubkey"
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_bascule_gmp",
+      "discriminator": [
+        132,
+        145,
+        110,
+        3,
+        241,
+        60,
+        114,
+        193
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  115,
+                  115,
+                  101,
+                  116,
+                  95,
+                  114,
+                  111,
+                  117,
+                  116,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "bascule_gmp",
+          "type": {
+            "option": "pubkey"
+          }
         }
       ]
     },
@@ -2527,6 +2754,19 @@
       ]
     },
     {
+      "name": "OutboundMessagePath",
+      "discriminator": [
+        58,
+        4,
+        19,
+        64,
+        132,
+        71,
+        137,
+        190
+      ]
+    },
+    {
       "name": "TokenConfig",
       "discriminator": [
         92,
@@ -2607,6 +2847,19 @@
       ]
     },
     {
+      "name": "BasculeGmpEnabled",
+      "discriminator": [
+        80,
+        154,
+        75,
+        96,
+        146,
+        185,
+        133,
+        90
+      ]
+    },
+    {
       "name": "MintAuthorityUpdated",
       "discriminator": [
         251,
@@ -2643,6 +2896,19 @@
         118,
         32,
         59
+      ]
+    },
+    {
+      "name": "NativeMintChanged",
+      "discriminator": [
+        5,
+        166,
+        112,
+        160,
+        46,
+        54,
+        32,
+        31
       ]
     },
     {
@@ -2850,68 +3116,98 @@
     },
     {
       "code": 6022,
+      "name": "InvalidPayloadHash",
+      "msg": "Invalid payload hash"
+    },
+    {
+      "code": 6023,
       "name": "BufferIOError",
       "msg": "Buffer IO error"
     },
     {
-      "code": 6023,
+      "code": 6024,
       "name": "InvalidMessageLength",
       "msg": "Invalid message length"
     },
     {
-      "code": 6024,
+      "code": 6025,
       "name": "InvalidMessageSelector",
       "msg": "Invalid message selector"
     },
     {
-      "code": 6025,
+      "code": 6026,
       "name": "InvalidMessageSender",
       "msg": "Invalid message sender"
     },
     {
-      "code": 6026,
+      "code": 6027,
       "name": "ZeroAmount",
       "msg": "Zero amount"
     },
     {
-      "code": 6027,
+      "code": 6028,
       "name": "InvalidTokenRouteType",
       "msg": "Invalid token route type"
     },
     {
-      "code": 6028,
+      "code": 6029,
       "name": "ProgramError",
       "msg": "Program error"
     },
     {
-      "code": 6029,
+      "code": 6030,
       "name": "TreasuryTokenAccountNotFound",
       "msg": "Treasury token account not found"
     },
     {
-      "code": 6030,
+      "code": 6031,
       "name": "MissingEd25519Instruction",
       "msg": "Missing Ed25519 instruction"
     },
     {
-      "code": 6031,
+      "code": 6032,
       "name": "InvalidEd25519Instruction",
       "msg": "Invalid Ed25519 instruction"
     },
     {
-      "code": 6032,
+      "code": 6033,
       "name": "InvalidPublicKey",
       "msg": "Invalid public key"
     },
     {
-      "code": 6033,
+      "code": 6034,
       "name": "InvalidMessage",
       "msg": "Invalid message"
     },
     {
-      "code": 6034,
+      "code": 6035,
       "name": "InvalidSignature",
       "msg": "Invalid signature"
+    },
+    {
+      "code": 6036,
+      "name": "MissingBasculeAccount",
+      "msg": "Missing bascule account"
+    },
+    {
+      "code": 6037,
+      "name": "InvalidBasculeProgram",
+      "msg": "Invalid bascule program"
+    },
+    {
+      "code": 6038,
+      "name": "InvalidBasculeDeposit",
+      "msg": "Invalid bascule deposit account"
+    },
+    {
+      "code": 6039,
+      "name": "InvalidSessionPayload",
+      "msg": "Invalid session payload account or payload"
+    },
+    {
+      "code": 6040,
+      "name": "InvalidMessagePath",
+      "msg": "Invalid message path"
     }
   ],
   "types": [
@@ -2995,6 +3291,18 @@
       }
     },
     {
+      "name": "BasculeGmpEnabled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "enabled",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
       "name": "Config",
       "type": {
         "kind": "struct",
@@ -3020,12 +3328,30 @@
             "type": "pubkey"
           },
           {
+            "name": "consortium",
+            "type": "pubkey"
+          },
+          {
             "name": "mailbox",
             "type": "pubkey"
           },
           {
-            "name": "bascule_enabled",
-            "type": "bool"
+            "name": "bascule",
+            "docs": [
+              "When Some, mint_from_payload makes a CPI to bascule validate_withdrawal before minting."
+            ],
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "bascule_gmp",
+            "docs": [
+              "When Some, gmp_receive makes a CPI to bascule_gmp validate_mint before minting."
+            ],
+            "type": {
+              "option": "pubkey"
+            }
           },
           {
             "name": "ledger_lchain_id",
@@ -3202,6 +3528,44 @@
           },
           {
             "name": "payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "NativeMintChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OutboundMessagePath",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "destination_chain_id",
             "type": {
               "array": [
                 "u8",
@@ -3447,7 +3811,12 @@
       "name": "ValidatedPayload",
       "type": {
         "kind": "struct",
-        "fields": []
+        "fields": [
+          {
+            "name": "latest_epoch",
+            "type": "u64"
+          }
+        ]
       }
     }
   ]

@@ -1,7 +1,7 @@
 /**
  * Solana Redeem Configuration
  *
- * Handles redeeming BTC.b on Solana → BTC on Bitcoin via Asset Router + GMP.
+ * Handles BTC.b → BTC redemption from Solana to Bitcoin via Asset Router redeemForBtc.
  *
  * @module chains/solana/actions/redeem/config/solana
  */
@@ -12,31 +12,29 @@ import { AssetId, Chain } from '../../../../../core';
 import { bitcoinAddressSchema } from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 
-/**
- * BTC.b → BTC redeem configuration on Solana
- *
- * Burns BTC.b via the Asset Router program and sends a GMP message
- * to trigger a BTC payout on the Bitcoin network.
- */
 export const solanaRedeemConfig: ChainConfig = {
   chainType: 'solana',
 
   routes: [
     {
+      sourceChains: [Chain.SOLANA_MAINNET],
+      destChain: Chain.BITCOIN_MAINNET,
+      assetIn: AssetId.BTCb,
+      assetOut: AssetId.BTC,
+      envs: [Env.prod],
+    },
+    {
       sourceChains: [Chain.SOLANA_DEVNET],
       destChain: Chain.BITCOIN_SIGNET,
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
-      envs: [Env.stage, Env.dev],
+      envs: [Env.testnet, Env.stage, Env.dev],
     },
   ],
 
   recipientSchema: bitcoinAddressSchema,
 };
 
-/**
- * Check if BTC.b → BTC redeem is supported for the full route
- */
 export function isRedeemSupported(
   sourceChain: Chain,
   destChain: Chain,

@@ -7,7 +7,7 @@
 import type { Env } from '@lombard.finance/sdk-common';
 import type { z } from 'zod';
 
-import type { Chain, ChainType } from '../../../../../core';
+import type { AssetId, Chain, ChainType } from '../../../../../core';
 
 /**
  * Route definition for Solana unstake operations
@@ -15,8 +15,12 @@ import type { Chain, ChainType } from '../../../../../core';
 export interface RouteDefinition {
   /** Source chain (Solana network) */
   sourceChains: Chain[];
-  /** Destination chain (where BTC/BTC.b is received) */
+  /** Destination chain */
   destChain: Chain;
+  /** Asset being unstaked (always LBTC) */
+  assetIn: AssetId;
+  /** Asset received (BTC or BTC.b) */
+  assetOut: AssetId;
   /** Supported environments */
   envs: Env[];
 }

@@ -1,3 +1,25 @@
+# 4.7.0
+
+### Added
+
+- `solana.stake()` — new action for BTC.b → LBTC on Solana via Asset Router (mirrors the EVM `stake` pattern).
+- `solana.unstake()` — new same-chain route LBTC → BTC.b on Solana (Asset Router `redeem`), alongside the existing cross-chain LBTC → BTC. Output is selected via `assetOut`; `SolanaUnstakeParams` is unchanged.
+- Solana **mainnet** production routes enabled for stake, unstake, redeem and BTC → BTC.b deposit (`Env.prod`, `SOLANA_MAINNET`). Previously only dev/stage/testnet were wired.
+- BTC.b Solana-mainnet deployment added to the asset catalog and token-addresses map.
+- Optional `txHash?: string` field on `StrategyProgress` in `core/types.ts` (used by Solana actions to surface the submitted Solana signature before final confirmation). Purely additive.
+
+### Changed
+
+- `solana.redeem()` now routes through the Asset Router `redeemForBtc` flow (replacing the direct GMP dispatch used previously). Route semantics (BTC.b → BTC) and `SolanaRedeemParams` are unchanged.
+- `SolanaRedeem` terminal status changed from `CONFIRMING` to `COMPLETED`. Integrations that treated `CONFIRMING` as the end-of-flow marker for this action should switch to `COMPLETED`.
+- `SolanaUnstake` route config reshaped: `unstake/config/solana.ts` merged into `unstake/config/btc.ts`, and `RouteDefinition` now carries `assetIn`/`assetOut` to disambiguate BTC vs BTC.b destinations.
+
+### Fixed
+
+- Corrected the LBTC **Solana mainnet** address in the asset catalog and `SOLANA_TOKEN_ADDRESSES`. It previously pointed to the LBTC **program ID**; it is now the actual SPL **token mint**. Mainnet flows relying on the catalog/token-addresses lookup could not resolve a valid mint before this fix.
+
+---
+
 # 4.6.0
 
 - Added `getBtceShares()` to read a user's BTCe wrapper vault balance on Ethereum, Base, or BSC. BTCe is an ERC4626 wrapper around the Veda vault's LBTCv share token.

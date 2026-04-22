@@ -1,5 +1,5 @@
 {
-  "address": "LomCbo8K5ar4kVpqoGGktE8WemHfGz84V8aH8Y1iGxd",
+  "address": "Lomfd3XZfPV8PyLkjuLVwpYhrBoGJdnYkm98HCgeYGC",
   "metadata": {
     "name": "consortium",
     "version": "0.1.0",
@@ -74,36 +74,6 @@
           "name": "payer",
           "writable": true,
           "signer": true
-        },
-        {
-          "name": "config",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  99,
-                  111,
-                  110,
-                  115,
-                  111,
-                  114,
-                  116,
-                  105,
-                  117,
-                  109,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
         },
         {
           "name": "session",
@@ -182,9 +152,6 @@
           "writable": true
         },
         {
-          "name": "validated_payload"
-        },
-        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
@@ -221,7 +188,6 @@
         },
         {
           "name": "config",
-          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -1054,6 +1020,21 @@
       "code": 6022,
       "name": "ValidatedPayloadNotEmpty",
       "msg": "Validated payload not empty"
+    },
+    {
+      "code": 6023,
+      "name": "ValidatedPayloadEpochMismatch",
+      "msg": "Validated payload epoch mismatch"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidEpoch",
+      "msg": "Epoch must be greater than zero"
+    },
+    {
+      "code": 6025,
+      "name": "DuplicateValidator",
+      "msg": "Duplicate validator in validator set"
     }
   ],
   "types": [
@@ -1226,14 +1207,9 @@
             }
           },
           {
-            "name": "signatures",
+            "name": "validator_indices",
             "type": {
-              "vec": {
-                "array": [
-                  "u8",
-                  64
-                ]
-              }
+              "vec": "u64"
             }
           }
         ]
@@ -1243,7 +1219,12 @@
       "name": "ValidatedPayload",
       "type": {
         "kind": "struct",
-        "fields": []
+        "fields": [
+          {
+            "name": "latest_epoch",
+            "type": "u64"
+          }
+        ]
       }
     },
     {
