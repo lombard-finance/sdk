@@ -5,7 +5,7 @@ All notable changes to `@lombard.finance/sdk-solana` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2026-03-19
+## [2.0.0] - 2026-04-23
 
 ### Migration: `unstakeLBTC` → `redeemForBtc` (LBTC → BTC)
 
@@ -14,7 +14,7 @@ Replace `unstakeLBTC(provider, params)` with `redeemForBtc(provider, params)`.
 | Former (`unstakeLBTC`) | New (`redeemForBtc`) |
 | --- | --- |
 | `amount`, `btcAddress`, `network`, `rpcUrl?` | Same fields supported |
-| (implicit LBTC mint from config) | Set **`tokenMint`** to the LBTC SPL mint for your environment — use `getConfig(env).lbtcTokenMint` (or the same value you rely on elsewhere). If omitted, the default mint is **BTC.b** from config, not LBTC. |
+| (implicit LBTC mint from config) | **Required:** `tokenMint` — set to the SPL mint address for the token you want to redeem. Use `getConfig(env).lbtcTokenMint` for LBTC or `getConfig(env).btcbTokenMint` for BTC.b. |
 | — | Optional: `env` (override vs `networkToEnv[network]`), `debug`, `skipPreflight` (see `RedeemForBtcParams` in source) |
 
 **Config requirements:** `redeemForBtc` uses the **Asset Router** and **Mailbox** stack. For the chosen `Env`, `getConfig(env)` must define non-null **`assetRouter`**, **`mailbox`**, **`solanaRoutingChainId`**, and **`bitcoinRoutingChainId`**. If any are missing, the call fails early with a clear error (environments such as `testnet` / `prod` in this package may leave these `null` until they are wired — use an environment where they are populated, e.g. `devnet` / `stage`, matching your deployment).
