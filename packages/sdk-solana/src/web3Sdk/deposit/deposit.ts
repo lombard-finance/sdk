@@ -66,7 +66,7 @@ export async function deposit(
     env: envOverride,
     rpcUrl,
     debug = false,
-    skipPreflight = false,
+    skipPreflight = true,
   } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
