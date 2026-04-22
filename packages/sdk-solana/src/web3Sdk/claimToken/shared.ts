@@ -243,7 +243,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       connection,
       provider,
       debugLabel: 'Consortium create_session',
-      skipPreflight: params.skipPreflight ?? false,
+      skipPreflight: params.skipPreflight ?? true,
     });
     debugLog('create_session completed');
   } else {
@@ -317,7 +317,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       connection,
       provider,
       debugLabel: 'Consortium post_session_signatures',
-      skipPreflight: params.skipPreflight ?? false,
+      skipPreflight: params.skipPreflight ?? true,
     });
     debugLog('post_session_signatures completed');
   } else {
@@ -342,7 +342,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
     connection,
     provider,
     debugLabel: 'Consortium finalize_session',
-    skipPreflight: params.skipPreflight ?? false,
+    skipPreflight: params.skipPreflight ?? true,
   });
   debugLog('finalize_session completed — ValidatedPayload created');
 }

@@ -25,7 +25,7 @@ export async function redeemLbtcForBtc(ctx: RedeemContext): Promise<string> {
     debugLog,
   } = ctx;
 
-  const { amount, skipPreflight = true } = params;
+  const { amount, skipPreflight = false } = params;
 
   // ── LBTC-specific PDAs ──
   const [tokenConfigPDA] = PublicKey.findProgramAddressSync(

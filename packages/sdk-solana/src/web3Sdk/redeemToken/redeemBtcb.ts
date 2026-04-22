@@ -25,7 +25,7 @@ export async function redeemBtcbForBtc(ctx: RedeemContext): Promise<string> {
     debugLog,
   } = ctx;
 
-  const { amount, skipPreflight = true } = params;
+  const { amount, skipPreflight = false } = params;
 
   // ── BTC.b-specific PDAs ──
   const [tokenConfigPDA] = PublicKey.findProgramAddressSync(

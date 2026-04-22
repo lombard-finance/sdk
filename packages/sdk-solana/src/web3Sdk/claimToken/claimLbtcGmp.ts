@@ -105,7 +105,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       connection,
       provider,
       debugLabel: 'Consortium post_session_payload',
-      skipPreflight: params.skipPreflight ?? false,
+      skipPreflight: params.skipPreflight ?? true,
     });
     debugLog('post_session_payload completed');
   }
@@ -164,7 +164,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       connection,
       provider,
       debugLabel: 'Mailbox deliver_message',
-      skipPreflight: params.skipPreflight ?? false,
+      skipPreflight: params.skipPreflight ?? true,
     });
     debugLog('deliver_message completed');
   }
