@@ -83,12 +83,46 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
     allowOwnerOffCurve: true,
   });
 
-  // Build mint_from_payload instruction
+  // Build mint_from_payload instruction.
+  // Optional bascule accounts must be passed explicitly (null when disabled),
+  // otherwise Anchor builder throws "Account <x> not provided".
   debugLog('mint_from_payload...');
   const mintPayloadArray = Array.from(payloadBytes);
+
+  let basculeValidatorPDA: PublicKey | undefined;
+  let basculeDataPDA: PublicKey | undefined;
+  let basculeDepositPDA: PublicKey | undefined;
+
+  if (effectiveBasculeProgramId) {
+    [basculeValidatorPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from('bascule_validator')],
+      assetRouterProgramId,
+    );
+    [basculeDataPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from('bascule')],
+      effectiveBasculeProgramId,
+    );
+    const depositId = computeDepositIdFromPayload(payloadBytes);
+    debugLog('Deposit ID:', Buffer.from(depositId).toString('hex'));
+
+    [basculeDepositPDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from('deposit'), depositId],
+      effectiveBasculeProgramId,
+    );
+
+    debugLog('Asset router program:', assetRouterProgramId.toBase58());
+    debugLog('Bascule program:', effectiveBasculeProgramId.toBase58());
+    debugLog('Bascule validator PDA:', basculeValidatorPDA.toBase58());
+    debugLog('Bascule data PDA:', basculeDataPDA.toBase58());
+    debugLog('Bascule deposit PDA:', basculeDepositPDA.toBase58());
+  }
+
+  // Anchor optional accounts: when disabled, pass the program's own ID as a
+  // "None" sentinel — this is the convention anchor-client uses for optional accounts.
+  const basculeSentinel = assetRouterProgramId;
   const mintIx = await assetRouterProgram.methods
     .mintFromPayload(mintPayloadArray, payloadHashArray)
-    .accounts({
+    .accountsPartial({
       payer: provider.publicKey,
       config: assetRouterConfigPDA,
       tokenProgram: tokenProgramId,
@@ -99,40 +133,12 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
       consortiumValidatedPayload: validatedPayloadPDA,
       depositPayloadSpent: depositPayloadSpentPDA,
       systemProgram: SystemProgram.programId,
+      basculeValidator: basculeValidatorPDA ?? basculeSentinel,
+      basculeProgram: effectiveBasculeProgramId ?? basculeSentinel,
+      basculeData: basculeDataPDA ?? basculeSentinel,
+      basculeDeposit: basculeDepositPDA ?? basculeSentinel,
     })
     .instruction();
-
-  // Append bascule remaining accounts
-  if (effectiveBasculeProgramId) {
-    const [basculeValidatorPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('bascule_validator')],
-      assetRouterProgramId,
-    );
-    const [basculeDataPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('bascule')],
-      effectiveBasculeProgramId,
-    );
-    const depositId = computeDepositIdFromPayload(payloadBytes);
-    debugLog('Deposit ID:', Buffer.from(depositId).toString('hex'));
-
-    const [basculeDepositPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('deposit'), depositId],
-      effectiveBasculeProgramId,
-    );
-
-    debugLog('Asset router program:', assetRouterProgramId.toBase58());
-    debugLog('Bascule program:', effectiveBasculeProgramId.toBase58());
-    debugLog('Bascule validator PDA:', basculeValidatorPDA.toBase58());
-    debugLog('Bascule data PDA:', basculeDataPDA.toBase58());
-    debugLog('Bascule deposit PDA:', basculeDepositPDA.toBase58());
-
-    mintIx.keys.push(
-      { pubkey: basculeValidatorPDA, isSigner: false, isWritable: true },
-      { pubkey: effectiveBasculeProgramId, isSigner: false, isWritable: false },
-      { pubkey: basculeDataPDA, isSigner: false, isWritable: true },
-      { pubkey: basculeDepositPDA, isSigner: false, isWritable: true },
-    );
-  }
 
   debugLog('Instruction account count:', mintIx.keys.length);
 
