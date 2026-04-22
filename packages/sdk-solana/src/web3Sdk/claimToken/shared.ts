@@ -251,20 +251,44 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
   }
 
   // Step 2: post_session_signatures.
-  // Session = { signed: Vec<bool>, weight: u64 }. Consider it signed when weight > 0.
+  // Session raw layout: discriminator(8) | signed: Vec<bool> (4 LE len + N bytes) | weight: u64 LE | trailing bytes.
+  // Manual parse: Anchor coder rejects extra trailing bytes that exist in the on-chain account.
   let sessionSigned = false;
-  if (sessionAccount) {
+  const freshSessionAccount = sessionAccount
+    ? sessionAccount
+    : await connection.getAccountInfo(sessionPDA);
+  if (freshSessionAccount) {
     try {
-      const accountNs = consortiumProgram.account as unknown as Record<
-        string,
-        { fetch: (address: PublicKey) => Promise<unknown> }
-      >;
-      const session = (await accountNs.session.fetch(sessionPDA)) as {
-        weight: BN;
-      };
-      sessionSigned = session.weight.gtn(0);
+      const data = freshSessionAccount.data;
+      if (data.length < 20) {
+        throw new Error(`session account too short: ${data.length}`);
+      }
+      const signedLen = data.readUInt32LE(8);
+      const weightOffset = 12 + signedLen;
+      if (data.length < weightOffset + 8) {
+        throw new Error(
+          `session data truncated: need ${weightOffset + 8}, got ${data.length}`,
+        );
+      }
+      const weight = data.readBigUInt64LE(weightOffset);
+      let signedCount = 0;
+      for (let i = 0; i < signedLen; i++) {
+        if (data[12 + i] !== 0) signedCount += 1;
+      }
+      sessionSigned = weight > 0n;
+      debugLog(
+        'Session weight:',
+        weight.toString(),
+        'signed count:',
+        signedCount,
+        'of',
+        signedLen,
+      );
     } catch (err) {
-      debugLog('Failed to fetch session for signature check:', err);
+      debugLog(
+        'Failed to parse session for signature check:',
+        err instanceof Error ? err.message : String(err),
+      );
     }
   }
 
