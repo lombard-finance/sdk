@@ -75,6 +75,15 @@ export {
 
 // Contract functions - VAULT READ
 export {
+  getBtceShares,
+  type IGetBtceSharesParameters,
+} from '../contract-functions/getBtceShares/getBtceShares';
+export {
+  getEarnPosition,
+  type IGetEarnPositionParameters,
+  type IGetEarnPositionResponse,
+} from '../contract-functions/getEarnPosition/getEarnPosition';
+export {
   getSharesByAddress,
   type IGetSharesByAddressParameters,
 } from '../contract-functions/getSharesByAddress/getSharesByAddress';
@@ -82,3 +91,13 @@ export {
   getShareValue,
   type IGetShareValueParameters,
 } from '../contract-functions/getShareValue/getShareValue';
+
+// Contract functions - VAULT WRITE
+export {
+  unwrapBtceToLbtcv,
+  type UnwrapBtceToLbtcvParameters,
+} from '../contract-functions/unwrapBtceToLbtcv/unwrapBtceToLbtcv';
+export {
+  wrapToBtce,
+  type WrapToBtceParameters,
+} from '../contract-functions/wrapToBtce/wrapToBtce';

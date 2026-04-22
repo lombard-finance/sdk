@@ -2,6 +2,7 @@ import { Abi, Address } from 'viem';
 
 import { ChainId } from '../../common/chains';
 import { Token } from '../../tokens/token-addresses';
+import BTCE_VAULT_ABI from '../abi/BTCE_VAULT_ABI.json';
 import VEDA_VAULT_ABI from '../abi/VEDA_VAULT_ABI.json';
 import VEDA_VAULT_ACCOUNTANT_ABI from '../abi/VEDA_VAULT_ACCOUNTANT_ABI.json';
 import VEDA_VAULT_BASE_ASSET_ABI from '../abi/VEDA_VAULT_BASE_ASSET_ABI.json';
@@ -139,6 +140,44 @@ export const VEDA_VAULT_BASE_ASSET = {
   address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
   decimals: 8,
 };
+
+/**
+ * BTCe is an ERC4626 wrapper vault around the Veda vault's LBTCv share token.
+ * Holders of BTCe shares have a claim on the underlying LBTCv position.
+ *
+ * The wrapper is currently a 1:1 pass-through (totalSupply == totalAssets,
+ * convertToAssets(1e8) == 1e8 on every supported chain). Convert through
+ * `convertToAssets` rather than naive summation in case fees or rebases ever
+ * change the ratio.
+ *
+ * Currently deployed at the same address on every supported chain, but kept
+ * in a Record so future deployments can diverge without an API change.
+ */
+export const BTCE_VAULT_CHAINS = [
+  ChainId.ethereum,
+  ChainId.base,
+  ChainId.binanceSmartChain,
+] as const;
+
+export type BtceVaultChain = (typeof BTCE_VAULT_CHAINS)[number];
+
+export const isBtceVaultChain = (chainId: number): chainId is BtceVaultChain =>
+  BTCE_VAULT_CHAINS.includes(chainId as BtceVaultChain);
+
+export const BTCE_VAULT_CONTRACTS: Record<BtceVaultChain, Address> = {
+  [ChainId.ethereum]: '0x3a4baaBf4DC9910596821615e848f0e6545762F3',
+  [ChainId.base]: '0x3a4baaBf4DC9910596821615e848f0e6545762F3',
+  [ChainId.binanceSmartChain]: '0x3a4baaBf4DC9910596821615e848f0e6545762F3',
+};
+
+export const BTCE_VAULT_DECIMALS = 8;
+
+export const BTCE_VAULT = {
+  abi: BTCE_VAULT_ABI as Abi,
+  decimals: BTCE_VAULT_DECIMALS,
+  chains: BTCE_VAULT_CHAINS,
+  contracts: BTCE_VAULT_CONTRACTS,
+} as const;
 
 export enum Vault {
   Veda = 'veda',

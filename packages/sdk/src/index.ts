@@ -529,6 +529,15 @@ type IUnstakeLBTCParams,
 
 // Contract functions - VAULT READ:
 export {
+  getBtceShares,
+  type IGetBtceSharesParameters
+} from './contract-functions/getBtceShares/getBtceShares';
+export {
+  getEarnPosition,
+  type IGetEarnPositionParameters,
+  type IGetEarnPositionResponse
+} from './contract-functions/getEarnPosition/getEarnPosition';
+export {
   getSharesByAddress,
   type IGetSharesByAddressParameters
 } from './contract-functions/getSharesByAddress/getSharesByAddress';
@@ -537,8 +546,21 @@ export {
   type IGetShareValueParameters
 } from './contract-functions/getShareValue/getShareValue';
 
+// Contract functions - VAULT WRITE:
+export {
+  unwrapBtceToLbtcv,
+  type UnwrapBtceToLbtcvParameters
+} from './contract-functions/unwrapBtceToLbtcv/unwrapBtceToLbtcv';
+export {
+  wrapToBtce,
+  type WrapToBtceParameters
+} from './contract-functions/wrapToBtce/wrapToBtce';
+
 // Vault:
 export {
+  BTCE_VAULT_CHAINS,
+  BTCE_VAULT_CONTRACTS,
+  type BtceVaultChain,
   cancelWithdraw, type CancelWithdrawParameters, deposit, type DepositParameters,
 getVaultApy,
   type GetVaultApyParameters,
@@ -553,7 +575,8 @@ getVaultApy,
   getVaultWithdrawals,
   getVaultWithdrawalsAllChains,
   type GetVaultWithdrawalsAllChainsParameters,
-  type GetVaultWithdrawalsParameters,   queueWithdraw, type QueueWithdrawParameters, Vault, type VaultDeposit,
+  type GetVaultWithdrawalsParameters,   isBtceVaultChain,
+  queueWithdraw, type QueueWithdrawParameters, Vault, type VaultDeposit,
   type VaultWithdrawal,
   type VaultWithdrawals
 } from './vaults';
