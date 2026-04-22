@@ -1,12 +1,43 @@
 import { Program } from '@coral-xyz/anchor';
 import { getMint } from '@solana/spl-token';
 import { PublicKey, SystemProgram } from '@solana/web3.js';
+import { keccak256 } from 'js-sha3';
 
 import { getMailboxIdl } from '../../idl/getMailboxIdl';
 import { sendAndConfirmTransaction } from '../../utils';
 import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
 import { ALREADY_MINTED_TX_HASH } from './constants';
 import { ClaimContext, executeConsortiumSession } from './shared';
+
+/**
+ * Mirrors bascule_gmp MintMessage.mint_id():
+ *   keccak256( nonce_u256_be || chain_id(32) || recipient(32) || token(32) || amount_u256_be )
+ * Payload: nonce u256 at [36:68], token at [232:264], recipient at [264:296], amount u256 at [296:328].
+ * Only the low 8 bytes of each u256 are used (placed in the last 8 bytes of the 32-byte slot).
+ */
+function computeBasculeGmpMintId(
+  payload: Buffer,
+  chainId: Buffer,
+): Uint8Array {
+  if (payload.length < 328) {
+    throw new Error(
+      `payload too short for bascule_gmp mint_id: ${payload.length} bytes`,
+    );
+  }
+  if (chainId.length !== 32) {
+    throw new Error(`chain_id must be 32 bytes, got ${chainId.length}`);
+  }
+
+  const data = Buffer.alloc(160);
+  payload.copy(data, 24, 60, 68);
+  chainId.copy(data, 32);
+  payload.copy(data, 64, 264, 296);
+  payload.copy(data, 96, 232, 264);
+  payload.copy(data, 152, 320, 328);
+
+  const hash = keccak256(new Uint8Array(data));
+  return new Uint8Array(Buffer.from(hash, 'hex'));
+}
 
 /**
  * LBTC GMP flow via Consortium + Mailbox + Asset Router gmp_receive.
@@ -25,9 +56,9 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
     validatedPayloadPDA, arConfig, debugLog,
   } = ctx;
 
-  if (payloadBytes.length < 296) {
+  if (payloadBytes.length < 328) {
     throw new Error(
-      `LBTC GMP payload too short: expected >= 296 bytes, got ${payloadBytes.length}`,
+      `LBTC GMP payload too short: expected >= 328 bytes, got ${payloadBytes.length}`,
     );
   }
 
@@ -211,11 +242,19 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
       effectiveBasculeGmpProgramId,
     );
     const [basculeGmpAccountRolesPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('account_roles'), basculeGmpConfigPDA.toBytes()],
+      [Buffer.from('account_roles'), basculeValidatorPDA.toBytes()],
       effectiveBasculeGmpProgramId,
     );
+
+    if (!config.solanaRoutingChainId) {
+      throw new Error(
+        `Solana routing chain ID not configured for network: ${params.network}`,
+      );
+    }
+    const solanaChainId = Buffer.from(config.solanaRoutingChainId, 'hex');
+    const mintId = computeBasculeGmpMintId(payloadBytes, solanaChainId);
     const [basculeGmpMintPayloadPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('mint_payload'), payloadHash],
+      [Buffer.from('mint_payload'), Buffer.from(mintId)],
       effectiveBasculeGmpProgramId,
     );
 

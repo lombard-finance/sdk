@@ -193,6 +193,9 @@ export interface DirectDeposit {
 
   /** Amount minted */
   token_amount?: string;
+
+  /** GMP mint ID for solana LBTC GMP flow */
+  mint_id?: string;
 }
 
 /** Top-level response from the Direct BTC Deposits API */
