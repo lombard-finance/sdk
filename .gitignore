@@ -65,3 +65,6 @@ docs/
 .claude/settings.local.json
 .claude/todos/
 .claude/plans/
+
+.agents
+skills-lock.json
