@@ -92,7 +92,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.testnet,
           chain: Chain.SOLANA_DEVNET,
-          address: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
+          address: '1BTCPX3qyFtBvhQvJaHntfzZfB8qcJmJXfoRnD3vAgh',
         },
         {
           env: Env.testnet,
