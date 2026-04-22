@@ -78,6 +78,7 @@ const allRoutes = [...solanaToBtcConfig.routes, ...solanaToBtcbConfig.routes];
  */
 export function isUnstakeSupported(
   sourceChain: Chain,
+  destChain: Chain,
   assetIn: AssetId,
   assetOut: AssetId,
   env: Env,
@@ -85,6 +86,7 @@ export function isUnstakeSupported(
   return allRoutes.some(
     route =>
       route.sourceChains.includes(sourceChain) &&
+      route.destChain === destChain &&
       route.assetIn === assetIn &&
       route.assetOut === assetOut &&
       route.envs.includes(env),

@@ -55,6 +55,7 @@ export class SolanaUnstake
     if (
       !isUnstakeSupported(
         params.sourceChain,
+        params.destChain,
         params.assetIn,
         params.assetOut,
         ctx.env,
