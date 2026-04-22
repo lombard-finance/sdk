@@ -243,6 +243,17 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   }
 
   debugLog('handle_message account count:', handleIx.keys.length);
+  debugLog(
+    'handle_message program:', handleIx.programId.toBase58(),
+  );
+  debugLog(
+    'handle_message data (hex):', Buffer.from(handleIx.data).toString('hex'),
+  );
+  handleIx.keys.forEach((k, i) => {
+    debugLog(
+      `  [${i}] ${k.pubkey.toBase58()} signer=${k.isSigner} writable=${k.isWritable}`,
+    );
+  });
 
   const { signature } = await sendAndConfirmTransaction({
     instruction: handleIx,
