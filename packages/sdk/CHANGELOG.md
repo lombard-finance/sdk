@@ -13,6 +13,7 @@
 - `solana.redeem()` now routes through the Asset Router `redeemForBtc` flow (replacing the direct GMP dispatch used previously). Route semantics (BTC.b → BTC) and `SolanaRedeemParams` are unchanged.
 - `SolanaRedeem` terminal status changed from `CONFIRMING` to `COMPLETED`. Integrations that treated `CONFIRMING` as the end-of-flow marker for this action should switch to `COMPLETED`.
 - `SolanaUnstake` route config reshaped: `unstake/config/solana.ts` merged into `unstake/config/btc.ts`, and `RouteDefinition` now carries `assetIn`/`assetOut` to disambiguate BTC vs BTC.b destinations.
+- Renamed `NonEvmUnstakeStatus` to `NonEvmOperationStatus` in `statusConstants.ts` — the constant is now shared by all non-EVM actions (Solana Stake/Unstake/Redeem, Sui Unstake, Starknet Unstake). Update imports if you reference the old name directly.
 
 ### Fixed
 

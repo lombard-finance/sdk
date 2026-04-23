@@ -11,7 +11,7 @@ import { SolanaRedeem } from '../../../chains/solana/actions/redeem/SolanaRedeem
 import { envToSolanaChain } from '../../../chains/solana/utils';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
-import { NonEvmUnstakeStatus } from '../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../shared/context';
 import { getSolanaTokenAddress, Token } from '../../../tokens/token-addresses';
 
@@ -69,13 +69,13 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
   describe('initialization', () => {
     it('should initialize with IDLE status in dev env', () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
-      expect(redeem.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(redeem.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should initialize with IDLE status in stage env', () => {
       const stageCtx = createMockContext({ env: Env.stage });
       const redeem = new SolanaRedeem(stageCtx, validParams);
-      expect(redeem.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(redeem.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should initialize with IDLE status in prod env', () => {
@@ -86,7 +86,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
         destChain: Chain.BITCOIN_MAINNET,
       };
       const redeem = new SolanaRedeem(prodCtx, prodParams);
-      expect(redeem.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(redeem.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should throw for unsupported source chain', () => {
@@ -104,7 +104,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
 
       await redeem.prepare(validPrepareParams);
 
-      expect(redeem.status).toBe(NonEvmUnstakeStatus.READY);
+      expect(redeem.status).toBe(NonEvmOperationStatus.READY);
       expect(redeem.amount).toBe('0.001');
       expect(redeem.recipient).toBe(validPrepareParams.recipient);
     });
@@ -171,7 +171,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
 
       await redeem.execute();
 
-      expect(redeem.status).toBe(NonEvmUnstakeStatus.COMPLETED);
+      expect(redeem.status).toBe(NonEvmOperationStatus.COMPLETED);
     });
 
     it('should throw if called when not READY', async () => {

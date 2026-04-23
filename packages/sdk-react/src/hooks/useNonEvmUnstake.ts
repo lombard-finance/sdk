@@ -1,7 +1,7 @@
 import {
   AssetId,
   type LombardSDK,
-  NonEvmUnstakeStatus,
+  NonEvmOperationStatus,
 } from '@lombard.finance/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -19,13 +19,13 @@ export interface UseNonEvmUnstakeReturn {
 }
 
 const NON_EVM_UNSTAKE_STATUS_MAP: Partial<Record<string, UnstakingStatus>> = {
-  [NonEvmUnstakeStatus.IDLE]: { phase: 'idle', message: 'Ready' },
-  [NonEvmUnstakeStatus.READY]: { phase: 'ready', message: 'Ready to execute' },
-  [NonEvmUnstakeStatus.CONFIRMING]: {
+  [NonEvmOperationStatus.IDLE]: { phase: 'idle', message: 'Ready' },
+  [NonEvmOperationStatus.READY]: { phase: 'ready', message: 'Ready to execute' },
+  [NonEvmOperationStatus.CONFIRMING]: {
     phase: 'confirming',
     message: 'Confirming transaction...',
   },
-  [NonEvmUnstakeStatus.COMPLETED]: {
+  [NonEvmOperationStatus.COMPLETED]: {
     phase: 'complete',
     message: 'Unstake complete!',
   },
@@ -77,7 +77,7 @@ export function useNonEvmUnstake(
         });
 
         const unsubStatus = action.on('status-change', (...args: unknown[]) => {
-          const newStatus = args[0] as NonEvmUnstakeStatus;
+          const newStatus = args[0] as NonEvmOperationStatus;
           setStatus(
             NON_EVM_UNSTAKE_STATUS_MAP[newStatus] ?? {
               phase: 'idle',

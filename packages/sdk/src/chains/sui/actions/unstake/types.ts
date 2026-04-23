@@ -11,7 +11,7 @@ import type {
   StrategyProgress,
 } from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
-import type { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+import type { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 
 /**
  * Sui Unstake parameters
@@ -27,8 +27,8 @@ export interface SuiUnstakeParams {
  * Sui Unstake progress
  */
 export interface SuiUnstakeProgress
-  extends StrategyProgress<NonEvmUnstakeStatus> {
-  status: NonEvmUnstakeStatus;
+  extends StrategyProgress<NonEvmOperationStatus> {
+  status: NonEvmOperationStatus;
   steps: {
     burning: StepStatus;
     releasing: StepStatus;
@@ -48,7 +48,7 @@ export interface SuiUnstakePrepareParams {
  * Sui Unstake interface
  */
 export interface ISuiUnstake extends MonitorableAction {
-  readonly status: NonEvmUnstakeStatus;
+  readonly status: NonEvmOperationStatus;
   readonly amount?: string;
   readonly recipient?: string;
 

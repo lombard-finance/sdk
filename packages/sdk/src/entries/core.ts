@@ -50,7 +50,7 @@ export type { FeeAuthState } from '../chains/evm/shared/feeAuth';
 export {
   BtcActionStatus,
   EvmOperationStatus,
-  NonEvmUnstakeStatus,
+  NonEvmOperationStatus,
 } from '../shared/constants/statusConstants';
 
 // Module exports

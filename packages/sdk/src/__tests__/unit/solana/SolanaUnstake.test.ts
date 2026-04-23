@@ -12,7 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SolanaUnstake } from '../../../chains/solana/actions/unstake/SolanaUnstake';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
-import { NonEvmUnstakeStatus } from '../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../shared/context';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -69,7 +69,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
   describe('initialization', () => {
     it('should initialize with IDLE status', () => {
       const unstake = new SolanaUnstake(mockCtx, validParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should throw for unsupported source chain', () => {
@@ -98,7 +98,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
       };
 
       const unstake = new SolanaUnstake(testnetCtx, testnetParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
   });
 
@@ -108,7 +108,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
 
       await unstake.prepare(validPrepareParams);
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.READY);
+      expect(unstake.status).toBe(NonEvmOperationStatus.READY);
       expect(unstake.amount).toBe('0.001');
       expect(unstake.recipient).toBe(validPrepareParams.recipient);
     });
@@ -179,7 +179,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
 
       await unstake.execute();
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.COMPLETED);
+      expect(unstake.status).toBe(NonEvmOperationStatus.COMPLETED);
     });
 
     it('should throw if called when not READY', async () => {
@@ -307,13 +307,13 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
   describe('initialization', () => {
     it('should initialize with IDLE status in dev env', () => {
       const unstake = new SolanaUnstake(mockCtx, validParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should initialize with IDLE status in stage env', () => {
       const stageCtx = createMockContext({ env: Env.stage });
       const unstake = new SolanaUnstake(stageCtx, validParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should initialize with IDLE status in prod env on mainnet', () => {
@@ -324,7 +324,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
         destChain: Chain.SOLANA_MAINNET,
       };
       const unstake = new SolanaUnstake(prodCtx, prodParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should throw for unsupported source chain', () => {
@@ -342,7 +342,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
 
       await unstake.prepare(validPrepareParams);
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.READY);
+      expect(unstake.status).toBe(NonEvmOperationStatus.READY);
       expect(unstake.recipient).toBe(validPrepareParams.recipient);
     });
 
@@ -382,7 +382,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
 
       await unstake.execute();
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.COMPLETED);
+      expect(unstake.status).toBe(NonEvmOperationStatus.COMPLETED);
     });
 
     it('should handle service errors', async () => {

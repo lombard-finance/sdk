@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SolanaStake } from '../../../chains/solana/actions/stake/SolanaStake';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
-import { NonEvmUnstakeStatus } from '../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../shared/context';
 
 const MOCK_SIGNATURE = 'mock-deposit-signature';
@@ -62,7 +62,7 @@ describe('SolanaStake — BTC.b → LBTC on Solana', () => {
 
       const confirmingPayloads: { txHash?: string; status: string }[] = [];
       stake.on('progress', progress => {
-        if (progress.status === NonEvmUnstakeStatus.CONFIRMING) {
+        if (progress.status === NonEvmOperationStatus.CONFIRMING) {
           confirmingPayloads.push(progress);
         }
       });

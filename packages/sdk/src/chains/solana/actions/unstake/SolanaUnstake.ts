@@ -13,7 +13,7 @@ import { z } from 'zod';
 
 import { AssetId, StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
-import { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
 import type { UnstakeEventMap } from '../../../../shared/events';
@@ -36,7 +36,7 @@ import type {
 } from './types';
 
 export class SolanaUnstake
-  extends BaseAction<UnstakeEventMap, NonEvmUnstakeStatus>
+  extends BaseAction<UnstakeEventMap, NonEvmOperationStatus>
   implements ISolanaUnstake
 {
   private _amount?: string;
@@ -48,7 +48,7 @@ export class SolanaUnstake
     private readonly ctx: SolanaCoreContext,
     private readonly params: SolanaUnstakeParams,
   ) {
-    super(NonEvmUnstakeStatus.IDLE);
+    super(NonEvmOperationStatus.IDLE);
 
     this.isBtcbOutput = params.assetOut === AssetId.BTCb;
 
@@ -83,7 +83,7 @@ export class SolanaUnstake
   }
 
   async prepare(params: SolanaUnstakePrepareParams): Promise<void> {
-    this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
+    this.assertStatus(NonEvmOperationStatus.IDLE, 'prepare');
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
@@ -93,14 +93,14 @@ export class SolanaUnstake
       this._recipient = validated.recipient;
 
       this.emitProgress({
-        status: NonEvmUnstakeStatus.READY,
+        status: NonEvmOperationStatus.READY,
         steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
       });
-    }, NonEvmUnstakeStatus.READY);
+    }, NonEvmOperationStatus.READY);
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(NonEvmUnstakeStatus.READY, 'execute');
+    this.assertStatus(NonEvmOperationStatus.READY, 'execute');
 
     return this.act(async () => {
       const amount = this._amount;
@@ -111,7 +111,7 @@ export class SolanaUnstake
       }
 
       this.emitProgress({
-        status: NonEvmUnstakeStatus.READY,
+        status: NonEvmOperationStatus.READY,
         steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
       });
 
@@ -149,14 +149,14 @@ export class SolanaUnstake
       this._txHash = signature;
 
       this.emitProgress({
-        status: NonEvmUnstakeStatus.COMPLETED,
+        status: NonEvmOperationStatus.COMPLETED,
         steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.COMPLETE },
       });
 
       this.emitCompleted();
 
       return { txHash: signature };
-    }, NonEvmUnstakeStatus.COMPLETED);
+    }, NonEvmOperationStatus.COMPLETED);
   }
 
   private get prepareSchema() {

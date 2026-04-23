@@ -11,7 +11,7 @@ import type {
   StrategyProgress,
 } from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
-import type { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+import type { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 
 /**
  * Solana Unstake parameters
@@ -27,8 +27,8 @@ export interface SolanaUnstakeParams {
  * Solana Unstake progress
  */
 export interface SolanaUnstakeProgress
-  extends StrategyProgress<NonEvmUnstakeStatus> {
-  status: NonEvmUnstakeStatus;
+  extends StrategyProgress<NonEvmOperationStatus> {
+  status: NonEvmOperationStatus;
   steps: {
     burning: StepStatus;
     releasing: StepStatus;
@@ -49,7 +49,7 @@ export interface SolanaUnstakePrepareParams {
  * Solana Unstake interface
  */
 export interface ISolanaUnstake extends MonitorableAction {
-  readonly status: NonEvmUnstakeStatus;
+  readonly status: NonEvmOperationStatus;
   readonly amount?: string;
   readonly recipient?: string;
 
