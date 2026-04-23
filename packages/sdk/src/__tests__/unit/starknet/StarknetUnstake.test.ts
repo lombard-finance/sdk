@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StarknetUnstake } from '../../../chains/starknet/actions/unstake/StarknetUnstake';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
-import { NonEvmUnstakeStatus } from '../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
 import type { StarknetCoreContext } from '../../../shared/context';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -71,7 +71,7 @@ describe('StarknetUnstake', () => {
   describe('initialization', () => {
     it('should initialize with IDLE status', () => {
       const unstake = new StarknetUnstake(mockCtx, validParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should throw for unsupported source chain', () => {
@@ -99,7 +99,7 @@ describe('StarknetUnstake', () => {
       };
 
       const unstake = new StarknetUnstake(testnetCtx, testnetParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
   });
 
@@ -113,7 +113,7 @@ describe('StarknetUnstake', () => {
 
       await unstake.prepare(validPrepareParams);
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.READY);
+      expect(unstake.status).toBe(NonEvmOperationStatus.READY);
       expect(unstake.amount).toBe('0.001');
       expect(unstake.recipient).toBe(validPrepareParams.recipient);
     });
@@ -175,7 +175,7 @@ describe('StarknetUnstake', () => {
 
       await unstake.execute();
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.COMPLETED);
+      expect(unstake.status).toBe(NonEvmOperationStatus.COMPLETED);
     });
 
     it('should throw if called when not READY', async () => {

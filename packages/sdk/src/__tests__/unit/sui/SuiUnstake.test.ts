@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SuiUnstake } from '../../../chains/sui/actions/unstake/SuiUnstake';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
-import { NonEvmUnstakeStatus } from '../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
 import type { SuiCoreContext } from '../../../shared/context';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -67,7 +67,7 @@ describe('SuiUnstake', () => {
   describe('initialization', () => {
     it('should initialize with IDLE status', () => {
       const unstake = new SuiUnstake(mockCtx, validParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should throw for unsupported source chain', () => {
@@ -95,7 +95,7 @@ describe('SuiUnstake', () => {
       };
 
       const unstake = new SuiUnstake(testnetCtx, testnetParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
   });
 
@@ -109,7 +109,7 @@ describe('SuiUnstake', () => {
 
       await unstake.prepare(validPrepareParams);
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.READY);
+      expect(unstake.status).toBe(NonEvmOperationStatus.READY);
       expect(unstake.amount).toBe('0.001');
       expect(unstake.recipient).toBe(validPrepareParams.recipient);
     });
@@ -172,7 +172,7 @@ describe('SuiUnstake', () => {
 
       await unstake.execute();
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.COMPLETED);
+      expect(unstake.status).toBe(NonEvmOperationStatus.COMPLETED);
     });
 
     it('should throw if called when not READY', async () => {

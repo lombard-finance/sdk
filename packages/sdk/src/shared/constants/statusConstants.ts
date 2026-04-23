@@ -95,14 +95,18 @@ export type EvmOperationStatus =
   (typeof EvmOperationStatus)[keyof typeof EvmOperationStatus];
 
 /**
- * Solana/Sui/Starknet Unstake operation statuses
+ * Non-EVM operation statuses
+ *
+ * Shared by all non-EVM actions (Solana Stake/Unstake/Redeem, Sui Unstake,
+ * Starknet Unstake). Non-EVM flows don't require fee authorization or token
+ * approval, so the state machine is a simple IDLE → READY → CONFIRMING → COMPLETED.
  */
-export const NonEvmUnstakeStatus = {
+export const NonEvmOperationStatus = {
   IDLE: 'idle',
   READY: 'ready',
   CONFIRMING: 'confirming',
   COMPLETED: 'completed',
 } as const;
 
-export type NonEvmUnstakeStatus =
-  (typeof NonEvmUnstakeStatus)[keyof typeof NonEvmUnstakeStatus];
+export type NonEvmOperationStatus =
+  (typeof NonEvmOperationStatus)[keyof typeof NonEvmOperationStatus];

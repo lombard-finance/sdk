@@ -11,7 +11,7 @@ import { z } from 'zod';
 
 import { StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
-import { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { StarknetCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
 import type { UnstakeEventMap } from '../../../../shared/events';
@@ -27,7 +27,7 @@ import type {
 } from './types';
 
 export class StarknetUnstake
-  extends BaseAction<UnstakeEventMap, NonEvmUnstakeStatus>
+  extends BaseAction<UnstakeEventMap, NonEvmOperationStatus>
   implements IStarknetUnstake
 {
   private _amount?: string;
@@ -39,7 +39,7 @@ export class StarknetUnstake
     private readonly ctx: StarknetCoreContext,
     private readonly params: StarknetUnstakeParams,
   ) {
-    super(NonEvmUnstakeStatus.IDLE);
+    super(NonEvmOperationStatus.IDLE);
     this.env = ctx.env;
 
     if (!isBtcUnstakeSupported(params.sourceChain, this.env)) {
@@ -65,7 +65,7 @@ export class StarknetUnstake
   }
 
   async prepare(params: StarknetUnstakePrepareParams): Promise<void> {
-    this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
+    this.assertStatus(NonEvmOperationStatus.IDLE, 'prepare');
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
@@ -75,14 +75,14 @@ export class StarknetUnstake
       this._recipient = validated.recipient;
 
       this.emitProgress({
-        status: NonEvmUnstakeStatus.READY,
+        status: NonEvmOperationStatus.READY,
         steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
       });
-    }, NonEvmUnstakeStatus.READY);
+    }, NonEvmOperationStatus.READY);
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(NonEvmUnstakeStatus.READY, 'execute');
+    this.assertStatus(NonEvmOperationStatus.READY, 'execute');
 
     return this.act(async () => {
       const amount = this._amount;
@@ -94,7 +94,7 @@ export class StarknetUnstake
 
       // Emit burning step
       this.emitProgress({
-        status: NonEvmUnstakeStatus.READY,
+        status: NonEvmOperationStatus.READY,
         steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
       });
 
@@ -109,14 +109,14 @@ export class StarknetUnstake
 
       // Emit completed steps
       this.emitProgress({
-        status: NonEvmUnstakeStatus.COMPLETED,
+        status: NonEvmOperationStatus.COMPLETED,
         steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
       });
 
       this.emitCompleted();
 
       return { txHash };
-    }, NonEvmUnstakeStatus.COMPLETED);
+    }, NonEvmOperationStatus.COMPLETED);
   }
 
   private get prepareSchema() {

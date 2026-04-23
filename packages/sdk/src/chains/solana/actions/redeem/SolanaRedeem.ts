@@ -14,7 +14,7 @@ import { z } from 'zod';
 
 import { StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
-import { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
 import type { RedeemEventMap } from '../../../../shared/events';
@@ -33,7 +33,7 @@ import type {
 } from './types';
 
 export class SolanaRedeem
-  extends BaseAction<RedeemEventMap, NonEvmUnstakeStatus>
+  extends BaseAction<RedeemEventMap, NonEvmOperationStatus>
   implements ISolanaRedeem
 {
   private _amount?: string;
@@ -44,7 +44,7 @@ export class SolanaRedeem
     private readonly ctx: SolanaCoreContext,
     private readonly params: SolanaRedeemParams,
   ) {
-    super(NonEvmUnstakeStatus.IDLE);
+    super(NonEvmOperationStatus.IDLE);
 
     if (
       !isRedeemSupported(
@@ -77,7 +77,7 @@ export class SolanaRedeem
   }
 
   async prepare(params: SolanaRedeemPrepareParams): Promise<void> {
-    this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
+    this.assertStatus(NonEvmOperationStatus.IDLE, 'prepare');
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
@@ -87,14 +87,14 @@ export class SolanaRedeem
       this._recipient = validated.recipient;
 
       this.emitProgress({
-        status: NonEvmUnstakeStatus.READY,
+        status: NonEvmOperationStatus.READY,
         steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
       });
-    }, NonEvmUnstakeStatus.READY);
+    }, NonEvmOperationStatus.READY);
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(NonEvmUnstakeStatus.READY, 'execute');
+    this.assertStatus(NonEvmOperationStatus.READY, 'execute');
 
     return this.act(async () => {
       const amount = this._amount;
@@ -105,7 +105,7 @@ export class SolanaRedeem
       }
 
       this.emitProgress({
-        status: NonEvmUnstakeStatus.READY,
+        status: NonEvmOperationStatus.READY,
         steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
       });
 
@@ -132,14 +132,14 @@ export class SolanaRedeem
       this._txHash = signature;
 
       this.emitProgress({
-        status: NonEvmUnstakeStatus.COMPLETED,
+        status: NonEvmOperationStatus.COMPLETED,
         steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.COMPLETE },
       });
 
       this.emitCompleted();
 
       return { txHash: signature };
-    }, NonEvmUnstakeStatus.COMPLETED);
+    }, NonEvmOperationStatus.COMPLETED);
   }
 
   private get prepareSchema() {
