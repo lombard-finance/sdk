@@ -169,7 +169,7 @@ export const getBtcbBalance: ToolDefinition<
 > = {
   name: "get_btcb_balance",
   description:
-    "Check the BTC.b (wrapped Bitcoin) balance for a wallet address.",
+    "Check the BTC.b (cross-chain Bitcoin) balance for a wallet address.",
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {

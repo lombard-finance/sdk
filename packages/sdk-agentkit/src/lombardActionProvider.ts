@@ -90,7 +90,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
   @CreateAction({
     name: "stake_btcb_to_lbtc",
     description:
-      "Stake BTC.b (wrapped Bitcoin) to receive LBTC (Lombard Staked Bitcoin). " +
+      "Stake BTC.b (cross-chain Bitcoin) to receive LBTC (Lombard Staked Bitcoin). " +
       "This converts BTC.b into LBTC which earns staking yield. " +
       "Handles token approval and fee authorization automatically.",
     schema: StakeBtcbToLbtcSchema,
@@ -479,7 +479,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
   @CreateAction({
     name: "get_btcb_balance",
     description:
-      "Check the BTC.b (wrapped Bitcoin) balance for an address on the current chain.",
+      "Check the BTC.b (cross-chain Bitcoin) balance for an address on the current chain.",
     schema: GetBtcbBalanceSchema,
   })
   async getBtcbBalance(

@@ -78,7 +78,7 @@ import { allTools, toolsByName } from "@lombard.finance/sdk-agent";
 | Tool | Description |
 | ---- | ----------- |
 | `get_lbtc_balance` | Check LBTC balance for a wallet on any supported chain |
-| `get_btcb_balance` | Check BTC.b (wrapped Bitcoin) balance |
+| `get_btcb_balance` | Check BTC.b (cross-chain Bitcoin) balance |
 | `get_balance` | Get both LBTC and BTC.b balances in a single call |
 | `get_token_balance` | Check any ERC-20 token balance by contract address |
 | `get_exchange_rate` | Current LBTC/BTC exchange rate and minimum stake amount |
