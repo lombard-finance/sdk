@@ -19,15 +19,15 @@ export interface IGetEarnPositionParameters extends CommonParameters {
 }
 
 export interface IGetEarnPositionResponse {
-  /** Direct LBTCv shares held at the address. */
-  lbtcvShares: BigNumber;
+  /** Direct underlying-share balance held at the address. */
+  underlyingShares: BigNumber;
   /** Raw BTCe wrapper shares held at the address. */
   btceShares: BigNumber;
-  /** BTCe shares converted to LBTCv-equivalent via the wrapper's convertToAssets. */
-  btceSharesInLbtcv: BigNumber;
-  /** lbtcvShares + btceSharesInLbtcv (both in LBTCv units). */
+  /** BTCe shares converted to underlying-share equivalent via the wrapper's convertToAssets. */
+  btceSharesInUnderlying: BigNumber;
+  /** underlyingShares + btceSharesInUnderlying (both in underlying-share units). */
   totalShares: BigNumber;
-  /** Current LBTCv share value, in LBTC, from the Veda accountant. */
+  /** Current underlying-share value, in LBTC, from the Veda accountant. */
   exchangeRate: BigNumber;
   /** totalShares * exchangeRate, expressed in LBTC. */
   position: BigNumber;
@@ -36,13 +36,14 @@ export interface IGetEarnPositionResponse {
 const ZERO = new BigNumber(0);
 
 /**
- * Gets the user's full Bitcoin Earn position (LBTCv + BTCe) on a single chain,
- * valued in LBTC.
+ * Gets the user's full Bitcoin Earn position (direct underlying shares + BTCe)
+ * on a single chain, valued in LBTC.
  *
- * BTCe is an ERC4626 wrapper around the Veda vault's LBTCv share token. The
- * function reads both balances, converts BTCe shares to LBTCv-equivalent via
- * the wrapper's `convertToAssets`, sums the two LBTCv-denominated values, and
- * applies the Veda accountant's share value to express the total in LBTC.
+ * BTCe is an ERC4626 wrapper around the Veda vault's underlying share token.
+ * The function reads both balances, converts BTCe shares to underlying-share
+ * equivalent via the wrapper's `convertToAssets`, sums the two values in
+ * underlying-share units, and applies the Veda accountant's share value to
+ * express the total in LBTC.
  *
  * Conversion through `convertToAssets` is mandatory rather than naive 1:1
  * summation: the wrapper is a 1:1 pass-through today, but ERC4626 vaults can
@@ -50,11 +51,11 @@ const ZERO = new BigNumber(0);
  *
  * On chains where BTCe is not deployed (e.g. Corn) the BTCe leg is skipped
  * and the result reports zero BTCe shares with a position equal to the
- * LBTCv leg alone.
+ * underlying-share leg alone.
  *
- * Errors from either the LBTCv or BTCe reads propagate to the caller, since
- * silently returning zero would understate the user's balance and is unsafe
- * for an SDK consumed by partner integrators quoting balances to end users.
+ * Errors from either leg propagate to the caller, since silently returning
+ * zero would understate the user's balance and is unsafe for an SDK consumed
+ * by partner integrators quoting balances to end users.
  *
  * @param {IGetEarnPositionParameters} parameters - The parameters.
  * @param {string} parameters.address - The address of the position holder.
@@ -82,27 +83,27 @@ export async function getEarnPosition({
   ]);
 
   let btceShares = ZERO;
-  let btceSharesInLbtcv = ZERO;
+  let btceSharesInUnderlying = ZERO;
 
   if (btceSupported && btceBalanceRaw > 0n) {
     btceShares = fromSatoshi(String(btceBalanceRaw));
-    const lbtcvEquivalentRaw = await readBtceConvertToAssets({
+    const underlyingEquivalentRaw = await readBtceConvertToAssets({
       chainId,
       rpcUrl,
       shares: btceBalanceRaw,
     });
-    btceSharesInLbtcv = fromSatoshi(String(lbtcvEquivalentRaw));
+    btceSharesInUnderlying = fromSatoshi(String(underlyingEquivalentRaw));
   }
 
-  const lbtcvShares = sharesResult.balance;
+  const underlyingShares = sharesResult.balance;
   const exchangeRate = sharesResult.exchangeRate;
-  const totalShares = lbtcvShares.plus(btceSharesInLbtcv);
+  const totalShares = underlyingShares.plus(btceSharesInUnderlying);
   const position = totalShares.multipliedBy(exchangeRate);
 
   return {
-    lbtcvShares,
+    underlyingShares,
     btceShares,
-    btceSharesInLbtcv,
+    btceSharesInUnderlying,
     totalShares,
     exchangeRate,
     position,
