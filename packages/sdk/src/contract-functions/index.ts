@@ -23,5 +23,9 @@ export * from './getSharesByAddress';
 export * from './getShareValue';
 
 // VAULT WRITE functions:
+export * from './cancelEarnWithdrawal';
+export * from './depositEarn';
+export * from './previewWithdrawEarn';
 export * from './unwrapBtceToLbtcv';
+export * from './withdrawEarn';
 export * from './wrapToBtce';

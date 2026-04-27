@@ -94,9 +94,27 @@ export {
 
 // Contract functions - VAULT WRITE
 export {
+  cancelEarnWithdrawal,
+  type CancelEarnWithdrawalParameters,
+} from '../contract-functions/cancelEarnWithdrawal/cancelEarnWithdrawal';
+export {
+  depositEarn,
+  type DepositEarnParameters,
+} from '../contract-functions/depositEarn/depositEarn';
+export {
+  previewWithdrawEarn,
+  type PreviewWithdrawEarnParameters,
+  type PreviewWithdrawEarnResult,
+} from '../contract-functions/previewWithdrawEarn/previewWithdrawEarn';
+export {
   unwrapBtceToLbtcv,
   type UnwrapBtceToLbtcvParameters,
 } from '../contract-functions/unwrapBtceToLbtcv/unwrapBtceToLbtcv';
+export {
+  withdrawEarn,
+  type WithdrawEarnParameters,
+  type WithdrawEarnResult,
+} from '../contract-functions/withdrawEarn/withdrawEarn';
 export {
   wrapToBtce,
   type WrapToBtceParameters,
