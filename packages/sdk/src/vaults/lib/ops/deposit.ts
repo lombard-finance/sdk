@@ -12,6 +12,7 @@ import {
 } from '../../../tokens/tokens';
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
+import { warnDeprecated } from '../../../utils/warnDeprecated';
 import { isVedaVaultChain, Vault, VAULTS } from '../config';
 
 export type DepositParameters = {
@@ -31,6 +32,10 @@ export type DepositParameters = {
 
 /**
  * Deposits specified amount to the chosen DeFi vault.
+ *
+ * @deprecated Will be removed in 5.0.0. Use {@link depositEarn} instead, which
+ * routes deposits through the BTCe wrapper and handles approval internally.
+ *
  * @param {DepositParameters} parameters
  * @param {BigNumber.Value} parameters.amount - The deposit amount.
  * @param {boolean} parameters.approve - The optional flag determining whether approve actions should be performed.
@@ -54,6 +59,7 @@ export async function deposit({
   rpcUrl,
   env,
 }: DepositParameters) {
+  warnDeprecated('deposit', 'depositEarn');
   const vault = VAULTS[vaultKey];
   if (!vault) {
     throw new Error(`Unknown vault key: ${vaultKey}`);

@@ -13,6 +13,7 @@ import {
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
 import { DAY } from '../../../utils/time';
+import { warnDeprecated } from '../../../utils/warnDeprecated';
 import { isVedaVaultChain, Vault, VAULTS } from '../config';
 
 export type QueueWithdrawParameters = {
@@ -32,6 +33,11 @@ export type QueueWithdrawParameters = {
 
 /**
  * Queues withdrawal from the DeFi vault.
+ *
+ * @deprecated Will be removed in 5.0.0. Use {@link withdrawEarn} instead, which
+ * orchestrates approval, conditional unwrap from BTCe, and the queue request
+ * in one call.
+ *
  * @param {QueueWithdrawParameters} parameters - The parameters.
  * @param {BigNumber.Value} parameters.amount - The deposit amount.
  * @param {boolean} parameters.approve - The optional flag determining whether approve actions should be performed.
@@ -55,6 +61,7 @@ export async function queueWithdraw({
   rpcUrl,
   env,
 }: QueueWithdrawParameters) {
+  warnDeprecated('queueWithdraw', 'withdrawEarn');
   const vault = VAULTS[vaultKey];
   if (!vault) {
     throw new Error(`Unknown vault key: ${vaultKey}`);
@@ -167,6 +174,10 @@ export type CancelWithdrawParameters = Pick<
 
 /**
  * Cancels queued withdrawal.
+ *
+ * @deprecated Will be removed in 5.0.0. Use {@link cancelEarnWithdrawal}
+ * instead.
+ *
  * @param {CancelWithdrawParameters} parameters - The parameters.
  * @param {Token} parameters.token - The optional deposit asset.
  * @param {Vault} parameters.vaultKey - The vault identifier.
@@ -176,7 +187,6 @@ export type CancelWithdrawParameters = Pick<
  * @param {string} parameters.rpcUrl - The optional rpc url.
  *
  * @returns {Promise<Hash>}
- * @returns
  */
 export async function cancelWithdraw({
   token = Token.LBTC,
@@ -187,6 +197,7 @@ export async function cancelWithdraw({
   rpcUrl,
   env,
 }: CancelWithdrawParameters) {
+  warnDeprecated('cancelWithdraw', 'cancelEarnWithdrawal');
   const vault = VAULTS[vaultKey];
   if (!vault) {
     throw new Error(`Unknown vault key: ${vaultKey}`);

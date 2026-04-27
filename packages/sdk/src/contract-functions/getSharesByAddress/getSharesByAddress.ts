@@ -5,6 +5,7 @@ import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
+import { warnDeprecated } from '../../utils/warnDeprecated';
 import { isVedaVaultChain, Vault, VAULTS } from '../../vaults/lib/config';
 import { getShareValue } from '../getShareValue';
 
@@ -30,11 +31,11 @@ interface IGetSharesByAddressResponse {
 }
 
 /**
- * Gets the amount of LBTCv (Veda vault shares) owned by the provided address.
+ * Gets the amount of underlying-share balance owned by the provided address.
  *
- * NOTE: This returns only the user's direct LBTCv ERC20 balance. It does NOT
- * include shares held inside the BTCe wrapper vault. For the full Bitcoin Earn
- * position (LBTCv + BTCe valued in LBTC), use {@link getEarnPosition}.
+ * @deprecated Will be removed in 5.0.0. Use {@link getEarnPosition} instead,
+ * which returns the combined position (direct underlying-share + BTCe) and
+ * includes the exchange rate in a single call.
  *
  * @param {IGetSharesByAddressParameters} parameters - The parameters.
  * @param {Vault} parameters.vaultKey - The optional DeFi vault identifier.
@@ -49,6 +50,7 @@ export async function getSharesByAddress({
   address,
   vaultKey = Vault.Veda,
 }: IGetSharesByAddressParameters): Promise<IGetSharesByAddressResponse> {
+  warnDeprecated("getSharesByAddress", "getEarnPosition");
   const vault = VAULTS[vaultKey];
   if (!vault) {
     throw new Error(`Unknown vault key: ${vaultKey}`);

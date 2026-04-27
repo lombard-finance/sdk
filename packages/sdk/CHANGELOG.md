@@ -1,3 +1,28 @@
+# 4.8.0
+
+### Added
+
+- `depositEarn()` — high-level deposit orchestrator. Handles ERC20 approval to the BTCe contract and routes the deposit through the wrapper, returning the wrap transaction hash. Accepts the same `Token` enum as the legacy `deposit`.
+- `withdrawEarn()` — high-level withdrawal orchestrator. Reads both legs of the user's position (direct underlying-share + BTCe), checks the wrapper's `maxWithdraw` before sending any transaction, then issues 1–3 transactions in order (approve, conditional unwrap, queue). Throws typed errors on insufficient position or insufficient unwrappable balance before any state change.
+- `previewWithdrawEarn()` — read-only predictor that returns the steps `withdrawEarn` would execute and the expected wallet-popup count, so integrators can render a step indicator before the user signs.
+- `cancelEarnWithdrawal()` — cancels a pending Earn withdrawal request.
+
+### Changed
+
+- `getEarnPosition()` response renamed: `lbtcvShares` → `underlyingShares`, `btceSharesInLbtcv` → `btceSharesInUnderlying`. Behavior unchanged.
+
+### Deprecated
+
+The following exports are now `@deprecated` and emit a one-time runtime warning when called. They will be removed in 5.0.0. Set `process.env.LOMBARD_SDK_SUPPRESS_DEPRECATION` to silence the warning.
+
+- `getSharesByAddress` → use `getEarnPosition`
+- `getShareValue` → use `getEarnPosition().exchangeRate`
+- `deposit` → use `depositEarn`
+- `queueWithdraw` → use `withdrawEarn`
+- `cancelWithdraw` → use `cancelEarnWithdrawal`
+
+---
+
 # 4.7.0
 
 ### Added
