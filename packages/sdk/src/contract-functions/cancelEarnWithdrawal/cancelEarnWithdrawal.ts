@@ -3,7 +3,7 @@ import { Hash } from 'viem';
 import { CommonWriteParameters } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
 import { Vault } from '../../vaults/lib/config';
-import { cancelWithdraw } from '../../vaults/lib/ops/withdraw';
+import { cancelWithdrawInternal } from '../../vaults/lib/ops/withdraw';
 
 export type CancelEarnWithdrawalParameters = {
   /** The withdrawal asset originally queued. Defaults to Token.LBTC. */
@@ -28,7 +28,7 @@ export async function cancelEarnWithdrawal({
   rpcUrl,
   env,
 }: CancelEarnWithdrawalParameters): Promise<Hash> {
-  return cancelWithdraw({
+  return cancelWithdrawInternal({
     token: withdrawalAsset,
     vaultKey: Vault.Veda,
     account,

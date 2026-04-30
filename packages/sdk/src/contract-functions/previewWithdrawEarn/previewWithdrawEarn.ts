@@ -32,6 +32,12 @@ export interface PreviewWithdrawEarnResult {
   unwrapAmount: BigNumber;
   /** Whether the requested amount is covered by the user's total position. */
   isCovered: boolean;
+  /**
+   * Whether the BTCe wrapper currently has enough redeemable assets to cover
+   * the required unwrap. When false, `withdrawEarn` will throw before sending
+   * any transaction. Always true when no unwrap is needed.
+   */
+  isUnwrappable: boolean;
 }
 
 /**
@@ -99,6 +105,20 @@ export async function previewWithdrawEarn({
     amountBase > underlyingRaw ? amountBase - underlyingRaw : 0n;
   const unwrapAmount = btceSupported && lbtcvNeeded > 0n ? lbtcvNeeded : 0n;
 
+  // Read maxWithdraw to predict whether withdrawEarn would fail its
+  // pre-flight unwrappable check. Only relevant when an unwrap step is
+  // needed; otherwise unwrappability does not apply.
+  let isUnwrappable = true;
+  if (unwrapAmount > 0n) {
+    const maxWithdrawRaw = (await publicClient.readContract({
+      address: BTCE_VAULT.contracts[chainId as (typeof BTCE_VAULT.chains)[number]],
+      abi: BTCE_VAULT.abi,
+      functionName: 'maxWithdraw',
+      args: [account],
+    })) as bigint;
+    isUnwrappable = maxWithdrawRaw >= unwrapAmount;
+  }
+
   const steps: Array<'approve' | 'unwrap' | 'queue'> = [];
   if (allowanceRaw < amountBase) steps.push('approve');
   if (unwrapAmount > 0n) steps.push('unwrap');
@@ -111,5 +131,6 @@ export async function previewWithdrawEarn({
     btceBalance: fromSatoshi(String(btceRaw)),
     unwrapAmount: fromSatoshi(String(unwrapAmount)),
     isCovered,
+    isUnwrappable,
   };
 }

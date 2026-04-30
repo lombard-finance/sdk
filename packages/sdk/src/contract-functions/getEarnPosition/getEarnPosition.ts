@@ -31,6 +31,14 @@ export interface IGetEarnPositionResponse {
   exchangeRate: BigNumber;
   /** totalShares * exchangeRate, expressed in LBTC. */
   position: BigNumber;
+  /**
+   * @deprecated Renamed to `underlyingShares` in 4.8.0; will be removed in 5.0.0.
+   */
+  lbtcvShares: BigNumber;
+  /**
+   * @deprecated Renamed to `btceSharesInUnderlying` in 4.8.0; will be removed in 5.0.0.
+   */
+  btceSharesInLbtcv: BigNumber;
 }
 
 const ZERO = new BigNumber(0);
@@ -107,6 +115,9 @@ export async function getEarnPosition({
     totalShares,
     exchangeRate,
     position,
+    // Deprecated aliases retained for 4.x backward compatibility; removed in 5.0.0.
+    lbtcvShares: underlyingShares,
+    btceSharesInLbtcv: btceSharesInUnderlying,
   };
 }
 

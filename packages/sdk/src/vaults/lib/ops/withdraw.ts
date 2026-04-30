@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { Hash } from 'viem';
 
 import { makePublicClient } from '../../../clients/public-client';
 import { makeWalletClient } from '../../../clients/wallet-client';
@@ -188,7 +189,20 @@ export type CancelWithdrawParameters = Pick<
  *
  * @returns {Promise<Hash>}
  */
-export async function cancelWithdraw({
+export async function cancelWithdraw(
+  params: CancelWithdrawParameters,
+): Promise<Hash> {
+  warnDeprecated('cancelWithdraw', 'cancelEarnWithdrawal');
+  return cancelWithdrawInternal(params);
+}
+
+/**
+ * @internal
+ * Shared implementation for cancelWithdraw / cancelEarnWithdrawal so the new
+ * Earn-native function does not trigger the deprecation warning when calling
+ * through.
+ */
+export async function cancelWithdrawInternal({
   token = Token.LBTC,
   vaultKey = Vault.Veda,
   account,
@@ -196,8 +210,7 @@ export async function cancelWithdraw({
   provider,
   rpcUrl,
   env,
-}: CancelWithdrawParameters) {
-  warnDeprecated('cancelWithdraw', 'cancelEarnWithdrawal');
+}: CancelWithdrawParameters): Promise<Hash> {
   const vault = VAULTS[vaultKey];
   if (!vault) {
     throw new Error(`Unknown vault key: ${vaultKey}`);
