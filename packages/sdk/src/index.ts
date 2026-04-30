@@ -537,14 +537,6 @@ export {
   type IGetEarnPositionParameters,
   type IGetEarnPositionResponse
 } from './contract-functions/getEarnPosition/getEarnPosition';
-export {
-  getSharesByAddress,
-  type IGetSharesByAddressParameters
-} from './contract-functions/getSharesByAddress/getSharesByAddress';
-export {
-  getShareValue,
-  type IGetShareValueParameters
-} from './contract-functions/getShareValue/getShareValue';
 
 // Contract functions - VAULT WRITE:
 export {
@@ -575,12 +567,14 @@ export {
 } from './contract-functions/wrapToBtce/wrapToBtce';
 
 // Vault:
+// Note: `cancelWithdraw`, `deposit`, `queueWithdraw` and their parameter types
+// were removed in 5.0.0. Use `cancelEarnWithdrawal`, `depositEarn`, and
+// `withdrawEarn` from the contract-functions exports above.
 export {
   BTCE_VAULT_CHAINS,
   BTCE_VAULT_CONTRACTS,
   type BtceVaultChain,
-  cancelWithdraw, type CancelWithdrawParameters, deposit, type DepositParameters,
-getVaultApy,
+  getVaultApy,
   type GetVaultApyParameters,
   getVaultDeposits,
   getVaultDepositsAllChains,
@@ -593,10 +587,12 @@ getVaultApy,
   getVaultWithdrawals,
   getVaultWithdrawalsAllChains,
   type GetVaultWithdrawalsAllChainsParameters,
-  type GetVaultWithdrawalsParameters,   isBtceVaultChain,
-  queueWithdraw, type QueueWithdrawParameters, Vault, type VaultDeposit,
+  type GetVaultWithdrawalsParameters,
+  isBtceVaultChain,
+  Vault,
+  type VaultDeposit,
   type VaultWithdrawal,
-  type VaultWithdrawals
+  type VaultWithdrawals,
 } from './vaults';
 
 // Signer support (custom transaction signing):

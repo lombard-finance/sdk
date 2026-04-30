@@ -83,14 +83,6 @@ export {
   type IGetEarnPositionParameters,
   type IGetEarnPositionResponse,
 } from '../contract-functions/getEarnPosition/getEarnPosition';
-export {
-  getSharesByAddress,
-  type IGetSharesByAddressParameters,
-} from '../contract-functions/getSharesByAddress/getSharesByAddress';
-export {
-  getShareValue,
-  type IGetShareValueParameters,
-} from '../contract-functions/getShareValue/getShareValue';
 
 // Contract functions - VAULT WRITE
 export {

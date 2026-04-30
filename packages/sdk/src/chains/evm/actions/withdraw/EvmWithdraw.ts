@@ -31,7 +31,7 @@ import { fromBaseDenomination, toBaseDenomination } from '../../../../tokens/tok
 import toBigInt from '../../../../utils/numbers';
 import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import { isVedaVaultChain, Vault, VAULTS, type VedaVaultChain } from '../../../../vaults/lib/config';
-import { queueWithdraw } from '../../../../vaults/lib/ops/withdraw';
+import { queueWithdrawInternal } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
 import type {
   EvmWithdrawParams,
@@ -223,7 +223,7 @@ export class EvmWithdraw
       });
 
       // Execute vault queue withdraw (approval already done)
-      const txHash = await queueWithdraw({
+      const txHash = await queueWithdrawInternal({
         amount: this._amount,
         approve: false,
         vaultKey: Vault.Veda,

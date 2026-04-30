@@ -14,7 +14,6 @@ import {
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
 import { DAY } from '../../../utils/time';
-import { warnDeprecated } from '../../../utils/warnDeprecated';
 import { isVedaVaultChain, Vault, VAULTS } from '../config';
 
 export type QueueWithdrawParameters = {
@@ -33,25 +32,13 @@ export type QueueWithdrawParameters = {
 } & CommonWriteParameters;
 
 /**
- * Queues withdrawal from the DeFi vault.
- *
- * @deprecated Will be removed in 5.0.0. Use {@link withdrawEarn} instead, which
- * orchestrates approval, conditional unwrap from BTCe, and the queue request
- * in one call.
- *
- * @param {QueueWithdrawParameters} parameters - The parameters.
- * @param {BigNumber.Value} parameters.amount - The deposit amount.
- * @param {boolean} parameters.approve - The optional flag determining whether approve actions should be performed.
- * @param {Token} parameters.token - The optional deposit asset.
- * @param {Vault} parameters.vaultKey - The vault identifier.
- * @param {Address} parameters.account - The EVM account address.
- * @param {ChainId} parameters.chainId - The chain id.
- * @param {EIP1193Provider} parameters.provider - The EIP1193 provider.
- * @param {string} parameters.rpcUrl - The optional rpc url.
+ * @internal Internal helper used by `EvmWithdraw` and other action classes.
+ * The public `queueWithdraw` function was removed in 5.0.0; consumers use
+ * `withdrawEarn` instead.
  *
  * @returns {Promise<Hash>}
  */
-export async function queueWithdraw({
+export async function queueWithdrawInternal({
   amount: amountRaw,
   approve = true,
   token = Token.LBTC,
@@ -62,7 +49,6 @@ export async function queueWithdraw({
   rpcUrl,
   env,
 }: QueueWithdrawParameters) {
-  warnDeprecated('queueWithdraw', 'withdrawEarn');
   const vault = VAULTS[vaultKey];
   if (!vault) {
     throw new Error(`Unknown vault key: ${vaultKey}`);
@@ -172,29 +158,6 @@ export type CancelWithdrawParameters = Pick<
   'token' | 'vaultKey'
 > &
   CommonWriteParameters;
-
-/**
- * Cancels queued withdrawal.
- *
- * @deprecated Will be removed in 5.0.0. Use {@link cancelEarnWithdrawal}
- * instead.
- *
- * @param {CancelWithdrawParameters} parameters - The parameters.
- * @param {Token} parameters.token - The optional deposit asset.
- * @param {Vault} parameters.vaultKey - The vault identifier.
- * @param {Address} parameters.account - The EVM account address.
- * @param {ChainId} parameters.chainId - The chain id.
- * @param {EIP1193Provider} parameters.provider - The EIP1193 provider.
- * @param {string} parameters.rpcUrl - The optional rpc url.
- *
- * @returns {Promise<Hash>}
- */
-export async function cancelWithdraw(
-  params: CancelWithdrawParameters,
-): Promise<Hash> {
-  warnDeprecated('cancelWithdraw', 'cancelEarnWithdrawal');
-  return cancelWithdrawInternal(params);
-}
 
 /**
  * @internal

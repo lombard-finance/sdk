@@ -1,3 +1,40 @@
+# 5.0.0
+
+## 🚨 BREAKING CHANGES
+
+The five vault-shaped functions deprecated in 4.8.0 have been removed from the public API. They were replaced by Earn-native equivalents that handle the BTCe wrapper internally. The two deprecated `getEarnPosition` response field aliases have also been removed.
+
+### Removed exports
+
+| Removed | Replacement |
+|---|---|
+| `deposit({ amount, token, vaultKey, account, chainId, provider })` | `depositEarn({ amount, token, account, chainId, provider })` |
+| `queueWithdraw({ amount, token, vaultKey, account, chainId, provider })` | `withdrawEarn({ amount, account, chainId, provider })` |
+| `cancelWithdraw({ token, vaultKey, account, chainId, provider })` | `cancelEarnWithdrawal({ withdrawalAsset?, account, chainId, provider })` |
+| `getSharesByAddress({ vaultKey, chainId, address })` | `getEarnPosition({ address, chainId })` then read `.underlyingShares` |
+| `getShareValue({ vaultKey, chainId })` | `getEarnPosition({ address, chainId }).exchangeRate` |
+| Parameter types: `DepositParameters`, `QueueWithdrawParameters`, `CancelWithdrawParameters`, `IGetSharesByAddressParameters`, `IGetShareValueParameters` | New types: `DepositEarnParameters`, `WithdrawEarnParameters`, `CancelEarnWithdrawalParameters`, `IGetEarnPositionParameters` |
+| `IGetEarnPositionResponse.lbtcvShares` (deprecated alias added in 4.8.0) | `IGetEarnPositionResponse.underlyingShares` |
+| `IGetEarnPositionResponse.btceSharesInLbtcv` (deprecated alias added in 4.8.0) | `IGetEarnPositionResponse.btceSharesInUnderlying` |
+
+The `lbtcvShares` / `btceSharesInLbtcv` removal is a **runtime-shape break** (not just a type rename): destructuring those names from a `getEarnPosition` result returns `undefined` even in untyped JavaScript. Update reads to the new names.
+
+The `LOMBARD_SDK_SUPPRESS_DEPRECATION` env var no longer has any effect (no deprecation warnings remain in 5.0.0).
+
+### Migration
+
+See [`MIGRATION_5.md`](./MIGRATION_5.md) at the package root for per-symbol before/after code blocks.
+
+### Internal-only retention
+
+The implementations live on as `@internal` helpers (`depositInternal`, `queueWithdrawInternal`, `cancelWithdrawInternal`, `getSharesByAddressInternal`, `getShareValueInternal`) and remain reachable from the SDK's own action classes (`EvmDeploy`, `EvmWithdraw`, `EvmCancelWithdraw`) and the new BTCe-native helpers. They are not part of the public API and are not re-exported from any entry point.
+
+### Migration support
+
+The `4.8.0` line stays available on npm and includes runtime deprecation warnings for the same functions. If you need a soak window, pin to `^4.8.0` until you're ready to bump.
+
+---
+
 # 4.8.0
 
 ### Added

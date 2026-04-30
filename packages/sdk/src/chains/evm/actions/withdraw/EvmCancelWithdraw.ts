@@ -17,7 +17,7 @@ import type { EvmCoreContext } from '../../../../shared/context';
 import { LombardError, WithdrawErrorCode } from '../../../../shared/errors';
 import type { WithdrawEventMap } from '../../../../shared/events';
 import { isVedaVaultChain, Vault } from '../../../../vaults/lib/config';
-import { cancelWithdraw } from '../../../../vaults/lib/ops/withdraw';
+import { cancelWithdrawInternal } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
 import type {
   EvmCancelWithdrawParams,
@@ -102,7 +102,7 @@ export class EvmCancelWithdraw
       });
 
       // Execute vault cancel withdraw
-      const txHash = await cancelWithdraw({
+      const txHash = await cancelWithdrawInternal({
         vaultKey: Vault.Veda,
         account: this._account,
         chainId: this._chainId,

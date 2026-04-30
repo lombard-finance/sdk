@@ -5,9 +5,8 @@ import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
-import { warnDeprecated } from '../../utils/warnDeprecated';
 import { isVedaVaultChain, Vault, VAULTS } from '../../vaults/lib/config';
-import { getShareValue } from '../getShareValue';
+import { getShareValueInternal } from '../getShareValue/getShareValue';
 
 export interface IGetSharesByAddressParameters extends CommonParameters {
   /**
@@ -31,26 +30,18 @@ interface IGetSharesByAddressResponse {
 }
 
 /**
- * Gets the amount of underlying-share balance owned by the provided address.
- *
- * @deprecated Will be removed in 5.0.0. Use {@link getEarnPosition} instead,
- * which returns the combined position (direct underlying-share + BTCe) and
- * includes the exchange rate in a single call.
- *
- * @param {IGetSharesByAddressParameters} parameters - The parameters.
- * @param {Vault} parameters.vaultKey - The optional DeFi vault identifier.
- * @param {ChainId} parameters.chainId - The chain id.
- * @param {string} parameters.rpcUrl - The optional rpc url.
+ * @internal Internal helper used by `getEarnPosition` and other internal
+ * vault-reading paths. The public `getSharesByAddress` function was removed
+ * in 5.0.0; consumers use `getEarnPosition` instead.
  *
  * @return {Promise<IGetSharesByAddressResponse>}
  */
-export async function getSharesByAddress({
+export async function getSharesByAddressInternal({
   chainId,
   rpcUrl,
   address,
   vaultKey = Vault.Veda,
 }: IGetSharesByAddressParameters): Promise<IGetSharesByAddressResponse> {
-  warnDeprecated("getSharesByAddress", "getEarnPosition");
   const vault = VAULTS[vaultKey];
   if (!vault) {
     throw new Error(`Unknown vault key: ${vaultKey}`);
@@ -78,7 +69,11 @@ export async function getSharesByAddress({
 
     const balance = fromSatoshi(String(balanceValue));
 
-    const exchangeRate = await getShareValue({ chainId, rpcUrl, vaultKey });
+    const exchangeRate = await getShareValueInternal({
+      chainId,
+      rpcUrl,
+      vaultKey,
+    });
 
     return {
       balance,

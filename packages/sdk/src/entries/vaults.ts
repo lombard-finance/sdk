@@ -4,11 +4,10 @@
  * Import from '@lombard.finance/sdk/vaults' for vault-only functionality.
  */
 
+// `cancelWithdraw`, `deposit`, `queueWithdraw` and their parameter types
+// were removed in 5.0.0. Use `cancelEarnWithdrawal`, `depositEarn`, and
+// `withdrawEarn` from the `@lombard.finance/sdk/contracts` entry instead.
 export {
-  cancelWithdraw,
-  type CancelWithdrawParameters,
-  deposit,
-  type DepositParameters,
   getVaultApy,
   type GetVaultApyParameters,
   getVaultDeposits,
@@ -27,8 +26,6 @@ export {
   type GetVaultWithdrawalsParameters,
   previewVaultDeposit,
   type PreviewVaultDepositParameters,
-  queueWithdraw,
-  type QueueWithdrawParameters,
   Vault,
   type VaultDeposit,
   type VaultWithdrawal,

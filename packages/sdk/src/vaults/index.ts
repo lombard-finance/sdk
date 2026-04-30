@@ -10,8 +10,9 @@ export {
 } from './lib/config';
 
 // Ops - Deposit:
+// Note: `deposit` (the underlying-vault deposit) was removed in 5.0.0.
+// Use `depositEarn` from the contracts entry instead.
 
-export { deposit, type DepositParameters } from './lib/ops/deposit';
 export {
   getVaultDeposits,
   getVaultDepositsAllChains,
@@ -29,6 +30,8 @@ export {
 } from './lib/ops/preview-vault-deposit';
 
 // Ops - Withdraw:
+// Note: `queueWithdraw` and `cancelWithdraw` were removed in 5.0.0.
+// Use `withdrawEarn` and `cancelEarnWithdrawal` from the contracts entry.
 
 export {
   getVaultWithdrawals,
@@ -38,12 +41,6 @@ export {
   type VaultWithdrawal,
   type VaultWithdrawals,
 } from './lib/ops/get-vault-withdrawals';
-export {
-  cancelWithdraw,
-  type CancelWithdrawParameters,
-  queueWithdraw,
-  type QueueWithdrawParameters,
-} from './lib/ops/withdraw';
 
 // Metrics - Vault points:
 

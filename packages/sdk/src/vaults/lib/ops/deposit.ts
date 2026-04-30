@@ -12,7 +12,6 @@ import {
 } from '../../../tokens/tokens';
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
-import { warnDeprecated } from '../../../utils/warnDeprecated';
 import { isVedaVaultChain, Vault, VAULTS } from '../config';
 
 export type DepositParameters = {
@@ -31,24 +30,14 @@ export type DepositParameters = {
 } & CommonWriteParameters;
 
 /**
- * Deposits specified amount to the chosen DeFi vault.
- *
- * @deprecated Will be removed in 5.0.0. Use {@link depositEarn} instead, which
- * routes deposits through the BTCe wrapper and handles approval internally.
- *
- * @param {DepositParameters} parameters
- * @param {BigNumber.Value} parameters.amount - The deposit amount.
- * @param {boolean} parameters.approve - The optional flag determining whether approve actions should be performed.
- * @param {Token} parameters.token - The optional deposit asset.
- * @param {Vault} parameters.vaultKey - The vault identifier.
- * @param {Address} parameters.account - The EVM account address.
- * @param {ChainId} parameters.chainId - The chain id.
- * @param {EIP1193Provider} parameters.provider - The EIP1193 provider.
- * @param {string} parameters.rpcUrl - The optional rpc url.
+ * @internal Internal helper used by `EvmDeploy` and other action classes.
+ * The public `deposit` function was removed in 5.0.0; consumers use
+ * `depositEarn` instead. This implementation is kept because the EVM action
+ * classes still need to deposit into the underlying vault directly.
  *
  * @returns {Promise<Hash>}
  */
-export async function deposit({
+export async function depositInternal({
   amount: amountRaw,
   approve = true,
   token = Token.LBTC,
@@ -59,7 +48,6 @@ export async function deposit({
   rpcUrl,
   env,
 }: DepositParameters) {
-  warnDeprecated('deposit', 'depositEarn');
   const vault = VAULTS[vaultKey];
   if (!vault) {
     throw new Error(`Unknown vault key: ${vaultKey}`);

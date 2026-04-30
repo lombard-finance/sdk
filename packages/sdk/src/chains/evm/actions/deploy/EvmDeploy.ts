@@ -33,7 +33,7 @@ import { getTokenInfo, toBaseDenomination } from '../../../../tokens/tokens';
 import toBigInt from '../../../../utils/numbers';
 import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import { Vault, VAULTS } from '../../../../vaults/lib/config';
-import { deposit } from '../../../../vaults/lib/ops/deposit';
+import { depositInternal } from '../../../../vaults/lib/ops/deposit';
 import { evmConfig } from './config';
 import type {
     EvmDeployParams,
@@ -212,7 +212,7 @@ export class EvmDeploy
       });
 
       // Execute vault deposit (approval already done, so pass approve: false)
-      const txHash = await deposit({
+      const txHash = await depositInternal({
         amount: this._amount!,
         approve: false, // Approval was handled in approve() step
         token: Token.LBTC,
