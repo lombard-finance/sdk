@@ -21,8 +21,7 @@ describe('BtcStakeAndDeploy Interface', () => {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC',
-      };
+        vault: 'LBTC' };
 
       expect(params.assetOut).toBe(AssetId.LBTC);
     });
@@ -32,8 +31,7 @@ describe('BtcStakeAndDeploy Interface', () => {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC',
-      };
+        vault: 'LBTC' };
 
       expect(params.protocol).toBe('veda');
     });
@@ -43,8 +41,7 @@ describe('BtcStakeAndDeploy Interface', () => {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC',
-      };
+        vault: 'LBTC' };
 
       expect(params.vault).toBe('LBTC');
     });
@@ -62,8 +59,7 @@ describe('BtcStakeAndDeploy Interface', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
 
       expect(params.amount).toBe('0.1');
       expect(params.recipient).toBeDefined();
@@ -125,8 +121,7 @@ describe('BtcStakeAndDeploy Interface', () => {
       const existingSignature = {
         signature: '0xexistingsig',
         expirationDate: '2025-01-01',
-        depositAmount: '0.1',
-      };
+        depositAmount: '0.1' };
 
       expect(existingSignature.signature).toBeDefined();
     });
@@ -170,8 +165,7 @@ describe('BtcStakeAndDeploy Interface', () => {
 
       handler({
         status: 'address_ready',
-        steps: { created: 'complete', deploying: 'idle' },
-      });
+        steps: { created: 'complete', deploying: 'idle' } });
 
       expect(handler).toHaveBeenCalledOnce();
     });

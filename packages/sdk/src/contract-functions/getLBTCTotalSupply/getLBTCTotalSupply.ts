@@ -20,8 +20,7 @@ import { fromSatoshi } from '../../utils/satoshi';
 export async function getLBTCTotalSupply({
   chainId,
   rpcUrl,
-  env,
-}: CommonParameters): Promise<BigNumber> {
+  env }: CommonParameters): Promise<BigNumber> {
   const environment = env || determineEnv(chainId);
   const publicClient = makePublicClient({ chainId, rpcUrl, env: environment });
   const lbtcContract = await getTokenContractInfo(
@@ -33,8 +32,7 @@ export async function getLBTCTotalSupply({
   const totalSupplyRaw = await publicClient.readContract({
     abi: lbtcContract.abi,
     address: lbtcContract.address,
-    functionName: 'totalSupply',
-  });
+    functionName: 'totalSupply' });
 
   return fromSatoshi(String(totalSupplyRaw));
 }

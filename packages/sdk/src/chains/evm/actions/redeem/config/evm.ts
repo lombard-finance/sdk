@@ -14,8 +14,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import {
   AssetId,
   Chain,
-  getEvmAssetChains,
-} from '../../../../../core';
+  getEvmAssetChains } from '../../../../../core';
 import { bitcoinAddressSchema } from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 
@@ -52,22 +51,19 @@ export const evmConfig: ChainConfig = {
       assetOut: AssetId.BTC,
       sourceChains: BTCB_PROD_CHAINS,
       destChain: Chain.BITCOIN_MAINNET,
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // BTC.b → BTC (to Bitcoin Signet - testnet)
     {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChains: BTCB_TESTNET_CHAINS,
       destChain: Chain.BITCOIN_SIGNET,
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
-    },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
     // TODO: Add L-Asset routes when deployed
     // L-ZEC → ZEC, L-SOL → SOL, L-XRP → XRP, L-DOGE → DOGE
   ],
 
-  recipientSchema: bitcoinAddressSchema,
-};
+  recipientSchema: bitcoinAddressSchema };
 
 /**
  * Check if a redeem route is supported

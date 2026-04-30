@@ -19,8 +19,7 @@ import type {
   EvmProvider,
   SolanaProvider,
   StarknetProvider,
-  SuiProvider,
-} from '../config/providers';
+  SuiProvider } from '../config/providers';
 import type { ProviderGetters, ResolvedLombardConfig } from '../config/types';
 import { getProviderGetter } from '../config/types';
 import { CapabilityRegistry } from '../modules/CapabilityRegistry';
@@ -125,8 +124,7 @@ export class LombardSDK<E extends Env = Env> {
       evm: new EvmActions(this.config),
       solana: new SolanaActions(this.config),
       sui: new SuiActions(this.config),
-      starknet: new StarknetActions(this.config),
-    };
+      starknet: new StarknetActions(this.config) };
 
     // Initialize feature clients
     this.referrals = new ReferralsClient(this);

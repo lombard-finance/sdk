@@ -10,23 +10,18 @@ const mockWriteContract = vi.fn();
 vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn(() => ({
     readContract: (...args: unknown[]) => mockReadContract(...args),
-    simulateContract: (...args: unknown[]) => mockSimulateContract(...args),
-  })),
-}));
+    simulateContract: (...args: unknown[]) => mockSimulateContract(...args) })) }));
 
 vi.mock('../../../clients/wallet-client', () => ({
   makeWalletClient: vi.fn(() => ({
-    writeContract: (...args: unknown[]) => mockWriteContract(...args),
-  })),
-}));
+    writeContract: (...args: unknown[]) => mockWriteContract(...args) })) }));
 
 const ACCOUNT = '0x000000000000000000000000000000000000dEaD';
 const RECEIVER = '0x000000000000000000000000000000000000bEEf';
 const OWNER = '0x000000000000000000000000000000000000c0dE';
 const BTCE_ADDR = '0x3a4baaBf4DC9910596821615e848f0e6545762F3';
 const PROVIDER = {
-  request: vi.fn(),
-} as unknown as Parameters<typeof unwrapBtceToLbtcv>[0]['provider'];
+  request: vi.fn() } as unknown as Parameters<typeof unwrapBtceToLbtcv>[0]['provider'];
 
 describe('unwrapBtceToLbtcv', () => {
   beforeEach(() => {
@@ -34,8 +29,7 @@ describe('unwrapBtceToLbtcv', () => {
     // Default maxWithdraw: 1 LBTCv equivalent (in base units)
     mockReadContract.mockResolvedValue(100_000_000n);
     mockSimulateContract.mockResolvedValue({
-      request: { address: BTCE_ADDR, abi: [], functionName: 'withdraw' },
-    });
+      request: { address: BTCE_ADDR, abi: [], functionName: 'withdraw' } });
     mockWriteContract.mockResolvedValue('0xtxhash');
   });
 
@@ -47,8 +41,7 @@ describe('unwrapBtceToLbtcv', () => {
         owner: OWNER,
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       // First reads maxWithdraw, then simulates withdraw
       expect(mockReadContract).toHaveBeenCalledTimes(1);
@@ -75,8 +68,7 @@ describe('unwrapBtceToLbtcv', () => {
         amount: '0.1',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(hash).toBe('0xfeedface');
     });
@@ -86,8 +78,7 @@ describe('unwrapBtceToLbtcv', () => {
         amount: '0.25',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       // maxWithdraw queried for the implicit owner (account)
       expect(mockReadContract.mock.calls[0][0].args).toEqual([ACCOUNT]);
@@ -107,8 +98,7 @@ describe('unwrapBtceToLbtcv', () => {
           amount: '0.5',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/exceeds maxWithdraw/);
 
       expect(mockSimulateContract).not.toHaveBeenCalled();
@@ -123,8 +113,7 @@ describe('unwrapBtceToLbtcv', () => {
           amount: '0.01',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/exceeds maxWithdraw/);
     });
 
@@ -136,8 +125,7 @@ describe('unwrapBtceToLbtcv', () => {
           amount: '0.5',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).resolves.toBe('0xtxhash');
     });
   });
@@ -153,8 +141,7 @@ describe('unwrapBtceToLbtcv', () => {
           amount: '0.1',
           account: ACCOUNT,
           chainId,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).resolves.toBe('0xtxhash');
     });
 
@@ -164,8 +151,7 @@ describe('unwrapBtceToLbtcv', () => {
           amount: '0.1',
           account: ACCOUNT,
           chainId: ChainId.corn,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/BTCe is not supported on chain/);
     });
   });
@@ -177,8 +163,7 @@ describe('unwrapBtceToLbtcv', () => {
           amount: '0',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/must be greater than zero/);
     });
 
@@ -188,8 +173,7 @@ describe('unwrapBtceToLbtcv', () => {
           amount: '-0.1',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/must be greater than zero/);
     });
 
@@ -200,8 +184,7 @@ describe('unwrapBtceToLbtcv', () => {
           receiver: '0xnotanaddress' as `0x${string}`,
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/Invalid receiver address/);
     });
 
@@ -212,8 +195,7 @@ describe('unwrapBtceToLbtcv', () => {
           owner: '0xnotanaddress' as `0x${string}`,
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/Invalid owner address/);
     });
   });
@@ -229,8 +211,7 @@ describe('unwrapBtceToLbtcv', () => {
           amount: '0.1',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/ERC4626ExceededMaxWithdraw/);
     });
   });

@@ -7,12 +7,10 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
-  wagmiDecorator,
-} from '../../stories/components/decorators';
+  wagmiDecorator } from '../../stories/components/decorators';
 import {
   canPerformAction,
-  useConnection,
-} from '../../stories/hooks/useConnection';
+  useConnection } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
 import { Token } from '../../tokens/token-addresses';
 import { mintToken } from './claimLBTC';
@@ -23,9 +21,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
   argTypes: {
-    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]),
-  },
-} satisfies Meta<typeof StoryView>;
+    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]) } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -36,9 +32,7 @@ export const WithParams: Story = {
     proofSignature: '',
     data: '',
     env: DEFAULT_ENV,
-    token: Token.LBTC,
-  },
-};
+    token: Token.LBTC } };
 
 type ClaimLBTCProps = Omit<
   Parameters<typeof mintToken>[0],
@@ -57,8 +51,7 @@ export function StoryView(props: ClaimLBTCProps) {
       ...props,
       account: connection.account.address,
       chainId: connection.account.chainId,
-      provider: connection.provider,
-    });
+      provider: connection.provider });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

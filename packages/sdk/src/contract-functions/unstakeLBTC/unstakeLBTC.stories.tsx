@@ -7,12 +7,10 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
-  wagmiDecorator,
-} from '../../stories/components/decorators';
+  wagmiDecorator } from '../../stories/components/decorators';
 import {
   canPerformAction,
-  useConnection,
-} from '../../stories/hooks/useConnection';
+  useConnection } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
 import { Token } from '../../tokens/token-addresses';
 import { redeemToken } from './unstakeLBTC';
@@ -23,9 +21,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
   argTypes: {
-    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]),
-  },
-} satisfies Meta<typeof StoryView>;
+    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]) } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -36,9 +32,7 @@ export const WithParams: Story = {
     amount: 0.00001,
     tokenIn: Token.LBTC,
     btcAddress: '',
-    env: DEFAULT_ENV,
-  },
-};
+    env: DEFAULT_ENV } };
 
 type ClaimLBTCProps = Omit<
   Parameters<typeof redeemToken>[0],
@@ -62,8 +56,7 @@ export function StoryView(props: ClaimLBTCProps) {
 
       account: connection.account.address,
       chainId: connection.account.chainId,
-      provider: connection.provider,
-    });
+      provider: connection.provider });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

@@ -17,14 +17,12 @@ import { LombardError } from '../../../../shared/errors';
 import type { UnstakeEventMap } from '../../../../shared/events';
 import {
   amountSchema,
-  validatePrepareParams,
-} from '../../../../shared/validation';
+  validatePrepareParams } from '../../../../shared/validation';
 import { isBtcUnstakeSupported,starknetToBtcConfig } from './config';
 import type {
   IStarknetUnstake,
   StarknetUnstakeParams,
-  StarknetUnstakePrepareParams,
-} from './types';
+  StarknetUnstakePrepareParams } from './types';
 
 export class StarknetUnstake
   extends BaseAction<UnstakeEventMap, NonEvmOperationStatus>
@@ -47,8 +45,7 @@ export class StarknetUnstake
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
         destChain: params.destChain,
-        env: this.env,
-      });
+        env: this.env });
     }
   }
 
@@ -69,15 +66,13 @@ export class StarknetUnstake
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
-        destChain: this.params.destChain,
-      });
+        destChain: this.params.destChain });
       this._amount = validated.amount;
       this._recipient = validated.recipient;
 
       this.emitProgress({
         status: NonEvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
-      });
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE } });
     }, NonEvmOperationStatus.READY);
   }
 
@@ -95,23 +90,20 @@ export class StarknetUnstake
       // Emit burning step
       this.emitProgress({
         status: NonEvmOperationStatus.READY,
-        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
-      });
+        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE } });
 
       // Call the Starknet service to execute unstake
       const { txHash } = await this.ctx.starknet.unstake({
         amount,
         btcAddress: recipient,
-        env: this.env,
-      });
+        env: this.env });
 
       this._txHash = txHash;
 
       // Emit completed steps
       this.emitProgress({
         status: NonEvmOperationStatus.COMPLETED,
-        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
-      });
+        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING } });
 
       this.emitCompleted();
 
@@ -122,7 +114,6 @@ export class StarknetUnstake
   private get prepareSchema() {
     return z.object({
       amount: amountSchema,
-      recipient: starknetToBtcConfig.recipientSchema,
-    });
+      recipient: starknetToBtcConfig.recipientSchema });
   }
 }

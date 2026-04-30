@@ -12,8 +12,7 @@ import { AssetId } from '../../../core/assets';
 import {
   DefiProtocol,
   getAvailableProtocols,
-  getAvailableProtocolsWithMetadata,
-} from '../../../defi/defi-registry';
+  getAvailableProtocolsWithMetadata } from '../../../defi/defi-registry';
 
 describe('getAvailableProtocols', () => {
   describe('LBTC protocols', () => {

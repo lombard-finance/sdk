@@ -9,8 +9,7 @@ import type {
   Chain,
   DeployProtocol,
   StepStatus,
-  StrategyProgress,
-} from '../../../../core';
+  StrategyProgress } from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { LombardError } from '../../../../shared/errors';

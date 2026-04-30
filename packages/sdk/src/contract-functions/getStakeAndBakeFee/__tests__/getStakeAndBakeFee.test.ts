@@ -8,8 +8,7 @@ import { getStakeAndBakeFee } from '../getStakeAndBakeFee';
 
 // Mock dependencies
 vi.mock('../../../clients/public-client', () => ({
-  makePublicClient: vi.fn(() => ({})),
-}));
+  makePublicClient: vi.fn(() => ({})) }));
 
 vi.mock('viem', async importOriginal => {
   const actual = await importOriginal<typeof import('viem')>();
@@ -18,9 +17,7 @@ vi.mock('viem', async importOriginal => {
     getContract: vi.fn(() => ({
       read: {
         getStakeAndBakeFee: vi.fn(async () => BigInt(1000000)), // 0.01 LBTC in satoshi
-      },
-    })),
-  };
+      } })) };
 });
 
 vi.mock('../../signStakeAndBake/validation', () => ({
@@ -48,16 +45,12 @@ vi.mock('../../signStakeAndBake/validation', () => ({
         domainName: 'Test',
         domainVersion: '1',
         deadlineStrategy: 'expiry',
-        nonceStrategy: 'chain',
-      },
+        nonceStrategy: 'chain' },
       spenderContract: {
         address: '0x1234567890123456789012345678901234567890',
         abi: [],
-        chainId,
-      },
-    };
-  }),
-}));
+        chainId } };
+  }) }));
 
 describe('getStakeAndBakeFee', () => {
   describe('Protocol-aware default tokens', () => {
@@ -65,8 +58,7 @@ describe('getStakeAndBakeFee', () => {
       const result = await getStakeAndBakeFee({
         protocol: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       expect(result.toString()).toBe('0.01');
     });
@@ -75,8 +67,7 @@ describe('getStakeAndBakeFee', () => {
       const result = await getStakeAndBakeFee({
         protocol: DefiProtocol.Silo,
         chainId: ChainId.avalancheFuji,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       expect(result.toString()).toBe('0.01');
     });
@@ -88,8 +79,7 @@ describe('getStakeAndBakeFee', () => {
         protocol: DefiProtocol.Veda,
         token: Token.LBTC,
         chainId: ChainId.ethereum,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       expect(result.toString()).toBe('0.01');
     });
@@ -99,8 +89,7 @@ describe('getStakeAndBakeFee', () => {
         protocol: DefiProtocol.Silo,
         token: Token.BTCb,
         chainId: ChainId.avalancheFuji,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       expect(result.toString()).toBe('0.01');
     });
@@ -110,8 +99,7 @@ describe('getStakeAndBakeFee', () => {
         protocol: DefiProtocol.Veda,
         token: 'BTC',
         chainId: ChainId.ethereum,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       expect(result.toString()).toBe('0.01');
     });
@@ -124,8 +112,7 @@ describe('getStakeAndBakeFee', () => {
           protocol: DefiProtocol.Veda,
           token: Token.BTCb,
           chainId: ChainId.ethereum,
-          env: Env.prod,
-        }),
+          env: Env.prod }),
       ).rejects.toThrow(
         'Token BTC.b is not supported for stake and bake on vault Veda',
       );
@@ -137,8 +124,7 @@ describe('getStakeAndBakeFee', () => {
           protocol: DefiProtocol.Silo,
           token: Token.LBTC,
           chainId: ChainId.avalancheFuji,
-          env: Env.testnet,
-        }),
+          env: Env.testnet }),
       ).rejects.toThrow(
         'Token LBTC is not supported for stake and bake on vault Silo',
       );
@@ -149,8 +135,7 @@ describe('getStakeAndBakeFee', () => {
     it('should default to Veda protocol when not specified', async () => {
       const result = await getStakeAndBakeFee({
         chainId: ChainId.ethereum,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       expect(result.toString()).toBe('0.01');
     });
@@ -158,8 +143,7 @@ describe('getStakeAndBakeFee', () => {
     it('should default to LBTC token when protocol and token not specified', async () => {
       const result = await getStakeAndBakeFee({
         chainId: ChainId.ethereum,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       expect(result.toString()).toBe('0.01');
     });

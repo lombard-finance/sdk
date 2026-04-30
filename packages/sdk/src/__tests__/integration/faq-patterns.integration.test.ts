@@ -24,8 +24,7 @@ function createMockEvmProvider(): EIP1193Provider {
   const mockProvider = {
     request: vi.fn(),
     on: vi.fn(),
-    removeListener: vi.fn(),
-  };
+    removeListener: vi.fn() };
 
   // Default implementation for common methods
   mockProvider.request.mockImplementation(async ({ method }) => {
@@ -66,13 +65,11 @@ describe('FAQ Section 13: Using Actions', () => {
     it('should start in IDLE status', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       // FAQ documents: actions start in 'idle' status
       expect(stake.status).toBe(BtcActionStatus.IDLE);
@@ -84,8 +81,7 @@ describe('FAQ Section 13: Using Actions', () => {
     it('should transition through statuses during prepare', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
@@ -100,14 +96,11 @@ describe('FAQ Section 13: Using Actions', () => {
         ok: true,
         json: () =>
           Promise.resolve({
-            has_signature: false,
-          }),
-      } as Response);
+            has_signature: false }) } as Response);
 
       await stake.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       // Fee authorization is required for all chains (including testnet)
       expect(stake.status).toBe(BtcActionStatus.NEEDS_FEE_AUTHORIZATION);
@@ -117,20 +110,17 @@ describe('FAQ Section 13: Using Actions', () => {
     it('should validate minimum BTC amount (0.0002)', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       // FAQ documents: minimum stake is 0.0002 BTC
       await expect(
         stake.prepare({
           amount: '0.0001', // Below minimum
-          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-        }),
+          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
       ).rejects.toThrow(/at least 0.0002/i);
     });
   });
@@ -151,13 +141,11 @@ describe('FAQ Section 14: Loading States', () => {
   it('should emit loading events during operations', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const stake = btcStake(config, {
       assetOut: AssetId.LBTC,
-      destChain: Chain.SEPOLIA,
-    });
+      destChain: Chain.SEPOLIA });
 
     const loadingStates: boolean[] = [];
     stake.on('loading', isLoading => loadingStates.push(isLoading));
@@ -165,13 +153,11 @@ describe('FAQ Section 14: Loading States', () => {
     // Mock API
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ has_signature: false }),
-    } as Response);
+      json: () => Promise.resolve({ has_signature: false }) } as Response);
 
     await stake.prepare({
       amount: '0.001',
-      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-    });
+      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
     // FAQ documents: loading is true during operation, false after
     expect(loadingStates).toContain(true);
@@ -182,13 +168,11 @@ describe('FAQ Section 14: Loading States', () => {
   it('should allow combining status + isLoading for context-aware UI', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const stake = btcStake(config, {
       assetOut: AssetId.LBTC,
-      destChain: Chain.SEPOLIA,
-    });
+      destChain: Chain.SEPOLIA });
 
     // FAQ pattern: derive loading message from status + isLoading
     const getLoadingMessage = (status: string, isLoading: boolean): string => {
@@ -214,13 +198,11 @@ describe('FAQ Section 14: Loading States', () => {
     // Mock API
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ has_signature: false }),
-    } as Response);
+      json: () => Promise.resolve({ has_signature: false }) } as Response);
 
     await stake.prepare({
       amount: '0.001',
-      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-    });
+      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
     // Message should have been set during loading
     // (captured message will be empty after loading completes)
@@ -243,13 +225,11 @@ describe('FAQ Section 15: Error Handling', () => {
   it('should preserve status on error (no FAILED status)', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const stake = btcStake(config, {
       assetOut: AssetId.LBTC,
-      destChain: Chain.SEPOLIA,
-    });
+      destChain: Chain.SEPOLIA });
 
     // FAQ documents: status should not change to FAILED on error
     const initialStatus = stake.status;
@@ -257,8 +237,7 @@ describe('FAQ Section 15: Error Handling', () => {
     await expect(
       stake.prepare({
         amount: '0.0001', // Invalid amount
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      }),
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
     ).rejects.toThrow();
 
     // Status should revert to previous (unchanged because prepare failed)
@@ -270,8 +249,7 @@ describe('FAQ Section 15: Error Handling', () => {
   it('should allow retry after error without re-initialization', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const stake = btcStake(config, {
       assetOut: AssetId.LBTC,
@@ -282,8 +260,7 @@ describe('FAQ Section 15: Error Handling', () => {
     await expect(
       stake.prepare({
         amount: '0.0001', // Invalid
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      }),
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
     ).rejects.toThrow();
 
     expect(stake.isFailed).toBe(true);
@@ -291,14 +268,12 @@ describe('FAQ Section 15: Error Handling', () => {
     // Mock successful API call
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ has_signature: false }),
-    } as Response);
+      json: () => Promise.resolve({ has_signature: false }) } as Response);
 
     // Retry with valid amount - should work without creating new action
     await stake.prepare({
       amount: '0.001', // Valid
-      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-    });
+      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
     // FAQ documents: error should be cleared on successful retry
     expect(stake.isFailed).toBe(false);
@@ -310,13 +285,11 @@ describe('FAQ Section 15: Error Handling', () => {
   it('should emit error events', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const stake = btcStake(config, {
       assetOut: AssetId.LBTC,
-      destChain: Chain.SEPOLIA,
-    });
+      destChain: Chain.SEPOLIA });
 
     const errors: Error[] = [];
     const failedEvents: number[] = [];
@@ -327,8 +300,7 @@ describe('FAQ Section 15: Error Handling', () => {
     await expect(
       stake.prepare({
         amount: '0.0001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      }),
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
     ).rejects.toThrow();
 
     // FAQ documents: both error and failed events should be emitted
@@ -352,13 +324,11 @@ describe('FAQ Section 16: Events & Progress Monitoring', () => {
   it('should emit progress events with step information', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const stake = btcStake(config, {
       assetOut: AssetId.LBTC,
-      destChain: Chain.SEPOLIA,
-    });
+      destChain: Chain.SEPOLIA });
 
     interface ProgressEvent {
       status: string;
@@ -373,13 +343,11 @@ describe('FAQ Section 16: Events & Progress Monitoring', () => {
     // Mock API
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ has_signature: false }),
-    } as Response);
+      json: () => Promise.resolve({ has_signature: false }) } as Response);
 
     await stake.prepare({
       amount: '0.001',
-      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-    });
+      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
     // FAQ documents: progress events contain status and steps
     expect(progressEvents.length).toBeGreaterThan(0);
@@ -390,13 +358,11 @@ describe('FAQ Section 16: Events & Progress Monitoring', () => {
   it('should return unsubscribe function from on()', () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const stake = btcStake(config, {
       assetOut: AssetId.LBTC,
-      destChain: Chain.SEPOLIA,
-    });
+      destChain: Chain.SEPOLIA });
 
     const handler = vi.fn();
     const unsubscribe = stake.on('status-change', handler);
@@ -424,14 +390,12 @@ describe('FAQ Section 10: Design Decisions', () => {
   it('should use unified BtcActionStatus for all BTC actions', () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     // FAQ documents: all BTC actions use BtcActionStatus
     const stake = btcStake(config, {
       assetOut: AssetId.LBTC,
-      destChain: Chain.SEPOLIA,
-    });
+      destChain: Chain.SEPOLIA });
 
     // Verify status is from unified enum
     expect(Object.values(BtcActionStatus)).toContain(stake.status);
@@ -440,13 +404,11 @@ describe('FAQ Section 10: Design Decisions', () => {
   it('should have separate status, error, and loading concerns', () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const stake = btcStake(config, {
       assetOut: AssetId.LBTC,
-      destChain: Chain.SEPOLIA,
-    });
+      destChain: Chain.SEPOLIA });
 
     // FAQ documents: orthogonal concerns
     // - status = What step are you at?

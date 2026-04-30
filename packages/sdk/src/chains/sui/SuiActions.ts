@@ -40,8 +40,7 @@ function createSuiCoreContext(config: LombardConfig): SuiCoreContext {
       if (!getter) return undefined;
       return getter();
     },
-    sui,
-  };
+    sui };
 }
 
 /**

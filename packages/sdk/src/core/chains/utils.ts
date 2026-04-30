@@ -18,8 +18,7 @@ import {
   STARKNET_MAINNET_CHAIN,
   STARKNET_SEPOLIA_CHAIN,
   StarknetChainId,
-  SuiChain,
-} from '../../common/chains';
+  SuiChain } from '../../common/chains';
 import { LombardError, ValidationErrorCode } from '../../shared/errors';
 import { CHAIN_CATALOG } from './catalog';
 import {
@@ -28,8 +27,7 @@ import {
   CHAIN_PREFIXES,
   ChainMetadata,
   ChainType,
-  isChain,
-} from './types';
+  isChain } from './types';
 
 /**
  * Maps CAIP-2 Solana genesis hash references to legacy SolanaChain constants.
@@ -45,8 +43,7 @@ import {
 const SOLANA_GENESIS_TO_CHAIN: Record<string, SolanaChain> = {
   '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': SOLANA_MAINNET_CHAIN,
   'EtWTRABZaYq6iMfeYKouRu166VU2xqa1': SOLANA_DEVNET_CHAIN,
-  '4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z': SOLANA_TESTNET_CHAIN,
-};
+  '4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z': SOLANA_TESTNET_CHAIN };
 
 /**
  * Maps CAIP-2 Starknet network names to Starknet hex chain IDs.
@@ -60,8 +57,7 @@ const SOLANA_GENESIS_TO_CHAIN: Record<string, SolanaChain> = {
  */
 const STARKNET_NETWORK_TO_CHAIN_ID: Record<string, StarknetChainId> = {
   SN_MAIN: STARKNET_MAINNET_CHAIN,
-  SN_SEPOLIA: STARKNET_SEPOLIA_CHAIN,
-};
+  SN_SEPOLIA: STARKNET_SEPOLIA_CHAIN };
 
 /**
  * Converts a CAIP-2 Starknet network name to its hex chain ID.
@@ -237,8 +233,7 @@ export function getChainTypeMetadata(chain: Chain | string): ChainTypeMetadata {
     return {
       type: meta.type,
       label: meta.type.toUpperCase(),
-      variant: meta.badgeVariant,
-    };
+      variant: meta.badgeVariant };
   }
   const prefix = chain.split(':')[0];
   return { type: prefix, label: prefix.toUpperCase(), variant: 'secondary' };

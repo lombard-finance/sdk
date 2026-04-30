@@ -52,8 +52,7 @@ export function getAddressConfirmationMessage(
 export async function signLbtcDestinationAddr({
   account,
   chainId,
-  provider,
-}: SignLbtcDestinationAddrParams): Promise<string> {
+  provider }: SignLbtcDestinationAddrParams): Promise<string> {
   const walletClient = makeWalletClient({ chainId, provider });
 
   const message = getAddressConfirmationMessage(chainId);

@@ -26,20 +26,19 @@ import { LombardError } from '../../../../shared/errors';
 import type { DeployEventMap } from '../../../../shared/events';
 import {
     evmAmountSchema,
-    validatePrepareParams,
-} from '../../../../shared/validation';
+    validatePrepareParams } from '../../../../shared/validation';
 import { Token } from '../../../../tokens/token-addresses';
 import { getTokenInfo, toBaseDenomination } from '../../../../tokens/tokens';
 import toBigInt from '../../../../utils/numbers';
 import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
-import { Vault, VAULTS } from '../../../../vaults/lib/config';
+import {
+  EARN_VAULT } from '../../../../vaults/lib/config';
 import { depositInternal } from '../../../../vaults/lib/ops/deposit';
 import { evmConfig } from './config';
 import type {
     EvmDeployParams,
     EvmDeployPrepareParams,
-    IEvmDeploy,
-} from './types';
+    IEvmDeploy } from './types';
 
 export class EvmDeploy
   extends BaseAction<DeployEventMap, EvmOperationStatus>
@@ -92,8 +91,7 @@ export class EvmDeploy
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
-      });
+        method: 'eth_accounts' });
       const account = (accounts as string[])[0] as `0x${string}`;
       if (!account) {
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
@@ -103,7 +101,7 @@ export class EvmDeploy
       this._chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
       // Check actual allowance to determine if approval is needed
-      const vault = VAULTS[Vault.Veda];
+      const vault = EARN_VAULT;
       const depositToken = await getTokenInfo(Token.LBTC, this._chainId, this.ctx.env);
       if (!depositToken) {
         throw LombardError.invalidParameter('token', 'Could not get LBTC token info');
@@ -114,8 +112,7 @@ export class EvmDeploy
         address: depositToken.address,
         abi: depositToken.abi,
         functionName: 'allowance',
-        args: [account, vault.vaultContract.address],
-      });
+        args: [account, vault.vaultContract.address] });
 
       const amount = new BigNumber(validated.amount);
       const amountBase = toBaseDenomination(amount, depositToken.decimals);
@@ -127,14 +124,12 @@ export class EvmDeploy
       if (this._needsApproval) {
         this.emitProgress({
           status: EvmOperationStatus.NEEDS_APPROVAL,
-          steps: { approval: StepStatus.PENDING, deploying: StepStatus.IDLE },
-        });
+          steps: { approval: StepStatus.PENDING, deploying: StepStatus.IDLE } });
         this.updateStatus(EvmOperationStatus.NEEDS_APPROVAL);
       } else {
         this.emitProgress({
           status: EvmOperationStatus.READY,
-          steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING },
-        });
+          steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING } });
         this.updateStatus(EvmOperationStatus.READY);
       }
     });
@@ -154,7 +149,7 @@ export class EvmDeploy
       }
 
       // Get vault and token info
-      const vault = VAULTS[Vault.Veda];
+      const vault = EARN_VAULT;
       const depositToken = await getTokenInfo(Token.LBTC, this._chainId, this.ctx.env);
       if (!depositToken) {
         throw LombardError.invalidParameter('token', 'Could not get LBTC token info');
@@ -167,8 +162,7 @@ export class EvmDeploy
       const publicClient = makePublicClient({ chainId: this._chainId });
       const walletClient = makeWalletClient({
         provider: provider as EIP1193Provider,
-        chainId: this._chainId,
-      });
+        chainId: this._chainId });
 
       const { request } = await publicClient.simulateContract({
         account: this._account,
@@ -176,8 +170,7 @@ export class EvmDeploy
         address: depositToken.address,
         abi: depositToken.abi,
         functionName: 'approve',
-        args: [vault.vaultContract.address, amountBase],
-      });
+        args: [vault.vaultContract.address, amountBase] });
 
       const txHash = await walletClient.writeContract(request);
       await waitForTransactionReceipt(publicClient, txHash, 'LBTC vault deposit approval');
@@ -185,8 +178,7 @@ export class EvmDeploy
       this._needsApproval = false;
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING },
-      });
+        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING } });
     }, EvmOperationStatus.READY);
   }
 
@@ -203,32 +195,25 @@ export class EvmDeploy
         throw LombardError.missingParameter('account or chainId');
       }
 
-      // Map protocol to vault key
-      const vaultKey = this._protocol === 'veda' ? Vault.Veda : Vault.Veda;
-
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING },
-      });
+        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING } });
 
       // Execute vault deposit (approval already done, so pass approve: false)
       const txHash = await depositInternal({
         amount: this._amount!,
         approve: false, // Approval was handled in approve() step
         token: Token.LBTC,
-        vaultKey,
         account: this._account,
         chainId: this._chainId,
         provider: provider as EIP1193Provider,
-        env: this.ctx.env,
-      });
+        env: this.ctx.env });
 
       this._txHash = txHash;
 
       this.emitProgress({
         status: EvmOperationStatus.COMPLETED,
-        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.COMPLETE },
-      });
+        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.COMPLETE } });
 
       this.emitCompleted();
 
@@ -239,8 +224,7 @@ export class EvmDeploy
   private get prepareSchema() {
     return z.object({
       amount: evmAmountSchema,
-      protocol: z.string().min(1, 'Protocol is required'),
-    });
+      protocol: z.string().min(1, 'Protocol is required') });
   }
 
   private validateProtocol(protocol: DeployProtocol): void {

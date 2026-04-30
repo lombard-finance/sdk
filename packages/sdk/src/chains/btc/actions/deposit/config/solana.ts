@@ -31,12 +31,10 @@ export const solanaDepositConfig: DepositChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.stage, Env.dev, Env.testnet],
-    },
+      envs: [Env.stage, Env.dev, Env.testnet] },
   ],
 
   destChains: getAllAssetChains(AssetId.BTCb).filter(chain =>
@@ -53,9 +51,7 @@ export const solanaDepositConfig: DepositChainConfig = {
     const solana = ctx.capabilities.require('solana') as SolanaService;
     const network = chainToSolanaNetwork(chainId as string);
     const { signature } = await solana.signLbtcDestination({
-      network,
-    });
+      network });
 
     return { signature };
-  },
-};
+  } };

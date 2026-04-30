@@ -10,8 +10,7 @@ import { Token } from '../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
-  toBaseDenomination,
-} from '../../tokens/tokens';
+  toBaseDenomination } from '../../tokens/tokens';
 import toBigInt from '../../utils/numbers';
 
 export interface IApproveTokenParams extends CommonWriteParameters, IEnvParam {
@@ -53,8 +52,7 @@ export async function approveToken({
   chainId,
   provider,
   rpcUrl,
-  env,
-}: IApproveTokenParams): Promise<Hash> {
+  env }: IApproveTokenParams): Promise<Hash> {
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
   const walletClient = makeWalletClient({ chainId, provider });
 
@@ -73,8 +71,7 @@ export async function approveToken({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: tokenInfo.abi,
     functionName: 'approve',
-    args: [spender, amountBase],
-  });
+    args: [spender, amountBase] });
 
   const txHash = await walletClient.writeContract(request);
 
@@ -100,8 +97,7 @@ export async function getTokenAllowance({
   spender,
   chainId,
   rpcUrl,
-  env,
-}: {
+  env }: {
   token: Token;
   owner: Address;
   spender: Address;
@@ -119,8 +115,7 @@ export async function getTokenAllowance({
     address: tokenInfo.address,
     abi: tokenInfo.abi,
     functionName: 'allowance',
-    args: [owner, spender],
-  })) as bigint;
+    args: [owner, spender] })) as bigint;
 
   return fromBaseDenomination(allowanceRaw.toString(), tokenInfo.decimals);
 }

@@ -7,6 +7,5 @@
 export {
   isUnstakeSupported,
   solanaToBtcbConfig,
-  solanaToBtcConfig,
-} from './btc';
+  solanaToBtcConfig } from './btc';
 export type { ChainConfig, RouteDefinition } from './types';

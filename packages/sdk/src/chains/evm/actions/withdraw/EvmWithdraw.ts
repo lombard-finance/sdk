@@ -25,19 +25,18 @@ import { LombardError, WithdrawErrorCode } from '../../../../shared/errors';
 import type { WithdrawEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
-  validatePrepareParams,
-} from '../../../../shared/validation';
+  validatePrepareParams } from '../../../../shared/validation';
 import { fromBaseDenomination, toBaseDenomination } from '../../../../tokens/tokens';
 import toBigInt from '../../../../utils/numbers';
 import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
-import { isVedaVaultChain, Vault, VAULTS, type VedaVaultChain } from '../../../../vaults/lib/config';
+import {
+  EARN_VAULT, type EarnChain,isEarnChain } from '../../../../vaults/lib/config';
 import { queueWithdrawInternal } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
 import type {
   EvmWithdrawParams,
   EvmWithdrawPrepareParams,
-  IEvmWithdraw,
-} from './types';
+  IEvmWithdraw } from './types';
 
 export class EvmWithdraw
   extends BaseAction<WithdrawEventMap, EvmOperationStatus>
@@ -90,8 +89,7 @@ export class EvmWithdraw
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
-      });
+        method: 'eth_accounts' });
       const account = (accounts as string[])[0] as `0x${string}`;
       if (!account) {
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
@@ -101,7 +99,7 @@ export class EvmWithdraw
       this._chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
       // Validate chain supports Veda vault
-      if (!isVedaVaultChain(this._chainId)) {
+      if (!isEarnChain(this._chainId)) {
         throw new LombardError(
           WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED,
           `Chain ${this.params.sourceChain} does not support Veda vault withdrawals`,
@@ -109,7 +107,7 @@ export class EvmWithdraw
         );
       }
 
-      const vault = VAULTS[Vault.Veda];
+      const vault = EARN_VAULT;
       const publicClient = makePublicClient({ chainId: this._chainId });
 
       // Check vault balance
@@ -117,8 +115,7 @@ export class EvmWithdraw
         address: vault.lensContract.address,
         abi: vault.lensContract.abi,
         functionName: 'balanceOf',
-        args: [account, vault.vaultContract.address],
-      });
+        args: [account, vault.vaultContract.address] });
       const balance = fromBaseDenomination(String(balanceRaw), vault.decimals);
 
       const amount = new BigNumber(validated.amount);
@@ -135,8 +132,7 @@ export class EvmWithdraw
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
         functionName: 'allowance',
-        args: [account, vault.withdrawQueueContracts[this._chainId].address],
-      });
+        args: [account, vault.withdrawQueueContracts[this._chainId].address] });
       const allowance = fromBaseDenomination(String(allowanceRaw), vault.decimals);
 
       // Check if approval is needed
@@ -145,14 +141,12 @@ export class EvmWithdraw
       if (this._needsApproval) {
         this.emitProgress({
           status: EvmOperationStatus.NEEDS_APPROVAL,
-          steps: { approval: StepStatus.PENDING, queueing: StepStatus.IDLE },
-        });
+          steps: { approval: StepStatus.PENDING, queueing: StepStatus.IDLE } });
         this.updateStatus(EvmOperationStatus.NEEDS_APPROVAL);
       } else {
         this.emitProgress({
           status: EvmOperationStatus.READY,
-          steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING },
-        });
+          steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING } });
         this.updateStatus(EvmOperationStatus.READY);
       }
     });
@@ -171,18 +165,17 @@ export class EvmWithdraw
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
-      const vault = VAULTS[Vault.Veda];
+      const vault = EARN_VAULT;
       const amount = new BigNumber(this._amount);
       const amountBase = toBigInt(toBaseDenomination(amount, vault.decimals));
 
       const publicClient = makePublicClient({ chainId: this._chainId });
       const walletClient = makeWalletClient({
         provider: provider as EIP1193Provider,
-        chainId: this._chainId,
-      });
+        chainId: this._chainId });
 
-      // Chain is validated as VedaVaultChain in prepare()
-      const vedaChainId = this._chainId as VedaVaultChain;
+      // Chain is validated as EarnChain in prepare()
+      const vedaChainId = this._chainId as EarnChain;
 
       const { request } = await publicClient.simulateContract({
         account: this._account,
@@ -190,8 +183,7 @@ export class EvmWithdraw
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
         functionName: 'approve',
-        args: [vault.withdrawQueueContracts[vedaChainId].address, amountBase],
-      });
+        args: [vault.withdrawQueueContracts[vedaChainId].address, amountBase] });
 
       const txHash = await walletClient.writeContract(request);
       await waitForTransactionReceipt(publicClient, txHash, 'vault share approval');
@@ -199,8 +191,7 @@ export class EvmWithdraw
       this._needsApproval = false;
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING },
-      });
+        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING } });
     }, EvmOperationStatus.READY);
   }
 
@@ -219,26 +210,22 @@ export class EvmWithdraw
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING },
-      });
+        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING } });
 
       // Execute vault queue withdraw (approval already done)
       const txHash = await queueWithdrawInternal({
         amount: this._amount,
         approve: false,
-        vaultKey: Vault.Veda,
         account: this._account,
         chainId: this._chainId,
         provider: provider as EIP1193Provider,
-        env: this.ctx.env,
-      });
+        env: this.ctx.env });
 
       this._txHash = txHash;
 
       this.emitProgress({
         status: EvmOperationStatus.COMPLETED,
-        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.COMPLETE },
-      });
+        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.COMPLETE } });
 
       this.emitCompleted();
 
@@ -248,8 +235,7 @@ export class EvmWithdraw
 
   private get prepareSchema() {
     return z.object({
-      amount: evmAmountSchema,
-    });
+      amount: evmAmountSchema });
   }
 
   private validateProtocol(protocol: DeployProtocol): void {

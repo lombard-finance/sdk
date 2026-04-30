@@ -12,8 +12,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import {
   AssetId,
   Chain,
-  getEvmAssetChains,
-} from '../../../../../core';
+  getEvmAssetChains } from '../../../../../core';
 import { evmAddressSchema } from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 
@@ -58,20 +57,17 @@ export const evmConfig: ChainConfig = {
       assetOut: AssetId.LBTC,
       sourceChains: DEPOSIT_PROD_SOURCE_CHAINS,
       destChains: LBTC_PROD_CHAINS,
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // Testnet
     {
       assetsIn: [AssetId.BTCb],
       assetOut: AssetId.LBTC,
       sourceChains: DEPOSIT_TESTNET_SOURCE_CHAINS,
       destChains: LBTC_TESTNET_CHAINS,
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
-    },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
   ],
 
-  addressSchema: evmAddressSchema,
-};
+  addressSchema: evmAddressSchema };
 
 /**
  * Check if a deposit route is supported

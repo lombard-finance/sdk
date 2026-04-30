@@ -21,7 +21,6 @@ interface BadgeProps {
 export function Badge({
   children,
   variant = 'secondary',
-  className = '',
-}: BadgeProps) {
+  className = '' }: BadgeProps) {
   return <span className={`badge bg-${variant} ${className}`}>{children}</span>;
 }

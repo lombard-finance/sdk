@@ -74,5 +74,4 @@ export const featureConfig: FeatureConfig = {
   isSwellchainEnabled: false,
   isTacEnabled: false,
   isBobEnabled: false,
-  isEtherlinkEnabled: false,
-};
+  isEtherlinkEnabled: false };

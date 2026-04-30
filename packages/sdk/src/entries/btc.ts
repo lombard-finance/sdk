@@ -23,14 +23,12 @@ export type {
   IBtcDeposit,
   IBtcDepositAndDeploy,
   IBtcStake,
-  IBtcStakeAndDeploy,
-} from '../chains/btc';
+  IBtcStakeAndDeploy } from '../chains/btc';
 export {
   BtcDeposit,
   BtcDepositAndDeploy,
   BtcStake,
-  BtcStakeAndDeploy,
-} from '../chains/btc';
+  BtcStakeAndDeploy } from '../chains/btc';
 
 // BTC status
 export { BtcActionStatus } from '../shared/constants/statusConstants';

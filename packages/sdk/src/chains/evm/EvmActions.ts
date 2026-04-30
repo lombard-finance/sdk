@@ -39,37 +39,31 @@ import { createEvmCoreContext } from '../../shared/context';
 import {
   createEvmDeploy,
   type EvmDeployParams,
-  type IEvmDeploy,
-} from './actions/deploy';
+  type IEvmDeploy } from './actions/deploy';
 import {
   createEvmDeposit,
   type EvmDepositParams,
-  type IEvmDeposit,
-} from './actions/deposit';
+  type IEvmDeposit } from './actions/deposit';
 import {
   createEvmRedeem,
   type EvmRedeemParams,
-  type IEvmRedeem,
-} from './actions/redeem';
+  type IEvmRedeem } from './actions/redeem';
 // Import action factories
 import {
   createEvmStake,
   type EvmStakeParams,
-  type IEvmStake,
-} from './actions/stake';
+  type IEvmStake } from './actions/stake';
 import {
   createEvmUnstake,
   type EvmUnstakeParams,
-  type IEvmUnstake,
-} from './actions/unstake';
+  type IEvmUnstake } from './actions/unstake';
 import {
   createEvmCancelWithdraw,
   createEvmWithdraw,
   type EvmCancelWithdrawParams,
   type EvmWithdrawParams,
   type IEvmCancelWithdraw,
-  type IEvmWithdraw,
-} from './actions/withdraw';
+  type IEvmWithdraw } from './actions/withdraw';
 
 /**
  * EVM Actions

@@ -3,8 +3,7 @@ import {
   ChainId,
   SolanaChain,
   StarknetChainId,
-  SuiChain,
-} from '../../common/chains';
+  SuiChain } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
 

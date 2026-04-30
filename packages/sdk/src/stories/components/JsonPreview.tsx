@@ -34,8 +34,7 @@ export function JsonPreview({
   data,
   defaultExpanded = true,
   badge,
-  badgeVariant = 'secondary',
-}: JsonPreviewProps) {
+  badgeVariant = 'secondary' }: JsonPreviewProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (

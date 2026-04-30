@@ -156,8 +156,7 @@ export function createAmountSchema(minAmount?: number) {
     .string({ message: 'Amount is required' })
     .min(1, 'Amount is required')
     .refine(val => val !== '0', {
-      message: 'Amount must be greater than 0',
-    })
+      message: 'Amount must be greater than 0' })
     .refine(
       val => {
         const num = Number.parseFloat(val);
@@ -262,8 +261,7 @@ export const addressSchemasByChainType = {
   solana: solanaAddressSchema,
   sui: suiAddressSchema,
   starknet: starknetAddressSchema,
-  bitcoin: bitcoinAddressSchema,
-} as const;
+  bitcoin: bitcoinAddressSchema } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Common Schemas
@@ -293,8 +291,7 @@ export const btcStakePrepareBaseSchema = z.object({
   recipient: z
     .string({ message: 'Recipient is required' })
     .min(1, 'Recipient is required'),
-  referralCode: referralCodeSchema,
-});
+  referralCode: referralCodeSchema });
 
 /**
  * Create a prepare schema with chain-specific address validation
@@ -303,8 +300,7 @@ export function createBtcStakePrepareSchema(addressSchema: z.ZodString) {
   return z.object({
     amount: btcStakeAmountSchema,
     recipient: addressSchema,
-    referralCode: referralCodeSchema,
-  });
+    referralCode: referralCodeSchema });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

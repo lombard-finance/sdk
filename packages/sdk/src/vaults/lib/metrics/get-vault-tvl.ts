@@ -10,29 +10,20 @@ import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenContractInfo,
-  retrieveTokenProperties,
-} from '../../../tokens/tokens';
-import { Vault, VAULTS, VedaVaultChain } from '../config';
+  retrieveTokenProperties } from '../../../tokens/tokens';
+import { EARN_VAULT, EarnChain } from '../config';
 
 export type GetVaultBtcHolding = {
-  vaultKey?: Vault;
-  rpcUrls?: Record<VedaVaultChain, string>;
+  rpcUrls?: Record<EarnChain, string>;
 };
 export async function getVaultBtcHolding({
-  vaultKey = Vault.Veda,
-  rpcUrls,
-}: GetVaultBtcHolding) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  const clients: Partial<Record<VedaVaultChain, PublicClient>> = {};
+  rpcUrls }: GetVaultBtcHolding) {
+  const vault = EARN_VAULT;
+  const clients: Partial<Record<EarnChain, PublicClient>> = {};
   for (const chainId of vault.chains) {
     const publicClient = makePublicClient({
       chainId: chainId,
-      rpcUrl: rpcUrls?.[chainId],
-    });
+      rpcUrl: rpcUrls?.[chainId] });
     clients[chainId] = publicClient;
   }
 
@@ -56,8 +47,7 @@ export async function getVaultBtcHolding({
         abi: tokenContract.abi,
         address: tokenContract.address,
         functionName: 'balanceOf',
-        args: [vault.vaultContract.address],
-      });
+        args: [vault.vaultContract.address] });
 
       const balance = fromBaseDenomination(
         balanceRaw ? String(balanceRaw) : 0,
@@ -74,8 +64,7 @@ export async function getVaultBtcHolding({
   return BigNumber.sum.apply(null, balances);
 }
 
-export type GetVaultTVLParameters = {
-  vaultKey?: Vault;
+export type GetEarnTVLParameters = {
 } & IEnvParam;
 
 type DuneQueryResult = {
@@ -92,15 +81,8 @@ type Response = {
   /** The TVL represented us US dollars */
   tvl: BigNumber;
 };
-export async function getVaultTVL({
-  vaultKey = Vault.Veda,
-  env,
-}: GetVaultTVLParameters) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
+export async function getEarnTVL({
+  env }: GetEarnTVLParameters) {
   const { bffApiUrl } = getApiConfig(env);
   if (!bffApiUrl) {
     throw new Error(
@@ -114,8 +96,7 @@ export async function getVaultTVL({
   const response: Response = {
     btcBalance: BigNumber(data.net_btc_balance),
     btcPrice: BigNumber(data.price),
-    tvl: BigNumber(data.vault_tvl),
-  };
+    tvl: BigNumber(data.vault_tvl) };
 
   return response;
 }

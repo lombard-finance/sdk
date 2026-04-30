@@ -62,8 +62,7 @@ export const AssetId = {
   // Stablecoin assets (for BSA)
   USDC: 'USDC',
   USDT: 'USDT',
-  DAI: 'DAI',
-} as const;
+  DAI: 'DAI' } as const;
 
 export type AssetId = (typeof AssetId)[keyof typeof AssetId];
 

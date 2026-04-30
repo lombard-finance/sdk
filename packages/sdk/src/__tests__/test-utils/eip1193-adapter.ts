@@ -25,16 +25,14 @@ export function walletClientToProvider(client: WalletClient): EIP1193Provider {
           const data = JSON.parse(typedData);
           return client.signTypedData({
             account: client.account!,
-            ...data,
-          });
+            ...data });
         }
 
         case 'personal_sign': {
           const [message] = params as [string, string];
           return client.signMessage({
             account: client.account!,
-            message: { raw: message as `0x${string}` },
-          });
+            message: { raw: message as `0x${string}` } });
         }
 
         default:
@@ -42,7 +40,6 @@ export function walletClientToProvider(client: WalletClient): EIP1193Provider {
       }
     },
     on: () => {},
-    removeListener: () => {},
-  } as EIP1193Provider;
+    removeListener: () => {} } as EIP1193Provider;
 }
 

@@ -4,8 +4,7 @@ import { Chain, createPublicClient, http, PublicClient } from 'viem';
 import {
   CHAIN_ID_TO_VIEM_CHAIN_MAP,
   ChainId,
-  getChain,
-} from '../common/chains';
+  getChain } from '../common/chains';
 import { determineEnv } from '../utils/env';
 import { getRpcUrlConfig } from './rpc-url-config';
 
@@ -24,8 +23,7 @@ type MakePublicClientParameters = {
 export function makePublicClient({
   chainId,
   rpcUrl,
-  env,
-}: MakePublicClientParameters): PublicClient {
+  env }: MakePublicClientParameters): PublicClient {
   const override = rpcUrl ? { [chainId]: rpcUrl } : undefined;
 
   const environment = env || determineEnv(chainId);
@@ -42,8 +40,7 @@ export function makePublicClient({
 
   const publicClient = createPublicClient({
     chain,
-    transport,
-  });
+    transport });
 
   return publicClient as PublicClient<typeof transport>;
 }

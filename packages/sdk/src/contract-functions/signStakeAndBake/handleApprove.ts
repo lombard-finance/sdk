@@ -5,8 +5,7 @@ import { makeWalletClient } from '../../clients/wallet-client';
 import { ChainId } from '../../common/chains';
 import {
   ISignStakeAndBakeParams,
-  ISignStakeAndBakeResult,
-} from './signStakeAndBake';
+  ISignStakeAndBakeResult } from './signStakeAndBake';
 import { buildTypedData, serializeTypedData } from './typed-data-builder';
 
 /**
@@ -33,8 +32,7 @@ export async function handleApproveFlow(params: {
     tokenAbi,
     spenderAddress,
     typedData,
-    requiredAmount,
-  } = params;
+    requiredAmount } = params;
 
   const publicClient = makePublicClient({ chainId, rpcUrl });
   const walletClient = makeWalletClient({ chainId, provider });
@@ -44,8 +42,7 @@ export async function handleApproveFlow(params: {
     address: tokenAddress,
     abi: tokenAbi,
     functionName: 'allowance',
-    args: [account, spenderAddress],
-  })) as bigint;
+    args: [account, spenderAddress] })) as bigint;
 
   let approvalTxHash: string | undefined;
 
@@ -57,8 +54,7 @@ export async function handleApproveFlow(params: {
       functionName: 'approve',
       args: [spenderAddress, requiredAmount],
       account,
-      chain: null,
-    });
+      chain: null });
 
     // Wait for transaction confirmation
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
@@ -76,6 +72,5 @@ export async function handleApproveFlow(params: {
     mode: 'approve',
     signature: '',
     typedData: serializeTypedData(typedData),
-    approvalTxHash,
-  };
+    approvalTxHash };
 }

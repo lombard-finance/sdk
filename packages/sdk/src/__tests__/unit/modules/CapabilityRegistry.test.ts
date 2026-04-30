@@ -8,14 +8,12 @@ import { CapabilityRegistry } from '../../../modules/CapabilityRegistry';
 const mockConfig: LombardConfig = {
   env: Env.testnet,
   providers: {},
-  modules: [],
-};
+  modules: [] };
 
 // Mock module
 const mockModule = {
   id: 'test-module',
-  register: vi.fn().mockReturnValue('service-instance'),
-};
+  register: vi.fn().mockReturnValue('service-instance') };
 
 describe('CapabilityRegistry', () => {
   beforeEach(() => {

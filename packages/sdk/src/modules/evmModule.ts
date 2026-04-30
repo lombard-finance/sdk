@@ -9,8 +9,7 @@
 
 import type {
   ChainModule,
-  EvmService as IEvmService,
-} from '@lombard.finance/sdk-common';
+  EvmService as IEvmService } from '@lombard.finance/sdk-common';
 
 import { EvmService } from '../services/EvmService';
 
@@ -34,8 +33,7 @@ export function evmModule(): ChainModule<'evm', IEvmService> {
     chain: 'evm',
     register(ctx) {
       return new EvmService(ctx.env);
-    },
-  };
+    } };
 }
 
 // Re-export service class and interface type
@@ -44,5 +42,4 @@ export type { IEvmService as EvmServiceInterface };
 export type {
   EvmChainId,
   FeeAuthorizationResult,
-  StoredFeeSignature,
-} from '@lombard.finance/sdk-common';
+  StoredFeeSignature } from '@lombard.finance/sdk-common';

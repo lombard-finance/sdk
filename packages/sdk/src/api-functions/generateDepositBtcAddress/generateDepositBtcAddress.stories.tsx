@@ -12,8 +12,7 @@ import useQuery from '../../stories/hooks/useQuery';
 import { Token } from '../../tokens/token-addresses';
 import {
   generateDepositBtcAddress,
-  IGenerateDepositBtcAddressParams,
-} from './generateDepositBtcAddress';
+  IGenerateDepositBtcAddressParams } from './generateDepositBtcAddress';
 
 // --- EVM story (original) ---
 
@@ -43,8 +42,7 @@ const SOLANA_UNIFIED_CHAIN_IDS: Record<string, string> = {
   'solana:devnet':
     '1063388738761200999231335106130623820923059005171000690717713454345365488555',
   'solana:mainnet-beta':
-    '977795225684978869420534708198397830756781198870511151491297393641706520304',
-};
+    '977795225684978869420534708198397830756781198870511151491297393641706520304' };
 
 interface PhantomProvider {
   isPhantom?: boolean;
@@ -147,8 +145,7 @@ function SolanaStoryView({ token, chainId, env, partnerId }: SolanaStoryArgs) {
         chainId: chainId as typeof SOLANA_DEVNET_CHAIN,
         signature,
         env,
-        partnerId,
-      });
+        partnerId });
     },
     [address, signature, token, chainId, env, partnerId],
     false,
@@ -223,9 +220,7 @@ const meta = {
   decorators: [functionType('api-post')],
   argTypes: {
     ...allChainSelector,
-    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]),
-  },
-} satisfies Meta<typeof StoryView>;
+    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]) } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -237,8 +232,7 @@ const evmExample = {
   signature:
     '0x9ca1c54532b42da150d7e1c87a55d2601a245d2a34f5c442e40d2793e2e7b739095cd1213aadd45db96d8459dd3a612daa01a08f661a5d67290bd806e4862f101c',
   typedData:
-    '{"account":"0x659579F1460c38C3ce3288b47b074646CEF855fc","domain":{"name":"Lombard Staked Bitcoin","version":"1","chainId":1,"verifyingContract":"0x8236a87084f8b84306f72007f36f2618a5634494"},"message":{"chainId":1,"fee":"1100","expiry":1746119680},"primaryType":"feeApproval","types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"feeApproval":[{"name":"chainId","type":"uint256"},{"name":"fee","type":"uint256"},{"name":"expiry","type":"uint256"}]}}',
-};
+    '{"account":"0x659579F1460c38C3ce3288b47b074646CEF855fc","domain":{"name":"Lombard Staked Bitcoin","version":"1","chainId":1,"verifyingContract":"0x8236a87084f8b84306f72007f36f2618a5634494"},"message":{"chainId":1,"fee":"1100","expiry":1746119680},"primaryType":"feeApproval","types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"feeApproval":[{"name":"chainId","type":"uint256"},{"name":"fee","type":"uint256"},{"name":"expiry","type":"uint256"}]}}' };
 
 export const EVM: Story = {
   args: {
@@ -249,9 +243,7 @@ export const EVM: Story = {
     eip712Data: evmExample.typedData,
     env: DEFAULT_ENV,
     referrerCode: '',
-    partnerId: 'lombard',
-  },
-};
+    partnerId: 'lombard' } };
 
 export const SolanaBTCb: StoryObj<typeof SolanaStoryView> = {
   name: 'Solana — BTC.b',
@@ -260,12 +252,9 @@ export const SolanaBTCb: StoryObj<typeof SolanaStoryView> = {
     token: Token.BTCb,
     chainId: SOLANA_DEVNET_CHAIN,
     env: Env.dev,
-    partnerId: 'test',
-  },
+    partnerId: 'test' },
   argTypes: {
-    ...makeTokenSelector([Token.LBTC, Token.BTCb]),
-  },
-};
+    ...makeTokenSelector([Token.LBTC, Token.BTCb]) } };
 
 export const SolanaLBTC: StoryObj<typeof SolanaStoryView> = {
   name: 'Solana — LBTC',
@@ -274,9 +263,6 @@ export const SolanaLBTC: StoryObj<typeof SolanaStoryView> = {
     token: Token.LBTC,
     chainId: SOLANA_DEVNET_CHAIN,
     env: Env.dev,
-    partnerId: 'test',
-  },
+    partnerId: 'test' },
   argTypes: {
-    ...makeTokenSelector([Token.LBTC, Token.BTCb]),
-  },
-};
+    ...makeTokenSelector([Token.LBTC, Token.BTCb]) } };

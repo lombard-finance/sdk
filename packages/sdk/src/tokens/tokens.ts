@@ -38,8 +38,7 @@ const MAYBE_UPGRADED_CONTRACT_ABI = [
     name: 'getAssetRouter',
     outputs: [{ internalType: 'address', name: '', type: 'address' }],
     stateMutability: 'view',
-    type: 'function',
-  },
+    type: 'function' },
 ] as const;
 const UPGRADED_CONTRACT_POINTER = MAYBE_UPGRADED_CONTRACT_ABI[0].name;
 
@@ -61,8 +60,7 @@ export async function isUpgradedContract(
     const assetRouter = await publicClient.readContract({
       abi: MAYBE_UPGRADED_CONTRACT_ABI,
       address: typeof address === 'string' ? address : address.adapter,
-      functionName: UPGRADED_CONTRACT_POINTER,
-    });
+      functionName: UPGRADED_CONTRACT_POINTER });
     return assetRouter !== zeroAddress;
   } catch {
     return false;
@@ -164,8 +162,7 @@ export async function getTokenContractInfo<
   return {
     abi,
     address: typeof address === 'string' ? address : address[addressKind],
-    chainId,
-  };
+    chainId };
 }
 
 export const retrieveTokenProperties = async <
@@ -180,15 +177,12 @@ export const retrieveTokenProperties = async <
       {
         address: tokenContractInfo.address,
         abi: tokenContractInfo.abi as Abi,
-        functionName: 'symbol',
-      },
+        functionName: 'symbol' },
       {
         address: tokenContractInfo.address,
         abi: tokenContractInfo.abi as Abi,
-        functionName: 'decimals',
-      },
-    ],
-  });
+        functionName: 'decimals' },
+    ] });
 
   if (
     symbolResult.status === 'success' &&
@@ -198,8 +192,7 @@ export const retrieveTokenProperties = async <
       address: tokenContractInfo.address,
       abi: tokenContractInfo.abi,
       symbol: String(symbolResult.result),
-      decimals: Number(decimalsResult.result),
-    };
+      decimals: Number(decimalsResult.result) };
   }
 };
 
@@ -225,8 +218,7 @@ export async function getAssetInfo(
   return retrieveTokenProperties(publicClient, {
     abi: erc20Abi,
     address,
-    chainId,
-  });
+    chainId });
 }
 
 // Utils:

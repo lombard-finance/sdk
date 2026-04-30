@@ -14,8 +14,7 @@ import {
   DepositEvent,
   type DepositEventMap,
   RedeemEvent,
-  UnstakeEvent,
-} from '../events';
+  UnstakeEvent } from '../events';
 
 describe('Event Types', () => {
   describe('DepositEvent Enum', () => {
@@ -106,15 +105,12 @@ describe('Event Types', () => {
         toJSON: () => ({
           code: ErrorCode.UNKNOWN_ERROR,
           message: 'Test',
-          name: 'LombardError',
-        }),
+          name: 'LombardError' }),
         toSentryContext: () => ({
           errorCode: ErrorCode.UNKNOWN_ERROR,
           errorMessage: 'Test',
           sdkVersion: '3.8.0',
-          timestamp: new Date().toISOString(),
-        }),
-      } as LombardError);
+          timestamp: new Date().toISOString() }) } as LombardError);
     });
   });
 });

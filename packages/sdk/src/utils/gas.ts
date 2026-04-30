@@ -29,8 +29,7 @@ export const estimateGasFees = async (
   const gasEstimationData = {
     gas,
     maxFeePerGas,
-    maxPriorityFeePerGas,
-  };
+    maxPriorityFeePerGas };
 
   return gasEstimationData;
 };

@@ -10,5 +10,4 @@ export type {
   ISuiUnstake,
   SuiUnstakeParams,
   SuiUnstakePrepareParams,
-  SuiUnstakeProgress,
-} from './types';
+  SuiUnstakeProgress } from './types';

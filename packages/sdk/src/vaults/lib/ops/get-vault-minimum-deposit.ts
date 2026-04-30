@@ -7,11 +7,10 @@ import { ChainId } from '../../../common/chains';
 import { Token } from '../../../tokens/token-addresses';
 import { getTokenInfo } from '../../../tokens/tokens';
 import { fromBaseDenomination } from '../../../tokens/tokens';
-import { isVedaVaultChain, Vault, VAULTS } from '../config';
+import {
+  EARN_VAULT, isEarnChain } from '../config';
 
-export type GetVaultMinimumDepositParameters = {
-  /** The vault identifier. */
-  vaultKey: Vault;
+export type GetEarnMinimumDepositParameters = {
   /** The deposit token. Defaults to LBTC. */
   token?: Token;
   /** The chain where the deposit will be made. Defaults to Ethereum. */
@@ -31,23 +30,17 @@ export type GetVaultMinimumDepositParameters = {
  *
  * @example
  * ```ts
- * const min = await getVaultMinimumDeposit({ vaultKey: Vault.Veda });
- * // BigNumber(0.00000002) — 2 satoshis at current rates
+ * const min = await getEarnMinimumDeposit();
+ * // BigNumber(0.00000002), 2 satoshis at current rates
  * ```
  */
-export async function getVaultMinimumDeposit({
-  vaultKey,
+export async function getEarnMinimumDeposit({
   token = Token.LBTC,
   chainId = ChainId.ethereum,
   rpcUrl,
-  env,
-}: GetVaultMinimumDepositParameters): Promise<BigNumber> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  env }: GetEarnMinimumDepositParameters = {}): Promise<BigNumber> {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Supported chains: ${vault.chains.join(', ')}`,
     );
@@ -58,7 +51,7 @@ export async function getVaultMinimumDeposit({
   ] as readonly ChainId[] | undefined;
   if (!supportedChains || !supportedChains.includes(chainId)) {
     throw new Error(
-      `Token ${token} is not supported on chain ${chainId} for vault ${vaultKey}`,
+      `Token ${token} is not supported on chain ${chainId} for the Bitcoin Earn vault`,
     );
   }
 
@@ -91,8 +84,7 @@ export async function getVaultMinimumDeposit({
   const ethPublicClient = makePublicClient({
     chainId: ChainId.ethereum,
     rpcUrl: chainId === ChainId.ethereum ? rpcUrl : undefined,
-    env,
-  });
+    env });
 
   const vaultAddress = vault.vaultContract.address as Address;
   const accountantAddress = vault.accountantContract.address as Address;
@@ -107,16 +99,13 @@ export async function getVaultMinimumDeposit({
         address: accountantAddress,
         abi: accountantAbi,
         functionName: 'getRateInQuote',
-        args: [ethTokenAddress],
-      },
+        args: [ethTokenAddress] },
       {
         address: lensAddress,
         abi: lensAbi,
         functionName: 'previewDeposit',
-        args: [ethTokenAddress, 1n, vaultAddress, accountantAddress],
-      },
-    ],
-  });
+        args: [ethTokenAddress, 1n, vaultAddress, accountantAddress] },
+    ] });
 
   if (rateResult.status !== 'success') {
     throw new Error(
@@ -145,8 +134,7 @@ export async function getVaultMinimumDeposit({
     address: lensAddress,
     abi: lensAbi,
     functionName: 'previewDeposit',
-    args: [ethTokenAddress, estimatedMin, vaultAddress, accountantAddress],
-  });
+    args: [ethTokenAddress, estimatedMin, vaultAddress, accountantAddress] });
 
   if ((verifyResult as bigint) > 0n) {
     return fromBaseDenomination(estimatedMin.toString(), tokenDecimals);
@@ -165,9 +153,7 @@ export async function getVaultMinimumDeposit({
       address: lensAddress,
       abi: lensAbi,
       functionName: 'previewDeposit' as const,
-      args: [ethTokenAddress, candidate, vaultAddress, accountantAddress],
-    })),
-  });
+      args: [ethTokenAddress, candidate, vaultAddress, accountantAddress] })) });
 
   for (let i = 0; i < batchResults.length; i++) {
     const result = batchResults[i];

@@ -12,13 +12,11 @@ export {
   isAssetOutSupported as isDepositAndDeployAssetOutSupported,
   isDestChainSupported as isDepositAndDeployDestChainSupported,
   isProtocolSupported as isDepositAndDeployProtocolSupported,
-  isRouteAvailable as isDepositAndDeployRouteAvailable,
-} from './config';
+  isRouteAvailable as isDepositAndDeployRouteAvailable } from './config';
 export { createBtcDepositAndDeploy } from './factory';
 export {
   BtcActionStatus,
   type BtcDepositAndDeployParams,
   type BtcDepositAndDeployPrepareParams,
   type BtcDepositAndDeployProgress,
-  type BtcDepositAndDeploy as IBtcDepositAndDeploy,
-} from './types';
+  type BtcDepositAndDeploy as IBtcDepositAndDeploy } from './types';

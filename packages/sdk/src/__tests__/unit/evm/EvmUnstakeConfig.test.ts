@@ -12,13 +12,11 @@ import { describe, expect,it } from 'vitest';
 
 import {
   evmToBtcbConfig,
-  evmToBtcConfig,
-} from '../../../chains/evm/actions/unstake/config/evm';
+  evmToBtcConfig } from '../../../chains/evm/actions/unstake/config/evm';
 import { Chain } from '../../../core';
 import {
   bitcoinAddressSchema,
-  evmAddressSchema,
-} from '../../../shared/validation';
+  evmAddressSchema } from '../../../shared/validation';
 
 describe('EVM Unstake Config', () => {
   describe('Address Schema Selection', () => {

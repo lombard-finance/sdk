@@ -101,8 +101,7 @@ export async function checkFeeAuthorization(
       hasValidSignature: false,
       feeInSatoshis: null,
       feeFormatted: null,
-      expirationDate: null,
-    };
+      expirationDate: null };
   }
 
   // Get token address for signature lookup
@@ -113,8 +112,7 @@ export async function checkFeeAuthorization(
     address: account,
     chainId,
     env,
-    tokenAddress: tokenInfo.address,
-  });
+    tokenAddress: tokenInfo.address });
 
   // Check if signature exists and is not expired
   const isExpired = existingSignature.expirationDate
@@ -131,8 +129,7 @@ export async function checkFeeAuthorization(
     const feeInBtc = await getMintingFee({
       token,
       chainId,
-      env,
-    });
+      env });
     feeInSatoshis = BigInt(feeInBtc.times(1e8).toFixed(0));
     feeFormatted = feeInBtc.toFixed(8);
   }
@@ -142,8 +139,7 @@ export async function checkFeeAuthorization(
     hasValidSignature,
     feeInSatoshis,
     feeFormatted,
-    expirationDate: existingSignature.expirationDate ?? null,
-  };
+    expirationDate: existingSignature.expirationDate ?? null };
 }
 
 /**
@@ -169,8 +165,7 @@ export async function authorizeFee(
     chainId,
     provider,
     env,
-    token,
-  });
+    token });
 
   // Store the signature on the server
   await storeNetworkFeeSignature({
@@ -178,8 +173,7 @@ export async function authorizeFee(
     typedData: signResult.typedData,
     address: account,
     env,
-    tokenAddress: tokenInfo.address,
-  });
+    tokenAddress: tokenInfo.address });
 
   return signResult;
 }
@@ -193,6 +187,5 @@ export function createInitialFeeAuthState(): FeeAuthState {
     isAuthorized: false,
     feeInSatoshis: null,
     feeFormatted: null,
-    expirationDate: null,
-  };
+    expirationDate: null };
 }

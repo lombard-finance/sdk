@@ -13,5 +13,4 @@ export {
   type EvmDepositPrepareParams,
   type EvmDepositProgress,
   EvmDepositStatus,
-  type IEvmDeposit,
-} from './types';
+  type IEvmDeposit } from './types';

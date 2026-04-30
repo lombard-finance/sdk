@@ -2,8 +2,7 @@ import { makeWalletClient } from '../../clients/wallet-client';
 import { ChainId } from '../../common/chains';
 import {
   ISignStakeAndBakeParams,
-  ISignStakeAndBakeResult,
-} from './signStakeAndBake';
+  ISignStakeAndBakeResult } from './signStakeAndBake';
 import { buildTypedData, serializeTypedData } from './typed-data-builder';
 
 /**
@@ -23,6 +22,5 @@ export async function handlePermitFlow(params: {
   return {
     mode: 'permit',
     signature,
-    typedData: serializeTypedData(typedData),
-  };
+    typedData: serializeTypedData(typedData) };
 }

@@ -21,8 +21,7 @@ export type {
   DepositRouteDefinition,
   FeeAuthResult,
   SignatureResult,
-  StoredFeeSignature,
-} from './types';
+  StoredFeeSignature } from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Registry
@@ -35,8 +34,7 @@ export type {
  */
 export const depositConfigs: Partial<Record<ChainType, DepositChainConfig>> = {
   evm: evmDepositConfig,
-  solana: solanaDepositConfig,
-};
+  solana: solanaDepositConfig };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Lookup Functions

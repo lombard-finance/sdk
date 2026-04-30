@@ -5,19 +5,13 @@ import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
-import { isVedaVaultChain, Vault, VAULTS } from '../../vaults/lib/config';
+import {
+  EARN_VAULT, isEarnChain } from '../../vaults/lib/config';
 import { getShareValueInternal } from '../getShareValue/getShareValue';
 
 export interface IGetSharesByAddressParameters extends CommonParameters {
-  /**
-   * The address of the share holder.
-   */
+  /** The address of the share holder. */
   address: string;
-  /**
-   * Optional vault key specifying the vault in use
-   * @default {string} - "veda"
-   */
-  vaultKey?: Vault;
 }
 
 interface IGetSharesByAddressResponse {
@@ -39,15 +33,9 @@ interface IGetSharesByAddressResponse {
 export async function getSharesByAddressInternal({
   chainId,
   rpcUrl,
-  address,
-  vaultKey = Vault.Veda,
-}: IGetSharesByAddressParameters): Promise<IGetSharesByAddressResponse> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  address }: IGetSharesByAddressParameters): Promise<IGetSharesByAddressResponse> {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
@@ -59,8 +47,7 @@ export async function getSharesByAddressInternal({
     const lensContract = getContract({
       abi: vault.lensContract.abi,
       address: vault.lensContract.address,
-      client,
-    });
+      client });
 
     const balanceValue = await lensContract.read.balanceOf([
       address,
@@ -71,15 +58,12 @@ export async function getSharesByAddressInternal({
 
     const exchangeRate = await getShareValueInternal({
       chainId,
-      rpcUrl,
-      vaultKey,
-    });
+      rpcUrl });
 
     return {
       balance,
       exchangeRate,
-      balanceLbtc: balance.multipliedBy(exchangeRate),
-    };
+      balanceLbtc: balance.multipliedBy(exchangeRate) };
   } catch (error) {
     const errorMessage = getErrorMessage(error);
     throw new Error(errorMessage);

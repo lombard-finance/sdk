@@ -61,8 +61,7 @@ function SolanaGetStoryView({
   token,
   chainId,
   env,
-  partnerId,
-}: SolanaGetStoryArgs) {
+  partnerId }: SolanaGetStoryArgs) {
   const [address, setAddress] = useState<string | null>(null);
   const [connectError, setConnectError] = useState<string | null>(null);
 
@@ -95,8 +94,7 @@ function SolanaGetStoryView({
         token,
         chainId: chainId as typeof SOLANA_DEVNET_CHAIN,
         env,
-        partnerId,
-      });
+        partnerId });
     },
     [address, token, chainId, env, partnerId],
     false,
@@ -148,9 +146,7 @@ const meta = {
   decorators: [functionType('api-get')],
   argTypes: {
     ...allChainSelector,
-    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]),
-  },
-} satisfies Meta<typeof StoryView>;
+    ...makeTokenSelector([Token.LBTC, Token.BTCK, Token.BTCb]) } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -164,9 +160,7 @@ export const EVM: Story = {
     address: EXAMPLE_EVM_ADDRESS,
     chainId: ChainId.ethereum,
     env: DEFAULT_ENV,
-    partnerId: 'lombard',
-  },
-};
+    partnerId: 'lombard' } };
 
 export const SolanaBTCb: StoryObj<typeof SolanaGetStoryView> = {
   name: 'Solana — BTC.b',
@@ -175,12 +169,9 @@ export const SolanaBTCb: StoryObj<typeof SolanaGetStoryView> = {
     token: Token.BTCb,
     chainId: SOLANA_DEVNET_CHAIN,
     env: Env.dev,
-    partnerId: 'test',
-  },
+    partnerId: 'test' },
   argTypes: {
-    ...makeTokenSelector([Token.LBTC, Token.BTCb]),
-  },
-};
+    ...makeTokenSelector([Token.LBTC, Token.BTCb]) } };
 
 export const SolanaLBTC: StoryObj<typeof SolanaGetStoryView> = {
   name: 'Solana — LBTC',
@@ -189,9 +180,6 @@ export const SolanaLBTC: StoryObj<typeof SolanaGetStoryView> = {
     token: Token.LBTC,
     chainId: SOLANA_DEVNET_CHAIN,
     env: Env.stage,
-    partnerId: 'test',
-  },
+    partnerId: 'test' },
   argTypes: {
-    ...makeTokenSelector([Token.LBTC, Token.BTCb]),
-  },
-};
+    ...makeTokenSelector([Token.LBTC, Token.BTCb]) } };

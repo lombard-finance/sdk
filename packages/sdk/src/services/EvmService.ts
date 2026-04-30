@@ -13,8 +13,7 @@ import type {
     EvmService as IEvmService,
     SignNetworkFeeParams,
     SignNetworkFeeResult,
-    SignStakeAndBakeParams,
-} from '@lombard.finance/sdk-common';
+    SignStakeAndBakeParams } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import type { EIP1193Provider } from 'viem';
 
@@ -45,8 +44,7 @@ export class EvmService implements IEvmService {
     const fee = await getMintingFee({
       token: (token as Token) || Token.LBTC,
       chainId: chainId as ChainId,
-      env: this.env,
-    });
+      env: this.env });
     return fee.toString();
   }
 
@@ -63,13 +61,11 @@ export class EvmService implements IEvmService {
       provider: params.provider as EIP1193Provider,
       env: this.env,
       // Pass token for signing - defaults to LBTC for backwards compatibility
-      token: (params.token as Token) ?? Token.LBTC,
-    });
+      token: (params.token as Token) ?? Token.LBTC });
 
     return {
       signature: result.signature,
-      typedData: result.typedData,
-    };
+      typedData: result.typedData };
   }
 
   /**
@@ -81,8 +77,7 @@ export class EvmService implements IEvmService {
   ): Promise<string> {
     const fee = await getStakeAndBakeFee({
       chainId: chainId as ChainId,
-      protocol,
-    });
+      protocol });
     return fee.toString();
   }
 
@@ -99,13 +94,11 @@ export class EvmService implements IEvmService {
       provider: params.provider as EIP1193Provider,
       env: this.env,
       vaultKey: params.vaultKey as DefiProtocol,
-      token: params.token as StakeAndBakeToken,
-    });
+      token: params.token as StakeAndBakeToken });
 
     return {
       signature: result.signature,
-      typedData: result.typedData,
-    };
+      typedData: result.typedData };
   }
 
   /**
@@ -119,8 +112,7 @@ export class EvmService implements IEvmService {
     const signature = await signLbtcDestinationAddr({
       account: params.address as `0x${string}`,
       chainId: params.chainId as ChainId,
-      provider: params.provider as EIP1193Provider,
-    });
+      provider: params.provider as EIP1193Provider });
 
     return { signature };
   }

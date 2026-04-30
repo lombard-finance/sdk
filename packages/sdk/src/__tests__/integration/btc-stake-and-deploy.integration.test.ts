@@ -30,8 +30,7 @@ const createMockProvider = () => ({
       default:
         return null;
     }
-  }),
-});
+  }) });
 
 describe('BTC Stake And Deploy Integration', () => {
   let mockProvider: ReturnType<typeof createMockProvider>;
@@ -45,8 +44,7 @@ describe('BTC Stake And Deploy Integration', () => {
     it('should create stake and deploy action for Ethereum', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stakeAndDeploy = btcStakeAndDeploy(config, {
         assetOut: AssetId.LBTC,
@@ -61,8 +59,7 @@ describe('BTC Stake And Deploy Integration', () => {
     it('should reject BTCb as output asset', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       expect(() => {
         btcStakeAndDeploy(config, {
@@ -78,8 +75,7 @@ describe('BTC Stake And Deploy Integration', () => {
     it('should start in idle status', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stakeAndDeploy = btcStakeAndDeploy(config, {
         assetOut: AssetId.LBTC,

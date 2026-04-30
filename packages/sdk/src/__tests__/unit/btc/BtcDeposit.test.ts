@@ -21,8 +21,7 @@ describe('BtcDeposit Interface', () => {
     it('should accept valid deposit parameters', () => {
       const params: BtcDepositParams = {
         assetOut: AssetId.BTCb,
-        destChain: Chain.AVALANCHE,
-      };
+        destChain: Chain.AVALANCHE };
 
       expect(params.assetOut).toBe(AssetId.BTCb);
       expect(params.destChain).toBe(Chain.AVALANCHE);
@@ -31,8 +30,7 @@ describe('BtcDeposit Interface', () => {
     it('should require BTCb as output asset', () => {
       const validParams: BtcDepositParams = {
         assetOut: AssetId.BTCb,
-        destChain: Chain.AVALANCHE,
-      };
+        destChain: Chain.AVALANCHE };
 
       // BTCb is correct for deposit
       expect(validParams.assetOut).toBe(AssetId.BTCb);
@@ -42,8 +40,7 @@ describe('BtcDeposit Interface', () => {
       const params: BtcDepositParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
-        sourceChain: Chain.BITCOIN_MAINNET,
-      };
+        sourceChain: Chain.BITCOIN_MAINNET };
 
       expect(params.sourceChain).toBe(Chain.BITCOIN_MAINNET);
     });
@@ -51,13 +48,11 @@ describe('BtcDeposit Interface', () => {
     it('should support Avalanche chains for BTC.b', () => {
       const mainnetParams: BtcDepositParams = {
         assetOut: AssetId.BTCb,
-        destChain: Chain.AVALANCHE,
-      };
+        destChain: Chain.AVALANCHE };
 
       const testnetParams: BtcDepositParams = {
         assetOut: AssetId.BTCb,
-        destChain: Chain.AVALANCHE_FUJI,
-      };
+        destChain: Chain.AVALANCHE_FUJI };
 
       expect(mainnetParams.destChain).toBe(Chain.AVALANCHE);
       expect(testnetParams.destChain).toBe(Chain.AVALANCHE_FUJI);
@@ -68,8 +63,7 @@ describe('BtcDeposit Interface', () => {
     it('should accept valid prepare parameters', () => {
       const params: BtcDepositPrepareParams = {
         amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
 
       expect(params.amount).toBe('0.1');
       expect(params.recipient).toBeDefined();
@@ -79,8 +73,7 @@ describe('BtcDeposit Interface', () => {
       const params: BtcDepositPrepareParams = {
         amount: '0.1',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-        referralCode: 'REF123',
-      };
+        referralCode: 'REF123' };
 
       expect(params.referralCode).toBe('REF123');
     });
@@ -106,8 +99,7 @@ describe('BtcDeposit Interface', () => {
         'idle -> prepare': 'needs_fee_authorization or needs_address_confirmation',
         'needs_fee_authorization -> authorize': 'ready',
         'needs_address_confirmation -> authorize': 'ready',
-        'ready -> generateDepositAddress': 'address_ready',
-      };
+        'ready -> generateDepositAddress': 'address_ready' };
 
       expect(Object.keys(statusFlow).length).toBeGreaterThan(0);
     });
@@ -136,8 +128,7 @@ describe('BtcDeposit Interface', () => {
     it('should define execute method', () => {
       type ExecuteMethod = () => Promise<{ depositAddress: string }>;
       const testType: ExecuteMethod = async () => ({
-        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-      });
+        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' });
       expect(testType).toBeDefined();
     });
 
@@ -156,8 +147,7 @@ describe('BtcDeposit Interface', () => {
 
       handler({
         status: 'address_ready',
-        steps: { created: 'complete', verifying: 'idle', issuing: 'idle' },
-      });
+        steps: { created: 'complete', verifying: 'idle', issuing: 'idle' } });
 
       expect(handler).toHaveBeenCalledOnce();
     });
@@ -188,16 +178,14 @@ describe('BtcDeposit Interface', () => {
     it('should expose recipient property after prepare', () => {
       type HasRecipient = { readonly recipient?: string };
       const obj: HasRecipient = {
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-      };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb' };
       expect(obj.recipient).toBeDefined();
     });
 
     it('should expose depositAddress property after generate', () => {
       type HasDepositAddress = { readonly depositAddress?: string };
       const obj: HasDepositAddress = {
-        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-      };
+        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' };
       expect(obj.depositAddress).toBeDefined();
     });
   });

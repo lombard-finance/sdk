@@ -5,8 +5,7 @@ import { CommonWriteParameters } from '../../common/parameters';
 import {
   ApprovalMode,
   DefiProtocol,
-  StakeAndBakeToken,
-} from '../../defi/defi-registry';
+  StakeAndBakeToken } from '../../defi/defi-registry';
 import { DAY, now, toUnix } from '../../utils/time';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
 import { handleApproveFlow } from './handleApprove';
@@ -14,8 +13,7 @@ import { handlePermitFlow } from './handlePermit';
 import { buildTypedData } from './typed-data-builder';
 import {
   calculateStakeAndBakeLBTCAmount,
-  getStakeAndBakeTokenContract,
-} from './utils';
+  getStakeAndBakeTokenContract } from './utils';
 import { getStakeAndBakeConfig } from './validation';
 
 export interface ISignStakeAndBakeParams extends CommonWriteParameters {
@@ -99,8 +97,7 @@ export async function signStakeAndBake({
   chainId,
   provider,
   rpcUrl,
-  env = DEFAULT_ENV,
-}: ISignStakeAndBakeParams): Promise<ISignStakeAndBakeResult> {
+  env = DEFAULT_ENV }: ISignStakeAndBakeParams): Promise<ISignStakeAndBakeResult> {
   const strategy = getStakeAndBakeConfig(protocol, token, chainId, env);
 
   const spenderAddress = strategy.spenderContract.address;
@@ -137,8 +134,7 @@ export async function signStakeAndBake({
     spender: spenderAddress,
     value: BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN)),
     nonce,
-    deadline,
-  });
+    deadline });
 
   // Delegate to appropriate handler based on mode
   if (strategy.approval.mode === 'approve') {
@@ -151,8 +147,7 @@ export async function signStakeAndBake({
       tokenAbi,
       spenderAddress,
       typedData,
-      requiredAmount: BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN)),
-    });
+      requiredAmount: BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN)) });
   }
 
   // Permit mode

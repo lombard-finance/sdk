@@ -11,8 +11,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   evmCancelWithdraw,
-  evmWithdraw,
-} from '../../chains/evm/actions/withdraw';
+  evmWithdraw } from '../../chains/evm/actions/withdraw';
 import { Chain, evmActions } from '../../index';
 import { EvmOperationStatus } from '../../shared/constants/statusConstants';
 import { createTestConfig as createConfig } from '../helpers/createTestConfig';
@@ -33,16 +32,11 @@ vi.mock('../../clients/public-client', () => ({
       }
     }),
     simulateContract: vi.fn().mockResolvedValue({
-      request: { /* mock request */ },
-    }),
-  })),
-}));
+      request: { /* mock request */ } }) })) }));
 
 vi.mock('../../clients/wallet-client', () => ({
   makeWalletClient: vi.fn(() => ({
-    writeContract: vi.fn().mockResolvedValue('0xmocktxhash'),
-  })),
-}));
+    writeContract: vi.fn().mockResolvedValue('0xmocktxhash') })) }));
 
 // Mock EIP1193 Provider
 const createMockProvider = (overrides?: {
@@ -66,8 +60,7 @@ const createMockProvider = (overrides?: {
       default:
         return null;
     }
-  }),
-});
+  }) });
 
 describe('EVM Withdraw Integration', () => {
   let mockProvider: ReturnType<typeof createMockProvider>;
@@ -81,15 +74,13 @@ describe('EVM Withdraw Integration', () => {
     it('should create withdraw action using evmActions namespace', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const withdraw = evm.withdraw({
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(withdraw).toBeDefined();
       expect(withdraw.status).toBe('idle');
@@ -98,14 +89,12 @@ describe('EVM Withdraw Integration', () => {
     it('should create withdraw action using factory', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(withdraw).toBeDefined();
       expect(withdraw.status).toBe('idle');
@@ -114,14 +103,12 @@ describe('EVM Withdraw Integration', () => {
     it('should create cancelWithdraw action using evmActions namespace', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const cancel = evm.cancelWithdraw({
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
-      });
+        protocol: 'veda' });
 
       expect(cancel).toBeDefined();
       expect(cancel.status).toBe('idle');
@@ -130,13 +117,11 @@ describe('EVM Withdraw Integration', () => {
     it('should create cancelWithdraw action using factory', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
-      });
+        protocol: 'veda' });
 
       expect(cancel).toBeDefined();
       expect(cancel.status).toBe('idle');
@@ -147,14 +132,12 @@ describe('EVM Withdraw Integration', () => {
     it('should start in idle status', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(withdraw.status).toBe(EvmOperationStatus.IDLE);
       expect(withdraw.error).toBeNull();
@@ -163,14 +146,12 @@ describe('EVM Withdraw Integration', () => {
     it('should expose needsApproval property', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       // Initially false before prepare
       expect(withdraw.needsApproval).toBe(false);
@@ -181,14 +162,12 @@ describe('EVM Withdraw Integration', () => {
     it('should accept veda protocol', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(withdraw).toBeDefined();
       expect(withdraw.protocol).toBeUndefined(); // Set after prepare
@@ -199,14 +178,12 @@ describe('EVM Withdraw Integration', () => {
     it('should support Ethereum mainnet', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(withdraw).toBeDefined();
     });
@@ -214,14 +191,12 @@ describe('EVM Withdraw Integration', () => {
     it('should support Base', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => createMockProvider({ chainId: '0x2105' }) },
-      });
+        providers: { evm: () => createMockProvider({ chainId: '0x2105' }) } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.BASE,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(withdraw).toBeDefined();
     });
@@ -229,14 +204,12 @@ describe('EVM Withdraw Integration', () => {
     it('should support BSC', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => createMockProvider({ chainId: '0x38' }) },
-      });
+        providers: { evm: () => createMockProvider({ chainId: '0x38' }) } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.BSC,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(withdraw).toBeDefined();
     });
@@ -244,14 +217,12 @@ describe('EVM Withdraw Integration', () => {
     it('should support Corn', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => createMockProvider({ chainId: '0x1406f40' }) },
-      });
+        providers: { evm: () => createMockProvider({ chainId: '0x1406f40' }) } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.CORN,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(withdraw).toBeDefined();
     });
@@ -261,14 +232,12 @@ describe('EVM Withdraw Integration', () => {
     it('should allow subscribing to events', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       const handler = vi.fn();
       withdraw.on('status-change', handler);
@@ -285,14 +254,12 @@ describe('EVM Withdraw Integration', () => {
     it('should expose amount after prepare', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       // Amount is undefined before prepare
       expect(withdraw.amount).toBeUndefined();
@@ -301,14 +268,12 @@ describe('EVM Withdraw Integration', () => {
     it('should expose txHash after execute', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       // txHash is undefined before execute
       expect(withdraw.txHash).toBeUndefined();
@@ -328,13 +293,11 @@ describe('EVM CancelWithdraw Integration', () => {
     it('should create cancelWithdraw action', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
-      });
+        protocol: 'veda' });
 
       expect(cancel).toBeDefined();
       expect(cancel.status).toBe(EvmOperationStatus.IDLE);
@@ -345,13 +308,11 @@ describe('EVM CancelWithdraw Integration', () => {
     it('should start in idle status', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
-      });
+        protocol: 'veda' });
 
       expect(cancel.status).toBe(EvmOperationStatus.IDLE);
       expect(cancel.error).toBeNull();
@@ -365,13 +326,11 @@ describe('EVM CancelWithdraw Integration', () => {
       for (const chain of chains) {
         const config = createConfig({
           env: Env.prod,
-          providers: { evm: () => mockProvider },
-        });
+          providers: { evm: () => mockProvider } });
 
         const cancel = evmCancelWithdraw(config, {
           chain,
-          protocol: 'veda',
-        });
+          protocol: 'veda' });
 
         expect(cancel).toBeDefined();
       }
@@ -382,13 +341,11 @@ describe('EVM CancelWithdraw Integration', () => {
     it('should expose txHash after execute', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
-      });
+        protocol: 'veda' });
 
       // txHash is undefined before execute
       expect(cancel.txHash).toBeUndefined();
@@ -408,14 +365,12 @@ describe('Withdraw Flow Scenarios', () => {
     it('should create action with correct initial state', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(withdraw.status).toBe(EvmOperationStatus.IDLE);
       expect(withdraw.amount).toBeUndefined();
@@ -430,14 +385,12 @@ describe('Withdraw Flow Scenarios', () => {
     it('should have prepare method', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(typeof withdraw.prepare).toBe('function');
     });
@@ -445,14 +398,12 @@ describe('Withdraw Flow Scenarios', () => {
     it('should have approve method', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(typeof withdraw.approve).toBe('function');
     });
@@ -460,14 +411,12 @@ describe('Withdraw Flow Scenarios', () => {
     it('should have execute method', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(typeof withdraw.execute).toBe('function');
     });
@@ -475,14 +424,12 @@ describe('Withdraw Flow Scenarios', () => {
     it('should have on method for event subscription', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(typeof withdraw.on).toBe('function');
     });
@@ -492,13 +439,11 @@ describe('Withdraw Flow Scenarios', () => {
     it('should have prepare method', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
-      });
+        protocol: 'veda' });
 
       expect(typeof cancel.prepare).toBe('function');
     });
@@ -506,13 +451,11 @@ describe('Withdraw Flow Scenarios', () => {
     it('should have execute method', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
-      });
+        protocol: 'veda' });
 
       expect(typeof cancel.execute).toBe('function');
     });

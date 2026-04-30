@@ -29,10 +29,9 @@ export type {
   DestinationChain,
   ExchangeRateOptions,
   UnstakeOptions,
-  VaultWithdrawalsOptions,
-} from './client/ApiNamespace';
+  VaultWithdrawalsOptions } from './client/ApiNamespace';
 export { ApiNamespace } from './client/ApiNamespace';
-// VaultWithdrawal, VaultWithdrawals exported via './vaults'
+// EarnWithdrawal, EarnWithdrawals exported via './vaults'
 export { createConfig } from './client/createConfig';
 export { createLombardSDK } from './client/createLombardSDK';
 export { LombardSDK } from './client/LombardSDK';
@@ -227,16 +226,14 @@ export type {
   IEvmRedeem,
   IEvmStake,
   IEvmUnstake,
-  IEvmWithdraw,
-} from './chains/evm';
+  IEvmWithdraw } from './chains/evm';
 export {
   EvmDeployStatus,
   EvmDepositStatus,
   EvmRedeemStatus,
   EvmStakeStatus,
   EvmUnstakeStatus,
-  EvmWithdrawStatus,
-} from './chains/evm';
+  EvmWithdrawStatus } from './chains/evm';
 
 // Note: Sync factory functions (evmStake, evmUnstake, etc.) are intentionally
 // not exported. Use createLombardSDK() instead:
@@ -343,13 +340,13 @@ export {
 export {
   DEFI_REGISTRY,
   DefiProtocol,
-  DefiProtocols, type DefiRegistryToken, getAvailableProtocols,
+  DefiProtocols, type DefiRegistryToken, EARN_STAKE_AND_BAKE_CHAINS, type EarnStakeAndBakeChain,
+getAvailableProtocols,
   getAvailableProtocolsWithMetadata,
   getStakeAndBakeSupportedChains,
   getSupportedProtocols,
-  isVedaVaultStakeAndBakeChain, type StakeAndBakeRegistry,
-  type StakeAndBakeToken, VEDA_VAULT_STAKE_AND_BAKE_CHAINS, type VedaVaultStakeAndBakeChain
-} from './defi';
+  isEarnStakeAndBakeChain, type StakeAndBakeRegistry,
+  type StakeAndBakeToken} from './defi';
 
 // Metrics:
 export {
@@ -574,26 +571,23 @@ export {
   BTCE_VAULT_CHAINS,
   BTCE_VAULT_CONTRACTS,
   type BtceVaultChain,
-  getVaultApy,
-  type GetVaultApyParameters,
-  getVaultDeposits,
-  getVaultDepositsAllChains,
-  type GetVaultDepositsAllChainsParameters,
-  type GetVaultDepositsParameters,
-  getVaultPoints,
-  type GetVaultPointsParameters,
-  getVaultTVL,
-  type GetVaultTVLParameters,
-  getVaultWithdrawals,
-  getVaultWithdrawalsAllChains,
-  type GetVaultWithdrawalsAllChainsParameters,
-  type GetVaultWithdrawalsParameters,
-  isBtceVaultChain,
-  Vault,
-  type VaultDeposit,
-  type VaultWithdrawal,
-  type VaultWithdrawals,
-} from './vaults';
+  type EarnDeposit,
+  type EarnWithdrawal,
+  type EarnWithdrawals,  getEarnApy,
+  type GetEarnApyParameters,
+  getEarnDeposits,
+  getEarnDepositsAllChains,
+  type GetEarnDepositsAllChainsParameters,
+  type GetEarnDepositsParameters,
+  getEarnPoints,
+  type GetEarnPointsParameters,
+  getEarnTVL,
+  type GetEarnTVLParameters,
+  getEarnWithdrawals,
+  getEarnWithdrawalsAllChains,
+  type GetEarnWithdrawalsAllChainsParameters,
+  type GetEarnWithdrawalsParameters,
+  isBtceVaultChain } from './vaults';
 
 // Signer support (custom transaction signing):
 export {

@@ -28,8 +28,7 @@ export async function getPermitNonce({
   owner,
   chainId,
   rpcUrl,
-  env = DEFAULT_ENV,
-}: IGetPermitNonceParams): Promise<string> {
+  env = DEFAULT_ENV }: IGetPermitNonceParams): Promise<string> {
   const environment = env || determineEnv(chainId);
 
   const publicClient = makePublicClient({ chainId, rpcUrl });
@@ -43,8 +42,7 @@ export async function getPermitNonce({
     abi: lbtcContract.abi,
     address: lbtcContract.address,
     functionName: 'nonces',
-    args: [owner],
-  });
+    args: [owner] });
 
   return String(nonce);
 }

@@ -18,8 +18,7 @@ import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 import type { DepositAndDeployEventMap } from '../../../../shared/events';
 import {
   monitorDeposit,
-  type MonitorProgress,
-} from '../../../../shared/monitoring';
+  type MonitorProgress } from '../../../../shared/monitoring';
 import { Token } from '../../../../tokens/token-addresses';
 import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctionedAddress';
 import { toSatoshi } from '../../../../utils/satoshi';
@@ -27,22 +26,19 @@ import {
   assetIdToToken,
   BaseBtcAction,
   type StatusConfig,
-  type StepDefinition,
-} from '../shared';
+  type StepDefinition } from '../shared';
 import {
   depositAndDeployConfig,
   getVaultKey,
   isAssetOutSupported,
   isDestChainSupported,
   isProtocolSupported,
-  isRouteAvailable,
-} from './config';
+  isRouteAvailable } from './config';
 import {
   BtcActionStatus,
   type BtcDepositAndDeploy as IBtcDepositAndDeploy,
   type BtcDepositAndDeployParams,
-  type BtcDepositAndDeployPrepareParams,
-} from './types';
+  type BtcDepositAndDeployPrepareParams } from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -123,8 +119,7 @@ export class BtcDepositAndDeploy
         assetOut: params.assetOut,
         sourceChain,
         destChain: params.destChain,
-        env: ctx.env,
-      });
+        env: ctx.env });
     }
 
     const parsed = parseChainIdentifier(params.destChain);
@@ -150,8 +145,7 @@ export class BtcDepositAndDeploy
     return {
       idle: BtcActionStatus.IDLE,
       ready: BtcActionStatus.READY,
-      addressReady: BtcActionStatus.ADDRESS_READY,
-    };
+      addressReady: BtcActionStatus.ADDRESS_READY };
   }
 
   protected getInitialSteps(): StepDefinition {
@@ -159,8 +153,7 @@ export class BtcDepositAndDeploy
       created: StepStatus.IDLE,
       verifying: StepStatus.IDLE,
       wrapping: StepStatus.IDLE,
-      depositing: StepStatus.IDLE,
-    };
+      depositing: StepStatus.IDLE };
   }
 
   protected isAuthorized(): boolean {
@@ -182,8 +175,7 @@ export class BtcDepositAndDeploy
       signatureData: this.authState.typedData,
       partnerId: this.ctx.partner.getPartnerId(),
       referrerCode: this._referralCode,
-      captchaToken,
-    };
+      captchaToken };
   }
 
   /**
@@ -259,8 +251,7 @@ export class BtcDepositAndDeploy
           recipient,
           amount: amountSats.toString(),
           vaultKey: getVaultKey(this.params.protocol),
-          token: outputToken,
-        },
+          token: outputToken },
       );
 
       this.authState.signature = result.signature;
@@ -291,10 +282,8 @@ export class BtcDepositAndDeploy
           created: StepStatus.COMPLETE,
           verifying: StepStatus.IDLE,
           wrapping: StepStatus.IDLE,
-          depositing: StepStatus.IDLE,
-        },
-        metadata: { depositAddress },
-      });
+          depositing: StepStatus.IDLE },
+        metadata: { depositAddress } });
 
       return depositAddress;
     }, BtcActionStatus.ADDRESS_READY);
@@ -339,8 +328,7 @@ export class BtcDepositAndDeploy
 
         return {
           blockHeight: ourDeposit.blockHeight,
-          isClaimed: ourDeposit.isClaimed,
-        };
+          isClaimed: ourDeposit.isClaimed };
       },
       onProgress: p => {
         this.emitProgress({
@@ -351,17 +339,14 @@ export class BtcDepositAndDeploy
               ? StepStatus.COMPLETE
               : StepStatus.PENDING,
             wrapping: p.isClaimed ? StepStatus.COMPLETE : StepStatus.PENDING,
-            depositing: StepStatus.PENDING,
-          },
+            depositing: StepStatus.PENDING },
           confirmations: p.confirmations,
           requiredConfirmations: p.requiredConfirmations,
-          metadata: { isClaimed: p.isClaimed },
-        });
+          metadata: { isClaimed: p.isClaimed } });
       },
       onComplete: () => {
         this.emitCompleted();
-      },
-    });
+      } });
 
     return progress;
   }

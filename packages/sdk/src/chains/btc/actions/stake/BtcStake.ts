@@ -14,13 +14,11 @@ import type {
     ChainId,
     SolanaChain,
     StarknetChainId,
-    SuiChain,
-} from '../../../../common/chains';
+    SuiChain } from '../../../../common/chains';
 import {
     getChainType,
     parseChainIdentifier,
-    StepStatus,
-} from '../../../../core';
+    StepStatus } from '../../../../core';
 import { BtcActionStatus } from '../../../../shared/constants/statusConstants';
 import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
@@ -32,8 +30,7 @@ import {
     assetIdToToken,
     BaseBtcAction,
     type StatusConfig,
-    type StepDefinition,
-} from '../shared';
+    type StepDefinition } from '../shared';
 import {
     type ChainConfig,
     type FeeAuthConfig,
@@ -41,8 +38,7 @@ import {
     isAssetOutSupported,
     isDestChainSupported,
     isRouteAvailable,
-    type SignatureResult,
-} from './config';
+    type SignatureResult } from './config';
 import type { BtcStake as IBtcStake,BtcStakeParams } from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -128,8 +124,7 @@ export class BtcStake
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
         destChain: params.destChain,
-        env: ctx.env,
-      });
+        env: ctx.env });
     }
 
     this.config = config;
@@ -148,16 +143,14 @@ export class BtcStake
     return {
       idle: BtcActionStatus.IDLE,
       ready: BtcActionStatus.READY,
-      addressReady: BtcActionStatus.ADDRESS_READY,
-    };
+      addressReady: BtcActionStatus.ADDRESS_READY };
   }
 
   protected getInitialSteps(): StepDefinition {
     return {
       created: StepStatus.IDLE,
       verifying: StepStatus.IDLE,
-      issuing: StepStatus.IDLE,
-    };
+      issuing: StepStatus.IDLE };
   }
 
   protected isAuthorized(): boolean {
@@ -188,8 +181,7 @@ export class BtcStake
       pubKey: signature.pubKey,
       partnerId: this.ctx.partner.getPartnerId(),
       referrerCode: this._referralCode,
-      captchaToken,
-    };
+      captchaToken };
   }
 
   /**
@@ -265,8 +257,7 @@ export class BtcStake
           if (stored.signature) {
             this.authState.networkFee = {
               signature: stored.signature,
-              typedData: stored.typedData,
-            };
+              typedData: stored.typedData };
           }
           this.authState.authorized = true;
         }
@@ -293,8 +284,7 @@ export class BtcStake
           if (stored.signature) {
             this.authState.networkFee = {
               signature: stored.signature,
-              typedData: stored.typedData,
-            };
+              typedData: stored.typedData };
           }
           this.authState.authorized = true;
           this.updateStatus(BtcActionStatus.READY);
@@ -339,12 +329,10 @@ export class BtcStake
         const result = await this.feeAuthConfig!.authorizeFee(this.ctx, {
           chainId: this.chainId,
           recipient,
-          fee,
-        });
+          fee });
         this.authState.networkFee = {
           signature: result.signature,
-          typedData: result.typedData,
-        };
+          typedData: result.typedData };
       } else {
         // Destination signature flow
         this.authState.destinationSignature = await this.config.getSignature(
@@ -390,10 +378,8 @@ export class BtcStake
         steps: {
           created: StepStatus.COMPLETE,
           verifying: StepStatus.IDLE,
-          issuing: StepStatus.IDLE,
-        },
-        metadata: { depositAddress },
-      });
+          issuing: StepStatus.IDLE },
+        metadata: { depositAddress } });
 
       return depositAddress;
     }, BtcActionStatus.ADDRESS_READY);

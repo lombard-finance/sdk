@@ -16,15 +16,12 @@ vi.mock('../../../chains/evm/shared/feeAuth', async (importOriginal) => {
       hasValidSignature: false,
       feeInSatoshis: null,
       feeFormatted: null,
-      expirationDate: null,
-    })),
-  };
+      expirationDate: null })) };
 });
 
 vi.mock('../../../contract-functions/approveToken', () => ({
   approveToken: vi.fn(),
-  getTokenAllowance: vi.fn(),
-}));
+  getTokenAllowance: vi.fn() }));
 
 const mockProvider = {
   request: vi.fn(async ({ method }: { method: string }) => {
@@ -32,16 +29,14 @@ const mockProvider = {
       return ['0x0000000000000000000000000000000000000002'];
     }
     return [];
-  }),
-};
+  }) };
 
 function createContext(): EvmCoreContext {
   return {
     env: Env.prod,
     partner: new PartnerConfiguration(undefined),
     getProvider: async () => mockProvider,
-    evm: {} as EvmCoreContext['evm'],
-  };
+    evm: {} as EvmCoreContext['evm'] };
 }
 
 describe('EvmUnstake allowance handling', () => {
@@ -57,8 +52,7 @@ describe('EvmUnstake allowance handling', () => {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.BASE,
-      destChain: Chain.BASE,
-    });
+      destChain: Chain.BASE });
 
     await unstake.prepare({ amount: '10000', recipient: '0x0000000000000000000000000000000000000002' });
 

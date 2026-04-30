@@ -13,5 +13,4 @@ export {
   type EvmDeployPrepareParams,
   type EvmDeployProgress,
   EvmDeployStatus,
-  type IEvmDeploy,
-} from './types';
+  type IEvmDeploy } from './types';

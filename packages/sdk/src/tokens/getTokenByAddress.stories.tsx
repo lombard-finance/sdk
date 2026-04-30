@@ -19,14 +19,10 @@ const meta = {
     ...envSelector,
     tokenAddress: {
       control: { type: 'text' },
-      description: 'Token contract address',
-    },
+      description: 'Token contract address' },
     addressKind: {
       options: Object.values(AddressKind),
-      control: { type: 'select' },
-    },
-  },
-} satisfies Meta<typeof StoryView>;
+      control: { type: 'select' } } } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -37,27 +33,21 @@ export const LBTCOnEthereum: Story = {
     tokenAddress: '0x8236a87084f8b84306f72007f36f2618a5634494',
     chainId: ChainId.ethereum,
     env: undefined,
-    addressKind: AddressKind.Token,
-  },
-};
+    addressKind: AddressKind.Token } };
 
 export const LBTCOnBase: Story = {
   args: {
     tokenAddress: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
     chainId: ChainId.base,
     env: undefined,
-    addressKind: AddressKind.Token,
-  },
-};
+    addressKind: AddressKind.Token } };
 
 export const UnknownToken: Story = {
   args: {
     tokenAddress: '0x0000000000000000000000000000000000000000',
     chainId: ChainId.ethereum,
     env: undefined,
-    addressKind: AddressKind.Token,
-  },
-};
+    addressKind: AddressKind.Token } };
 
 interface StoryViewProps {
   tokenAddress: string;

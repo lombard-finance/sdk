@@ -72,8 +72,7 @@ export interface HttpResponse<T> {
 export function getSdkHeaders(): Record<string, string> {
   return {
     'X-SDK-Version': SDK_VERSION,
-    'X-SDK-Runtime': SDK_RUNTIME,
-  };
+    'X-SDK-Runtime': SDK_RUNTIME };
 }
 
 /**
@@ -109,8 +108,7 @@ export async function httpRequest<T = unknown>(
     body,
     headers = {},
     logger,
-    timeout = 30000,
-  } = options;
+    timeout = 30000 } = options;
 
   const startTime = performance.now();
 
@@ -118,8 +116,7 @@ export async function httpRequest<T = unknown>(
   const mergedHeaders = {
     ...getSdkHeaders(),
     'Content-Type': 'application/json',
-    ...headers,
-  };
+    ...headers };
 
   const config: AxiosRequestConfig = {
     url,
@@ -128,8 +125,7 @@ export async function httpRequest<T = unknown>(
     params,
     data: body,
     headers: mergedHeaders,
-    timeout,
-  };
+    timeout };
 
   // Log request if logger provided
   if (logger) {
@@ -137,8 +133,7 @@ export async function httpRequest<T = unknown>(
       method,
       url: baseURL ? `${baseURL}${url}` : url,
       params,
-      hasBody: !!body,
-    });
+      hasBody: !!body });
   }
 
   try {
@@ -151,16 +146,14 @@ export async function httpRequest<T = unknown>(
         method,
         url: baseURL ? `${baseURL}${url}` : url,
         status: response.status,
-        duration: Math.round(duration),
-      });
+        duration: Math.round(duration) });
     }
 
     return {
       data: response.data,
       status: response.status,
       duration,
-      headers: response.headers as Record<string, string>,
-    };
+      headers: response.headers as Record<string, string> };
   } catch (error) {
     const duration = performance.now() - startTime;
 
@@ -172,8 +165,7 @@ export async function httpRequest<T = unknown>(
         url: baseURL ? `${baseURL}${url}` : url,
         status: axiosError?.response?.status,
         duration: Math.round(duration),
-        message: axiosError?.message || String(error),
-      });
+        message: axiosError?.message || String(error) });
     }
 
     throw error;

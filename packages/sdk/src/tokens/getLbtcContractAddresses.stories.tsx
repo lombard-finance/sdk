@@ -15,9 +15,7 @@ const meta = {
   tags: ['autodocs'],
   decorators: [functionType('read')],
   argTypes: {
-    ...envSelector,
-  },
-} satisfies Meta<typeof StoryView>;
+    ...envSelector } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -25,21 +23,15 @@ type Story = StoryObj<typeof meta>;
 
 export const Production: Story = {
   args: {
-    env: undefined,
-  },
-};
+    env: undefined } };
 
 export const Testnet: Story = {
   args: {
-    env: 'testnet',
-  },
-};
+    env: 'testnet' } };
 
 export const Development: Story = {
   args: {
-    env: 'dev',
-  },
-};
+    env: 'dev' } };
 
 interface StoryViewProps {
   env?: Env;

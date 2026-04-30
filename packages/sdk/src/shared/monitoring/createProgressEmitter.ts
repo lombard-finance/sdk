@@ -41,6 +41,5 @@ export function createProgressEmitter<T>(): ProgressEmitter<T> {
 
     clear(): void {
       listeners.clear();
-    },
-  };
+    } };
 }

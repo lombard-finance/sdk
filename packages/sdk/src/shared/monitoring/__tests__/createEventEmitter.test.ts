@@ -101,11 +101,9 @@ describe('createEventEmitter', () => {
       status: 'executing',
       steps: {
         approval: 'complete',
-        execution: 'pending',
-      },
+        execution: 'pending' },
       confirmations: 2,
-      requiredConfirmations: 6,
-    });
+      requiredConfirmations: 6 });
 
     expect(handler).toHaveBeenCalledOnce();
   });

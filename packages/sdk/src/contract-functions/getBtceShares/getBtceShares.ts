@@ -32,8 +32,7 @@ export interface IGetBtceSharesParameters extends CommonParameters {
 export async function getBtceShares({
   chainId,
   rpcUrl,
-  address,
-}: IGetBtceSharesParameters): Promise<BigNumber> {
+  address }: IGetBtceSharesParameters): Promise<BigNumber> {
   if (!isAddress(address)) {
     throw new Error(`Invalid address: ${address}`);
   }
@@ -50,8 +49,7 @@ export async function getBtceShares({
     const btceContract = getContract({
       abi: BTCE_VAULT.abi,
       address: BTCE_VAULT.contracts[chainId],
-      client,
-    });
+      client });
 
     const balanceRaw = (await btceContract.read.balanceOf([
       address as Address,

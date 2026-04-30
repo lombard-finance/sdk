@@ -26,8 +26,7 @@ function createMockSolanaService() {
       .fn()
       .mockResolvedValue({ signature: 'mock-redeemForBtc-tx-hash' }),
     redeem: vi.fn().mockResolvedValue({ signature: 'mock-redeem-tx-hash' }),
-    deposit: vi.fn().mockResolvedValue({ signature: 'mock-deposit-tx-hash' }),
-  };
+    deposit: vi.fn().mockResolvedValue({ signature: 'mock-deposit-tx-hash' }) };
 }
 
 function createMockContext(
@@ -38,8 +37,7 @@ function createMockContext(
     partner: new PartnerConfiguration({ partnerId: 'test-partner' }),
     getProvider: vi.fn().mockResolvedValue({}),
     solana: createMockSolanaService(),
-    ...overrides,
-  };
+    ...overrides };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -53,13 +51,11 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     assetIn: AssetId.LBTC,
     assetOut: AssetId.BTC,
     sourceChain: Chain.SOLANA_MAINNET,
-    destChain: Chain.BITCOIN_MAINNET,
-  };
+    destChain: Chain.BITCOIN_MAINNET };
 
   const validPrepareParams = {
     amount: '0.001',
-    recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-  };
+    recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' };
 
   beforeEach(() => {
     mockCtx = createMockContext({ env: Env.prod });
@@ -75,8 +71,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     it('should throw for unsupported source chain', () => {
       const invalidParams = {
         ...validParams,
-        sourceChain: Chain.ETHEREUM,
-      };
+        sourceChain: Chain.ETHEREUM };
 
       expect(() => new SolanaUnstake(mockCtx, invalidParams)).toThrow();
     });
@@ -94,8 +89,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
       const testnetParams = {
         ...validParams,
         sourceChain: Chain.SOLANA_DEVNET,
-        destChain: Chain.BITCOIN_SIGNET,
-      };
+        destChain: Chain.BITCOIN_SIGNET };
 
       const unstake = new SolanaUnstake(testnetCtx, testnetParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
@@ -119,8 +113,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
       await expect(
         unstake.prepare({
           amount: '0.001',
-          recipient: 'invalid-btc-address',
-        }),
+          recipient: 'invalid-btc-address' }),
       ).rejects.toThrow();
     });
 
@@ -130,8 +123,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
       await expect(
         unstake.prepare({
           amount: '0',
-          recipient: validPrepareParams.recipient,
-        }),
+          recipient: validPrepareParams.recipient }),
       ).rejects.toThrow();
     });
 
@@ -158,8 +150,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
           btcAddress: validPrepareParams.recipient,
           network: 'mainnet-beta',
           env: Env.prod,
-          tokenMint: expect.any(String),
-        }),
+          tokenMint: expect.any(String) }),
       );
       expect(result.txHash).toBe('mock-redeemForBtc-tx-hash');
     });
@@ -266,8 +257,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
       const stageParams = {
         ...validParams,
         sourceChain: Chain.SOLANA_DEVNET,
-        destChain: Chain.BITCOIN_SIGNET,
-      };
+        destChain: Chain.BITCOIN_SIGNET };
       const unstake = new SolanaUnstake(stageCtx, stageParams);
       await unstake.prepare(validPrepareParams);
 
@@ -291,13 +281,11 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
     assetIn: AssetId.LBTC,
     assetOut: AssetId.BTCb,
     sourceChain: Chain.SOLANA_DEVNET,
-    destChain: Chain.SOLANA_DEVNET,
-  };
+    destChain: Chain.SOLANA_DEVNET };
 
   const validPrepareParams = {
     amount: '0.001',
-    recipient: '8yarEiDaJVik7n6wX8JCbubTbtZD3WZ67Q1ytMDA2BKA',
-  };
+    recipient: '8yarEiDaJVik7n6wX8JCbubTbtZD3WZ67Q1ytMDA2BKA' };
 
   beforeEach(() => {
     mockCtx = createMockContext({ env: Env.dev });
@@ -321,8 +309,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
       const prodParams = {
         ...validParams,
         sourceChain: Chain.SOLANA_MAINNET,
-        destChain: Chain.SOLANA_MAINNET,
-      };
+        destChain: Chain.SOLANA_MAINNET };
       const unstake = new SolanaUnstake(prodCtx, prodParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
@@ -330,8 +317,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
     it('should throw for unsupported source chain', () => {
       const invalidParams = {
         ...validParams,
-        sourceChain: Chain.ETHEREUM,
-      };
+        sourceChain: Chain.ETHEREUM };
       expect(() => new SolanaUnstake(mockCtx, invalidParams)).toThrow();
     });
   });
@@ -352,8 +338,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
       await expect(
         unstake.prepare({
           amount: '0.001',
-          recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-        }),
+          recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' }),
       ).rejects.toThrow();
     });
   });
@@ -370,8 +355,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
           amount: expect.any(String),
           recipient: validPrepareParams.recipient,
           network: 'devnet',
-          env: Env.dev,
-        }),
+          env: Env.dev }),
       );
       expect(result.txHash).toBe('mock-redeem-tx-hash');
     });

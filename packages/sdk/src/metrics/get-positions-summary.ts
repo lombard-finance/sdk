@@ -103,8 +103,7 @@ export type PositionsSummary = {
 /** Retrieves the yield positions summary for the specified account address. */
 export async function getPositionsSummary({
   account,
-  env,
-}: { account: Address } & IEnvParam) {
+  env }: { account: Address } & IEnvParam) {
   const { baseApiUrl } = getApiConfig(env);
 
   const url = `${baseApiUrl}/api/v1/analytics/${account}/summary`;
@@ -113,8 +112,7 @@ export async function getPositionsSummary({
   const info: PositionsSummary = {
     btcPrice: {
       price: BigNumber(data.btc_price_usd.price || 0),
-      timestamp: new Date(data.btc_price_usd.timestamp),
-    },
+      timestamp: new Date(data.btc_price_usd.timestamp) },
     btcValue: BigNumber(data.btc_value || 0),
     btcPnl: BigNumber(data.btc_pnl || 0),
     snapshot: data.snapshot?.map(ds => ({
@@ -122,11 +120,9 @@ export async function getPositionsSummary({
       type: ds.type,
       balance: BigNumber(ds.balance || 0),
       pnl: BigNumber(ds.pnl || 0),
-      rate: BigNumber(ds.rate || 0),
-    })),
+      rate: BigNumber(ds.rate || 0) })),
     lastUpdated: new Date(data.last_updated),
-    inProgress: Boolean(data.in_progress),
-  };
+    inProgress: Boolean(data.in_progress) };
 
   return info;
 }

@@ -24,14 +24,12 @@ vi.mock('../../../chains/evm/shared/feeAuth', async (importOriginal) => {
     await importOriginal<typeof import('../../../chains/evm/shared/feeAuth')>();
   return {
     ...actual,
-    checkFeeAuthorization: vi.fn(),
-  };
+    checkFeeAuthorization: vi.fn() };
 });
 
 vi.mock('../../../contract-functions/approveToken', () => ({
   approveToken: vi.fn(),
-  getTokenAllowance: vi.fn(),
-}));
+  getTokenAllowance: vi.fn() }));
 
 const mockProvider = {
   request: vi.fn(async ({ method }: { method: string }) => {
@@ -39,16 +37,14 @@ const mockProvider = {
       return ['0x0000000000000000000000000000000000000002'];
     }
     return [];
-  }),
-};
+  }) };
 
 function createContext(): EvmCoreContext {
   return {
     env: Env.prod,
     partner: new PartnerConfiguration(undefined),
     getProvider: async () => mockProvider,
-    evm: {} as EvmCoreContext['evm'],
-  };
+    evm: {} as EvmCoreContext['evm'] };
 }
 
 describe('EvmUnstake fee authorization status', () => {
@@ -67,23 +63,20 @@ describe('EvmUnstake fee authorization status', () => {
       hasValidSignature: false,
       feeInSatoshis: BigInt(1992),
       feeFormatted: '0.00001992',
-      expirationDate: null,
-    });
+      expirationDate: null });
 
     const ctx = createContext();
     const unstake = new EvmUnstake(ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,
-      destChain: Chain.ETHEREUM,
-    });
+      destChain: Chain.ETHEREUM });
 
     expect(unstake.status).toBe(EvmOperationStatus.IDLE);
 
     await unstake.prepare({
       amount: '10000',
-      recipient: '0x0000000000000000000000000000000000000002',
-    });
+      recipient: '0x0000000000000000000000000000000000000002' });
 
     // This is the critical assertion that caught the bug:
     // With the old code, act()'s successStatus always evaluated to READY
@@ -107,21 +100,18 @@ describe('EvmUnstake fee authorization status', () => {
       hasValidSignature: false,
       feeInSatoshis: null,
       feeFormatted: null,
-      expirationDate: null,
-    });
+      expirationDate: null });
 
     const ctx = createContext();
     const unstake = new EvmUnstake(ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.BASE,
-      destChain: Chain.BASE,
-    });
+      destChain: Chain.BASE });
 
     await unstake.prepare({
       amount: '10000',
-      recipient: '0x0000000000000000000000000000000000000002',
-    });
+      recipient: '0x0000000000000000000000000000000000000002' });
 
     expect(unstake.status).toBe(EvmOperationStatus.READY);
     expect(unstake.feeAuth.requiresAuth).toBe(false);
@@ -138,21 +128,18 @@ describe('EvmUnstake fee authorization status', () => {
       hasValidSignature: true,
       feeInSatoshis: BigInt(1992),
       feeFormatted: '0.00001992',
-      expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
-    });
+      expirationDate: String(Math.floor(Date.now() / 1000) + 3600) });
 
     const ctx = createContext();
     const unstake = new EvmUnstake(ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,
-      destChain: Chain.ETHEREUM,
-    });
+      destChain: Chain.ETHEREUM });
 
     await unstake.prepare({
       amount: '10000',
-      recipient: '0x0000000000000000000000000000000000000002',
-    });
+      recipient: '0x0000000000000000000000000000000000000002' });
 
     expect(unstake.status).toBe(EvmOperationStatus.READY);
     expect(unstake.feeAuth.requiresAuth).toBe(true);
@@ -169,16 +156,14 @@ describe('EvmUnstake fee authorization status', () => {
       hasValidSignature: false,
       feeInSatoshis: BigInt(1992),
       feeFormatted: '0.00001992',
-      expirationDate: null,
-    });
+      expirationDate: null });
 
     const ctx = createContext();
     const unstake = new EvmUnstake(ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,
-      destChain: Chain.ETHEREUM,
-    });
+      destChain: Chain.ETHEREUM });
 
     const statusChanges: string[] = [];
     unstake.on('status-change', (...args: unknown[]) => {
@@ -187,8 +172,7 @@ describe('EvmUnstake fee authorization status', () => {
 
     await unstake.prepare({
       amount: '10000',
-      recipient: '0x0000000000000000000000000000000000000002',
-    });
+      recipient: '0x0000000000000000000000000000000000000002' });
 
     // Should include NEEDS_FEE_AUTHORIZATION in emitted statuses
     expect(statusChanges).toContain(

@@ -19,8 +19,7 @@ const mockWaitForTransactionReceipt = vi.fn().mockResolvedValue({
   status: 'success',
   transactionHash: '0xmocktxhash',
   blockNumber: 1n,
-  gasUsed: 21000n,
-});
+  gasUsed: 21000n });
 
 const mockWriteContract = vi.fn().mockResolvedValue('0xmocktxhash');
 
@@ -36,39 +35,32 @@ const mockReadContract = vi.fn().mockImplementation(async ({ functionName }: { f
 });
 
 const mockSimulateContract = vi.fn().mockResolvedValue({
-  request: { address: '0xmock', abi: [], functionName: 'approve' },
-});
+  request: { address: '0xmock', abi: [], functionName: 'approve' } });
 
 const mockPublicClient = {
   readContract: mockReadContract,
   simulateContract: mockSimulateContract,
-  waitForTransactionReceipt: mockWaitForTransactionReceipt,
-};
+  waitForTransactionReceipt: mockWaitForTransactionReceipt };
 
 const mockWalletClient = {
-  writeContract: mockWriteContract,
-};
+  writeContract: mockWriteContract };
 
 vi.mock('../../../clients/public-client', () => ({
-  makePublicClient: vi.fn(() => mockPublicClient),
-}));
+  makePublicClient: vi.fn(() => mockPublicClient) }));
 
 vi.mock('../../../clients/wallet-client', () => ({
-  makeWalletClient: vi.fn(() => mockWalletClient),
-}));
+  makeWalletClient: vi.fn(() => mockWalletClient) }));
 
 // Mock transaction-executor's waitForTransactionReceipt
 const mockTxExecutorWaitForReceipt = vi.fn().mockResolvedValue({
   status: 'success',
   transactionHash: '0xmocktxhash',
   blockNumber: 1n,
-  gasUsed: 21000n,
-});
+  gasUsed: 21000n });
 
 vi.mock('../../../utils/transaction-executor', () => ({
   waitForTransactionReceipt: (...args: unknown[]) => mockTxExecutorWaitForReceipt(...args),
-  executeContractTransaction: vi.fn(),
-}));
+  executeContractTransaction: vi.fn() }));
 
 // Mock token info for approveToken and vault ops
 // fromBaseDenomination maps '0' -> BigNumber(0) to ensure allowance=0 triggers approval
@@ -77,19 +69,16 @@ vi.mock('../../../tokens/tokens', () => ({
     address: '0xmocktoken',
     abi: [],
     decimals: 8,
-    symbol: 'MOCK',
-  }),
+    symbol: 'MOCK' }),
   getTokenContractInfo: vi.fn().mockResolvedValue({
     address: '0xmocktoken',
-    abi: [],
-  }),
+    abi: [] }),
   fromBaseDenomination: vi.fn().mockImplementation((value: string) => {
     return new BigNumber(value === '0' ? '0' : '1');
   }),
   toBaseDenomination: vi.fn().mockReturnValue(new BigNumber('10000000')),
   retrieveTokenProperties: vi.fn(),
-  isUpgradedAbi: vi.fn().mockReturnValue(false),
-}));
+  isUpgradedAbi: vi.fn().mockReturnValue(false) }));
 
 // --- Tests ---
 
@@ -100,8 +89,7 @@ describe('Approval Receipt Waiting', () => {
       status: 'success',
       transactionHash: '0xmocktxhash',
       blockNumber: 1n,
-      gasUsed: 21000n,
-    });
+      gasUsed: 21000n });
     mockWriteContract.mockResolvedValue('0xmocktxhash');
     mockReadContract.mockImplementation(async ({ functionName }: { functionName: string }) => {
       switch (functionName) {
@@ -114,14 +102,12 @@ describe('Approval Receipt Waiting', () => {
       }
     });
     mockSimulateContract.mockResolvedValue({
-      request: { address: '0xmock', abi: [], functionName: 'approve' },
-    });
+      request: { address: '0xmock', abi: [], functionName: 'approve' } });
     mockTxExecutorWaitForReceipt.mockResolvedValue({
       status: 'success',
       transactionHash: '0xmocktxhash',
       blockNumber: 1n,
-      gasUsed: 21000n,
-    });
+      gasUsed: 21000n });
   });
 
   const createMockProvider = () => ({
@@ -131,8 +117,7 @@ describe('Approval Receipt Waiting', () => {
       if (method === 'eth_accounts') return ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0'];
       if (method === 'eth_chainId') return '0x1';
       return null;
-    }),
-  });
+    }) });
 
   describe('EvmWithdraw.approve()', () => {
     it('should wait for transaction receipt after sending approval tx', async () => {
@@ -142,14 +127,12 @@ describe('Approval Receipt Waiting', () => {
 
       const config = createTestConfig({
         env: Env.prod,
-        providers: { evm: () => createMockProvider() },
-      });
+        providers: { evm: () => createMockProvider() } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       await withdraw.prepare({ amount: '0.1' });
       expect(withdraw.needsApproval).toBe(true);
@@ -172,14 +155,12 @@ describe('Approval Receipt Waiting', () => {
 
       const config = createTestConfig({
         env: Env.prod,
-        providers: { evm: () => createMockProvider() },
-      });
+        providers: { evm: () => createMockProvider() } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       await withdraw.prepare({ amount: '0.1' });
       expect(withdraw.needsApproval).toBe(true);
@@ -203,20 +184,17 @@ describe('Approval Receipt Waiting', () => {
 
       // Mock getAssetRouterAddress used by EvmStake.prepare()
       vi.doMock('../../../contract-functions/getAssetRouterAddress', () => ({
-        getAssetRouterAddress: vi.fn().mockResolvedValue('0x0000000000000000000000000000000000000001'),
-      }));
+        getAssetRouterAddress: vi.fn().mockResolvedValue('0x0000000000000000000000000000000000000001') }));
 
       const config = createTestConfig({
         env: Env.testnet,
-        providers: { evm: () => createMockProvider() },
-      });
+        providers: { evm: () => createMockProvider() } });
 
       const stake = evmStake(config, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       await stake.prepare({ amount: '0.1' });
 
@@ -248,8 +226,7 @@ describe('Approval Receipt Waiting', () => {
           status: 'success',
           transactionHash: '0xmocktxhash',
           blockNumber: 1n,
-          gasUsed: 21000n,
-        };
+          gasUsed: 21000n };
       });
 
       const { evmWithdraw } = await import('../../../chains/evm/actions/withdraw');
@@ -258,14 +235,12 @@ describe('Approval Receipt Waiting', () => {
 
       const config = createTestConfig({
         env: Env.prod,
-        providers: { evm: () => createMockProvider() },
-      });
+        providers: { evm: () => createMockProvider() } });
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       await withdraw.prepare({ amount: '0.1' });
       await withdraw.approve();

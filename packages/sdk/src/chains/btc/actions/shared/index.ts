@@ -10,19 +10,16 @@ export type {
   BaseBtcParams,
   BtcAuthorizationState,
   StatusConfig,
-  StepDefinition,
-} from './BaseBtcAction';
+  StepDefinition } from './BaseBtcAction';
 export { BaseBtcAction } from './BaseBtcAction';
 export { assetIdToToken } from './tokenUtils';
 export type {
   ValidatableConfig,
   ValidatableParams,
-  ValidationContext,
-} from './validation';
+  ValidationContext } from './validation';
 export {
   isAssetSupported,
   isDestChainSupported,
   isRouteAvailable,
   validateBtcActionParams,
-  validateProtocol,
-} from './validation';
+  validateProtocol } from './validation';

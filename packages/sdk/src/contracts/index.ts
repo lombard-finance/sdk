@@ -49,8 +49,7 @@ export {
   type ContractInfo,
   ContractType,
   ContractVersion,
-  type GetContractInfoOptions,
-} from './types';
+  type GetContractInfoOptions } from './types';
 
 // Utilities
 export {
@@ -59,5 +58,4 @@ export {
   getContractType,
   getLbtcAbi,
   isUpgradedAbi,
-  isUpgradedContract,
-} from './utils';
+  isUpgradedContract } from './utils';

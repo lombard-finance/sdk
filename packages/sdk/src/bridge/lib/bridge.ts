@@ -10,8 +10,7 @@ import {
   CCIP_BRIDGE_CHAINS,
   CCIPBridgeChain,
   getBridgeInfo,
-  OFTBridgeChain,
-} from './config';
+  OFTBridgeChain } from './config';
 import { bridgeOFT } from './oft-bridge';
 
 export type BridgeParameters = {
@@ -49,8 +48,7 @@ export async function bridge({
   recipient,
   rpcUrl,
   env,
-  experimentalAllowOFT = false,
-}: BridgeParameters) {
+  experimentalAllowOFT = false }: BridgeParameters) {
   const bridgeInfo = getBridgeInfo(chainId as BridgeChain, to);
 
   if (
@@ -76,8 +74,7 @@ export async function bridge({
         chainId,
         provider,
         env,
-        rpcUrl,
-      });
+        rpcUrl });
 
       return {
         txHash,
@@ -85,8 +82,7 @@ export async function bridge({
           '{txHash}',
           txHash,
         ),
-        type: BridgeType.CCIP,
-      };
+        type: BridgeType.CCIP };
     }
 
     case BridgeType.OFT: {
@@ -99,8 +95,7 @@ export async function bridge({
         chainId,
         provider,
         env,
-        rpcUrl,
-      });
+        rpcUrl });
 
       return {
         txHash,
@@ -108,8 +103,7 @@ export async function bridge({
           '{txHash}',
           txHash,
         ),
-        type: BridgeType.OFT,
-      };
+        type: BridgeType.OFT };
     }
   }
 }

@@ -22,17 +22,14 @@ export const suiToBtcConfig: ChainConfig = {
     {
       sourceChains: [Chain.SUI_MAINNET],
       destChain: Chain.BITCOIN_MAINNET,
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     {
       sourceChains: [Chain.SUI_TESTNET],
       destChain: Chain.BITCOIN_SIGNET,
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
-    },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
   ],
 
-  recipientSchema: bitcoinAddressSchema,
-};
+  recipientSchema: bitcoinAddressSchema };
 
 /**
  * Check if unstake to BTC is supported from this Sui chain

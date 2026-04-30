@@ -5,12 +5,10 @@ interface IApiConfig {
 }
 
 const stageConfig: IApiConfig = {
-  mempoolApiUrl: 'https://mempool.space/signet',
-};
+  mempoolApiUrl: 'https://mempool.space/signet' };
 
 const prodConfig: IApiConfig = {
-  mempoolApiUrl: 'https://mempool.space',
-};
+  mempoolApiUrl: 'https://mempool.space' };
 
 /**
  * Returns the configuration for the Bitcoin related APIs.

@@ -6,8 +6,7 @@ import { Hex, trim } from 'viem';
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
-  getChainIdByName,
-} from '../../common/blockchain-identifier';
+  getChainIdByName } from '../../common/blockchain-identifier';
 import {
   ChainId,
   isSolanaChain,
@@ -16,8 +15,7 @@ import {
   isValidChain,
   SolanaChain,
   StarknetChainId,
-  SuiChain,
-} from '../../common/chains';
+  SuiChain } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import {
   AddressKind,
@@ -25,14 +23,12 @@ import {
   getStarknetTokenAddress,
   getSuiTokenAddress,
   Token,
-  TOKEN_ADDRESSES,
-} from '../../tokens/token-addresses';
+  TOKEN_ADDRESSES } from '../../tokens/token-addresses';
 import { fetchAllPaginated } from '../../utils/pagination';
 import { fromSatoshi } from '../../utils/satoshi';
 import {
   ENotarizationStatus,
-  ESessionState,
-} from '../getDepositsByAddress/getDepositsByAddress';
+  ESessionState } from '../getDepositsByAddress/getDepositsByAddress';
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -46,8 +42,7 @@ export enum PayoutTxStatus {
   Completed = 'Completed',
 
   /** The payout transaction has not been sent; unstake pending */
-  Pending = 'Pending',
-}
+  Pending = 'Pending' }
 
 /**
  * Response object for a single unstake record from the API.
@@ -224,8 +219,7 @@ export interface Unstake {
 export async function fetchUnstakesByAddress({
   address,
   env = DEFAULT_ENV,
-  options,
-}: IGetUnstakesByAddressParameters): Promise<Unstake[]> {
+  options }: IGetUnstakesByAddressParameters): Promise<Unstake[]> {
   if (!address) throw new Error('No address specified.');
 
   const { baseApiUrl } = getApiConfig(env);
@@ -243,9 +237,7 @@ export async function fetchUnstakesByAddress({
     query: {
       show_redeems: options?.show_redeems ? 'true' : undefined,
       show_unstakes: options?.show_unstakes ? 'true' : undefined,
-      to_native: options?.to_native ? 'true' : undefined,
-    },
-  });
+      to_native: options?.to_native ? 'true' : undefined } });
 
   return unstakes.map(d => mapUnstakeEntry(d, env));
 }
@@ -339,8 +331,7 @@ function mapUnstakeEntry(
     notarizationStatus: d.notarization_status,
     sessionState: d.session_state,
     claimTxHash: d.claim_tx,
-    fromTokenAddress: d.from_token_address,
-  };
+    fromTokenAddress: d.from_token_address };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -362,7 +353,6 @@ function mapUnstakeEntry(
 export async function getUnstakesByAddress({
   address,
   env = DEFAULT_ENV,
-  options,
-}: IGetUnstakesByAddressParameters): Promise<Unstake[]> {
+  options }: IGetUnstakesByAddressParameters): Promise<Unstake[]> {
   return fetchUnstakesByAddress({ address, env, options });
 }

@@ -16,7 +16,6 @@ export async function createTestSolanaWallet(secretKeyBase58: string) {
     signTransaction: async (tx: any) => {
       tx.partialSign(keypair);
       return tx;
-    },
-  };
+    } };
 }
 

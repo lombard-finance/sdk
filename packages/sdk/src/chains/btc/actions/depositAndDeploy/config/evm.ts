@@ -25,8 +25,7 @@ import type { DepositAndDeployChainConfig } from './types';
 // Currently only Avalanche is supported
 const DEPOSIT_AND_DEPLOY_CHAINS = {
   mainnet: [Chain.AVALANCHE],
-  testnet: [Chain.AVALANCHE_FUJI],
-};
+  testnet: [Chain.AVALANCHE_FUJI] };
 
 /**
  * EVM deposit and deploy configuration
@@ -40,12 +39,10 @@ export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.stage, Env.dev, Env.testnet, Env.ibc],
-    },
+      envs: [Env.stage, Env.dev, Env.testnet, Env.ibc] },
   ],
 
   // DepositAndDeploy with BTC.b is available on Avalanche
@@ -87,20 +84,16 @@ export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
       chainId: chainId as ChainId,
       provider: provider as EIP1193Provider,
       vaultKey,
-      token,
-    });
+      token });
 
     // Store signature via API (even for approve flow, we need to track it)
     await ctx.api.storeStakeAndBakeSignature({
       signature: result.signature,
-      typedData: result.typedData,
-    });
+      typedData: result.typedData });
 
     return {
       signature: result.signature,
       typedData: result.typedData,
       // approvalTxHash may not be present in the result for all flows
-      approvalTxHash: (result as { approvalTxHash?: string }).approvalTxHash,
-    };
-  },
-};
+      approvalTxHash: (result as { approvalTxHash?: string }).approvalTxHash };
+  } };

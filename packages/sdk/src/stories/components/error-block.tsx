@@ -13,8 +13,7 @@ export const ErrorBlock = ({ children }: { children: ReactNode }) =>
         color: 'var(--bs-red)',
         background: '#fef5f6',
         overflow: 'hidden',
-        borderRadius: '5px',
-      }}
+        borderRadius: '5px' }}
     >
       {children}
     </div>

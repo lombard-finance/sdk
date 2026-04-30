@@ -5,8 +5,7 @@ import {
   useAccount,
   type UseAccountReturnType,
   useConnect as useWagmiConnect,
-  useDisconnect as useWagmiDisconnect,
-} from 'wagmi';
+  useDisconnect as useWagmiDisconnect } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 
 import { ChainId } from '../../common/chains';
@@ -58,6 +57,5 @@ export function useConnection() {
     account,
     provider,
     connect: connectWallet,
-    disconnect,
-  };
+    disconnect };
 }

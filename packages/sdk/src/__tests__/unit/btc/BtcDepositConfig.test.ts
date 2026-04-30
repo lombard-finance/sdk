@@ -18,8 +18,7 @@ import {
   isAssetOutSupported,
   isDestChainSupported,
   isRouteAvailable,
-  solanaDepositConfig,
-} from '../../../chains/btc/actions/deposit/config';
+  solanaDepositConfig } from '../../../chains/btc/actions/deposit/config';
 import { AssetId, Chain } from '../../../core';
 
 describe('BTC Deposit Config', () => {

@@ -13,8 +13,7 @@ export function StatsCard({
   title,
   value,
   subtitle,
-  variant = 'default',
-}: StatsCardProps) {
+  variant = 'default' }: StatsCardProps) {
   const borderClass = variant !== 'default' ? `border-${variant}` : '';
   const textClass = variant !== 'default' ? `text-${variant}` : '';
 

@@ -7,14 +7,12 @@ import {
   ChainId,
   SolanaChain,
   StarknetChainId,
-  SuiChain,
-} from '../../common/chains';
+  SuiChain } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import {
   AddressKind,
   getTokenByAddress,
-  Token,
-} from '../../tokens/token-addresses';
+  Token } from '../../tokens/token-addresses';
 import { fromBaseDenomination } from '../../tokens/tokens';
 import { fetchAllPaginated } from '../../utils/pagination';
 import { BTC_DECIMALS, fromSatoshi } from '../../utils/satoshi';
@@ -51,8 +49,7 @@ export enum ENotarizationStatus {
   NOTARIZATION_STATUS_FAILED = 'NOTARIZATION_STATUS_FAILED',
 
   /** The notarization session was handled by GMP */
-  NOTARIZATION_STATUS_GMP_HANDLED = 'NOTARIZATION_STATUS_GMP_HANDLED',
-}
+  NOTARIZATION_STATUS_GMP_HANDLED = 'NOTARIZATION_STATUS_GMP_HANDLED' }
 
 /**
  * Enum representing the state of a notarization session.
@@ -68,8 +65,7 @@ export enum ESessionState {
   SESSION_STATE_COMPLETED = 'SESSION_STATE_COMPLETED',
 
   /** Session has expired without completion */
-  SESSION_STATE_EXPIRED = 'SESSION_STATE_EXPIRED',
-}
+  SESSION_STATE_EXPIRED = 'SESSION_STATE_EXPIRED' }
 
 export interface NativeDeposit {
   /** Transaction hash on the source blockchain */
@@ -330,8 +326,7 @@ export interface IGetDepositsByAddressParams extends IEnvParam {
  */
 export async function fetchDirectDeposits({
   address,
-  env,
-}: IGetDepositsByAddressParams): Promise<Deposit[]> {
+  env }: IGetDepositsByAddressParams): Promise<Deposit[]> {
   const { baseApiUrl } = getApiConfig(env);
 
   // pad address to 64 characters if needed
@@ -343,8 +338,7 @@ export async function fetchDirectDeposits({
 
   const outputs = await fetchAllPaginated({
     endpoint,
-    extractItems: data => (data as DirectDepositsResponse)?.outputs ?? [],
-  });
+    extractItems: data => (data as DirectDepositsResponse)?.outputs ?? [] });
 
   return outputs.map(d => mapDirectBtcDeposit(d, env, address));
 }
@@ -365,8 +359,7 @@ export async function fetchDirectDeposits({
  */
 export async function fetchBTCbDeposits({
   address,
-  env,
-}: IGetDepositsByAddressParams): Promise<Deposit[]> {
+  env }: IGetDepositsByAddressParams): Promise<Deposit[]> {
   const { baseApiUrl } = getApiConfig(env);
 
   const endpoint = new URL(
@@ -376,8 +369,7 @@ export async function fetchBTCbDeposits({
 
   const deposits = await fetchAllPaginated({
     endpoint,
-    extractItems: data => (data as NativeDepositsResponse)?.deposits ?? [],
-  });
+    extractItems: data => (data as NativeDepositsResponse)?.deposits ?? [] });
 
   return deposits.map(d => mapBTCbDeposits(d, env));
 }
@@ -423,8 +415,7 @@ function mapDirectBtcDeposit(
     auxVersion: d.aux_version,
     notarizationWaitDur: d.notarization_wait_dur
       ? Number(d.notarization_wait_dur)
-      : undefined,
-  };
+      : undefined };
 }
 
 function mapBTCbDeposits(d: NativeDeposit, env?: Env): Deposit {
@@ -457,8 +448,7 @@ function mapBTCbDeposits(d: NativeDeposit, env?: Env): Deposit {
     sessionState: d.session_state,
     claimTxHash: d.claim_tx,
     isClaimed: !!d.claim_tx,
-    sanctioned: d.sanctioned,
-  };
+    sanctioned: d.sanctioned };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -485,8 +475,7 @@ function mapBTCbDeposits(d: NativeDeposit, env?: Env): Deposit {
  */
 export async function getDepositsByAddress({
   address,
-  env,
-}: IGetDepositsByAddressParams): Promise<Deposit[]> {
+  env }: IGetDepositsByAddressParams): Promise<Deposit[]> {
   const results = await Promise.allSettled([
     fetchDirectDeposits({ address, env }),
     fetchBTCbDeposits({ address, env }),

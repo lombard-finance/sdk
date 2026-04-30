@@ -24,14 +24,11 @@ import type { EvmCoreContext } from '../../../shared/context/types';
 vi.mock('../../../tokens/tokens', () => ({
   getTokenContractInfo: vi.fn().mockResolvedValue({
     address: '0x1234567890123456789012345678901234567890' as `0x${string}`,
-    abi: [],
-  }),
-}));
+    abi: [] }) }));
 
 vi.mock('../../../contract-functions/approveToken', () => ({
   getTokenAllowance: vi.fn().mockResolvedValue(new BigNumber('1000')), // Sufficient allowance
-  approveToken: vi.fn().mockResolvedValue('0xtxhash'),
-}));
+  approveToken: vi.fn().mockResolvedValue('0xtxhash') }));
 
 // Spy on the fee authorization functions
 vi.spyOn(feeAuthModule, 'checkFeeAuthorization');
@@ -43,16 +40,14 @@ const mockProvider = {
       return ['0x0000000000000000000000000000000000000002'];
     }
     return [];
-  }),
-};
+  }) };
 
 function createContext(): EvmCoreContext {
   return {
     env: Env.prod,
     partner: new PartnerConfiguration(undefined),
     getProvider: async () => mockProvider,
-    evm: {} as EvmCoreContext['evm'],
-  };
+    evm: {} as EvmCoreContext['evm'] };
 }
 
 describe('EvmStake Fee Authorization', () => {
@@ -68,16 +63,14 @@ describe('EvmStake Fee Authorization', () => {
         hasValidSignature: false,
         feeInSatoshis: null,
         feeFormatted: null,
-        expirationDate: null,
-      });
+        expirationDate: null });
 
       const ctx = createContext();
       const stake = new EvmStake(ctx, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BASE,
-        destChain: Chain.BASE,
-      });
+        destChain: Chain.BASE });
 
       await stake.prepare({ amount: '0.5' });
 
@@ -93,16 +86,14 @@ describe('EvmStake Fee Authorization', () => {
         hasValidSignature: false,
         feeInSatoshis: BigInt(32),
         feeFormatted: '0.00000032',
-        expirationDate: null,
-      });
+        expirationDate: null });
 
       const ctx = createContext();
       const stake = new EvmStake(ctx, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        destChain: Chain.ETHEREUM,
-      });
+        destChain: Chain.ETHEREUM });
 
       await stake.prepare({ amount: '0.5' });
 
@@ -126,8 +117,7 @@ describe('EvmStake Fee Authorization', () => {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        destChain: Chain.ETHEREUM,
-      });
+        destChain: Chain.ETHEREUM });
 
       await stake.prepare({ amount: '0.5' });
 
@@ -142,20 +132,17 @@ describe('EvmStake Fee Authorization', () => {
         hasValidSignature: false,
         feeInSatoshis: BigInt(32),
         feeFormatted: '0.00000032',
-        expirationDate: null,
-      });
+        expirationDate: null });
       vi.mocked(feeAuthModule.authorizeFee).mockResolvedValueOnce({
         signature: '0xabc123' as `0x${string}`,
-        typedData: '{}',
-      });
+        typedData: '{}' });
 
       const ctx = createContext();
       const stake = new EvmStake(ctx, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        destChain: Chain.ETHEREUM,
-      });
+        destChain: Chain.ETHEREUM });
 
       await stake.prepare({ amount: '0.5' });
       expect(stake.status).toBe(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
@@ -173,16 +160,14 @@ describe('EvmStake Fee Authorization', () => {
         hasValidSignature: false,
         feeInSatoshis: BigInt(32),
         feeFormatted: '0.00000032',
-        expirationDate: null,
-      });
+        expirationDate: null });
 
       const ctx = createContext();
       const stake = new EvmStake(ctx, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        destChain: Chain.ETHEREUM,
-      });
+        destChain: Chain.ETHEREUM });
 
       await stake.prepare({ amount: '0.5' });
 

@@ -37,8 +37,7 @@ runIfEnabled('Automint Fee Contract Reads', () => {
         const sepoliaStageFee = await getMintingFee({
           token: Token.LBTC,
           chainId: ChainId.sepolia,
-          env: Env.stage,
-        });
+          env: Env.stage });
         expectNonZeroFee(sepoliaStageFee, 'Sepolia (stage) LBTC');
       }
 
@@ -46,8 +45,7 @@ runIfEnabled('Automint Fee Contract Reads', () => {
         const ethereumProdFee = await getMintingFee({
           token: Token.LBTC,
           chainId: ChainId.ethereum,
-          env: Env.prod,
-        });
+          env: Env.prod });
         expectNonZeroFee(ethereumProdFee, 'Ethereum (prod) LBTC');
       }
     },
@@ -64,8 +62,7 @@ runIfEnabled('Automint Fee Contract Reads', () => {
       const sepoliaStageFee = await getMintingFee({
         token: Token.BTCb,
         chainId: ChainId.sepolia,
-        env: Env.stage,
-      });
+        env: Env.stage });
 
       expectNonZeroFee(sepoliaStageFee, 'Sepolia (stage) BTC.b');
     },

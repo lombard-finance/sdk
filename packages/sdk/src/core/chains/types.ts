@@ -38,8 +38,7 @@ export const CHAIN_PREFIXES = {
   ZCASH: 'zcash',
   RIPPLE: 'ripple',
   DOGECOIN: 'dogecoin',
-  HYPERLIQUID: 'hyperliquid',
-} as const;
+  HYPERLIQUID: 'hyperliquid' } as const;
 
 /** CAIP-2 separator between namespace and reference */
 export const CAIP2_SEPARATOR = ':' as const;
@@ -130,8 +129,7 @@ export const Chain = {
   DOGECOIN_TESTNET: caip2(CHAIN_PREFIXES.DOGECOIN, 'testnet'),
 
   // Custodial (unofficial namespace)
-  HYPERLIQUID: caip2(CHAIN_PREFIXES.HYPERLIQUID, 'mainnet'),
-} as const;
+  HYPERLIQUID: caip2(CHAIN_PREFIXES.HYPERLIQUID, 'mainnet') } as const;
 
 export type Chain = (typeof Chain)[keyof typeof Chain];
 

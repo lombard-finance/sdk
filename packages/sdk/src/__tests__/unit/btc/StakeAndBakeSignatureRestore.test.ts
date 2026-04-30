@@ -71,8 +71,7 @@ describe('StakeAndBake Signature Restoration Logic', () => {
         hasSignature: true,
         signature: '0xabc123',
         depositAmount: '20000',
-        expirationDate: String(Math.floor(Date.now() / 1000) + 86400),
-      };
+        expirationDate: String(Math.floor(Date.now() / 1000) + 86400) };
 
       expect(shouldSkipAuthorization(validResult)).toBe(true);
     });
@@ -83,8 +82,7 @@ describe('StakeAndBake Signature Restoration Logic', () => {
 
     it('should require authorization when hasSignature is false', () => {
       const noSignatureResult: StakeAndBakeRestoreResult = {
-        hasSignature: false,
-      };
+        hasSignature: false };
 
       expect(shouldSkipAuthorization(noSignatureResult)).toBe(false);
     });
@@ -95,8 +93,7 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const hasSignatureNoString: StakeAndBakeRestoreResult = {
         hasSignature: true,
         depositAmount: '20000',
-        expirationDate: String(Math.floor(Date.now() / 1000) + 86400),
-      };
+        expirationDate: String(Math.floor(Date.now() / 1000) + 86400) };
 
       expect(shouldSkipAuthorization(hasSignatureNoString)).toBe(true);
     });
@@ -193,8 +190,7 @@ describe('getUserStakeAndBakeSignature API Response Parsing', () => {
     signature: data.signature,
     expirationDate: data.expiration_date,
     depositAmount: data.deposit_amount,
-    chainId: data.chain_id,
-  });
+    chainId: data.chain_id });
 
   it('should correctly parse snake_case API response to camelCase', () => {
     const apiResponse: ApiResponse = {
@@ -202,8 +198,7 @@ describe('getUserStakeAndBakeSignature API Response Parsing', () => {
       signature: '0xabc123def456',
       expiration_date: '1704067200', // Unix timestamp
       deposit_amount: '20000',
-      chain_id: '1',
-    };
+      chain_id: '1' };
 
     const parsed = parseApiResponse(apiResponse);
 

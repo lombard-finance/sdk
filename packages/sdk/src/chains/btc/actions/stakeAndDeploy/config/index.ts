@@ -17,8 +17,7 @@ import { evmStakeAndDeployConfig } from './evm';
 export type {
   StakeAndBakeAuthResult,
   StakeAndDeployChainConfig,
-  StakeAndDeployRouteDefinition,
-} from './types';
+  StakeAndDeployRouteDefinition } from './types';
 
 /**
  * Config (currently EVM only)

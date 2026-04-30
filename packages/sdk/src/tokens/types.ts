@@ -64,8 +64,7 @@ export enum AddressKind {
    * The token contract address (standard ERC20).
    * Used for permit signatures, balance queries, and standard ERC20 operations.
    */
-  Token = 'token',
-}
+  Token = 'token' }
 
 /**
  * Address structure for tokens with both token and adapter addresses.

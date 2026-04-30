@@ -21,19 +21,16 @@ export const solanaRedeemConfig: ChainConfig = {
       destChain: Chain.BITCOIN_MAINNET,
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     {
       sourceChains: [Chain.SOLANA_DEVNET],
       destChain: Chain.BITCOIN_SIGNET,
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
-      envs: [Env.testnet, Env.stage, Env.dev],
-    },
+      envs: [Env.testnet, Env.stage, Env.dev] },
   ],
 
-  recipientSchema: bitcoinAddressSchema,
-};
+  recipientSchema: bitcoinAddressSchema };
 
 export function isRedeemSupported(
   sourceChain: Chain,

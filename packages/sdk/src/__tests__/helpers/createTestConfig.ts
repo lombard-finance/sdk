@@ -11,8 +11,7 @@ import type { AnyModule, ProviderKey } from '@lombard.finance/sdk-common';
 
 import type {
   CreateConfigOptions,
-  ResolvedLombardConfig,
-} from '../../config/types';
+  ResolvedLombardConfig } from '../../config/types';
 import { ASSET_CATALOG } from '../../core/assets/catalog';
 import { apiModule } from '../../modules/apiModule';
 import { btcModule } from '../../modules/btcModule';
@@ -77,8 +76,7 @@ export function createTestConfig(
     env: options.env,
     providers: options.providers || {},
     modules,
-    catalog: ASSET_CATALOG,
-  };
+    catalog: ASSET_CATALOG };
 
   if (options.partner) {
     config.partner = options.partner;

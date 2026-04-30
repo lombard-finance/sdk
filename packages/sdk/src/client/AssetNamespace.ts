@@ -32,8 +32,7 @@ import {
   getPublicMarketMaker,
   getSupportedAssets,
   isAssetDeployed,
-  usesAssetRouter,
-} from '../core';
+  usesAssetRouter } from '../core';
 
 export class AssetNamespace {
   private readonly catalog: AssetCatalog;

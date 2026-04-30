@@ -20,10 +20,7 @@ const meta = {
     ...envSelector,
     token: {
       options: [Token.LBTC, Token.BTCK],
-      control: { type: 'select' },
-    },
-  },
-} satisfies Meta<typeof StoryView>;
+      control: { type: 'select' } } } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -33,17 +30,13 @@ export const LBTCOnEthereum: Story = {
   args: {
     token: Token.LBTC,
     chainId: ChainId.ethereum,
-    env: undefined,
-  },
-};
+    env: undefined } };
 
 export const LBTCOnBase: Story = {
   args: {
     token: Token.LBTC,
     chainId: ChainId.base,
-    env: undefined,
-  },
-};
+    env: undefined } };
 
 interface StoryViewProps {
   token: Token.LBTC | Token.BTCK;

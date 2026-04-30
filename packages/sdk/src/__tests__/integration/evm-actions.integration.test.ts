@@ -25,30 +25,24 @@ import { createTestConfig as createConfig } from '../helpers/createTestConfig';
 
 vi.mock('../../contract-functions/deposit', () => ({
   depositToken: vi.fn(),
-  getAssetRouterAddress: vi.fn(async () => '0x0000000000000000000000000000000000000001'),
-}));
+  getAssetRouterAddress: vi.fn(async () => '0x0000000000000000000000000000000000000001') }));
 
 // Mock clients for EvmDeploy allowance checks
 vi.mock('../../clients/public-client', () => ({
   makePublicClient: vi.fn(() => ({
     readContract: vi.fn().mockResolvedValue(BigInt('100000000000')), // High allowance
     simulateContract: vi.fn().mockResolvedValue({ request: {} }),
-    waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }),
-  })),
-}));
+    waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }) })) }));
 
 vi.mock('../../clients/wallet-client', () => ({
   makeWalletClient: vi.fn(() => ({
-    writeContract: vi.fn().mockResolvedValue('0xapprovetxhash'),
-  })),
-}));
+    writeContract: vi.fn().mockResolvedValue('0xapprovetxhash') })) }));
 
 // Mock token contract info to avoid real address lookups
 vi.mock('../../tokens/tokens', () => ({
   getTokenContractInfo: vi.fn().mockResolvedValue({
     address: '0x1234567890123456789012345678901234567890' as `0x${string}`,
-    abi: [],
-  }),
+    abi: [] }),
   getTokenInfo: vi.fn().mockResolvedValue({
     address: '0x1234567890123456789012345678901234567890' as `0x${string}`,
     abi: [
@@ -56,27 +50,22 @@ vi.mock('../../tokens/tokens', () => ({
         name: 'allowance',
         type: 'function',
         inputs: [{ type: 'address' }, { type: 'address' }],
-        outputs: [{ type: 'uint256' }],
-      },
+        outputs: [{ type: 'uint256' }] },
       {
         name: 'approve',
         type: 'function',
         inputs: [{ type: 'address' }, { type: 'uint256' }],
-        outputs: [{ type: 'bool' }],
-      },
+        outputs: [{ type: 'bool' }] },
     ],
     decimals: 8,
-    symbol: 'LBTC',
-  }),
+    symbol: 'LBTC' }),
   toBaseDenomination: vi.fn((amount) => new BigNumber(amount).multipliedBy(1e8)),
-  fromBaseDenomination: vi.fn((amount) => new BigNumber(amount).dividedBy(1e8)),
-}));
+  fromBaseDenomination: vi.fn((amount) => new BigNumber(amount).dividedBy(1e8)) }));
 
 vi.mock('../../contract-functions/approveToken', () => ({
   approveToken: vi.fn(async () => '0xapprovetxhash'),
   // Mock sufficient allowance so tests proceed past approval check
-  getTokenAllowance: vi.fn(async () => new BigNumber('1000000')),
-}));
+  getTokenAllowance: vi.fn(async () => new BigNumber('1000000')) }));
 
 // Mock fee authorization for EvmStake (subsidized chains don't require fee auth)
 vi.mock('../../chains/evm/shared/feeAuth', async (importOriginal) => {
@@ -88,13 +77,10 @@ vi.mock('../../chains/evm/shared/feeAuth', async (importOriginal) => {
       hasValidSignature: false,
       feeInSatoshis: null,
       feeFormatted: null,
-      expirationDate: null,
-    })),
+      expirationDate: null })),
     authorizeFee: vi.fn(async () => ({
       signature: '0xabc123' as `0x${string}`,
-      typedData: '{}',
-    })),
-  };
+      typedData: '{}' })) };
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -105,8 +91,7 @@ function createMockEvmProvider(): EIP1193Provider {
   const mockProvider = {
     request: vi.fn(),
     on: vi.fn(),
-    removeListener: vi.fn(),
-  };
+    removeListener: vi.fn() };
 
   mockProvider.request.mockImplementation(async ({ method }) => {
     switch (method) {
@@ -148,16 +133,14 @@ describe('EVM Stake Action', () => {
     it('should start in IDLE status', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const stake = evm.stake({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       expect(stake.status).toBe(EvmOperationStatus.IDLE);
       expect(stake.isLoading).toBe(false);
@@ -168,16 +151,14 @@ describe('EVM Stake Action', () => {
     it('should transition to READY after prepare (subsidized chain)', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const stake = evm.stake({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       await stake.prepare({ amount: '0.001' });
 
@@ -189,16 +170,14 @@ describe('EVM Stake Action', () => {
     it('should transition to READY after approve', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const stake = evm.stake({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       await stake.prepare({ amount: '0.001' });
 
@@ -210,16 +189,14 @@ describe('EVM Stake Action', () => {
     it('should emit status change events', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const stake = evm.stake({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       const statusChanges: string[] = [];
       stake.on('status-change', (status: unknown) => statusChanges.push(status as string));
@@ -235,16 +212,14 @@ describe('EVM Stake Action', () => {
     it('should reject invalid amount', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const stake = evm.stake({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       await expect(stake.prepare({ amount: '' })).rejects.toThrow();
     });
@@ -252,16 +227,14 @@ describe('EVM Stake Action', () => {
     it('should reject negative amount', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const stake = evm.stake({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       await expect(stake.prepare({ amount: '-0.001' })).rejects.toThrow();
     });
@@ -276,16 +249,14 @@ describe('EVM Stake Action', () => {
 
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const stake = evm.stake({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       await stake.prepare({ amount: '0.01' });
       // Avalanche is subsidized, goes directly to READY
@@ -296,8 +267,7 @@ describe('EVM Stake Action', () => {
         expect.objectContaining({
           amount: '0.01',
           tokenIn: Token.BTCb,
-          tokenOut: Token.LBTC,
-        }),
+          tokenOut: Token.LBTC }),
       );
       expect(stake.txHash).toBe(mockTxHash);
       expect(stake.status).toBe(EvmOperationStatus.COMPLETED);
@@ -321,16 +291,14 @@ describe('EVM Unstake Action', () => {
     it('should start in IDLE status', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const unstake = evm.unstake({
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       expect(unstake.status).toBe(EvmOperationStatus.IDLE);
     });
@@ -338,21 +306,18 @@ describe('EVM Unstake Action', () => {
     it('should transition to READY after prepare', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const unstake = evm.unstake({
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       await unstake.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(unstake.status).toBe(EvmOperationStatus.READY);
       expect(unstake.amount).toBe('0.001');
@@ -363,22 +328,19 @@ describe('EVM Unstake Action', () => {
     it('should validate Bitcoin recipient address', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const unstake = evm.unstake({
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
         sourceChain: Chain.SEPOLIA,
-        destChain: Chain.BITCOIN_SIGNET,
-      });
+        destChain: Chain.BITCOIN_SIGNET });
 
       // Valid Bitcoin signet address
       await unstake.prepare({
         amount: '0.001',
-        recipient: 'tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx',
-      });
+        recipient: 'tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx' });
 
       expect(unstake.status).toBe(EvmOperationStatus.READY);
     });
@@ -386,22 +348,19 @@ describe('EVM Unstake Action', () => {
     it('should reject invalid Bitcoin address', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const unstake = evm.unstake({
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
         sourceChain: Chain.SEPOLIA,
-        destChain: Chain.BITCOIN_SIGNET,
-      });
+        destChain: Chain.BITCOIN_SIGNET });
 
       await expect(
         unstake.prepare({
           amount: '0.001',
-          recipient: 'invalid-address',
-        }),
+          recipient: 'invalid-address' }),
       ).rejects.toThrow();
     });
   });
@@ -423,16 +382,14 @@ describe('EVM Deploy Action', () => {
     it('should start in IDLE status', () => {
       const config = createConfig({
         env: Env.prod, // Veda only on prod
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: DeployProtocol.Veda,
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(deploy.status).toBe(EvmOperationStatus.IDLE);
     });
@@ -442,21 +399,18 @@ describe('EVM Deploy Action', () => {
       // So 0.01 LBTC should not need approval
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: DeployProtocol.Veda,
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       await deploy.prepare({
         amount: '0.01',
-        protocol: DeployProtocol.Veda,
-      });
+        protocol: DeployProtocol.Veda });
 
       // With sufficient allowance, should skip to READY
       expect(deploy.status).toBe(EvmOperationStatus.READY);
@@ -471,26 +425,22 @@ describe('EVM Deploy Action', () => {
       vi.mocked(makePublicClient).mockReturnValueOnce({
         readContract: vi.fn().mockResolvedValue(BigInt('0')), // Zero allowance
         simulateContract: vi.fn().mockResolvedValue({ request: {} }),
-        waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }),
-      } as unknown as ReturnType<typeof makePublicClient>);
+        waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }) } as unknown as ReturnType<typeof makePublicClient>);
 
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: DeployProtocol.Veda,
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       await deploy.prepare({
         amount: '0.01',
-        protocol: DeployProtocol.Veda,
-      });
+        protocol: DeployProtocol.Veda });
 
       expect(deploy.status).toBe(EvmOperationStatus.NEEDS_APPROVAL);
       expect(deploy.needsApproval).toBe(true);
@@ -502,26 +452,22 @@ describe('EVM Deploy Action', () => {
       vi.mocked(makePublicClient).mockReturnValueOnce({
         readContract: vi.fn().mockResolvedValue(BigInt('0')), // Zero allowance
         simulateContract: vi.fn().mockResolvedValue({ request: {} }),
-        waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }),
-      } as unknown as ReturnType<typeof makePublicClient>);
+        waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }) } as unknown as ReturnType<typeof makePublicClient>);
 
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: DeployProtocol.Veda,
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       await deploy.prepare({
         amount: '0.01',
-        protocol: DeployProtocol.Veda,
-      });
+        protocol: DeployProtocol.Veda });
 
       expect(deploy.status).toBe(EvmOperationStatus.NEEDS_APPROVAL);
 
@@ -536,22 +482,19 @@ describe('EVM Deploy Action', () => {
     it('should reject unsupported protocol in testnet', async () => {
       const config = createConfig({
         env: Env.testnet, // Veda not on testnet
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.SEPOLIA,
         protocol: DeployProtocol.Veda,
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       await expect(
         deploy.prepare({
           amount: '0.01',
-          protocol: DeployProtocol.Veda,
-        }),
+          protocol: DeployProtocol.Veda }),
       ).rejects.toThrow(/not supported/i);
     });
   });
@@ -573,16 +516,14 @@ describe('EVM Redeem Action', () => {
     it('should start in IDLE status', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const redeem = evm.redeem({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.BITCOIN_SIGNET,
-      });
+        destChain: Chain.BITCOIN_SIGNET });
 
       expect(redeem.status).toBe(EvmOperationStatus.IDLE);
     });
@@ -590,22 +531,19 @@ describe('EVM Redeem Action', () => {
     it('should transition directly to READY after prepare (no approval)', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const redeem = evm.redeem({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.BITCOIN_SIGNET,
-      });
+        destChain: Chain.BITCOIN_SIGNET });
 
       await redeem.prepare({
         amount: '0.001',
         // Valid testnet Bitcoin address from BIP-0173
-        recipient: 'tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx',
-      });
+        recipient: 'tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx' });
 
       // Redeem goes directly to READY (no approval needed)
       expect(redeem.status).toBe(EvmOperationStatus.READY);
@@ -615,16 +553,14 @@ describe('EVM Redeem Action', () => {
     it('should emit progress events', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const redeem = evm.redeem({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.BITCOIN_SIGNET,
-      });
+        destChain: Chain.BITCOIN_SIGNET });
 
       interface ProgressEvent {
         status: string;
@@ -639,8 +575,7 @@ describe('EVM Redeem Action', () => {
       await redeem.prepare({
         amount: '0.001',
         // Valid testnet Bitcoin address from BIP-0173
-        recipient: 'tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx',
-      });
+        recipient: 'tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx' });
 
       expect(progressEvents.length).toBeGreaterThan(0);
       expect(progressEvents[progressEvents.length - 1].status).toBe(
@@ -653,22 +588,19 @@ describe('EVM Redeem Action', () => {
     it('should reject invalid EVM address', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const redeem = evm.redeem({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE_FUJI,
-        destChain: Chain.BITCOIN_SIGNET,
-      });
+        destChain: Chain.BITCOIN_SIGNET });
 
       await expect(
         redeem.prepare({
           amount: '0.001',
-          recipient: 'not-an-address',
-        }),
+          recipient: 'not-an-address' }),
       ).rejects.toThrow();
     });
   });
@@ -690,16 +622,14 @@ describe('EVM Deposit Action', () => {
     it('should start in IDLE status', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deposit = evm.deposit({
         assetIn: AssetId.BTC,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BITCOIN_SIGNET,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       expect(deposit.status).toBe('idle');
     });
@@ -707,21 +637,18 @@ describe('EVM Deposit Action', () => {
     it('should transition to READY after prepare', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deposit = evm.deposit({
         assetIn: AssetId.BTC,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BITCOIN_SIGNET,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       await deposit.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(deposit.status).toBe('ready');
     });
@@ -729,21 +656,18 @@ describe('EVM Deposit Action', () => {
     it('should require claim data before execute', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deposit = evm.deposit({
         assetIn: AssetId.BTC,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BITCOIN_SIGNET,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       await deposit.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       // Should fail without claim data
       await expect(deposit.execute()).rejects.toThrow(/claimData/i);
@@ -754,21 +678,18 @@ describe('EVM Deposit Action', () => {
     it('should accept claim data via setClaimData', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deposit = evm.deposit({
         assetIn: AssetId.BTC,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BITCOIN_SIGNET,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       await deposit.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       // Set claim data
       deposit.setClaimData('0xdata...', '0xproofSignature...');
@@ -794,16 +715,14 @@ describe('EVM Action Error Handling', () => {
   it('should preserve status on error', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const evm = evmActions(config);
     const stake = evm.stake({
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE_FUJI,
-      destChain: Chain.AVALANCHE_FUJI,
-    });
+      destChain: Chain.AVALANCHE_FUJI });
 
     const initialStatus = stake.status;
 
@@ -818,16 +737,14 @@ describe('EVM Action Error Handling', () => {
   it('should allow retry after error', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const evm = evmActions(config);
     const stake = evm.stake({
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE_FUJI,
-      destChain: Chain.AVALANCHE_FUJI,
-    });
+      destChain: Chain.AVALANCHE_FUJI });
 
     // First attempt fails
     await expect(stake.prepare({ amount: '' })).rejects.toThrow();
@@ -845,16 +762,14 @@ describe('EVM Action Error Handling', () => {
   it('should emit error and failed events', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const evm = evmActions(config);
     const unstake = evm.unstake({
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.AVALANCHE_FUJI,
-      destChain: Chain.AVALANCHE_FUJI,
-    });
+      destChain: Chain.AVALANCHE_FUJI });
 
     const errors: Error[] = [];
     const failedEvents: number[] = [];
@@ -865,8 +780,7 @@ describe('EVM Action Error Handling', () => {
     await expect(
       unstake.prepare({
         amount: '',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      }),
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
     ).rejects.toThrow();
 
     expect(errors.length).toBe(1);
@@ -889,16 +803,14 @@ describe('EVM Action Loading States', () => {
   it('should emit loading events during operations', async () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const evm = evmActions(config);
     const stake = evm.stake({
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE_FUJI,
-      destChain: Chain.AVALANCHE_FUJI,
-    });
+      destChain: Chain.AVALANCHE_FUJI });
 
     const loadingStates: boolean[] = [];
     stake.on('loading', (isLoading: unknown) => loadingStates.push(isLoading as boolean));
@@ -914,16 +826,14 @@ describe('EVM Action Loading States', () => {
   it('should return unsubscribe function from on()', () => {
     const config = createConfig({
       env: Env.testnet,
-      providers: { evm: () => mockProvider },
-    });
+      providers: { evm: () => mockProvider } });
 
     const evm = evmActions(config);
     const stake = evm.stake({
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE_FUJI,
-      destChain: Chain.AVALANCHE_FUJI,
-    });
+      destChain: Chain.AVALANCHE_FUJI });
 
     const handler = vi.fn();
     const unsubscribe = stake.on('status-change', handler);

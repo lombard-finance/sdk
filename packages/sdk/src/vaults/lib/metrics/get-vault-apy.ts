@@ -5,7 +5,7 @@ import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
 import { orderBy } from '../../../utils/array';
-import { isVedaVaultChain, Vault, VAULTS, VedaVaultChain } from '../config';
+import { EARN_VAULT, EarnChain, isEarnChain } from '../config';
 
 type PerformanceEntry = {
   aggregation_period: string;
@@ -53,25 +53,20 @@ const normalizeSevenSeasPerformance = (
   return [payload];
 };
 
-export type GetVaultApyParameters = IEnvParam & {
+export type GetEarnApyParameters = IEnvParam & {
   aggregationPeriod?: 7 | 14 | 30;
   chainId?: ChainId;
-  vaultKey?: Vault;
 };
 
 /** Gets the trailing APY performance history. */
-export async function getVaultApy({
+export async function getEarnApy({
   aggregationPeriod = 7,
   chainId = ChainId.ethereum,
-  vaultKey = Vault.Veda,
-  env,
-}: GetVaultApyParameters) {
+  env }: GetEarnApyParameters) {
   const response = await getVaultPerformance({
     aggregationPeriod,
     chainId,
-    vaultKey,
-    env,
-  });
+    env });
 
   const apys = response.map(r => {
     const allocations = Object.entries(r.chain_allocation)
@@ -92,15 +87,13 @@ export async function getVaultApy({
       allocations: BigNumber(b.allocation),
       apy: BigNumber(b.apy),
       chainId: NETWORK_TO_CHAIN_ID_MAP[b.chain],
-      protocol: b.protocol,
-    }));
+      protocol: b.protocol }));
 
     return {
       apy: BigNumber(r.apy),
       allocations,
       breakdown,
-      timestamp: new Date(r.timestamp),
-    };
+      timestamp: new Date(r.timestamp) };
   });
 
   return orderBy(apys, a => a.timestamp.getTime(), 'desc');
@@ -109,10 +102,9 @@ export async function getVaultApy({
 type GetVaultPerformanceParameters = {
   aggregationPeriod?: 7 | 14 | 30;
   chainId: ChainId;
-  vaultKey?: Vault;
 } & IEnvParam;
 
-const CHAIN_ID_TO_NETWORK_MAP: Record<VedaVaultChain, string> = {
+const CHAIN_ID_TO_NETWORK_MAP: Record<EarnChain, string> = {
   // NOTE: For now only `ethereum` is supported by the API.
   [ChainId.ethereum]: 'ethereum',
 
@@ -120,15 +112,13 @@ const CHAIN_ID_TO_NETWORK_MAP: Record<VedaVaultChain, string> = {
   // to return the aggregated data for all vault chains.
   [ChainId.base]: 'base',
   [ChainId.binanceSmartChain]: 'bnb',
-  [ChainId.corn]: 'corn',
-};
+  [ChainId.corn]: 'corn' };
 
-const NETWORK_TO_CHAIN_ID_MAP: Record<string, VedaVaultChain> = {
+const NETWORK_TO_CHAIN_ID_MAP: Record<string, EarnChain> = {
   ethereum: ChainId.ethereum,
   base: ChainId.base,
   bnb: ChainId.binanceSmartChain,
-  corn: ChainId.corn,
-};
+  corn: ChainId.corn };
 
 /**
  * Gets the raw response of the performance apy api for the provided vault.
@@ -136,15 +126,9 @@ const NETWORK_TO_CHAIN_ID_MAP: Record<string, VedaVaultChain> = {
 async function getVaultPerformance({
   aggregationPeriod = 7,
   chainId,
-  vaultKey = Vault.Veda,
-  env,
-}: GetVaultPerformanceParameters) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  env }: GetVaultPerformanceParameters) {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
@@ -166,8 +150,7 @@ async function getVaultPerformance({
 
   const params = new URLSearchParams({
     aggregation_period: String(aggregationPeriod),
-    historical: 'true',
-  });
+    historical: 'true' });
   const url = `${bffApiUrl}/sevenseas-api/performance/${network}/${vault.vaultContract.address}?${params.toString()}`;
 
   const { data } = await axios.get<PerformancePayload>(url);

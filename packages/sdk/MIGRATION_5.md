@@ -188,12 +188,43 @@ The following exported types are removed. New parameter types follow the new fun
 
 ---
 
+## Bitcoin Earn rename
+
+The product is now called **Bitcoin Earn**. Public symbols that referenced "Veda" or the legacy "Vault" abstraction have been renamed. `DefiProtocol.Veda` and the underlying contract names are unchanged because they identify a real third-party protocol.
+
+| Removed | New |
+|---|---|
+| `Vault` enum, `VAULTS` map, `VaultNameMap` | (deleted, the SDK now exposes a single Bitcoin Earn vault) |
+| `getVaultDeposits`, `getVaultDepositsAllChains` | `getEarnDeposits`, `getEarnDepositsAllChains` |
+| `getVaultWithdrawals`, `getVaultWithdrawalsAllChains` | `getEarnWithdrawals`, `getEarnWithdrawalsAllChains` |
+| `getVaultMinimumDeposit`, `previewVaultDeposit` | `getEarnMinimumDeposit`, `previewEarnDeposit` |
+| `getVaultApy`, `getVaultPoints`, `getVaultTVL` | `getEarnApy`, `getEarnPoints`, `getEarnTVL` |
+| `GetVault*Parameters`, `VedaVaultDeposit`, `VedaVaultWithdrawal`, etc. | `GetEarn*Parameters`, `EarnDeposit`, `EarnWithdrawal` |
+| `vaultKey: Vault` parameter on the public Earn helpers | Removed (single vault, redundant) |
+
+```ts
+// Before
+import { getVaultDeposits, Vault } from '@lombard.finance/sdk';
+const deposits = await getVaultDeposits({
+  account: userAddress,
+  chainId: 1,
+  vaultKey: Vault.Veda,
+});
+
+// After
+import { getEarnDeposits } from '@lombard.finance/sdk';
+const deposits = await getEarnDeposits({
+  account: userAddress,
+  chainId: 1,
+});
+```
+
 ## What didn't change
 
-- The `Vault` enum is still exported (used by `previewVaultDeposit`, `getVaultDeposits*`, `getVaultMinimumDeposit`, `getVaultApy`, `getVaultPoints`, `getVaultTVL`, none of which were deprecated).
-- BFF-backed helpers (`getVaultDeposits*`, `getVaultWithdrawals*`, `getVaultApy`, `getVaultPoints`, `getVaultTVL`) keep working unchanged. They were not deprecated in 4.8.0.
+- BFF-backed helpers (`getEarnDeposits*`, `getEarnWithdrawals*`, `getEarnApy`, `getEarnPoints`, `getEarnTVL`) keep working unchanged after the rename.
 - The chain-action APIs (`evmActions.deploy`, `evmActions.withdraw`, etc.) keep working unchanged. They internally use the helpers that were renamed to `*Internal`, so behavior is identical.
-- `previewVaultDeposit` and `getVaultMinimumDeposit` keep working unchanged.
+- `previewEarnDeposit` and `getEarnMinimumDeposit` keep working unchanged after the rename.
+- `DefiProtocol.Veda` is still exported. It identifies the underlying protocol used by `signStakeAndBake`, which is unrelated to this rename.
 
 ## Need help?
 

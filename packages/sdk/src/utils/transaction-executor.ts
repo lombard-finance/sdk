@@ -5,21 +5,18 @@ import {
   PublicClient,
   SimulateContractParameters,
   SimulateContractReturnType,
-  WalletClient,
-} from 'viem';
+  WalletClient } from 'viem';
 
 import {
   EvmTransactionRequest,
   SignerError,
-  validateTransactionRequest,
-} from '../clients/evm-signer-adapter';
+  validateTransactionRequest } from '../clients/evm-signer-adapter';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../common/chains';
 import {
   CommonSignerWriteParameters,
   CommonWriteParameters,
   isProviderFlow,
-  isSignerFlow,
-} from '../common/parameters';
+  isSignerFlow } from '../common/parameters';
 
 /**
  * Minimal type-safe interface for contract simulation arguments.
@@ -112,8 +109,7 @@ export async function executeContractTransaction({
   publicClient,
   walletClient,
   simulateArgs,
-  operation,
-}: ExecuteContractTxParams): Promise<ExecuteContractTxResult> {
+  operation }: ExecuteContractTxParams): Promise<ExecuteContractTxResult> {
   // Validate that we have either provider or signer
   if (!isProviderFlow(params) && !isSignerFlow(params)) {
     throw new SignerError(
@@ -138,8 +134,7 @@ export async function executeContractTransaction({
       {
         operation,
         simulateArgs,
-        error: error instanceof Error ? error.message : String(error),
-      },
+        error: error instanceof Error ? error.message : String(error) },
     );
   }
 
@@ -184,8 +179,7 @@ export async function executeContractTransaction({
         {
           operation,
           request,
-          error: error instanceof Error ? error.message : String(error),
-        },
+          error: error instanceof Error ? error.message : String(error) },
       );
     }
   } else {
@@ -206,8 +200,7 @@ export async function executeContractTransaction({
       const callData = encodeFunctionData({
         abi: simulateArgs.abi,
         functionName: simulateArgs.functionName,
-        args: simulateArgs.args,
-      });
+        args: simulateArgs.args });
 
       // Convert viem request to EvmTransactionRequest format
       const evmTx: EvmTransactionRequest = {
@@ -218,8 +211,7 @@ export async function executeContractTransaction({
         gas: request.gas,
         maxFeePerGas: request.maxFeePerGas,
         maxPriorityFeePerGas: request.maxPriorityFeePerGas,
-        chainId: `0x${chain.id.toString(16)}`,
-      };
+        chainId: `0x${chain.id.toString(16)}` };
 
       // Validate transaction before signing
       validateTransactionRequest(evmTx, operation);
@@ -228,8 +220,7 @@ export async function executeContractTransaction({
       txHash = await params.signer.sign(evmTx, async signedTx => {
         // Dispatch callback: broadcast the signed transaction
         return await publicClient.sendRawTransaction({
-          serializedTransaction: signedTx,
-        });
+          serializedTransaction: signedTx });
       });
     } catch (error) {
       throw new SignerError(
@@ -238,8 +229,7 @@ export async function executeContractTransaction({
         {
           operation,
           request,
-          error: error instanceof Error ? error.message : String(error),
-        },
+          error: error instanceof Error ? error.message : String(error) },
       );
     }
   }
@@ -262,8 +252,7 @@ export async function waitForTransactionReceipt(
 ) {
   try {
     const receipt = await publicClient.waitForTransactionReceipt({
-      hash: txHash,
-    });
+      hash: txHash });
 
     if (receipt.status === 'reverted') {
       throw new SignerError(
@@ -274,9 +263,7 @@ export async function waitForTransactionReceipt(
           txHash,
           receipt: {
             blockNumber: receipt.blockNumber,
-            gasUsed: receipt.gasUsed,
-          },
-        },
+            gasUsed: receipt.gasUsed } },
       );
     }
 
@@ -292,8 +279,7 @@ export async function waitForTransactionReceipt(
       {
         operation,
         txHash,
-        error: error instanceof Error ? error.message : String(error),
-      },
+        error: error instanceof Error ? error.message : String(error) },
     );
   }
 }

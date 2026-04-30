@@ -33,8 +33,7 @@ import { LombardError, ValidationErrorCode, wrapError } from '../errors';
 import {
   createEventEmitter,
   type EventEmitter,
-  type EventHandler,
-} from '../monitoring/createEventEmitter';
+  type EventHandler } from '../monitoring/createEventEmitter';
 
 /**
  * Log metadata for structured logging
@@ -172,8 +171,7 @@ export abstract class BaseAction<
     const enrichedMeta: LogMeta = {
       action: this.constructor.name,
       status: this._status,
-      ...meta,
-    };
+      ...meta };
 
     // Explicit method calls to avoid unsafe-dynamic-method security warning
     switch (level) {
@@ -388,8 +386,7 @@ export abstract class BaseAction<
       this.recordTiming(String(operationName), duration);
       this.log('info', `Completed ${operationName}`, {
         step: String(operationName),
-        duration: Math.round(duration),
-      });
+        duration: Math.round(duration) });
 
       if (successStatus !== undefined) {
         this.updateStatus(successStatus);
@@ -405,8 +402,7 @@ export abstract class BaseAction<
         step: String(operationName),
         duration: Math.round(duration),
         errorCode: lombError.code,
-        errorMessage: lombError.message,
-      });
+        errorMessage: lombError.message });
 
       return this.handleFailure(error);
     } finally {

@@ -38,8 +38,7 @@ function chainToSolanaNetwork(chainId: string): string {
     // Legacy format (solana:network-name)
     'solana:mainnet-beta': 'mainnet-beta',
     'solana:devnet': 'devnet',
-    'solana:testnet': 'testnet',
-  };
+    'solana:testnet': 'testnet' };
 
   const network = CHAIN_TO_NETWORK[chainId];
   if (!network) {
@@ -63,12 +62,10 @@ export const solanaConfig: ChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
-    },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
   ],
 
   // Derived from ASSET_CATALOG - Solana chains where LBTC is deployed
@@ -89,9 +86,7 @@ export const solanaConfig: ChainConfig = {
     // Convert CAIP-2 chain ID to SolanaNetwork format (e.g., 'devnet')
     const network = chainToSolanaNetwork(chainId as string);
     const { signature } = await solana.signLbtcDestination({
-      network,
-    });
+      network });
 
     return { signature };
-  },
-};
+  } };

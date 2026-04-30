@@ -20,15 +20,13 @@ export async function getActiveEvmAccount(
 ): Promise<Address> {
   try {
     const accounts = (await provider.request({
-      method: 'eth_accounts',
-    })) as string[] | undefined;
+      method: 'eth_accounts' })) as string[] | undefined;
 
     const account =
       accounts?.[0] ??
       (
         (await provider.request({
-          method: 'eth_requestAccounts',
-        })) as string[] | undefined
+          method: 'eth_requestAccounts' })) as string[] | undefined
       )?.[0];
 
     if (!account) {
@@ -41,7 +39,6 @@ export async function getActiveEvmAccount(
       throw error;
     }
     throw new WalletError('Failed to retrieve wallet account', {
-      cause: error as Error,
-    });
+      cause: error as Error });
   }
 }

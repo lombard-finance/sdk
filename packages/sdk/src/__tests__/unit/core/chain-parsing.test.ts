@@ -26,12 +26,10 @@ import {
   STARKNET_SEPOLIA_CHAIN,
   SUI_DEVNET_CHAIN,
   SUI_MAINNET_CHAIN,
-  SUI_TESTNET_CHAIN,
-} from '../../../common/chains';
+  SUI_TESTNET_CHAIN } from '../../../common/chains';
 import {
   Chain,
-  parseChainIdentifier,
-} from '../../../core';
+  parseChainIdentifier } from '../../../core';
 
 describe('parseChainIdentifier', () => {
   // ═══════════════════════════════════════════════════════════════════════════

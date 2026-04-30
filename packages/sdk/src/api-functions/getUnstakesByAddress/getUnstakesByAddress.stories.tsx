@@ -8,15 +8,13 @@ import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
 import {
   getUnstakesByAddress,
-  IGetUnstakesByAddressParameters,
-} from './getUnstakesByAddress';
+  IGetUnstakesByAddressParameters } from './getUnstakesByAddress';
 
 const meta = {
   title: 'api/getUnstakesByAddress',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [functionType('api-get')],
-} satisfies Meta<typeof StoryView>;
+  decorators: [functionType('api-get')] } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -25,9 +23,7 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     address: EXAMPLE_EVM_ADDRESS,
-    env: DEFAULT_ENV,
-  },
-};
+    env: DEFAULT_ENV } };
 
 export function StoryView(parameters: IGetUnstakesByAddressParameters) {
   const { data, error, isLoading, refetch } = useQuery(

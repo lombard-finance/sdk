@@ -30,8 +30,7 @@ const createMockProvider = () => ({
       default:
         return null;
     }
-  }),
-});
+  }) });
 
 describe('BTC Deposit Integration', () => {
   let mockProvider: ReturnType<typeof createMockProvider>;
@@ -45,13 +44,11 @@ describe('BTC Deposit Integration', () => {
     it('should create BTC deposit action for Avalanche Fuji', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const deposit = btcDeposit(config, {
         assetOut: AssetId.BTCb,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       expect(deposit).toBeDefined();
       expect(deposit.status).toBe('idle');
@@ -60,14 +57,12 @@ describe('BTC Deposit Integration', () => {
     it('should reject LBTC as output asset', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       expect(() => {
         btcDeposit(config, {
           assetOut: AssetId.LBTC,
-          destChain: Chain.AVALANCHE_FUJI,
-        });
+          destChain: Chain.AVALANCHE_FUJI });
       }).toThrow(/not supported for BTC deposits/);
     });
   });
@@ -76,13 +71,11 @@ describe('BTC Deposit Integration', () => {
     it('should start in idle status', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const deposit = btcDeposit(config, {
         assetOut: AssetId.BTCb,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       expect(deposit.status).toBe('idle');
       expect(deposit.isLoading).toBe(false);
@@ -94,13 +87,11 @@ describe('BTC Deposit Integration', () => {
     it('should expose action params', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const deposit = btcDeposit(config, {
         assetOut: AssetId.BTCb,
-        destChain: Chain.AVALANCHE_FUJI,
-      });
+        destChain: Chain.AVALANCHE_FUJI });
 
       expect(deposit.status).toBe('idle');
     });

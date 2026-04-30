@@ -8,26 +8,22 @@ import { IEnvParam } from '../../../common/parameters';
 import {
   fromBaseDenomination,
   getAssetInfo,
-  TokenInfo,
-} from '../../../tokens/tokens';
+  TokenInfo } from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
 import {
-  isVedaVaultChain,
-  Vault,
-  VAULTS,
-  VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
-  VedaVaultChain,
-} from '../config';
+  EARN_CHAIN_TO_NETWORK_MAP,
+  EARN_VAULT,
+  EarnChain,
+  isEarnChain } from '../config';
 
-export type GetVaultWithdrawalsParameters = IEnvParam & {
+export type GetEarnWithdrawalsParameters = IEnvParam & {
   account: Address;
   chainId: ChainId;
-  vaultKey?: Vault;
   rpcUrl?: string;
 };
 
-export type VaultWithdrawal = {
+export type EarnWithdrawal = {
   token?: Omit<TokenInfo, 'abi'>;
   /** The amount of shares withdrawn */
   shareAmount: BigNumber;
@@ -50,16 +46,16 @@ export type VaultWithdrawal = {
   /** The fulfilment block number */
   fulfilledBlockNumber?: number;
   /** The chain id */
-  chainId?: VedaVaultChain;
+  chainId?: EarnChain;
   /** The user wallet address that made the withdrawal */
   toAddress?: Address;
 };
 
-export type VaultWithdrawals = {
-  cancelled: VaultWithdrawal[];
-  expired: VaultWithdrawal[];
-  fulfilled: VaultWithdrawal[];
-  open: VaultWithdrawal[];
+export type EarnWithdrawals = {
+  cancelled: EarnWithdrawal[];
+  expired: EarnWithdrawal[];
+  fulfilled: EarnWithdrawal[];
+  open: EarnWithdrawal[];
 };
 
 type WithdrawRequest = {
@@ -100,8 +96,7 @@ const EMPTY_WITHDRAW_REQUESTS: SevenSeasWithdrawRequests = {
   cancelled_requests: [],
   expired_requests: [],
   fulfilled_requests: [],
-  open_requests: [],
-};
+  open_requests: [] };
 
 const normalizeSevenSeasWithdrawRequests = (
   payload?: WithdrawalsPayload,
@@ -118,8 +113,7 @@ const normalizeSevenSeasWithdrawRequests = (
     cancelled_requests: payload.cancelled_requests ?? [],
     expired_requests: payload.expired_requests ?? [],
     fulfilled_requests: payload.fulfilled_requests ?? [],
-    open_requests: payload.open_requests ?? [],
-  };
+    open_requests: payload.open_requests ?? [] };
 };
 
 /**
@@ -127,30 +121,23 @@ const normalizeSevenSeasWithdrawRequests = (
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
  * @param parameters.chainId - The chain id.
- * @param parameters.vaultKey - The optional vault identifier.
  * @param parameters.rpcUrl - The optional RPC url.
  *
- * @returns {Promise<VaultWithdrawals>}
+ * @returns {Promise<EarnWithdrawals>}
  */
-export async function getVaultWithdrawals({
+export async function getEarnWithdrawals({
   account,
   chainId,
-  vaultKey = Vault.Veda,
   rpcUrl,
-  env,
-}: GetVaultWithdrawalsParameters) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  env }: GetEarnWithdrawalsParameters) {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
   }
 
-  const network = VEDA_VAULT_CHAIN_TO_NETWORK_MAP[chainId];
+  const network = EARN_CHAIN_TO_NETWORK_MAP[chainId];
   const { bffApiUrl } = getApiConfig(env);
   if (!bffApiUrl) {
     throw new Error(
@@ -160,8 +147,7 @@ export async function getVaultWithdrawals({
 
   const endpoint = `${bffApiUrl}/sevenseas-api/withdraw-requests/${network}/${vault.vaultContract.address}/${account}`;
   const searchParams = new URLSearchParams({
-    historical: 'true',
-  });
+    historical: 'true' });
   const url = `${endpoint}?${searchParams.toString()}`;
 
   const { data } = await axios.get<WithdrawalsPayload>(url);
@@ -187,8 +173,7 @@ export async function getVaultWithdrawals({
       withdrawAssets[asset] = {
         address: assetInfo.address,
         decimals: assetInfo.decimals,
-        symbol: assetInfo.symbol,
-      };
+        symbol: assetInfo.symbol };
     } else {
       withdrawAssets[asset] = undefined;
     }
@@ -196,7 +181,7 @@ export async function getVaultWithdrawals({
 
   const cancelled = cancelledRequests.map(w => {
     const token = withdrawAssets[ensureHex(w.wantToken)];
-    const withdrawal: VaultWithdrawal = {
+    const withdrawal: EarnWithdrawal = {
       amount: undefined,
       blockNumber: w.blockNumber,
       deadline: w.deadline,
@@ -205,13 +190,12 @@ export async function getVaultWithdrawals({
       txHash: ensureHex(w.transactionHash),
       token,
       chainId,
-      toAddress: account,
-    };
+      toAddress: account };
     return withdrawal;
   });
   const expired = expiredRequests.map(w => {
     const token = withdrawAssets[ensureHex(w.wantToken)];
-    const withdrawal: VaultWithdrawal = {
+    const withdrawal: EarnWithdrawal = {
       amount: undefined,
       blockNumber: w.blockNumber,
       deadline: w.deadline,
@@ -220,13 +204,12 @@ export async function getVaultWithdrawals({
       txHash: ensureHex(w.transactionHash),
       token,
       chainId,
-      toAddress: account,
-    };
+      toAddress: account };
     return withdrawal;
   });
   const fulfilled = fulfilledRequests.map(w => {
     const token = withdrawAssets[ensureHex(w.Request.wantToken)];
-    const withdrawal: VaultWithdrawal = {
+    const withdrawal: EarnWithdrawal = {
       amount: fromBaseDenomination(
         w.Fulfillment.wantAmountReceived,
         token?.decimals || 0,
@@ -245,13 +228,12 @@ export async function getVaultWithdrawals({
       fulfilledTxHash: ensureHex(w.Fulfillment.transactionHash),
       minPrice: fromBaseDenomination(w.Request.minPrice, token?.decimals || 0),
       chainId,
-      toAddress: account,
-    };
+      toAddress: account };
     return withdrawal;
   });
   const open = openRequests.map(w => {
     const token = withdrawAssets[ensureHex(w.wantToken)];
-    const withdrawal: VaultWithdrawal = {
+    const withdrawal: EarnWithdrawal = {
       amount: undefined,
       blockNumber: w.blockNumber,
       deadline: w.deadline,
@@ -261,12 +243,11 @@ export async function getVaultWithdrawals({
       token,
       minPrice: fromBaseDenomination(w.minPrice, token?.decimals || 0),
       chainId,
-      toAddress: account,
-    };
+      toAddress: account };
     return withdrawal;
   });
 
-  const wihdrawals: VaultWithdrawals = {
+  const wihdrawals: EarnWithdrawals = {
     cancelled: orderBy(cancelled, a => a.timestamp, 'desc'),
     expired: orderBy(expired, a => a.timestamp, 'desc'),
     fulfilled: orderBy(
@@ -274,15 +255,13 @@ export async function getVaultWithdrawals({
       a => a.fulfilledTimestamp || a.timestamp,
       'desc',
     ),
-    open: orderBy(open, a => a.timestamp, 'desc'),
-  };
+    open: orderBy(open, a => a.timestamp, 'desc') };
 
   return wihdrawals;
 }
 
-export type GetVaultWithdrawalsAllChainsParameters = {
+export type GetEarnWithdrawalsAllChainsParameters = {
   account: Address;
-  vaultKey?: Vault;
   rpcUrl?: string;
 };
 
@@ -292,41 +271,33 @@ export type GetVaultWithdrawalsAllChainsParameters = {
  *
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
- * @param parameters.vaultKey - The optional vault identifier (defaults to Veda).
  * @param parameters.rpcUrl - The optional RPC url.
  *
- * @returns {Promise<VaultWithdrawals>} All withdrawals across all supported chains, categorized and sorted
+ * @returns {Promise<EarnWithdrawals>} All withdrawals across all supported chains, categorized and sorted
  */
-export async function getVaultWithdrawalsAllChains({
+export async function getEarnWithdrawalsAllChains({
   account,
-  vaultKey = Vault.Veda,
-  rpcUrl,
-}: GetVaultWithdrawalsAllChainsParameters): Promise<VaultWithdrawals> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
+  rpcUrl }: GetEarnWithdrawalsAllChainsParameters): Promise<EarnWithdrawals> {
+  const vault = EARN_VAULT;
   // Fetch withdrawals from all supported chains in parallel
-  const withdrawalsPromises = vault.chains.map(chainId =>
-    getVaultWithdrawals({ account, chainId, vaultKey, rpcUrl }).catch(error => {
+  const withdrawalsPromises = vault.chains.map((chainId: EarnChain) =>
+    getEarnWithdrawals({ account, chainId, rpcUrl }).catch((error: unknown) => {
       console.error(`Failed to fetch withdrawals for chain ${chainId}:`, error);
       return {
         cancelled: [],
         expired: [],
         fulfilled: [],
-        open: [],
-      }; // Return empty withdrawals on error to not break the entire query
+        open: [] }; // Return empty withdrawals on error to not break the entire query
     }),
   );
 
   const withdrawalsArrays = await Promise.all(withdrawalsPromises);
 
   // Combine all withdrawals from all chains
-  const allCancelled: VaultWithdrawal[] = [];
-  const allExpired: VaultWithdrawal[] = [];
-  const allFulfilled: VaultWithdrawal[] = [];
-  const allOpen: VaultWithdrawal[] = [];
+  const allCancelled: EarnWithdrawal[] = [];
+  const allExpired: EarnWithdrawal[] = [];
+  const allFulfilled: EarnWithdrawal[] = [];
+  const allOpen: EarnWithdrawal[] = [];
 
   for (const withdrawals of withdrawalsArrays) {
     allCancelled.push(...withdrawals.cancelled);
@@ -344,6 +315,5 @@ export async function getVaultWithdrawalsAllChains({
       a => a.fulfilledTimestamp || a.timestamp,
       'desc',
     ),
-    open: orderBy(allOpen, a => a.timestamp, 'desc'),
-  };
+    open: orderBy(allOpen, a => a.timestamp, 'desc') };
 }

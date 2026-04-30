@@ -8,16 +8,14 @@ import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
-  toBaseDenomination,
-} from '../../../tokens/tokens';
+  toBaseDenomination } from '../../../tokens/tokens';
 import toBigInt from '../../../utils/numbers';
-import { isVedaVaultChain, Vault, VAULTS } from '../config';
+import {
+  EARN_VAULT, isEarnChain } from '../config';
 
-export type PreviewVaultDepositParameters = {
+export type PreviewEarnDepositParameters = {
   /** The deposit amount in human-readable format (e.g., "0.001"). */
   amount: BigNumber.Value;
-  /** The vault identifier. */
-  vaultKey: Vault;
   /** The deposit token. Defaults to LBTC. */
   token?: Token;
   /** The chain where the deposit will be made. Defaults to Ethereum. */
@@ -37,28 +35,21 @@ export type PreviewVaultDepositParameters = {
  *
  * @example
  * ```ts
- * const shares = await previewVaultDeposit({
+ * const shares = await previewEarnDeposit({
  *   amount: '0.001',
- *   vaultKey: Vault.Veda,
  *   token: Token.LBTC,
  * });
- * // BigNumber(0.00098039) — expected shares for 0.001 LBTC
+ * // BigNumber(0.00098039), expected shares for 0.001 LBTC
  * ```
  */
-export async function previewVaultDeposit({
+export async function previewEarnDeposit({
   amount: amountRaw,
-  vaultKey,
   token = Token.LBTC,
   chainId = ChainId.ethereum,
   rpcUrl,
-  env,
-}: PreviewVaultDepositParameters): Promise<BigNumber> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  env }: PreviewEarnDepositParameters): Promise<BigNumber> {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Supported chains: ${vault.chains.join(', ')}`,
     );
@@ -69,7 +60,7 @@ export async function previewVaultDeposit({
   ] as readonly ChainId[] | undefined;
   if (!supportedChains || !supportedChains.includes(chainId)) {
     throw new Error(
-      `Token ${token} is not supported on chain ${chainId} for vault ${vaultKey}`,
+      `Token ${token} is not supported on chain ${chainId} for the Bitcoin Earn vault`,
     );
   }
 
@@ -106,8 +97,7 @@ export async function previewVaultDeposit({
   const ethPublicClient = makePublicClient({
     chainId: ChainId.ethereum,
     rpcUrl: chainId === ChainId.ethereum ? rpcUrl : undefined,
-    env,
-  });
+    env });
 
   const vaultAddress = vault.vaultContract.address as Address;
   const accountantAddress = vault.accountantContract.address as Address;
@@ -118,8 +108,7 @@ export async function previewVaultDeposit({
     address: lensAddress,
     abi: lensAbi,
     functionName: 'previewDeposit',
-    args: [ethTokenAddress, amountBase, vaultAddress, accountantAddress],
-  });
+    args: [ethTokenAddress, amountBase, vaultAddress, accountantAddress] });
 
   return fromBaseDenomination((shares as bigint).toString(), vault.decimals);
 }

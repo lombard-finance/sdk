@@ -155,6 +155,5 @@ export function createEventEmitter<
 
     clear(): void {
       handlers.clear();
-    },
-  };
+    } };
 }

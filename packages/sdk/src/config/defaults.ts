@@ -30,20 +30,17 @@ interface DefaultConfig {
 export function getDefaultConfig(env: Env): DefaultConfig {
   const baseFeatures: FeatureFlags = {
     analytics: false,
-    sandbox: env !== 'prod',
-  };
+    sandbox: env !== 'prod' };
 
   // Default chains based on environment
   const defaultChains: ChainDescriptor[] = [
     {
       id: env === 'prod' ? (1 as ChainId) : (11155111 as ChainId), // Ethereum mainnet or Sepolia
       name: env === 'prod' ? 'Ethereum' : 'Sepolia',
-      type: 'evm',
-    },
+      type: 'evm' },
   ];
 
   return {
     chains: defaultChains,
-    features: baseFeatures,
-  };
+    features: baseFeatures };
 }

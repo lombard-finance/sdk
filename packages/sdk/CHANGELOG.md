@@ -4,6 +4,22 @@
 
 The five vault-shaped functions deprecated in 4.8.0 have been removed from the public API. They were replaced by Earn-native equivalents that handle the BTCe wrapper internally. The two deprecated `getEarnPosition` response field aliases have also been removed.
 
+### Bitcoin Earn rename
+
+The product is now called **Bitcoin Earn**. Public symbols that referenced "Veda" (the underlying protocol) or the legacy "Vault" abstraction have been renamed. Internal references to Veda's contracts, ABIs, and the `DefiProtocol.Veda` enum are unchanged because they identify a real third-party protocol.
+
+| Removed | Replacement |
+|---|---|
+| `Vault` enum, `VAULTS` map, `VaultNameMap` | (deleted, single Bitcoin Earn vault) |
+| `getVaultDeposits`, `getVaultDepositsAllChains` | `getEarnDeposits`, `getEarnDepositsAllChains` |
+| `getVaultWithdrawals`, `getVaultWithdrawalsAllChains` | `getEarnWithdrawals`, `getEarnWithdrawalsAllChains` |
+| `getVaultMinimumDeposit`, `previewVaultDeposit` | `getEarnMinimumDeposit`, `previewEarnDeposit` |
+| `getVaultApy`, `getVaultPoints`, `getVaultTVL` | `getEarnApy`, `getEarnPoints`, `getEarnTVL` |
+| Type aliases (`GetVault*Parameters`, `VedaVaultDeposit`, etc.) | Renamed to `GetEarn*Parameters`, `EarnDeposit`, etc. |
+| `vaultKey: Vault` parameter on the public Earn helpers | Removed (single vault, redundant) |
+
+The list above covers the public-facing renames. The full mapping is in [`MIGRATION_5.md`](./MIGRATION_5.md).
+
 ### Removed exports
 
 | Removed | Replacement |

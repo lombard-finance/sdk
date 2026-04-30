@@ -9,14 +9,11 @@ import { ApiService } from '../../services/ApiService';
 
 // Mock dependencies
 vi.mock('../../api-functions/generateDepositBtcAddress/generateDepositBtcAddress', () => ({
-  generateDepositBtcAddress: vi.fn().mockResolvedValue('tb1qmockaddress'),
-}));
+  generateDepositBtcAddress: vi.fn().mockResolvedValue('tb1qmockaddress') }));
 vi.mock('../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature', () => ({
-  storeNetworkFeeSignature: vi.fn(),
-}));
+  storeNetworkFeeSignature: vi.fn() }));
 vi.mock('../../api-functions/getNetworkFeeSignature/getNetworkFeeSignature', () => ({
-  getNetworkFeeSignature: vi.fn(),
-}));
+  getNetworkFeeSignature: vi.fn() }));
 
 describe('ApiService', () => {
   let service: ApiService;
@@ -33,8 +30,7 @@ describe('ApiService', () => {
         chainId: ChainId.sepolia,
         signature: '0xsig',
         token: 'LBTC',
-        captchaToken: 'test-captcha-token',
-      });
+        captchaToken: 'test-captcha-token' });
 
       expect(generateDepositBtcAddress).toHaveBeenCalledWith(
         expect.objectContaining({ captchaToken: 'test-captcha-token' }),
@@ -46,8 +42,7 @@ describe('ApiService', () => {
         address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
         chainId: ChainId.sepolia,
         signature: '0xsig',
-        token: 'LBTC',
-      });
+        token: 'LBTC' });
 
       expect(generateDepositBtcAddress).toHaveBeenCalledWith(
         expect.objectContaining({ captchaToken: undefined }),
@@ -63,15 +58,13 @@ describe('ApiService', () => {
       await service.storeFeeSignature({
         address: '0x123',
         signature: '0xsig',
-        typedData,
-      });
+        typedData });
 
       expect(storeNetworkFeeSignature).toHaveBeenCalledWith({
         address: '0x123',
         signature: '0xsig',
         typedData,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
     });
 
     it('should retrieve fee signature', async () => {
@@ -79,13 +72,11 @@ describe('ApiService', () => {
         hasSignature: true,
         signature: '0xsig',
         expirationDate: '2025-01-01',
-        isDelayed: false,
-      });
+        isDelayed: false });
 
       const result = await service.getFeeSignature({
         address: '0x123',
-        chainId: ChainId.sepolia,
-      });
+        chainId: ChainId.sepolia });
 
       expect(result.hasSignature).toBe(true);
       expect(result.signature).toBe('0xsig');

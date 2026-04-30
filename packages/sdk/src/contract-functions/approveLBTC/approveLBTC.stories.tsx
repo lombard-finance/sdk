@@ -8,14 +8,13 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
-  wagmiDecorator,
-} from '../../stories/components/decorators';
+  wagmiDecorator } from '../../stories/components/decorators';
 import {
   canPerformAction,
-  useConnection,
-} from '../../stories/hooks/useConnection';
+  useConnection } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
-import { Vault,VAULTS } from '../../vaults/lib/config';
+import {
+  EARN_VAULT } from '../../vaults/lib/config';
 import { approveLBTC,IApproveLBTCParams } from './approveLBTC';
 
 const meta = {
@@ -23,8 +22,7 @@ const meta = {
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
-  argTypes: { ...chainSelector },
-} satisfies Meta<typeof StoryView>;
+  argTypes: { ...chainSelector } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -33,11 +31,9 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     chainId: ChainId.sepolia,
-    spender: VAULTS[Vault.Veda].spenderContracts[ChainId.sepolia]?.address,
+    spender: EARN_VAULT.spenderContracts[ChainId.sepolia]?.address,
     amount: 0.00001,
-    env: Env.stage,
-  },
-};
+    env: Env.stage } };
 
 type Props = Omit<IApproveLBTCParams, 'account' | 'provider'>;
 
@@ -54,8 +50,7 @@ export function StoryView(props: Props) {
 
       account: connection.account.address,
       // chainId: connection.account.chainId,
-      provider: connection.provider,
-    });
+      provider: connection.provider });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

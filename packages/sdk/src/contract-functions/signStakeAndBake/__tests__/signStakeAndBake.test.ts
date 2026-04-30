@@ -37,9 +37,7 @@ vi.mock('../../../clients/wallet-client', () => ({
     writeContract: vi.fn(async _params => {
       // Return a mock transaction hash for approve transactions
       return '0xapprovetxhash1234567890abcdef';
-    }),
-  })),
-}));
+    }) })) }));
 
 vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn(() => ({
@@ -60,11 +58,8 @@ vi.mock('../../../clients/public-client', () => ({
         status: 'success',
         transactionHash: hash,
         blockNumber: 1n,
-        blockHash: '0xblockhash',
-      };
-    }),
-  })),
-}));
+        blockHash: '0xblockhash' };
+    }) })) }));
 
 vi.mock('../../../tokens/tokens', () => ({
   getTokenContractInfo: vi.fn(async (token, chainId, _env, _addressKind) => {
@@ -74,19 +69,16 @@ vi.mock('../../../tokens/tokens', () => ({
       return {
         address: '0xLBTC_CONTRACT_ADDRESS',
         abi: [],
-        chainId,
-      };
+        chainId };
     }
     if (token === Token.BTCb) {
       return {
         address: '0xBTCB_CONTRACT_ADDRESS',
         abi: [],
-        chainId,
-      };
+        chainId };
     }
     throw new Error(`Unknown token: ${token}`);
-  }),
-}));
+  }) }));
 
 vi.mock(
   '../../../api-functions/getLBTCExchangeRate/get-exchange-ratio',
@@ -94,9 +86,7 @@ vi.mock(
     getExchangeRatio: vi.fn(async () => ({
       LBTC: {
         BTCTokenRatio: new BigNumber('1.05'), // 1 BTC = 0.952381 LBTC
-      },
-    })),
-  }),
+      } })) }),
 );
 
 // Test data
@@ -123,8 +113,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       // Should be permit mode
       expect(result.mode).toBe('permit');
@@ -142,8 +131,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         name: 'Lombard Staked Bitcoin',
         version: '1',
         chainId: ChainId.ethereum.toString(),
-        verifyingContract: '0xLBTC_CONTRACT_ADDRESS',
-      });
+        verifyingContract: '0xLBTC_CONTRACT_ADDRESS' });
 
       // Verify primary type
       expect(typedData.primaryType).toBe('Permit');
@@ -154,8 +142,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         spender: expect.any(String),
         value: expect.any(String),
         nonce: '5', // Mocked nonce
-        deadline: MOCK_EXPIRY.toString(),
-      });
+        deadline: MOCK_EXPIRY.toString() });
     });
 
     it('should generate permit for LBTC on Ethereum', async () => {
@@ -167,8 +154,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       expect(result.signature).toBeTruthy();
       const typedData = JSON.parse(result.typedData);
@@ -187,8 +173,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         // No expiry provided
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
       const deadline = Number(typedData.message.deadline);
@@ -212,8 +197,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       // Verify nonce was fetched
       expect(makePublicClient).toHaveBeenCalledWith(
@@ -235,8 +219,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
       const permitValue = new BigNumber(typedData.message.value);
@@ -255,8 +238,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       // Should still generate LBTC permit after conversion
       const typedData = JSON.parse(result.typedData);
@@ -286,8 +268,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         chainId: ChainId.avalancheFuji,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       // Should be approve mode
       expect(result.mode).toBe('approve');
@@ -311,8 +292,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Silo,
         chainId: ChainId.avalancheFuji,
         provider: MOCK_PROVIDER,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       const typedData = JSON.parse(result.typedData);
 
@@ -328,8 +308,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Silo,
         chainId: ChainId.avalancheFuji,
         provider: MOCK_PROVIDER,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       const typedData = JSON.parse(result.typedData);
 
@@ -346,8 +325,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         chainId: ChainId.avalancheFuji,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY, // Should be ignored
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       const typedData = JSON.parse(result.typedData);
 
@@ -372,8 +350,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocolKey.Silo,
         chainId: ChainId.avalancheFuji,
         provider: MOCK_PROVIDER,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       expect(result.signature).toBe('');
       const typedData = JSON.parse(result.typedData);
@@ -394,8 +371,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
           vaultKey: DefiProtocol.Veda, // BTCb not configured for Veda
           chainId: ChainId.sepolia, // BTCb not configured for Sepolia
           provider: MOCK_PROVIDER,
-          env: Env.testnet,
-        }),
+          env: Env.testnet }),
       ).rejects.toThrow(StakeAndBakeValidationError);
     });
   });
@@ -409,8 +385,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
           vaultKey: 'nonexistent' as DefiProtocol,
           chainId: ChainId.ethereum,
           provider: MOCK_PROVIDER,
-          env: Env.prod,
-        }),
+          env: Env.prod }),
       ).rejects.toThrow(StakeAndBakeValidationError);
     });
 
@@ -422,8 +397,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
           vaultKey: DefiProtocol.Veda,
           chainId: ChainId.avalanche, // Not supported by Veda
           provider: MOCK_PROVIDER,
-          env: Env.prod,
-        }),
+          env: Env.prod }),
       ).rejects.toThrow(StakeAndBakeValidationError);
     });
 
@@ -438,8 +412,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
           vaultKey: DefiProtocol.Veda,
           chainId: 99999 as ChainId, // Invalid chain
           provider: MOCK_PROVIDER,
-          env: Env.prod,
-        }),
+          env: Env.prod }),
       ).rejects.toThrow();
     });
 
@@ -451,8 +424,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
           vaultKey: DefiProtocol.Veda,
           chainId: ChainId.avalanche,
           provider: MOCK_PROVIDER,
-          env: Env.prod,
-        });
+          env: Env.prod });
         expect.fail('Should have thrown error');
       } catch (error: unknown) {
         const err = error as Error;
@@ -472,8 +444,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
 
@@ -491,8 +462,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
       const domainType = typedData.types.EIP712Domain;
@@ -513,8 +483,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
       const permitType = typedData.types.Permit;
@@ -539,8 +508,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
       const message = typedData.message;
@@ -561,8 +529,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       // Typed data should be serializable JSON
       expect(() => JSON.parse(result.typedData)).not.toThrow();
@@ -586,8 +553,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
       const value = typedData.message.value;
@@ -606,8 +572,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
       expect(typedData.message.value).toBe(largeValue.toFixed(0));
@@ -623,8 +588,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
       // Should be 0 when rounded down
@@ -641,8 +605,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       const typedData = JSON.parse(result.typedData);
 
@@ -660,8 +623,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.sepolia,
         provider: MOCK_PROVIDER,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       const typedData = JSON.parse(result.typedData);
       expect(typedData.message.spender).toBe(
@@ -677,8 +639,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Silo,
         chainId: ChainId.avalancheFuji,
         provider: MOCK_PROVIDER,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       const typedData = JSON.parse(result.typedData);
       expect(typedData.message.spender).toBe(
@@ -696,8 +657,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.sepolia,
         provider: MOCK_PROVIDER,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       expect(result.signature).toBeTruthy();
     });
@@ -728,8 +688,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       // Should fetch LBTC contract for 'BTC' token
       expect(getTokenContractInfo).toHaveBeenCalledWith(
@@ -749,8 +708,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       expect(getTokenContractInfo).toHaveBeenCalledWith(
         Token.LBTC,
@@ -769,8 +727,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Silo,
         chainId: ChainId.avalancheFuji,
         provider: MOCK_PROVIDER,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       // Should use AddressKind.Token for permit signature
       const { AddressKind } = await import('../../../tokens/token-addresses');
@@ -804,8 +761,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
 
       const mockedGetExchangeRatio = getExchangeRatio as Mock;
       mockedGetExchangeRatio.mockResolvedValueOnce({
-        LBTC: {},
-      });
+        LBTC: {} });
 
       const result = await calculateStakeAndBakeLBTCAmount(
         new BigNumber('2'),
@@ -827,29 +783,24 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: 1700000000,
-        env: Env.prod,
-      });
+        env: Env.prod });
 
       // Verify complete result
       expect(result).toMatchObject({
         mode: 'permit',
         signature: expect.stringMatching(/^0x/),
-        typedData: expect.any(String),
-      });
+        typedData: expect.any(String) });
 
       // Verify typedData is valid JSON
       const typedData = JSON.parse(result.typedData);
       expect(typedData).toMatchObject({
         account: '0xUser123',
         domain: expect.objectContaining({
-          name: 'Lombard Staked Bitcoin',
-        }),
+          name: 'Lombard Staked Bitcoin' }),
         primaryType: 'Permit',
         message: expect.objectContaining({
           owner: '0xUser123',
-          value: expect.any(String),
-        }),
-      });
+          value: expect.any(String) }) });
     });
 
     it('should complete full approve flow for BTCb on Avalanche Fuji', async () => {
@@ -860,8 +811,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Silo,
         chainId: ChainId.avalancheFuji,
         provider: MOCK_PROVIDER,
-        env: Env.testnet,
-      });
+        env: Env.testnet });
 
       // Verify approve result
       expect(result).toMatchObject({
@@ -874,15 +824,12 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
       const typedData = JSON.parse(result.typedData);
       expect(typedData).toMatchObject({
         domain: expect.objectContaining({
-          name: 'Bitcoin',
-        }),
+          name: 'Bitcoin' }),
         primaryType: 'Approve',
         message: expect.objectContaining({
           owner: '0xUser456',
           nonce: '0',
-          deadline: '0',
-        }),
-      });
+          deadline: '0' }) });
     });
   });
 });

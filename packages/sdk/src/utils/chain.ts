@@ -164,8 +164,7 @@ export function chainToSolanaNetwork(chainId: string): string {
     [Chain.SOLANA_TESTNET]: 'testnet',
     'solana:mainnet-beta': 'mainnet-beta',
     'solana:devnet': 'devnet',
-    'solana:testnet': 'testnet',
-  };
+    'solana:testnet': 'testnet' };
 
   const network = CHAIN_TO_NETWORK[chainId];
   if (!network) {

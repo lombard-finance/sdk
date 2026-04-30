@@ -19,8 +19,7 @@ import type {
   GetDepositAddressParams,
   GetFeeSignatureParams,
   StoreFeeSignatureParams,
-  StoreStakeAndBakeParams,
-} from '@lombard.finance/sdk-common';
+  StoreStakeAndBakeParams } from '@lombard.finance/sdk-common';
 
 import { generateDepositBtcAddress } from '../api-functions/generateDepositBtcAddress/generateDepositBtcAddress';
 import { getDepositBtcAddress } from '../api-functions/getDepositBtcAddress/getDepositBtcAddress';
@@ -32,8 +31,7 @@ import type {
   ChainId,
   SolanaChain,
   StarknetChainId,
-  SuiChain,
-} from '../common/chains';
+  SuiChain } from '../common/chains';
 import { Token } from '../tokens/token-addresses';
 
 type DestChainId = ChainId | SolanaChain | SuiChain | StarknetChainId;
@@ -68,8 +66,7 @@ export class ApiService implements IApiService {
       env: this.env,
       partnerId: params.partnerId,
       referrerCode: params.referrerCode,
-      captchaToken: params.captchaToken,
-    });
+      captchaToken: params.captchaToken });
   }
 
   /**
@@ -84,8 +81,7 @@ export class ApiService implements IApiService {
         chainId: params.chainId as DestChainId,
         token: params.token as Token,
         env: this.env,
-        partnerId: params.partnerId,
-      });
+        partnerId: params.partnerId });
       return address || undefined;
     } catch {
       // No address found
@@ -99,16 +95,14 @@ export class ApiService implements IApiService {
   async getDeposits(address: string): Promise<DepositInfo[]> {
     const deposits = await getDepositsByAddress({
       address,
-      env: this.env,
-    });
+      env: this.env });
 
     return deposits.map(d => ({
       depositAddress: d.depositAddress ?? '',
       blockHeight: d.blockHeight,
       isClaimed: d.isClaimed,
       txid: d.txHash,
-      amount: d.amount?.toString(),
-    }));
+      amount: d.amount?.toString() }));
   }
 
   /**
@@ -120,8 +114,7 @@ export class ApiService implements IApiService {
       signature: params.signature,
       typedData: params.typedData,
       env: this.env,
-      tokenAddress: params.tokenAddress,
-    });
+      tokenAddress: params.tokenAddress });
   }
 
   /**
@@ -134,8 +127,7 @@ export class ApiService implements IApiService {
       address: params.address,
       chainId: params.chainId as ChainId,
       env: this.env,
-      tokenAddress: params.tokenAddress,
-    });
+      tokenAddress: params.tokenAddress });
   }
 
   /**
@@ -147,7 +139,6 @@ export class ApiService implements IApiService {
     await storeStakeAndBakeSignature({
       signature: params.signature,
       typedData: params.typedData,
-      env: this.env,
-    });
+      env: this.env });
   }
 }

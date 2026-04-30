@@ -10,8 +10,7 @@ interface ICodeBlockProps {
 
 export function CodeBlock({
   text,
-  withFormatting = true,
-}: ICodeBlockProps): JSX.Element | null {
+  withFormatting = true }: ICodeBlockProps): JSX.Element | null {
   const formattedCode =
     text && withFormatting ? JSON.stringify(text, null, 2) : text;
 

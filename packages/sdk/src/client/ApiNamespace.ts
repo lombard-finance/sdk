@@ -35,26 +35,21 @@ import type BigNumber from 'bignumber.js';
 import { getDepositBtcAddress } from '../api-functions/getDepositBtcAddress/getDepositBtcAddress';
 import {
   type Deposit,
-  getDepositsByAddress,
-} from '../api-functions/getDepositsByAddress/getDepositsByAddress';
+  getDepositsByAddress } from '../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { getExchangeRatio } from '../api-functions/getLBTCExchangeRate/get-exchange-ratio';
 import {
   getPointsByAddress,
   type IPointsByAddressSeason1,
-  type IPointsByAddressSeason2,
-} from '../api-functions/getPointsByAddress/getPointsByAddress';
+  type IPointsByAddressSeason2 } from '../api-functions/getPointsByAddress/getPointsByAddress';
 import {
   getUnstakesByAddress,
-  type Unstake,
-} from '../api-functions/getUnstakesByAddress/getUnstakesByAddress';
+  type Unstake } from '../api-functions/getUnstakesByAddress/getUnstakesByAddress';
 import type { ChainId, SolanaChain, StarknetChainId, SuiChain } from '../common/chains';
 import type { Token } from '../tokens/token-addresses';
-import { Vault } from '../vaults/lib/config';
 import {
-  getVaultWithdrawals,
-  getVaultWithdrawalsAllChains,
-  type VaultWithdrawals
-} from '../vaults/lib/ops/get-vault-withdrawals';
+  type EarnWithdrawals,
+  getEarnWithdrawals,
+  getEarnWithdrawalsAllChains} from '../vaults/lib/ops/get-vault-withdrawals';
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -96,8 +91,6 @@ export type DestinationChain = ChainId | SuiChain | SolanaChain | StarknetChainI
 export interface VaultWithdrawalsOptions {
   /** Filter by chain ID (if not provided, fetches from all chains) */
   chainId?: ChainId;
-  /** Vault key (defaults to Veda) */
-  vault?: Vault;
   /** Optional RPC URL override */
   rpcUrl?: string;
 }
@@ -298,8 +291,7 @@ export class ApiNamespace {
       chainId,
       env: this.env,
       partnerId: options?.partnerId,
-      token: options?.token,
-    });
+      token: options?.token });
   }
 
   /* -------------------------------------------------------------------------- */
@@ -336,27 +328,22 @@ export class ApiNamespace {
   async vaultWithdrawals(
     address: string,
     options?: VaultWithdrawalsOptions,
-  ): Promise<VaultWithdrawals> {
+  ): Promise<EarnWithdrawals> {
     const account = address as `0x${string}`;
-    const vaultKey = options?.vault ?? Vault.Veda;
 
     if (options?.chainId) {
       // Fetch from specific chain
-      return getVaultWithdrawals({
+      return getEarnWithdrawals({
         account,
         chainId: options.chainId,
-        vaultKey,
         rpcUrl: options.rpcUrl,
-        env: this.env,
-      });
+        env: this.env });
     }
 
     // Fetch from all chains
-    return getVaultWithdrawalsAllChains({
+    return getEarnWithdrawalsAllChains({
       account,
-      vaultKey,
-      rpcUrl: options?.rpcUrl,
-    });
+      rpcUrl: options?.rpcUrl });
   }
 
   /* -------------------------------------------------------------------------- */

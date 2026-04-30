@@ -33,8 +33,7 @@ const createMockContext = (overrides: Partial<BtcCoreContext> = {}): BtcCoreCont
     storeFeeSignature: vi.fn(),
     getStakeAndBakeSignature: vi.fn(),
     storeStakeAndBakeSignature: vi.fn(),
-    getDeposits: vi.fn(),
-  } as BtcCoreContext['api'],
+    getDeposits: vi.fn() } as BtcCoreContext['api'],
   partner: new PartnerConfiguration({ partnerId: 'test-partner' }),
   capabilities: {
     require: vi.fn(),
@@ -46,15 +45,12 @@ const createMockContext = (overrides: Partial<BtcCoreContext> = {}): BtcCoreCont
     shared: [],
     config: {},
     optional: [],
-    createContext: vi.fn(),
-  } as unknown as BtcCoreContext['capabilities'],
+    createContext: vi.fn() } as unknown as BtcCoreContext['capabilities'],
   getProvider: vi.fn().mockResolvedValue({
     on: vi.fn(),
     removeListener: vi.fn(),
-    request: vi.fn().mockResolvedValue('0x1'),
-  }),
-  ...overrides,
-});
+    request: vi.fn().mockResolvedValue('0x1') }),
+  ...overrides });
 
 // Test implementation of BaseBtcAction
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock with generic step definition
@@ -73,15 +69,13 @@ class TestBtcAction extends BaseBtcAction<any, string, { destChain: Chain }> {
     return {
       idle: 'idle',
       ready: 'ready',
-      addressReady: 'address_ready',
-    };
+      addressReady: 'address_ready' };
   }
 
   protected getInitialSteps(): StepDefinition {
     return {
       created: StepStatus.IDLE,
-      verifying: StepStatus.IDLE,
-    };
+      verifying: StepStatus.IDLE };
   }
 
   protected isAuthorized(): boolean {
@@ -99,8 +93,7 @@ class TestBtcAction extends BaseBtcAction<any, string, { destChain: Chain }> {
       signature: '0xsignature',
       token: 'LBTC',
       partnerId: 'test-partner',
-      captchaToken,
-    };
+      captchaToken };
   }
 
   protected getExpectedToken(): string {
@@ -187,8 +180,7 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
         address: recipient,
         chainId: 11155111, // Sepolia chain ID
         token: 'LBTC',
-        partnerId: 'test-partner',
-      });
+        partnerId: 'test-partner' });
     });
   });
 

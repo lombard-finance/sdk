@@ -39,5 +39,4 @@ export type {
   SignStakeAndBakeParams,
   StoredFeeSignature,
   StoreFeeSignatureParams,
-  StoreStakeAndBakeParams,
-} from '@lombard.finance/sdk-common';
+  StoreStakeAndBakeParams } from '@lombard.finance/sdk-common';

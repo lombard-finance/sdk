@@ -119,8 +119,7 @@ export function createConsoleLogger(
       if (shouldLog('error')) {
         console.error(formatMessage(message), ...formatMeta(meta));
       }
-    },
-  };
+    } };
 }
 
 /**
@@ -133,8 +132,7 @@ export function createSilentLogger(): Logger {
     debug: () => {},
     info: () => {},
     warn: () => {},
-    error: () => {},
-  };
+    error: () => {} };
 }
 
 

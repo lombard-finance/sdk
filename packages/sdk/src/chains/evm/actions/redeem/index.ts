@@ -13,5 +13,4 @@ export {
   type EvmRedeemPrepareParams,
   type EvmRedeemProgress,
   EvmRedeemStatus,
-  type IEvmRedeem,
-} from './types';
+  type IEvmRedeem } from './types';

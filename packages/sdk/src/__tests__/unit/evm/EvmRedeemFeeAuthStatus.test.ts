@@ -24,8 +24,7 @@ vi.mock('../../../chains/evm/shared/feeAuth', async (importOriginal) => {
     await importOriginal<typeof import('../../../chains/evm/shared/feeAuth')>();
   return {
     ...actual,
-    checkFeeAuthorization: vi.fn(),
-  };
+    checkFeeAuthorization: vi.fn() };
 });
 
 const mockProvider = {
@@ -34,16 +33,14 @@ const mockProvider = {
       return ['0x0000000000000000000000000000000000000002'];
     }
     return [];
-  }),
-};
+  }) };
 
 function createContext(): EvmCoreContext {
   return {
     env: Env.prod,
     partner: new PartnerConfiguration(undefined),
     getProvider: async () => mockProvider,
-    evm: {} as EvmCoreContext['evm'],
-  };
+    evm: {} as EvmCoreContext['evm'] };
 }
 
 describe('EvmRedeem fee authorization status', () => {
@@ -61,23 +58,20 @@ describe('EvmRedeem fee authorization status', () => {
       hasValidSignature: false,
       feeInSatoshis: BigInt(1992),
       feeFormatted: '0.00001992',
-      expirationDate: null,
-    });
+      expirationDate: null });
 
     const ctx = createContext();
     const redeem = new EvmRedeem(ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.ETHEREUM,
-      destChain: Chain.BITCOIN_MAINNET,
-    });
+      destChain: Chain.BITCOIN_MAINNET });
 
     expect(redeem.status).toBe(EvmOperationStatus.IDLE);
 
     await redeem.prepare({
       amount: '10000',
-      recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
-    });
+      recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' });
 
     expect(redeem.status).toBe(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
     expect(redeem.feeAuth.requiresAuth).toBe(true);
@@ -95,21 +89,18 @@ describe('EvmRedeem fee authorization status', () => {
       hasValidSignature: false,
       feeInSatoshis: null,
       feeFormatted: null,
-      expirationDate: null,
-    });
+      expirationDate: null });
 
     const ctx = createContext();
     const redeem = new EvmRedeem(ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.BASE,
-      destChain: Chain.BITCOIN_MAINNET,
-    });
+      destChain: Chain.BITCOIN_MAINNET });
 
     await redeem.prepare({
       amount: '10000',
-      recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
-    });
+      recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' });
 
     expect(redeem.status).toBe(EvmOperationStatus.READY);
     expect(redeem.feeAuth.requiresAuth).toBe(false);
@@ -125,16 +116,14 @@ describe('EvmRedeem fee authorization status', () => {
       hasValidSignature: false,
       feeInSatoshis: BigInt(1992),
       feeFormatted: '0.00001992',
-      expirationDate: null,
-    });
+      expirationDate: null });
 
     const ctx = createContext();
     const redeem = new EvmRedeem(ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.ETHEREUM,
-      destChain: Chain.BITCOIN_MAINNET,
-    });
+      destChain: Chain.BITCOIN_MAINNET });
 
     const statusChanges: string[] = [];
     redeem.on('status-change', (...args: unknown[]) => {
@@ -143,8 +132,7 @@ describe('EvmRedeem fee authorization status', () => {
 
     await redeem.prepare({
       amount: '10000',
-      recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
-    });
+      recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' });
 
     expect(statusChanges).toContain(
       EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,

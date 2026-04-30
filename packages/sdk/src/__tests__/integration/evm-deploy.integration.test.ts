@@ -32,8 +32,7 @@ const createMockProvider = () => ({
       default:
         return null;
     }
-  }),
-});
+  }) });
 
 describe('EVM Deploy Integration', () => {
   let mockProvider: ReturnType<typeof createMockProvider>;
@@ -47,16 +46,14 @@ describe('EVM Deploy Integration', () => {
     it('should create deploy action using evmActions namespace', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',  // Use Veda protocol from DefiRegistry
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(deploy).toBeDefined();
       expect(deploy.status).toBe('idle');
@@ -65,15 +62,13 @@ describe('EVM Deploy Integration', () => {
     it('should create deploy action using factory', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const deploy = evmDeploy(config, {
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',  // Use Veda protocol from DefiRegistry
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(deploy).toBeDefined();
       expect(deploy.status).toBe('idle');
@@ -84,15 +79,13 @@ describe('EVM Deploy Integration', () => {
     it('should start in idle status', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const deploy = evmDeploy(config, {
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',  // Use Veda protocol from DefiRegistry
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(deploy.status).toBe('idle');
       expect(deploy.isLoading).toBe(false);
@@ -104,16 +97,14 @@ describe('EVM Deploy Integration', () => {
     it('should accept valid protocols', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       // This should not throw
       const deploy = evmDeploy(config, {
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',  // Use Veda protocol from DefiRegistry
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(deploy).toBeDefined();
     });

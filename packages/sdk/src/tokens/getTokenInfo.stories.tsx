@@ -4,8 +4,7 @@ import { ChainId } from '../common/chains';
 import {
   chainSelector,
   envSelector,
-  makeTokenSelector,
-} from '../stories/arg-types';
+  makeTokenSelector } from '../stories/arg-types';
 import { Button } from '../stories/components/Button';
 import { CodeBlock } from '../stories/components/CodeBlock';
 import { functionType } from '../stories/components/decorators';
@@ -21,9 +20,7 @@ const meta = {
   argTypes: {
     ...chainSelector,
     ...envSelector,
-    ...makeTokenSelector([Token.LBTC, Token.BTCb, Token.BTCK]),
-  },
-} satisfies Meta<typeof StoryView>;
+    ...makeTokenSelector([Token.LBTC, Token.BTCb, Token.BTCK]) } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -33,17 +30,13 @@ export const LBTCOnEthereum: Story = {
   args: {
     token: Token.LBTC,
     chainId: ChainId.ethereum,
-    env: undefined,
-  },
-};
+    env: undefined } };
 
 export const LBTCOnBase: Story = {
   args: {
     token: Token.LBTC,
     chainId: ChainId.base,
-    env: undefined,
-  },
-};
+    env: undefined } };
 
 type GetTokenInfoProps = Parameters<typeof getTokenInfo>;
 

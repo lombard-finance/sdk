@@ -10,5 +10,4 @@ export type {
   ISolanaUnstake,
   SolanaUnstakeParams,
   SolanaUnstakePrepareParams,
-  SolanaUnstakeProgress,
-} from './types';
+  SolanaUnstakeProgress } from './types';

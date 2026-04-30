@@ -24,8 +24,7 @@ function createMockStarknetService() {
       .mockResolvedValue({ signature: '0xmock', pubKey: '0xpub' }),
     unstake: vi
       .fn()
-      .mockResolvedValue({ txHash: '0xmock-starknet-tx-hash-xyz789' }),
-  };
+      .mockResolvedValue({ txHash: '0xmock-starknet-tx-hash-xyz789' }) };
 }
 
 function createMockContext(
@@ -36,8 +35,7 @@ function createMockContext(
     partner: new PartnerConfiguration({ partnerId: 'test-partner' }),
     getProvider: vi.fn().mockResolvedValue({}),
     starknet: createMockStarknetService(),
-    ...overrides,
-  };
+    ...overrides };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -51,13 +49,11 @@ describe('StarknetUnstake', () => {
     assetIn: AssetId.LBTC,
     assetOut: AssetId.BTC,
     sourceChain: Chain.STARKNET_MAINNET,
-    destChain: Chain.BITCOIN_MAINNET,
-  };
+    destChain: Chain.BITCOIN_MAINNET };
 
   const validPrepareParams = {
     amount: '0.001',
-    recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-  };
+    recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' };
 
   beforeEach(() => {
     mockCtx = createMockContext({ env: Env.prod });
@@ -95,8 +91,7 @@ describe('StarknetUnstake', () => {
       const testnetParams = {
         ...validParams,
         sourceChain: Chain.STARKNET_SEPOLIA,
-        destChain: Chain.BITCOIN_SIGNET,
-      };
+        destChain: Chain.BITCOIN_SIGNET };
 
       const unstake = new StarknetUnstake(testnetCtx, testnetParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
@@ -124,8 +119,7 @@ describe('StarknetUnstake', () => {
       await expect(
         unstake.prepare({
           amount: '0.001',
-          recipient: 'invalid-btc-address',
-        }),
+          recipient: 'invalid-btc-address' }),
       ).rejects.toThrow();
     });
 
@@ -135,8 +129,7 @@ describe('StarknetUnstake', () => {
       await expect(
         unstake.prepare({
           amount: '0',
-          recipient: validPrepareParams.recipient,
-        }),
+          recipient: validPrepareParams.recipient }),
       ).rejects.toThrow();
     });
 
@@ -164,8 +157,7 @@ describe('StarknetUnstake', () => {
       expect(mockCtx.starknet.unstake).toHaveBeenCalledWith({
         amount: validPrepareParams.amount,
         btcAddress: validPrepareParams.recipient,
-        env: Env.prod,
-      });
+        env: Env.prod });
       expect(result.txHash).toBe('0xmock-starknet-tx-hash-xyz789');
     });
 
@@ -302,8 +294,7 @@ describe('StarknetUnstake', () => {
       const stageParams = {
         ...validParams,
         sourceChain: Chain.STARKNET_SEPOLIA,
-        destChain: Chain.BITCOIN_SIGNET,
-      };
+        destChain: Chain.BITCOIN_SIGNET };
       const unstake = new StarknetUnstake(stageCtx, stageParams);
       await unstake.prepare(validPrepareParams);
 

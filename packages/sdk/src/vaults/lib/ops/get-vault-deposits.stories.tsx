@@ -5,23 +5,19 @@ import { Button } from '../../../stories/components/Button';
 import { CodeBlock } from '../../../stories/components/CodeBlock';
 import {
   functionType,
-  wagmiDecorator,
-} from '../../../stories/components/decorators';
+  wagmiDecorator } from '../../../stories/components/decorators';
 import { ErrorBlock } from '../../../stories/components/error-block';
 import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
 import useQuery from '../../../stories/hooks/useQuery';
-import { Vault } from '../config';
 import {
-  getVaultDeposits,
-  GetVaultDepositsParameters,
-} from './get-vault-deposits';
+  getEarnDeposits,
+  GetEarnDepositsParameters } from './get-vault-deposits';
 
 const meta = {
-  title: 'vault/ops/getVaultDeposits',
+  title: 'vault/ops/getEarnDeposits',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('api-get')],
-} satisfies Meta<typeof StoryView>;
+  decorators: [wagmiDecorator, functionType('api-get')] } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -30,18 +26,14 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     account: EXAMPLE_EVM_ADDRESS,
-    chainId: ChainId.ethereum,
-    vaultKey: Vault.Veda,
-  },
-};
+    chainId: ChainId.ethereum } };
 
-type SignNetworkFeeProps = GetVaultDepositsParameters;
+type SignNetworkFeeProps = GetEarnDepositsParameters;
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getVaultDeposits({
-      ...props,
-    });
+    return getEarnDeposits({
+      ...props });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);
@@ -54,7 +46,7 @@ export function StoryView(props: SignNetworkFeeProps) {
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getVaultDeposits.name}
+        actionName={getEarnDeposits.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

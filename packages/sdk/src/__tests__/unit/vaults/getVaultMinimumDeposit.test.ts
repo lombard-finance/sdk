@@ -3,8 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
 import { Token } from '../../../tokens/token-addresses';
-import { Vault } from '../../../vaults/lib/config';
-import { getVaultMinimumDeposit } from '../../../vaults/lib/ops/get-vault-minimum-deposit';
+import { getEarnMinimumDeposit } from '../../../vaults/lib/ops/get-vault-minimum-deposit';
 
 // Mock the public client
 const mockMulticall = vi.fn();
@@ -13,9 +12,7 @@ const mockReadContract = vi.fn();
 vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn().mockReturnValue({
     multicall: (...args: unknown[]) => mockMulticall(...args),
-    readContract: (...args: unknown[]) => mockReadContract(...args),
-  }),
-}));
+    readContract: (...args: unknown[]) => mockReadContract(...args) }) }));
 
 // Mock getTokenInfo
 vi.mock('../../../tokens/tokens', async (importOriginal) => {
@@ -26,9 +23,7 @@ vi.mock('../../../tokens/tokens', async (importOriginal) => {
       address: '0x8236a87084f8B84306f72007F36F2618A5634494',
       abi: [],
       symbol: 'LBTC',
-      decimals: 8,
-    }),
-  };
+      decimals: 8 }) };
 });
 
 // Realistic exchange rate: ~1.02 token per share (8 decimals)
@@ -37,7 +32,7 @@ const LBTC_RATE = 101997225n;
 // Minimum: ceil(101997225 / 10^8) = 2 base units
 const ONE_SHARE = 100000000n;
 
-describe('getVaultMinimumDeposit', () => {
+describe('getEarnMinimumDeposit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -50,11 +45,9 @@ describe('getVaultMinimumDeposit', () => {
         { status: 'success', result: 2n }, // 1 sat → 2 shares
       ]);
 
-      const result = await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      const result = await getEarnMinimumDeposit({
         token: Token.LBTC,
-        chainId: ChainId.ethereum,
-      });
+        chainId: ChainId.ethereum });
 
       expect(result).toEqual(BigNumber('0.00000001')); // 1 satoshi
     });
@@ -72,11 +65,9 @@ describe('getVaultMinimumDeposit', () => {
       // Verify: 2 * 10^8 / 101997225 = 1.96... → floor = 1 share ✓
       mockReadContract.mockResolvedValueOnce(1n);
 
-      const result = await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      const result = await getEarnMinimumDeposit({
         token: Token.LBTC,
-        chainId: ChainId.ethereum,
-      });
+        chainId: ChainId.ethereum });
 
       expect(result).toEqual(BigNumber('0.00000002')); // 2 satoshis
     });
@@ -92,11 +83,9 @@ describe('getVaultMinimumDeposit', () => {
       // ceil(550000000 / 100000000) = 6
       mockReadContract.mockResolvedValueOnce(1n);
 
-      const result = await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      const result = await getEarnMinimumDeposit({
         token: Token.LBTC,
-        chainId: ChainId.ethereum,
-      });
+        chainId: ChainId.ethereum });
 
       expect(result).toEqual(BigNumber('0.00000006')); // 6 satoshis
     });
@@ -117,15 +106,12 @@ describe('getVaultMinimumDeposit', () => {
         { status: 'success', result: 1n }, // candidate 3 yields 1 share
         ...Array.from({ length: 9 }, () => ({
           status: 'success' as const,
-          result: 0n,
-        })),
+          result: 0n })),
       ]);
 
-      const result = await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      const result = await getEarnMinimumDeposit({
         token: Token.LBTC,
-        chainId: ChainId.ethereum,
-      });
+        chainId: ChainId.ethereum });
 
       expect(result).toEqual(BigNumber('0.00000003')); // 3 satoshis
     });
@@ -139,11 +125,9 @@ describe('getVaultMinimumDeposit', () => {
       ]);
       mockReadContract.mockResolvedValueOnce(1n);
 
-      await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      await getEarnMinimumDeposit({
         token: Token.LBTC,
-        chainId: ChainId.ethereum,
-      });
+        chainId: ChainId.ethereum });
 
       expect(mockMulticall).toHaveBeenCalledTimes(1);
       const multicallArgs = mockMulticall.mock.calls[0][0];
@@ -166,7 +150,7 @@ describe('getVaultMinimumDeposit', () => {
       ]);
       mockReadContract.mockResolvedValueOnce(1n);
 
-      await getVaultMinimumDeposit({ vaultKey: Vault.Veda });
+      await getEarnMinimumDeposit({ });
 
       expect(mockReadContract).toHaveBeenCalledTimes(1);
       const readArgs = mockReadContract.mock.calls[0][0];
@@ -184,7 +168,7 @@ describe('getVaultMinimumDeposit', () => {
       ]);
       mockReadContract.mockResolvedValueOnce(1n);
 
-      const result = await getVaultMinimumDeposit({ vaultKey: Vault.Veda });
+      const result = await getEarnMinimumDeposit({ });
 
       expect(result).toEqual(BigNumber('0.00000002'));
     });
@@ -193,21 +177,17 @@ describe('getVaultMinimumDeposit', () => {
   describe('error handling', () => {
     it('should throw for unsupported chain', async () => {
       await expect(
-        getVaultMinimumDeposit({
-          vaultKey: Vault.Veda,
-          chainId: ChainId.sepolia,
-        }),
+        getEarnMinimumDeposit({
+          chainId: ChainId.sepolia }),
       ).rejects.toThrow(/Unsupported chain id/);
     });
 
     it('should throw for unsupported token/chain combination', async () => {
       // eBTC is only supported on Ethereum, not Base
       await expect(
-        getVaultMinimumDeposit({
-          vaultKey: Vault.Veda,
+        getEarnMinimumDeposit({
           token: Token.eBTC,
-          chainId: ChainId.base,
-        }),
+          chainId: ChainId.base }),
       ).rejects.toThrow(/not supported on chain/);
     });
 
@@ -218,7 +198,7 @@ describe('getVaultMinimumDeposit', () => {
       ]);
 
       await expect(
-        getVaultMinimumDeposit({ vaultKey: Vault.Veda }),
+        getEarnMinimumDeposit({ }),
       ).rejects.toThrow(/Failed to get exchange rate/);
     });
 
@@ -229,7 +209,7 @@ describe('getVaultMinimumDeposit', () => {
       ]);
 
       await expect(
-        getVaultMinimumDeposit({ vaultKey: Vault.Veda }),
+        getEarnMinimumDeposit({ }),
       ).rejects.toThrow(/Failed to preview deposit/);
     });
 
@@ -246,19 +226,12 @@ describe('getVaultMinimumDeposit', () => {
       mockMulticall.mockResolvedValueOnce(
         Array.from({ length: 10 }, () => ({
           status: 'success' as const,
-          result: 0n,
-        })),
+          result: 0n })),
       );
 
       await expect(
-        getVaultMinimumDeposit({ vaultKey: Vault.Veda }),
+        getEarnMinimumDeposit({ }),
       ).rejects.toThrow(/Could not determine minimum deposit amount/);
-    });
-
-    it('should throw for unknown vault key', async () => {
-      await expect(
-        getVaultMinimumDeposit({ vaultKey: 'unknown' as Vault }),
-      ).rejects.toThrow(/Unknown vault key/);
     });
   });
 
@@ -272,11 +245,9 @@ describe('getVaultMinimumDeposit', () => {
       ]);
       mockReadContract.mockResolvedValueOnce(1n);
 
-      await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      await getEarnMinimumDeposit({
         token: Token.LBTC,
-        chainId: ChainId.base,
-      });
+        chainId: ChainId.base });
 
       // Should call getTokenInfo with Ethereum chainId (for Lens query)
       expect(getTokenInfo).toHaveBeenCalledWith(
@@ -292,23 +263,19 @@ describe('getVaultMinimumDeposit', () => {
       {
         rate: ONE_SHARE, // 1.0 per share
         expectedMin: '0.00000001', // 1 sat: ceil(1e8/1e8) = 1
-        desc: 'rate exactly 1.0',
-      },
+        desc: 'rate exactly 1.0' },
       {
         rate: ONE_SHARE + 1n, // 1.00000001 per share
         expectedMin: '0.00000002', // ceil(100000001/100000000) = 2
-        desc: 'rate just above 1.0',
-      },
+        desc: 'rate just above 1.0' },
       {
         rate: 2n * ONE_SHARE, // 2.0 per share
         expectedMin: '0.00000002', // ceil(200000000/100000000) = 2
-        desc: 'rate exactly 2.0',
-      },
+        desc: 'rate exactly 2.0' },
       {
         rate: 10n * ONE_SHARE, // 10.0 per share
         expectedMin: '0.0000001', // ceil(1000000000/100000000) = 10
-        desc: 'rate exactly 10.0',
-      },
+        desc: 'rate exactly 10.0' },
     ])(
       'should calculate correct minimum for $desc',
       async ({ rate, expectedMin }) => {
@@ -326,7 +293,7 @@ describe('getVaultMinimumDeposit', () => {
           mockReadContract.mockResolvedValueOnce(1n);
         }
 
-        const result = await getVaultMinimumDeposit({ vaultKey: Vault.Veda });
+        const result = await getEarnMinimumDeposit({ });
         expect(result).toEqual(BigNumber(expectedMin));
       },
     );

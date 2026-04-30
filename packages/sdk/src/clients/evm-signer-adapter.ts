@@ -6,8 +6,7 @@ import {
   isHex,
   LocalAccount,
   TransactionSerializable,
-  WalletClient,
-} from 'viem';
+  WalletClient } from 'viem';
 
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from '../common/chains';
 
@@ -210,8 +209,7 @@ export function createAccountFromSigner(
         chainId: transaction.chainId
           ? `0x${transaction.chainId.toString(16)}`
           : `0x${chain.id.toString(16)}`,
-        nonce: transaction.nonce,
-      };
+        nonce: transaction.nonce };
 
       // Validate before signing
       validateTransactionRequest(evmTx, 'signTransaction');
@@ -261,8 +259,7 @@ export function createAccountFromSigner(
         'Typed data signing is not supported by this adapter',
         { method: 'signTypedData' },
       );
-    },
-  };
+    } };
 
   return customAccount;
 }

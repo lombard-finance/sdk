@@ -13,8 +13,7 @@ const meta = {
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('read')],
-  argTypes: { ...chainSelector, ...envSelector },
-} satisfies Meta<typeof StoryView>;
+  argTypes: { ...chainSelector, ...envSelector } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -23,9 +22,7 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     chainId: ChainId.ethereum,
-    env: undefined,
-  },
-};
+    env: undefined } };
 
 type TotalSupplyLBTCProps = Parameters<typeof getLBTCTotalSupply>[0];
 

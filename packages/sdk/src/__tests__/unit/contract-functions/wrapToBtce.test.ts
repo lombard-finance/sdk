@@ -8,30 +8,24 @@ const mockWriteContract = vi.fn();
 
 vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn(() => ({
-    simulateContract: (...args: unknown[]) => mockSimulateContract(...args),
-  })),
-}));
+    simulateContract: (...args: unknown[]) => mockSimulateContract(...args) })) }));
 
 vi.mock('../../../clients/wallet-client', () => ({
   makeWalletClient: vi.fn(() => ({
-    writeContract: (...args: unknown[]) => mockWriteContract(...args),
-  })),
-}));
+    writeContract: (...args: unknown[]) => mockWriteContract(...args) })) }));
 
 const ACCOUNT = '0x000000000000000000000000000000000000dEaD';
 const RECEIVER = '0x000000000000000000000000000000000000bEEf';
 const LBTCV_ADDR = '0x5401b8620E5FB570064CA9114fd1e135fd77D57c';
 const BTCE_ADDR = '0x3a4baaBf4DC9910596821615e848f0e6545762F3';
 const PROVIDER = {
-  request: vi.fn(),
-} as unknown as Parameters<typeof wrapToBtce>[0]['provider'];
+  request: vi.fn() } as unknown as Parameters<typeof wrapToBtce>[0]['provider'];
 
 describe('wrapToBtce', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSimulateContract.mockResolvedValue({
-      request: { address: BTCE_ADDR, abi: [], functionName: 'deposit' },
-    });
+      request: { address: BTCE_ADDR, abi: [], functionName: 'deposit' } });
     mockWriteContract.mockResolvedValue('0xtxhash');
   });
 
@@ -44,8 +38,7 @@ describe('wrapToBtce', () => {
         receiver: RECEIVER,
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(mockSimulateContract).toHaveBeenCalledTimes(1);
       const call = mockSimulateContract.mock.calls[0][0];
@@ -68,8 +61,7 @@ describe('wrapToBtce', () => {
         tokenDecimals: 8,
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(hash).toBe('0xdeadbeef');
     });
@@ -81,8 +73,7 @@ describe('wrapToBtce', () => {
         tokenDecimals: 8,
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       const call = mockSimulateContract.mock.calls[0][0];
       expect(call.args[2]).toBe(ACCOUNT);
@@ -96,8 +87,7 @@ describe('wrapToBtce', () => {
         minimumMint: '0.95',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       const call = mockSimulateContract.mock.calls[0][0];
       // minMint is denominated in BTCe shares which match 8 decimals
@@ -115,8 +105,7 @@ describe('wrapToBtce', () => {
         tokenDecimals: 18, // pretend 18 to prove the conversion uses the param
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       const call = mockSimulateContract.mock.calls[0][0];
       expect(call.args[1]).toBe(10_000_000_000_000_000n); // 0.01 * 10^18
@@ -136,8 +125,7 @@ describe('wrapToBtce', () => {
           tokenDecimals: 8,
           account: ACCOUNT,
           chainId,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).resolves.toBe('0xtxhash');
     });
 
@@ -149,8 +137,7 @@ describe('wrapToBtce', () => {
           tokenDecimals: 8,
           account: ACCOUNT,
           chainId: ChainId.corn,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/BTCe is not supported on chain/);
     });
   });
@@ -164,8 +151,7 @@ describe('wrapToBtce', () => {
           tokenDecimals: 8,
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/must be greater than zero/);
     });
 
@@ -177,8 +163,7 @@ describe('wrapToBtce', () => {
           tokenDecimals: 8,
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/must be greater than zero/);
     });
 
@@ -190,8 +175,7 @@ describe('wrapToBtce', () => {
           tokenDecimals: 8,
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/Invalid token address/);
     });
   });
@@ -210,8 +194,7 @@ describe('wrapToBtce', () => {
           minimumMint: '999',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/MinimumMintNotMet/);
     });
   });

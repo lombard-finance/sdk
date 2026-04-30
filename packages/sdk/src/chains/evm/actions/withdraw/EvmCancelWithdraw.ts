@@ -16,13 +16,12 @@ import { EvmOperationStatus } from '../../../../shared/constants/statusConstants
 import type { EvmCoreContext } from '../../../../shared/context';
 import { LombardError, WithdrawErrorCode } from '../../../../shared/errors';
 import type { WithdrawEventMap } from '../../../../shared/events';
-import { isVedaVaultChain, Vault } from '../../../../vaults/lib/config';
+import { isEarnChain } from '../../../../vaults/lib/config';
 import { cancelWithdrawInternal } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
 import type {
   EvmCancelWithdrawParams,
-  IEvmCancelWithdraw,
-} from './types';
+  IEvmCancelWithdraw } from './types';
 
 export class EvmCancelWithdraw
   extends BaseAction<WithdrawEventMap, EvmOperationStatus>
@@ -56,8 +55,7 @@ export class EvmCancelWithdraw
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
-      });
+        method: 'eth_accounts' });
       const account = (accounts as string[])[0] as `0x${string}`;
       if (!account) {
         throw LombardError.providerMissing(this.params.chain, 'evm');
@@ -67,7 +65,7 @@ export class EvmCancelWithdraw
       this._chainId = parseChainIdentifier(this.params.chain) as ChainId;
 
       // Validate chain supports Veda vault
-      if (!isVedaVaultChain(this._chainId)) {
+      if (!isEarnChain(this._chainId)) {
         throw new LombardError(
           WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED,
           `Chain ${this.params.chain} does not support Veda vault withdrawals`,
@@ -77,8 +75,7 @@ export class EvmCancelWithdraw
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { cancelling: StepStatus.PENDING },
-      });
+        steps: { cancelling: StepStatus.PENDING } });
       this.updateStatus(EvmOperationStatus.READY);
     });
   }
@@ -98,24 +95,20 @@ export class EvmCancelWithdraw
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { cancelling: StepStatus.PENDING },
-      });
+        steps: { cancelling: StepStatus.PENDING } });
 
       // Execute vault cancel withdraw
       const txHash = await cancelWithdrawInternal({
-        vaultKey: Vault.Veda,
         account: this._account,
         chainId: this._chainId,
         provider: provider as EIP1193Provider,
-        env: this.ctx.env,
-      });
+        env: this.ctx.env });
 
       this._txHash = txHash;
 
       this.emitProgress({
         status: EvmOperationStatus.COMPLETED,
-        steps: { cancelling: StepStatus.COMPLETE },
-      });
+        steps: { cancelling: StepStatus.COMPLETE } });
 
       this.emitCompleted();
 

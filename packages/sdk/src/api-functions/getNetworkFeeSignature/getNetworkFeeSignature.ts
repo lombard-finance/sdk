@@ -80,15 +80,13 @@ export async function getNetworkFeeSignature({
   address,
   chainId,
   env,
-  tokenAddress,
-}: IGetNetworkFeeSignatureParams): Promise<IGetNetworkFeeSignatureMappedResponse> {
+  tokenAddress }: IGetNetworkFeeSignatureParams): Promise<IGetNetworkFeeSignatureMappedResponse> {
   const { baseApiUrl } = getApiConfig(env);
 
   try {
     const params: Record<string, string | number> = {
       user_destination_address: address,
-      chain_id: chainId,
-    };
+      chain_id: chainId };
 
     if (tokenAddress) {
       params.token_address = tokenAddress;
@@ -97,8 +95,7 @@ export async function getNetworkFeeSignature({
     const { data } = await axios.get<IGetNetworkFeeSignatureResponse>(
       `${baseApiUrl}/api/v1/claimer/get-user-signature`,
       {
-        params,
-      },
+        params },
     );
 
     return {
@@ -106,8 +103,7 @@ export async function getNetworkFeeSignature({
       hasSignature: data?.has_signature,
       isDelayed: data?.is_delayed,
       signature: data?.signature,
-      typedData: data?.typed_data,
-    };
+      typedData: data?.typed_data };
   } catch (error) {
     const errorMessage = getErrorMessage(error);
 

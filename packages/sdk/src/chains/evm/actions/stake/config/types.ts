@@ -14,8 +14,7 @@ import type { z } from 'zod';
 import type {
   Chain,
   ChainType,
-  DeployProtocol,
-} from '../../../../../core';
+  DeployProtocol } from '../../../../../core';
 import type { EvmCoreContext } from '../../../../../shared/context';
 
 // ═══════════════════════════════════════════════════════════════════════════

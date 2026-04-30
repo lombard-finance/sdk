@@ -26,8 +26,7 @@ export {
   isDepositTerminal,
   MIN_CLAIM_AMOUNT_BTC,
   REQUIRED_CONFIRMATIONS,
-  type StatusSeverity,
-} from './deposits';
+  type StatusSeverity } from './deposits';
 
 // Monitoring utilities
 export {
@@ -35,8 +34,7 @@ export {
   type DepositInfo,
   monitorDeposit,
   type MonitorOptions,
-  type MonitorProgress,
-} from './monitoring';
+  type MonitorProgress } from './monitoring';
 
 // Validation schemas (selective exports for public API)
 export {
@@ -50,5 +48,4 @@ export {
   suiAddressSchema,
   // Helpers
   validate,
-  validateOrThrow,
-} from './validation';
+  validateOrThrow } from './validation';

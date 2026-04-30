@@ -28,40 +28,34 @@ export const evmConfig: ChainConfig = {
       asset: AssetId.LBTC,
       sourceChains: [Chain.ETHEREUM],
       protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // Veda - Base
     {
       asset: AssetId.LBTC,
       sourceChains: [Chain.BASE],
       protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // Veda - BSC
     {
       asset: AssetId.LBTC,
       sourceChains: [Chain.BSC],
       protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // Veda - Corn
     {
       asset: AssetId.LBTC,
       sourceChains: [Chain.CORN],
       protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // Silo - Avalanche
     {
       asset: AssetId.LBTC,
       sourceChains: [Chain.AVALANCHE],
       protocols: [DeployProtocol.Silo],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
   ],
 
-  addressSchema: evmAddressSchema,
-};
+  addressSchema: evmAddressSchema };
 
 /**
  * Check if a deploy route is supported

@@ -22,8 +22,7 @@ export const StrategyStatus = {
   READY: 'ready',
   EXECUTING: 'executing',
   COMPLETED: 'completed',
-  FAILED: 'failed',
-} as const;
+  FAILED: 'failed' } as const;
 
 export type StrategyStatus =
   (typeof StrategyStatus)[keyof typeof StrategyStatus];
@@ -35,8 +34,7 @@ export const StepStatus = {
   IDLE: 'idle',
   PENDING: 'pending',
   COMPLETE: 'complete',
-  FAILED: 'failed',
-} as const;
+  FAILED: 'failed' } as const;
 
 export type StepStatus = (typeof StepStatus)[keyof typeof StepStatus];
 
@@ -96,8 +94,7 @@ export interface RouteParams {
  */
 export {
   type DefiProtocol,
-  DefiProtocol as DeployProtocol,
-} from '../defi/defi-registry';
+  DefiProtocol as DeployProtocol } from '../defi/defi-registry';
 
 /**
  * Deploy configuration for stake-and-deploy operations

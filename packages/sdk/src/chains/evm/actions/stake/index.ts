@@ -18,13 +18,11 @@ export {
   type EvmStakePrepareParams,
   type EvmStakeProgress,
   EvmStakeStatus,
-  type IEvmStake,
-} from './types';
+  type IEvmStake } from './types';
 
 // Config (for advanced usage)
 export type { ChainConfig, RouteDefinition } from './config';
 export {
   evmConfig,
   isProtocolSupported,
-  isSourceChainSupported,
-} from './config';
+  isSourceChainSupported } from './config';

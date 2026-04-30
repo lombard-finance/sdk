@@ -5,15 +5,10 @@ import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
-import { isVedaVaultChain, Vault, VAULTS } from '../../vaults/lib/config';
+import {
+  EARN_VAULT, isEarnChain } from '../../vaults/lib/config';
 
-export interface IGetShareValueParameters extends CommonParameters {
-  /**
-   * Optional DeFi vault identifier specifying the vault in use
-   * @default {string} - "veda"
-   */
-  vaultKey?: Vault;
-}
+export type IGetShareValueParameters = CommonParameters;
 
 /**
  * @internal Internal helper used by `getEarnPosition` and `getSharesByAddressInternal`.
@@ -24,15 +19,9 @@ export interface IGetShareValueParameters extends CommonParameters {
  */
 export async function getShareValueInternal({
   chainId,
-  rpcUrl,
-  vaultKey = Vault.Veda,
-}: IGetShareValueParameters): Promise<BigNumber> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  rpcUrl }: IGetShareValueParameters): Promise<BigNumber> {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
@@ -44,8 +33,7 @@ export async function getShareValueInternal({
     const accountantContract = getContract({
       abi: vault.accountantContract.abi,
       address: vault.accountantContract.address,
-      client,
-    });
+      client });
 
     const exchangeRate = await accountantContract.read.getRate();
     return fromSatoshi(String(exchangeRate));

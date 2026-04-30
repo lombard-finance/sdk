@@ -8,11 +8,9 @@ import toBigInt from '../../utils/numbers';
 import { fromSatoshi } from '../../utils/satoshi';
 import {
   BTCE_VAULT,
+  EARN_VAULT,
   isBtceVaultChain,
-  isVedaVaultChain,
-  Vault,
-  VAULTS,
-} from '../../vaults/lib/config';
+  isEarnChain } from '../../vaults/lib/config';
 
 export type PreviewWithdrawEarnParameters = {
   amount: BigNumber.Value;
@@ -53,11 +51,10 @@ export async function previewWithdrawEarn({
   amount: amountRaw,
   account,
   chainId,
-  rpcUrl,
-}: PreviewWithdrawEarnParameters): Promise<PreviewWithdrawEarnResult> {
-  if (!isVedaVaultChain(chainId)) {
+  rpcUrl }: PreviewWithdrawEarnParameters): Promise<PreviewWithdrawEarnResult> {
+  if (!isEarnChain(chainId)) {
     throw new Error(
-      `Unsupported chain ${chainId}. Earn withdrawals are supported on: ${VAULTS[Vault.Veda].chains.join(', ')}.`,
+      `Unsupported chain ${chainId}. Earn withdrawals are supported on: ${EARN_VAULT.chains.join(', ')}.`,
     );
   }
 
@@ -68,7 +65,7 @@ export async function previewWithdrawEarn({
     );
   }
 
-  const vault = VAULTS[Vault.Veda];
+  const vault = EARN_VAULT;
   const vaultAddress = vault.vaultContract.address as Address;
   const lensAddress = vault.lensContract.address as Address;
   const queueAddress = vault.withdrawQueueContracts[chainId].address as Address;
@@ -82,22 +79,19 @@ export async function previewWithdrawEarn({
       address: lensAddress,
       abi: vault.lensContract.abi,
       functionName: 'balanceOf',
-      args: [account, vaultAddress],
-    }) as Promise<bigint>,
+      args: [account, vaultAddress] }) as Promise<bigint>,
     btceSupported
       ? (publicClient.readContract({
           address: BTCE_VAULT.contracts[chainId],
           abi: BTCE_VAULT.abi,
           functionName: 'balanceOf',
-          args: [account],
-        }) as Promise<bigint>)
+          args: [account] }) as Promise<bigint>)
       : Promise.resolve(0n),
     publicClient.readContract({
       address: vaultAddress,
       abi: erc20Abi,
       functionName: 'allowance',
-      args: [account, queueAddress],
-    }) as Promise<bigint>,
+      args: [account, queueAddress] }) as Promise<bigint>,
   ]);
 
   const isCovered = amountBase <= underlyingRaw + btceRaw;
@@ -114,8 +108,7 @@ export async function previewWithdrawEarn({
       address: BTCE_VAULT.contracts[chainId as (typeof BTCE_VAULT.chains)[number]],
       abi: BTCE_VAULT.abi,
       functionName: 'maxWithdraw',
-      args: [account],
-    })) as bigint;
+      args: [account] })) as bigint;
     isUnwrappable = maxWithdrawRaw >= unwrapAmount;
   }
 
@@ -131,6 +124,5 @@ export async function previewWithdrawEarn({
     btceBalance: fromSatoshi(String(btceRaw)),
     unwrapAmount: fromSatoshi(String(unwrapAmount)),
     isCovered,
-    isUnwrappable,
-  };
+    isUnwrappable };
 }

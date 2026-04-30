@@ -5,8 +5,7 @@ import { BtcService } from '../../services/BtcService';
 
 // Mock dependencies
 vi.mock('../../chains/btc/client/getCurrentBlockHeight', () => ({
-  getCurrentBlockHeight: vi.fn(),
-}));
+  getCurrentBlockHeight: vi.fn() }));
 
 describe('BtcService', () => {
   let service: BtcService;

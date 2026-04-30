@@ -9,13 +9,11 @@ export {
   DefiProtocol,
   DefiProtocols,
   type DefiRegistryToken,
-  getAvailableProtocols,
+  EARN_STAKE_AND_BAKE_CHAINS,
+  type EarnStakeAndBakeChain,  getAvailableProtocols,
   getAvailableProtocolsWithMetadata,
   getStakeAndBakeSupportedChains,
   getSupportedProtocols,
-  isVedaVaultStakeAndBakeChain,
+  isEarnStakeAndBakeChain,
   type StakeAndBakeRegistry,
-  type StakeAndBakeToken,
-  VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
-  type VedaVaultStakeAndBakeChain,
-} from '../defi';
+  type StakeAndBakeToken } from '../defi';

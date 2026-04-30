@@ -8,15 +8,13 @@ import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
 import {
   getDepositsByAddress,
-  IGetDepositsByAddressParams,
-} from './getDepositsByAddress';
+  IGetDepositsByAddressParams } from './getDepositsByAddress';
 
 const meta = {
   title: 'api/getDepositsByAddress',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [functionType('api-get')],
-} satisfies Meta<typeof StoryView>;
+  decorators: [functionType('api-get')] } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -25,9 +23,7 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     address: EXAMPLE_EVM_ADDRESS,
-    env: DEFAULT_ENV,
-  },
-};
+    env: DEFAULT_ENV } };
 
 export function StoryView(props: IGetDepositsByAddressParams) {
   const { data, error, isLoading, refetch } = useQuery(

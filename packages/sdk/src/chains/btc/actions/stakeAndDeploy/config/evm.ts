@@ -19,13 +19,13 @@ import { AssetId, Chain, evmChainIdToChain } from '../../../../../core';
 import { LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
 import { evmAddressSchema } from '../../../../../shared/validation';
-import { VEDA_VAULT_STAKE_AND_BAKE_CHAINS } from '../../../../../vaults/lib/config';
+import { EARN_STAKE_AND_BAKE_CHAINS } from '../../../../../vaults/lib/config';
 import { getSupportedProtocols } from '../../depositAndDeploy/config';
 import type { StakeAndDeployChainConfig } from './types';
 
 // Convert chain IDs to Chain enum values (CAIP-2 format)
-// Uses VEDA_VAULT_STAKE_AND_BAKE_CHAINS as source of truth
-const STAKE_AND_DEPLOY_DEST_CHAINS = VEDA_VAULT_STAKE_AND_BAKE_CHAINS.map(
+// Uses EARN_STAKE_AND_BAKE_CHAINS as source of truth
+const STAKE_AND_DEPLOY_DEST_CHAINS = EARN_STAKE_AND_BAKE_CHAINS.map(
   chainId => evmChainIdToChain(chainId),
 );
 
@@ -41,15 +41,13 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.stage, Env.dev, Env.testnet, Env.ibc],
-    },
+      envs: [Env.stage, Env.dev, Env.testnet, Env.ibc] },
   ],
 
-  // StakeAndDeploy requires vault support - uses VEDA_VAULT_STAKE_AND_BAKE_CHAINS as source of truth
+  // StakeAndDeploy requires vault support - uses EARN_STAKE_AND_BAKE_CHAINS as source of truth
   destChains: STAKE_AND_DEPLOY_DEST_CHAINS,
 
   // StakeAndDeploy produces LBTC (then deposits to vault)
@@ -83,19 +81,16 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
       chainId: chainId as ChainId,
       provider: provider as EIP1193Provider,
       vaultKey,
-      token,
-    });
+      token });
 
     // Store signature via API
     await ctx.api.storeStakeAndBakeSignature({
       signature: result.signature,
-      typedData: result.typedData,
-    });
+      typedData: result.typedData });
 
     return {
       signature: result.signature,
-      typedData: result.typedData,
-    };
+      typedData: result.typedData };
   },
 
   async restoreStakeAndBakeSignature(ctx, chainId, recipient) {
@@ -103,8 +98,7 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
       const result = await getUserStakeAndBakeSignature({
         userDestinationAddress: recipient,
         chainId: chainId as ChainId,
-        env: ctx.env,
-      });
+        env: ctx.env });
 
       // Check if signature exists by looking at metadata, not just the signature string.
       // The API may return metadata (expiration, amount, nonce) even if the raw
@@ -129,12 +123,10 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
         hasSignature: true,
         signature: result.signature,
         depositAmount: result.depositAmount,
-        expirationDate: result.expirationDate,
-      };
+        expirationDate: result.expirationDate };
     } catch {
       // API error (e.g., signature not found, network error)
       // Return null to indicate no valid signature exists
       return null;
     }
-  },
-};
+  } };

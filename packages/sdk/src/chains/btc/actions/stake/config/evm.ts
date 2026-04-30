@@ -58,8 +58,7 @@ const feeAuthConfig: FeeAuthConfig = {
     const result = await ctx.api.getFeeSignature({
       address,
       chainId: chainId as ChainId,
-      tokenAddress: tokenInfo.address,
-    });
+      tokenAddress: tokenInfo.address });
 
     // Check if signature exists on server (API returns has_signature flag)
     if (!result.hasSignature) {
@@ -77,8 +76,7 @@ const feeAuthConfig: FeeAuthConfig = {
     return {
       hasSignature: true,
       signature: result.signature, // May be undefined - that's OK
-      typedData: result.typedData,
-    };
+      typedData: result.typedData };
   },
 
   async authorizeFee(ctx, { chainId, recipient, fee }) {
@@ -107,23 +105,19 @@ const feeAuthConfig: FeeAuthConfig = {
       account: recipient,
       chainId: chainId as ChainId,
       provider: provider as EIP1193Provider,
-      token: Token.LBTC,
-    });
+      token: Token.LBTC });
 
     // Store the signature with token address to distinguish from BTC.b signatures
     await ctx.api.storeFeeSignature({
       address: recipient,
       signature: result.signature,
       typedData: result.typedData,
-      tokenAddress: tokenInfo.address,
-    });
+      tokenAddress: tokenInfo.address });
 
     return {
       signature: result.signature,
-      typedData: result.typedData,
-    };
-  },
-};
+      typedData: result.typedData };
+  } };
 
 /**
  * EVM chain configuration for BTC stake
@@ -138,12 +132,10 @@ export const evmConfig: ChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
-    },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
   ],
 
   // Derived from ASSET_CATALOG - all EVM chains where LBTC is deployed
@@ -178,7 +170,5 @@ export const evmConfig: ChainConfig = {
     return evm.signLbtcDestination({
       chainId: chainId as ChainId,
       address: recipient,
-      provider: provider as EIP1193Provider,
-    });
-  },
-};
+      provider: provider as EIP1193Provider });
+  } };

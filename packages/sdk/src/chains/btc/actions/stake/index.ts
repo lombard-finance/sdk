@@ -14,8 +14,7 @@ export { btcStake, createBtcStake } from './factory';
 export type {
   BtcStakeParams,
   BtcStakeProgress,
-  BtcStake as IBtcStake,
-} from './types';
+  BtcStake as IBtcStake } from './types';
 export { BtcActionStatus } from './types';
 
 // Configuration types (for advanced usage / extending)

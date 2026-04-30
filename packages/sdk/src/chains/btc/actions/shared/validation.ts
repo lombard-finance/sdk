@@ -155,8 +155,7 @@ export function validateBtcActionParams(
       assetOut: params.assetOut,
       sourceChain: params.sourceChain,
       destChain: params.destChain,
-      env: context.env,
-    });
+      env: context.env });
   }
 }
 

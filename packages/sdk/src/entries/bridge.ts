@@ -13,5 +13,4 @@ export {
   getBridgeInfo,
   OFT_GAS_LIMIT,
   OFT_HI_GAS_LIMIT,
-  OFT_HI_GAS_LIMIT_CHAINS,
-} from '../bridge';
+  OFT_HI_GAS_LIMIT_CHAINS } from '../bridge';

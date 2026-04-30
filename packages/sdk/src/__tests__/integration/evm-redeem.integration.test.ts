@@ -31,8 +31,7 @@ const createMockProvider = () => ({
       default:
         return null;
     }
-  }),
-});
+  }) });
 
 describe('EVM Redeem Integration', () => {
   let mockProvider: ReturnType<typeof createMockProvider>;
@@ -46,16 +45,14 @@ describe('EVM Redeem Integration', () => {
     it('should create redeem action using evmActions namespace', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const evm = evmActions(config);
       const redeem = evm.redeem({
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
-      });
+        destChain: Chain.AVALANCHE });
 
       expect(redeem).toBeDefined();
       expect(redeem.status).toBe('idle');
@@ -64,15 +61,13 @@ describe('EVM Redeem Integration', () => {
     it('should create redeem action using factory', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const redeem = evmRedeem(config, {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
-      });
+        destChain: Chain.AVALANCHE });
 
       expect(redeem).toBeDefined();
       expect(redeem.status).toBe('idle');
@@ -83,15 +78,13 @@ describe('EVM Redeem Integration', () => {
     it('should start in idle status', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const redeem = evmRedeem(config, {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
-      });
+        destChain: Chain.AVALANCHE });
 
       expect(redeem.status).toBe('idle');
       expect(redeem.isLoading).toBe(false);
@@ -103,16 +96,14 @@ describe('EVM Redeem Integration', () => {
     it('should require same source and destination chain', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       // Same chain - should work
       const redeem = evmRedeem(config, {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
-      });
+        destChain: Chain.AVALANCHE });
 
       expect(redeem).toBeDefined();
     });
@@ -122,16 +113,14 @@ describe('EVM Redeem Integration', () => {
     it('should require LBTC as input', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       // LBTC input - should work
       const redeem = evmRedeem(config, {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
-      });
+        destChain: Chain.AVALANCHE });
 
       expect(redeem).toBeDefined();
     });
@@ -139,16 +128,14 @@ describe('EVM Redeem Integration', () => {
     it('should require BTCb as output', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       // BTCb output - should work
       const redeem = evmRedeem(config, {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
-      });
+        destChain: Chain.AVALANCHE });
 
       expect(redeem).toBeDefined();
     });

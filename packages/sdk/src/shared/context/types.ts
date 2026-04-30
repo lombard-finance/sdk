@@ -16,8 +16,7 @@ import type {
   EvmService,
   SolanaService,
   StarknetService,
-  SuiService,
-} from '@lombard.finance/sdk-common';
+  SuiService } from '@lombard.finance/sdk-common';
 // Note: EvmService is still imported for EvmCoreContext and EvmDestination
 import type { EIP1193Provider } from 'viem';
 

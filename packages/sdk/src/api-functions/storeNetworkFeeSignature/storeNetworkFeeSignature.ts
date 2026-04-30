@@ -45,16 +45,14 @@ export async function storeNetworkFeeSignature({
   typedData,
   address,
   env,
-  tokenAddress,
-}: IStoreNetworkFeeSignatureParams): Promise<IStoreNetworkFeeSignatureStatus> {
+  tokenAddress }: IStoreNetworkFeeSignatureParams): Promise<IStoreNetworkFeeSignatureStatus> {
   const { baseApiUrl } = getApiConfig(env);
 
   try {
     const params: Record<string, string> = {
       typed_data: typedData,
       signature,
-      user_destination_address: address,
-    };
+      user_destination_address: address };
 
     // Include token address to distinguish LBTC vs BTC.b signatures
     if (tokenAddress) {

@@ -14,10 +14,9 @@ import { AssetId } from '../core/assets';
 import { Token } from '../tokens/token-addresses';
 import { SILO_VAULT_SPENDER_ABI } from '../vaults/abi';
 import {
-  VEDA_VAULT_SPENDER_CONTRACTS,
-  VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
-  VedaVaultStakeAndBakeChain,
-} from '../vaults/lib/config';
+  EARN_STAKE_AND_BAKE_CHAINS,
+  EARN_VAULT_SPENDER_CONTRACTS,
+  EarnStakeAndBakeChain } from '../vaults/lib/config';
 
 /**
  * Approval mode for stake and bake operations.
@@ -57,7 +56,7 @@ export type StakeAndBakeRegistry = Record<DefiProtocol, TokenStrategyMap>;
 const ALL_ENVS = Object.values(Env) as Env[];
 
 // Use single source of truth from vaults/lib/config.ts
-// VEDA_VAULT_STAKE_AND_BAKE_CHAINS is imported and used directly below
+// EARN_STAKE_AND_BAKE_CHAINS is imported and used directly below
 
 export const SILO_VAULT_SPENDER_CONTRACT_GASTALD_FUJI: `0x${string}` =
   '0xFe1e76D9e065e879A9D1914482f0F13d85F39877';
@@ -83,9 +82,9 @@ function mapEnvs<const E extends readonly Env[]>(
 }
 
 function getVedaSpenderContract(
-  chainId: VedaVaultStakeAndBakeChain,
+  chainId: EarnStakeAndBakeChain,
 ): ContractInfo {
-  const contract = VEDA_VAULT_SPENDER_CONTRACTS[chainId];
+  const contract = EARN_VAULT_SPENDER_CONTRACTS[chainId];
   if (!contract) {
     throw new Error(`Missing Veda spender contract for chain ${chainId}`);
   }
@@ -95,8 +94,7 @@ function getVedaSpenderContract(
 const _DefiRegistryTokens = {
   LBTC: Token.LBTC,
   BTCb: Token.BTCb,
-  BTC: 'BTC',
-} as const;
+  BTC: 'BTC' } as const;
 
 export type DefiRegistryToken =
   (typeof _DefiRegistryTokens)[keyof typeof _DefiRegistryTokens];
@@ -109,37 +107,31 @@ export type DefiRegistryToken =
  */
 export const DefiProtocol = {
   Veda: 'veda',
-  Silo: 'silo',
-} as const;
+  Silo: 'silo' } as const;
 
 export type DefiProtocol = (typeof DefiProtocol)[keyof typeof DefiProtocol];
 
 export const DefiProtocols = {
   [DefiProtocol.Veda]: {
     name: 'Lombard DeFi Vault',
-    url: 'https://lombard.finance',
-  },
+    url: 'https://lombard.finance' },
   [DefiProtocol.Silo]: {
     name: 'Silo Finance Vault',
-    url: 'https://silo.finance',
-  },
-} as const;
+    url: 'https://silo.finance' } } as const;
 
 const VEDA_LBTC_PERMIT_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
   mode: 'permit',
   domainName: 'Lombard Staked Bitcoin',
   domainVersion: '1',
   deadlineStrategy: 'expiry',
-  nonceStrategy: 'chain',
-};
+  nonceStrategy: 'chain' };
 
 const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
   mode: 'approve',
   domainName: 'Bitcoin',
   domainVersion: '1',
   deadlineStrategy: 'zero',
-  nonceStrategy: 'skip',
-};
+  nonceStrategy: 'skip' };
 
 /**
  * DeFi Registry: Token approval configurations by vault, token, env, and chain.
@@ -149,20 +141,17 @@ const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
 export const DEFI_REGISTRY: StakeAndBakeRegistry = {
   [DefiProtocol.Veda]: {
     [Token.LBTC]: mapEnvs(ALL_ENVS, () =>
-      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, chain => ({
+      mapChains(EARN_STAKE_AND_BAKE_CHAINS, chain => ({
         amountStrategy: 'identity',
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
-        spenderContract: getVedaSpenderContract(chain),
-      })),
+        spenderContract: getVedaSpenderContract(chain) })),
     ),
     BTC: mapEnvs(ALL_ENVS, () =>
-      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, chain => ({
+      mapChains(EARN_STAKE_AND_BAKE_CHAINS, chain => ({
         amountStrategy: 'btcToLbtc',
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
-        spenderContract: getVedaSpenderContract(chain),
-      })),
-    ),
-  },
+        spenderContract: getVedaSpenderContract(chain) })),
+    ) },
   [DefiProtocol.Silo]: {
     [Token.BTCb]: {
       // Silo on Avalanche Fuji is only available on testnet (Gastald backend)
@@ -173,12 +162,7 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
         spenderContract: {
           abi: SILO_VAULT_SPENDER_ABI as Abi,
           address: SILO_VAULT_SPENDER_CONTRACT_GASTALD_FUJI,
-          chainId: chain,
-        },
-      })),
-    },
-  },
-};
+          chainId: chain } })) } } };
 
 /**
  * Type for a token that can be used with stake and bake.
@@ -249,8 +233,7 @@ export function getAvailableProtocols(
   const tokenMap: Partial<Record<AssetId, StakeAndBakeToken[]>> = {
     [AssetId.LBTC]: [Token.LBTC, 'BTC'],
     [AssetId.BTCb]: [Token.BTCb],
-    [AssetId.BTC]: ['BTC'],
-  };
+    [AssetId.BTC]: ['BTC'] };
 
   const tokens = tokenMap[assetId];
   if (!tokens) return [];
@@ -290,6 +273,5 @@ export function getAvailableProtocolsWithMetadata(
   return protocols.map(protocol => ({
     value: protocol,
     label: DefiProtocols[protocol]?.name ?? protocol,
-    url: DefiProtocols[protocol]?.url ?? '',
-  }));
+    url: DefiProtocols[protocol]?.url ?? '' }));
 }

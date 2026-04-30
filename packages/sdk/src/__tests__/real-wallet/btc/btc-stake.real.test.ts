@@ -28,19 +28,15 @@ runIfConfigured('BTC Stake Real Wallet', () => {
     const config = createConfig({
       env: Env.testnet,
       providers: {
-        evm: () => walletClientToProvider(wallet),
-      },
-    });
+        evm: () => walletClientToProvider(wallet) } });
 
     const stake = btcStake(config, {
       destChain: Chain.SEPOLIA,
-      assetOut: AssetId.LBTC,
-    });
+      assetOut: AssetId.LBTC });
 
     await stake.prepare({
       amount: '0.0002', // Min amount
-      recipient: account.address,
-    });
+      recipient: account.address });
 
     // Authorize is the unified step:
     // - If the chain needs fee auth, it signs and stores the fee signature

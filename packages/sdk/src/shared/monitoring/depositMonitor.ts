@@ -101,8 +101,7 @@ export async function monitorDeposit(
     btcService,
     requiredConfirmations = 6,
     onProgress,
-    onComplete,
-  } = options;
+    onComplete } = options;
 
   // Fetch current deposit status
   const deposit = await fetchDeposit();
@@ -132,9 +131,7 @@ export async function monitorDeposit(
       verifying: hasEnoughConfirmations
         ? StepStatus.COMPLETE
         : StepStatus.PENDING,
-      issuing: isClaimed ? StepStatus.COMPLETE : StepStatus.PENDING,
-    },
-  };
+      issuing: isClaimed ? StepStatus.COMPLETE : StepStatus.PENDING } };
 
   // Emit callbacks
   onProgress?.(progress);

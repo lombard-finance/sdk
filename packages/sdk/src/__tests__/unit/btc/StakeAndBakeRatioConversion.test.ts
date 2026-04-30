@@ -25,10 +25,7 @@ vi.mock(
     getExchangeRatio: vi.fn().mockResolvedValue({
       LBTC: {
         tokenBTCRatio: new BigNumber('0.99736'),
-        BTCTokenRatio: new BigNumber('1.00265'),
-      },
-    }),
-  }),
+        BTCTokenRatio: new BigNumber('1.00265') } }) }),
 );
 
 describe('Stake and Bake Ratio Conversion', () => {
@@ -131,9 +128,7 @@ describe('Stake and Bake Ratio Conversion', () => {
       vi.mocked(getExchangeRatio).mockResolvedValueOnce({
         LBTC: {
           tokenBTCRatio: new BigNumber(1),
-          BTCTokenRatio: new BigNumber(1),
-        },
-      });
+          BTCTokenRatio: new BigNumber(1) } });
 
       const { calculateStakeAndBakeLBTCAmount } = await import(
         '../../../contract-functions/signStakeAndBake/utils'

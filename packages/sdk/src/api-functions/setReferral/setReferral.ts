@@ -43,21 +43,18 @@ export async function setReferral({
   eip712Data,
   referrerCode,
   pubKey,
-  env,
-}: ISetReferralParams): Promise<void> {
+  env }: ISetReferralParams): Promise<void> {
   const { baseApiUrl } = getApiConfig(env);
 
   const requestParams = {
     referrer_code: referrerCode,
     signature,
     signature_typed_data: eip712Data,
-    ...(pubKey && { public_key: pubKey }),
-  };
+    ...(pubKey && { public_key: pubKey }) };
 
   try {
     await axios.post(`${URL}${address}`, requestParams, {
-      baseURL: baseApiUrl,
-    });
+      baseURL: baseApiUrl });
 
     return undefined;
   } catch (error) {

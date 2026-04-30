@@ -5,23 +5,19 @@ import { Button } from '../../../stories/components/Button';
 import { CodeBlock } from '../../../stories/components/CodeBlock';
 import {
   functionType,
-  wagmiDecorator,
-} from '../../../stories/components/decorators';
+  wagmiDecorator } from '../../../stories/components/decorators';
 import { ErrorBlock } from '../../../stories/components/error-block';
 import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
 import useQuery from '../../../stories/hooks/useQuery';
-import { Vault } from '../config';
 import {
-  getVaultWithdrawals,
-  GetVaultWithdrawalsParameters,
-} from './get-vault-withdrawals';
+  getEarnWithdrawals,
+  GetEarnWithdrawalsParameters } from './get-vault-withdrawals';
 
 const meta = {
-  title: 'vault/ops/getVaultWithdrawals',
+  title: 'vault/ops/getEarnWithdrawals',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('api-get')],
-} satisfies Meta<typeof StoryView>;
+  decorators: [wagmiDecorator, functionType('api-get')] } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -30,18 +26,14 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     account: EXAMPLE_EVM_ADDRESS,
-    chainId: ChainId.ethereum,
-    vaultKey: Vault.Veda,
-  },
-};
+    chainId: ChainId.ethereum } };
 
-type SignNetworkFeeProps = GetVaultWithdrawalsParameters;
+type SignNetworkFeeProps = GetEarnWithdrawalsParameters;
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getVaultWithdrawals({
-      ...props,
-    });
+    return getEarnWithdrawals({
+      ...props });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);
@@ -56,7 +48,7 @@ export function StoryView(props: SignNetworkFeeProps) {
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getVaultWithdrawals.name}
+        actionName={getEarnWithdrawals.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

@@ -14,15 +14,11 @@ vi.mock('../../../clients/public-client', () => ({
     readContract: (...args: unknown[]) => mockReadContract(...args),
     simulateContract: (...args: unknown[]) => mockSimulateContract(...args),
     waitForTransactionReceipt: (...args: unknown[]) =>
-      mockWaitForReceipt(...args),
-  })),
-}));
+      mockWaitForReceipt(...args) })) }));
 
 vi.mock('../../../clients/wallet-client', () => ({
   makeWalletClient: vi.fn(() => ({
-    writeContract: (...args: unknown[]) => mockWriteContract(...args),
-  })),
-}));
+    writeContract: (...args: unknown[]) => mockWriteContract(...args) })) }));
 
 vi.mock('../../../tokens/tokens', async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
@@ -32,29 +28,24 @@ vi.mock('../../../tokens/tokens', async (importOriginal) => {
       address: '0x8236a87084f8B84306f72007F36F2618A5634494',
       abi: [],
       symbol: 'LBTC',
-      decimals: 8,
-    }),
-  };
+      decimals: 8 }) };
 });
 
 const ACCOUNT = '0x000000000000000000000000000000000000dEaD';
 const BTCE_ADDR = '0x3a4baaBf4DC9910596821615e848f0e6545762F3';
 const LBTC_ADDR = '0x8236a87084f8B84306f72007F36F2618A5634494';
 const PROVIDER = {
-  request: vi.fn(),
-} as unknown as Parameters<typeof depositEarn>[0]['provider'];
+  request: vi.fn() } as unknown as Parameters<typeof depositEarn>[0]['provider'];
 
 describe('depositEarn', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSimulateContract.mockResolvedValue({
-      request: { address: BTCE_ADDR, abi: [], functionName: 'deposit' },
-    });
+      request: { address: BTCE_ADDR, abi: [], functionName: 'deposit' } });
     mockWriteContract.mockResolvedValue('0xtxhash');
     mockWaitForReceipt.mockResolvedValue({
       status: 'success',
-      transactionHash: '0xapprovehash',
-    });
+      transactionHash: '0xapprovehash' });
   });
 
   describe('happy path with sufficient existing allowance', () => {
@@ -66,8 +57,7 @@ describe('depositEarn', () => {
         amount: '0.5',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(hash).toBe('0xtxhash');
       // 1 read (allowance), 0 approval simulate, 1 deposit simulate, 1 write
@@ -90,8 +80,7 @@ describe('depositEarn', () => {
         amount: '0.5',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(hash).toBe('0xtxhash');
       // simulate count: 1 approve + 1 deposit
@@ -122,8 +111,7 @@ describe('depositEarn', () => {
           approve: false,
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/exceeds allowance/);
 
       expect(mockSimulateContract).not.toHaveBeenCalled();
@@ -145,8 +133,7 @@ describe('depositEarn', () => {
           amount: '0.1',
           account: ACCOUNT,
           chainId,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).resolves.toBe('0xtxhash');
     });
 
@@ -157,8 +144,7 @@ describe('depositEarn', () => {
           amount: '0.1',
           account: ACCOUNT,
           chainId: ChainId.corn,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/BTCe is not supported on chain/);
     });
   });
@@ -171,8 +157,7 @@ describe('depositEarn', () => {
           amount: '0',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/must be greater than zero/);
     });
 
@@ -183,8 +168,7 @@ describe('depositEarn', () => {
           amount: '-0.1',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/must be greater than zero/);
     });
   });

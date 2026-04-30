@@ -17,8 +17,7 @@ import {
   sepolia,
   sonic,
   sonicBlazeTestnet,
-  swellchain,
-} from 'wagmi/chains';
+  swellchain } from 'wagmi/chains';
 
 import { rpcUrlConfig } from '../../../clients/rpc-url-config';
 import { katana, tac } from '../../../common/chains';
@@ -66,9 +65,7 @@ const config = createConfig({
     [morphHolesky.id]: http(rpcUrlConfig[morphHolesky.id]),
     [sepolia.id]: http(rpcUrlConfig[sepolia.id]),
     [sonicBlazeTestnet.id]: http(rpcUrlConfig[sonicBlazeTestnet.id]),
-    [avalancheFuji.id]: http(rpcUrlConfig[avalancheFuji.id]),
-  },
-});
+    [avalancheFuji.id]: http(rpcUrlConfig[avalancheFuji.id]) } });
 
 const queryClient = new QueryClient();
 

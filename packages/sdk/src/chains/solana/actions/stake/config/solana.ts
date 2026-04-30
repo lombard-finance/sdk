@@ -20,18 +20,15 @@ export const solanaStakeConfig: ChainConfig = {
       chain: Chain.SOLANA_MAINNET,
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     {
       chain: Chain.SOLANA_DEVNET,
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
-      envs: [Env.stage, Env.dev, Env.testnet],
-    },
+      envs: [Env.stage, Env.dev, Env.testnet] },
   ],
 
-  recipientSchema: solanaAddressSchema,
-};
+  recipientSchema: solanaAddressSchema };
 
 export function isStakeSupported(
   chain: Chain,

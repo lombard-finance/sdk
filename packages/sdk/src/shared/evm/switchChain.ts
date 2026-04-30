@@ -27,8 +27,7 @@ export async function requestChainSwitch(
   try {
     await provider.request({
       method: 'wallet_switchEthereumChain',
-      params: [{ chainId: `0x${targetChainId.toString(16)}` }],
-    });
+      params: [{ chainId: `0x${targetChainId.toString(16)}` }] });
   } catch (error) {
     const err = error as { code?: number; message?: string };
 
@@ -39,8 +38,7 @@ export async function requestChainSwitch(
         // After adding, try to switch again
         await provider.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: `0x${targetChainId.toString(16)}` }],
-        });
+          params: [{ chainId: `0x${targetChainId.toString(16)}` }] });
         return;
       } catch (addError) {
         const addErr = addError as { code?: number; message?: string };
@@ -85,8 +83,7 @@ export async function getCurrentChainId(
   provider: EIP1193Provider,
 ): Promise<number> {
   const chainIdHex = (await provider.request({
-    method: 'eth_chainId',
-  })) as string;
+    method: 'eth_chainId' })) as string;
   return parseInt(chainIdHex, 16);
 }
 

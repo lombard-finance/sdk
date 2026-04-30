@@ -96,22 +96,18 @@ export function buildTypedData(params: TypedDataParams) {
       name: params.domainName,
       version: params.domainVersion,
       chainId: BigInt(params.chainId),
-      verifyingContract: params.verifyingContract,
-    },
+      verifyingContract: params.verifyingContract },
     types: {
       EIP712Domain: EIP712_DOMAIN_TYPES,
       [primaryType]:
-        params.mode === 'permit' ? PERMIT_MESSAGE_TYPES : APPROVE_MESSAGE_TYPES,
-    },
+        params.mode === 'permit' ? PERMIT_MESSAGE_TYPES : APPROVE_MESSAGE_TYPES },
     primaryType,
     message: {
       owner: params.account,
       spender: params.spender,
       value: params.value,
       nonce: params.nonce,
-      deadline: params.deadline,
-    },
-  } as const;
+      deadline: params.deadline } } as const;
 }
 
 /**

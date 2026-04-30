@@ -24,8 +24,7 @@ export type {
   FeeAuthResult,
   RouteDefinition,
   SignatureResult,
-  StoredFeeSignature,
-} from './types';
+  StoredFeeSignature } from './types';
 
 // Re-export individual configs
 export { evmConfig } from './evm';
@@ -47,8 +46,7 @@ export const chainConfigs: Partial<Record<ChainType, ChainConfig>> = {
   evm: evmConfig,
   solana: solanaConfig,
   sui: suiConfig,
-  starknet: starknetConfig,
-};
+  starknet: starknetConfig };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Lookup Functions

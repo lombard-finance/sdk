@@ -15,8 +15,7 @@
 import {
   type Deposit,
   ENotarizationStatus,
-  ESessionState,
-} from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
+  ESessionState } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { MIN_STAKE_AMOUNT_BTC } from '../../common/constants';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -141,8 +140,7 @@ export function getConfirmationProgress(
     current,
     required: requiredConfirmations,
     percentage,
-    isComplete: current >= requiredConfirmations,
-  };
+    isComplete: current >= requiredConfirmations };
 }
 
 /**
@@ -267,8 +265,7 @@ export function getDepositStatusDisplay(
         severity: 'warning',
         description: `Waiting for Bitcoin block confirmations (${REQUIRED_CONFIRMATIONS} required)`,
         isTerminal: false,
-        requiresAction: false,
-      };
+        requiresAction: false };
     case 'pending_notarization':
       return {
         label: 'Pending Notarization',
@@ -276,72 +273,63 @@ export function getDepositStatusDisplay(
         description:
           'Confirmations complete, waiting for notarization service to generate proof',
         isTerminal: false,
-        requiresAction: false,
-      };
+        requiresAction: false };
     case 'claimable':
       return {
         label: 'Claimable',
         severity: 'success',
         description: 'Ready to mint - proof available, claim to receive tokens',
         isTerminal: false,
-        requiresAction: true,
-      };
+        requiresAction: true };
     case 'claiming':
       return {
         label: 'Claiming',
         severity: 'info',
         description: 'Claim transaction in progress',
         isTerminal: false,
-        requiresAction: false,
-      };
+        requiresAction: false };
     case 'claimed':
       return {
         label: 'Claimed',
         severity: 'neutral',
         description: 'Tokens have been minted to your address',
         isTerminal: true,
-        requiresAction: false,
-      };
+        requiresAction: false };
     case 'auto_claimed':
       return {
         label: 'Auto-Claimed',
         severity: 'success',
         description: 'Automatically claimed via cross-chain messaging (GMP)',
         isTerminal: true,
-        requiresAction: false,
-      };
+        requiresAction: false };
     case 'expired':
       return {
         label: 'Expired',
         severity: 'error',
         description: 'Fee signature expired, requires re-authorization',
         isTerminal: false,
-        requiresAction: true,
-      };
+        requiresAction: true };
     case 'failed':
       return {
         label: 'Failed',
         severity: 'error',
         description: 'Notarization failed - contact support',
         isTerminal: true,
-        requiresAction: false,
-      };
+        requiresAction: false };
     case 'restricted':
       return {
         label: 'Restricted',
         severity: 'error',
         description: 'This deposit is restricted or sanctioned',
         isTerminal: true,
-        requiresAction: false,
-      };
+        requiresAction: false };
     case 'too_small':
       return {
         label: 'Too Small',
         severity: 'neutral',
         description: `Amount below minimum claimable amount (${MIN_STAKE_AMOUNT_BTC} BTC)`,
         isTerminal: true,
-        requiresAction: false,
-      };
+        requiresAction: false };
   }
 }
 

@@ -1,8 +1,7 @@
 import { describe, expect, it, type Mock, vi } from 'vitest';
 vi.mock('./make-request', async () => {
   return {
-    makeRequest: vi.fn(async () => undefined),
-  };
+    makeRequest: vi.fn(async () => undefined) };
 });
 
 import { Env } from '@lombard.finance/sdk-common';
@@ -38,12 +37,9 @@ const makeDepositAddress = (
       ...(token != null
         ? {
             token_address: TOKEN_ADDRESSES[token]?.[Env.prod]?.[chainId],
-            aux_version: 1,
-          }
-        : {}),
-    },
-    created_at: createdAt.toString(),
-  }) as IDepositAddress;
+            aux_version: 1 }
+        : {}) },
+    created_at: createdAt.toString() }) as IDepositAddress;
 
 describe('getDepositBtcAddress', () => {
   it.each([
@@ -243,8 +239,7 @@ describe('getDepositBtcAddress', () => {
         address: ACCOUNT_ADDRESS_A,
         chainId,
         env: Env.prod,
-        partnerId: 'lombard',
-      };
+        partnerId: 'lombard' };
 
       (makeRequest as Mock).mockImplementation(async () => API_RESPONSE);
 
@@ -255,8 +250,7 @@ describe('getDepositBtcAddress', () => {
       } else {
         const address = await getDepositBtcAddress({
           ...params,
-          token,
-        });
+          token });
 
         expect(address).toBe(expectedAddress);
       }

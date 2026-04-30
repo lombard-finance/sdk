@@ -11,12 +11,9 @@ const mockCtx = {
   api: {
     getDepositAddress: vi.fn(),
     generateDepositAddress: vi.fn(),
-    getDeposits: vi.fn(),
-  },
+    getDeposits: vi.fn() },
   partner: {
-    getPartnerId: vi.fn(),
-  },
-} as unknown as BtcCoreContext;
+    getPartnerId: vi.fn() } } as unknown as BtcCoreContext;
 
 // Concrete implementation
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Test mock with generic step definition
@@ -28,8 +25,7 @@ class TestBtcAction extends BaseBtcAction<any, string, BaseBtcParams> {
     return {
       idle: 'idle',
       ready: 'ready',
-      addressReady: 'address_ready',
-    };
+      addressReady: 'address_ready' };
   }
   protected getInitialSteps(): StepDefinition {
     return { step1: StepStatus.IDLE };
@@ -46,8 +42,7 @@ class TestBtcAction extends BaseBtcAction<any, string, BaseBtcParams> {
       chainId: ChainId.sepolia,
       signature: '0xsig',
       token: 'LBTC',
-      captchaToken,
-    };
+      captchaToken };
   }
 
   protected getExpectedToken(): string {
@@ -73,14 +68,12 @@ describe('BaseBtcAction', () => {
     // Valid params
     expect(() => action.testValidatePrepareParams({
       amount: '0.001',
-      recipient: '0x123',
-    })).not.toThrow();
+      recipient: '0x123' })).not.toThrow();
 
     // Invalid amount (too low)
     expect(() => action.testValidatePrepareParams({
       amount: '0.00001', // Below 0.0002 minimum
-      recipient: '0x123',
-    })).toThrow(/at least 0.0002/);
+      recipient: '0x123' })).toThrow(/at least 0.0002/);
 
     // Invalid recipient (schema check)
     expect(() => action.testValidatePrepareParams({

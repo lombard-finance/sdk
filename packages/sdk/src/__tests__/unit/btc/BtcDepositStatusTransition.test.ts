@@ -47,8 +47,7 @@ describe('BTC Deposit Status Transition Issue', () => {
       // 2. If exists, check fee auth
       const feeAuthConfig = {
         restoreFeeSignature: async (): Promise<{ hasSignature: boolean } | null> => null, // Expired/missing
-        getMintingFee: async () => '0.00001',
-      };
+        getMintingFee: async () => '0.00001' };
       
       if (hasExistingDeposit) {
         if (feeAuthConfig) {
@@ -85,10 +84,8 @@ describe('BTC Deposit Status Transition Issue', () => {
         restoreFeeSignature: async () => ({ 
           hasSignature: true, // Valid signature exists
           signature: '0x123',
-          typedData: '{}',
-        }),
-        getMintingFee: async () => '0.00001',
-      };
+          typedData: '{}' }),
+        getMintingFee: async () => '0.00001' };
       
       if (hasExistingDeposit) {
         if (feeAuthConfig) {
@@ -175,8 +172,7 @@ describe('BTC Deposit Status Transition Issue', () => {
           // Simulate: first call returns valid, but it should only be called once
           return null; // Expired
         }),
-        getMintingFee: vi.fn(async () => '0.00001'),
-      };
+        getMintingFee: vi.fn(async () => '0.00001') };
 
       // Simulate prepare flow
       const hasExistingDeposit = true;
@@ -201,8 +197,7 @@ describe('BTC Deposit Status Transition Issue', () => {
       
       const feeAuthConfig = {
         restoreFeeSignature: async (): Promise<{ hasSignature: boolean } | null> => null,
-        getMintingFee: async () => '0.00001',
-      };
+        getMintingFee: async () => '0.00001' };
       
       // The key: we should never reach the ADDRESS_READY line
       const stored = await feeAuthConfig.restoreFeeSignature();

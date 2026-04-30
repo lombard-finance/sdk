@@ -33,8 +33,7 @@ import { makePublicClient } from '../../../../clients/public-client';
 import { ChainId } from '../../../../common/chains';
 import {
   approveToken,
-  getTokenAllowance,
-} from '../../../../contract-functions/approveToken';
+  getTokenAllowance } from '../../../../contract-functions/approveToken';
 import { depositToken } from '../../../../contract-functions/deposit';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
@@ -44,8 +43,7 @@ import { LombardError } from '../../../../shared/errors';
 import type { StakeEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
-  validatePrepareParams,
-} from '../../../../shared/validation';
+  validatePrepareParams } from '../../../../shared/validation';
 import { AddressKind, Token } from '../../../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../../../tokens/tokens';
 import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
@@ -53,8 +51,7 @@ import {
   authorizeFee as authorizeFeeShared,
   checkFeeAuthorization,
   createInitialFeeAuthState,
-  type FeeAuthState,
-} from '../../shared/feeAuth';
+  type FeeAuthState } from '../../shared/feeAuth';
 import type { EvmStakeParams, EvmStakePrepareParams, IEvmStake } from './types';
 
 /**
@@ -118,8 +115,7 @@ export class EvmStake
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
-      });
+        method: 'eth_accounts' });
       const account = (accounts as string[])[0] as `0x${string}`;
 
       if (!account) {
@@ -146,8 +142,7 @@ export class EvmStake
           owner: account,
           spender: adapterInfo.address,
           chainId,
-          env: this.ctx.env,
-        });
+          env: this.ctx.env });
 
         const requiredAmount = new BigNumber(validated.amount);
         this._needsApproval = allowance.isLessThan(requiredAmount);
@@ -155,8 +150,7 @@ export class EvmStake
         if (this._needsApproval) {
           this.emitProgress({
             status: EvmOperationStatus.NEEDS_APPROVAL,
-            steps: { approval: StepStatus.PENDING, staking: StepStatus.IDLE },
-          });
+            steps: { approval: StepStatus.PENDING, staking: StepStatus.IDLE } });
           this.updateStatus(EvmOperationStatus.NEEDS_APPROVAL);
           return;
         }
@@ -176,8 +170,7 @@ export class EvmStake
         isAuthorized: feeAuthResult.hasValidSignature,
         feeInSatoshis: feeAuthResult.feeInSatoshis,
         feeFormatted: feeAuthResult.feeFormatted,
-        expirationDate: feeAuthResult.expirationDate,
-      };
+        expirationDate: feeAuthResult.expirationDate };
 
       // Determine next status based on fee auth
       const needsFeeAuth =
@@ -186,14 +179,12 @@ export class EvmStake
       if (needsFeeAuth) {
         this.emitProgress({
           status: EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-          steps: { staking: StepStatus.IDLE },
-        });
+          steps: { staking: StepStatus.IDLE } });
         this.updateStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
       } else {
         this.emitProgress({
           status: EvmOperationStatus.READY,
-          steps: { staking: StepStatus.PENDING },
-        });
+          steps: { staking: StepStatus.PENDING } });
         this.updateStatus(EvmOperationStatus.READY);
       }
     });
@@ -229,8 +220,7 @@ export class EvmStake
         amount: this._amount,
         chainId,
         provider: provider as EIP1193Provider,
-        env: this.ctx.env,
-      });
+        env: this.ctx.env });
 
       // Wait for approval to be confirmed on-chain
       const publicClient = makePublicClient({ chainId, env: this.ctx.env });
@@ -241,8 +231,7 @@ export class EvmStake
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { approval: StepStatus.COMPLETE, staking: StepStatus.PENDING },
-      });
+        steps: { approval: StepStatus.COMPLETE, staking: StepStatus.PENDING } });
     }, EvmOperationStatus.READY);
   }
 
@@ -277,13 +266,11 @@ export class EvmStake
       // Update fee auth state
       this._feeAuth = {
         ...this._feeAuth,
-        isAuthorized: true,
-      };
+        isAuthorized: true };
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { staking: StepStatus.PENDING },
-      });
+        steps: { staking: StepStatus.PENDING } });
     }, EvmOperationStatus.READY);
   }
 
@@ -300,8 +287,7 @@ export class EvmStake
 
       // Get account from provider
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
-      });
+        method: 'eth_accounts' });
       const account = (accounts as string[])[0] as `0x${string}`;
 
       if (!account) {
@@ -310,8 +296,7 @@ export class EvmStake
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { staking: StepStatus.PENDING },
-      });
+        steps: { staking: StepStatus.PENDING } });
 
       // Execute BTC.b → LBTC via Asset Router
       const txHash = await depositToken({
@@ -321,15 +306,13 @@ export class EvmStake
         account,
         chainId,
         provider: provider as EIP1193Provider,
-        env: this.ctx.env,
-      });
+        env: this.ctx.env });
 
       this._txHash = txHash;
 
       this.emitProgress({
         status: EvmOperationStatus.COMPLETED,
-        steps: { staking: StepStatus.COMPLETE },
-      });
+        steps: { staking: StepStatus.COMPLETE } });
 
       this.emitCompleted();
 
@@ -339,7 +322,6 @@ export class EvmStake
 
   private get prepareSchema() {
     return z.object({
-      amount: evmAmountSchema,
-    });
+      amount: evmAmountSchema });
   }
 }

@@ -14,8 +14,7 @@ const meta = {
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('api-get')],
-  argTypes: { ...envSelector },
-} satisfies Meta<typeof StoryView>;
+  argTypes: { ...envSelector } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -23,17 +22,14 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    env: DEFAULT_ENV,
-  },
-};
+    env: DEFAULT_ENV } };
 
 type SignNetworkFeeProps = Parameters<typeof getLBTCStats>[0];
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
     return getLBTCStats({
-      ...props,
-    });
+      ...props });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

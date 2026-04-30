@@ -2,8 +2,7 @@ import {
   createWalletClient,
   custom,
   EIP1193Provider,
-  WalletClient,
-} from 'viem';
+  WalletClient } from 'viem';
 
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from '../common/chains';
 
@@ -20,15 +19,13 @@ type MakeClientParameters = {
  */
 export function makeWalletClient({
   provider,
-  chainId,
-}: MakeClientParameters): WalletClient {
+  chainId }: MakeClientParameters): WalletClient {
   const chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
   const transport = custom(provider);
 
   const client = createWalletClient({
     chain,
-    transport,
-  });
+    transport });
 
   return client as WalletClient<typeof transport>;
 }

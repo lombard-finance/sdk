@@ -32,8 +32,7 @@ export function validateAndApplyDefaults(
   // Build normalized options with defaults
   const normalized: NormalizedOptions = {
     env: options.env,
-    providers: options.providers || {},
-  };
+    providers: options.providers || {} };
 
   // Add partner config if provided
   if (options.partner) {

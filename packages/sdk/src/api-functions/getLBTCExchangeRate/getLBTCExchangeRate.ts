@@ -57,8 +57,7 @@ export interface IgetLBTCExchangeRateResponse {
 export async function getLBTCExchangeRate({
   env,
   chainId = ChainId.ethereum,
-  amount = toSatoshi(1),
-}: IgetLBTCExchangeRateParams): Promise<IgetLBTCExchangeRateResponse> {
+  amount = toSatoshi(1) }: IgetLBTCExchangeRateParams): Promise<IgetLBTCExchangeRateResponse> {
   const { baseApiUrl } = getApiConfig(env);
   const chainIdName = getChainNameById(chainId);
 

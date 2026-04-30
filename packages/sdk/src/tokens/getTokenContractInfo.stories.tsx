@@ -5,8 +5,7 @@ import { ChainId } from '../common/chains';
 import {
   chainSelector,
   envSelector,
-  makeTokenSelector,
-} from '../stories/arg-types';
+  makeTokenSelector } from '../stories/arg-types';
 import { Button } from '../stories/components/Button';
 import { CodeBlock } from '../stories/components/CodeBlock';
 import { functionType } from '../stories/components/decorators';
@@ -25,10 +24,7 @@ const meta = {
     ...makeTokenSelector([Token.LBTC, Token.BTCb, Token.BTCK]),
     addressKind: {
       options: Object.values(AddressKind),
-      control: { type: 'select' },
-    },
-  },
-} satisfies Meta<typeof StoryView>;
+      control: { type: 'select' } } } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -39,27 +35,21 @@ export const LBTCTokenAddress: Story = {
     token: Token.LBTC,
     chainId: ChainId.ethereum,
     env: undefined,
-    addressKind: AddressKind.Token,
-  },
-};
+    addressKind: AddressKind.Token } };
 
 export const BTCbAdapterAddress: Story = {
   args: {
     token: Token.BTCb,
     chainId: ChainId.avalancheFuji,
     env: undefined,
-    addressKind: AddressKind.Adapter,
-  },
-};
+    addressKind: AddressKind.Adapter } };
 
 export const BTCbTokenAddress: Story = {
   args: {
     token: Token.BTCb,
     chainId: ChainId.avalancheFuji,
     env: undefined,
-    addressKind: AddressKind.Token,
-  },
-};
+    addressKind: AddressKind.Token } };
 
 interface StoryViewProps {
   token: Token;

@@ -26,20 +26,16 @@ runIfConfigured('EVM Stake Real Wallet', () => {
     const config = createConfig({
       env: Env.testnet,
       providers: {
-        evm: () => walletClientToProvider(wallet),
-      },
-    });
+        evm: () => walletClientToProvider(wallet) } });
 
     const stake = evmStake(config, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE,
-      destChain: Chain.AVALANCHE,
-    });
+      destChain: Chain.AVALANCHE });
 
     await stake.prepare({
-      amount: '0.0001',
-    });
+      amount: '0.0001' });
 
     expect(stake.status).toBe('needs-approval');
   });

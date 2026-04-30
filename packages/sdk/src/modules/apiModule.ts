@@ -13,8 +13,7 @@
 
 import type {
   ApiService as IApiService,
-  SdkModule,
-} from '@lombard.finance/sdk-common';
+  SdkModule } from '@lombard.finance/sdk-common';
 
 import { ApiService } from '../services/ApiService';
 
@@ -37,8 +36,7 @@ export function apiModule(): SdkModule<'api', IApiService> {
     id: 'api',
     register(ctx) {
       return new ApiService(ctx.env);
-    },
-  };
+    } };
 }
 
 // Re-export service class and interface type
@@ -47,5 +45,4 @@ export type { IApiService as ApiServiceInterface };
 export type {
   DepositInfo,
   GenerateDepositAddressParams,
-  GetDepositAddressParams,
-} from '@lombard.finance/sdk-common';
+  GetDepositAddressParams } from '@lombard.finance/sdk-common';

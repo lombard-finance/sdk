@@ -17,8 +17,7 @@ describe('EvmWithdraw Interface', () => {
       const params = {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
 
       expect(params.protocol).toBe('veda');
     });
@@ -27,8 +26,7 @@ describe('EvmWithdraw Interface', () => {
       const params = {
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
 
       expect(params.recipient).toMatch(/^0x/);
     });
@@ -55,8 +53,7 @@ describe('EvmWithdraw Interface', () => {
   describe('EvmWithdrawPrepareParams', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
-        amount: '0.1',
-      };
+        amount: '0.1' };
 
       expect(params.amount).toBe('0.1');
     });
@@ -240,8 +237,7 @@ describe('EvmCancelWithdraw Interface', () => {
     it('should require protocol selection', () => {
       const params = {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
-      };
+        protocol: 'veda' };
 
       expect(params.protocol).toBe('veda');
     });
@@ -249,8 +245,7 @@ describe('EvmCancelWithdraw Interface', () => {
     it('should require chain selection', () => {
       const params = {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
-      };
+        protocol: 'veda' };
 
       expect(params.chain).toBe(Chain.ETHEREUM);
     });
@@ -277,8 +272,7 @@ describe('EvmCancelWithdraw Interface', () => {
         deadline: 0,
         atomicPrice: 0n,
         offerAmount: 0n,
-        inSolve: false,
-      };
+        inSolve: false };
 
       expect(cancelRequest.offerAmount).toBe(0n);
     });

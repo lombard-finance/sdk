@@ -13,8 +13,7 @@ const meta = {
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('read')],
-  argTypes: { ...chainSelector, ...envSelector },
-} satisfies Meta<typeof StoryView>;
+  argTypes: { ...chainSelector, ...envSelector } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -23,9 +22,7 @@ type Story = StoryObj<typeof meta>;
 export const Holesky: Story = {
   args: {
     chainId: ChainId.holesky,
-    env: undefined,
-  },
-};
+    env: undefined } };
 
 type Params = Parameters<typeof getLBTCMintingFee>[0];
 
@@ -33,8 +30,7 @@ export function StoryView(props: Params) {
   const request = async () => {
     return getLBTCMintingFee({
       chainId: props.chainId,
-      env: props.env,
-    });
+      env: props.env });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

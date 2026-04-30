@@ -7,8 +7,7 @@ import { EvmService } from '../../services/EvmService';
 
 // Mock dependencies
 vi.mock('../../contract-functions/getLBTCMintingFee/getLBTCMintingFee', () => ({
-  getMintingFee: vi.fn(),
-}));
+  getMintingFee: vi.fn() }));
 
 import { getMintingFee } from '../../contract-functions/getLBTCMintingFee/getLBTCMintingFee';
 
@@ -31,8 +30,7 @@ describe('EvmService', () => {
       expect(getMintingFee).toHaveBeenCalledWith({
         chainId: ChainId.sepolia,
         env: Env.testnet,
-        token: 'LBTC',
-      });
+        token: 'LBTC' });
     });
   });
 });

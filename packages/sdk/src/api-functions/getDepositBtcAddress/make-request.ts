@@ -4,13 +4,11 @@ import { Address, pad } from 'viem';
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
-  getChainNameById,
-} from '../../common/blockchain-identifier';
+  getChainNameById } from '../../common/blockchain-identifier';
 import {
   IApiError,
   IDepositAddressesResponse,
-  IGetDepositBtcAddressesParameters,
-} from './types';
+  IGetDepositBtcAddressesParameters } from './types';
 
 export async function makeRequest({
   address,
@@ -18,8 +16,7 @@ export async function makeRequest({
   env,
   limit,
   offset,
-  partnerId,
-}: IGetDepositBtcAddressesParameters) {
+  partnerId }: IGetDepositBtcAddressesParameters) {
   const { baseApiUrl } = getApiConfig(env);
 
   // throws an error if `chainId` is unknown
@@ -32,8 +29,7 @@ export async function makeRequest({
     asc: false,
     limit,
     offset,
-    referralId: partnerId || 'lombard',
-  };
+    referralId: partnerId || 'lombard' };
 
   // remove undefined fields, undefined limit and offset params cause error
   for (const [k, v] of Object.entries(params)) {
@@ -46,8 +42,7 @@ export async function makeRequest({
   try {
     const { data } = await axios.get<IDepositAddressesResponse>(url, {
       baseURL: baseApiUrl,
-      params,
-    });
+      params });
 
     return data.addresses || [];
   } catch (err) {

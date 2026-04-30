@@ -7,8 +7,7 @@ import { fromSatoshi } from '../../utils/satoshi';
 import {
   BTCE_VAULT,
   BtceVaultChain,
-  isBtceVaultChain,
-} from '../../vaults/lib/config';
+  isBtceVaultChain } from '../../vaults/lib/config';
 import { getSharesByAddressInternal } from '../getSharesByAddress/getSharesByAddress';
 
 export interface IGetEarnPositionParameters extends CommonParameters {
@@ -67,8 +66,7 @@ const ZERO = new BigNumber(0);
 export async function getEarnPosition({
   chainId,
   rpcUrl,
-  address,
-}: IGetEarnPositionParameters): Promise<IGetEarnPositionResponse> {
+  address }: IGetEarnPositionParameters): Promise<IGetEarnPositionResponse> {
   if (!isAddress(address)) {
     throw new Error(`Invalid address: ${address}`);
   }
@@ -90,8 +88,7 @@ export async function getEarnPosition({
     const underlyingEquivalentRaw = await readBtceConvertToAssets({
       chainId,
       rpcUrl,
-      shares: btceBalanceRaw,
-    });
+      shares: btceBalanceRaw });
     btceSharesInUnderlying = fromSatoshi(String(underlyingEquivalentRaw));
   }
 
@@ -106,15 +103,13 @@ export async function getEarnPosition({
     btceSharesInUnderlying,
     totalShares,
     exchangeRate,
-    position,
-  };
+    position };
 }
 
 async function readBtceBalance({
   chainId,
   rpcUrl,
-  address,
-}: {
+  address }: {
   chainId: BtceVaultChain;
   rpcUrl?: string;
   address: Address;
@@ -123,16 +118,14 @@ async function readBtceBalance({
   const btceContract = getContract({
     abi: BTCE_VAULT.abi,
     address: BTCE_VAULT.contracts[chainId],
-    client,
-  });
+    client });
   return (await btceContract.read.balanceOf([address])) as bigint;
 }
 
 async function readBtceConvertToAssets({
   chainId,
   rpcUrl,
-  shares,
-}: {
+  shares }: {
   chainId: BtceVaultChain;
   rpcUrl?: string;
   shares: bigint;
@@ -141,7 +134,6 @@ async function readBtceConvertToAssets({
   const btceContract = getContract({
     abi: BTCE_VAULT.abi,
     address: BTCE_VAULT.contracts[chainId],
-    client,
-  });
+    client });
   return (await btceContract.read.convertToAssets([shares])) as bigint;
 }

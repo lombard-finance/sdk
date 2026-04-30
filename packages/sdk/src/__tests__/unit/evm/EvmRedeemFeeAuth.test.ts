@@ -15,8 +15,7 @@ import { EvmOperationStatus } from '../../../shared/constants/statusConstants';
 
 // Mock the fee requirements module
 vi.mock('../../../common/fee-requirements', () => ({
-  requiresAutoMintFee: vi.fn(),
-}));
+  requiresAutoMintFee: vi.fn() }));
 
 describe('EVM Redeem Fee Authorization', () => {
   beforeEach(() => {

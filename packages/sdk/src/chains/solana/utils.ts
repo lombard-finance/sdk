@@ -9,8 +9,7 @@ import type { Env } from '@lombard.finance/sdk-common';
 import type { SolanaChain } from '../../common/chains';
 import {
   SOLANA_DEVNET_CHAIN,
-  SOLANA_MAINNET_CHAIN,
-} from '../../common/chains';
+  SOLANA_MAINNET_CHAIN } from '../../common/chains';
 
 /**
  * Map a Lombard environment to the Solana network string expected by

@@ -8,8 +8,7 @@ import { functionType } from '../stories/components/decorators/function-type';
 import { wagmiDecorator } from '../stories/components/decorators/wagmi-decorator';
 import {
   canPerformAction,
-  useConnection,
-} from '../stories/hooks/useConnection';
+  useConnection } from '../stories/hooks/useConnection';
 import useQuery from '../stories/hooks/useQuery';
 import { addChain,AddChainParameters, ChainId } from './chains';
 
@@ -18,8 +17,7 @@ const meta = {
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('write')],
-  argTypes: { ...chainSelector },
-} satisfies Meta<typeof StoryView>;
+  argTypes: { ...chainSelector } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -27,9 +25,7 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    chainId: ChainId.ethereum,
-  },
-};
+    chainId: ChainId.ethereum } };
 
 type Props = Omit<AddChainParameters, 'provider'>;
 
@@ -43,8 +39,7 @@ export function StoryView(props: Props) {
 
     return addChain({
       ...props,
-      provider: connection.provider,
-    });
+      provider: connection.provider });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

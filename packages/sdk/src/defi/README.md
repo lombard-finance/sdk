@@ -108,9 +108,9 @@ export async function signStakeAndBake(params) {
 **Source of Truth:** `packages/sdk/src/vaults/lib/config.ts`
 
 ```typescript
-// Step 1: In vaults/lib/config.ts - Add chain to VEDA_VAULT_STAKE_AND_BAKE_CHAINS
+// Step 1: In vaults/lib/config.ts - Add chain to EARN_STAKE_AND_BAKE_CHAINS
 
-export const VEDA_VAULT_STAKE_AND_BAKE_CHAINS = [
+export const EARN_STAKE_AND_BAKE_CHAINS = [
   ChainId.ethereum,
   ChainId.binanceSmartChain,
   ChainId.base,
@@ -121,8 +121,8 @@ export const VEDA_VAULT_STAKE_AND_BAKE_CHAINS = [
 ];
 
 // Step 2: In vaults/lib/config.ts - Add spender contract
-export const VEDA_VAULT_SPENDER_CONTRACTS: Record<
-  VedaVaultStakeAndBakeChain,
+export const EARN_VAULT_SPENDER_CONTRACTS: Record<
+  EarnStakeAndBakeChain,
   ContractInfo
 > = {
   // ... existing contracts
@@ -136,12 +136,12 @@ export const VEDA_VAULT_SPENDER_CONTRACTS: Record<
 
 **What Happens:**
 
-- `DEFI_REGISTRY` imports `VEDA_VAULT_STAKE_AND_BAKE_CHAINS` (single source of truth)
+- `DEFI_REGISTRY` imports `EARN_STAKE_AND_BAKE_CHAINS` (single source of truth)
 - LBTC inherits the same `LBTC_PERMIT_CONFIG` on new chain
-- Uses the correct spender contract from `VEDA_VAULT_SPENDER_CONTRACTS`
+- Uses the correct spender contract from `EARN_VAULT_SPENDER_CONTRACTS`
 
 **Important:** Do NOT add chains directly to `defi-registry.ts` - it uses the imported
-`VEDA_VAULT_STAKE_AND_BAKE_CHAINS` to ensure consistency
+`EARN_STAKE_AND_BAKE_CHAINS` to ensure consistency
 
 ---
 
@@ -177,7 +177,7 @@ export const DEFI_REGISTRY = {
     [Token.wBTC]: forEnvs([Env.prod, Env.testnet], env => {
       return forChains([ChainId.ethereum, ChainId.base], chain => ({
         approvalConfig: WBTC_PERMIT_CONFIG,
-        spenderContract: VEDA_VAULT_SPENDER_CONTRACTS[chain],
+        spenderContract: EARN_VAULT_SPENDER_CONTRACTS[chain],
       }));
     }),
   },
@@ -438,14 +438,14 @@ Store spender contracts in a map:
 
 ```typescript
 // At top of file
-const VEDA_VAULT_SPENDER_CONTRACTS = {
+const EARN_VAULT_SPENDER_CONTRACTS = {
   [ChainId.ethereum]: { abi, address: '0x...', chainId: 1 },
   [ChainId.base]: { abi, address: '0x...', chainId: 8453 },
   // ...
 };
 
 // Then reference them
-spenderContract: VEDA_VAULT_SPENDER_CONTRACTS[chain];
+spenderContract: EARN_VAULT_SPENDER_CONTRACTS[chain];
 ```
 
 ### 4. **Document Token-Specific Behavior**
@@ -457,7 +457,7 @@ Use comments for special cases:
 BTC: forEnvs(Object.values(Env), () => {
   return forChains(VEDA_STAKE_AND_BAKE_CHAINS, (chain) => ({
     approvalConfig: BTC_PERMIT_CONFIG,  // Has requiresConversion: true
-    spenderContract: VEDA_VAULT_SPENDER_CONTRACTS[chain],
+    spenderContract: EARN_VAULT_SPENDER_CONTRACTS[chain],
   }));
 }),
 ```

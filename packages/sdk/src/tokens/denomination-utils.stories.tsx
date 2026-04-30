@@ -14,14 +14,10 @@ const meta = {
   argTypes: {
     amount: {
       control: { type: 'text' },
-      description: 'Amount to convert',
-    },
+      description: 'Amount to convert' },
     decimals: {
       control: { type: 'number', min: 0, max: 18 },
-      description: 'Number of decimal places',
-    },
-  },
-} satisfies Meta<typeof StoryView>;
+      description: 'Number of decimal places' } } } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -30,23 +26,17 @@ type Story = StoryObj<typeof meta>;
 export const BTCToSatoshi: Story = {
   args: {
     amount: '1',
-    decimals: 8,
-  },
-};
+    decimals: 8 } };
 
 export const LBTCToWei: Story = {
   args: {
     amount: '0.5',
-    decimals: 8,
-  },
-};
+    decimals: 8 } };
 
 export const SmallAmount: Story = {
   args: {
     amount: '0.00000001',
-    decimals: 8,
-  },
-};
+    decimals: 8 } };
 
 interface StoryViewProps {
   amount: string;
@@ -94,13 +84,11 @@ export function StoryView(props: StoryViewProps) {
 
       setResults({
         toBase: toBase.toString(),
-        fromBase: fromBase.toString(),
-      });
+        fromBase: fromBase.toString() });
     } catch (err) {
       setResults({
         toBase: `Error: ${err}`,
-        fromBase: 'N/A',
-      });
+        fromBase: 'N/A' });
     }
   };
 
@@ -165,9 +153,7 @@ export function StoryView(props: StoryViewProps) {
                 input: `toBaseDenomination("${props.amount}", ${props.decimals})`,
                 output: results.toBase,
                 reverseInput: `fromBaseDenomination("${results.toBase}", ${props.decimals})`,
-                reverseOutput: results.fromBase,
-              },
-            }}
+                reverseOutput: results.fromBase } }}
           />
         </div>
       )}

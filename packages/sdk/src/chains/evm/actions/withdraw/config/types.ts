@@ -10,8 +10,7 @@ import type { z } from 'zod';
 import type {
   Chain,
   ChainType,
-  DeployProtocol,
-} from '../../../../../core';
+  DeployProtocol } from '../../../../../core';
 
 /**
  * Route definition for EVM withdraw operations

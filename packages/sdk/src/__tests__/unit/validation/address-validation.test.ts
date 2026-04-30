@@ -18,8 +18,7 @@ import {
   evmAddressSchema,
   solanaAddressSchema,
   starknetAddressSchema,
-  suiAddressSchema,
-} from '../../../shared/validation';
+  suiAddressSchema } from '../../../shared/validation';
 
 describe('Address Validation Schemas', () => {
   // ═══════════════════════════════════════════════════════════════════════════

@@ -17,8 +17,7 @@ import type { DepositAndDeployChainConfig } from './types';
 export type {
   DepositAndDeployAuthResult,
   DepositAndDeployChainConfig,
-  DepositAndDeployRouteDefinition,
-} from './types';
+  DepositAndDeployRouteDefinition } from './types';
 
 /**
  * The default config for DepositAndDeploy

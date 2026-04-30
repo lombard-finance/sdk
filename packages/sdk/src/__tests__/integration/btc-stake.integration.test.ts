@@ -28,8 +28,7 @@ function createMockEvmProvider(): EIP1193Provider {
   const mockProvider = {
     request: vi.fn(),
     on: vi.fn(),
-    removeListener: vi.fn(),
-  };
+    removeListener: vi.fn() };
 
   mockProvider.request.mockImplementation(async ({ method }) => {
     switch (method) {
@@ -69,13 +68,11 @@ describe('BTC Stake Action', () => {
     it('should start in IDLE status', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       expect(stake.status).toBe(BtcActionStatus.IDLE);
       expect(stake.isLoading).toBe(false);
@@ -86,24 +83,20 @@ describe('BTC Stake Action', () => {
     it('should transition to NEEDS_ADDRESS_CONFIRMATION for testnet', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       // Mock API response
       vi.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ has_signature: false }),
-      } as Response);
+        json: () => Promise.resolve({ has_signature: false }) } as Response);
 
       await stake.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       // Fee authorization is required for all chains (including testnet)
       expect(stake.status).toBe(BtcActionStatus.NEEDS_FEE_AUTHORIZATION);
@@ -112,8 +105,7 @@ describe('BTC Stake Action', () => {
     it('should require NEEDS_FEE_AUTHORIZATION for Ethereum mainnet', async () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
@@ -123,13 +115,11 @@ describe('BTC Stake Action', () => {
       // Mock API response
       vi.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ has_signature: false }),
-      } as Response);
+        json: () => Promise.resolve({ has_signature: false }) } as Response);
 
       await stake.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       // Ethereum mainnet requires fee authorization (EIP-712)
       expect(stake.status).toBe(BtcActionStatus.NEEDS_FEE_AUTHORIZATION);
@@ -138,26 +128,22 @@ describe('BTC Stake Action', () => {
     it('should emit status change events', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       const statusChanges: string[] = [];
       stake.on('status-change', status => statusChanges.push(status));
 
       vi.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ has_signature: false }),
-      } as Response);
+        json: () => Promise.resolve({ has_signature: false }) } as Response);
 
       await stake.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       // Fee authorization is required for all chains
       expect(statusChanges).toContain(BtcActionStatus.NEEDS_FEE_AUTHORIZATION);
@@ -168,76 +154,64 @@ describe('BTC Stake Action', () => {
     it('should validate minimum BTC amount (0.0002)', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       await expect(
         stake.prepare({
           amount: '0.0001', // Below minimum
-          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-        }),
+          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
       ).rejects.toThrow(/at least 0.0002/i);
     });
 
     it('should validate EVM recipient address', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       await expect(
         stake.prepare({
           amount: '0.001',
-          recipient: 'invalid-address',
-        }),
+          recipient: 'invalid-address' }),
       ).rejects.toThrow();
     });
 
     it('should reject zero amount', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       await expect(
         stake.prepare({
           amount: '0',
-          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-        }),
+          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
       ).rejects.toThrow();
     });
 
     it('should reject negative amount', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       await expect(
         stake.prepare({
           amount: '-0.001',
-          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-        }),
+          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
       ).rejects.toThrow();
     });
   });
@@ -246,21 +220,18 @@ describe('BTC Stake Action', () => {
     it('should preserve status on error', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       const initialStatus = stake.status;
 
       await expect(
         stake.prepare({
           amount: '0.0001', // Invalid
-          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-        }),
+          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
       ).rejects.toThrow();
 
       expect(stake.status).toBe(initialStatus);
@@ -271,20 +242,17 @@ describe('BTC Stake Action', () => {
     it('should allow retry after error', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       // First attempt fails
       await expect(
         stake.prepare({
           amount: '0.0001',
-          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-        }),
+          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
       ).rejects.toThrow();
 
       expect(stake.isFailed).toBe(true);
@@ -292,14 +260,12 @@ describe('BTC Stake Action', () => {
       // Mock successful API call
       vi.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ has_signature: false }),
-      } as Response);
+        json: () => Promise.resolve({ has_signature: false }) } as Response);
 
       // Retry with valid amount
       await stake.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(stake.isFailed).toBe(false);
       expect(stake.error).toBeNull();
@@ -310,13 +276,11 @@ describe('BTC Stake Action', () => {
     it('should emit error and failed events', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       const errors: Error[] = [];
       const failedEvents: number[] = [];
@@ -327,8 +291,7 @@ describe('BTC Stake Action', () => {
       await expect(
         stake.prepare({
           amount: '0.0001',
-          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-        }),
+          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' }),
       ).rejects.toThrow();
 
       expect(errors.length).toBe(1);
@@ -340,26 +303,22 @@ describe('BTC Stake Action', () => {
     it('should emit loading events during operations', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       const loadingStates: boolean[] = [];
       stake.on('loading', isLoading => loadingStates.push(isLoading));
 
       vi.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ has_signature: false }),
-      } as Response);
+        json: () => Promise.resolve({ has_signature: false }) } as Response);
 
       await stake.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(loadingStates).toContain(true);
       expect(loadingStates[loadingStates.length - 1]).toBe(false);
@@ -369,13 +328,11 @@ describe('BTC Stake Action', () => {
     it('should return unsubscribe function from on()', () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       const handler = vi.fn();
       const unsubscribe = stake.on('status-change', handler);
@@ -389,13 +346,11 @@ describe('BTC Stake Action', () => {
     it('should emit progress events with step information', async () => {
       const config = createConfig({
         env: Env.testnet,
-        providers: { evm: () => mockProvider },
-      });
+        providers: { evm: () => mockProvider } });
 
       const stake = btcStake(config, {
         assetOut: AssetId.LBTC,
-        destChain: Chain.SEPOLIA,
-      });
+        destChain: Chain.SEPOLIA });
 
       interface ProgressEvent {
         status: string;
@@ -409,13 +364,11 @@ describe('BTC Stake Action', () => {
 
       vi.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ has_signature: false }),
-      } as Response);
+        json: () => Promise.resolve({ has_signature: false }) } as Response);
 
       await stake.prepare({
         amount: '0.001',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
       expect(progressEvents.length).toBeGreaterThan(0);
       const lastProgress = progressEvents[progressEvents.length - 1];
@@ -434,21 +387,18 @@ describe.skip('BTC Stake Integration (Real Network)', () => {
   beforeAll(() => {
     sdk = new LombardSDK(
       createConfig({
-        env: Env.stage,
-      }),
+        env: Env.stage }),
     );
   });
 
   it('should complete full BTC → LBTC stake flow', async () => {
     const stake = sdk.chain.btc.stake({
       assetOut: AssetId.LBTC,
-      destChain: Chain.ETHEREUM,
-    });
+      destChain: Chain.ETHEREUM });
 
     await stake.prepare({
       amount: '0.001',
-      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-    });
+      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' });
 
     expect(stake.status).toBe('needs_fee_authorization');
   }, 60000);
@@ -456,8 +406,7 @@ describe.skip('BTC Stake Integration (Real Network)', () => {
   it('should handle invalid recipient addresses', async () => {
     const stake = sdk.chain.btc.stake({
       assetOut: AssetId.LBTC,
-      destChain: Chain.ETHEREUM,
-    });
+      destChain: Chain.ETHEREUM });
 
     await expect(
       stake.prepare({ amount: '0.1', recipient: 'invalid' }),

@@ -32,23 +32,19 @@ import { createBtcCoreContext } from '../../shared/context';
 import { BtcDeposit } from './actions/deposit/BtcDeposit';
 import type {
   BtcDeposit as IBtcDeposit,
-  BtcDepositParams,
-} from './actions/deposit/types';
+  BtcDepositParams } from './actions/deposit/types';
 import { BtcDepositAndDeploy } from './actions/depositAndDeploy/BtcDepositAndDeploy';
 import type {
   BtcDepositAndDeploy as IBtcDepositAndDeploy,
-  BtcDepositAndDeployParams,
-} from './actions/depositAndDeploy/types';
+  BtcDepositAndDeployParams } from './actions/depositAndDeploy/types';
 import { BtcStake } from './actions/stake/BtcStake';
 import type {
   BtcStake as IBtcStake,
-  BtcStakeParams,
-} from './actions/stake/types';
+  BtcStakeParams } from './actions/stake/types';
 import { BtcStakeAndDeploy } from './actions/stakeAndDeploy/BtcStakeAndDeploy';
 import type {
   BtcStakeAndDeploy as IBtcStakeAndDeploy,
-  BtcStakeAndDeployParams,
-} from './actions/stakeAndDeploy/types';
+  BtcStakeAndDeployParams } from './actions/stakeAndDeploy/types';
 
 /**
  * BTC Actions

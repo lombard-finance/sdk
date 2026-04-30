@@ -18,8 +18,7 @@ describe('EvmDeploy Interface', () => {
         assetIn: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC',
-      };
+        vault: 'LBTC' };
 
       expect(params.assetIn).toBe(AssetId.LBTC);
     });
@@ -29,8 +28,7 @@ describe('EvmDeploy Interface', () => {
         assetIn: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC',
-      };
+        vault: 'LBTC' };
 
       expect(params.protocol).toBe('veda');
     });
@@ -40,8 +38,7 @@ describe('EvmDeploy Interface', () => {
         assetIn: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC',
-      };
+        vault: 'LBTC' };
 
       expect(params.vault).toBe('LBTC');
     });
@@ -71,8 +68,7 @@ describe('EvmDeploy Interface', () => {
   describe('EvmDeployPrepareParams', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
-        amount: '0.1',
-      };
+        amount: '0.1' };
 
       expect(params.amount).toBe('0.1');
     });
@@ -80,8 +76,7 @@ describe('EvmDeploy Interface', () => {
     it('should support optional recipient', () => {
       const params = {
         amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
 
       expect(params.recipient).toBeDefined();
     });

@@ -9,12 +9,12 @@ import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
-  toBaseDenomination,
-} from '../../../tokens/tokens';
+  toBaseDenomination } from '../../../tokens/tokens';
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
 import { DAY } from '../../../utils/time';
-import { isVedaVaultChain, Vault, VAULTS } from '../config';
+import {
+  EARN_VAULT, isEarnChain } from '../config';
 
 export type QueueWithdrawParameters = {
   /** The amount to be withdrawn from the DeFi vault. */
@@ -26,10 +26,7 @@ export type QueueWithdrawParameters = {
    */
   approve?: boolean;
   /** The optional deposit asset. */
-  token?: Token;
-  /** The vault identifier. */
-  vaultKey?: Vault;
-} & CommonWriteParameters;
+  token?: Token;} & CommonWriteParameters;
 
 /**
  * @internal Internal helper used by `EvmWithdraw` and other action classes.
@@ -42,19 +39,13 @@ export async function queueWithdrawInternal({
   amount: amountRaw,
   approve = true,
   token = Token.LBTC,
-  vaultKey = Vault.Veda,
   account,
   chainId,
   provider,
   rpcUrl,
-  env,
-}: QueueWithdrawParameters) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  env }: QueueWithdrawParameters) {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
@@ -75,16 +66,14 @@ export async function queueWithdrawInternal({
     address: vault.lensContract.address,
     abi: vault.lensContract.abi,
     functionName: 'balanceOf',
-    args: [account, vault.vaultContract.address],
-  });
+    args: [account, vault.vaultContract.address] });
   const balance = fromBaseDenomination(String(balanceRaw), vault.decimals);
 
   const allowanceRaw = await publicClient.readContract({
     address: vault.vaultContract.address,
     abi: vault.vaultContract.abi,
     functionName: 'allowance',
-    args: [account, vault.withdrawQueueContracts[chainId].address],
-  });
+    args: [account, vault.withdrawQueueContracts[chainId].address] });
   const allowance = fromBaseDenomination(String(allowanceRaw), vault.decimals);
 
   // check if amount exceeds balance
@@ -110,8 +99,7 @@ export async function queueWithdrawInternal({
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
         functionName: 'approve',
-        args: [vault.withdrawQueueContracts[chainId].address, amountBase],
-      });
+        args: [vault.withdrawQueueContracts[chainId].address, amountBase] });
 
       const txHash = await walletClient.writeContract(request);
       console.info(`Approve tx hash: ${txHash}`);
@@ -146,17 +134,13 @@ export async function queueWithdrawInternal({
       [expiry.toFixed(0), 0n, amountBase, false],
       vault.accountantContract.address,
       discount.toFixed(0),
-    ],
-  });
+    ] });
 
   const txHash = await walletClient.writeContract(request);
   return txHash;
 }
 
-export type CancelWithdrawParameters = Pick<
-  QueueWithdrawParameters,
-  'token' | 'vaultKey'
-> &
+export type CancelWithdrawParameters = Pick<QueueWithdrawParameters, 'token'> &
   CommonWriteParameters;
 
 /**
@@ -167,19 +151,13 @@ export type CancelWithdrawParameters = Pick<
  */
 export async function cancelWithdrawInternal({
   token = Token.LBTC,
-  vaultKey = Vault.Veda,
   account,
   chainId,
   provider,
   rpcUrl,
-  env,
-}: CancelWithdrawParameters): Promise<Hash> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  env }: CancelWithdrawParameters): Promise<Hash> {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
@@ -204,8 +182,7 @@ export async function cancelWithdrawInternal({
       vault.vaultContract.address,
       withdrawToken.address,
       [0, 0, 0, false],
-    ],
-  });
+    ] });
 
   const txHash = await walletClient.writeContract(request);
   return txHash;

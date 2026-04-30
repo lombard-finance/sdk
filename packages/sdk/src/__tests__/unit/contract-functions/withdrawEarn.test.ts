@@ -14,15 +14,11 @@ vi.mock('../../../clients/public-client', () => ({
     readContract: (...args: unknown[]) => mockReadContract(...args),
     simulateContract: (...args: unknown[]) => mockSimulateContract(...args),
     waitForTransactionReceipt: (...args: unknown[]) =>
-      mockWaitForReceipt(...args),
-  })),
-}));
+      mockWaitForReceipt(...args) })) }));
 
 vi.mock('../../../clients/wallet-client', () => ({
   makeWalletClient: vi.fn(() => ({
-    writeContract: (...args: unknown[]) => mockWriteContract(...args),
-  })),
-}));
+    writeContract: (...args: unknown[]) => mockWriteContract(...args) })) }));
 
 vi.mock('../../../tokens/tokens', async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
@@ -32,9 +28,7 @@ vi.mock('../../../tokens/tokens', async (importOriginal) => {
       address: '0x8236a87084f8B84306f72007F36F2618A5634494',
       abi: [],
       symbol: 'LBTC',
-      decimals: 8,
-    }),
-  };
+      decimals: 8 }) };
 });
 
 const ACCOUNT = '0x000000000000000000000000000000000000dEaD';
@@ -43,8 +37,7 @@ const VAULT = '0x5401b8620E5FB570064CA9114fd1e135fd77D57c';
 const BTCE = '0x3a4baaBf4DC9910596821615e848f0e6545762F3';
 const QUEUE = '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8';
 const PROVIDER = {
-  request: vi.fn(),
-} as unknown as Parameters<typeof withdrawEarn>[0]['provider'];
+  request: vi.fn() } as unknown as Parameters<typeof withdrawEarn>[0]['provider'];
 
 interface ReadCall {
   functionName: string;
@@ -87,16 +80,14 @@ describe('withdrawEarn', () => {
     mockSimulateContract.mockImplementation(({ functionName }) => {
       counter++;
       return Promise.resolve({
-        request: { functionName, marker: counter },
-      });
+        request: { functionName, marker: counter } });
     });
     mockWriteContract.mockImplementation(({ functionName, marker }) =>
       Promise.resolve(`0x${functionName}_${marker}` as `0x${string}`),
     );
     mockWaitForReceipt.mockResolvedValue({
       status: 'success',
-      transactionHash: '0xreceipt',
-    });
+      transactionHash: '0xreceipt' });
   });
 
   describe('case: underlying-only holder, has allowance', () => {
@@ -111,8 +102,7 @@ describe('withdrawEarn', () => {
         amount: '0.5',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(result.approveTxHash).toBeUndefined();
       expect(result.unwrapTxHash).toBeUndefined();
@@ -127,15 +117,13 @@ describe('withdrawEarn', () => {
       setupReads({
         underlyingBalance: 100_000_000n,
         btceBalance: 0n,
-        allowance: 0n,
-      });
+        allowance: 0n });
 
       const result = await withdrawEarn({
         amount: '0.5',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(result.approveTxHash).toMatch(/approve/);
       expect(result.unwrapTxHash).toBeUndefined();
@@ -155,15 +143,13 @@ describe('withdrawEarn', () => {
         underlyingBalance: 0n,
         btceBalance: 100_000_000n,
         allowance: 0n,
-        maxWithdraw: 100_000_000n,
-      });
+        maxWithdraw: 100_000_000n });
 
       const result = await withdrawEarn({
         amount: '0.5',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(result.approveTxHash).toMatch(/approve/);
       expect(result.unwrapTxHash).toMatch(/withdraw_/);
@@ -184,15 +170,13 @@ describe('withdrawEarn', () => {
         underlyingBalance: 100_000_000n,
         btceBalance: 50_000_000n,
         allowance: 200_000_000n,
-        maxWithdraw: 50_000_000n,
-      });
+        maxWithdraw: 50_000_000n });
 
       const result = await withdrawEarn({
         amount: '0.5',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(result.unwrapTxHash).toBeUndefined();
       expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
@@ -205,15 +189,13 @@ describe('withdrawEarn', () => {
         underlyingBalance: 30_000_000n, // 0.3
         btceBalance: 50_000_000n, // 0.5
         allowance: 200_000_000n,
-        maxWithdraw: 50_000_000n,
-      });
+        maxWithdraw: 50_000_000n });
 
       const result = await withdrawEarn({
         amount: '0.5', // need 0.5 - 0.3 = 0.2 LBTCv from unwrap
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(result.unwrapTxHash).toMatch(/withdraw_/);
 
@@ -230,16 +212,14 @@ describe('withdrawEarn', () => {
       setupReads({
         underlyingBalance: 30_000_000n,
         btceBalance: 20_000_000n,
-        allowance: 0n,
-      });
+        allowance: 0n });
 
       await expect(
         withdrawEarn({
           amount: '1', // > 0.3 + 0.2
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/InsufficientPositionError/);
 
       expect(mockSimulateContract).not.toHaveBeenCalled();
@@ -261,8 +241,7 @@ describe('withdrawEarn', () => {
           amount: '0.5', // needs 0.2 from unwrap, only 0.1 available
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/InsufficientUnwrappableError/);
 
       // Council B2: NO transactions sent, including the approval
@@ -275,15 +254,13 @@ describe('withdrawEarn', () => {
     it('skips BTCe reads and unwrap entirely', async () => {
       setupReads({
         underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-      });
+        allowance: 200_000_000n });
 
       const result = await withdrawEarn({
         amount: '0.5',
         account: ACCOUNT,
         chainId: ChainId.corn,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       expect(result.unwrapTxHash).toBeUndefined();
 
@@ -302,8 +279,7 @@ describe('withdrawEarn', () => {
           amount: '0',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/must be greater than zero/);
     });
 
@@ -313,8 +289,7 @@ describe('withdrawEarn', () => {
           amount: '0.1',
           account: ACCOUNT,
           chainId: ChainId.sepolia,
-          provider: PROVIDER,
-        }),
+          provider: PROVIDER }),
       ).rejects.toThrow(/Unsupported chain/);
     });
   });
@@ -323,15 +298,13 @@ describe('withdrawEarn', () => {
     it('files atomic request against the LBTCv vault and chosen withdrawal asset', async () => {
       setupReads({
         underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-      });
+        allowance: 200_000_000n });
 
       await withdrawEarn({
         amount: '0.5',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
+        provider: PROVIDER });
 
       const queueCall = mockSimulateContract.mock.calls.find(
         (c) => c[0].functionName === 'safeUpdateAtomicRequest',

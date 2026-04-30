@@ -6,15 +6,13 @@ import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import {
   IStoreStakeAndBakeSignatureParams,
-  storeStakeAndBakeSignature,
-} from './storeStakeAndBakeSignature';
+  storeStakeAndBakeSignature } from './storeStakeAndBakeSignature';
 
 const meta = {
   title: 'api/storeStakeAndBakeSignature',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [functionType('api-post')],
-} satisfies Meta<typeof StoryView>;
+  decorators: [functionType('api-post')] } satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -23,17 +21,14 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     signature: '0x... YOUR SIGNATURE GOES HERE',
-    typedData: '{ ... } YOUR TYPED DATA GOES HERE',
-  },
-};
+    typedData: '{ ... } YOUR TYPED DATA GOES HERE' } };
 
 type SignStakeAndBakeParams = IStoreStakeAndBakeSignatureParams;
 
 export function StoryView(props: SignStakeAndBakeParams) {
   const request = async () => {
     return await storeStakeAndBakeSignature({
-      ...props,
-    });
+      ...props });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

@@ -57,13 +57,11 @@ export async function signNetworkFee({
   chainId,
   provider,
   env,
-  token = Token.LBTC,
-}: ISignNetworkFeeParams): Promise<ISignNetworkFeeResponse> {
+  token = Token.LBTC }: ISignNetworkFeeParams): Promise<ISignNetworkFeeResponse> {
   const tokenContract = await getTokenContractInfo(token, chainId, env);
   const walletClient = makeWalletClient({
     chainId,
-    provider,
-  });
+    provider });
 
   type TypedData = Parameters<typeof walletClient.signTypedData>[0];
   const typedData: TypedData = {
@@ -72,13 +70,11 @@ export async function signNetworkFee({
       name: token === Token.BTCb ? 'Bitcoin' : 'Lombard Staked Bitcoin',
       version: '1',
       chainId,
-      verifyingContract: tokenContract.address,
-    },
+      verifyingContract: tokenContract.address },
     message: {
       chainId,
       fee: BigInt(BigNumber(fee).toFixed()),
-      expiry,
-    },
+      expiry },
     primaryType: 'feeApproval',
     types: {
       EIP712Domain: [
@@ -91,9 +87,7 @@ export async function signNetworkFee({
         { name: 'chainId', type: 'uint256' },
         { name: 'fee', type: 'uint256' },
         { name: 'expiry', type: 'uint256' },
-      ],
-    },
-  };
+      ] } };
 
   const signature = await walletClient.signTypedData(typedData);
 
@@ -101,6 +95,5 @@ export async function signNetworkFee({
     signature: signature,
     typedData: JSON.stringify(typedData, (_, v) =>
       typeof v === 'bigint' ? v.toString() : v,
-    ),
-  };
+    ) };
 }

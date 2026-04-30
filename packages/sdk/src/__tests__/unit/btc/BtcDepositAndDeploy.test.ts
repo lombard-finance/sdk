@@ -21,8 +21,7 @@ describe('BtcDepositAndDeploy Interface', () => {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
         protocol: 'silo',
-        vault: 'BTCb',
-      };
+        vault: 'BTCb' };
 
       expect(params.assetOut).toBe(AssetId.BTCb);
     });
@@ -32,8 +31,7 @@ describe('BtcDepositAndDeploy Interface', () => {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
         protocol: 'silo',
-        vault: 'BTCb',
-      };
+        vault: 'BTCb' };
 
       expect(params.protocol).toBe('silo');
     });
@@ -57,8 +55,7 @@ describe('BtcDepositAndDeploy Interface', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
 
       expect(params.amount).toBe('0.1');
       expect(params.recipient).toBeDefined();
@@ -134,8 +131,7 @@ describe('BtcDepositAndDeploy Interface', () => {
       const siloConfig = {
         protocol: 'silo',
         chains: [Chain.AVALANCHE, Chain.AVALANCHE_FUJI],
-        assetIn: AssetId.BTCb,
-      };
+        assetIn: AssetId.BTCb };
 
       expect(siloConfig.protocol).toBe('silo');
       expect(siloConfig.assetIn).toBe(AssetId.BTCb);
@@ -150,8 +146,7 @@ describe('BtcDepositAndDeploy Interface', () => {
 
       handler({
         status: 'address_ready',
-        steps: { created: 'complete', deploying: 'idle' },
-      });
+        steps: { created: 'complete', deploying: 'idle' } });
 
       expect(handler).toHaveBeenCalledOnce();
     });

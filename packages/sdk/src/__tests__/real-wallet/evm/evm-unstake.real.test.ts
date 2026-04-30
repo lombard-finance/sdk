@@ -25,16 +25,13 @@ runIfConfigured('EVM Unstake Real Wallet', () => {
     const config = createConfig({
       env: Env.testnet,
       providers: {
-        evm: () => walletClientToProvider(wallet),
-      },
-    });
+        evm: () => walletClientToProvider(wallet) } });
 
     const unstake = evmUnstake(config, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTC,
       sourceChain: Chain.SEPOLIA,
-      destChain: Chain.BITCOIN_SIGNET,
-    });
+      destChain: Chain.BITCOIN_SIGNET });
 
     await unstake.prepare({
       amount: '0.0001',

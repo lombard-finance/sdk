@@ -8,8 +8,7 @@ import type {
   AssetId,
   Chain,
   StepStatus,
-  StrategyProgress,
-} from '../../../../core';
+  StrategyProgress } from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { LombardError } from '../../../../shared/errors';
 
@@ -28,8 +27,7 @@ export enum EvmDepositStatus {
   NEEDS_APPROVAL = 'needs-approval',
   READY = 'ready',
   BRIDGING = 'bridging',
-  COMPLETED = 'completed',
-}
+  COMPLETED = 'completed' }
 
 /**
  * EVM Deposit parameters

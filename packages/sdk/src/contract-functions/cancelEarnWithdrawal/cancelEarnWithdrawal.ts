@@ -2,7 +2,6 @@ import { Hash } from 'viem';
 
 import { CommonWriteParameters } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
-import { Vault } from '../../vaults/lib/config';
 import { cancelWithdrawInternal } from '../../vaults/lib/ops/withdraw';
 
 export type CancelEarnWithdrawalParameters = {
@@ -26,15 +25,12 @@ export async function cancelEarnWithdrawal({
   chainId,
   provider,
   rpcUrl,
-  env,
-}: CancelEarnWithdrawalParameters): Promise<Hash> {
+  env }: CancelEarnWithdrawalParameters): Promise<Hash> {
   return cancelWithdrawInternal({
     token: withdrawalAsset,
-    vaultKey: Vault.Veda,
     account,
     chainId,
     provider,
     rpcUrl,
-    env,
-  });
+    env });
 }

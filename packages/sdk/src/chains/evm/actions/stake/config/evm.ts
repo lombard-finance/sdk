@@ -30,40 +30,34 @@ export const evmConfig: ChainConfig = {
       sourceChains: [Chain.ETHEREUM],
       destChains: [Chain.ETHEREUM],
       protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // Veda - Base
     {
       sourceChains: [Chain.BASE],
       destChains: [Chain.BASE],
       protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // Veda - BSC
     {
       sourceChains: [Chain.BSC],
       destChains: [Chain.BSC],
       protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // Veda - Corn
     {
       sourceChains: [Chain.CORN],
       destChains: [Chain.CORN],
       protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
     // Silo - Avalanche
     {
       sourceChains: [Chain.AVALANCHE],
       destChains: [Chain.AVALANCHE],
       protocols: [DeployProtocol.Silo],
-      envs: [Env.prod],
-    },
+      envs: [Env.prod] },
   ],
 
-  addressSchema: evmAddressSchema,
-};
+  addressSchema: evmAddressSchema };
 
 /**
  * Check if a source chain is supported for stake

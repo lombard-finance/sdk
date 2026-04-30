@@ -24,8 +24,7 @@ import type { StarknetCoreContext } from '../../shared/context';
 import { StarknetUnstake } from './actions/unstake/StarknetUnstake';
 import type {
   IStarknetUnstake,
-  StarknetUnstakeParams,
-} from './actions/unstake/types';
+  StarknetUnstakeParams } from './actions/unstake/types';
 
 /**
  * Create Starknet core context from config
@@ -43,8 +42,7 @@ function createStarknetCoreContext(config: LombardConfig): StarknetCoreContext {
       if (!getter) return undefined;
       return getter();
     },
-    starknet,
-  };
+    starknet };
 }
 
 /**

@@ -8,8 +8,7 @@ import type {
   AssetId,
   Chain,
   StepStatus,
-  StrategyProgress,
-} from '../../../../core';
+  StrategyProgress } from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 

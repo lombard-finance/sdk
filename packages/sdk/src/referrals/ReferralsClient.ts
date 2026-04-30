@@ -24,11 +24,9 @@ export class ReferralsClient {
    * Fetch the referrer bound to a previously generated BTC deposit address.
    */
   async lookupReferrer({
-    address,
-  }: ReferralLookupParams): Promise<ReferralLookupResult> {
+    address }: ReferralLookupParams): Promise<ReferralLookupResult> {
     return getDepositAddressReferrer({
       address,
-      env: this.sdk.config.env,
-    });
+      env: this.sdk.config.env });
   }
 }
