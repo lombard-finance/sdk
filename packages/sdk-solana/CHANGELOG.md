@@ -5,6 +5,16 @@ All notable changes to `@lombard.finance/sdk-solana` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-05-02
+
+### Changed
+
+- `deposit()`, `redeem()`, and `redeemForBtc()` (both LBTC and BTC.b flows): `senderConfig` PDA on the Mailbox program is now derived with seeds `["sender_config", messaging_authority_pda]` instead of `["sender_config", asset_router_program_id]`. Aligns the SDK with the updated Mailbox contract; the on-chain instructions and account lists remain otherwise unchanged.
+
+### Compatibility
+
+- Requires the upgraded Mailbox program. Older deployments still using `asset_router_program_id` as the second seed will reject the resulting `senderConfig` account.
+
 ## [2.0.0] - 2026-04-23
 
 ### Migration: `unstakeLBTC` → `redeemForBtc` (LBTC → BTC)

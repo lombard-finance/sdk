@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-solana",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Solana integration for the Lombard SDK - stake BTC and manage LBTC on Solana",
   "exports": {
     ".": {
