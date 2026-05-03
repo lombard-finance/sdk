@@ -169,7 +169,7 @@ export async function redeem(
       mailboxProgramId,
     );
     const [senderConfigPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('sender_config'), assetRouterProgramId.toBuffer()],
+      [Buffer.from('sender_config'), messagingAuthorityPDA.toBuffer()],
       mailboxProgramId,
     );
 
