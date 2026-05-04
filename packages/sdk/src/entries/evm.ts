@@ -63,7 +63,7 @@ SignerError,
 // EVM chain utilities
 export {
   addChain, type AddChainParameters,
-allChains,
+  allChains,
   bob,
   bobSepolia, CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP,
   CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId, getChain,
@@ -78,7 +78,8 @@ allChains,
   megaeth,
   monad,
   stable,
-  tac} from '../common/chains';
+  tac
+} from '../common/chains';
 
 // Fee requirements
 export {
