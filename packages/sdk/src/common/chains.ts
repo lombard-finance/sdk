@@ -344,7 +344,7 @@ export const isMonadChain = (chainId: unknown): chainId is MonadChain => {
 
 type EthereumChain = typeof ChainId.ethereum;
 export const isEthereumChain = (chainId: unknown): chainId is EthereumChain => {
-  return ([ChainId.ethereum] as number[]).includes(chainId as number);
+  return ([ChainId.ethereum, ChainId.sepolia] as number[]).includes(chainId as number);
 };
 
 type StableChain = typeof ChainId.stable;
