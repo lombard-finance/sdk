@@ -2,7 +2,7 @@ import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 
 interface IConfig {
   mint: {
-    target: `0x${string}::treasury::${'mint' | 'mint_v2'}`;
+    target: `0x${string}::treasury::mint_v2`;
     denyList: `0x${string}`;
   };
   redeem: {
@@ -19,7 +19,7 @@ const stageConfig: IConfig = {
   mint: {
     target:
       // lbtc_v2_current
-      '0x2721ad6e939baca77b36f415ab91edb1c91b256cbc8614f8f6c84bf06faf74af::treasury::mint',
+      '0x2721ad6e939baca77b36f415ab91edb1c91b256cbc8614f8f6c84bf06faf74af::treasury::mint_v2',
     denyList: '0x403',
   },
   redeem: {
