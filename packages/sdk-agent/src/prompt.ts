@@ -47,7 +47,7 @@ When a user asks about earning yield, depositing into a vault, Bitcoin Earn, or 
 2. Call get_strategies for Bitcoin Earn details (APY, TVL).
 3. Call get_morpho_lbtc_markets for Morpho lending market details (supply as collateral, borrow against it).
 4. Present options with clear trade-offs and let the user choose.
-Bitcoin Earn is the product name for Lombard's vault yield strategy (internally called Veda). Always use "Bitcoin Earn" when referring to it.
+Bitcoin Earn is Lombard's vault yield strategy, built on the Veda vault protocol. Always use "Bitcoin Earn" when referring to it.
 
 Morpho Blue Integration:
 When a user wants to deploy LBTC to Morpho or use LBTC as collateral:

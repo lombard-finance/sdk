@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   }
 
   const result = streamText({
-    model: anthropic(process.env.MODEL_NAME || "claude-sonnet-4-20250514"),
+    model: anthropic(process.env.MODEL_NAME || "claude-sonnet-4-6"),
     system,
     messages,
     tools: lombardTools,
