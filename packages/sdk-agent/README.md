@@ -170,7 +170,7 @@ import {
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
 | `LOMBARD_PARTNER_ID` | none | Partner ID for BTC deposit address generation |
-| `LOMBARD_BFF_URL` | `https://bff.stage.lombard-fi.com` | Backend API URL |
+| `LOMBARD_BFF_URL` | `https://bff.prod.lombard-fi.com` | Backend API URL |
 
 ## Requirements
 

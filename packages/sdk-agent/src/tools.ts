@@ -471,7 +471,7 @@ export const getStrategies: ToolDefinition<
 // ─── Opportunities Tool ─────────────────────────────────────────────
 
 const BFF_BASE_URL =
-  process.env.LOMBARD_BFF_URL || "https://bff.stage.lombard-fi.com";
+  process.env.LOMBARD_BFF_URL || "https://bff.prod.lombard-fi.com";
 
 export const getOpportunities: ToolDefinition<
   { category?: string; chain?: string; protocol?: string },
