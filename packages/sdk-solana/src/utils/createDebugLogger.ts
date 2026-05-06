@@ -25,32 +25,25 @@ export function createDebugLogger(options: CreateDebugLoggerOptions = {}) {
   const { debug = false, prefix = '' } = options;
   const logs: string[] = [];
 
-  // Return the actual logger function
   const debugLog = (...args: unknown[]): void => {
-    // Only proceed if debugging is enabled
-    if (!debug) {
-      return;
-    }
-
-    // Format arguments: stringify objects, keep others as strings
     const formattedArgs = args.map(arg =>
       typeof arg === 'object' && arg !== null
         ? JSON.stringify(arg)
         : String(arg),
     );
 
-    // Construct the final log message with optional prefix
     const logMessage = prefix
       ? `${prefix} ${formattedArgs.join(' ')}`
       : formattedArgs.join(' ');
 
-    // Log to the console
-    console.log(logMessage);
+    logs.push(logMessage);
+
+    if (debug) {
+      console.log(logMessage);
+    }
   };
 
-  const printLogs = (): void => {
-    console.log(logs.join('\n'));
-  };
+  const printLogs = (): string => logs.join('\n');
 
   return { debugLog, printLogs };
 }

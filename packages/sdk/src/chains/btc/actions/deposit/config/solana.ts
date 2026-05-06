@@ -30,8 +30,12 @@ export const solanaDepositConfig: DepositChainConfig = {
 
   routes: [
     {
+      sourceChains: [Chain.BITCOIN_MAINNET],
+      envs: [Env.prod],
+    },
+    {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.stage, Env.dev],
+      envs: [Env.stage, Env.dev, Env.testnet],
     },
   ],
 

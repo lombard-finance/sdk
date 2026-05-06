@@ -30,7 +30,11 @@ interface IGetSharesByAddressResponse {
 }
 
 /**
- * Gets the amount of shares (LBTCv) owned by the provided address.
+ * Gets the amount of LBTCv (Veda vault shares) owned by the provided address.
+ *
+ * NOTE: This returns only the user's direct LBTCv ERC20 balance. It does NOT
+ * include shares held inside the BTCe wrapper vault. For the full Bitcoin Earn
+ * position (LBTCv + BTCe valued in LBTC), use {@link getEarnPosition}.
  *
  * @param {IGetSharesByAddressParameters} parameters - The parameters.
  * @param {Vault} parameters.vaultKey - The optional DeFi vault identifier.

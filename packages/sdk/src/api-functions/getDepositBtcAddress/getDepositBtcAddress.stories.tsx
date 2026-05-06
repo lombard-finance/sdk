@@ -188,7 +188,7 @@ export const SolanaLBTC: StoryObj<typeof SolanaGetStoryView> = {
   args: {
     token: Token.LBTC,
     chainId: SOLANA_DEVNET_CHAIN,
-    env: Env.dev,
+    env: Env.stage,
     partnerId: 'test',
   },
   argTypes: {

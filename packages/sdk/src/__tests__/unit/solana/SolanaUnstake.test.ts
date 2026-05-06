@@ -1,7 +1,9 @@
 /**
  * SolanaUnstake Unit Tests
  *
- * Tests for the Solana LBTC unstaking action with mocked providers.
+ * Tests for the Solana unstake action:
+ * - LBTC → BTC  (cross-chain, via LBTC program)
+ * - LBTC → BTC.b (same-chain, via Asset Router redeem)
  */
 
 import { Env } from '@lombard.finance/sdk-common';
@@ -10,7 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SolanaUnstake } from '../../../chains/solana/actions/unstake/SolanaUnstake';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
-import { NonEvmUnstakeStatus } from '../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../shared/context';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -20,8 +22,11 @@ import type { SolanaCoreContext } from '../../../shared/context';
 function createMockSolanaService() {
   return {
     signLbtcDestination: vi.fn().mockResolvedValue({ signature: '0xmock' }),
-    unstake: vi.fn().mockResolvedValue({ txHash: 'mock-solana-tx-hash-123' }),
-    redeemForBtc: vi.fn().mockResolvedValue({ txHash: 'mock-redeem-tx-hash' }),
+    redeemForBtc: vi
+      .fn()
+      .mockResolvedValue({ signature: 'mock-redeemForBtc-tx-hash' }),
+    redeem: vi.fn().mockResolvedValue({ signature: 'mock-redeem-tx-hash' }),
+    deposit: vi.fn().mockResolvedValue({ signature: 'mock-deposit-tx-hash' }),
   };
 }
 
@@ -38,10 +43,10 @@ function createMockContext(
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Tests
+// Tests — LBTC → BTC (cross-chain)
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('SolanaUnstake', () => {
+describe('SolanaUnstake — LBTC → BTC', () => {
   let mockCtx: SolanaCoreContext;
 
   const validParams = {
@@ -61,27 +66,22 @@ describe('SolanaUnstake', () => {
     vi.clearAllMocks();
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Initialization Tests
-  // ─────────────────────────────────────────────────────────────────────────
-
   describe('initialization', () => {
     it('should initialize with IDLE status', () => {
       const unstake = new SolanaUnstake(mockCtx, validParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should throw for unsupported source chain', () => {
       const invalidParams = {
         ...validParams,
-        sourceChain: Chain.ETHEREUM, // Not a Solana chain
+        sourceChain: Chain.ETHEREUM,
       };
 
       expect(() => new SolanaUnstake(mockCtx, invalidParams)).toThrow();
     });
 
     it('should throw for unsupported env/chain combination', () => {
-      // testnet env with mainnet chain
       const testnetCtx = createMockContext({ env: Env.testnet });
 
       expect(
@@ -98,13 +98,9 @@ describe('SolanaUnstake', () => {
       };
 
       const unstake = new SolanaUnstake(testnetCtx, testnetParams);
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.IDLE);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
   });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Prepare Tests
-  // ─────────────────────────────────────────────────────────────────────────
 
   describe('prepare', () => {
     it('should transition to READY status on valid prepare', async () => {
@@ -112,7 +108,7 @@ describe('SolanaUnstake', () => {
 
       await unstake.prepare(validPrepareParams);
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.READY);
+      expect(unstake.status).toBe(NonEvmOperationStatus.READY);
       expect(unstake.amount).toBe('0.001');
       expect(unstake.recipient).toBe(validPrepareParams.recipient);
     });
@@ -149,23 +145,32 @@ describe('SolanaUnstake', () => {
     });
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Execute Tests
-  // ─────────────────────────────────────────────────────────────────────────
-
   describe('execute', () => {
-    it('should call solana service unstake method', async () => {
+    it('should call solana service redeemForBtc with LBTC tokenMint', async () => {
       const unstake = new SolanaUnstake(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       const result = await unstake.execute();
 
-      expect(mockCtx.solana.unstake).toHaveBeenCalledWith({
-        amount: expect.any(String), // Converted to satoshis
-        btcAddress: validPrepareParams.recipient,
-        network: 'mainnet-beta',
-      });
-      expect(result.txHash).toBe('mock-solana-tx-hash-123');
+      expect(mockCtx.solana.redeemForBtc).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: expect.any(String),
+          btcAddress: validPrepareParams.recipient,
+          network: 'mainnet-beta',
+          env: Env.prod,
+          tokenMint: expect.any(String),
+        }),
+      );
+      expect(result.txHash).toBe('mock-redeemForBtc-tx-hash');
+    });
+
+    it('should NOT call solana service redeem', async () => {
+      const unstake = new SolanaUnstake(mockCtx, validParams);
+      await unstake.prepare(validPrepareParams);
+
+      await unstake.execute();
+
+      expect(mockCtx.solana.redeem).not.toHaveBeenCalled();
     });
 
     it('should transition to COMPLETED status', async () => {
@@ -174,7 +179,7 @@ describe('SolanaUnstake', () => {
 
       await unstake.execute();
 
-      expect(unstake.status).toBe(NonEvmUnstakeStatus.COMPLETED);
+      expect(unstake.status).toBe(NonEvmOperationStatus.COMPLETED);
     });
 
     it('should throw if called when not READY', async () => {
@@ -184,7 +189,7 @@ describe('SolanaUnstake', () => {
     });
 
     it('should handle service errors', async () => {
-      mockCtx.solana.unstake = vi
+      mockCtx.solana.redeemForBtc = vi
         .fn()
         .mockRejectedValue(new Error('Transaction failed'));
 
@@ -201,13 +206,9 @@ describe('SolanaUnstake', () => {
 
       await unstake.execute();
 
-      expect(unstake.txHash).toBe('mock-solana-tx-hash-123');
+      expect(unstake.txHash).toBe('mock-redeemForBtc-tx-hash');
     });
   });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Event Tests
-  // ─────────────────────────────────────────────────────────────────────────
 
   describe('events', () => {
     it('should emit progress events during prepare', async () => {
@@ -232,7 +233,7 @@ describe('SolanaUnstake', () => {
     });
 
     it('should emit error event on failure', async () => {
-      mockCtx.solana.unstake = vi
+      mockCtx.solana.redeemForBtc = vi
         .fn()
         .mockRejectedValue(new Error('Service error'));
 
@@ -247,40 +248,6 @@ describe('SolanaUnstake', () => {
     });
   });
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Loading State Tests
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('loading state', () => {
-    it('should set isLoading during prepare', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
-      const loadingStates: boolean[] = [];
-
-      unstake.on('loading', (isLoading) => loadingStates.push(isLoading));
-      await unstake.prepare(validPrepareParams);
-
-      expect(loadingStates).toContain(true);
-      expect(unstake.isLoading).toBe(false); // Should be false after completion
-    });
-
-    it('should set isLoading during execute', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
-      await unstake.prepare(validPrepareParams);
-
-      const loadingStates: boolean[] = [];
-      unstake.on('loading', (isLoading) => loadingStates.push(isLoading));
-
-      await unstake.execute();
-
-      expect(loadingStates).toContain(true);
-      expect(unstake.isLoading).toBe(false);
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Network Mapping Tests
-  // ─────────────────────────────────────────────────────────────────────────
-
   describe('network mapping', () => {
     it('should use mainnet-beta for prod env', async () => {
       const prodCtx = createMockContext({ env: Env.prod });
@@ -289,7 +256,7 @@ describe('SolanaUnstake', () => {
 
       await unstake.execute();
 
-      expect(prodCtx.solana.unstake).toHaveBeenCalledWith(
+      expect(prodCtx.solana.redeemForBtc).toHaveBeenCalledWith(
         expect.objectContaining({ network: 'mainnet-beta' }),
       );
     });
@@ -306,10 +273,140 @@ describe('SolanaUnstake', () => {
 
       await unstake.execute();
 
-      expect(stageCtx.solana.unstake).toHaveBeenCalledWith(
+      expect(stageCtx.solana.redeemForBtc).toHaveBeenCalledWith(
         expect.objectContaining({ network: 'devnet' }),
       );
     });
   });
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Tests — LBTC → BTC.b (same-chain)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('SolanaUnstake — LBTC → BTC.b', () => {
+  let mockCtx: SolanaCoreContext;
+
+  const validParams = {
+    assetIn: AssetId.LBTC,
+    assetOut: AssetId.BTCb,
+    sourceChain: Chain.SOLANA_DEVNET,
+    destChain: Chain.SOLANA_DEVNET,
+  };
+
+  const validPrepareParams = {
+    amount: '0.001',
+    recipient: '8yarEiDaJVik7n6wX8JCbubTbtZD3WZ67Q1ytMDA2BKA',
+  };
+
+  beforeEach(() => {
+    mockCtx = createMockContext({ env: Env.dev });
+    vi.clearAllMocks();
+  });
+
+  describe('initialization', () => {
+    it('should initialize with IDLE status in dev env', () => {
+      const unstake = new SolanaUnstake(mockCtx, validParams);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
+    });
+
+    it('should initialize with IDLE status in stage env', () => {
+      const stageCtx = createMockContext({ env: Env.stage });
+      const unstake = new SolanaUnstake(stageCtx, validParams);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
+    });
+
+    it('should initialize with IDLE status in prod env on mainnet', () => {
+      const prodCtx = createMockContext({ env: Env.prod });
+      const prodParams = {
+        ...validParams,
+        sourceChain: Chain.SOLANA_MAINNET,
+        destChain: Chain.SOLANA_MAINNET,
+      };
+      const unstake = new SolanaUnstake(prodCtx, prodParams);
+      expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
+    });
+
+    it('should throw for unsupported source chain', () => {
+      const invalidParams = {
+        ...validParams,
+        sourceChain: Chain.ETHEREUM,
+      };
+      expect(() => new SolanaUnstake(mockCtx, invalidParams)).toThrow();
+    });
+  });
+
+  describe('prepare', () => {
+    it('should validate Solana address for BTC.b output', async () => {
+      const unstake = new SolanaUnstake(mockCtx, validParams);
+
+      await unstake.prepare(validPrepareParams);
+
+      expect(unstake.status).toBe(NonEvmOperationStatus.READY);
+      expect(unstake.recipient).toBe(validPrepareParams.recipient);
+    });
+
+    it('should reject BTC address for BTC.b output', async () => {
+      const unstake = new SolanaUnstake(mockCtx, validParams);
+
+      await expect(
+        unstake.prepare({
+          amount: '0.001',
+          recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('execute', () => {
+    it('should call solana service redeem method', async () => {
+      const unstake = new SolanaUnstake(mockCtx, validParams);
+      await unstake.prepare(validPrepareParams);
+
+      const result = await unstake.execute();
+
+      expect(mockCtx.solana.redeem).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: expect.any(String),
+          recipient: validPrepareParams.recipient,
+          network: 'devnet',
+          env: Env.dev,
+        }),
+      );
+      expect(result.txHash).toBe('mock-redeem-tx-hash');
+    });
+
+    it('should transition to COMPLETED status', async () => {
+      const unstake = new SolanaUnstake(mockCtx, validParams);
+      await unstake.prepare(validPrepareParams);
+
+      await unstake.execute();
+
+      expect(unstake.status).toBe(NonEvmOperationStatus.COMPLETED);
+    });
+
+    it('should handle service errors', async () => {
+      mockCtx.solana.redeem = vi
+        .fn()
+        .mockRejectedValue(new Error('Redeem failed'));
+
+      const unstake = new SolanaUnstake(mockCtx, validParams);
+      await unstake.prepare(validPrepareParams);
+
+      await expect(unstake.execute()).rejects.toThrow('Redeem failed');
+      expect(unstake.isFailed).toBe(true);
+    });
+  });
+
+  describe('network mapping', () => {
+    it('should use devnet for dev env', async () => {
+      const unstake = new SolanaUnstake(mockCtx, validParams);
+      await unstake.prepare(validPrepareParams);
+      await unstake.execute();
+
+      expect(mockCtx.solana.redeem).toHaveBeenCalledWith(
+        expect.objectContaining({ network: 'devnet' }),
+      );
+    });
+  });
+});

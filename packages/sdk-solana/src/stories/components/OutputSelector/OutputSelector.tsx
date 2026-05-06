@@ -41,6 +41,7 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
       case 'NOTARIZATION_STATUS_SESSION_APPROVED':
         return 'Ready to mint';
       case 'NOTARIZATION_STATUS_PENDING':
+      case 'NOTARIZATION_STATUS_GMP_PENDING':
         return 'Pending';
       case 'NOTARIZATION_STATUS_SUBMITTED':
         return 'Submitted';

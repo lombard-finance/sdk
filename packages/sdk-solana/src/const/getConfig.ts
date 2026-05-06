@@ -13,7 +13,7 @@ export const DEFAULT_ENV: Env = 'prod';
  */
 export const envToNetwork: Record<Env, SolanaNetwork> = {
   prod: SolanaNetwork.mainnet,
-  testnet: SolanaNetwork.testnet,
+  testnet: SolanaNetwork.devnet,
   stage: SolanaNetwork.devnet,
   dev: SolanaNetwork.devnet,
   ibc: SolanaNetwork.devnet,
@@ -195,23 +195,23 @@ const testnetConfig: IConfig = {
   lbtcTokenMint: '1BTCPX3qyFtBvhQvJaHntfzZfB8qcJmJXfoRnD3vAgh',
   lbtcProgramId: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
   treasuryAddress: 'ASsctcXoo2kjbxpVJKMV3tu6Fe9725fvyWF5hUeiNYDT',
-  bascule: null,
+  bascule: '1111111111111111111111111111111111111111111',
   basculeData: null,
   admin: '6MKjyWZnkSMitJYAixvJzqhJiVsjTA3hYHX8aP9qNioj',
   lzOftAdapter: '7AwaQPN3Sh3qHo2j44nvwmNgPS9FhDDbBcUXAdi12pk1',
   lzOftStore: '8YN34wKaAc34BwFKxnUqQeRwWmfhbs4vYw2rnz2Z89sp',
   lzMultisig: 'J3XK1JJTF6udknuLb15oUQhYbooUFiafhNxwYHAMxXE1',
   lzEscrow: '8aNceYRuD5PR51o2pBnhw9cCktByixMPySUJrP3FexzA',
-  btcbTokenMint: null,
-  consortium: null,
-  mailbox: null,
-  assetRouter: null,
-  ratioOracle: null,
-  bridge: null,
-  lombardTokenPool: null,
+  btcbTokenMint: 'BTCb1Xy55DzwPMog9d3ztPau4nqXp6BhUrdGHjTrMYCn',
+  consortium: 'Lomfd3XZfPV8PyLkjuLVwpYhrBoGJdnYkm98HCgeYGC',
+  mailbox: 'Lomu595CAtJGF6mpnfeAJ7daZfVdHeRkAdKyfqzXqom',
+  assetRouter: 'Lom7TQyK45pTUjFmmsuLaBrMVQ5crggYnSuCrjm9ebr',
+  ratioOracle: 'LomWze3gBt8Y7RN3sspuh2jupqAQPUi4tuaLWDnf6CZ',
+  bridge: 'LombUtstgyrZUhjvi12hUnm7HG7CxhtanUv6hakuCm4',
+  lombardTokenPool: 'Lomi5fKsXdGrrW2M3JRbJx5DnT3zgmSEfYWMUPeNaAB',
   ledgerChainId: '033bc7baf196ce32b8b9200518df11c35bad882fc6e3b6f45b4a8885f4c1281b',
-  solanaRoutingChainId: null,
-  bitcoinRoutingChainId: null,
+  solanaRoutingChainId: '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
+  bitcoinRoutingChainId: 'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
 };
 
 /**
@@ -228,16 +228,16 @@ const prodConfig: IConfig = {
   lzOftStore: 'CQeKmXxoGog57U5jPyYz7YAo8AuLUdoDqxGTXtMPkMuc',
   lzMultisig: '2YB3LPB4Tdb1ccmEFqhK3ZEKLFzCPayUwzEU5J1DXSzK',
   lzEscrow: '6nc7pBpN82EeKFbcqRt7xVV2h8FNQGdiVnTb2TQvyv99',
-  btcbTokenMint: null,
-  consortium: null,
-  mailbox: null,
-  assetRouter: null,
-  ratioOracle: null,
-  bridge: null,
-  lombardTokenPool: null,
+  btcbTokenMint: 'BTCbKVgfW4xMqTWEmxVwc6pzg2c5YtQWxSpBuQDhUrpu',
+  consortium: 'LomuEULX7VPwCBVTjxsgFjBLz7HJwE8V1DyaSqXj1dc',
+  mailbox: 'Lomsq4ZNkZQGysC1pQc2NqNiAbXQm6C8nLmKcUoESEA',
+  assetRouter: 'Lom9TMiPbqkXk8ddFooUY1gbHqt87TCmVfTfv8AHgYx',
+  ratioOracle: 'LomyRmBeQiuqiwcPmr23RRA1SMLAuDEgj5tHHe7rsDn',
+  bridge: 'Lomva5kTftuXE8992qRufkaeq3XrXV47qv3C1W9xW6Z',
+  lombardTokenPool: 'Lomb8TTCwJKEhZrJ1J8UbsCRjNSf7NNQUEr4qo3dkSk',
   ledgerChainId: '0387b25e8e61f2ce4838b04795b231f09ee73ffd391da018bef4bc5c4975897b',
-  solanaRoutingChainId: null,
-  bitcoinRoutingChainId: null,
+  solanaRoutingChainId: '02296998a6f8e2a784db5d9f95e18fc23f70441a1039446801089879b08c7ef0',
+  bitcoinRoutingChainId: 'ff0000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f',
 };
 
 /**
@@ -296,4 +296,27 @@ export function getLBTCAddress(envOrNetwork: Env | SolanaNetwork): string {
     ? envOrNetwork
     : networkToEnv[envOrNetwork as SolanaNetwork];
   return getConfig(env).lbtcTokenMint;
+}
+
+/**
+ * Get the BTC.b token address for a specific environment
+ * @param env Environment
+ * @returns BTC.b token address or null if not configured
+ */
+export function getBTCBAddress(env: Env): string | null;
+export function getBTCBAddress(network: SolanaNetwork): string | null;
+export function getBTCBAddress(
+  envOrNetwork: Env | SolanaNetwork,
+): string | null {
+  const isEnv =
+    envOrNetwork === 'prod' ||
+    envOrNetwork === 'testnet' ||
+    envOrNetwork === 'stage' ||
+    envOrNetwork === 'dev' ||
+    envOrNetwork === 'ibc';
+
+  const env = isEnv
+    ? envOrNetwork
+    : networkToEnv[envOrNetwork as SolanaNetwork];
+  return getConfig(env).btcbTokenMint;
 }

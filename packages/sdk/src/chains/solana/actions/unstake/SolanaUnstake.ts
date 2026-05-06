@@ -1,17 +1,19 @@
 /**
  * Solana Unstake Action
  *
- * Burns LBTC on Solana and releases BTC on Bitcoin.
+ * Burns LBTC on Solana and outputs BTC or BTC.b depending on `assetOut`.
+ *
+ * - LBTC → BTC  (cross-chain): via Asset Router redeemForBtc with LBTC mint
+ * - LBTC → BTC.b (same-chain): via Asset Router redeem
  *
  * @module chains/solana/actions/unstake/SolanaUnstake
  */
 
-import type { Env } from '@lombard.finance/sdk-common';
 import { z } from 'zod';
 
-import { StepStatus } from '../../../../core';
+import { AssetId, StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
-import { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+import { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
 import type { UnstakeEventMap } from '../../../../shared/events';
@@ -19,54 +21,51 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
+import { getSolanaTokenAddress,Token } from '../../../../tokens/token-addresses';
 import { toSatoshi } from '../../../../utils/satoshi';
-import { isBtcUnstakeSupported,solanaToBtcConfig } from './config';
+import { envToSolanaChain, envToSolanaNetwork } from '../../utils';
+import {
+  isUnstakeSupported,
+  solanaToBtcbConfig,
+  solanaToBtcConfig,
+} from './config';
 import type {
   ISolanaUnstake,
   SolanaUnstakeParams,
   SolanaUnstakePrepareParams,
 } from './types';
 
-/**
- * Map environment to Solana network
- */
-function envToSolanaNetwork(env: Env): string {
-  switch (env) {
-    case 'prod':
-      return 'mainnet-beta';
-    case 'testnet':
-      return 'testnet';
-    case 'stage':
-    case 'dev':
-    case 'ibc':
-    default:
-      return 'devnet';
-  }
-}
-
 export class SolanaUnstake
-  extends BaseAction<UnstakeEventMap, NonEvmUnstakeStatus>
+  extends BaseAction<UnstakeEventMap, NonEvmOperationStatus>
   implements ISolanaUnstake
 {
   private _amount?: string;
   private _recipient?: string;
   private _txHash?: string;
-  private readonly env: Env;
+  private readonly isBtcbOutput: boolean;
 
   constructor(
     private readonly ctx: SolanaCoreContext,
     private readonly params: SolanaUnstakeParams,
   ) {
-    super(NonEvmUnstakeStatus.IDLE);
-    this.env = ctx.env;
+    super(NonEvmOperationStatus.IDLE);
 
-    // Validate route is supported
-    if (!isBtcUnstakeSupported(params.sourceChain, this.env)) {
+    this.isBtcbOutput = params.assetOut === AssetId.BTCb;
+
+    if (
+      !isUnstakeSupported(
+        params.sourceChain,
+        params.destChain,
+        params.assetIn,
+        params.assetOut,
+        ctx.env,
+      )
+    ) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
         destChain: params.destChain,
-        env: this.env,
+        env: ctx.env,
       });
     }
   }
@@ -84,7 +83,7 @@ export class SolanaUnstake
   }
 
   async prepare(params: SolanaUnstakePrepareParams): Promise<void> {
-    this.assertStatus(NonEvmUnstakeStatus.IDLE, 'prepare');
+    this.assertStatus(NonEvmOperationStatus.IDLE, 'prepare');
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
@@ -94,14 +93,14 @@ export class SolanaUnstake
       this._recipient = validated.recipient;
 
       this.emitProgress({
-        status: NonEvmUnstakeStatus.READY,
+        status: NonEvmOperationStatus.READY,
         steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
       });
-    }, NonEvmUnstakeStatus.READY);
+    }, NonEvmOperationStatus.READY);
   }
 
   async execute(): Promise<{ txHash: string }> {
-    this.assertStatus(NonEvmUnstakeStatus.READY, 'execute');
+    this.assertStatus(NonEvmOperationStatus.READY, 'execute');
 
     return this.act(async () => {
       const amount = this._amount;
@@ -111,41 +110,60 @@ export class SolanaUnstake
         throw LombardError.missingParameter('amount or recipient');
       }
 
-      // Emit burning step
       this.emitProgress({
-        status: NonEvmUnstakeStatus.READY,
+        status: NonEvmOperationStatus.READY,
         steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
       });
 
-      // Convert amount to base units (satoshis)
       const amountInSatoshis = toSatoshi(amount).toString();
-      const network = envToSolanaNetwork(this.env);
+      const network = envToSolanaNetwork(this.ctx.env);
 
-      // Call the Solana service to execute unstake
-      const { txHash } = await this.ctx.solana.unstake({
-        amount: amountInSatoshis,
-        btcAddress: recipient,
-        network,
-      });
+      let signature: string;
+      if (this.isBtcbOutput) {
+        ({ signature } = await this.ctx.solana.redeem({
+          amount: amountInSatoshis,
+          recipient,
+          network,
+          env: this.ctx.env,
+        }));
+      } else {
+        const tokenMint = getSolanaTokenAddress(
+          envToSolanaChain(this.ctx.env),
+          this.ctx.env,
+          Token.LBTC,
+        );
+        if (!tokenMint) {
+          throw LombardError.missingParameter(
+            'Solana LBTC mint for this environment',
+          );
+        }
+        ({ signature } = await this.ctx.solana.redeemForBtc({
+          amount: amountInSatoshis,
+          btcAddress: recipient,
+          network,
+          env: this.ctx.env,
+          tokenMint,
+        }));
+      }
 
-      this._txHash = txHash;
+      this._txHash = signature;
 
-      // Emit completed steps
       this.emitProgress({
-        status: NonEvmUnstakeStatus.COMPLETED,
-        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
+        status: NonEvmOperationStatus.COMPLETED,
+        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.COMPLETE },
       });
 
       this.emitCompleted();
 
-      return { txHash };
-    }, NonEvmUnstakeStatus.COMPLETED);
+      return { txHash: signature };
+    }, NonEvmOperationStatus.COMPLETED);
   }
 
   private get prepareSchema() {
+    const config = this.isBtcbOutput ? solanaToBtcbConfig : solanaToBtcConfig;
     return z.object({
       amount: amountSchema,
-      recipient: solanaToBtcConfig.recipientSchema,
+      recipient: config.recipientSchema,
     });
   }
 }

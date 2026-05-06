@@ -176,8 +176,8 @@ describe('BTC Deposit Config', () => {
       expect(solConfig.destChains.length).toBeGreaterThan(0);
     });
 
-    it('should NOT allow Bitcoin Mainnet source in production (Solana deposit not yet in prod)', () => {
-      expect(isRouteAvailable(solConfig, Chain.BITCOIN_MAINNET, Env.prod)).toBe(false);
+    it('should allow Bitcoin Mainnet source in production', () => {
+      expect(isRouteAvailable(solConfig, Chain.BITCOIN_MAINNET, Env.prod)).toBe(true);
     });
 
     it('should allow Bitcoin Signet source in dev', () => {
@@ -188,8 +188,8 @@ describe('BTC Deposit Config', () => {
       expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.stage)).toBe(true);
     });
 
-    it('should NOT allow Bitcoin Signet source in testnet', () => {
-      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.testnet)).toBe(false);
+    it('should allow Bitcoin Signet source in testnet', () => {
+      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.testnet)).toBe(true);
     });
 
     it('should NOT allow Bitcoin Signet source in ibc', () => {

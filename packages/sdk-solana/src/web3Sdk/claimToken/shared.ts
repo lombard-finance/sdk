@@ -11,7 +11,7 @@ import { sha256 } from 'js-sha256';
 import { IConfig } from '../../const/getConfig';
 import { ISolanaWalletProvider, SolanaNetwork } from '../../types';
 import { sendAndConfirmTransaction } from '../../utils';
-import { parseSignaturesFromProof } from '../claimLBTC/utils/signatureUtils';
+import { parseSignaturesFromProof } from './utils/signatureUtils';
 
 // ── PDA seeds ──
 
@@ -137,83 +137,62 @@ export function getConsortiumSessionPDA(
 }
 
 /**
- * Fetch the current epoch from the on-chain consortium config account.
- *
- * Borsh layout of Consortium Config:
- *   discriminator:   8 bytes  (offset 0)
- *   admin:          32 bytes  (offset 8)
- *   pending_admin:  32 bytes  (offset 40)
- *   current_epoch:   8 bytes  (offset 72, u64 LE)
+ * Fetch the current epoch from the on-chain consortium config account
+ * using Anchor IDL-based deserialization.
  */
 export async function fetchCurrentEpoch(
-  connection: Connection,
+  consortiumProgram: Program,
   consortiumConfigPDA: PublicKey,
 ): Promise<BN> {
-  const accountInfo = await connection.getAccountInfo(consortiumConfigPDA);
-  if (!accountInfo) {
-    throw new Error(
-      `Consortium config account not found at ${consortiumConfigPDA.toBase58()}`,
-    );
-  }
-
-  const EPOCH_OFFSET = 72; // 8 (discriminator) + 32 (admin) + 32 (pending_admin)
-  const MIN_SIZE = EPOCH_OFFSET + 8;
-  if (accountInfo.data.length < MIN_SIZE) {
-    throw new Error(
-      `Consortium config data too short: expected >= ${MIN_SIZE} bytes, got ${accountInfo.data.length}`,
-    );
-  }
-
-  const epochLe = accountInfo.data.readBigUInt64LE(EPOCH_OFFSET);
-  return new BN(epochLe.toString());
+  // Anchor converts all IDL names to camelCase before building the namespace
+  // and decoding accounts, so field access uses camelCase keys.
+  const accountNs = consortiumProgram.account as unknown as Record<
+    string,
+    { fetch: (address: PublicKey) => Promise<unknown> }
+  >;
+  const raw = (await accountNs.config.fetch(consortiumConfigPDA)) as {
+    currentEpoch: BN;
+  };
+  return raw.currentEpoch;
 }
 
-// ── parseAssetRouterConfig ──
+// ── fetchAssetRouterConfig ──
 
 /**
- * Parse Asset Router config from raw account bytes.
- * Equivalent to Go's `getPausedAndBasculeFromConfig(data)`.
+ * Fetch and deserialize Asset Router `Config` account via Anchor IDL.
  *
- * On-chain layout (discriminator 8 bytes, then fields):
- *   admin:              Pubkey  (offset   8, 32 bytes)
- *   pending_admin:      Pubkey  (offset  40, 32 bytes)
- *   treasury:           Pubkey  (offset  72, 32 bytes)
- *   paused:             bool    (offset 104,  1 byte)
- *   native_mint:        Pubkey  (offset 105, 32 bytes)
- *   mailbox:            Pubkey  (offset 137, 32 bytes)
- *   bascule_enabled:    bool    (offset 169,  1 byte)
- *   bascule_program:    Pubkey  (offset 170, 32 bytes)  <- not in IDL
- *   bascule_gmp_program:Pubkey  (offset 202, 32 bytes)  <- not in IDL
- *   ledger_lchain_id:   [u8;32] (offset 234, 32 bytes)
- *   bitcoin_lchain_id:  [u8;32] (offset 266, 32 bytes)
+ * IDL layout (fields used by SDK):
+ *   paused:             bool
+ *   native_mint:        pubkey
+ *   bascule:            Option<pubkey>  (classic bascule for BTC.B)
+ *   bascule_gmp:        Option<pubkey>  (bascule for LBTC GMP)
+ *   ledger_lchain_id:   [u8; 32]
  */
-export function parseAssetRouterConfig(data: Buffer): AssetRouterConfig {
-  // ledger_lchain_id ends at offset 266 — the last field we read
-  const MIN_SIZE = 266;
-  if (data.length < MIN_SIZE) {
-    throw new Error(
-      `Asset Router config account data too short: expected >= ${MIN_SIZE} bytes, got ${data.length}`,
-    );
-  }
+export async function fetchAssetRouterConfig(
+  assetRouterProgram: Program,
+  configPDA: PublicKey,
+): Promise<AssetRouterConfig> {
+  // Anchor camelCases IDL names, so `native_mint` → `nativeMint`,
+  // `bascule_gmp` → `basculeGmp`, `ledger_lchain_id` → `ledgerLchainId`.
+  const accountNs = assetRouterProgram.account as unknown as Record<
+    string,
+    { fetch: (address: PublicKey) => Promise<unknown> }
+  >;
+  const raw = (await accountNs.config.fetch(configPDA)) as {
+    paused: boolean;
+    nativeMint: PublicKey;
+    bascule: PublicKey | null;
+    basculeGmp: PublicKey | null;
+    ledgerLchainId: number[];
+  };
 
-  const ZERO_PUBKEY = new PublicKey(new Uint8Array(32));
-
-  const paused = data[104] !== 0;
-  const nativeMint = new PublicKey(data.subarray(105, 137));
-
-  const basculeProgramKey = new PublicKey(data.subarray(170, 202));
-  const basculeProgramId = basculeProgramKey.equals(ZERO_PUBKEY)
-    ? null
-    : basculeProgramKey;
-
-  const basculeGmpProgramKey = new PublicKey(data.subarray(202, 234));
-  const basculeGmpProgramId = basculeGmpProgramKey.equals(ZERO_PUBKEY)
-    ? null
-    : basculeGmpProgramKey;
-
-  const ledgerChainId = new Uint8Array(data.subarray(234, 266));
-
-  return { paused, nativeMint, basculeProgramId, basculeGmpProgramId, ledgerChainId };
+  return {
+    paused: raw.paused,
+    nativeMint: raw.nativeMint,
+    basculeProgramId: raw.bascule ?? null,
+    basculeGmpProgramId: raw.basculeGmp ?? null,
+    ledgerChainId: new Uint8Array(raw.ledgerLchainId),
+  };
 }
 
 // ── Consortium session ──
@@ -255,7 +234,6 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
         payer: provider.publicKey,
         config: consortiumConfigPDA,
         session: sessionPDA,
-        validatedPayload: validatedPayloadPDA,
         systemProgram: SystemProgram.programId,
       })
       .transaction();
@@ -265,22 +243,52 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       connection,
       provider,
       debugLabel: 'Consortium create_session',
-      skipPreflight: params.skipPreflight ?? false,
+      skipPreflight: params.skipPreflight ?? true,
     });
     debugLog('create_session completed');
   } else {
     debugLog('Session already exists, skipping create_session');
   }
 
-  // Step 2: post_session_signatures
-  const freshSession =
-    sessionAccount ?? (await connection.getAccountInfo(sessionPDA));
+  // Step 2: post_session_signatures.
+  // Session raw layout: discriminator(8) | signed: Vec<bool> (4 LE len + N bytes) | weight: u64 LE | trailing bytes.
+  // Manual parse: Anchor coder rejects extra trailing bytes that exist in the on-chain account.
   let sessionSigned = false;
-  if (freshSession && freshSession.data.length >= 8 + 8 + 4 + 8) {
-    const vecLen = freshSession.data.readUInt32LE(8 + 8);
-    const weightOffset = 8 + 8 + 4 + vecLen;
-    if (freshSession.data.length >= weightOffset + 8) {
-      sessionSigned = freshSession.data.readBigUInt64LE(weightOffset) > 0n;
+  const freshSessionAccount = sessionAccount
+    ? sessionAccount
+    : await connection.getAccountInfo(sessionPDA);
+  if (freshSessionAccount) {
+    try {
+      const data = freshSessionAccount.data;
+      if (data.length < 20) {
+        throw new Error(`session account too short: ${data.length}`);
+      }
+      const signedLen = data.readUInt32LE(8);
+      const weightOffset = 12 + signedLen;
+      if (data.length < weightOffset + 8) {
+        throw new Error(
+          `session data truncated: need ${weightOffset + 8}, got ${data.length}`,
+        );
+      }
+      const weight = data.readBigUInt64LE(weightOffset);
+      let signedCount = 0;
+      for (let i = 0; i < signedLen; i++) {
+        if (data[12 + i] !== 0) signedCount += 1;
+      }
+      sessionSigned = weight > 0n;
+      debugLog(
+        'Session weight:',
+        weight.toString(),
+        'signed count:',
+        signedCount,
+        'of',
+        signedLen,
+      );
+    } catch (err) {
+      debugLog(
+        'Failed to parse session for signature check:',
+        err instanceof Error ? err.message : String(err),
+      );
     }
   }
 
@@ -309,7 +317,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
       connection,
       provider,
       debugLabel: 'Consortium post_session_signatures',
-      skipPreflight: params.skipPreflight ?? false,
+      skipPreflight: params.skipPreflight ?? true,
     });
     debugLog('post_session_signatures completed');
   } else {
@@ -334,7 +342,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
     connection,
     provider,
     debugLabel: 'Consortium finalize_session',
-    skipPreflight: params.skipPreflight ?? false,
+    skipPreflight: params.skipPreflight ?? true,
   });
   debugLog('finalize_session completed — ValidatedPayload created');
 }

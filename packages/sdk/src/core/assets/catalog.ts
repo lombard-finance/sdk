@@ -57,7 +57,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.prod,
           chain: Chain.SOLANA_MAINNET,
-          address: 'LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek',
+          address: 'LBTCgU4b3wsFKsPwBn1rRZDx5DoFutM6RPiEt1TPDsY',
         },
         {
           env: Env.prod,
@@ -91,8 +91,8 @@ export const ASSET_CATALOG: AssetCatalog = {
         },
         {
           env: Env.testnet,
-          chain: Chain.SOLANA_TESTNET,
-          address: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
+          chain: Chain.SOLANA_DEVNET,
+          address: '1BTCPX3qyFtBvhQvJaHntfzZfB8qcJmJXfoRnD3vAgh',
         },
         {
           env: Env.testnet,
@@ -197,6 +197,11 @@ export const ASSET_CATALOG: AssetCatalog = {
           address: '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
           bridgeAdapter: '0x85D1D52e11290F174444d21C2a167bEDBE36e4d2',
         },
+        {
+          env: Env.prod,
+          chain: Chain.SOLANA_MAINNET,
+          address: 'BTCbKVgfW4xMqTWEmxVwc6pzg2c5YtQWxSpBuQDhUrpu',
+        },
 
         // Testnet
         {
@@ -209,6 +214,11 @@ export const ASSET_CATALOG: AssetCatalog = {
           chain: Chain.AVALANCHE_FUJI,
           address: '0x7FbdC44BfEBDe80C970ba622B678daB36cee31f6',
           bridgeAdapter: '0x0A65C37d07c32E5eA8ea40495b7f249cdE26935e',
+        },
+        {
+          env: Env.testnet,
+          chain: Chain.SOLANA_DEVNET,
+          address: 'BTCb1Xy55DzwPMog9d3ztPau4nqXp6BhUrdGHjTrMYCn',
         },
 
         // Stage

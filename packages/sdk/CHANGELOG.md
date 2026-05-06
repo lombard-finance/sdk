@@ -1,3 +1,51 @@
+# 4.7.2
+
+### Fixed
+
+- Fixed Ethereum chain detection to include Sepolia, so Ethereum-specific flows such as Bascule mint-history checks also run on the Ethereum testnet.
+
+---
+
+# 4.7.1
+
+- **Solana companion package** (`@lombard.finance/sdk-solana` ≥2.0.1): `deposit()`, `redeem()`, and `redeemForBtc()` derive the Mailbox `senderConfig` PDA from the Asset Router `messaging_authority` PDA instead of the Asset Router program ID. Upgrade the Solana package when targeting the upgraded Mailbox program. This `@lombard.finance/sdk` release documents that dependency; see `packages/sdk-solana/CHANGELOG.md` for details.
+
+---
+
+# 4.7.0
+
+### Added
+
+- `solana.stake()` — new action for BTC.b → LBTC on Solana via Asset Router (mirrors the EVM `stake` pattern).
+- `solana.unstake()` — new same-chain route LBTC → BTC.b on Solana (Asset Router `redeem`), alongside the existing cross-chain LBTC → BTC. Output is selected via `assetOut`; `SolanaUnstakeParams` is unchanged.
+- Solana **mainnet** production routes enabled for stake, unstake, redeem and BTC → BTC.b deposit (`Env.prod`, `SOLANA_MAINNET`). Previously only dev/stage/testnet were wired.
+- BTC.b Solana-mainnet deployment added to the asset catalog and token-addresses map.
+- Optional `txHash?: string` field on `StrategyProgress` in `core/types.ts` (used by Solana actions to surface the submitted Solana signature before final confirmation). Purely additive.
+
+### Changed
+
+- `solana.redeem()` now routes through the Asset Router `redeemForBtc` flow (replacing the direct GMP dispatch used previously). Route semantics (BTC.b → BTC) and `SolanaRedeemParams` are unchanged.
+- `SolanaRedeem` terminal status changed from `CONFIRMING` to `COMPLETED`. Integrations that treated `CONFIRMING` as the end-of-flow marker for this action should switch to `COMPLETED`.
+- `SolanaUnstake` route config reshaped: `unstake/config/solana.ts` merged into `unstake/config/btc.ts`, and `RouteDefinition` now carries `assetIn`/`assetOut` to disambiguate BTC vs BTC.b destinations.
+- Renamed `NonEvmUnstakeStatus` to `NonEvmOperationStatus` in `statusConstants.ts` — the constant is now shared by all non-EVM actions (Solana Stake/Unstake/Redeem, Sui Unstake, Starknet Unstake). Update imports if you reference the old name directly.
+
+### Fixed
+
+- Corrected the LBTC **Solana mainnet** address in the asset catalog and `SOLANA_TOKEN_ADDRESSES`. It previously pointed to the LBTC **program ID**; it is now the actual SPL **token mint**. Mainnet flows relying on the catalog/token-addresses lookup could not resolve a valid mint before this fix.
+
+---
+
+# 4.6.0
+
+- Added `getBtceShares()` to read a user's BTCe wrapper vault balance on Ethereum, Base, or BSC. BTCe is an ERC4626 wrapper around the Veda vault's LBTCv share token.
+- Added `getEarnPosition()` to compute the user's full Bitcoin Earn position (LBTCv + BTCe) on a single chain. Routes BTCe shares through the wrapper's `convertToAssets` to value them in LBTCv terms before summing and applying the Veda accountant rate, so the math stays correct if the wrapper ever drifts off the current 1:1 peg.
+- Added `wrapToBtce()` for wrapping a supported deposit asset (LBTCv, LBTC, wBTC, etc.) into BTCe shares via the wrapper's multi-asset `deposit(token, assets, receiver, minShareAmount)` overload. Caller is responsible for approving the deposit token to the BTCe contract first (use `approveToken`).
+- Added `unwrapBtceToLbtcv()` for unwrapping BTCe back into LBTCv via `withdraw(assets, receiver, owner)`. Throws if the requested amount exceeds the wrapper's `maxWithdraw(owner)`. To complete the round-trip to LBTC, follow up with `queueWithdraw()` from the SDK.
+- Added BTCe vault config exports: `BTCE_VAULT_CHAINS`, `BTCE_VAULT_CONTRACTS`, `BtceVaultChain`, `isBtceVaultChain`.
+- Clarified `getSharesByAddress()` JSDoc: the function returns LBTCv direct holdings only and does not include BTCe-wrapped positions. Use `getEarnPosition()` for the full Bitcoin Earn view.
+
+---
+
 # 4.5.2
 
 - Fixed `mapUnstakeEntry` overwriting an already-present `to_address` with a value derived from `output_script`. The script-based derivation now only runs when `toAddress` is not yet set.
