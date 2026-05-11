@@ -172,7 +172,7 @@ export async function deposit(
       mailboxProgramId,
     );
     const [senderConfigPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from('sender_config'), assetRouterProgramId.toBuffer()],
+      [Buffer.from('sender_config'), messagingAuthorityPDA.toBuffer()],
       mailboxProgramId,
     );
 

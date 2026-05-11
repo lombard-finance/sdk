@@ -61,7 +61,7 @@ export async function redeemLbtcForBtc(ctx: RedeemContext): Promise<string> {
     mailboxProgramId,
   );
   const [senderConfigPDA] = PublicKey.findProgramAddressSync(
-    [Buffer.from('sender_config'), assetRouterProgramId.toBuffer()],
+    [Buffer.from('sender_config'), messagingAuthorityPDA.toBuffer()],
     mailboxProgramId,
   );
 

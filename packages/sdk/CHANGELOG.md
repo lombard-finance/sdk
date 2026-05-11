@@ -76,6 +76,20 @@ The following exports are now `@deprecated` and emit a one-time runtime warning 
 
 ---
 
+# 4.7.2
+
+### Fixed
+
+- Fixed Ethereum chain detection to include Sepolia, so Ethereum-specific flows such as Bascule mint-history checks also run on the Ethereum testnet.
+
+---
+
+# 4.7.1
+
+- **Solana companion package** (`@lombard.finance/sdk-solana` ≥2.0.1): `deposit()`, `redeem()`, and `redeemForBtc()` derive the Mailbox `senderConfig` PDA from the Asset Router `messaging_authority` PDA instead of the Asset Router program ID. Upgrade the Solana package when targeting the upgraded Mailbox program. This `@lombard.finance/sdk` release documents that dependency; see `packages/sdk-solana/CHANGELOG.md` for details.
+
+---
+
 # 4.7.0
 
 ### Added
