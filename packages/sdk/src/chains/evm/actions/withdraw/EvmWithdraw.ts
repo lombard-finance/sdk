@@ -6,6 +6,12 @@
  * Protocol availability:
  * - Veda: Ethereum, Base, BSC, Corn (prod only)
  *
+ * Protocol routing in execute():
+ * - Veda on ETH/Base/BSC (BTCe chains): calls `withdrawEarn`, which handles
+ *   the BTCe → LBTCv unwrap automatically when the user's direct LBTCv
+ *   balance is insufficient to cover the requested amount.
+ * - Veda on Corn (no BTCe): calls `queueWithdrawInternal` directly.
+ *
  * @module chains/evm/actions/withdraw/EvmWithdraw
  */
 
@@ -16,6 +22,7 @@ import { z } from 'zod';
 import { makePublicClient } from '../../../../clients/public-client';
 import { makeWalletClient } from '../../../../clients/wallet-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, type ChainId } from '../../../../common/chains';
+import { withdrawEarn } from '../../../../contract-functions/withdrawEarn';
 import type { DeployProtocol } from '../../../../core';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
@@ -30,7 +37,11 @@ import { fromBaseDenomination, toBaseDenomination } from '../../../../tokens/tok
 import toBigInt from '../../../../utils/numbers';
 import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import {
-  EARN_VAULT, type EarnChain,isEarnChain } from '../../../../vaults/lib/config';
+  BTCE_VAULT,
+  EARN_VAULT,
+  type EarnChain,
+  isBtceVaultChain,
+  isEarnChain } from '../../../../vaults/lib/config';
 import { queueWithdrawInternal } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
 import type {
@@ -109,25 +120,38 @@ export class EvmWithdraw
 
       const vault = EARN_VAULT;
       const publicClient = makePublicClient({ chainId: this._chainId });
+      const amount = new BigNumber(validated.amount);
 
-      // Check vault balance
-      const balanceRaw = await publicClient.readContract({
+      // Read direct LBTCv balance via the lens contract
+      const lbtcvRaw = (await publicClient.readContract({
         address: vault.lensContract.address,
         abi: vault.lensContract.abi,
         functionName: 'balanceOf',
-        args: [account, vault.vaultContract.address] });
-      const balance = fromBaseDenomination(String(balanceRaw), vault.decimals);
+        args: [account, vault.vaultContract.address] })) as bigint;
+      const lbtcvBalance = fromBaseDenomination(String(lbtcvRaw), vault.decimals);
 
-      const amount = new BigNumber(validated.amount);
-      if (amount.isGreaterThan(balance)) {
+      // On BTCe-supported chains also include the BTCe wrapper position so
+      // users who deposited via BTCe are not incorrectly rejected.
+      let totalBalance = lbtcvBalance;
+      if (isBtceVaultChain(this._chainId)) {
+        const btceRaw = (await publicClient.readContract({
+          address: BTCE_VAULT.contracts[this._chainId],
+          abi: BTCE_VAULT.abi,
+          functionName: 'balanceOf',
+          args: [account] })) as bigint;
+        const btceBalance = fromBaseDenomination(String(btceRaw), vault.decimals);
+        totalBalance = lbtcvBalance.plus(btceBalance);
+      }
+
+      if (amount.isGreaterThan(totalBalance)) {
         throw new LombardError(
           WithdrawErrorCode.INSUFFICIENT_SHARES,
-          `Insufficient vault shares. Requested: ${amount.toFixed()}, Available: ${balance.toFixed()}`,
-          { requested: amount.toFixed(), available: balance.toFixed() },
+          `Insufficient vault shares. Requested: ${amount.toFixed()}, Available: ${totalBalance.toFixed()}`,
+          { requested: amount.toFixed(), available: totalBalance.toFixed() },
         );
       }
 
-      // Check allowance for withdraw queue contract
+      // Check LBTCv allowance to withdraw queue contract
       const allowanceRaw = await publicClient.readContract({
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
@@ -135,7 +159,6 @@ export class EvmWithdraw
         args: [account, vault.withdrawQueueContracts[this._chainId].address] });
       const allowance = fromBaseDenomination(String(allowanceRaw), vault.decimals);
 
-      // Check if approval is needed
       this._needsApproval = amount.isGreaterThan(allowance);
 
       if (this._needsApproval) {
@@ -212,14 +235,33 @@ export class EvmWithdraw
         status: EvmOperationStatus.READY,
         steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING } });
 
-      // Execute vault queue withdraw (approval already done)
-      const txHash = await queueWithdrawInternal({
-        amount: this._amount,
-        approve: false,
-        account: this._account,
-        chainId: this._chainId,
-        provider: provider as EIP1193Provider,
-        env: this.ctx.env });
+      let txHash: string;
+
+      if (isBtceVaultChain(this._chainId)) {
+        // On BTCe chains (ETH/Base/BSC) use the Earn-native orchestrator.
+        // It reads the user's combined LBTCv + BTCe position, automatically
+        // unwraps just enough BTCe to cover any shortfall in direct LBTCv,
+        // then queues the withdrawal. The LBTCv allowance was already set in
+        // approve(), so withdrawEarn will skip re-approval.
+        const result = await withdrawEarn({
+          amount: this._amount,
+          account: this._account,
+          chainId: this._chainId,
+          provider: provider as EIP1193Provider,
+          env: this.ctx.env });
+
+        txHash = result.queueTxHash;
+      } else {
+        // On Corn (no BTCe wrapper), deposit directly into the LBTCv queue.
+        // Approval was already done in approve(), so pass approve: false.
+        txHash = await queueWithdrawInternal({
+          amount: this._amount,
+          approve: false,
+          account: this._account,
+          chainId: this._chainId,
+          provider: provider as EIP1193Provider,
+          env: this.ctx.env });
+      }
 
       this._txHash = txHash;
 

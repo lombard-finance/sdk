@@ -3,21 +3,27 @@
  *
  * Deploys L-Assets to DeFi protocols (Veda, Silo).
  *
- * Protocol availability:
- * - Veda: Ethereum, Base, BSC, Corn (prod only)
- * - Silo: Avalanche (prod only)
+ * Protocol routing:
+ * - Veda on ETH/Base/BSC → deposits through the BTCe ERC-4626 wrapper
+ *   (`depositEarn`), giving the user BTCe shares. The `recipient` param
+ *   is forwarded as the BTCe share receiver.
+ * - Veda on Corn → deposits directly into the LBTCv BoringVault teller
+ *   (BTCe wrapper is not deployed there).
+ * - Silo → separate stake-and-bake mechanism; not handled by this class.
  *
  * @module chains/evm/actions/deploy/EvmDeploy
  */
 
 import BigNumber from 'bignumber.js';
-import type { EIP1193Provider } from 'viem';
+import type { Address, EIP1193Provider } from 'viem';
+import { erc20Abi } from 'viem';
 import { z } from 'zod';
 
 import { makePublicClient } from '../../../../clients/public-client';
 import { makeWalletClient } from '../../../../clients/wallet-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, type ChainId } from '../../../../common/chains';
-import type { DeployProtocol } from '../../../../core';
+import { depositEarn } from '../../../../contract-functions/depositEarn';
+import { DeployProtocol } from '../../../../core';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
@@ -32,7 +38,9 @@ import { getTokenInfo, toBaseDenomination } from '../../../../tokens/tokens';
 import toBigInt from '../../../../utils/numbers';
 import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import {
-  EARN_VAULT } from '../../../../vaults/lib/config';
+  BTCE_VAULT,
+  EARN_VAULT,
+  isBtceVaultChain } from '../../../../vaults/lib/config';
 import { depositInternal } from '../../../../vaults/lib/ops/deposit';
 import { evmConfig } from './config';
 import type {
@@ -74,6 +82,30 @@ export class EvmDeploy
     return this._txHash;
   }
 
+  /**
+   * Returns true when the deposit should go through the BTCe ERC-4626 wrapper:
+   * Veda protocol on a chain that has the BTCe contract deployed.
+   */
+  private isVedaBtcePath(): boolean {
+    return (
+      this._protocol === DeployProtocol.Veda &&
+      this._chainId !== undefined &&
+      isBtceVaultChain(this._chainId)
+    );
+  }
+
+  /**
+   * Returns the ERC-20 spender address for LBTC approval:
+   * - BTCe wrapper address for Veda on BTCe-supported chains
+   * - LBTCv BoringVault address for all other cases
+   */
+  private getSpenderAddress(): Address {
+    if (this.isVedaBtcePath()) {
+      return BTCE_VAULT.contracts[this._chainId as keyof typeof BTCE_VAULT.contracts];
+    }
+    return EARN_VAULT.vaultContract.address;
+  }
+
   async prepare(params: EvmDeployPrepareParams): Promise<void> {
     this.assertStatus(EvmOperationStatus.IDLE, 'prepare');
 
@@ -100,25 +132,23 @@ export class EvmDeploy
       this._account = account;
       this._chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
-      // Check actual allowance to determine if approval is needed
-      const vault = EARN_VAULT;
       const depositToken = await getTokenInfo(Token.LBTC, this._chainId, this.ctx.env);
       if (!depositToken) {
         throw LombardError.invalidParameter('token', 'Could not get LBTC token info');
       }
 
+      const spender = this.getSpenderAddress();
       const publicClient = makePublicClient({ chainId: this._chainId });
       const allowanceRaw = await publicClient.readContract({
         address: depositToken.address,
-        abi: depositToken.abi,
+        abi: erc20Abi,
         functionName: 'allowance',
-        args: [account, vault.vaultContract.address] });
+        args: [account, spender] });
 
       const amount = new BigNumber(validated.amount);
       const amountBase = toBaseDenomination(amount, depositToken.decimals);
       const allowance = new BigNumber(String(allowanceRaw));
 
-      // Check if approval is needed
       this._needsApproval = amountBase.isGreaterThan(allowance);
 
       if (this._needsApproval) {
@@ -148,8 +178,6 @@ export class EvmDeploy
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
-      // Get vault and token info
-      const vault = EARN_VAULT;
       const depositToken = await getTokenInfo(Token.LBTC, this._chainId, this.ctx.env);
       if (!depositToken) {
         throw LombardError.invalidParameter('token', 'Could not get LBTC token info');
@@ -157,8 +185,8 @@ export class EvmDeploy
 
       const amount = new BigNumber(this._amount);
       const amountBase = toBigInt(toBaseDenomination(amount, depositToken.decimals));
+      const spender = this.getSpenderAddress();
 
-      // Execute approval transaction
       const publicClient = makePublicClient({ chainId: this._chainId });
       const walletClient = makeWalletClient({
         provider: provider as EIP1193Provider,
@@ -168,12 +196,12 @@ export class EvmDeploy
         account: this._account,
         chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[this._chainId],
         address: depositToken.address,
-        abi: depositToken.abi,
+        abi: erc20Abi,
         functionName: 'approve',
-        args: [vault.vaultContract.address, amountBase] });
+        args: [spender, amountBase] });
 
       const txHash = await walletClient.writeContract(request);
-      await waitForTransactionReceipt(publicClient, txHash, 'LBTC vault deposit approval');
+      await waitForTransactionReceipt(publicClient, txHash, 'LBTC deposit approval');
 
       this._needsApproval = false;
       this.emitProgress({
@@ -199,15 +227,33 @@ export class EvmDeploy
         status: EvmOperationStatus.READY,
         steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING } });
 
-      // Execute vault deposit (approval already done, so pass approve: false)
-      const txHash = await depositInternal({
-        amount: this._amount!,
-        approve: false, // Approval was handled in approve() step
-        token: Token.LBTC,
-        account: this._account,
-        chainId: this._chainId,
-        provider: provider as EIP1193Provider,
-        env: this.ctx.env });
+      let txHash: string;
+
+      if (this.isVedaBtcePath()) {
+        // Route through BTCe ERC-4626 wrapper: user receives BTCe shares.
+        // Approval was already done in approve(), so pass approve: false.
+        txHash = await depositEarn({
+          token: Token.LBTC,
+          amount: this._amount!,
+          receiver: this.params.recipient as Address,
+          approve: false,
+          account: this._account,
+          chainId: this._chainId,
+          provider: provider as EIP1193Provider,
+          env: this.ctx.env });
+      } else {
+        // Veda on Corn (no BTCe wrapper) or other protocols:
+        // deposit directly into the LBTCv BoringVault teller.
+        // Approval was already done in approve(), so pass approve: false.
+        txHash = await depositInternal({
+          amount: this._amount!,
+          approve: false,
+          token: Token.LBTC,
+          account: this._account,
+          chainId: this._chainId,
+          provider: provider as EIP1193Provider,
+          env: this.ctx.env });
+      }
 
       this._txHash = txHash;
 
