@@ -8,7 +8,7 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { functionType } from '../../stories/components/decorators';
 import useQuery from '../../stories/hooks/useQuery';
 import { Token } from '../../tokens/token-addresses';
-import { VEDA_VAULT_STAKE_AND_BAKE_CHAINS } from '../../vaults/lib/config';
+import { EARN_STAKE_AND_BAKE_CHAINS } from '../../vaults/lib/config';
 import {
   getStakeAndBakeFee,
   IGetStakeAndBakeFeeParams,
@@ -39,8 +39,8 @@ export const VedaDefaultToken: Story = {
     },
     chainId: {
       mapping: ChainId,
-      options: VEDA_VAULT_STAKE_AND_BAKE_CHAINS.map(
-        ch => Object.entries(ChainId).find(([_, v]) => v === ch)?.[0],
+      options: EARN_STAKE_AND_BAKE_CHAINS.map(
+        (ch) => Object.entries(ChainId).find(([_, v]) => v === ch)?.[0],
       ),
       description: 'The chain',
       control: { type: 'select' },
@@ -73,8 +73,8 @@ export const VedaExplicitToken: Story = {
     },
     chainId: {
       mapping: ChainId,
-      options: VEDA_VAULT_STAKE_AND_BAKE_CHAINS.map(
-        ch => Object.entries(ChainId).find(([_, v]) => v === ch)?.[0],
+      options: EARN_STAKE_AND_BAKE_CHAINS.map(
+        (ch) => Object.entries(ChainId).find(([_, v]) => v === ch)?.[0],
       ),
       description: 'The chain',
       control: { type: 'select' },

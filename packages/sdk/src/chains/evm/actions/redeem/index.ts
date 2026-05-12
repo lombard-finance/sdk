@@ -7,7 +7,7 @@
 export type { ChainConfig, RouteDefinition } from './config';
 export { evmConfig, isRedeemSupported } from './config';
 export { EvmRedeem } from './EvmRedeem';
-export { createEvmRedeem,evmRedeem } from './factory';
+export { createEvmRedeem, evmRedeem } from './factory';
 export {
   type EvmRedeemParams,
   type EvmRedeemPrepareParams,

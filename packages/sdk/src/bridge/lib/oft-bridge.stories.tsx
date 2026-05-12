@@ -15,7 +15,7 @@ import {
 } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
 import { OFT_BRIDGE_CHAINS } from './config';
-import { bridgeOFT,BridgeOFTParameters } from './oft-bridge';
+import { bridgeOFT, BridgeOFTParameters } from './oft-bridge';
 
 const meta = {
   title: 'bridge/bridgeOFT',
@@ -39,7 +39,7 @@ export const WithParams: Story = {
     to: {
       mapping: ChainId,
       options: OFT_BRIDGE_CHAINS.map(
-        ch => Object.entries(ChainId).find(([, v]) => v === ch)?.[0],
+        (ch) => Object.entries(ChainId).find(([, v]) => v === ch)?.[0],
       ),
       control: { type: 'select' },
     },

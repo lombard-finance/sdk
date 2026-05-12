@@ -239,7 +239,7 @@ export async function fetchUnstakesByAddress({
 
   const unstakes = await fetchAllPaginated({
     endpoint,
-    extractItems: data => (data as UnstakesResponse)?.unstakes ?? [],
+    extractItems: (data) => (data as UnstakesResponse)?.unstakes ?? [],
     query: {
       show_redeems: options?.show_redeems ? 'true' : undefined,
       show_unstakes: options?.show_unstakes ? 'true' : undefined,
@@ -247,7 +247,7 @@ export async function fetchUnstakesByAddress({
     },
   });
 
-  return unstakes.map(d => mapUnstakeEntry(d, env));
+  return unstakes.map((d) => mapUnstakeEntry(d, env));
 }
 
 /* -------------------------------------------------------------------------- */

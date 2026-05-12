@@ -60,10 +60,11 @@ export const StoryView = ({ environment, token }: ClaimTokenStoryArgs) => {
     if (!selectedOutput) throw new Error('Please select an output to claim.');
     if (!selectedOutput.raw_payload)
       throw new Error('Selected output has no raw_payload.');
-    if (!selectedOutput.proof)
-      throw new Error('Selected output has no proof.');
+    if (!selectedOutput.proof) throw new Error('Selected output has no proof.');
     if (!tokenMint)
-      throw new Error(`Token mint not configured for ${token} on ${environment}.`);
+      throw new Error(
+        `Token mint not configured for ${token} on ${environment}.`,
+      );
 
     setTransactionLogs(null);
     try {

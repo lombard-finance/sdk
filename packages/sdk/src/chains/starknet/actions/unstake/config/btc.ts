@@ -39,7 +39,7 @@ export const starknetToBtcConfig: ChainConfig = {
  */
 export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return starknetToBtcConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

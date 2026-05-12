@@ -25,7 +25,9 @@ import { createTestConfig as createConfig } from '../helpers/createTestConfig';
 
 vi.mock('../../contract-functions/deposit', () => ({
   depositToken: vi.fn(),
-  getAssetRouterAddress: vi.fn(async () => '0x0000000000000000000000000000000000000001'),
+  getAssetRouterAddress: vi.fn(
+    async () => '0x0000000000000000000000000000000000000001',
+  ),
 }));
 
 // Mock clients for EvmDeploy allowance checks
@@ -68,7 +70,9 @@ vi.mock('../../tokens/tokens', () => ({
     decimals: 8,
     symbol: 'LBTC',
   }),
-  toBaseDenomination: vi.fn((amount) => new BigNumber(amount).multipliedBy(1e8)),
+  toBaseDenomination: vi.fn((amount) =>
+    new BigNumber(amount).multipliedBy(1e8),
+  ),
   fromBaseDenomination: vi.fn((amount) => new BigNumber(amount).dividedBy(1e8)),
 }));
 
@@ -80,7 +84,8 @@ vi.mock('../../contract-functions/approveToken', () => ({
 
 // Mock fee authorization for EvmStake (subsidized chains don't require fee auth)
 vi.mock('../../chains/evm/shared/feeAuth', async (importOriginal) => {
-  const original = await importOriginal<typeof import('../../chains/evm/shared/feeAuth')>();
+  const original =
+    await importOriginal<typeof import('../../chains/evm/shared/feeAuth')>();
   return {
     ...original,
     checkFeeAuthorization: vi.fn(async () => ({
@@ -222,7 +227,9 @@ describe('EVM Stake Action', () => {
       });
 
       const statusChanges: string[] = [];
-      stake.on('status-change', (status: unknown) => statusChanges.push(status as string));
+      stake.on('status-change', (status: unknown) =>
+        statusChanges.push(status as string),
+      );
 
       await stake.prepare({ amount: '0.001' });
 
@@ -471,7 +478,9 @@ describe('EVM Deploy Action', () => {
       vi.mocked(makePublicClient).mockReturnValueOnce({
         readContract: vi.fn().mockResolvedValue(BigInt('0')), // Zero allowance
         simulateContract: vi.fn().mockResolvedValue({ request: {} }),
-        waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }),
+        waitForTransactionReceipt: vi
+          .fn()
+          .mockResolvedValue({ status: 'success' }),
       } as unknown as ReturnType<typeof makePublicClient>);
 
       const config = createConfig({
@@ -502,7 +511,9 @@ describe('EVM Deploy Action', () => {
       vi.mocked(makePublicClient).mockReturnValueOnce({
         readContract: vi.fn().mockResolvedValue(BigInt('0')), // Zero allowance
         simulateContract: vi.fn().mockResolvedValue({ request: {} }),
-        waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: 'success' }),
+        waitForTransactionReceipt: vi
+          .fn()
+          .mockResolvedValue({ status: 'success' }),
       } as unknown as ReturnType<typeof makePublicClient>);
 
       const config = createConfig({
@@ -901,7 +912,9 @@ describe('EVM Action Loading States', () => {
     });
 
     const loadingStates: boolean[] = [];
-    stake.on('loading', (isLoading: unknown) => loadingStates.push(isLoading as boolean));
+    stake.on('loading', (isLoading: unknown) =>
+      loadingStates.push(isLoading as boolean),
+    );
 
     await stake.prepare({ amount: '0.001' });
 
@@ -932,4 +945,3 @@ describe('EVM Action Loading States', () => {
     unsubscribe();
   });
 });
-

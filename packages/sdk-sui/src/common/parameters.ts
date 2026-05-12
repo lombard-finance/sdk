@@ -9,8 +9,9 @@ type EnvParameter = {
   env?: Env;
 };
 
-export interface CommonWriteParameters<WF extends Wallet['features']>
-  extends EnvParameter {
+export interface CommonWriteParameters<
+  WF extends Wallet['features'],
+> extends EnvParameter {
   walletClient: WalletWithFeatures<WF>;
   account: WalletAccount;
 }

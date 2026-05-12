@@ -16,13 +16,10 @@ import { EvmOperationStatus } from '../../../../shared/constants/statusConstants
 import type { EvmCoreContext } from '../../../../shared/context';
 import { LombardError, WithdrawErrorCode } from '../../../../shared/errors';
 import type { WithdrawEventMap } from '../../../../shared/events';
-import { isVedaVaultChain, Vault } from '../../../../vaults/lib/config';
-import { cancelWithdraw } from '../../../../vaults/lib/ops/withdraw';
+import { isEarnChain } from '../../../../vaults/lib/config';
+import { cancelWithdrawInternal } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
-import type {
-  EvmCancelWithdrawParams,
-  IEvmCancelWithdraw,
-} from './types';
+import type { EvmCancelWithdrawParams, IEvmCancelWithdraw } from './types';
 
 export class EvmCancelWithdraw
   extends BaseAction<WithdrawEventMap, EvmOperationStatus>
@@ -67,7 +64,7 @@ export class EvmCancelWithdraw
       this._chainId = parseChainIdentifier(this.params.chain) as ChainId;
 
       // Validate chain supports Veda vault
-      if (!isVedaVaultChain(this._chainId)) {
+      if (!isEarnChain(this._chainId)) {
         throw new LombardError(
           WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED,
           `Chain ${this.params.chain} does not support Veda vault withdrawals`,
@@ -102,8 +99,7 @@ export class EvmCancelWithdraw
       });
 
       // Execute vault cancel withdraw
-      const txHash = await cancelWithdraw({
-        vaultKey: Vault.Veda,
+      const txHash = await cancelWithdrawInternal({
         account: this._account,
         chainId: this._chainId,
         provider: provider as EIP1193Provider,
@@ -125,7 +121,7 @@ export class EvmCancelWithdraw
 
   private validateProtocol(protocol: DeployProtocol): void {
     const isSupported = evmWithdrawConfig.routes.some(
-      route =>
+      (route) =>
         route.protocols.includes(protocol) && route.envs.includes(this.ctx.env),
     );
     if (!isSupported) {

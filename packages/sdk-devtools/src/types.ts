@@ -347,4 +347,3 @@ export interface NetworkLogEntry {
   /** Whether the request failed */
   isFailed: boolean;
 }
-

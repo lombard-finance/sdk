@@ -33,7 +33,9 @@ vi.mock('../../clients/public-client', () => ({
       }
     }),
     simulateContract: vi.fn().mockResolvedValue({
-      request: { /* mock request */ },
+      request: {
+        /* mock request */
+      },
     }),
   })),
 }));

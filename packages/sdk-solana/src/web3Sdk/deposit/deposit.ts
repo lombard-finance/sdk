@@ -132,7 +132,10 @@ export async function deposit(
       getTokenProgramForMint(connection, destinationMint),
     ]);
     debugLog('Source token program:', tokenProgramId.toBase58());
-    debugLog('Destination token program:', destinationTokenProgramId.toBase58());
+    debugLog(
+      'Destination token program:',
+      destinationTokenProgramId.toBase58(),
+    );
 
     const [assetRouterConfigPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from('asset_router_config')],
@@ -162,9 +165,7 @@ export async function deposit(
       mailboxProgramId,
     );
     if (!config.ledgerChainId) {
-      throw new Error(
-        `Ledger chain ID not configured for network: ${network}`,
-      );
+      throw new Error(`Ledger chain ID not configured for network: ${network}`);
     }
     const ledgerChainId = Buffer.from(config.ledgerChainId, 'hex');
     const [outboundMessagePathPDA] = PublicKey.findProgramAddressSync(
@@ -177,10 +178,7 @@ export async function deposit(
     );
 
     debugLog('Mailbox config PDA:', mailboxConfigPDA.toBase58());
-    debugLog(
-      'Outbound message path PDA:',
-      outboundMessagePathPDA.toBase58(),
-    );
+    debugLog('Outbound message path PDA:', outboundMessagePathPDA.toBase58());
     debugLog('Sender config PDA:', senderConfigPDA.toBase58());
 
     const [arConfigInfo, mailboxConfigInfo] = await Promise.all([
@@ -230,7 +228,10 @@ export async function deposit(
       ASSOCIATED_TOKEN_PROGRAM_ID,
     );
     debugLog('Payer token account:', payerTokenAccount.toBase58());
-    debugLog('Recipient token account (payload):', recipientTokenAccount.toBase58());
+    debugLog(
+      'Recipient token account (payload):',
+      recipientTokenAccount.toBase58(),
+    );
 
     const tokenBalance =
       await connection.getTokenAccountBalance(payerTokenAccount);
@@ -242,10 +243,9 @@ export async function deposit(
       );
     }
 
-    const assetRouterProgram = new Program(
-      getAssetRouterIdl(env),
-      { connection },
-    );
+    const assetRouterProgram = new Program(getAssetRouterIdl(env), {
+      connection,
+    });
 
     const toLchainIdArray = Array.from(toLchainId);
     const toTokenAddressArray = Array.from(toTokenAddress);

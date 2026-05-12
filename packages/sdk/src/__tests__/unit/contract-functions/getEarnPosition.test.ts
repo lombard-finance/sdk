@@ -98,9 +98,9 @@ describe('getEarnPosition', () => {
         chainId: ChainId.ethereum,
       });
 
-      expect(result.lbtcvShares).toEqual(BigNumber('0.3'));
+      expect(result.underlyingShares).toEqual(BigNumber('0.3'));
       expect(result.btceShares).toEqual(BigNumber('0.7'));
-      expect(result.btceSharesInLbtcv).toEqual(BigNumber('0.7'));
+      expect(result.btceSharesInUnderlying).toEqual(BigNumber('0.7'));
       expect(result.totalShares).toEqual(BigNumber('1'));
       expect(result.exchangeRate).toEqual(BigNumber('1.05'));
       expect(result.position).toEqual(BigNumber('1.05'));
@@ -125,7 +125,7 @@ describe('getEarnPosition', () => {
       });
 
       expect(result.btceShares).toEqual(BigNumber('0.7'));
-      expect(result.btceSharesInLbtcv).toEqual(BigNumber('0.75'));
+      expect(result.btceSharesInUnderlying).toEqual(BigNumber('0.75'));
       expect(result.totalShares).toEqual(BigNumber('1.05'));
       expect(result.position).toEqual(BigNumber('1.05'));
     });
@@ -145,7 +145,7 @@ describe('getEarnPosition', () => {
       });
 
       expect(result.btceShares).toEqual(BigNumber(0));
-      expect(result.btceSharesInLbtcv).toEqual(BigNumber(0));
+      expect(result.btceSharesInUnderlying).toEqual(BigNumber(0));
       expect(result.position).toEqual(BigNumber('0.25'));
 
       const convertCalls = mockReadContract.mock.calls.filter(
@@ -166,7 +166,7 @@ describe('getEarnPosition', () => {
         chainId: ChainId.ethereum,
       });
 
-      expect(result.lbtcvShares).toEqual(BigNumber(0));
+      expect(result.underlyingShares).toEqual(BigNumber(0));
       expect(result.btceShares).toEqual(BigNumber(0));
       expect(result.position).toEqual(BigNumber(0));
     });
@@ -185,7 +185,7 @@ describe('getEarnPosition', () => {
       });
 
       expect(result.btceShares).toEqual(BigNumber(0));
-      expect(result.btceSharesInLbtcv).toEqual(BigNumber(0));
+      expect(result.btceSharesInUnderlying).toEqual(BigNumber(0));
       expect(result.position).toEqual(BigNumber('0.4'));
 
       const btceCalls = mockReadContract.mock.calls.filter(
@@ -275,7 +275,7 @@ describe('getEarnPosition', () => {
       });
 
       expect(result.btceShares).toEqual(BigNumber('1'));
-      expect(result.btceSharesInLbtcv).toEqual(BigNumber('1'));
+      expect(result.btceSharesInUnderlying).toEqual(BigNumber('1'));
     });
 
     it('supports Corn (LBTCv only, no BTCe)', async () => {
@@ -289,7 +289,7 @@ describe('getEarnPosition', () => {
         chainId: ChainId.corn,
       });
 
-      expect(result.lbtcvShares).toEqual(BigNumber('1'));
+      expect(result.underlyingShares).toEqual(BigNumber('1'));
       expect(result.position).toEqual(BigNumber('1'));
     });
   });

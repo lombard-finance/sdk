@@ -343,10 +343,10 @@ export async function fetchDirectDeposits({
 
   const outputs = await fetchAllPaginated({
     endpoint,
-    extractItems: data => (data as DirectDepositsResponse)?.outputs ?? [],
+    extractItems: (data) => (data as DirectDepositsResponse)?.outputs ?? [],
   });
 
-  return outputs.map(d => mapDirectBtcDeposit(d, env, address));
+  return outputs.map((d) => mapDirectBtcDeposit(d, env, address));
 }
 
 /**
@@ -376,10 +376,10 @@ export async function fetchBTCbDeposits({
 
   const deposits = await fetchAllPaginated({
     endpoint,
-    extractItems: data => (data as NativeDepositsResponse)?.deposits ?? [],
+    extractItems: (data) => (data as NativeDepositsResponse)?.deposits ?? [],
   });
 
-  return deposits.map(d => mapBTCbDeposits(d, env));
+  return deposits.map((d) => mapBTCbDeposits(d, env));
 }
 
 /* -------------------------------------------------------------------------- */

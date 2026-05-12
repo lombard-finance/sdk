@@ -117,7 +117,7 @@ export function SolanaStakePage({ env }: SolanaStakePageProps) {
               id="partnerId"
               type="text"
               value={partnerId}
-              onChange={e => setPartnerId(e.target.value)}
+              onChange={(e) => setPartnerId(e.target.value)}
               placeholder="Enter your partner ID"
               className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
               disabled={isStaking}
@@ -155,7 +155,6 @@ export function SolanaStakePage({ env }: SolanaStakePageProps) {
               targetChain="Solana"
             />
           )}
-
         </div>
       </div>
     </div>

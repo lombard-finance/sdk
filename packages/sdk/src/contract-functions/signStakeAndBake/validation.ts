@@ -55,7 +55,8 @@ export function getStakeAndBakeConfig(
     );
   }
 
-  const tokenRegistry = protocolRegistry[token as keyof typeof protocolRegistry];
+  const tokenRegistry =
+    protocolRegistry[token as keyof typeof protocolRegistry];
   if (!tokenRegistry) {
     throw new StakeAndBakeValidationError(
       'UNSUPPORTED_TOKEN',

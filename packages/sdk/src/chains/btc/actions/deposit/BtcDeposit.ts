@@ -12,10 +12,7 @@
 
 import type { z } from 'zod';
 
-import type {
-  ChainId,
-  SolanaChain,
-} from '../../../../common/chains';
+import type { ChainId, SolanaChain } from '../../../../common/chains';
 import {
   getChainType,
   parseChainIdentifier,
@@ -191,7 +188,7 @@ export class BtcDeposit
 
   /**
    * Override to ensure we have a signature before generating deposit address.
-   * 
+   *
    * When fee auth exists on server but signature isn't available locally,
    * we fall back to signing the destination address.
    */
@@ -238,9 +235,7 @@ export class BtcDeposit
       this._referralCode = validated.referralCode;
 
       // Get fee auth config for this destination chain (needed for both resume and new flow)
-      this.feeAuthConfig = this.config.getFeeAuthConfig(
-        this.params.destChain,
-      );
+      this.feeAuthConfig = this.config.getFeeAuthConfig(this.params.destChain);
 
       // Check for existing deposit address (resume flow)
       const hasExistingDeposit = await this.resumeFromExistingDeposit(

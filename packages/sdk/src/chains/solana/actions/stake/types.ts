@@ -21,8 +21,7 @@ export interface SolanaStakeParams {
   chain: Chain;
 }
 
-export interface SolanaStakeProgress
-  extends StrategyProgress<NonEvmOperationStatus> {
+export interface SolanaStakeProgress extends StrategyProgress<NonEvmOperationStatus> {
   status: NonEvmOperationStatus;
   steps: {
     burning: StepStatus;

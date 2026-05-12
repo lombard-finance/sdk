@@ -62,8 +62,7 @@ export interface EvmRedeemPrepareParams {
 /**
  * EVM Redeem progress
  */
-export interface EvmRedeemProgress
-  extends StrategyProgress<EvmOperationStatus> {
+export interface EvmRedeemProgress extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
   steps: {
     redeeming: StepStatus;

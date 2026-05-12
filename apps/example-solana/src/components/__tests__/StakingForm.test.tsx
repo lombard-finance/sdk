@@ -45,7 +45,9 @@ describe('Solana StakingForm', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -61,7 +63,9 @@ describe('Solana StakingForm', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     expect(alertMock).toHaveBeenCalled();
@@ -72,14 +76,18 @@ describe('Solana StakingForm', () => {
   it('disables submit when disabled prop is true', () => {
     renderForm({ disabled: true });
 
-    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const button = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
   });
 
   it('shows loading state when isLoading is true', () => {
     renderForm({ isLoading: true });
 
-    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const button = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Initializing');
   });

@@ -11,11 +11,7 @@
 
 import { Env } from '@lombard.finance/sdk-common';
 
-import {
-  AssetId,
-  Chain,
-  getEvmAssetChains,
-} from '../../../../../core';
+import { AssetId, Chain, getEvmAssetChains } from '../../../../../core';
 import { bitcoinAddressSchema } from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 
@@ -78,7 +74,7 @@ export function isRedeemSupported(
   env: Env,
 ): boolean {
   return evmConfig.routes.some(
-    route =>
+    (route) =>
       route.assetIn === assetIn &&
       route.sourceChains.includes(sourceChain) &&
       route.envs.includes(env),

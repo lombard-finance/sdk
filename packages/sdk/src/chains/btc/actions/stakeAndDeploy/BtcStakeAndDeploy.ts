@@ -379,7 +379,7 @@ export class BtcStakeAndDeploy
       fetchDeposit: async () => {
         const deposits = await this.ctx.api.getDeposits(recipient);
         const ourDeposit = deposits.find(
-          deposit => deposit.depositAddress === depositAddress,
+          (deposit) => deposit.depositAddress === depositAddress,
         );
 
         if (!ourDeposit) {
@@ -391,7 +391,7 @@ export class BtcStakeAndDeploy
           isClaimed: ourDeposit.isClaimed,
         };
       },
-      onProgress: p => {
+      onProgress: (p) => {
         this.emitProgress({
           status: this.status,
           steps: {

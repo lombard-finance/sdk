@@ -11,7 +11,11 @@ import { SolanaUnstakePage } from './pages/SolanaUnstakePage';
 function App() {
   const [env, setEnv] = useState<Env>(() => {
     const stored = localStorage.getItem('lombard-env');
-    if (stored && Object.values(Env).includes(stored as Env) && stored !== Env.testnet) {
+    if (
+      stored &&
+      Object.values(Env).includes(stored as Env) &&
+      stored !== Env.testnet
+    ) {
       return stored as Env;
     }
     const defaultEnv = getEnvironment();
@@ -38,9 +42,11 @@ function App() {
             <Route
               path="unstaking"
               element={
-                env === Env.stage
-                  ? <Navigate to="/staking" replace />
-                  : <SolanaUnstakePage env={env} />
+                env === Env.stage ? (
+                  <Navigate to="/staking" replace />
+                ) : (
+                  <SolanaUnstakePage env={env} />
+                )
               }
             />
             <Route path="*" element={<Navigate to="/staking" replace />} />

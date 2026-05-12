@@ -26,8 +26,7 @@ export interface SolanaUnstakeParams {
 /**
  * Solana Unstake progress
  */
-export interface SolanaUnstakeProgress
-  extends StrategyProgress<NonEvmOperationStatus> {
+export interface SolanaUnstakeProgress extends StrategyProgress<NonEvmOperationStatus> {
   status: NonEvmOperationStatus;
   steps: {
     burning: StepStatus;

@@ -150,7 +150,9 @@ export const parseSignaturesFromProof = (
         continue;
       }
 
-      const isEmptyPlaceholder = signatureBytesCheck.every(byte => byte === 0);
+      const isEmptyPlaceholder = signatureBytesCheck.every(
+        (byte) => byte === 0,
+      );
 
       if (isEmptyPlaceholder) {
         // Skip placeholders

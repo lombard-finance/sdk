@@ -40,7 +40,7 @@ export function isStakeSupported(
   env: Env,
 ): boolean {
   return solanaStakeConfig.routes.some(
-    route =>
+    (route) =>
       route.chain === chain &&
       route.assetIn === assetIn &&
       route.assetOut === assetOut &&

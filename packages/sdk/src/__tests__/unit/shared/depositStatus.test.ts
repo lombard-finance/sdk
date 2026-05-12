@@ -7,7 +7,10 @@ import {
 } from '../../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { ChainId } from '../../../common/chains';
 import { MIN_STAKE_AMOUNT_BTC } from '../../../common/constants';
-import { getDepositStatus, MIN_CLAIM_AMOUNT_BTC } from '../../../shared/deposits';
+import {
+  getDepositStatus,
+  MIN_CLAIM_AMOUNT_BTC,
+} from '../../../shared/deposits';
 
 // Minimal valid deposit factory
 function makeDeposit(
@@ -30,22 +33,29 @@ function makeDeposit(
 describe('getDepositStatus', () => {
   describe('priority ordering', () => {
     it('returns restricted for sanctioned deposits', () => {
-      expect(getDepositStatus(makeDeposit({ sanctioned: true }))).toBe('restricted');
+      expect(getDepositStatus(makeDeposit({ sanctioned: true }))).toBe(
+        'restricted',
+      );
     });
 
     it('returns claimed when isClaimed is true', () => {
-      expect(getDepositStatus(makeDeposit({ isClaimed: true }))).toBe('claimed');
+      expect(getDepositStatus(makeDeposit({ isClaimed: true }))).toBe(
+        'claimed',
+      );
     });
 
     it('returns claimed when claimTxHash is present', () => {
-      expect(getDepositStatus(makeDeposit({ claimTxHash: '0xclaim' }))).toBe('claimed');
+      expect(getDepositStatus(makeDeposit({ claimTxHash: '0xclaim' }))).toBe(
+        'claimed',
+      );
     });
 
     it('auto_claimed takes priority over SESSION_STATE_EXPIRED', () => {
       expect(
         getDepositStatus(
           makeDeposit({
-            notarizationStatus: ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED,
+            notarizationStatus:
+              ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED,
             sessionState: ESessionState.SESSION_STATE_EXPIRED,
           }),
         ),
@@ -88,7 +98,8 @@ describe('getDepositStatus', () => {
       expect(
         getDepositStatus(
           makeDeposit({
-            notarizationStatus: ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED,
+            notarizationStatus:
+              ENotarizationStatus.NOTARIZATION_STATUS_GMP_HANDLED,
           }),
         ),
       ).toBe('auto_claimed');
@@ -114,7 +125,8 @@ describe('getDepositStatus', () => {
       expect(
         getDepositStatus(
           makeDeposit({
-            notarizationStatus: ENotarizationStatus.NOTARIZATION_STATUS_SESSION_APPROVED,
+            notarizationStatus:
+              ENotarizationStatus.NOTARIZATION_STATUS_SESSION_APPROVED,
             proof: '0xproof',
             rawPayload: '0xpayload',
           }),

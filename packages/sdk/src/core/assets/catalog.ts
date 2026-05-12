@@ -82,11 +82,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         },
         {
           env: Env.testnet,
-          chains: [
-            Chain.AVALANCHE_FUJI,
-            Chain.BASE_SEPOLIA,
-            Chain.BSC_TESTNET,
-          ],
+          chains: [Chain.AVALANCHE_FUJI, Chain.BASE_SEPOLIA, Chain.BSC_TESTNET],
           address: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
         },
         {
@@ -113,11 +109,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         // Note: Avalanche Fuji is only supported on testnet (Gastald), not stage
         {
           env: Env.stage,
-          chains: [
-            Chain.BASE_SEPOLIA,
-            Chain.BSC_TESTNET,
-            Chain.SEPOLIA,
-          ],
+          chains: [Chain.BASE_SEPOLIA, Chain.BSC_TESTNET, Chain.SEPOLIA],
           address: '0x731eFa688F3679688cf60A3993b8658138953ED6',
         },
         {

@@ -11,8 +11,10 @@ const MOCK_LBTC_MINT = 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J';
 const MOCK_BTCB_MINT = 'BTCB3ripBAut19jM8kDPVbJHb2ZdR2GcZvGZkCmFPtV8';
 const MOCK_ASSET_ROUTER = 'LomVyJDZ91jeVbNnTupJXKJTQFakJVMc87CmwDHYt95';
 const MOCK_MAILBOX = 'LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9';
-const MOCK_SOLANA_CHAIN_ID = '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab';
-const MOCK_LEDGER_CHAIN_ID = '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e';
+const MOCK_SOLANA_CHAIN_ID =
+  '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab';
+const MOCK_LEDGER_CHAIN_ID =
+  '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e';
 const MOCK_PAYER = '8yarEiDaJVikHZbk3PQSoWiDn2T3oM1FHZN1Jv4VZFdr';
 const MOCK_RECIPIENT = 'DVMiNi7uxHEPABTBt1nLMoxnPniPKbLAFj4MPJq1RDjg';
 /** Distinct pubkey returned for ATA(mint=LBTC, owner=recipient) */
@@ -26,7 +28,8 @@ const fullConfig: IConfig = {
   assetRouter: MOCK_ASSET_ROUTER,
   mailbox: MOCK_MAILBOX,
   solanaRoutingChainId: MOCK_SOLANA_CHAIN_ID,
-  bitcoinRoutingChainId: 'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
+  bitcoinRoutingChainId:
+    'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
   ledgerChainId: MOCK_LEDGER_CHAIN_ID,
   lbtcProgramId: 'HEY7PCJe3GB27UWdopuYb1xDbB5SNtTcYPxRjntvfBSA',
   treasuryAddress: 'ByHNGi4zPJw5StyWZoLQJ9n2wT12oupJF2pTSNKMnnAZ',
@@ -92,7 +95,11 @@ vi.mock('../../const/rpcUrls', () => ({
 }));
 
 vi.mock('../../utils/tokenAccount', () => ({
-  getTokenProgramForMint: vi.fn().mockResolvedValue(new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')),
+  getTokenProgramForMint: vi
+    .fn()
+    .mockResolvedValue(
+      new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+    ),
 }));
 
 vi.mock('../../idl/getAssetRouterIdl', () => ({
@@ -112,7 +119,9 @@ vi.mock('@solana/spl-token', () => ({
       }
       return new PublicKey(MOCK_PAYER_ATA);
     }),
-  ASSOCIATED_TOKEN_PROGRAM_ID: new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'),
+  ASSOCIATED_TOKEN_PROGRAM_ID: new PublicKey(
+    'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+  ),
 }));
 
 const mockTx = { instructions: [{ keys: [] }] };
@@ -195,20 +204,23 @@ describe('deposit', () => {
 
   it('should throw when Asset Router is not configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, assetRouter: null });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      assetRouter: null,
+    });
 
-    await expect(
-      depositFn(testWallet(MOCK_PAYER), baseParams),
-    ).rejects.toThrow('Asset Router not configured');
+    await expect(depositFn(testWallet(MOCK_PAYER), baseParams)).rejects.toThrow(
+      'Asset Router not configured',
+    );
   });
 
   it('should throw when Mailbox is not configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
     vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, mailbox: null });
 
-    await expect(
-      depositFn(testWallet(MOCK_PAYER), baseParams),
-    ).rejects.toThrow('Mailbox not configured');
+    await expect(depositFn(testWallet(MOCK_PAYER), baseParams)).rejects.toThrow(
+      'Mailbox not configured',
+    );
   });
 
   it('should throw when Solana routing chain ID is not configured', async () => {
@@ -218,27 +230,33 @@ describe('deposit', () => {
       solanaRoutingChainId: null,
     });
 
-    await expect(
-      depositFn(testWallet(MOCK_PAYER), baseParams),
-    ).rejects.toThrow('Solana routing chain ID not configured');
+    await expect(depositFn(testWallet(MOCK_PAYER), baseParams)).rejects.toThrow(
+      'Solana routing chain ID not configured',
+    );
   });
 
   it('should throw when source token mint is not resolved', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, btcbTokenMint: '' });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      btcbTokenMint: '',
+    });
 
-    await expect(
-      depositFn(testWallet(MOCK_PAYER), baseParams),
-    ).rejects.toThrow('Source token mint not configured');
+    await expect(depositFn(testWallet(MOCK_PAYER), baseParams)).rejects.toThrow(
+      'Source token mint not configured',
+    );
   });
 
   it('should throw when destination token is not configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, lbtcTokenMint: '' });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      lbtcTokenMint: '',
+    });
 
-    await expect(
-      depositFn(testWallet(MOCK_PAYER), baseParams),
-    ).rejects.toThrow('Destination token not configured');
+    await expect(depositFn(testWallet(MOCK_PAYER), baseParams)).rejects.toThrow(
+      'Destination token not configured',
+    );
   });
 
   it('should throw when amount is zero', async () => {
@@ -255,9 +273,9 @@ describe('deposit', () => {
       return Promise.resolve({ data: buildMailboxConfigData() });
     });
 
-    await expect(
-      depositFn(testWallet(MOCK_PAYER), baseParams),
-    ).rejects.toThrow('Asset Router is paused');
+    await expect(depositFn(testWallet(MOCK_PAYER), baseParams)).rejects.toThrow(
+      'Asset Router is paused',
+    );
   });
 
   it('should throw on insufficient balance', async () => {
@@ -265,22 +283,27 @@ describe('deposit', () => {
       value: { amount: '10', uiAmountString: '0.0000001' },
     });
 
-    await expect(
-      depositFn(testWallet(MOCK_PAYER), baseParams),
-    ).rejects.toThrow('Insufficient balance');
+    await expect(depositFn(testWallet(MOCK_PAYER), baseParams)).rejects.toThrow(
+      'Insufficient balance',
+    );
   });
 
   it('should throw when Ledger chain ID is not configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, ledgerChainId: null });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      ledgerChainId: null,
+    });
 
-    await expect(
-      depositFn(testWallet(MOCK_PAYER), baseParams),
-    ).rejects.toThrow('Ledger chain ID not configured');
+    await expect(depositFn(testWallet(MOCK_PAYER), baseParams)).rejects.toThrow(
+      'Ledger chain ID not configured',
+    );
   });
 
   it('should return transaction signature on success', async () => {
-    mockConnection.getAccountInfo.mockResolvedValue({ data: buildMailboxConfigData() });
+    mockConnection.getAccountInfo.mockResolvedValue({
+      data: buildMailboxConfigData(),
+    });
 
     const sig = await depositFn(testWallet(MOCK_PAYER), baseParams);
 
@@ -288,7 +311,9 @@ describe('deposit', () => {
   });
 
   it('should pass destination associated token account bytes to deposit()', async () => {
-    mockConnection.getAccountInfo.mockResolvedValue({ data: buildMailboxConfigData() });
+    mockConnection.getAccountInfo.mockResolvedValue({
+      data: buildMailboxConfigData(),
+    });
 
     await depositFn(testWallet(MOCK_PAYER), baseParams);
 
@@ -301,7 +326,10 @@ describe('deposit', () => {
 
   it('should wrap errors with SolanaSdkError', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, assetRouter: null });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      assetRouter: null,
+    });
 
     try {
       await depositFn(testWallet(MOCK_PAYER), baseParams);
@@ -313,7 +341,9 @@ describe('deposit', () => {
   });
 
   it('should use env override when provided', async () => {
-    mockConnection.getAccountInfo.mockResolvedValue({ data: buildMailboxConfigData() });
+    mockConnection.getAccountInfo.mockResolvedValue({
+      data: buildMailboxConfigData(),
+    });
 
     const { getConfig } = await import('../../const/getConfig');
 

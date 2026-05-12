@@ -22,7 +22,10 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
-import { getSolanaTokenAddress, Token } from '../../../../tokens/token-addresses';
+import {
+  getSolanaTokenAddress,
+  Token,
+} from '../../../../tokens/token-addresses';
 import { toSatoshi } from '../../../../utils/satoshi';
 import { envToSolanaChain, envToSolanaNetwork } from '../../utils';
 import { isRedeemSupported, solanaRedeemConfig } from './config';
@@ -118,7 +121,9 @@ export class SolanaRedeem
         Token.BTCb,
       );
       if (!btcbMint) {
-        throw LombardError.missingParameter('Solana BTC.b mint for this environment');
+        throw LombardError.missingParameter(
+          'Solana BTC.b mint for this environment',
+        );
       }
 
       const { signature } = await this.ctx.solana.redeemForBtc({

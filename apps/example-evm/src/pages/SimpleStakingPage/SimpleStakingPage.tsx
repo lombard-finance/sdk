@@ -28,7 +28,9 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
   const [selectedChain, setSelectedChain] = useState('');
   const { isConnected } = useEvmWallet();
   const [partnerId, setPartnerIdState] = useState(
-    () => localStorage.getItem('lombard-partnerId') || (env === Env.prod ? '' : 'test'),
+    () =>
+      localStorage.getItem('lombard-partnerId') ||
+      (env === Env.prod ? '' : 'test'),
   );
 
   const setPartnerId = (value: string) => {
@@ -108,7 +110,7 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
               id="partnerId"
               type="text"
               value={partnerId}
-              onChange={e => setPartnerId(e.target.value)}
+              onChange={(e) => setPartnerId(e.target.value)}
               placeholder="Enter your partner ID"
               className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
               disabled={isStaking}
@@ -145,7 +147,6 @@ export function SimpleStakingPage({ env, onReset }: SimpleStakingPageProps) {
               targetChain={selectedChain}
             />
           )}
-
         </div>
       </div>
     </div>

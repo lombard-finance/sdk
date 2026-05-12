@@ -7,7 +7,7 @@
  */
 
 import { Env } from '@lombard.finance/sdk-common';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { btcStakeAndDeploy } from '../../chains/btc/actions/stakeAndDeploy';
 import { AssetId, Chain } from '../../index';
@@ -51,7 +51,7 @@ describe('BTC Stake And Deploy Integration', () => {
       const stakeAndDeploy = btcStakeAndDeploy(config, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: 'veda',  // Use Veda protocol from DefiRegistry
+        protocol: 'veda', // Use Veda protocol from DefiRegistry
       });
 
       expect(stakeAndDeploy).toBeDefined();
@@ -68,7 +68,7 @@ describe('BTC Stake And Deploy Integration', () => {
         btcStakeAndDeploy(config, {
           assetOut: AssetId.BTCb,
           destChain: Chain.ETHEREUM,
-          protocol: 'veda',  // Use Veda protocol from DefiRegistry
+          protocol: 'veda', // Use Veda protocol from DefiRegistry
         });
       }).toThrow(/not supported/);
     });
@@ -84,7 +84,7 @@ describe('BTC Stake And Deploy Integration', () => {
       const stakeAndDeploy = btcStakeAndDeploy(config, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: 'veda',  // Use Veda protocol from DefiRegistry
+        protocol: 'veda', // Use Veda protocol from DefiRegistry
       });
 
       expect(stakeAndDeploy.status).toBe('idle');
@@ -93,4 +93,3 @@ describe('BTC Stake And Deploy Integration', () => {
     });
   });
 });
-

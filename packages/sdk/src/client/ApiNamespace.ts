@@ -20,7 +20,7 @@
  * const points = await sdk.api.points('0x...');
  *
  * // Fetch LBTC exchange rate
-   * const rate = await sdk.api.exchangeRatio();
+ * const rate = await sdk.api.exchangeRatio();
  *
  * // Get existing BTC deposit address
  * const depositAddr = await sdk.api.depositAddress('0x...', ChainId.ethereum);
@@ -47,13 +47,17 @@ import {
   getUnstakesByAddress,
   type Unstake,
 } from '../api-functions/getUnstakesByAddress/getUnstakesByAddress';
-import type { ChainId, SolanaChain, StarknetChainId, SuiChain } from '../common/chains';
+import type {
+  ChainId,
+  SolanaChain,
+  StarknetChainId,
+  SuiChain,
+} from '../common/chains';
 import type { Token } from '../tokens/token-addresses';
-import { Vault } from '../vaults/lib/config';
 import {
-  getVaultWithdrawals,
-  getVaultWithdrawalsAllChains,
-  type VaultWithdrawals
+  type EarnWithdrawals,
+  getEarnWithdrawals,
+  getEarnWithdrawalsAllChains,
 } from '../vaults/lib/ops/get-vault-withdrawals';
 
 /* -------------------------------------------------------------------------- */
@@ -90,14 +94,16 @@ export interface DepositAddressOptions {
 }
 
 /** Destination chain types for deposit address */
-export type DestinationChain = ChainId | SuiChain | SolanaChain | StarknetChainId;
+export type DestinationChain =
+  | ChainId
+  | SuiChain
+  | SolanaChain
+  | StarknetChainId;
 
 /** Options for fetching vault withdrawals */
 export interface VaultWithdrawalsOptions {
   /** Filter by chain ID (if not provided, fetches from all chains) */
   chainId?: ChainId;
-  /** Vault key (defaults to Veda) */
-  vault?: Vault;
   /** Optional RPC URL override */
   rpcUrl?: string;
 }
@@ -172,7 +178,10 @@ export class ApiNamespace {
    * const redeems = await sdk.api.unstakes('0x1234...', { to_native: true });
    * ```
    */
-  async unstakes(address: string, options?: UnstakeOptions): Promise<Unstake[]> {
+  async unstakes(
+    address: string,
+    options?: UnstakeOptions,
+  ): Promise<Unstake[]> {
     // Future: if (this.apiVersion === 'v2') return this.unstakesV2(address, options);
     return getUnstakesByAddress({ address, env: this.env, options });
   }
@@ -188,10 +197,7 @@ export class ApiNamespace {
    * @param season - Season number (1)
    * @returns Promise resolving to Season 1 points breakdown
    */
-  async points(
-    address: string,
-    season: 1,
-  ): Promise<IPointsByAddressSeason1>;
+  async points(address: string, season: 1): Promise<IPointsByAddressSeason1>;
 
   /**
    * Fetch Lux points for an address (Season 2).
@@ -200,10 +206,7 @@ export class ApiNamespace {
    * @param season - Season number (2)
    * @returns Promise resolving to Season 2 points breakdown
    */
-  async points(
-    address: string,
-    season: 2,
-  ): Promise<IPointsByAddressSeason2>;
+  async points(address: string, season: 2): Promise<IPointsByAddressSeason2>;
 
   /**
    * Fetch Lux points for an address (defaults to current season).
@@ -336,25 +339,22 @@ export class ApiNamespace {
   async vaultWithdrawals(
     address: string,
     options?: VaultWithdrawalsOptions,
-  ): Promise<VaultWithdrawals> {
+  ): Promise<EarnWithdrawals> {
     const account = address as `0x${string}`;
-    const vaultKey = options?.vault ?? Vault.Veda;
 
     if (options?.chainId) {
       // Fetch from specific chain
-      return getVaultWithdrawals({
+      return getEarnWithdrawals({
         account,
         chainId: options.chainId,
-        vaultKey,
         rpcUrl: options.rpcUrl,
         env: this.env,
       });
     }
 
     // Fetch from all chains
-    return getVaultWithdrawalsAllChains({
+    return getEarnWithdrawalsAllChains({
       account,
-      vaultKey,
       rpcUrl: options?.rpcUrl,
     });
   }
@@ -372,4 +372,3 @@ export class ApiNamespace {
     return this.apiVersion;
   }
 }
-

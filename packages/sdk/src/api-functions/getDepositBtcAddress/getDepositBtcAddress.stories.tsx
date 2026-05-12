@@ -170,7 +170,7 @@ export const EVM: Story = {
 
 export const SolanaBTCb: StoryObj<typeof SolanaGetStoryView> = {
   name: 'Solana — BTC.b',
-  render: args => <SolanaGetStoryView {...args} />,
+  render: (args) => <SolanaGetStoryView {...args} />,
   args: {
     token: Token.BTCb,
     chainId: SOLANA_DEVNET_CHAIN,
@@ -184,7 +184,7 @@ export const SolanaBTCb: StoryObj<typeof SolanaGetStoryView> = {
 
 export const SolanaLBTC: StoryObj<typeof SolanaGetStoryView> = {
   name: 'Solana — LBTC',
-  render: args => <SolanaGetStoryView {...args} />,
+  render: (args) => <SolanaGetStoryView {...args} />,
   args: {
     token: Token.LBTC,
     chainId: SOLANA_DEVNET_CHAIN,

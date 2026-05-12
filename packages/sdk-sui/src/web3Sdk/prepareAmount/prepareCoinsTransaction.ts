@@ -34,9 +34,7 @@ export async function prepareCoinsTransaction({
     const decimals = coinMetadata?.decimals ?? LBTC_DECIMALS;
 
     const unstakeAmount = BigInt(
-      amount
-        .multipliedBy(new BigNumber(10).pow(decimals))
-        .toString(10),
+      amount.multipliedBy(new BigNumber(10).pow(decimals)).toString(10),
     );
 
     const selectedCoins = [] as CoinStruct[];
@@ -49,7 +47,7 @@ export async function prepareCoinsTransaction({
       } else if (selectedAmount + BigInt(coin.balance) === unstakeAmount) {
         selectedCoins.push(coin);
 
-        const coinObjects = selectedCoins.map(coin =>
+        const coinObjects = selectedCoins.map((coin) =>
           transaction.object(coin.coinObjectId),
         );
 
@@ -73,7 +71,7 @@ export async function prepareCoinsTransaction({
 
         transaction.mergeCoins(
           splitCoin,
-          selectedCoins.map(coin => transaction.object(coin.coinObjectId)),
+          selectedCoins.map((coin) => transaction.object(coin.coinObjectId)),
         );
 
         return transaction.object(splitCoin);

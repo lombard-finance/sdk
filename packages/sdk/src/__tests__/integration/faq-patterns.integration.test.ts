@@ -93,7 +93,7 @@ describe('FAQ Section 13: Using Actions', () => {
       });
 
       const statusChanges: string[] = [];
-      stake.on('status-change', status => statusChanges.push(status));
+      stake.on('status-change', (status) => statusChanges.push(status));
 
       // Mock API response for deposit address check
       vi.spyOn(global, 'fetch').mockResolvedValueOnce({
@@ -160,7 +160,7 @@ describe('FAQ Section 14: Loading States', () => {
     });
 
     const loadingStates: boolean[] = [];
-    stake.on('loading', isLoading => loadingStates.push(isLoading));
+    stake.on('loading', (isLoading) => loadingStates.push(isLoading));
 
     // Mock API
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({
@@ -206,7 +206,7 @@ describe('FAQ Section 14: Loading States', () => {
       }
     };
 
-    stake.on('loading', isLoading => {
+    stake.on('loading', (isLoading) => {
       // Use loading message for UI updates
       getLoadingMessage(stake.status, isLoading);
     });
@@ -321,7 +321,7 @@ describe('FAQ Section 15: Error Handling', () => {
     const errors: Error[] = [];
     const failedEvents: number[] = [];
 
-    stake.on('error', error => errors.push(error));
+    stake.on('error', (error) => errors.push(error));
     stake.on('failed', () => failedEvents.push(1));
 
     await expect(
@@ -462,4 +462,3 @@ describe('FAQ Section 10: Design Decisions', () => {
     expect(stake.isFailed).toBe(stake.error !== null);
   });
 });
-

@@ -16,12 +16,23 @@ import { BTC_NATIVE_TOKEN_ADDRESS, RedeemContext } from './shared';
  */
 export async function redeemLbtcForBtc(ctx: RedeemContext): Promise<string> {
   const {
-    provider, params, config, connection,
-    payer, mint, tokenProgramId, scriptPubKey,
-    assetRouterProgramId, mailboxProgramId,
-    solanaRoutingChainId, bitcoinRoutingChainId,
-    assetRouterProgram, assetRouterConfigPDA, mailboxConfigPDA,
-    arTreasury, mailboxTreasury,
+    provider,
+    params,
+    config,
+    connection,
+    payer,
+    mint,
+    tokenProgramId,
+    scriptPubKey,
+    assetRouterProgramId,
+    mailboxProgramId,
+    solanaRoutingChainId,
+    bitcoinRoutingChainId,
+    assetRouterProgram,
+    assetRouterConfigPDA,
+    mailboxConfigPDA,
+    arTreasury,
+    mailboxTreasury,
     debugLog,
   } = ctx;
 
@@ -53,7 +64,9 @@ export async function redeemLbtcForBtc(ctx: RedeemContext): Promise<string> {
 
   // ── Mailbox PDAs ──
   if (!config.ledgerChainId) {
-    throw new Error(`Ledger chain ID not configured for network: ${params.network}`);
+    throw new Error(
+      `Ledger chain ID not configured for network: ${params.network}`,
+    );
   }
   const ledgerChainId = Buffer.from(config.ledgerChainId, 'hex');
   const [outboundMessagePathPDA] = PublicKey.findProgramAddressSync(
@@ -88,7 +101,8 @@ export async function redeemLbtcForBtc(ctx: RedeemContext): Promise<string> {
   debugLog('Treasury token account:', treasuryTokenAccount.toBase58());
 
   // ── Balance check ──
-  const tokenBalance = await connection.getTokenAccountBalance(payerTokenAccount);
+  const tokenBalance =
+    await connection.getTokenAccountBalance(payerTokenAccount);
   const userBalance = BigInt(tokenBalance.value.amount);
   const parsedAmount = BigInt(amount);
   if (userBalance < parsedAmount) {
@@ -102,7 +116,8 @@ export async function redeemLbtcForBtc(ctx: RedeemContext): Promise<string> {
   // reads. Retry up to 3 times if the nonce becomes stale.
   const MAX_NONCE_RETRIES = 3;
   for (let attempt = 0; attempt < MAX_NONCE_RETRIES; attempt++) {
-    const freshMailboxConfig = await connection.getAccountInfo(mailboxConfigPDA);
+    const freshMailboxConfig =
+      await connection.getAccountInfo(mailboxConfigPDA);
     if (!freshMailboxConfig) {
       throw new Error('Mailbox config account not found');
     }
@@ -121,7 +136,9 @@ export async function redeemLbtcForBtc(ctx: RedeemContext): Promise<string> {
       mailboxProgramId,
     );
 
-    debugLog(`Attempt ${attempt + 1}: global nonce=${globalNonce}, outbound_message=${outboundMessagePDA.toBase58()}`);
+    debugLog(
+      `Attempt ${attempt + 1}: global nonce=${globalNonce}, outbound_message=${outboundMessagePDA.toBase58()}`,
+    );
 
     const tx = await assetRouterProgram.methods
       .redeemForBtc(scriptPubKey, new BN(amount))
@@ -160,8 +177,7 @@ export async function redeemLbtcForBtc(ctx: RedeemContext): Promise<string> {
       return signature;
     } catch (err: unknown) {
       const isNonceError =
-        err instanceof Error &&
-        err.message.includes('0x7d6'); // ConstraintSeeds
+        err instanceof Error && err.message.includes('0x7d6'); // ConstraintSeeds
       if (isNonceError && attempt < MAX_NONCE_RETRIES - 1) {
         debugLog(`Nonce stale (ConstraintSeeds), retrying...`);
         continue;

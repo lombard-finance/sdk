@@ -50,7 +50,7 @@ describe('BTC Deposit Token Resolution', () => {
       /**
        * The BtcDeposit.getExpectedToken() method correctly calls
        * assetIdToToken(this.params.assetOut, Token.BTCb)
-       * 
+       *
        * If assetOut is not properly passed (e.g., undefined or wrong value),
        * it could default to LBTC, causing the wrong deposit address to be generated.
        */
@@ -59,7 +59,7 @@ describe('BTC Deposit Token Resolution', () => {
         // This simulates what BtcDeposit.getExpectedToken() does
         const assetOut = AssetId.BTCb;
         const defaultToken = Token.BTCb;
-        
+
         const token = assetIdToToken(assetOut, defaultToken);
         expect(token).toBe(Token.BTCb);
       });
@@ -67,7 +67,7 @@ describe('BTC Deposit Token Resolution', () => {
       it('should still return BTCb as default even for non-mapped assets in deposit', () => {
         // BtcDeposit uses Token.BTCb as default
         const defaultToken = Token.BTCb;
-        
+
         // Even if assetOut is somehow invalid, it should fall back to BTCb for deposit
         const token = assetIdToToken(AssetId.BTC, defaultToken);
         expect(token).toBe(Token.BTCb);
@@ -79,7 +79,7 @@ describe('BTC Deposit Token Resolution', () => {
         // This simulates what BtcStake.getExpectedToken() does
         const assetOut = AssetId.LBTC;
         const defaultToken = Token.LBTC;
-        
+
         const token = assetIdToToken(assetOut, defaultToken);
         expect(token).toBe(Token.LBTC);
       });
@@ -90,7 +90,7 @@ describe('BTC Deposit Token Resolution', () => {
        * Token and AssetId share the same string values for common assets:
        * - Token.BTCb = 'BTC.b'
        * - AssetId.BTCb = 'BTC.b'
-       * 
+       *
        * This ensures consistency between API calls and action parameters.
        */
 
@@ -98,7 +98,7 @@ describe('BTC Deposit Token Resolution', () => {
         // Both use 'BTC.b' for BTCb
         expect(Token.BTCb).toBe('BTC.b');
         expect(AssetId.BTCb).toBe('BTC.b');
-        
+
         // Both use 'LBTC' for LBTC
         expect(Token.LBTC).toBe('LBTC');
         expect(AssetId.LBTC).toBe('LBTC');
@@ -123,11 +123,11 @@ describe('BTC Deposit Token Resolution', () => {
   describe('Token parameter flow', () => {
     /**
      * The getDepositBtcAddress function has this signature:
-     * 
+     *
      *   token: tokenParam = Token.LBTC  // Default is LBTC!
-     * 
+     *
      * This means if token is not explicitly passed, it defaults to LBTC.
-     * 
+     *
      * The BtcDeposit and BtcStake actions must always pass the token explicitly.
      */
 
@@ -135,10 +135,10 @@ describe('BTC Deposit Token Resolution', () => {
       // Simulates the full flow from action to API call
       const actionAssetOut = AssetId.BTCb;
       const actionDefault = Token.BTCb;
-      
+
       // Action calls getExpectedToken() which does this:
       const tokenForApi = assetIdToToken(actionAssetOut, actionDefault);
-      
+
       // This token should be BTCb, not LBTC
       expect(tokenForApi).toBe(Token.BTCb);
       expect(tokenForApi).not.toBe(Token.LBTC);
@@ -147,9 +147,9 @@ describe('BTC Deposit Token Resolution', () => {
     it('should use LBTC token for BTC Stake actions', () => {
       const actionAssetOut = AssetId.LBTC;
       const actionDefault = Token.LBTC;
-      
+
       const tokenForApi = assetIdToToken(actionAssetOut, actionDefault);
-      
+
       expect(tokenForApi).toBe(Token.LBTC);
     });
 
@@ -157,7 +157,7 @@ describe('BTC Deposit Token Resolution', () => {
       // If assetOut is BTCb, the token MUST be BTCb
       const actionAssetOut = AssetId.BTCb;
       const tokenForApi = assetIdToToken(actionAssetOut, Token.BTCb);
-      
+
       // CRITICAL: This must not be LBTC
       expect(tokenForApi).not.toBe(Token.LBTC);
       expect(tokenForApi).toBe(Token.BTCb);
@@ -186,4 +186,3 @@ describe('BTC Deposit Token Resolution', () => {
     });
   });
 });
-

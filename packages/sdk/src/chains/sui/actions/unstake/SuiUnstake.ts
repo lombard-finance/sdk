@@ -19,7 +19,7 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
-import { isBtcUnstakeSupported,suiToBtcConfig } from './config';
+import { isBtcUnstakeSupported, suiToBtcConfig } from './config';
 import type {
   ISuiUnstake,
   SuiUnstakeParams,

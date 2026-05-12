@@ -2,7 +2,7 @@
  * LBTC Minting Fee Tests
  *
  * Tests to verify the fee fetching logic works correctly.
- * 
+ *
  * The minting fee (also called "network fee" or "auto-mint fee") is the amount
  * in satoshis that is deducted from the minted LBTC to compensate Lombard for
  * paying the EVM gas costs during the auto-mint process.
@@ -92,7 +92,7 @@ describe('Minting Fee Logic', () => {
   describe('Expected fee behavior (documentation)', () => {
     /**
      * The minting fee is the auto-mint commission in satoshis.
-     * 
+     *
      * When a user deposits BTC, Lombard automatically mints LBTC to their address.
      * The fee compensates Lombard for paying the EVM gas costs.
      *

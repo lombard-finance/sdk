@@ -2,11 +2,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { envToNetwork, getConfig } from '../../const/getConfig';
-import {
-  Button,
-  CodeBlock,
-  ErrorDisplay,
-} from '../../stories/components';
+import { Button, CodeBlock, ErrorDisplay } from '../../stories/components';
 import { functionType } from '../../stories/decorators/function-type';
 import useQuery from '../../stories/hooks/useQuery';
 import {
@@ -24,14 +20,11 @@ interface StoryArgs {
   token: TokenChoice;
 }
 
-function resolveTokenMint(
-  token: TokenChoice,
-  env: Env,
-): string | undefined {
+function resolveTokenMint(token: TokenChoice, env: Env): string | undefined {
   const config = getConfig(env);
   return token === 'LBTC'
     ? config.lbtcTokenMint
-    : config.btcbTokenMint ?? undefined;
+    : (config.btcbTokenMint ?? undefined);
 }
 
 export function StoryView({ environment, token }: StoryArgs) {
@@ -94,22 +87,19 @@ export function StoryView({ environment, token }: StoryArgs) {
         redeemForBtcMinAmount:
           configQuery.data.redeemForBtcMinAmount.toFormat(),
         maxMintCommission: configQuery.data.maxMintCommission.toFormat(),
-        toNativeCommission:
-          configQuery.data.toNativeCommission.toFormat(),
+        toNativeCommission: configQuery.data.toNativeCommission.toFormat(),
         'getRedeemFeeSolana (toNative + redeem)':
           redeemFeeQuery.data?.toFormat(),
-        'getMintingFeeSolana': mintingFeeQuery.data?.toFormat(),
-        'getMinRedeemAmountSolana': minRedeemQuery.data?.toFormat(),
-        'getMinRedeemAmountWithFeeSolana':
-          minRedeemWithFeeQuery.data?.toFormat(),
+        getMintingFeeSolana: mintingFeeQuery.data?.toFormat(),
+        getMinRedeemAmountSolana: minRedeemQuery.data?.toFormat(),
+        getMinRedeemAmountWithFeeSolana: minRedeemWithFeeQuery.data?.toFormat(),
       }
     : undefined;
 
   return (
     <div>
       <p>
-        <strong>Network:</strong> {network} | <strong>Token:</strong>{' '}
-        {token}
+        <strong>Network:</strong> {network} | <strong>Token:</strong> {token}
         {tokenMint ? ` (${tokenMint})` : ' — not configured'}
       </p>
 

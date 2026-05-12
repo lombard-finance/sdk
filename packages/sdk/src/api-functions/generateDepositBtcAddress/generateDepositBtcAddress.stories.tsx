@@ -51,9 +51,10 @@ interface PhantomProvider {
   publicKey: { toBase58: () => string; toBytes: () => Uint8Array };
   connect: () => Promise<{ publicKey: { toBase58: () => string } }>;
   disconnect: () => Promise<void>;
-  signMessage: (
-    message: Uint8Array,
-  ) => Promise<{ signature: Uint8Array; publicKey: { toBase58: () => string } }>;
+  signMessage: (message: Uint8Array) => Promise<{
+    signature: Uint8Array;
+    publicKey: { toBase58: () => string };
+  }>;
 }
 
 function getPhantom(): PhantomProvider | null {
@@ -255,7 +256,7 @@ export const EVM: Story = {
 
 export const SolanaBTCb: StoryObj<typeof SolanaStoryView> = {
   name: 'Solana — BTC.b',
-  render: args => <SolanaStoryView {...args} />,
+  render: (args) => <SolanaStoryView {...args} />,
   args: {
     token: Token.BTCb,
     chainId: SOLANA_DEVNET_CHAIN,
@@ -269,7 +270,7 @@ export const SolanaBTCb: StoryObj<typeof SolanaStoryView> = {
 
 export const SolanaLBTC: StoryObj<typeof SolanaStoryView> = {
   name: 'Solana — LBTC',
-  render: args => <SolanaStoryView {...args} />,
+  render: (args) => <SolanaStoryView {...args} />,
   args: {
     token: Token.LBTC,
     chainId: SOLANA_DEVNET_CHAIN,

@@ -196,7 +196,7 @@ const CCIP_BRIDGES: CCIPBridgesConfig[] = [
 ].reduce((acc, cur) => {
   if (cur.type !== BridgeType.CCIP) return acc;
 
-  const c: CCIPBridgesConfig[] = cur.routes.map(route => [
+  const c: CCIPBridgesConfig[] = cur.routes.map((route) => [
     route,
     { type: BridgeType.CCIP, contract: cur.contract },
   ]);

@@ -179,7 +179,7 @@ export interface ChainMetadata {
 export function chainValueToKey(value: string): string {
   return (
     Object.keys(Chain).find(
-      key => Chain[key as keyof typeof Chain] === value,
+      (key) => Chain[key as keyof typeof Chain] === value,
     ) ?? ''
   );
 }

@@ -83,11 +83,11 @@ export async function unwrapBtceToLbtcv({
 
   if (amountBase > maxWithdrawRaw) {
     throw new Error(
-      `Unwrap amount ${amount.toFixed()} exceeds maxWithdraw ${
-        BigNumber(maxWithdrawRaw.toString())
-          .shiftedBy(-BTCE_VAULT_DECIMALS)
-          .toFixed()
-      } for owner ${resolvedOwner}.`,
+      `Unwrap amount ${amount.toFixed()} exceeds maxWithdraw ${BigNumber(
+        maxWithdrawRaw.toString(),
+      )
+        .shiftedBy(-BTCE_VAULT_DECIMALS)
+        .toFixed()} for owner ${resolvedOwner}.`,
     );
   }
 

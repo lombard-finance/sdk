@@ -26,7 +26,7 @@ import type { ChainConfig, FeeAuthConfig } from './types';
 
 /**
  * Chains that require fee authorization (unsubsidized chains).
- * 
+ *
  * These chains require users to sign a fee authorization message
  * before minting LBTC. On subsidized chains, Lombard covers the fees.
  */
@@ -68,7 +68,10 @@ const feeAuthConfig: FeeAuthConfig = {
 
     // Check expiration - expirationDate is Unix timestamp in seconds
     // Convert to milliseconds for Date comparison
-    if (result.expirationDate && new Date(Number(result.expirationDate) * 1000) < new Date()) {
+    if (
+      result.expirationDate &&
+      new Date(Number(result.expirationDate) * 1000) < new Date()
+    ) {
       return null;
     }
 
@@ -149,7 +152,7 @@ export const evmConfig: ChainConfig = {
   // Derived from ASSET_CATALOG - all EVM chains where LBTC is deployed
   // Note: This includes all chains across all environments
   // The `routes` config above filters by source chain + env
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain => {
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) => {
     return isEvmChain(chain);
   }),
 

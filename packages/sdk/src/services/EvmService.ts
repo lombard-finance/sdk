@@ -7,13 +7,13 @@
  */
 
 import type {
-    Env,
-    EvmChainId,
-    EvmProvider,
-    EvmService as IEvmService,
-    SignNetworkFeeParams,
-    SignNetworkFeeResult,
-    SignStakeAndBakeParams,
+  Env,
+  EvmChainId,
+  EvmProvider,
+  EvmService as IEvmService,
+  SignNetworkFeeParams,
+  SignNetworkFeeResult,
+  SignStakeAndBakeParams,
 } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import type { EIP1193Provider } from 'viem';

@@ -2,7 +2,7 @@
  * BTC Deposit Config Unit Tests
  *
  * Tests validation functions for BTC Deposit action.
- * 
+ *
  * Note: Supported chains are derived dynamically from ASSET_CATALOG.
  * These tests verify the validation logic works correctly.
  *
@@ -10,7 +10,7 @@
  */
 
 import { Env } from '@lombard.finance/sdk-common';
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
   evmDepositConfig,
@@ -59,7 +59,7 @@ describe('BTC Deposit Config', () => {
 
     it('should derive chains from asset catalog', () => {
       expect(Array.isArray(evmConfig.destChains)).toBe(true);
-      evmConfig.destChains.forEach(chain => {
+      evmConfig.destChains.forEach((chain) => {
         expect(typeof chain).toBe('string');
       });
     });
@@ -67,23 +67,33 @@ describe('BTC Deposit Config', () => {
 
   describe('isRouteAvailable', () => {
     it('should allow Bitcoin Mainnet source in production', () => {
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_MAINNET, Env.prod)).toBe(true);
+      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_MAINNET, Env.prod)).toBe(
+        true,
+      );
     });
 
     it('should allow Bitcoin Signet source in testnet', () => {
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.testnet)).toBe(true);
+      expect(
+        isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.testnet),
+      ).toBe(true);
     });
 
     it('should allow Bitcoin Signet source in stage', () => {
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.stage)).toBe(true);
+      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.stage)).toBe(
+        true,
+      );
     });
 
     it('should NOT allow Bitcoin Signet in production', () => {
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.prod)).toBe(false);
+      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.prod)).toBe(
+        false,
+      );
     });
 
     it('should NOT allow Bitcoin Mainnet in testnet', () => {
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_MAINNET, Env.testnet)).toBe(false);
+      expect(
+        isRouteAvailable(evmConfig, Chain.BITCOIN_MAINNET, Env.testnet),
+      ).toBe(false);
     });
 
     it('should allow undefined source chain (uses env default)', () => {
@@ -97,11 +107,11 @@ describe('BTC Deposit Config', () => {
       const validAssets = [AssetId.BTCb];
       const invalidAssets = [AssetId.LBTC, AssetId.BTC];
 
-      validAssets.forEach(asset => {
+      validAssets.forEach((asset) => {
         expect(isAssetOutSupported(evmConfig, asset)).toBe(true);
       });
 
-      invalidAssets.forEach(asset => {
+      invalidAssets.forEach((asset) => {
         expect(isAssetOutSupported(evmConfig, asset)).toBe(false);
       });
     });
@@ -112,13 +122,25 @@ describe('BTC Deposit Config', () => {
     });
 
     it('should enforce environment-specific routes', () => {
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_MAINNET, Env.prod)).toBe(true);
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.prod)).toBe(false);
+      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_MAINNET, Env.prod)).toBe(
+        true,
+      );
+      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.prod)).toBe(
+        false,
+      );
 
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.testnet)).toBe(true);
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.stage)).toBe(true);
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.dev)).toBe(true);
-      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_MAINNET, Env.testnet)).toBe(false);
+      expect(
+        isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.testnet),
+      ).toBe(true);
+      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.stage)).toBe(
+        true,
+      );
+      expect(isRouteAvailable(evmConfig, Chain.BITCOIN_SIGNET, Env.dev)).toBe(
+        true,
+      );
+      expect(
+        isRouteAvailable(evmConfig, Chain.BITCOIN_MAINNET, Env.testnet),
+      ).toBe(false);
     });
   });
 
@@ -177,24 +199,33 @@ describe('BTC Deposit Config', () => {
     });
 
     it('should allow Bitcoin Mainnet source in production', () => {
-      expect(isRouteAvailable(solConfig, Chain.BITCOIN_MAINNET, Env.prod)).toBe(true);
+      expect(isRouteAvailable(solConfig, Chain.BITCOIN_MAINNET, Env.prod)).toBe(
+        true,
+      );
     });
 
     it('should allow Bitcoin Signet source in dev', () => {
-      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.dev)).toBe(true);
+      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.dev)).toBe(
+        true,
+      );
     });
 
     it('should allow Bitcoin Signet source in stage', () => {
-      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.stage)).toBe(true);
+      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.stage)).toBe(
+        true,
+      );
     });
 
     it('should allow Bitcoin Signet source in testnet', () => {
-      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.testnet)).toBe(true);
+      expect(
+        isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.testnet),
+      ).toBe(true);
     });
 
     it('should NOT allow Bitcoin Signet source in ibc', () => {
-      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.ibc)).toBe(false);
+      expect(isRouteAvailable(solConfig, Chain.BITCOIN_SIGNET, Env.ibc)).toBe(
+        false,
+      );
     });
   });
 });
-

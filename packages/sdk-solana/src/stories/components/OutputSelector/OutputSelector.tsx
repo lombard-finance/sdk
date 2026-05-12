@@ -56,7 +56,7 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
 
   const outputOptions = [
     { value: '', label: '-- Select a Bitcoin transaction --' },
-    ...outputs.map(output => ({
+    ...outputs.map((output) => ({
       value: output.txid,
       label: `${output.txid.substring(0, 10)}... - ${
         Number.parseFloat(output.value) / 10 ** 8
@@ -65,7 +65,7 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
   ];
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selected = outputs.find(o => o.txid === e.target.value);
+    const selected = outputs.find((o) => o.txid === e.target.value);
     onOutputSelect(selected || null);
   };
 
@@ -81,8 +81,8 @@ export const OutputSelector: React.FC<OutputSelectorProps> = ({
       ) : outputs.length === 0 ? (
         <div className="alert alert-info">
           No pending Bitcoin outputs found for your address (
-          {address?.substring(0, 6)}...) on {environment}. You might need to stake
-          Bitcoin first or check the selected network.
+          {address?.substring(0, 6)}...) on {environment}. You might need to
+          stake Bitcoin first or check the selected network.
         </div>
       ) : (
         <>

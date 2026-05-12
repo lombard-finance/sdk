@@ -3,7 +3,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { SolanaServiceImpl } from './SolanaServiceImpl';
 
 vi.mock('../web3Sdk/signLbtcDestinationAddrSolana', () => ({
-  signLbtcDestinationAddrSolana: vi.fn().mockResolvedValue({ signature: 'mock-sig' }),
+  signLbtcDestinationAddrSolana: vi
+    .fn()
+    .mockResolvedValue({ signature: 'mock-sig' }),
 }));
 
 vi.mock('../web3Sdk/redeemToken/redeemForBtc', () => ({
@@ -18,9 +20,8 @@ vi.mock('../web3Sdk/deposit/deposit', () => ({
   deposit: vi.fn().mockResolvedValue('mock-deposit-tx'),
 }));
 
-const { signLbtcDestinationAddrSolana } = await import(
-  '../web3Sdk/signLbtcDestinationAddrSolana'
-);
+const { signLbtcDestinationAddrSolana } =
+  await import('../web3Sdk/signLbtcDestinationAddrSolana');
 const { redeemForBtc } = await import('../web3Sdk/redeemToken/redeemForBtc');
 const { redeem } = await import('../web3Sdk/redeem/redeem');
 const { deposit } = await import('../web3Sdk/deposit/deposit');

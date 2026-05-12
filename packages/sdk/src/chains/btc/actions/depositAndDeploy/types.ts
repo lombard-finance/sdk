@@ -61,8 +61,7 @@ export interface BtcDepositAndDeployPrepareParams {
 /**
  * BTC DepositAndDeploy progress
  */
-export interface BtcDepositAndDeployProgress
-  extends StrategyProgress<BtcActionStatus> {
+export interface BtcDepositAndDeployProgress extends StrategyProgress<BtcActionStatus> {
   status: BtcActionStatus;
   steps: {
     created: StepStatus;

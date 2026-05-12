@@ -26,8 +26,7 @@ export interface SuiUnstakeParams {
 /**
  * Sui Unstake progress
  */
-export interface SuiUnstakeProgress
-  extends StrategyProgress<NonEvmOperationStatus> {
+export interface SuiUnstakeProgress extends StrategyProgress<NonEvmOperationStatus> {
   status: NonEvmOperationStatus;
   steps: {
     burning: StepStatus;

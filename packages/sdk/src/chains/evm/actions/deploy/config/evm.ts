@@ -73,7 +73,7 @@ export function isDeploySupported(
   env: Env,
 ): boolean {
   return evmConfig.routes.some(
-    route =>
+    (route) =>
       route.asset === asset &&
       route.sourceChains.includes(chain) &&
       route.protocols.includes(protocol) &&

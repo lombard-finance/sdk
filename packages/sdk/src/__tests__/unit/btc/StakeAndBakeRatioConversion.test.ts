@@ -13,9 +13,9 @@
  */
 
 import BigNumber from 'bignumber.js';
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { DEFI_REGISTRY,DefiProtocol } from '../../../defi/defi-registry';
+import { DEFI_REGISTRY, DefiProtocol } from '../../../defi/defi-registry';
 import { Token } from '../../../tokens/token-addresses';
 
 // Mock the exchange ratio API
@@ -52,10 +52,12 @@ describe('Stake and Bake Ratio Conversion', () => {
 
       // Check that at least one environment has btcToLbtc strategy
       const envs = Object.values(btcStrategy);
-      const hasConversion = envs.some(envMap =>
-        envMap ? Object.values(envMap).some(
-          chainConfig => chainConfig?.amountStrategy === 'btcToLbtc',
-        ) : false,
+      const hasConversion = envs.some((envMap) =>
+        envMap
+          ? Object.values(envMap).some(
+              (chainConfig) => chainConfig?.amountStrategy === 'btcToLbtc',
+            )
+          : false,
       );
 
       expect(hasConversion).toBe(true);
@@ -72,10 +74,12 @@ describe('Stake and Bake Ratio Conversion', () => {
 
       // Check that LBTC uses identity strategy (no conversion)
       const envs = Object.values(lbtcStrategy);
-      const hasIdentity = envs.some(envMap =>
-        envMap ? Object.values(envMap).some(
-          chainConfig => chainConfig?.amountStrategy === 'identity',
-        ) : false,
+      const hasIdentity = envs.some((envMap) =>
+        envMap
+          ? Object.values(envMap).some(
+              (chainConfig) => chainConfig?.amountStrategy === 'identity',
+            )
+          : false,
       );
 
       expect(hasIdentity).toBe(true);
@@ -92,10 +96,12 @@ describe('Stake and Bake Ratio Conversion', () => {
 
       // Check that BTCb uses identity strategy
       const envs = Object.values(btcbStrategy);
-      const hasIdentity = envs.some(envMap =>
-        envMap ? Object.values(envMap).some(
-          chainConfig => chainConfig?.amountStrategy === 'identity',
-        ) : false,
+      const hasIdentity = envs.some((envMap) =>
+        envMap
+          ? Object.values(envMap).some(
+              (chainConfig) => chainConfig?.amountStrategy === 'identity',
+            )
+          : false,
       );
 
       expect(hasIdentity).toBe(true);
@@ -105,9 +111,8 @@ describe('Stake and Bake Ratio Conversion', () => {
   describe('Ratio Conversion Logic', () => {
     it('should calculate correct LBTC amount from BTC using ratio', async () => {
       // Import the actual function to test the conversion logic
-      const { calculateStakeAndBakeLBTCAmount } = await import(
-        '../../../contract-functions/signStakeAndBake/utils'
-      );
+      const { calculateStakeAndBakeLBTCAmount } =
+        await import('../../../contract-functions/signStakeAndBake/utils');
 
       // Test with example values from the bug report:
       // User sends 20000 satoshis, ratio is ~1.00265
@@ -125,9 +130,8 @@ describe('Stake and Bake Ratio Conversion', () => {
 
     it('should return same amount when ratio is 1', async () => {
       // Reset the mock to return ratio of 1
-      const { getExchangeRatio } = await import(
-        '../../../api-functions/getLBTCExchangeRate/get-exchange-ratio'
-      );
+      const { getExchangeRatio } =
+        await import('../../../api-functions/getLBTCExchangeRate/get-exchange-ratio');
       vi.mocked(getExchangeRatio).mockResolvedValueOnce({
         LBTC: {
           tokenBTCRatio: new BigNumber(1),
@@ -135,9 +139,8 @@ describe('Stake and Bake Ratio Conversion', () => {
         },
       });
 
-      const { calculateStakeAndBakeLBTCAmount } = await import(
-        '../../../contract-functions/signStakeAndBake/utils'
-      );
+      const { calculateStakeAndBakeLBTCAmount } =
+        await import('../../../contract-functions/signStakeAndBake/utils');
 
       const btcAmount = new BigNumber(20000);
       const result = await calculateStakeAndBakeLBTCAmount(btcAmount);

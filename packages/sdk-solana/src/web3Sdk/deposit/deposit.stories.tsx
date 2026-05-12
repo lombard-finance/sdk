@@ -159,10 +159,7 @@ export const StoryView = ({
             />
           )}
           {(error || connectError) && (
-            <ErrorDisplay
-              error={error || connectError}
-              title="Deposit Error"
-            />
+            <ErrorDisplay error={error || connectError} title="Deposit Error" />
           )}
 
           {transactionLogs && transactionLogs.length > 0 && (

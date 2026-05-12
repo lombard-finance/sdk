@@ -7,11 +7,9 @@ import { ChainId } from '../../../common/chains';
 import { Token } from '../../../tokens/token-addresses';
 import { getTokenInfo } from '../../../tokens/tokens';
 import { fromBaseDenomination } from '../../../tokens/tokens';
-import { isVedaVaultChain, Vault, VAULTS } from '../config';
+import { EARN_VAULT, isEarnChain } from '../config';
 
-export type GetVaultMinimumDepositParameters = {
-  /** The vault identifier. */
-  vaultKey: Vault;
+export type GetEarnMinimumDepositParameters = {
   /** The deposit token. Defaults to LBTC. */
   token?: Token;
   /** The chain where the deposit will be made. Defaults to Ethereum. */
@@ -31,34 +29,29 @@ export type GetVaultMinimumDepositParameters = {
  *
  * @example
  * ```ts
- * const min = await getVaultMinimumDeposit({ vaultKey: Vault.Veda });
- * // BigNumber(0.00000002) — 2 satoshis at current rates
+ * const min = await getEarnMinimumDeposit();
+ * // BigNumber(0.00000002), 2 satoshis at current rates
  * ```
  */
-export async function getVaultMinimumDeposit({
-  vaultKey,
+export async function getEarnMinimumDeposit({
   token = Token.LBTC,
   chainId = ChainId.ethereum,
   rpcUrl,
   env,
-}: GetVaultMinimumDepositParameters): Promise<BigNumber> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+}: GetEarnMinimumDepositParameters = {}): Promise<BigNumber> {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Supported chains: ${vault.chains.join(', ')}`,
     );
   }
 
-  const supportedChains = vault.tokens[
-    token as keyof typeof vault.tokens
-  ] as readonly ChainId[] | undefined;
+  const supportedChains = vault.tokens[token as keyof typeof vault.tokens] as
+    | readonly ChainId[]
+    | undefined;
   if (!supportedChains || !supportedChains.includes(chainId)) {
     throw new Error(
-      `Token ${token} is not supported on chain ${chainId} for vault ${vaultKey}`,
+      `Token ${token} is not supported on chain ${chainId} for the Bitcoin Earn vault`,
     );
   }
 

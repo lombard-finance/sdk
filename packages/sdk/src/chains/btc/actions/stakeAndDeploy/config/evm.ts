@@ -19,14 +19,14 @@ import { AssetId, Chain, evmChainIdToChain } from '../../../../../core';
 import { LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
 import { evmAddressSchema } from '../../../../../shared/validation';
-import { VEDA_VAULT_STAKE_AND_BAKE_CHAINS } from '../../../../../vaults/lib/config';
+import { EARN_STAKE_AND_BAKE_CHAINS } from '../../../../../vaults/lib/config';
 import { getSupportedProtocols } from '../../depositAndDeploy/config';
 import type { StakeAndDeployChainConfig } from './types';
 
 // Convert chain IDs to Chain enum values (CAIP-2 format)
-// Uses VEDA_VAULT_STAKE_AND_BAKE_CHAINS as source of truth
-const STAKE_AND_DEPLOY_DEST_CHAINS = VEDA_VAULT_STAKE_AND_BAKE_CHAINS.map(
-  chainId => evmChainIdToChain(chainId),
+// Uses EARN_STAKE_AND_BAKE_CHAINS as source of truth
+const STAKE_AND_DEPLOY_DEST_CHAINS = EARN_STAKE_AND_BAKE_CHAINS.map((chainId) =>
+  evmChainIdToChain(chainId),
 );
 
 /**
@@ -49,7 +49,7 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
     },
   ],
 
-  // StakeAndDeploy requires vault support - uses VEDA_VAULT_STAKE_AND_BAKE_CHAINS as source of truth
+  // StakeAndDeploy requires vault support - uses EARN_STAKE_AND_BAKE_CHAINS as source of truth
   destChains: STAKE_AND_DEPLOY_DEST_CHAINS,
 
   // StakeAndDeploy produces LBTC (then deposits to vault)

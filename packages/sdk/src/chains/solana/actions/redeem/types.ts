@@ -22,8 +22,7 @@ export interface SolanaRedeemParams {
   destChain: Chain;
 }
 
-export interface SolanaRedeemProgress
-  extends StrategyProgress<NonEvmOperationStatus> {
+export interface SolanaRedeemProgress extends StrategyProgress<NonEvmOperationStatus> {
   status: NonEvmOperationStatus;
   steps: {
     burning: StepStatus;

@@ -1,5 +1,5 @@
 import { Env } from '@lombard.finance/sdk-common';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { generateDepositBtcAddress } from '../../api-functions/generateDepositBtcAddress/generateDepositBtcAddress';
 import { getNetworkFeeSignature } from '../../api-functions/getNetworkFeeSignature/getNetworkFeeSignature';
@@ -8,15 +8,24 @@ import { ChainId } from '../../common/chains';
 import { ApiService } from '../../services/ApiService';
 
 // Mock dependencies
-vi.mock('../../api-functions/generateDepositBtcAddress/generateDepositBtcAddress', () => ({
-  generateDepositBtcAddress: vi.fn().mockResolvedValue('tb1qmockaddress'),
-}));
-vi.mock('../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature', () => ({
-  storeNetworkFeeSignature: vi.fn(),
-}));
-vi.mock('../../api-functions/getNetworkFeeSignature/getNetworkFeeSignature', () => ({
-  getNetworkFeeSignature: vi.fn(),
-}));
+vi.mock(
+  '../../api-functions/generateDepositBtcAddress/generateDepositBtcAddress',
+  () => ({
+    generateDepositBtcAddress: vi.fn().mockResolvedValue('tb1qmockaddress'),
+  }),
+);
+vi.mock(
+  '../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature',
+  () => ({
+    storeNetworkFeeSignature: vi.fn(),
+  }),
+);
+vi.mock(
+  '../../api-functions/getNetworkFeeSignature/getNetworkFeeSignature',
+  () => ({
+    getNetworkFeeSignature: vi.fn(),
+  }),
+);
 
 describe('ApiService', () => {
   let service: ApiService;
@@ -92,4 +101,3 @@ describe('ApiService', () => {
     });
   });
 });
-

@@ -84,7 +84,7 @@ export function isUnstakeSupported(
   env: Env,
 ): boolean {
   return allRoutes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) &&
       route.destChain === destChain &&
       route.assetIn === assetIn &&

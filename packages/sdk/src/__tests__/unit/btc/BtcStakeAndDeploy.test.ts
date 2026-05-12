@@ -51,8 +51,8 @@ describe('BtcStakeAndDeploy Interface', () => {
 
     it('should support different protocols', () => {
       const protocols = ['corn-silo', 'euler-lbtc', 'aave'];
-      
-      protocols.forEach(protocol => {
+
+      protocols.forEach((protocol) => {
         expect(typeof protocol).toBe('string');
       });
     });
@@ -79,7 +79,7 @@ describe('BtcStakeAndDeploy Interface', () => {
         'address_ready',
       ];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -87,7 +87,10 @@ describe('BtcStakeAndDeploy Interface', () => {
 
   describe('Method Signatures', () => {
     it('should define prepare method', () => {
-      type PrepareMethod = (params: { amount: string; recipient: string }) => Promise<void>;
+      type PrepareMethod = (params: {
+        amount: string;
+        recipient: string;
+      }) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });
@@ -153,7 +156,7 @@ describe('BtcStakeAndDeploy Interface', () => {
 
     it('should handle signature already exists error (Bug #7)', () => {
       const errorMessage = 'stake and bake signature already exists';
-      
+
       const isExistingSignatureError = (message: string): boolean => {
         return message.toLowerCase().includes('signature already exists');
       };
@@ -164,9 +167,11 @@ describe('BtcStakeAndDeploy Interface', () => {
 
   describe('Event Emissions', () => {
     it('should emit progress events', () => {
-      const handler = vi.fn((progress: { status: string; steps?: Record<string, string> }) => {
-        expect(progress.status).toBeDefined();
-      });
+      const handler = vi.fn(
+        (progress: { status: string; steps?: Record<string, string> }) => {
+          expect(progress.status).toBeDefined();
+        },
+      );
 
       handler({
         status: 'address_ready',
@@ -191,4 +196,3 @@ describe('BtcStakeAndDeploy Interface', () => {
     });
   });
 });
-

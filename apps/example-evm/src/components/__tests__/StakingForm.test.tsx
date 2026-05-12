@@ -56,14 +56,18 @@ describe('EVM StakingForm', () => {
   it('shows wallet icon button and fills address on click', async () => {
     renderForm();
 
-    const walletButton = container.querySelector('button[title="Use wallet address"]');
+    const walletButton = container.querySelector(
+      'button[title="Use wallet address"]',
+    );
     expect(walletButton).toBeTruthy();
 
     await act(async () => {
       walletButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    const destInput = container.querySelector('#destAddress') as HTMLInputElement;
+    const destInput = container.querySelector(
+      '#destAddress',
+    ) as HTMLInputElement;
     expect(destInput.value).toBe('0xabc123');
   });
 
@@ -71,14 +75,18 @@ describe('EVM StakingForm', () => {
     const { onSubmit } = renderForm();
 
     // Click wallet icon button to fill address
-    const walletButton = container.querySelector('button[title="Use wallet address"]');
+    const walletButton = container.querySelector(
+      'button[title="Use wallet address"]',
+    );
     await act(async () => {
       walletButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -94,7 +102,9 @@ describe('EVM StakingForm', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     expect(alertMock).toHaveBeenCalled();
@@ -105,7 +115,9 @@ describe('EVM StakingForm', () => {
   it('shows chain selector dropdown', () => {
     renderForm();
 
-    const destChainSelect = container.querySelector('#destChain') as HTMLSelectElement;
+    const destChainSelect = container.querySelector(
+      '#destChain',
+    ) as HTMLSelectElement;
     expect(destChainSelect.tagName).toBe('SELECT');
     expect(destChainSelect.options.length).toBeGreaterThan(0);
   });
@@ -113,14 +125,18 @@ describe('EVM StakingForm', () => {
   it('disables submit when disabled prop is true', () => {
     renderForm({ disabled: true });
 
-    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const button = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
   });
 
   it('shows loading state when isLoading is true', () => {
     renderForm({ isLoading: true });
 
-    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const button = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Initializing');
   });

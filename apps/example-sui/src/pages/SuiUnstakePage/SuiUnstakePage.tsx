@@ -96,7 +96,6 @@ export function SuiUnstakePage({ env }: SuiUnstakePageProps) {
               env={env}
             />
           )}
-
         </div>
       </div>
     </div>

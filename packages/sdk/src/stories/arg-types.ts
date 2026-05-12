@@ -46,11 +46,11 @@ export const makeTokenSelector = (
 ): Partial<ArgTypes> => ({
   [fieldName]: {
     mapping: Token,
-    options: Object.keys(Token).filter(tk => {
+    options: Object.keys(Token).filter((tk) => {
       if (!tokens) return true;
 
       const entries = Object.entries(Token);
-      const keys = tokens.map(tv => entries.find(([, v]) => v === tv)?.[0]);
+      const keys = tokens.map((tv) => entries.find(([, v]) => v === tv)?.[0]);
       return keys.includes(tk);
     }),
     control: { type: 'select' },

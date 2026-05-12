@@ -7,7 +7,7 @@
  */
 
 import { Env } from '@lombard.finance/sdk-common';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { btcDeposit } from '../../chains/btc/actions/deposit';
 import { AssetId, Chain } from '../../index';
@@ -106,4 +106,3 @@ describe('BTC Deposit Integration', () => {
     });
   });
 });
-

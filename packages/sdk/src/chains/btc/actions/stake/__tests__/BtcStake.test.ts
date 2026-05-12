@@ -62,7 +62,7 @@ describe('BtcStake Interface', () => {
       ];
 
       // Verify all status strings are defined
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });

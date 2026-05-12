@@ -52,9 +52,8 @@ describe('EvmRedeem fee authorization status', () => {
   });
 
   it('transitions to NEEDS_FEE_AUTHORIZATION when fee auth required and no valid signature', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+    const { checkFeeAuthorization } =
+      await import('../../../chains/evm/shared/feeAuth');
 
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
       requiresAuth: true,
@@ -86,9 +85,8 @@ describe('EvmRedeem fee authorization status', () => {
   });
 
   it('transitions to READY when fee auth not required (subsidized chain)', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+    const { checkFeeAuthorization } =
+      await import('../../../chains/evm/shared/feeAuth');
 
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
       requiresAuth: false,
@@ -116,9 +114,8 @@ describe('EvmRedeem fee authorization status', () => {
   });
 
   it('emits status-change event with NEEDS_FEE_AUTHORIZATION', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+    const { checkFeeAuthorization } =
+      await import('../../../chains/evm/shared/feeAuth');
 
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
       requiresAuth: true,
@@ -146,9 +143,7 @@ describe('EvmRedeem fee authorization status', () => {
       recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
     });
 
-    expect(statusChanges).toContain(
-      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-    );
+    expect(statusChanges).toContain(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
     expect(statusChanges).not.toContain(EvmOperationStatus.READY);
   });
 });

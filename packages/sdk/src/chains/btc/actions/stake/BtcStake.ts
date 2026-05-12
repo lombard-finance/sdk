@@ -11,15 +11,15 @@
 import type { z } from 'zod';
 
 import type {
-    ChainId,
-    SolanaChain,
-    StarknetChainId,
-    SuiChain,
+  ChainId,
+  SolanaChain,
+  StarknetChainId,
+  SuiChain,
 } from '../../../../common/chains';
 import {
-    getChainType,
-    parseChainIdentifier,
-    StepStatus,
+  getChainType,
+  parseChainIdentifier,
+  StepStatus,
 } from '../../../../core';
 import { BtcActionStatus } from '../../../../shared/constants/statusConstants';
 import type { BtcCoreContext } from '../../../../shared/context';
@@ -29,21 +29,21 @@ import type { MonitorProgress } from '../../../../shared/monitoring';
 import { Token } from '../../../../tokens/token-addresses';
 import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctionedAddress';
 import {
-    assetIdToToken,
-    BaseBtcAction,
-    type StatusConfig,
-    type StepDefinition,
+  assetIdToToken,
+  BaseBtcAction,
+  type StatusConfig,
+  type StepDefinition,
 } from '../shared';
 import {
-    type ChainConfig,
-    type FeeAuthConfig,
-    getChainConfig,
-    isAssetOutSupported,
-    isDestChainSupported,
-    isRouteAvailable,
-    type SignatureResult,
+  type ChainConfig,
+  type FeeAuthConfig,
+  getChainConfig,
+  isAssetOutSupported,
+  isDestChainSupported,
+  isRouteAvailable,
+  type SignatureResult,
 } from './config';
-import type { BtcStake as IBtcStake,BtcStakeParams } from './types';
+import type { BtcStake as IBtcStake, BtcStakeParams } from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types

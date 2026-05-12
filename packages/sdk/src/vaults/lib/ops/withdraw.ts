@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { Hash } from 'viem';
 
 import { makePublicClient } from '../../../clients/public-client';
 import { makeWalletClient } from '../../../clients/wallet-client';
@@ -13,7 +14,7 @@ import {
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
 import { DAY } from '../../../utils/time';
-import { isVedaVaultChain, Vault, VAULTS } from '../config';
+import { EARN_VAULT, isEarnChain } from '../config';
 
 export type QueueWithdrawParameters = {
   /** The amount to be withdrawn from the DeFi vault. */
@@ -26,41 +27,27 @@ export type QueueWithdrawParameters = {
   approve?: boolean;
   /** The optional deposit asset. */
   token?: Token;
-  /** The vault identifier. */
-  vaultKey?: Vault;
 } & CommonWriteParameters;
 
 /**
- * Queues withdrawal from the DeFi vault.
- * @param {QueueWithdrawParameters} parameters - The parameters.
- * @param {BigNumber.Value} parameters.amount - The deposit amount.
- * @param {boolean} parameters.approve - The optional flag determining whether approve actions should be performed.
- * @param {Token} parameters.token - The optional deposit asset.
- * @param {Vault} parameters.vaultKey - The vault identifier.
- * @param {Address} parameters.account - The EVM account address.
- * @param {ChainId} parameters.chainId - The chain id.
- * @param {EIP1193Provider} parameters.provider - The EIP1193 provider.
- * @param {string} parameters.rpcUrl - The optional rpc url.
+ * @internal Internal helper used by `EvmWithdraw` and other action classes.
+ * The public `queueWithdraw` function was removed in 5.0.0; consumers use
+ * `withdrawEarn` instead.
  *
  * @returns {Promise<Hash>}
  */
-export async function queueWithdraw({
+export async function queueWithdrawInternal({
   amount: amountRaw,
   approve = true,
   token = Token.LBTC,
-  vaultKey = Vault.Veda,
   account,
   chainId,
   provider,
   rpcUrl,
   env,
 }: QueueWithdrawParameters) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
@@ -159,40 +146,25 @@ export async function queueWithdraw({
   return txHash;
 }
 
-export type CancelWithdrawParameters = Pick<
-  QueueWithdrawParameters,
-  'token' | 'vaultKey'
-> &
+export type CancelWithdrawParameters = Pick<QueueWithdrawParameters, 'token'> &
   CommonWriteParameters;
 
 /**
- * Cancels queued withdrawal.
- * @param {CancelWithdrawParameters} parameters - The parameters.
- * @param {Token} parameters.token - The optional deposit asset.
- * @param {Vault} parameters.vaultKey - The vault identifier.
- * @param {Address} parameters.account - The EVM account address.
- * @param {ChainId} parameters.chainId - The chain id.
- * @param {EIP1193Provider} parameters.provider - The EIP1193 provider.
- * @param {string} parameters.rpcUrl - The optional rpc url.
- *
- * @returns {Promise<Hash>}
- * @returns
+ * @internal
+ * Shared implementation for cancelWithdraw / cancelEarnWithdrawal so the new
+ * Earn-native function does not trigger the deprecation warning when calling
+ * through.
  */
-export async function cancelWithdraw({
+export async function cancelWithdrawInternal({
   token = Token.LBTC,
-  vaultKey = Vault.Veda,
   account,
   chainId,
   provider,
   rpcUrl,
   env,
-}: CancelWithdrawParameters) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+}: CancelWithdrawParameters): Promise<Hash> {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );

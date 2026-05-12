@@ -73,8 +73,7 @@ export async function getDepositBtcAddress({
     }
 
     if (isSolanaChain(chainId)) {
-      const solanaToken =
-        tokenParam === Token.BTCb ? Token.BTCb : Token.LBTC;
+      const solanaToken = tokenParam === Token.BTCb ? Token.BTCb : Token.LBTC;
       const tokenAddress = getSolanaTokenAddress(chainId, env, solanaToken);
       if (tokenAddress) {
         tokenAddressFilter = {
@@ -102,14 +101,14 @@ export async function getDepositBtcAddress({
 
   const addresses = (_addresses || [])
     .filter(
-      a =>
+      (a) =>
         // filter by chain id
         a.deposit_metadata.to_blockchain.toLowerCase() ===
           getChainNameById(chainId).toLowerCase() &&
         // filter by address
         a.deposit_metadata.to_address.toLowerCase() === address.toLowerCase(),
     )
-    .filter(a => {
+    .filter((a) => {
       if (!tokenAddressFilter) {
         return false;
       }
