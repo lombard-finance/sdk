@@ -13,10 +13,12 @@ import {
   AssetId,
   Chain,
   getEvmAssetChains,
-  getEvmChainsWithAllAssets } from '../../../../../core';
+  getEvmChainsWithAllAssets,
+} from '../../../../../core';
 import {
   bitcoinAddressSchema,
-  evmAddressSchema } from '../../../../../shared/validation';
+  evmAddressSchema,
+} from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -60,15 +62,18 @@ export const evmToBtcConfig: ChainConfig = {
     {
       sourceChains: LBTC_PROD_CHAINS,
       destChain: Chain.BITCOIN_MAINNET,
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
     // Testnet: EVM chains with LBTC → Bitcoin Signet
     {
       sourceChains: LBTC_TESTNET_CHAINS,
       destChain: Chain.BITCOIN_SIGNET,
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
+    },
   ],
 
-  recipientSchema: bitcoinAddressSchema };
+  recipientSchema: bitcoinAddressSchema,
+};
 
 /**
  * EVM → BTC.b configuration (same-chain wrapped)
@@ -82,25 +87,28 @@ export const evmToBtcbConfig: ChainConfig = {
 
   routes: [
     // Production: Same-chain routes for chains with both LBTC and BTCb
-    ...LBTC_BTCB_PROD_CHAINS.map(chain => ({
+    ...LBTC_BTCB_PROD_CHAINS.map((chain) => ({
       sourceChains: [chain],
       destChain: chain,
-      envs: [Env.prod] as Env[] })),
+      envs: [Env.prod] as Env[],
+    })),
     // Testnet: Same-chain routes
-    ...LBTC_BTCB_TESTNET_CHAINS.map(chain => ({
+    ...LBTC_BTCB_TESTNET_CHAINS.map((chain) => ({
       sourceChains: [chain],
       destChain: chain,
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] as Env[] })),
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] as Env[],
+    })),
   ],
 
-  recipientSchema: evmAddressSchema };
+  recipientSchema: evmAddressSchema,
+};
 
 /**
  * Check if unstake to BTC is supported
  */
 export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return evmToBtcConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }
@@ -110,7 +118,7 @@ export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
  */
 export function isBtcbUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return evmToBtcbConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

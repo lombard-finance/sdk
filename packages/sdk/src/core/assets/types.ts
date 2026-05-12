@@ -62,7 +62,8 @@ export const AssetId = {
   // Stablecoin assets (for BSA)
   USDC: 'USDC',
   USDT: 'USDT',
-  DAI: 'DAI' } as const;
+  DAI: 'DAI',
+} as const;
 
 export type AssetId = (typeof AssetId)[keyof typeof AssetId];
 
@@ -122,7 +123,7 @@ export interface AssetCatalog {
 export function assetValueToKey(value: string): string {
   return (
     Object.keys(AssetId).find(
-      key => AssetId[key as keyof typeof AssetId] === value,
+      (key) => AssetId[key as keyof typeof AssetId] === value,
     ) ?? ''
   );
 }

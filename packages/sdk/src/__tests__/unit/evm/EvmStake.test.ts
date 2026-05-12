@@ -22,7 +22,8 @@ describe('EvmStake Interface', () => {
       const params = {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
-        sourceChain: Chain.AVALANCHE };
+        sourceChain: Chain.AVALANCHE,
+      };
 
       expect(params.assetIn).toBe(AssetId.BTCb);
     });
@@ -31,7 +32,8 @@ describe('EvmStake Interface', () => {
       const params = {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
-        sourceChain: Chain.AVALANCHE };
+        sourceChain: Chain.AVALANCHE,
+      };
 
       expect(params.assetOut).toBe(AssetId.LBTC);
     });
@@ -40,12 +42,14 @@ describe('EvmStake Interface', () => {
       const mainnetParams = {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
-        sourceChain: Chain.AVALANCHE };
+        sourceChain: Chain.AVALANCHE,
+      };
 
       const testnetParams = {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
-        sourceChain: Chain.AVALANCHE_FUJI };
+        sourceChain: Chain.AVALANCHE_FUJI,
+      };
 
       expect(mainnetParams.sourceChain).toBe(Chain.AVALANCHE);
       expect(testnetParams.sourceChain).toBe(Chain.AVALANCHE_FUJI);
@@ -55,7 +59,8 @@ describe('EvmStake Interface', () => {
   describe('EvmStakePrepareParams', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
-        amount: '0.1' };
+        amount: '0.1',
+      };
 
       expect(params.amount).toBe('0.1');
     });
@@ -70,7 +75,7 @@ describe('EvmStake Interface', () => {
         'completed',
       ];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -115,14 +120,15 @@ describe('EvmStake Interface', () => {
         feeFormatted: string | null;
         expirationDate: string | null;
       };
-      
+
       const feeAuth: FeeAuthState = {
         requiresAuth: true,
         isAuthorized: false,
         feeInSatoshis: BigInt(32),
         feeFormatted: '0.00000032',
-        expirationDate: null };
-      
+        expirationDate: null,
+      };
+
       expect(feeAuth.requiresAuth).toBe(true);
       expect(feeAuth.isAuthorized).toBe(false);
     });
@@ -193,8 +199,12 @@ describe('EvmStake Interface', () => {
     });
 
     it('should expose feeAuth state', () => {
-      type HasFeeAuth = { readonly feeAuth: { requiresAuth: boolean; isAuthorized: boolean } };
-      const obj: HasFeeAuth = { feeAuth: { requiresAuth: true, isAuthorized: false } };
+      type HasFeeAuth = {
+        readonly feeAuth: { requiresAuth: boolean; isAuthorized: boolean };
+      };
+      const obj: HasFeeAuth = {
+        feeAuth: { requiresAuth: true, isAuthorized: false },
+      };
       expect(obj.feeAuth.requiresAuth).toBe(true);
     });
   });

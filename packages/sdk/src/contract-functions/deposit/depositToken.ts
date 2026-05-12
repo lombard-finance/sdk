@@ -14,7 +14,8 @@ import {
   fromBaseDenomination,
   getTokenContractInfo,
   retrieveTokenProperties,
-  toBaseDenomination } from '../../tokens/tokens';
+  toBaseDenomination,
+} from '../../tokens/tokens';
 import { UnsupportedTokenFlow } from '../../utils/err';
 import toBigInt from '../../utils/numbers';
 
@@ -24,7 +25,8 @@ const AVAILABLE_FLOWS: Array<{
 }> = [
   {
     tokenIn: Token.BTCb,
-    tokenOut: Token.LBTC },
+    tokenOut: Token.LBTC,
+  },
 ];
 
 /* -------------------------------------------------------------------------- */
@@ -74,7 +76,8 @@ export async function getAssetRouterAddress({
   tokenIn,
   chainId,
   env,
-  rpcUrl }: {
+  rpcUrl,
+}: {
   tokenIn: Token;
   chainId: CommonWriteParameters['chainId'];
   env?: IEnvParam['env'];
@@ -92,7 +95,8 @@ export async function getAssetRouterAddress({
   const assetRouterAddress = (await publicClient.readContract({
     address: adapterContractInfo.address,
     abi: adapterContractInfo.abi,
-    functionName: 'getAssetRouter' })) as Address;
+    functionName: 'getAssetRouter',
+  })) as Address;
 
   return assetRouterAddress;
 }
@@ -125,9 +129,10 @@ export async function depositToken({
   provider,
   rpcUrl,
   tokenIn = Token.BTCb,
-  tokenOut = Token.LBTC }: DepositTokenParameters) {
+  tokenOut = Token.LBTC,
+}: DepositTokenParameters) {
   const flow = AVAILABLE_FLOWS.find(
-    af => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
+    (af) => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
   );
   if (!flow) {
     throw new UnsupportedTokenFlow(tokenIn, tokenOut, chainId, env);
@@ -171,7 +176,8 @@ export async function depositToken({
   const assetRouterAddress = (await publicClient.readContract({
     address: adapterContractInfo.address,
     abi: adapterContractInfo.abi,
-    functionName: 'getAssetRouter' })) as Address;
+    functionName: 'getAssetRouter',
+  })) as Address;
 
   const amount = BigNumber(amountRaw);
   const amountBigInt = toBigInt(toBaseDenomination(amount, IN.decimals));
@@ -181,7 +187,8 @@ export async function depositToken({
     address: IN.address,
     abi: IN.abi,
     functionName: 'balanceOf',
-    args: [accountAddress] });
+    args: [accountAddress],
+  });
   const tokenInBalance = fromBaseDenomination(tokenInBalanceRaw, IN.decimals);
 
   if (amount.isGreaterThan(tokenInBalance)) {
@@ -200,7 +207,8 @@ export async function depositToken({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     functionName: 'deposit',
     args: [accountAddress, tokenOutContractInfo.address, amountBigInt],
-    account: accountAddress });
+    account: accountAddress,
+  });
 
   return hash;
 }

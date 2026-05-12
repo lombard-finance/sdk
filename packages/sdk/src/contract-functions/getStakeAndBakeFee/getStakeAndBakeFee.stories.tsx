@@ -11,13 +11,15 @@ import { Token } from '../../tokens/token-addresses';
 import { EARN_STAKE_AND_BAKE_CHAINS } from '../../vaults/lib/config';
 import {
   getStakeAndBakeFee,
-  IGetStakeAndBakeFeeParams } from './getStakeAndBakeFee';
+  IGetStakeAndBakeFeeParams,
+} from './getStakeAndBakeFee';
 
 const meta = {
   title: 'read/getStakeAndBakeFee',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [functionType('read')] } satisfies Meta<typeof StoryView>;
+  decorators: [functionType('read')],
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -27,102 +29,129 @@ export const VedaDefaultToken: Story = {
   args: {
     protocol: DefiProtocol.Veda,
     chainId: ChainId.ethereum,
-    env: Env.prod },
+    env: Env.prod,
+  },
   argTypes: {
     protocol: {
       options: Object.values(DefiProtocol),
       control: { type: 'select' },
-      description: 'The DeFi protocol (Veda or Silo)' },
+      description: 'The DeFi protocol (Veda or Silo)',
+    },
     chainId: {
       mapping: ChainId,
       options: EARN_STAKE_AND_BAKE_CHAINS.map(
-        ch => Object.entries(ChainId).find(([_, v]) => v === ch)?.[0],
+        (ch) => Object.entries(ChainId).find(([_, v]) => v === ch)?.[0],
       ),
       description: 'The chain',
-      control: { type: 'select' } },
+      control: { type: 'select' },
+    },
     env: {
       options: [Env.prod, Env.testnet, Env.stage, Env.dev],
       control: { type: 'select' },
-      description: 'Environment' } } };
+      description: 'Environment',
+    },
+  },
+};
 
 export const VedaExplicitToken: Story = {
   args: {
     protocol: DefiProtocol.Veda,
     token: Token.LBTC,
     chainId: ChainId.ethereum,
-    env: Env.prod },
+    env: Env.prod,
+  },
   argTypes: {
     protocol: {
       options: Object.values(DefiProtocol),
       control: { type: 'select' },
-      description: 'The DeFi protocol' },
+      description: 'The DeFi protocol',
+    },
     token: {
       options: [Token.LBTC, 'BTC'],
       control: { type: 'select' },
-      description: 'The token (LBTC or BTC for Veda)' },
+      description: 'The token (LBTC or BTC for Veda)',
+    },
     chainId: {
       mapping: ChainId,
       options: EARN_STAKE_AND_BAKE_CHAINS.map(
-        ch => Object.entries(ChainId).find(([_, v]) => v === ch)?.[0],
+        (ch) => Object.entries(ChainId).find(([_, v]) => v === ch)?.[0],
       ),
       description: 'The chain',
-      control: { type: 'select' } },
+      control: { type: 'select' },
+    },
     env: {
       options: [Env.prod, Env.testnet, Env.stage, Env.dev],
       control: { type: 'select' },
-      description: 'Environment' } } };
+      description: 'Environment',
+    },
+  },
+};
 
 export const SiloDefaultToken: Story = {
   args: {
     protocol: DefiProtocol.Silo,
     chainId: ChainId.avalancheFuji,
-    env: Env.testnet },
+    env: Env.testnet,
+  },
   argTypes: {
     protocol: {
       options: Object.values(DefiProtocol),
       control: { type: 'select' },
-      description: 'The DeFi protocol (Veda or Silo)' },
+      description: 'The DeFi protocol (Veda or Silo)',
+    },
     chainId: {
       options: ['avalancheFuji'],
       mapping: { avalancheFuji: ChainId.avalancheFuji },
       control: { type: 'select' },
-      description: 'The chain (Silo only supports Avalanche Fuji in testnet)' },
+      description: 'The chain (Silo only supports Avalanche Fuji in testnet)',
+    },
     env: {
       options: [Env.testnet],
       control: { type: 'select' },
-      description: 'Environment (Silo only available in testnet)' } } };
+      description: 'Environment (Silo only available in testnet)',
+    },
+  },
+};
 
 export const SiloExplicitToken: Story = {
   args: {
     protocol: DefiProtocol.Silo,
     token: Token.BTCb,
     chainId: ChainId.avalancheFuji,
-    env: Env.testnet },
+    env: Env.testnet,
+  },
   argTypes: {
     protocol: {
       options: Object.values(DefiProtocol),
       control: { type: 'select' },
-      description: 'The DeFi protocol' },
+      description: 'The DeFi protocol',
+    },
     token: {
       options: [Token.BTCb],
       control: { type: 'select' },
-      description: 'The token (BTCb for Silo)' },
+      description: 'The token (BTCb for Silo)',
+    },
     chainId: {
       options: ['avalancheFuji'],
       mapping: { avalancheFuji: ChainId.avalancheFuji },
       control: { type: 'select' },
-      description: 'The chain (Silo only supports Avalanche Fuji in testnet)' },
+      description: 'The chain (Silo only supports Avalanche Fuji in testnet)',
+    },
     env: {
       options: [Env.testnet],
       control: { type: 'select' },
-      description: 'Environment (Silo only available in testnet)' } } };
+      description: 'Environment (Silo only available in testnet)',
+    },
+  },
+};
 
 type GetStakeAndBakeFeeProps = IGetStakeAndBakeFeeParams;
 
 export function StoryView(props: GetStakeAndBakeFeeProps) {
   const request = async () => {
     return getStakeAndBakeFee({
-      ...props });
+      ...props,
+    });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

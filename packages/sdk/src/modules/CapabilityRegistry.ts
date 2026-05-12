@@ -15,7 +15,8 @@ import type {
   RegisterContext,
   SdkModule,
   ServiceOf,
-  SharedToken } from '@lombard.finance/sdk-common';
+  SharedToken,
+} from '@lombard.finance/sdk-common';
 
 import type { LombardConfig } from '../config/types';
 import { getProviderGetter } from '../config/types';
@@ -48,7 +49,7 @@ export class CapabilityRegistry<
     modules: readonly AnyModule[],
     private readonly config: LombardConfig,
   ) {
-    modules.forEach(mod => this.modules.set(mod.id, mod));
+    modules.forEach((mod) => this.modules.set(mod.id, mod));
   }
 
   /**
@@ -118,6 +119,7 @@ export class CapabilityRegistry<
         this.shared.get(token as SharedToken<unknown>) as T | undefined,
       setShared: <T>(token: SharedToken<T>, value: T) => {
         this.shared.set(token as SharedToken<unknown>, value);
-      } };
+      },
+    };
   }
 }

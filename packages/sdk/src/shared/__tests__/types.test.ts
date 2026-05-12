@@ -12,7 +12,8 @@ import {
   type RouteParams,
   StepStatus,
   type StrategyProgress,
-  StrategyStatus } from '../../core';
+  StrategyStatus,
+} from '../../core';
 
 describe('Shared Types', () => {
   describe('AssetId Enum', () => {
@@ -101,9 +102,12 @@ describe('Shared Types', () => {
         status: StrategyStatus.EXECUTING,
         steps: {
           approval: StepStatus.COMPLETE,
-          execution: StepStatus.PENDING },
+          execution: StepStatus.PENDING,
+        },
         metadata: {
-          txHash: '0x123' } };
+          txHash: '0x123',
+        },
+      };
 
       expect(progress.status).toBe(StrategyStatus.EXECUTING);
       expect(progress.steps.approval).toBe(StepStatus.COMPLETE);
@@ -115,7 +119,8 @@ describe('Shared Types', () => {
         status: StrategyStatus.EXECUTING,
         steps: {},
         confirmations: 2,
-        requiredConfirmations: 6 };
+        requiredConfirmations: 6,
+      };
 
       expect(progress.confirmations).toBe(2);
       expect(progress.requiredConfirmations).toBe(6);
@@ -128,7 +133,8 @@ describe('Shared Types', () => {
         assetIn: AssetId.BTC,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BITCOIN_MAINNET,
-        destChain: Chain.ETHEREUM };
+        destChain: Chain.ETHEREUM,
+      };
 
       expect(params.assetIn).toBe(AssetId.BTC);
       expect(params.assetOut).toBe(AssetId.LBTC);
@@ -139,7 +145,8 @@ describe('Shared Types', () => {
     it('should allow optional fields', () => {
       const params: RouteParams = {
         assetOut: AssetId.LBTC,
-        destChain: Chain.ETHEREUM };
+        destChain: Chain.ETHEREUM,
+      };
 
       expect(params.assetOut).toBe(AssetId.LBTC);
       expect(params.assetIn).toBeUndefined();

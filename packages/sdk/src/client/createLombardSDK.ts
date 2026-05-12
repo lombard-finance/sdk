@@ -10,7 +10,8 @@ import type { Env } from '@lombard.finance/sdk-common';
 import type {
   CreateConfigOptions,
   LombardConfig,
-  ResolvedLombardConfig } from '../config/types';
+  ResolvedLombardConfig,
+} from '../config/types';
 import { ASSET_CATALOG } from '../core/assets/catalog';
 import type { AssetCatalog } from '../core/assets/types';
 import { createConfig } from './createConfig';
@@ -111,7 +112,8 @@ export async function createLombardSDK<E extends Env = Env>(
   // Create resolved config with catalog
   const resolvedConfig: ResolvedLombardConfig = {
     ...config,
-    catalog };
+    catalog,
+  };
 
   return new LombardSDK<E>(resolvedConfig);
 }

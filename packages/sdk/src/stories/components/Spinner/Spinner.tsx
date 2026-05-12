@@ -9,7 +9,8 @@ interface ISpinnerProps {
 export function Spinner({
   color = 'text-primary',
   size = 'sm',
-  className }: ISpinnerProps): JSX.Element {
+  className,
+}: ISpinnerProps): JSX.Element {
   return (
     <div
       className={[

@@ -26,14 +26,16 @@ export { btcModule, BtcService } from './btcModule';
 export type {
   EvmChainId,
   FeeAuthorizationResult,
-  StoredFeeSignature } from './evmModule';
+  StoredFeeSignature,
+} from './evmModule';
 export { evmModule, EvmService } from './evmModule';
 
 // API Module (generic SDK module, not chain-specific)
 export type {
   DepositInfo,
   GenerateDepositAddressParams,
-  GetDepositAddressParams } from './apiModule';
+  GetDepositAddressParams,
+} from './apiModule';
 export { apiModule, ApiService } from './apiModule';
 
 // Module types from sdk-common
@@ -47,10 +49,12 @@ export type {
   RegisterContext,
   // Generic module type
   SdkModule,
-  ServiceOf } from '@lombard.finance/sdk-common';
+  ServiceOf,
+} from '@lombard.finance/sdk-common';
 
 // Service interface types (from sdk-common, aliased for clarity)
 export type {
   ApiService as IApiService,
   BtcService as IBtcService,
-  EvmService as IEvmService } from '@lombard.finance/sdk-common';
+  EvmService as IEvmService,
+} from '@lombard.finance/sdk-common';

@@ -7,7 +7,7 @@
  * @module utils/chain
  */
 
-import { CAIP2_SEPARATOR, Chain,CHAIN_PREFIXES } from '../core';
+import { CAIP2_SEPARATOR, Chain, CHAIN_PREFIXES } from '../core';
 import { LombardError, ValidationErrorCode } from '../shared/errors';
 
 /** Helper to get prefix with separator */
@@ -164,7 +164,8 @@ export function chainToSolanaNetwork(chainId: string): string {
     [Chain.SOLANA_TESTNET]: 'testnet',
     'solana:mainnet-beta': 'mainnet-beta',
     'solana:devnet': 'devnet',
-    'solana:testnet': 'testnet' };
+    'solana:testnet': 'testnet',
+  };
 
   const network = CHAIN_TO_NETWORK[chainId];
   if (!network) {

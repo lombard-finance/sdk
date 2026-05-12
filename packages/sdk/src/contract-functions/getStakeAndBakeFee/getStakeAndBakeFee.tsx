@@ -7,7 +7,8 @@ import { CommonParameters } from '../../common/parameters';
 import {
   DefiProtocol,
   DefiProtocols,
-  StakeAndBakeToken } from '../../defi/defi-registry';
+  StakeAndBakeToken,
+} from '../../defi/defi-registry';
 import { Token } from '../../tokens/token-addresses';
 import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
@@ -19,7 +20,8 @@ import { getStakeAndBakeConfig } from '../signStakeAndBake/validation';
  */
 const PROTOCOL_DEFAULT_TOKENS: Record<DefiProtocol, StakeAndBakeToken> = {
   [DefiProtocol.Veda]: Token.LBTC,
-  [DefiProtocol.Silo]: Token.BTCb };
+  [DefiProtocol.Silo]: Token.BTCb,
+};
 
 export interface IGetStakeAndBakeFeeParams extends CommonParameters {
   /**
@@ -56,7 +58,8 @@ export async function getStakeAndBakeFee({
   token,
   chainId,
   env = DEFAULT_ENV,
-  rpcUrl }: IGetStakeAndBakeFeeParams): Promise<BigNumber> {
+  rpcUrl,
+}: IGetStakeAndBakeFeeParams): Promise<BigNumber> {
   const protocolInfo = DefiProtocols[protocol];
   if (!protocolInfo) {
     throw new Error(`Unknown protocol: ${protocol}`);
@@ -85,7 +88,8 @@ export async function getStakeAndBakeFee({
     const contract = getContract({
       abi: spenderContract.abi,
       address: spenderContract.address,
-      client });
+      client,
+    });
     const fee = await contract.read.getStakeAndBakeFee();
     return fromSatoshi(String(fee));
   } catch (error) {

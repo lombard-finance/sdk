@@ -53,7 +53,8 @@ export async function depositEarn({
   chainId,
   provider,
   rpcUrl,
-  env }: DepositEarnParameters): Promise<Hash> {
+  env,
+}: DepositEarnParameters): Promise<Hash> {
   if (!isBtceVaultChain(chainId)) {
     throw new Error(
       `BTCe is not supported on chain ${chainId}. Supported chains: ${BTCE_VAULT.chains.join(', ')}.`,
@@ -84,7 +85,8 @@ export async function depositEarn({
     address: tokenInfo.address,
     abi: erc20Abi,
     functionName: 'allowance',
-    args: [account, btceAddress] })) as bigint;
+    args: [account, btceAddress],
+  })) as bigint;
 
   if (allowanceRaw < amountBase) {
     if (!approve) {
@@ -100,7 +102,8 @@ export async function depositEarn({
         address: tokenInfo.address,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [btceAddress, amountBase] });
+        args: [btceAddress, amountBase],
+      });
       const approveHash = await walletClient.writeContract(request);
       await publicClient.waitForTransactionReceipt({ hash: approveHash });
     } catch (err) {
@@ -120,5 +123,6 @@ export async function depositEarn({
     chainId,
     provider,
     rpcUrl,
-    env });
+    env,
+  });
 }

@@ -19,10 +19,19 @@ import {
  */
 export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
   const {
-    provider, connection, params, payloadBytes, payloadHash,
-    payloadHashArray, assetRouterProgram, assetRouterProgramId,
-    assetRouterConfigPDA, tokenAuthorityPDA, validatedPayloadPDA,
-    arConfig, debugLog,
+    provider,
+    connection,
+    params,
+    payloadBytes,
+    payloadHash,
+    payloadHashArray,
+    assetRouterProgram,
+    assetRouterProgramId,
+    assetRouterConfigPDA,
+    tokenAuthorityPDA,
+    validatedPayloadPDA,
+    arConfig,
+    debugLog,
   } = ctx;
 
   const [depositPayloadSpentPDA] = PublicKey.findProgramAddressSync(
@@ -60,7 +69,12 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
   const tokenProgramId = mintAccountInfo.owner;
   debugLog('Token program:', tokenProgramId.toBase58());
 
-  const mintAccount = await getMint(connection, mint, undefined, tokenProgramId);
+  const mintAccount = await getMint(
+    connection,
+    mint,
+    undefined,
+    tokenProgramId,
+  );
   if (!mintAccount.mintAuthority) {
     throw new Error('Mint has no mint authority');
   }

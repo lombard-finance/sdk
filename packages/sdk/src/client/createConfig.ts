@@ -85,5 +85,6 @@ export function createConfig(options: CreateConfigOptions): LombardConfig {
   return {
     ...normalized,
     modules,
-    logger };
+    logger,
+  };
 }

@@ -31,18 +31,21 @@ import { LombardError } from '../../../../shared/errors';
 import type { UnstakeEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
-  validatePrepareParams } from '../../../../shared/validation';
+  validatePrepareParams,
+} from '../../../../shared/validation';
 import { Token } from '../../../../tokens/token-addresses';
 import {
   authorizeFee as authorizeFeeShared,
   checkFeeAuthorization,
   createInitialFeeAuthState,
-  type FeeAuthState } from '../../shared/feeAuth';
+  type FeeAuthState,
+} from '../../shared/feeAuth';
 import { evmToBtcbConfig, evmToBtcConfig } from './config';
 import type {
   EvmUnstakeParams,
   EvmUnstakePrepareParams,
-  IEvmUnstake } from './types';
+  IEvmUnstake,
+} from './types';
 
 export class EvmUnstake
   extends BaseAction<UnstakeEventMap, EvmOperationStatus>
@@ -87,7 +90,8 @@ export class EvmUnstake
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
-        destChain: this.params.destChain });
+        destChain: this.params.destChain,
+      });
       this._amount = validated.amount;
       this._recipient = validated.recipient;
 
@@ -101,7 +105,8 @@ export class EvmUnstake
           throw LombardError.providerMissing(this.params.sourceChain, 'evm');
         }
         const accounts = await (provider as EIP1193Provider).request({
-          method: 'eth_accounts' });
+          method: 'eth_accounts',
+        });
         const account = accounts[0] as `0x${string}`;
 
         // Check fee authorization status (use Token.BTCb for LBTC → BTC.b)
@@ -118,7 +123,8 @@ export class EvmUnstake
           isAuthorized: feeAuthResult.hasValidSignature,
           feeInSatoshis: feeAuthResult.feeInSatoshis,
           feeFormatted: feeAuthResult.feeFormatted,
-          expirationDate: feeAuthResult.expirationDate };
+          expirationDate: feeAuthResult.expirationDate,
+        };
 
         // If fee auth required and not authorized, transition to NEEDS_FEE_AUTHORIZATION
         // Note: Status is set here (not via act's successStatus) because the
@@ -127,7 +133,8 @@ export class EvmUnstake
           this.updateStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
           this.emitProgress({
             status: EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-            steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE } });
+            steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
+          });
           return;
         }
       }
@@ -136,7 +143,8 @@ export class EvmUnstake
       this.updateStatus(EvmOperationStatus.READY);
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE } });
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
+      });
     });
   }
 
@@ -147,7 +155,10 @@ export class EvmUnstake
    * Signs the fee authorization and stores it on the server.
    */
   async authorizeFee(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION, 'authorizeFee');
+    this.assertStatus(
+      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
+      'authorizeFee',
+    );
 
     if (!this._feeAuth.feeInSatoshis) {
       throw LombardError.missingParameter('feeInSatoshis');
@@ -162,7 +173,8 @@ export class EvmUnstake
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts' });
+        method: 'eth_accounts',
+      });
       const account = accounts[0] as `0x${string}`;
 
       // Sign and store fee authorization (use Token.BTCb for LBTC → BTC.b)
@@ -172,14 +184,16 @@ export class EvmUnstake
         feeInSatoshis: this._feeAuth.feeInSatoshis!,
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
-        token: Token.BTCb });
+        token: Token.BTCb,
+      });
 
       // Update state
       this._feeAuth.isAuthorized = true;
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE } });
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
+      });
     }, EvmOperationStatus.READY);
   }
 
@@ -194,7 +208,8 @@ export class EvmUnstake
 
       // Get the connected EVM account address from the provider
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts' });
+        method: 'eth_accounts',
+      });
       const evmAccount = accounts[0] as `0x${string}`;
       if (!evmAccount) {
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
@@ -205,19 +220,23 @@ export class EvmUnstake
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE } });
+        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
+      });
 
       // For BTC output: account = EVM wallet (executing burn), btcAddress = recipient (Bitcoin)
       // For BTCb output: account = recipient (same EVM address receives BTCb)
       const txHash = await redeemToken({
         provider: provider as EIP1193Provider,
-        account: isBtcbOutput ? (this._recipient! as `0x${string}`) : evmAccount,
+        account: isBtcbOutput
+          ? (this._recipient! as `0x${string}`)
+          : evmAccount,
         amount: this._amount!,
         btcAddress: isBtcbOutput ? undefined : this._recipient!,
         chainId,
         env: this.ctx.env,
         tokenIn: Token.LBTC,
-        tokenOut: isBtcbOutput ? Token.BTCb : undefined });
+        tokenOut: isBtcbOutput ? Token.BTCb : undefined,
+      });
 
       this._txHash = txHash;
 
@@ -225,7 +244,9 @@ export class EvmUnstake
         status: EvmOperationStatus.COMPLETED,
         steps: {
           burning: StepStatus.COMPLETE,
-          releasing: isBtcbOutput ? StepStatus.COMPLETE : StepStatus.PENDING } });
+          releasing: isBtcbOutput ? StepStatus.COMPLETE : StepStatus.PENDING,
+        },
+      });
 
       this.emitCompleted();
 
@@ -238,6 +259,7 @@ export class EvmUnstake
       this.params.assetOut === AssetId.BTC ? evmToBtcConfig : evmToBtcbConfig;
     return z.object({
       amount: evmAmountSchema,
-      recipient: config.recipientSchema });
+      recipient: config.recipientSchema,
+    });
   }
 }

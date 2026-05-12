@@ -15,9 +15,11 @@ import { Env } from '@lombard.finance/sdk-common';
 
 import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
 import { solanaAddressSchema } from '../../../../../shared/validation';
-import { chainToSolanaNetwork, isSolanaChain } from '../../../../../utils/chain';
+import {
+  chainToSolanaNetwork,
+  isSolanaChain,
+} from '../../../../../utils/chain';
 import type { DepositChainConfig } from './types';
-
 
 /**
  * Solana chain configuration for BTC deposit
@@ -31,13 +33,15 @@ export const solanaDepositConfig: DepositChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.stage, Env.dev, Env.testnet] },
+      envs: [Env.stage, Env.dev, Env.testnet],
+    },
   ],
 
-  destChains: getAllAssetChains(AssetId.BTCb).filter(chain =>
+  destChains: getAllAssetChains(AssetId.BTCb).filter((chain) =>
     isSolanaChain(chain),
   ),
 
@@ -51,7 +55,9 @@ export const solanaDepositConfig: DepositChainConfig = {
     const solana = ctx.capabilities.require('solana') as SolanaService;
     const network = chainToSolanaNetwork(chainId as string);
     const { signature } = await solana.signLbtcDestination({
-      network });
+      network,
+    });
 
     return { signature };
-  } };
+  },
+};

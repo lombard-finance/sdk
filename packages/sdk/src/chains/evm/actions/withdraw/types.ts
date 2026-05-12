@@ -8,7 +8,8 @@ import type {
   Chain,
   DeployProtocol,
   StepStatus,
-  StrategyProgress } from '../../../../core';
+  StrategyProgress,
+} from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { LombardError } from '../../../../shared/errors';
@@ -39,8 +40,7 @@ export interface EvmWithdrawPrepareParams {
 /**
  * EVM Withdraw progress
  */
-export interface EvmWithdrawProgress
-  extends StrategyProgress<EvmOperationStatus> {
+export interface EvmWithdrawProgress extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
   steps: {
     approval: StepStatus;
@@ -78,8 +78,7 @@ export interface EvmCancelWithdrawParams {
 /**
  * EVM Cancel Withdraw progress
  */
-export interface EvmCancelWithdrawProgress
-  extends StrategyProgress<EvmOperationStatus> {
+export interface EvmCancelWithdrawProgress extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
   steps: {
     cancelling: StepStatus;

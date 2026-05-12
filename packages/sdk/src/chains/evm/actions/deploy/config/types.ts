@@ -11,7 +11,8 @@ import type {
   AssetId,
   Chain,
   ChainType,
-  DeployProtocol } from '../../../../../core';
+  DeployProtocol,
+} from '../../../../../core';
 
 /**
  * Route definition for EVM deploy operations

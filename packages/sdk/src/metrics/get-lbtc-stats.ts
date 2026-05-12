@@ -52,7 +52,8 @@ export async function getLBTCStats(
     supply: BigNumber(data[0].supply),
     tvl: BigNumber(data[0].tvl),
     holders: BigNumber(holders),
-    historicalHolders: BigNumber(historicalHolders) };
+    historicalHolders: BigNumber(historicalHolders),
+  };
 
   return stats;
 }

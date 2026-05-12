@@ -9,7 +9,8 @@
 
 import type {
   BtcService as IBtcService,
-  ChainModule } from '@lombard.finance/sdk-common';
+  ChainModule,
+} from '@lombard.finance/sdk-common';
 
 import { BtcService } from '../services/BtcService';
 
@@ -33,7 +34,8 @@ export function btcModule(): ChainModule<'btc', IBtcService> {
     chain: 'btc',
     register() {
       return new BtcService();
-    } };
+    },
+  };
 }
 
 // Re-export service class and interface type

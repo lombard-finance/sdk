@@ -23,7 +23,9 @@ export function UnstakingProgress({
   const hasError = status.phase === 'error';
 
   const getExplorerUrl = (hash: string) => {
-    return getExplorerTxUrl(sourceChain, hash) ?? `https://etherscan.io/tx/${hash}`;
+    return (
+      getExplorerTxUrl(sourceChain, hash) ?? `https://etherscan.io/tx/${hash}`
+    );
   };
 
   return (
@@ -34,7 +36,9 @@ export function UnstakingProgress({
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           {!isComplete && !hasError && <span className="spinner" />}
-          <span className={`text-lg font-medium ${getStatusColor(status.phase)}`}>
+          <span
+            className={`text-lg font-medium ${getStatusColor(status.phase)}`}
+          >
             {status.message}
           </span>
         </div>
@@ -74,7 +78,7 @@ export function UnstakingProgress({
       )}
 
       {/* Action buttons */}
-      {(isComplete || hasError) ? (
+      {isComplete || hasError ? (
         <button onClick={onReset} className="btn btn-secondary w-full">
           Start New Unstake
         </button>

@@ -10,7 +10,8 @@ import { estimateGasFees } from '../../utils/gas';
 import { ensureHex } from '../../utils/hex';
 import {
   BasculeDepositStatus,
-  getBasculeDepositStatus } from '../getBasculeDepositStatus';
+  getBasculeDepositStatus,
+} from '../getBasculeDepositStatus';
 
 export interface IClaimLBTCParams extends CommonWriteParameters {
   /**
@@ -61,7 +62,8 @@ export async function mintToken({
   provider,
   rpcUrl,
   env,
-  token = Token.LBTC }: IClaimLBTCParams & { token?: Token }) {
+  token = Token.LBTC,
+}: IClaimLBTCParams & { token?: Token }) {
   if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error('Unsupported token');
   }
@@ -80,7 +82,8 @@ export async function mintToken({
     chainId,
     rawPayload: data,
     env,
-    token });
+    token,
+  });
 
   if (basculeStatus !== BasculeDepositStatus.REPORTED) {
     switch (basculeStatus) {
@@ -109,7 +112,8 @@ export async function mintToken({
     abi: tokenContract.abi,
     functionName:
       token === Token.BTCK || token === Token.BTCb ? 'mintV1' : 'mint',
-    args: [ensureHex(data), ensureHex(proofSignature)] } as const;
+    args: [ensureHex(data), ensureHex(proofSignature)],
+  } as const;
 
   const gasEstimationData = isKatanaChain(chainId)
     ? await estimateGasFees(publicClient, callData, parseGwei('1'))
@@ -117,7 +121,8 @@ export async function mintToken({
 
   const { request } = await publicClient.simulateContract({
     ...callData,
-    ...gasEstimationData });
+    ...gasEstimationData,
+  });
 
   const txHash = await walletClient.writeContract(request);
 
@@ -139,7 +144,8 @@ export async function claimLBTC({
   chainId,
   provider,
   rpcUrl,
-  env }: IClaimLBTCParams): Promise<Hash> {
+  env,
+}: IClaimLBTCParams): Promise<Hash> {
   return mintToken({
     data,
     proofSignature,
@@ -148,5 +154,6 @@ export async function claimLBTC({
     provider,
     rpcUrl,
     env,
-    token: Token.LBTC });
+    token: Token.LBTC,
+  });
 }

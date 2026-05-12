@@ -8,11 +8,11 @@ import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
-  toBaseDenomination } from '../../../tokens/tokens';
+  toBaseDenomination,
+} from '../../../tokens/tokens';
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
-import {
-  EARN_VAULT, isEarnChain } from '../config';
+import { EARN_VAULT, isEarnChain } from '../config';
 
 export type DepositParameters = {
   /** The amount to be deposited into the DeFi vault. */
@@ -24,7 +24,8 @@ export type DepositParameters = {
    */
   approve?: boolean;
   /** The optional deposit asset. */
-  token?: Token;} & CommonWriteParameters;
+  token?: Token;
+} & CommonWriteParameters;
 
 /**
  * @internal Internal helper used by `EvmDeploy` and other action classes.
@@ -42,7 +43,8 @@ export async function depositInternal({
   chainId,
   provider,
   rpcUrl,
-  env }: DepositParameters) {
+  env,
+}: DepositParameters) {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -67,7 +69,8 @@ export async function depositInternal({
     address: depositToken.address,
     abi: depositToken.abi,
     functionName: 'allowance',
-    args: [account, vault.vaultContract.address] });
+    args: [account, vault.vaultContract.address],
+  });
   const allowance = fromBaseDenomination(
     String(allowanceRaw),
     depositToken.decimals,
@@ -77,7 +80,8 @@ export async function depositInternal({
     address: depositToken.address,
     abi: depositToken.abi,
     functionName: 'balanceOf',
-    args: [account] });
+    args: [account],
+  });
   const balance = fromBaseDenomination(
     String(balanceRaw),
     depositToken.decimals,
@@ -107,7 +111,8 @@ export async function depositInternal({
         address: depositToken.address,
         abi: depositToken.abi,
         functionName: 'approve',
-        args: [vault.vaultContract.address, amountBase] });
+        args: [vault.vaultContract.address, amountBase],
+      });
 
       const txHash = await walletClient.writeContract(request);
       console.info(`Approve tx hash: ${txHash}`);
@@ -127,7 +132,8 @@ export async function depositInternal({
     address: vault.tellerContracts[chainId].address,
     abi: vault.tellerContracts[chainId].abi,
     functionName: 'deposit',
-    args: [depositToken.address, amountBase, 0n] });
+    args: [depositToken.address, amountBase, 0n],
+  });
   const txHash = await walletClient.writeContract(request);
   return txHash;
 }

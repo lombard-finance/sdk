@@ -6,13 +6,15 @@ export type {
   ProviderMap,
   SolanaProvider,
   StarknetProvider,
-  SuiProvider } from '@lombard.finance/sdk-common';
+  SuiProvider,
+} from '@lombard.finance/sdk-common';
 import type {
   BtcProvider,
   EvmProvider,
   SolanaProvider,
   StarknetProvider,
-  SuiProvider } from '@lombard.finance/sdk-common';
+  SuiProvider,
+} from '@lombard.finance/sdk-common';
 
 /**
  * Type guard to check if a provider is an EVM provider

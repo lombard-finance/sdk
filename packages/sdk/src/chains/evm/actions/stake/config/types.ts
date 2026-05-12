@@ -11,10 +11,7 @@
 import type { Env } from '@lombard.finance/sdk-common';
 import type { z } from 'zod';
 
-import type {
-  Chain,
-  ChainType,
-  DeployProtocol } from '../../../../../core';
+import type { Chain, ChainType, DeployProtocol } from '../../../../../core';
 import type { EvmCoreContext } from '../../../../../shared/context';
 
 // ═══════════════════════════════════════════════════════════════════════════

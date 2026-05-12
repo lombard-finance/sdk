@@ -55,7 +55,9 @@ export function StakeAndDeployProgress({
     <div className="space-y-4">
       {/* Status */}
       <div className="rounded-md border border-gray-300 bg-white p-4">
-        <div className={`mb-2 text-sm font-medium ${getStatusColor(status.phase)}`}>
+        <div
+          className={`mb-2 text-sm font-medium ${getStatusColor(status.phase)}`}
+        >
           {status.message}
         </div>
 
@@ -189,7 +191,13 @@ export function StakeAndDeployProgress({
   );
 }
 
-function DepositAddress({ depositAddress, children }: { depositAddress: string; children?: React.ReactNode }) {
+function DepositAddress({
+  depositAddress,
+  children,
+}: {
+  depositAddress: string;
+  children?: React.ReactNode;
+}) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
@@ -204,7 +212,9 @@ function DepositAddress({ depositAddress, children }: { depositAddress: string; 
         Send BTC to this address:
       </div>
       <div className="mb-2 flex items-center gap-2 rounded-md bg-white p-3">
-        <span className="flex-1 break-all font-mono text-sm">{depositAddress}</span>
+        <span className="flex-1 break-all font-mono text-sm">
+          {depositAddress}
+        </span>
         <button
           type="button"
           onClick={handleCopy}

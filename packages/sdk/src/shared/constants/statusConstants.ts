@@ -58,7 +58,8 @@ export const BtcActionStatus = {
   READY: 'ready',
 
   /** Deposit address generated - awaiting BTC deposit */
-  ADDRESS_READY: 'address_ready' } as const;
+  ADDRESS_READY: 'address_ready',
+} as const;
 
 export type BtcActionStatus =
   (typeof BtcActionStatus)[keyof typeof BtcActionStatus];
@@ -87,7 +88,8 @@ export const EvmOperationStatus = {
   NEEDS_APPROVAL: 'needs-approval',
   READY: 'ready',
   CONFIRMING: 'confirming',
-  COMPLETED: 'completed' } as const;
+  COMPLETED: 'completed',
+} as const;
 
 export type EvmOperationStatus =
   (typeof EvmOperationStatus)[keyof typeof EvmOperationStatus];
@@ -103,7 +105,8 @@ export const NonEvmOperationStatus = {
   IDLE: 'idle',
   READY: 'ready',
   CONFIRMING: 'confirming',
-  COMPLETED: 'completed' } as const;
+  COMPLETED: 'completed',
+} as const;
 
 export type NonEvmOperationStatus =
   (typeof NonEvmOperationStatus)[keyof typeof NonEvmOperationStatus];

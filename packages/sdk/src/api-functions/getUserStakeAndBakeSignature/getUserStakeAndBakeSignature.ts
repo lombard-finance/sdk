@@ -65,7 +65,8 @@ interface IGetUserStakeAndBakeSignatureAPIResponse {
 export async function getUserStakeAndBakeSignature({
   userDestinationAddress,
   chainId,
-  env }: IGetUserStakeAndBakeSignatureParams): Promise<IGetUserStakeAndBakeSignatureResponse> {
+  env,
+}: IGetUserStakeAndBakeSignatureParams): Promise<IGetUserStakeAndBakeSignatureResponse> {
   const { baseApiUrl } = getApiConfig(env);
 
   try {
@@ -74,7 +75,9 @@ export async function getUserStakeAndBakeSignature({
       {
         params: {
           userDestinationAddress,
-          chainId: chainId.toString() } },
+          chainId: chainId.toString(),
+        },
+      },
     );
 
     return {
@@ -83,7 +86,8 @@ export async function getUserStakeAndBakeSignature({
       expirationDate: data.expiration_date,
       depositAmount: data.deposit_amount,
       chainId: data.chain_id,
-      nonce: data.nonce };
+      nonce: data.nonce,
+    };
   } catch (error) {
     const errorMessage = getErrorMessage(error);
     throw new Error(

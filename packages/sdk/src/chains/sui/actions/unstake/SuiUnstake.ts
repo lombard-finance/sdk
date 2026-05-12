@@ -17,12 +17,14 @@ import { LombardError } from '../../../../shared/errors';
 import type { UnstakeEventMap } from '../../../../shared/events';
 import {
   amountSchema,
-  validatePrepareParams } from '../../../../shared/validation';
-import { isBtcUnstakeSupported,suiToBtcConfig } from './config';
+  validatePrepareParams,
+} from '../../../../shared/validation';
+import { isBtcUnstakeSupported, suiToBtcConfig } from './config';
 import type {
   ISuiUnstake,
   SuiUnstakeParams,
-  SuiUnstakePrepareParams } from './types';
+  SuiUnstakePrepareParams,
+} from './types';
 
 /**
  * Get Sui chain ID from Chain constant
@@ -59,7 +61,8 @@ export class SuiUnstake
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
         destChain: params.destChain,
-        env: this.env });
+        env: this.env,
+      });
     }
   }
 
@@ -80,13 +83,15 @@ export class SuiUnstake
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
-        destChain: this.params.destChain });
+        destChain: this.params.destChain,
+      });
       this._amount = validated.amount;
       this._recipient = validated.recipient;
 
       this.emitProgress({
         status: NonEvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE } });
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
+      });
     }, NonEvmOperationStatus.READY);
   }
 
@@ -104,7 +109,8 @@ export class SuiUnstake
       // Emit burning step
       this.emitProgress({
         status: NonEvmOperationStatus.READY,
-        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE } });
+        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
+      });
 
       // Get Sui chain ID from source chain
       const chainId = getSuiChainId(this.params.sourceChain);
@@ -114,14 +120,16 @@ export class SuiUnstake
         amount,
         btcAddress: recipient,
         chainId,
-        env: this.env });
+        env: this.env,
+      });
 
       this._txHash = txHash;
 
       // Emit completed steps
       this.emitProgress({
         status: NonEvmOperationStatus.COMPLETED,
-        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING } });
+        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
+      });
 
       this.emitCompleted();
 
@@ -132,6 +140,7 @@ export class SuiUnstake
   private get prepareSchema() {
     return z.object({
       amount: amountSchema,
-      recipient: suiToBtcConfig.recipientSchema });
+      recipient: suiToBtcConfig.recipientSchema,
+    });
   }
 }

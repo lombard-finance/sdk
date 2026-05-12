@@ -5,18 +5,21 @@ import {
   isSolanaChain,
   isStarknetChainId,
   isSuiChain,
-  isValidChain } from '../../common/chains';
+  isValidChain,
+} from '../../common/chains';
 import {
   AddressKind,
   getSolanaTokenAddress,
   getStarknetTokenAddress,
   getSuiTokenAddress,
-  Token } from '../../tokens/token-addresses';
+  Token,
+} from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { makeRequest } from './make-request';
 import type {
   IGetDepositBtcAddressesParameters,
-  IGetDepositBtcAddressParameters } from './types';
+  IGetDepositBtcAddressParameters,
+} from './types';
 
 /**
  * Returns the current address for depositing BTC by given parameters.
@@ -28,12 +31,14 @@ export async function getDepositBtcAddress({
   chainId,
   env,
   partnerId,
-  token: tokenParam = Token.LBTC }: IGetDepositBtcAddressParameters) {
+  token: tokenParam = Token.LBTC,
+}: IGetDepositBtcAddressParameters) {
   const _addresses = await makeRequest({
     address,
     chainId,
     env,
-    partnerId });
+    partnerId,
+  });
 
   let depositAddress: string | undefined = undefined;
 
@@ -54,24 +59,26 @@ export async function getDepositBtcAddress({
         AddressKind.Adapter,
       );
       tokenAddressFilter = {
-        token_address: tokenContractInfo.address.toLowerCase() };
+        token_address: tokenContractInfo.address.toLowerCase(),
+      };
     }
 
     if (isSuiChain(chainId)) {
       const tokenAddress = getSuiTokenAddress(chainId, env);
       if (tokenAddress) {
         tokenAddressFilter = {
-          token_address: tokenAddress.toLowerCase() };
+          token_address: tokenAddress.toLowerCase(),
+        };
       }
     }
 
     if (isSolanaChain(chainId)) {
-      const solanaToken =
-        tokenParam === Token.BTCb ? Token.BTCb : Token.LBTC;
+      const solanaToken = tokenParam === Token.BTCb ? Token.BTCb : Token.LBTC;
       const tokenAddress = getSolanaTokenAddress(chainId, env, solanaToken);
       if (tokenAddress) {
         tokenAddressFilter = {
-          token_address: tokenAddress.toLowerCase() };
+          token_address: tokenAddress.toLowerCase(),
+        };
       }
     }
 
@@ -80,7 +87,8 @@ export async function getDepositBtcAddress({
       const tokenAddress = getStarknetTokenAddress(chainId, env, 'assetRouter');
       if (tokenAddress) {
         tokenAddressFilter = {
-          token_address: tokenAddress.toLowerCase() };
+          token_address: tokenAddress.toLowerCase(),
+        };
       }
     }
   } catch {
@@ -93,14 +101,14 @@ export async function getDepositBtcAddress({
 
   const addresses = (_addresses || [])
     .filter(
-      a =>
+      (a) =>
         // filter by chain id
         a.deposit_metadata.to_blockchain.toLowerCase() ===
           getChainNameById(chainId).toLowerCase() &&
         // filter by address
         a.deposit_metadata.to_address.toLowerCase() === address.toLowerCase(),
     )
-    .filter(a => {
+    .filter((a) => {
       if (!tokenAddressFilter) {
         return false;
       }

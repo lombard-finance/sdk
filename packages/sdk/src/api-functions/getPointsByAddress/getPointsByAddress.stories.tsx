@@ -8,13 +8,15 @@ import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
 import {
   getPointsByAddress,
-  IGetPointsByAddressParameters } from './getPointsByAddress';
+  IGetPointsByAddressParameters,
+} from './getPointsByAddress';
 
 const meta = {
   title: 'api/getPointsByAddress',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [functionType('api-get')] } satisfies Meta<typeof StoryView>;
+  decorators: [functionType('api-get')],
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -23,7 +25,9 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     address: EXAMPLE_EVM_ADDRESS,
-    env: DEFAULT_ENV } };
+    env: DEFAULT_ENV,
+  },
+};
 
 export function StoryView(props: IGetPointsByAddressParameters) {
   const { data, error, isLoading, refetch } = useQuery(

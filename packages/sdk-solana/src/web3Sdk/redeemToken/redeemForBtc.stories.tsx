@@ -25,8 +25,11 @@ interface RedeemForBtcStoryArgs {
   token: RedeemToken;
 }
 
-const getTokenMint = (token: RedeemToken, config: ReturnType<typeof getConfig>): string | undefined =>
-  token === 'LBTC' ? config.lbtcTokenMint : config.btcbTokenMint ?? undefined;
+const getTokenMint = (
+  token: RedeemToken,
+  config: ReturnType<typeof getConfig>,
+): string | undefined =>
+  token === 'LBTC' ? config.lbtcTokenMint : (config.btcbTokenMint ?? undefined);
 
 export const StoryView = ({
   environment,
@@ -149,10 +152,7 @@ export const StoryView = ({
             />
           )}
           {(error || connectError) && (
-            <ErrorDisplay
-              error={error || connectError}
-              title="Redeem Error"
-            />
+            <ErrorDisplay error={error || connectError} title="Redeem Error" />
           )}
 
           {transactionLogs && transactionLogs.length > 0 && (

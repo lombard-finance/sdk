@@ -35,12 +35,13 @@ function createSuiCoreContext(config: LombardConfig): SuiCoreContext {
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
-    getProvider: async key => {
+    getProvider: async (key) => {
       const getter = getProviderGetter(config.providers, key);
       if (!getter) return undefined;
       return getter();
     },
-    sui };
+    sui,
+  };
 }
 
 /**

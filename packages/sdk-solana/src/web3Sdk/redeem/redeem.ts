@@ -67,9 +67,13 @@ export async function redeem(
   params: RedeemParams,
 ): Promise<string> {
   const {
-    amount, recipient, network,
-    env: envOverride, rpcUrl,
-    debug = false, skipPreflight = true,
+    amount,
+    recipient,
+    network,
+    env: envOverride,
+    rpcUrl,
+    debug = false,
+    skipPreflight = true,
   } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
@@ -88,20 +92,26 @@ export async function redeem(
       throw new Error(`Mailbox not configured for network: ${network}`);
     }
     if (!config.solanaRoutingChainId) {
-      throw new Error(`Solana routing chain ID not configured for network: ${network}`);
+      throw new Error(
+        `Solana routing chain ID not configured for network: ${network}`,
+      );
     }
 
     // Resolve source token mint (defaults to LBTC)
     const mintAddress = params.tokenMint || config.lbtcTokenMint;
     if (!mintAddress) {
-      throw new Error(`Source token mint not configured for network: ${network}`);
+      throw new Error(
+        `Source token mint not configured for network: ${network}`,
+      );
     }
 
     // Resolve destination chain and token (defaults to Solana + BTC.b)
     const toLchainIdHex = params.toLchainId || config.solanaRoutingChainId;
     const toTokenAddressStr = params.toTokenAddress || config.btcbTokenMint;
     if (!toTokenAddressStr) {
-      throw new Error(`Destination token not configured for network: ${network}`);
+      throw new Error(
+        `Destination token not configured for network: ${network}`,
+      );
     }
 
     validateAmount(amount);
@@ -112,7 +122,10 @@ export async function redeem(
     const recipientPubkey = new PublicKey(recipient);
     const assetRouterProgramId = new PublicKey(config.assetRouter);
     const mailboxProgramId = new PublicKey(config.mailbox);
-    const solanaRoutingChainId = Buffer.from(config.solanaRoutingChainId, 'hex');
+    const solanaRoutingChainId = Buffer.from(
+      config.solanaRoutingChainId,
+      'hex',
+    );
     const toLchainId = Buffer.from(toLchainIdHex, 'hex');
     const toTokenAddress = new PublicKey(toTokenAddressStr).toBytes();
 
@@ -204,7 +217,10 @@ export async function redeem(
       throw new Error('Asset Router is paused');
     }
     debugLog('Asset Router treasury:', arTreasury.toBase58());
-    debugLog('Native mint (recipient ATA mint):', nativeMintFromConfig.toBase58());
+    debugLog(
+      'Native mint (recipient ATA mint):',
+      nativeMintFromConfig.toBase58(),
+    );
 
     if (mailboxConfigInfo.data.length < 104) {
       throw new Error(
@@ -246,10 +262,14 @@ export async function redeem(
 
     debugLog('Payer token account:', payerTokenAccount.toBase58());
     debugLog('Treasury token account:', treasuryTokenAccount.toBase58());
-    debugLog('Recipient token account (payload):', recipientTokenAccount.toBase58());
+    debugLog(
+      'Recipient token account (payload):',
+      recipientTokenAccount.toBase58(),
+    );
 
     // ── Balance check ──
-    const tokenBalance = await connection.getTokenAccountBalance(payerTokenAccount);
+    const tokenBalance =
+      await connection.getTokenAccountBalance(payerTokenAccount);
     const userBalance = BigInt(tokenBalance.value.amount);
     const parsedAmount = BigInt(amount);
     if (userBalance < parsedAmount) {
@@ -258,10 +278,9 @@ export async function redeem(
       );
     }
 
-    const assetRouterProgram = new Program(
-      getAssetRouterIdl(env),
-      { connection },
-    );
+    const assetRouterProgram = new Program(getAssetRouterIdl(env), {
+      connection,
+    });
 
     // ── Instruction args ──
     const toLchainIdArray = Array.from(toLchainId);
@@ -271,7 +290,8 @@ export async function redeem(
     // ── Build & send with nonce retry ──
     const MAX_NONCE_RETRIES = 3;
     for (let attempt = 0; attempt < MAX_NONCE_RETRIES; attempt++) {
-      const freshMailboxConfig = await connection.getAccountInfo(mailboxConfigPDA);
+      const freshMailboxConfig =
+        await connection.getAccountInfo(mailboxConfigPDA);
       if (!freshMailboxConfig) {
         throw new Error('Mailbox config account not found');
       }
@@ -289,10 +309,17 @@ export async function redeem(
         mailboxProgramId,
       );
 
-      debugLog(`Attempt ${attempt + 1}: global nonce=${globalNonce}, outbound_message=${outboundMessagePDA.toBase58()}`);
+      debugLog(
+        `Attempt ${attempt + 1}: global nonce=${globalNonce}, outbound_message=${outboundMessagePDA.toBase58()}`,
+      );
 
       const tx = await assetRouterProgram.methods
-        .redeem(toLchainIdArray, toTokenAddressArray, recipientArray, new BN(amount))
+        .redeem(
+          toLchainIdArray,
+          toTokenAddressArray,
+          recipientArray,
+          new BN(amount),
+        )
         .accounts({
           payer,
           config: assetRouterConfigPDA,
@@ -328,8 +355,7 @@ export async function redeem(
         return signature;
       } catch (err: unknown) {
         const isNonceError =
-          err instanceof Error &&
-          err.message.includes('0x7d6'); // ConstraintSeeds
+          err instanceof Error && err.message.includes('0x7d6'); // ConstraintSeeds
         if (isNonceError && attempt < MAX_NONCE_RETRIES - 1) {
           debugLog(`Nonce stale (ConstraintSeeds), retrying...`);
           continue;

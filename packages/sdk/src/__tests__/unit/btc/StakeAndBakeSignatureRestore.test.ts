@@ -71,7 +71,8 @@ describe('StakeAndBake Signature Restoration Logic', () => {
         hasSignature: true,
         signature: '0xabc123',
         depositAmount: '20000',
-        expirationDate: String(Math.floor(Date.now() / 1000) + 86400) };
+        expirationDate: String(Math.floor(Date.now() / 1000) + 86400),
+      };
 
       expect(shouldSkipAuthorization(validResult)).toBe(true);
     });
@@ -82,7 +83,8 @@ describe('StakeAndBake Signature Restoration Logic', () => {
 
     it('should require authorization when hasSignature is false', () => {
       const noSignatureResult: StakeAndBakeRestoreResult = {
-        hasSignature: false };
+        hasSignature: false,
+      };
 
       expect(shouldSkipAuthorization(noSignatureResult)).toBe(false);
     });
@@ -93,7 +95,8 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const hasSignatureNoString: StakeAndBakeRestoreResult = {
         hasSignature: true,
         depositAmount: '20000',
-        expirationDate: String(Math.floor(Date.now() / 1000) + 86400) };
+        expirationDate: String(Math.floor(Date.now() / 1000) + 86400),
+      };
 
       expect(shouldSkipAuthorization(hasSignatureNoString)).toBe(true);
     });
@@ -120,9 +123,10 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const hasDeposit = false;
       const hasValidSignature = false;
 
-      const expectedStatus = !hasDeposit && !hasValidSignature
-        ? 'NEEDS_DEPLOY_AUTHORIZATION'
-        : 'READY';
+      const expectedStatus =
+        !hasDeposit && !hasValidSignature
+          ? 'NEEDS_DEPLOY_AUTHORIZATION'
+          : 'READY';
 
       expect(expectedStatus).toBe('NEEDS_DEPLOY_AUTHORIZATION');
     });
@@ -131,7 +135,9 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const _hasDeposit = false; // Not used in this scenario - signature alone determines status
       const hasValidSignature = true;
 
-      const expectedStatus = hasValidSignature ? 'READY' : 'NEEDS_DEPLOY_AUTHORIZATION';
+      const expectedStatus = hasValidSignature
+        ? 'READY'
+        : 'NEEDS_DEPLOY_AUTHORIZATION';
 
       expect(expectedStatus).toBe('READY');
     });
@@ -140,9 +146,10 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const hasDeposit = true;
       const hasValidSignature = true;
 
-      const expectedStatus = hasDeposit && hasValidSignature
-        ? 'ADDRESS_READY'
-        : 'NEEDS_DEPLOY_AUTHORIZATION';
+      const expectedStatus =
+        hasDeposit && hasValidSignature
+          ? 'ADDRESS_READY'
+          : 'NEEDS_DEPLOY_AUTHORIZATION';
 
       expect(expectedStatus).toBe('ADDRESS_READY');
     });
@@ -151,9 +158,10 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const hasDeposit = true;
       const hasValidSignature = false;
 
-      const expectedStatus = hasDeposit && !hasValidSignature
-        ? 'NEEDS_DEPLOY_AUTHORIZATION'
-        : 'ADDRESS_READY';
+      const expectedStatus =
+        hasDeposit && !hasValidSignature
+          ? 'NEEDS_DEPLOY_AUTHORIZATION'
+          : 'ADDRESS_READY';
 
       expect(expectedStatus).toBe('NEEDS_DEPLOY_AUTHORIZATION');
     });
@@ -190,7 +198,8 @@ describe('getUserStakeAndBakeSignature API Response Parsing', () => {
     signature: data.signature,
     expirationDate: data.expiration_date,
     depositAmount: data.deposit_amount,
-    chainId: data.chain_id });
+    chainId: data.chain_id,
+  });
 
   it('should correctly parse snake_case API response to camelCase', () => {
     const apiResponse: ApiResponse = {
@@ -198,11 +207,14 @@ describe('getUserStakeAndBakeSignature API Response Parsing', () => {
       signature: '0xabc123def456',
       expiration_date: '1704067200', // Unix timestamp
       deposit_amount: '20000',
-      chain_id: '1' };
+      chain_id: '1',
+    };
 
     const parsed = parseApiResponse(apiResponse);
 
-    expect(parsed.userDestinationAddress).toBe('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
+    expect(parsed.userDestinationAddress).toBe(
+      '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+    );
     expect(parsed.signature).toBe('0xabc123def456');
     expect(parsed.expirationDate).toBe('1704067200');
     expect(parsed.depositAmount).toBe('20000');

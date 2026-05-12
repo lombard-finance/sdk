@@ -15,7 +15,8 @@ import type {
   ApiService,
   BtcService,
   EvmService,
-  ProviderKey } from '@lombard.finance/sdk-common';
+  ProviderKey,
+} from '@lombard.finance/sdk-common';
 
 import { PartnerConfiguration } from '../../client/PartnerConfiguration';
 // Note: EvmService is imported for createEvmCoreContext
@@ -26,7 +27,8 @@ import type {
   BtcCoreContext,
   CoreContext,
   EvmCoreContext,
-  ProviderResolver } from './types';
+  ProviderResolver,
+} from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Provider Resolution
@@ -36,7 +38,7 @@ import type {
  * Create a provider resolver from config
  */
 function createProviderResolver(config: LombardConfig): ProviderResolver {
-  return async key => {
+  return async (key) => {
     const getter = getProviderGetter(config.providers, key as ProviderKey);
     if (!getter) {
       return undefined;
@@ -78,7 +80,8 @@ function createCoreContext(config: LombardConfig): CoreContext {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
     getProvider: createProviderResolver(config),
-    logger: undefined };
+    logger: undefined,
+  };
 }
 
 /**
@@ -109,7 +112,8 @@ export function createBtcCoreContext(config: LombardConfig): BtcCoreContext {
     ...baseContext,
     btc,
     api,
-    capabilities: registry };
+    capabilities: registry,
+  };
 }
 
 /**
@@ -126,7 +130,8 @@ export function createEvmCoreContext(config: LombardConfig): EvmCoreContext {
 
   return {
     ...baseContext,
-    evm };
+    evm,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

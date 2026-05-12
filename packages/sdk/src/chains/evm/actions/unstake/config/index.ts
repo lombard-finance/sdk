@@ -8,5 +8,6 @@ export {
   evmToBtcbConfig,
   evmToBtcConfig,
   isBtcbUnstakeSupported,
-  isBtcUnstakeSupported } from './evm';
+  isBtcUnstakeSupported,
+} from './evm';
 export type { ChainConfig, RouteDefinition } from './types';

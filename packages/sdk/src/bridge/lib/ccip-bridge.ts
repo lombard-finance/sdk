@@ -3,7 +3,8 @@ import {
   Address,
   encodeAbiParameters,
   encodePacked,
-  parseAbiParameters } from 'viem';
+  parseAbiParameters,
+} from 'viem';
 
 import { makePublicClient } from '../../clients/public-client';
 import { makeWalletClient } from '../../clients/wallet-client';
@@ -13,7 +14,8 @@ import { Token } from '../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
-  toBaseDenomination } from '../../tokens/tokens';
+  toBaseDenomination,
+} from '../../tokens/tokens';
 import { getErrorMessage } from '../../utils/err';
 import toBigInt from '../../utils/numbers';
 import CCIP_ROUTER_ABI from '../abi/CCIP_ROUTER_ABI.json';
@@ -23,7 +25,8 @@ import {
   CCIP_BRIDGE_CHAINS,
   CCIPBridgeChain,
   getBridgeInfo,
-  MIN_BRIDGE_AMOUNT } from './config';
+  MIN_BRIDGE_AMOUNT,
+} from './config';
 
 export type BridgeCCIPParameters = {
   /** The destination chain id. */
@@ -70,7 +73,8 @@ export async function bridgeCCIP({
   chainId: from,
   provider,
   env,
-  rpcUrl }: BridgeCCIPParameters) {
+  rpcUrl,
+}: BridgeCCIPParameters) {
   const amount = BigNumber(amountRaw);
   const recipient = optionalRecipient || account;
 
@@ -113,7 +117,8 @@ export async function bridgeCCIP({
     address: lbtcContract.address,
     abi: lbtcContract.abi,
     functionName: 'balanceOf',
-    args: [account] });
+    args: [account],
+  });
   const balance = fromBaseDenomination(
     String(balanceRaw),
     lbtcContract.decimals,
@@ -130,7 +135,8 @@ export async function bridgeCCIP({
     address: lbtcContract.address,
     abi: lbtcContract.abi,
     functionName: 'allowance',
-    args: [account, routerAddress] });
+    args: [account, routerAddress],
+  });
   const allowance = fromBaseDenomination(
     String(allowanceRaw),
     lbtcContract.decimals,
@@ -153,7 +159,8 @@ export async function bridgeCCIP({
         chainId: from,
         provider,
         rpcUrl,
-        env });
+        env,
+      });
       console.info(`Approve tx hash: ${txHash}`);
       console.info(`Approved ${amountBase} for ${routerAddress}`);
     } catch (err) {
@@ -177,7 +184,8 @@ export async function bridgeCCIP({
     tokenAmounts: [
       {
         token: lbtcContract.address,
-        amount: amountBase },
+        amount: amountBase,
+      },
     ],
     feeToken: '0x0000000000000000000000000000000000000000' as Address, // address(0) means payment in native currency
     extraArgs, // 0 = automatic gas limit calculation
@@ -188,7 +196,8 @@ export async function bridgeCCIP({
     address: routerAddress,
     abi: CCIP_ROUTER_ABI,
     functionName: 'getFee',
-    args: [BigInt(destinationChainConfig.chainSelector), message] })) as bigint;
+    args: [BigInt(destinationChainConfig.chainSelector), message],
+  })) as bigint;
 
   // Send CCIP message
   const { request } = await publicClient.simulateContract({
@@ -197,7 +206,8 @@ export async function bridgeCCIP({
     account,
     functionName: 'ccipSend',
     args: [BigInt(destinationChainConfig.chainSelector), message],
-    value: fee });
+    value: fee,
+  });
 
   const txHash = await walletClient.writeContract(request);
   return txHash;

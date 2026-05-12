@@ -9,13 +9,15 @@ import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
 import {
   getUserStakeAndBakeSignature,
-  IGetUserStakeAndBakeSignatureParams } from './getUserStakeAndBakeSignature';
+  IGetUserStakeAndBakeSignatureParams,
+} from './getUserStakeAndBakeSignature';
 
 const meta = {
   title: 'api/getUserStakeAndBakeSignature',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [functionType('api-get')] } satisfies Meta<typeof StoryView>;
+  decorators: [functionType('api-get')],
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -25,20 +27,25 @@ export const WithParams: Story = {
   args: {
     userDestinationAddress: EXAMPLE_EVM_ADDRESS,
     chainId: ChainId.ethereum,
-    env: DEFAULT_ENV },
+    env: DEFAULT_ENV,
+  },
   argTypes: {
     chainId: {
       mapping: ChainId,
       options: Object.keys(ChainId),
       description: 'The chain',
-      control: { type: 'select' } } } };
+      control: { type: 'select' },
+    },
+  },
+};
 
 type GetUserStakeAndBakeSignatureProps = IGetUserStakeAndBakeSignatureParams;
 
 export function StoryView(props: GetUserStakeAndBakeSignatureProps) {
   const request = async () => {
     return getUserStakeAndBakeSignature({
-      ...props });
+      ...props,
+    });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

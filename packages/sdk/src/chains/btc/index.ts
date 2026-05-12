@@ -23,7 +23,8 @@ export { BtcActionStatus } from '../../shared/constants/statusConstants';
 export type {
   BtcStakeParams,
   BtcStakeProgress,
-  BtcStake as IBtcStake } from './actions/stake';
+  BtcStake as IBtcStake,
+} from './actions/stake';
 export { BtcStake, btcStake, createBtcStake } from './actions/stake';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -34,7 +35,8 @@ export type {
   BtcDepositParams,
   BtcDepositPrepareParams,
   BtcDepositProgress,
-  BtcDeposit as IBtcDeposit } from './actions/deposit';
+  BtcDeposit as IBtcDeposit,
+} from './actions/deposit';
 export { BtcDeposit, btcDeposit, createBtcDeposit } from './actions/deposit';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -45,11 +47,13 @@ export type {
   BtcStakeAndDeployParams,
   BtcStakeAndDeployPrepareParams,
   BtcStakeAndDeployProgress,
-  BtcStakeAndDeploy as IBtcStakeAndDeploy } from './actions/stakeAndDeploy';
+  BtcStakeAndDeploy as IBtcStakeAndDeploy,
+} from './actions/stakeAndDeploy';
 export {
   BtcStakeAndDeploy,
   btcStakeAndDeploy,
-  createBtcStakeAndDeploy } from './actions/stakeAndDeploy';
+  createBtcStakeAndDeploy,
+} from './actions/stakeAndDeploy';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DepositAndDeploy Action
@@ -59,7 +63,9 @@ export type {
   BtcDepositAndDeployParams,
   BtcDepositAndDeployPrepareParams,
   BtcDepositAndDeployProgress,
-  BtcDepositAndDeploy as IBtcDepositAndDeploy } from './actions/depositAndDeploy';
+  BtcDepositAndDeploy as IBtcDepositAndDeploy,
+} from './actions/depositAndDeploy';
 export {
   BtcDepositAndDeploy,
-  createBtcDepositAndDeploy } from './actions/depositAndDeploy';
+  createBtcDepositAndDeploy,
+} from './actions/depositAndDeploy';

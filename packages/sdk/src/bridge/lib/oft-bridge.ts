@@ -11,7 +11,8 @@ import { Token } from '../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
-  toBaseDenomination } from '../../tokens/tokens';
+  toBaseDenomination,
+} from '../../tokens/tokens';
 import { getErrorMessage } from '../../utils/err';
 import toBigInt from '../../utils/numbers';
 import {
@@ -22,7 +23,8 @@ import {
   OFT_GAS_LIMIT,
   OFT_HI_GAS_LIMIT,
   OFT_HI_GAS_LIMIT_CHAINS,
-  OFTBridgeChain } from './config';
+  OFTBridgeChain,
+} from './config';
 
 const DESTINATION_ENDPOINT_ID_MAP: Record<OFTBridgeChain, number> = {
   // Mainnets:
@@ -34,7 +36,8 @@ const DESTINATION_ENDPOINT_ID_MAP: Record<OFTBridgeChain, number> = {
   [ChainId.tac]: 30377,
   // Testnets:
   [ChainId.sepolia]: 40161,
-  [ChainId.berachainBartioTestnet]: 40291 };
+  [ChainId.berachainBartioTestnet]: 40291,
+};
 
 export type BridgeOFTParameters = {
   /** The destination chain id. */
@@ -59,7 +62,8 @@ export async function bridgeOFT({
   chainId: from,
   provider,
   env,
-  rpcUrl }: BridgeOFTParameters) {
+  rpcUrl,
+}: BridgeOFTParameters) {
   console.warn(
     'The "bridgeOFT" function is provided as is and it is not the recommended way of bridging tokens between chains. Please, use "bridgeCCIP" or the generic "bridge" function.',
   );
@@ -98,7 +102,8 @@ export async function bridgeOFT({
     address: lbtcContract.address,
     abi: lbtcContract.abi,
     functionName: 'balanceOf',
-    args: [account] });
+    args: [account],
+  });
   const balance = fromBaseDenomination(
     String(balanceRaw),
     lbtcContract.decimals,
@@ -115,7 +120,8 @@ export async function bridgeOFT({
     address: lbtcContract.address,
     abi: lbtcContract.abi,
     functionName: 'allowance',
-    args: [account, bridgeContract.address] });
+    args: [account, bridgeContract.address],
+  });
   const allowance = fromBaseDenomination(
     String(allowanceRaw),
     lbtcContract.decimals,
@@ -138,7 +144,8 @@ export async function bridgeOFT({
         chainId: from,
         provider,
         rpcUrl,
-        env });
+        env,
+      });
       console.info(`Approve tx hash: ${txHash}`);
       console.info(`Approved ${amountBase} for ${bridgeContract.address}`);
     } catch (err) {
@@ -179,7 +186,8 @@ export async function bridgeOFT({
     address: bridgeContract.address,
     account,
     functionName: 'quoteSend',
-    args: [sendParam, false] })) as { nativeFee: bigint; lzTokenFee: bigint };
+    args: [sendParam, false],
+  })) as { nativeFee: bigint; lzTokenFee: bigint };
 
   const bridgeArgs = [
     /** _sendParam */
@@ -201,7 +209,8 @@ export async function bridgeOFT({
     account,
     functionName: 'send',
     args: bridgeArgs,
-    value: nativeFee });
+    value: nativeFee,
+  });
 
   const txHash = await walletClient.writeContract(request);
   return txHash;

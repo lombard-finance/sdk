@@ -14,7 +14,8 @@ const gmpPayloadAbi = {
     { name: 'msgRecipient', type: 'bytes32' },
     { name: 'msgDestinationCaller', type: 'bytes32' },
     { name: 'msgBody', type: 'bytes' },
-  ] } as const;
+  ],
+} as const;
 
 // ABI for the inner body (mint)
 const mintAbi = {
@@ -24,7 +25,8 @@ const mintAbi = {
     { name: 'toToken', type: 'bytes32' },
     { name: 'recipient', type: 'bytes32' },
     { name: 'amount', type: 'uint256' },
-  ] } as const;
+  ],
+} as const;
 
 export interface DecodedMintBody {
   selector: string;
@@ -76,7 +78,8 @@ export function decodeGmpMintPayload(hexData: string): DecodedGmpPayload {
   // 2) Decode outer payload using viem
   const decoded = decodeFunctionData({
     abi: [gmpPayloadAbi],
-    data: hexData as `0x${string}` });
+    data: hexData as `0x${string}`,
+  });
 
   if (!decoded.args) {
     throw new Error('Failed to decode GMP payload: args is undefined');
@@ -104,7 +107,8 @@ export function decodeGmpMintPayload(hexData: string): DecodedGmpPayload {
   // 4) Decode mint body using viem
   const mintDecoded = decodeFunctionData({
     abi: [mintAbi],
-    data: msgBody as `0x${string}` });
+    data: msgBody as `0x${string}`,
+  });
 
   if (!mintDecoded.args) {
     throw new Error('Failed to decode mint body: args is undefined');
@@ -126,7 +130,9 @@ export function decodeGmpMintPayload(hexData: string): DecodedGmpPayload {
       selector: bodySelector,
       toToken,
       recipient,
-      amount } };
+      amount,
+    },
+  };
 }
 
 /**

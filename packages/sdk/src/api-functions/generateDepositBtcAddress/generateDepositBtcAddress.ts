@@ -4,22 +4,26 @@ import { Address, pad } from 'viem';
 import { getApiConfig } from '../../common/api-config';
 import {
   BlockchainIdentifier,
-  getChainNameById } from '../../common/blockchain-identifier';
+  getChainNameById,
+} from '../../common/blockchain-identifier';
 import type {
   ChainId,
   SolanaChain,
   StarknetChainId,
-  SuiChain } from '../../common/chains';
+  SuiChain,
+} from '../../common/chains';
 import { isSolanaChain } from '../../common/chains';
 import type { IEnvParam } from '../../common/parameters';
 import {
   AddressKind,
   getSolanaTokenAddress,
-  Token } from '../../tokens/token-addresses';
+  Token,
+} from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import {
   getErrorMessage,
-  TokenContractAddressNotFoundError } from '../../utils/err';
+  TokenContractAddressNotFoundError,
+} from '../../utils/err';
 
 /**
  * The address which will be returned if the provided EVM address is sanctioned.
@@ -106,7 +110,8 @@ export async function generateDepositBtcAddress({
   partnerId,
   captchaToken,
   signatureData,
-  pubKey }: IGenerateDepositBtcAddressParams): Promise<string> {
+  pubKey,
+}: IGenerateDepositBtcAddressParams): Promise<string> {
   const { baseApiUrl } = getApiConfig(env);
   const toChain = getChainNameById(chainId);
 
@@ -122,7 +127,8 @@ export async function generateDepositBtcAddress({
     }
 
     additionalParams = {
-      public_key: pubKey };
+      public_key: pubKey,
+    };
   }
 
   // TODO: Refactor
@@ -151,8 +157,7 @@ export async function generateDepositBtcAddress({
   try {
     if (EXTRA_PARAMS_TOKENS.includes(token)) {
       if (isSolanaChain(chainId)) {
-        const solanaToken =
-          token === Token.BTCb ? Token.BTCb : Token.LBTC;
+        const solanaToken = token === Token.BTCb ? Token.BTCb : Token.LBTC;
         const solanaTokenAddress = getSolanaTokenAddress(
           chainId,
           env,
@@ -178,7 +183,8 @@ export async function generateDepositBtcAddress({
           AddressKind.Adapter,
         );
         tokenDataParams = {
-          token_address: tokenContractInfo.address };
+          token_address: tokenContractInfo.address,
+        };
       }
     }
   } catch (err) {
@@ -214,7 +220,8 @@ export async function generateDepositBtcAddress({
     eip_712_data: eip712Data,
     sb_signature_data: signatureData,
     ...tokenDataParams,
-    ...additionalParams };
+    ...additionalParams,
+  };
 
   try {
     const { data } = await axios.post<IGenerateNewAddressResponse>(

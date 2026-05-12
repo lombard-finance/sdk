@@ -38,7 +38,8 @@ export type RewardsDistribution = {
  */
 export async function getAdditionalRewards({
   account,
-  env }: {
+  env,
+}: {
   account: Address;
 } & IEnvParam) {
   if (!account) {
@@ -51,12 +52,15 @@ export async function getAdditionalRewards({
   const { data } = await axios.get<Response>(url);
 
   const distribution: RewardsDistribution = {
-    distributed: data.btc_distributed.map(d => ({
+    distributed: data.btc_distributed.map((d) => ({
       amount: BigNumber(d.amount),
-      name: d.name })),
-    undistributed: data.btc_undistributed.map(u => ({
+      name: d.name,
+    })),
+    undistributed: data.btc_undistributed.map((u) => ({
       amount: BigNumber(u.amount),
-      name: u.name })) };
+      name: u.name,
+    })),
+  };
 
   return distribution;
 }

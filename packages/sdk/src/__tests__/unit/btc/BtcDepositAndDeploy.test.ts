@@ -21,7 +21,8 @@ describe('BtcDepositAndDeploy Interface', () => {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
         protocol: 'silo',
-        vault: 'BTCb' };
+        vault: 'BTCb',
+      };
 
       expect(params.assetOut).toBe(AssetId.BTCb);
     });
@@ -31,16 +32,17 @@ describe('BtcDepositAndDeploy Interface', () => {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
         protocol: 'silo',
-        vault: 'BTCb' };
+        vault: 'BTCb',
+      };
 
       expect(params.protocol).toBe('silo');
     });
 
     it('should support Avalanche chains only', () => {
       const validChains = [Chain.AVALANCHE, Chain.AVALANCHE_FUJI];
-      
+
       // Chains are CAIP-2 format (e.g., eip155:43114)
-      validChains.forEach(chain => {
+      validChains.forEach((chain) => {
         expect(chain).toBeDefined();
         expect(typeof chain).toBe('string');
       });
@@ -55,7 +57,8 @@ describe('BtcDepositAndDeploy Interface', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      };
 
       expect(params.amount).toBe('0.1');
       expect(params.recipient).toBeDefined();
@@ -71,7 +74,7 @@ describe('BtcDepositAndDeploy Interface', () => {
         'address_ready',
       ];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -79,7 +82,10 @@ describe('BtcDepositAndDeploy Interface', () => {
 
   describe('Method Signatures', () => {
     it('should define prepare method', () => {
-      type PrepareMethod = (params: { amount: string; recipient: string }) => Promise<void>;
+      type PrepareMethod = (params: {
+        amount: string;
+        recipient: string;
+      }) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });
@@ -131,7 +137,8 @@ describe('BtcDepositAndDeploy Interface', () => {
       const siloConfig = {
         protocol: 'silo',
         chains: [Chain.AVALANCHE, Chain.AVALANCHE_FUJI],
-        assetIn: AssetId.BTCb };
+        assetIn: AssetId.BTCb,
+      };
 
       expect(siloConfig.protocol).toBe('silo');
       expect(siloConfig.assetIn).toBe(AssetId.BTCb);
@@ -140,13 +147,16 @@ describe('BtcDepositAndDeploy Interface', () => {
 
   describe('Event Emissions', () => {
     it('should emit progress events', () => {
-      const handler = vi.fn((progress: { status: string; steps?: Record<string, string> }) => {
-        expect(progress.status).toBeDefined();
-      });
+      const handler = vi.fn(
+        (progress: { status: string; steps?: Record<string, string> }) => {
+          expect(progress.status).toBeDefined();
+        },
+      );
 
       handler({
         status: 'address_ready',
-        steps: { created: 'complete', deploying: 'idle' } });
+        steps: { created: 'complete', deploying: 'idle' },
+      });
 
       expect(handler).toHaveBeenCalledOnce();
     });
@@ -166,4 +176,3 @@ describe('BtcDepositAndDeploy Interface', () => {
     });
   });
 });
-

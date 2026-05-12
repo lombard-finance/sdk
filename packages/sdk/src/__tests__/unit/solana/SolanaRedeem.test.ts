@@ -26,7 +26,8 @@ function createMockSolanaService() {
       .fn()
       .mockResolvedValue({ signature: 'mock-redeemForBtc-tx-hash' }),
     redeem: vi.fn().mockResolvedValue({ signature: 'mock-redeem-tx-hash' }),
-    deposit: vi.fn().mockResolvedValue({ signature: 'mock-deposit-tx-hash' }) };
+    deposit: vi.fn().mockResolvedValue({ signature: 'mock-deposit-tx-hash' }),
+  };
 }
 
 function createMockContext(
@@ -37,7 +38,8 @@ function createMockContext(
     partner: new PartnerConfiguration({ partnerId: 'test-partner' }),
     getProvider: vi.fn().mockResolvedValue({}),
     solana: createMockSolanaService(),
-    ...overrides };
+    ...overrides,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -51,11 +53,13 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
     assetIn: AssetId.BTCb,
     assetOut: AssetId.BTC,
     sourceChain: Chain.SOLANA_DEVNET,
-    destChain: Chain.BITCOIN_SIGNET };
+    destChain: Chain.BITCOIN_SIGNET,
+  };
 
   const validPrepareParams = {
     amount: '0.001',
-    recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' };
+    recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+  };
 
   beforeEach(() => {
     mockCtx = createMockContext({ env: Env.dev });
@@ -79,7 +83,8 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
       const prodParams = {
         ...validParams,
         sourceChain: Chain.SOLANA_MAINNET,
-        destChain: Chain.BITCOIN_MAINNET };
+        destChain: Chain.BITCOIN_MAINNET,
+      };
       const redeem = new SolanaRedeem(prodCtx, prodParams);
       expect(redeem.status).toBe(NonEvmOperationStatus.IDLE);
     });
@@ -87,7 +92,8 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
     it('should throw for unsupported source chain', () => {
       const invalidParams = {
         ...validParams,
-        sourceChain: Chain.ETHEREUM };
+        sourceChain: Chain.ETHEREUM,
+      };
       expect(() => new SolanaRedeem(mockCtx, invalidParams)).toThrow();
     });
   });
@@ -115,7 +121,10 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
 
       await expect(
-        redeem.prepare({ amount: '0', recipient: validPrepareParams.recipient }),
+        redeem.prepare({
+          amount: '0',
+          recipient: validPrepareParams.recipient,
+        }),
       ).rejects.toThrow();
     });
 
@@ -123,7 +132,9 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
-      await expect(redeem.prepare(validPrepareParams)).rejects.toThrow(/prepare/);
+      await expect(redeem.prepare(validPrepareParams)).rejects.toThrow(
+        /prepare/,
+      );
     });
   });
 
@@ -144,7 +155,8 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
             envToSolanaChain(Env.dev),
             Env.dev,
             Token.BTCb,
-          ) }),
+          ),
+        }),
       );
       expect(result.txHash).toBe('mock-redeemForBtc-tx-hash');
     });
@@ -219,7 +231,8 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
             envToSolanaChain(Env.stage),
             Env.stage,
             Token.BTCb,
-          ) }),
+          ),
+        }),
       );
     });
   });

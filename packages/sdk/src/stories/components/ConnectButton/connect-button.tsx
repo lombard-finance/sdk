@@ -87,7 +87,8 @@ export function ConnectButton({ label }: ConnectButtonProps) {
           border: '1px solid var(--bs-gray-900)',
           borderRadius: '5px',
           padding: '5px',
-          height: '38px' }}
+          height: '38px',
+        }}
       >
         <span
           style={{
@@ -95,7 +96,8 @@ export function ConnectButton({ label }: ConnectButtonProps) {
             color: '#ffffff',
             borderRadius: '5px',
             padding: '2px',
-            fontSize: '0.8em' }}
+            fontSize: '0.8em',
+          }}
         >
           {account.status}
         </span>
@@ -105,7 +107,8 @@ export function ConnectButton({ label }: ConnectButtonProps) {
             background: 'var(--bs-gray-100)',
             borderRadius: '5px',
             padding: '2px',
-            fontSize: '0.8em' }}
+            fontSize: '0.8em',
+          }}
         >
           {account.address}
         </span>
@@ -123,7 +126,8 @@ export function ConnectButton({ label }: ConnectButtonProps) {
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px' }}
+            gap: '4px',
+          }}
           onClick={() => {
             setShowNetworkDropdown(!showNetworkDropdown);
           }}
@@ -148,9 +152,10 @@ export function ConnectButton({ label }: ConnectButtonProps) {
                 zIndex: 10000,
                 minWidth: '150px',
                 maxHeight: '300px',
-                overflowY: 'auto' }}
+                overflowY: 'auto',
+              }}
             >
-              {AVAILABLE_NETWORKS.map(network => {
+              {AVAILABLE_NETWORKS.map((network) => {
                 const isCurrentNetwork = account.chainId === network.chain.id;
                 return (
                   <button
@@ -167,7 +172,8 @@ export function ConnectButton({ label }: ConnectButtonProps) {
                       textAlign: 'left',
                       fontSize: '0.8em',
                       cursor: isCurrentNetwork ? 'default' : 'pointer',
-                      fontWeight: isCurrentNetwork ? 'bold' : 'normal' }}
+                      fontWeight: isCurrentNetwork ? 'bold' : 'normal',
+                    }}
                     onClick={() => {
                       if (!isCurrentNetwork) {
                         switchChain({ chainId: network.chain.id });
@@ -175,12 +181,12 @@ export function ConnectButton({ label }: ConnectButtonProps) {
                       }
                     }}
                     disabled={isCurrentNetwork || isSwitchingNetwork}
-                    onMouseEnter={e => {
+                    onMouseEnter={(e) => {
                       if (!isCurrentNetwork) {
                         e.currentTarget.style.background = 'var(--bs-gray-100)';
                       }
                     }}
-                    onMouseLeave={e => {
+                    onMouseLeave={(e) => {
                       if (!isCurrentNetwork) {
                         e.currentTarget.style.background = 'transparent';
                       }
@@ -204,7 +210,8 @@ export function ConnectButton({ label }: ConnectButtonProps) {
             borderRadius: '5px',
             padding: '2px',
             fontSize: '0.8em',
-            cursor: 'pointer' }}
+            cursor: 'pointer',
+          }}
           onClick={() => {
             disconnect();
           }}
@@ -220,7 +227,8 @@ export function ConnectButton({ label }: ConnectButtonProps) {
       <button
         className="btn"
         style={{
-          border: '1px solid var(--bs-gray-900)' }}
+          border: '1px solid var(--bs-gray-900)',
+        }}
         type="button"
         onClick={() => {
           connect();

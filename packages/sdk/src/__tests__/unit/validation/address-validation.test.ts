@@ -18,7 +18,8 @@ import {
   evmAddressSchema,
   solanaAddressSchema,
   starknetAddressSchema,
-  suiAddressSchema } from '../../../shared/validation';
+  suiAddressSchema,
+} from '../../../shared/validation';
 
 describe('Address Validation Schemas', () => {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -33,10 +34,13 @@ describe('Address Validation Schemas', () => {
       '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
     ];
 
-    it.each(validAddresses)('should accept valid EVM address: %s', (address) => {
-      const result = evmAddressSchema.safeParse(address);
-      expect(result.success).toBe(true);
-    });
+    it.each(validAddresses)(
+      'should accept valid EVM address: %s',
+      (address) => {
+        const result = evmAddressSchema.safeParse(address);
+        expect(result.success).toBe(true);
+      },
+    );
 
     describe('should reject truncated addresses', () => {
       it('should reject address with last character removed', () => {
@@ -45,7 +49,9 @@ describe('Address Validation Schemas', () => {
 
         const result = evmAddressSchema.safeParse(truncated);
         expect(result.success).toBe(false);
-        expect(result.error?.issues[0]?.message).toContain('Invalid EVM address');
+        expect(result.error?.issues[0]?.message).toContain(
+          'Invalid EVM address',
+        );
       });
 
       it('should reject address with first hex character removed', () => {
@@ -67,10 +73,22 @@ describe('Address Validation Schemas', () => {
 
     describe('should reject malformed addresses', () => {
       const invalidAddresses = [
-        { address: '659579F1460c38c3ce3288b47b074646cef855fc', reason: 'missing 0x prefix' },
-        { address: '0x659579F1460c38c3ce3288b47b074646cef855f', reason: 'only 39 hex chars' },
-        { address: '0x659579F1460c38c3ce3288b47b074646cef855fcc', reason: '41 hex chars' },
-        { address: '0x659579F1460c38c3ce3288b47b074646cef855fG', reason: 'invalid hex char G' },
+        {
+          address: '659579F1460c38c3ce3288b47b074646cef855fc',
+          reason: 'missing 0x prefix',
+        },
+        {
+          address: '0x659579F1460c38c3ce3288b47b074646cef855f',
+          reason: 'only 39 hex chars',
+        },
+        {
+          address: '0x659579F1460c38c3ce3288b47b074646cef855fcc',
+          reason: '41 hex chars',
+        },
+        {
+          address: '0x659579F1460c38c3ce3288b47b074646cef855fG',
+          reason: 'invalid hex char G',
+        },
         { address: '', reason: 'empty string' },
         { address: '0x', reason: 'only prefix' },
       ];
@@ -80,7 +98,7 @@ describe('Address Validation Schemas', () => {
         ({ address }) => {
           const result = evmAddressSchema.safeParse(address);
           expect(result.success).toBe(false);
-        }
+        },
       );
     });
   });
@@ -118,7 +136,7 @@ describe('Address Validation Schemas', () => {
       (address) => {
         const result = bitcoinAddressSchema.safeParse(address);
         expect(result.success).toBe(true);
-      }
+      },
     );
 
     describe('should reject truncated addresses', () => {
@@ -126,17 +144,20 @@ describe('Address Validation Schemas', () => {
        * The bitcoinAddressSchema uses bitcoinjs-lib for proper validation:
        * - bech32/bech32m checksum verification for SegWit/Taproot addresses
        * - base58check checksum verification for legacy addresses
-       * 
+       *
        * Truncated addresses will correctly fail validation.
        */
 
       it('should reject bech32 (Taproot) address with last character removed', () => {
-        const valid = 'tb1pqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesf3hn0c';
+        const valid =
+          'tb1pqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesf3hn0c';
         const truncated = valid.slice(0, -1); // Remove last 'c'
 
         const result = bitcoinAddressSchema.safeParse(truncated);
         expect(result.success).toBe(false);
-        expect(result.error?.issues[0]?.message).toBe('Invalid Bitcoin address format');
+        expect(result.error?.issues[0]?.message).toBe(
+          'Invalid Bitcoin address format',
+        );
       });
 
       it('should reject bech32 (SegWit) address with last character removed', () => {
@@ -169,8 +190,14 @@ describe('Address Validation Schemas', () => {
         { address: '', reason: 'empty string' },
         { address: 'bc1', reason: 'too short' },
         { address: 'bc1invalid!address', reason: 'invalid characters' },
-        { address: '0x659579F1460c38c3ce3288b47b074646cef855fc', reason: 'EVM address' },
-        { address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdqINVALID', reason: 'uppercase in bech32' },
+        {
+          address: '0x659579F1460c38c3ce3288b47b074646cef855fc',
+          reason: 'EVM address',
+        },
+        {
+          address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdqINVALID',
+          reason: 'uppercase in bech32',
+        },
       ];
 
       it.each(invalidAddresses)(
@@ -178,7 +205,7 @@ describe('Address Validation Schemas', () => {
         ({ address }) => {
           const result = bitcoinAddressSchema.safeParse(address);
           expect(result.success).toBe(false);
-        }
+        },
       );
     });
   });
@@ -194,23 +221,26 @@ describe('Address Validation Schemas', () => {
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
     ];
 
-    it.each(validAddresses)('should accept valid Solana address: %s', (address) => {
-      const result = solanaAddressSchema.safeParse(address);
-      expect(result.success).toBe(true);
-    });
+    it.each(validAddresses)(
+      'should accept valid Solana address: %s',
+      (address) => {
+        const result = solanaAddressSchema.safeParse(address);
+        expect(result.success).toBe(true);
+      },
+    );
 
     /**
      * LIMITATION: Solana addresses don't have a checksum
-     * 
+     *
      * Unlike Bitcoin, Solana addresses are just raw base58-encoded 32-byte keys.
      * A truncated address that still decodes to 32 bytes will pass format validation.
-     * 
+     *
      * This is a known limitation of the Solana address format itself.
      * The best we can do is verify:
      * 1. Valid base58 characters
      * 2. Length between 32-44 chars
      * 3. Decodes to exactly 32 bytes
-     * 
+     *
      * Some truncations will change the decoded length, failing validation.
      * Others won't - this is unavoidable without a checksum.
      */
@@ -262,13 +292,17 @@ describe('Address Validation Schemas', () => {
       '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
     ];
 
-    it.each(validAddresses)('should accept valid Sui address: %s', (address) => {
-      const result = suiAddressSchema.safeParse(address);
-      expect(result.success).toBe(true);
-    });
+    it.each(validAddresses)(
+      'should accept valid Sui address: %s',
+      (address) => {
+        const result = suiAddressSchema.safeParse(address);
+        expect(result.success).toBe(true);
+      },
+    );
 
     it('should reject truncated address', () => {
-      const valid = '0x02a212de6a9dfa3a69e22387acfbafbb1a9e591bd9d636e7895dcfc8de05f331';
+      const valid =
+        '0x02a212de6a9dfa3a69e22387acfbafbb1a9e591bd9d636e7895dcfc8de05f331';
       const truncated = valid.slice(0, -1);
 
       const result = suiAddressSchema.safeParse(truncated);
@@ -294,13 +328,17 @@ describe('Address Validation Schemas', () => {
       '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
     ];
 
-    it.each(validAddresses)('should accept valid Starknet address: %s', (address) => {
-      const result = starknetAddressSchema.safeParse(address);
-      expect(result.success).toBe(true);
-    });
+    it.each(validAddresses)(
+      'should accept valid Starknet address: %s',
+      (address) => {
+        const result = starknetAddressSchema.safeParse(address);
+        expect(result.success).toBe(true);
+      },
+    );
 
     it('should reject address without 0x prefix', () => {
-      const invalid = '049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7';
+      const invalid =
+        '049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7';
 
       const result = starknetAddressSchema.safeParse(invalid);
       expect(result.success).toBe(false);
@@ -344,4 +382,3 @@ describe('Address Validation Schemas', () => {
     });
   });
 });
-

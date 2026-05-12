@@ -6,20 +6,23 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
-  wagmiDecorator } from '../../stories/components/decorators';
+  wagmiDecorator,
+} from '../../stories/components/decorators';
 import { ErrorBlock } from '../../stories/components/error-block';
 import {
   canPerformAction,
-  useConnection } from '../../stories/hooks/useConnection';
+  useConnection,
+} from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
 import { OFT_BRIDGE_CHAINS } from './config';
-import { bridgeOFT,BridgeOFTParameters } from './oft-bridge';
+import { bridgeOFT, BridgeOFTParameters } from './oft-bridge';
 
 const meta = {
   title: 'bridge/bridgeOFT',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('write')] } satisfies Meta<typeof StoryView>;
+  decorators: [wagmiDecorator, functionType('write')],
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -30,14 +33,18 @@ export const WithParams: Story = {
     to: ChainId.corn,
     amount: '0.0001',
     approve: true,
-    env: 'prod' },
+    env: 'prod',
+  },
   argTypes: {
     to: {
       mapping: ChainId,
       options: OFT_BRIDGE_CHAINS.map(
-        ch => Object.entries(ChainId).find(([, v]) => v === ch)?.[0],
+        (ch) => Object.entries(ChainId).find(([, v]) => v === ch)?.[0],
       ),
-      control: { type: 'select' } } } };
+      control: { type: 'select' },
+    },
+  },
+};
 
 type Props = Omit<BridgeOFTParameters, 'account' | 'chainId' | 'provider'>;
 
@@ -54,7 +61,8 @@ export function StoryView(props: Props) {
 
       account: connection.account.address,
       chainId: connection.account.chainId,
-      provider: connection.provider });
+      provider: connection.provider,
+    });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

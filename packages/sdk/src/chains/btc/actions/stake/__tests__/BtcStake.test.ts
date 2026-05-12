@@ -14,15 +14,18 @@ import type { BtcStakeParams, BtcStakeProgress } from '../types';
 // Mock SDK for testing (reserved for future tests)
 const _createMockSDK = () => ({
   config: {
-    env: Env.prod },
-  getProvider: vi.fn() });
+    env: Env.prod,
+  },
+  getProvider: vi.fn(),
+});
 
 describe('BtcStake Interface', () => {
   describe('BtcStakeParams', () => {
     it('should accept valid stake parameters', () => {
       const params: BtcStakeParams = {
         assetOut: AssetId.LBTC,
-        destChain: Chain.ETHEREUM };
+        destChain: Chain.ETHEREUM,
+      };
 
       expect(params.assetOut).toBe(AssetId.LBTC);
       expect(params.destChain).toBe(Chain.ETHEREUM);
@@ -31,11 +34,13 @@ describe('BtcStake Interface', () => {
     it('should support different destination chains', () => {
       const ethereumParams: BtcStakeParams = {
         assetOut: AssetId.LBTC,
-        destChain: Chain.ETHEREUM };
+        destChain: Chain.ETHEREUM,
+      };
 
       const baseParams: BtcStakeParams = {
         assetOut: AssetId.LBTC,
-        destChain: Chain.BASE };
+        destChain: Chain.BASE,
+      };
 
       expect(ethereumParams.destChain).toBe(Chain.ETHEREUM);
       expect(baseParams.destChain).toBe(Chain.BASE);
@@ -57,7 +62,7 @@ describe('BtcStake Interface', () => {
       ];
 
       // Verify all status strings are defined
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -70,11 +75,13 @@ describe('BtcStake Interface', () => {
         steps: {
           created: 'complete',
           verifying: 'pending',
-          issuing: 'idle' },
+          issuing: 'idle',
+        },
         confirmations: 2,
         requiredConfirmations: 6,
         hasEnoughConfirmations: false,
-        isClaimed: false };
+        isClaimed: false,
+      };
 
       expect(progress.confirmations).toBe(2);
       expect(progress.requiredConfirmations).toBe(6);
@@ -88,8 +95,10 @@ describe('BtcStake Interface', () => {
         steps: {
           created: 'complete',
           verifying: 'idle',
-          issuing: 'idle' },
-        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' };
+          issuing: 'idle',
+        },
+        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+      };
 
       expect(progress.depositAddress).toBeDefined();
       expect(progress.depositAddress).toMatch(/^bc1/);
@@ -124,7 +133,8 @@ describe('BtcStake Interface', () => {
       type ExecuteMethod = () => Promise<{ depositAddress: string }>;
 
       const testType: ExecuteMethod = async () => ({
-        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' });
+        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+      });
       expect(testType).toBeDefined();
     });
   });
@@ -139,7 +149,8 @@ describe('BtcStake Interface', () => {
       // Simulate event emission
       handler({
         status: 'address_ready',
-        steps: { created: 'complete', verifying: 'pending', issuing: 'idle' } });
+        steps: { created: 'complete', verifying: 'pending', issuing: 'idle' },
+      });
 
       expect(handler).toHaveBeenCalledOnce();
     });
@@ -220,14 +231,16 @@ describe('BtcStake Interface', () => {
     it('should expose recipient property', () => {
       type HasRecipient = { readonly recipient?: string };
       const obj: HasRecipient = {
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb' };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+      };
       expect(obj.recipient).toBeDefined();
     });
 
     it('should expose depositAddress property', () => {
       type HasDepositAddress = { readonly depositAddress?: string };
       const obj: HasDepositAddress = {
-        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' };
+        depositAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+      };
       expect(obj.depositAddress).toBeDefined();
     });
   });

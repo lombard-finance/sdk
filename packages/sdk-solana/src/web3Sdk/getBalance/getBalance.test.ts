@@ -32,7 +32,7 @@ vi.mock('@solana/web3.js', async () => {
         },
       }),
     })),
-    PublicKey: vi.fn().mockImplementation(key => {
+    PublicKey: vi.fn().mockImplementation((key) => {
       if (key === 'invalid-key') {
         throw new Error('Invalid public key');
       }

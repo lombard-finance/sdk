@@ -36,7 +36,7 @@ export interface SignatureResult {
 
 /**
  * Stored fee signature result from restore operation
- * 
+ *
  * Note: The API may return hasSignature: true but not the actual signature string.
  * The caller should check hasSignature to determine if a valid signature exists on the server.
  */

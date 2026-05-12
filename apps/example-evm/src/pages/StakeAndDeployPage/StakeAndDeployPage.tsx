@@ -31,7 +31,8 @@ function StakeAndDeployUnsupported() {
             </p>
             <p className="text-sm text-amber-800">
               Stake-and-Deploy is only available on the Production environment.
-              Switch to Production using the environment selector in the sidebar.
+              Switch to Production using the environment selector in the
+              sidebar.
             </p>
           </div>
         </div>
@@ -132,7 +133,7 @@ function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
               id="partnerId"
               type="text"
               value={partnerId}
-              onChange={e => setPartnerId(e.target.value)}
+              onChange={(e) => setPartnerId(e.target.value)}
               placeholder="Enter your partner ID"
               className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
               disabled={isStaking}

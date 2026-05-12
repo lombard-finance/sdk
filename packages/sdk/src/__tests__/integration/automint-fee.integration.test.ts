@@ -13,7 +13,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ChainId } from '../../common/chains';
 import { getMintingFee } from '../../contract-functions/getLBTCMintingFee/getLBTCMintingFee';
-import { Token,TOKEN_ADDRESSES } from '../../tokens/token-addresses';
+import { Token, TOKEN_ADDRESSES } from '../../tokens/token-addresses';
 
 const RUN_CONTRACT_CHECKS = process.env.ENABLE_CONTRACT_CHECKS === 'true';
 const runIfEnabled = RUN_CONTRACT_CHECKS ? describe : describe.skip;
@@ -37,7 +37,8 @@ runIfEnabled('Automint Fee Contract Reads', () => {
         const sepoliaStageFee = await getMintingFee({
           token: Token.LBTC,
           chainId: ChainId.sepolia,
-          env: Env.stage });
+          env: Env.stage,
+        });
         expectNonZeroFee(sepoliaStageFee, 'Sepolia (stage) LBTC');
       }
 
@@ -45,7 +46,8 @@ runIfEnabled('Automint Fee Contract Reads', () => {
         const ethereumProdFee = await getMintingFee({
           token: Token.LBTC,
           chainId: ChainId.ethereum,
-          env: Env.prod });
+          env: Env.prod,
+        });
         expectNonZeroFee(ethereumProdFee, 'Ethereum (prod) LBTC');
       }
     },
@@ -62,7 +64,8 @@ runIfEnabled('Automint Fee Contract Reads', () => {
       const sepoliaStageFee = await getMintingFee({
         token: Token.BTCb,
         chainId: ChainId.sepolia,
-        env: Env.stage });
+        env: Env.stage,
+      });
 
       expectNonZeroFee(sepoliaStageFee, 'Sepolia (stage) BTC.b');
     },

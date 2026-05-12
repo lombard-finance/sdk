@@ -46,7 +46,8 @@ export async function claimUnstakeRedeem({
   chainId,
   provider,
   rpcUrl,
-  env = DEFAULT_ENV }: IClaimUnstakeRedeemParams): Promise<Hash> {
+  env = DEFAULT_ENV,
+}: IClaimUnstakeRedeemParams): Promise<Hash> {
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
   const walletClient = makeWalletClient({ chainId, provider });
 
@@ -62,7 +63,8 @@ export async function claimUnstakeRedeem({
   const assetRouterAddress = await publicClient.readContract({
     address: btcbTokenContract.address,
     abi: btcbTokenContract.abi,
-    functionName: 'getAssetRouter' });
+    functionName: 'getAssetRouter',
+  });
 
   if (!assetRouterAddress || assetRouterAddress === zeroAddress) {
     throw new Error('AssetRouter address not found in token adapter');
@@ -75,7 +77,8 @@ export async function claimUnstakeRedeem({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: ASSET_ROUTER_ABI,
     functionName: 'mint',
-    args: [ensureHex(data), ensureHex(proofSignature)] } as const;
+    args: [ensureHex(data), ensureHex(proofSignature)],
+  } as const;
 
   const gasEstimationData = isKatanaChain(chainId)
     ? await estimateGasFees(publicClient, callData, parseGwei('1'))
@@ -83,7 +86,8 @@ export async function claimUnstakeRedeem({
 
   const { request } = await publicClient.simulateContract({
     ...callData,
-    ...gasEstimationData });
+    ...gasEstimationData,
+  });
 
   const txHash = await walletClient.writeContract(request);
 

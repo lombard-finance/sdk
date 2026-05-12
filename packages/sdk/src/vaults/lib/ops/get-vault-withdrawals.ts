@@ -8,14 +8,16 @@ import { IEnvParam } from '../../../common/parameters';
 import {
   fromBaseDenomination,
   getAssetInfo,
-  TokenInfo } from '../../../tokens/tokens';
+  TokenInfo,
+} from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
 import {
   EARN_CHAIN_TO_NETWORK_MAP,
   EARN_VAULT,
   EarnChain,
-  isEarnChain } from '../config';
+  isEarnChain,
+} from '../config';
 
 export type GetEarnWithdrawalsParameters = IEnvParam & {
   account: Address;
@@ -96,7 +98,8 @@ const EMPTY_WITHDRAW_REQUESTS: SevenSeasWithdrawRequests = {
   cancelled_requests: [],
   expired_requests: [],
   fulfilled_requests: [],
-  open_requests: [] };
+  open_requests: [],
+};
 
 const normalizeSevenSeasWithdrawRequests = (
   payload?: WithdrawalsPayload,
@@ -113,7 +116,8 @@ const normalizeSevenSeasWithdrawRequests = (
     cancelled_requests: payload.cancelled_requests ?? [],
     expired_requests: payload.expired_requests ?? [],
     fulfilled_requests: payload.fulfilled_requests ?? [],
-    open_requests: payload.open_requests ?? [] };
+    open_requests: payload.open_requests ?? [],
+  };
 };
 
 /**
@@ -129,7 +133,8 @@ export async function getEarnWithdrawals({
   account,
   chainId,
   rpcUrl,
-  env }: GetEarnWithdrawalsParameters) {
+  env,
+}: GetEarnWithdrawalsParameters) {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -147,7 +152,8 @@ export async function getEarnWithdrawals({
 
   const endpoint = `${bffApiUrl}/sevenseas-api/withdraw-requests/${network}/${vault.vaultContract.address}/${account}`;
   const searchParams = new URLSearchParams({
-    historical: 'true' });
+    historical: 'true',
+  });
   const url = `${endpoint}?${searchParams.toString()}`;
 
   const { data } = await axios.get<WithdrawalsPayload>(url);
@@ -159,10 +165,10 @@ export async function getEarnWithdrawals({
   const openRequests = response.open_requests ?? [];
 
   const withdrawAssetsAddresses = unique([
-    ...cancelledRequests.map(a => ensureHex(a.wantToken)),
-    ...expiredRequests.map(a => ensureHex(a.wantToken)),
-    ...fulfilledRequests.map(a => ensureHex(a.Request.wantToken)),
-    ...openRequests.map(a => ensureHex(a.wantToken)),
+    ...cancelledRequests.map((a) => ensureHex(a.wantToken)),
+    ...expiredRequests.map((a) => ensureHex(a.wantToken)),
+    ...fulfilledRequests.map((a) => ensureHex(a.Request.wantToken)),
+    ...openRequests.map((a) => ensureHex(a.wantToken)),
   ]);
 
   const withdrawAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> =
@@ -173,13 +179,14 @@ export async function getEarnWithdrawals({
       withdrawAssets[asset] = {
         address: assetInfo.address,
         decimals: assetInfo.decimals,
-        symbol: assetInfo.symbol };
+        symbol: assetInfo.symbol,
+      };
     } else {
       withdrawAssets[asset] = undefined;
     }
   }
 
-  const cancelled = cancelledRequests.map(w => {
+  const cancelled = cancelledRequests.map((w) => {
     const token = withdrawAssets[ensureHex(w.wantToken)];
     const withdrawal: EarnWithdrawal = {
       amount: undefined,
@@ -190,10 +197,11 @@ export async function getEarnWithdrawals({
       txHash: ensureHex(w.transactionHash),
       token,
       chainId,
-      toAddress: account };
+      toAddress: account,
+    };
     return withdrawal;
   });
-  const expired = expiredRequests.map(w => {
+  const expired = expiredRequests.map((w) => {
     const token = withdrawAssets[ensureHex(w.wantToken)];
     const withdrawal: EarnWithdrawal = {
       amount: undefined,
@@ -204,10 +212,11 @@ export async function getEarnWithdrawals({
       txHash: ensureHex(w.transactionHash),
       token,
       chainId,
-      toAddress: account };
+      toAddress: account,
+    };
     return withdrawal;
   });
-  const fulfilled = fulfilledRequests.map(w => {
+  const fulfilled = fulfilledRequests.map((w) => {
     const token = withdrawAssets[ensureHex(w.Request.wantToken)];
     const withdrawal: EarnWithdrawal = {
       amount: fromBaseDenomination(
@@ -228,10 +237,11 @@ export async function getEarnWithdrawals({
       fulfilledTxHash: ensureHex(w.Fulfillment.transactionHash),
       minPrice: fromBaseDenomination(w.Request.minPrice, token?.decimals || 0),
       chainId,
-      toAddress: account };
+      toAddress: account,
+    };
     return withdrawal;
   });
-  const open = openRequests.map(w => {
+  const open = openRequests.map((w) => {
     const token = withdrawAssets[ensureHex(w.wantToken)];
     const withdrawal: EarnWithdrawal = {
       amount: undefined,
@@ -243,19 +253,21 @@ export async function getEarnWithdrawals({
       token,
       minPrice: fromBaseDenomination(w.minPrice, token?.decimals || 0),
       chainId,
-      toAddress: account };
+      toAddress: account,
+    };
     return withdrawal;
   });
 
   const wihdrawals: EarnWithdrawals = {
-    cancelled: orderBy(cancelled, a => a.timestamp, 'desc'),
-    expired: orderBy(expired, a => a.timestamp, 'desc'),
+    cancelled: orderBy(cancelled, (a) => a.timestamp, 'desc'),
+    expired: orderBy(expired, (a) => a.timestamp, 'desc'),
     fulfilled: orderBy(
       fulfilled,
-      a => a.fulfilledTimestamp || a.timestamp,
+      (a) => a.fulfilledTimestamp || a.timestamp,
       'desc',
     ),
-    open: orderBy(open, a => a.timestamp, 'desc') };
+    open: orderBy(open, (a) => a.timestamp, 'desc'),
+  };
 
   return wihdrawals;
 }
@@ -277,7 +289,8 @@ export type GetEarnWithdrawalsAllChainsParameters = {
  */
 export async function getEarnWithdrawalsAllChains({
   account,
-  rpcUrl }: GetEarnWithdrawalsAllChainsParameters): Promise<EarnWithdrawals> {
+  rpcUrl,
+}: GetEarnWithdrawalsAllChainsParameters): Promise<EarnWithdrawals> {
   const vault = EARN_VAULT;
   // Fetch withdrawals from all supported chains in parallel
   const withdrawalsPromises = vault.chains.map((chainId: EarnChain) =>
@@ -287,7 +300,8 @@ export async function getEarnWithdrawalsAllChains({
         cancelled: [],
         expired: [],
         fulfilled: [],
-        open: [] }; // Return empty withdrawals on error to not break the entire query
+        open: [],
+      }; // Return empty withdrawals on error to not break the entire query
     }),
   );
 
@@ -308,12 +322,13 @@ export async function getEarnWithdrawalsAllChains({
 
   // Sort each category by timestamp (newest first)
   return {
-    cancelled: orderBy(allCancelled, a => a.timestamp, 'desc'),
-    expired: orderBy(allExpired, a => a.timestamp, 'desc'),
+    cancelled: orderBy(allCancelled, (a) => a.timestamp, 'desc'),
+    expired: orderBy(allExpired, (a) => a.timestamp, 'desc'),
     fulfilled: orderBy(
       allFulfilled,
-      a => a.fulfilledTimestamp || a.timestamp,
+      (a) => a.fulfilledTimestamp || a.timestamp,
       'desc',
     ),
-    open: orderBy(allOpen, a => a.timestamp, 'desc') };
+    open: orderBy(allOpen, (a) => a.timestamp, 'desc'),
+  };
 }

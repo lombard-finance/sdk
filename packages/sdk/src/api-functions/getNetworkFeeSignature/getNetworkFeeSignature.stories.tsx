@@ -10,14 +10,16 @@ import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
 import {
   getNetworkFeeSignature,
-  IGetNetworkFeeSignatureParams } from './getNetworkFeeSignature';
+  IGetNetworkFeeSignatureParams,
+} from './getNetworkFeeSignature';
 
 const meta = {
   title: 'api/getNetworkFeeSignature',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('api-get')],
-  argTypes: { ...chainSelector } } satisfies Meta<typeof StoryView>;
+  argTypes: { ...chainSelector },
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -27,14 +29,17 @@ export const WithParams: Story = {
   args: {
     address: EXAMPLE_EVM_ADDRESS,
     chainId: ChainId.ethereum,
-    env: DEFAULT_ENV } };
+    env: DEFAULT_ENV,
+  },
+};
 
 type GetNetworkFeeSignatureParamsProps = IGetNetworkFeeSignatureParams;
 
 export function StoryView(props: GetNetworkFeeSignatureParamsProps) {
   const request = async () => {
     return await getNetworkFeeSignature({
-      ...props });
+      ...props,
+    });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

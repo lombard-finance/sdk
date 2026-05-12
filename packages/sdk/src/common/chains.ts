@@ -23,7 +23,8 @@ const {
   sepolia,
   sonic,
   sonicBlazeTestnet,
-  swellchain } = viem_chains;
+  swellchain,
+} = viem_chains;
 
 // FIXME: Remove this custom chain definition once katana is supported by viem
 export const katana = defineChain({
@@ -32,18 +33,24 @@ export const katana = defineChain({
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
-    symbol: 'ETH' },
+    symbol: 'ETH',
+  },
   rpcUrls: {
     default: {
       http: ['https://rpc.katana.network'],
-      webSocket: ['wss://rpc.katana.network'] } },
+      webSocket: ['wss://rpc.katana.network'],
+    },
+  },
   blockExplorers: {
-    default: { name: 'Katana Explorer', url: 'https://explorer.katanarpc.com' } },
+    default: { name: 'Katana Explorer', url: 'https://explorer.katanarpc.com' },
+  },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 1898013, // TODO: Confirm this
-    } } });
+    },
+  },
+});
 
 // FIXME: Remove this custom chain definition once TAC is supported by viem
 export const tac = defineChain({
@@ -52,12 +59,17 @@ export const tac = defineChain({
   nativeCurrency: {
     decimals: 18,
     name: 'TAC',
-    symbol: 'TAC' },
+    symbol: 'TAC',
+  },
   rpcUrls: {
     default: {
-      http: ['https://rpc.tac.build'] } },
+      http: ['https://rpc.tac.build'],
+    },
+  },
   blockExplorers: {
-    default: { name: 'TAC Explorer', url: 'https://explorer.tac.build' } } });
+    default: { name: 'TAC Explorer', url: 'https://explorer.tac.build' },
+  },
+});
 
 export const bob = defineChain({
   id: 60808,
@@ -65,12 +77,17 @@ export const bob = defineChain({
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
-    symbol: 'ETH' },
+    symbol: 'ETH',
+  },
   rpcUrls: {
     default: {
-      http: ['https://rpc.gobob.xyz'] } },
+      http: ['https://rpc.gobob.xyz'],
+    },
+  },
   blockExplorers: {
-    default: { name: 'BOB Explorer', url: 'https://explorer.gobob.xyz' } } });
+    default: { name: 'BOB Explorer', url: 'https://explorer.gobob.xyz' },
+  },
+});
 
 export const bobSepolia = defineChain({
   id: 808813,
@@ -78,14 +95,20 @@ export const bobSepolia = defineChain({
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
-    symbol: 'ETH' },
+    symbol: 'ETH',
+  },
   rpcUrls: {
     default: {
-      http: ['https://bob-sepolia.rpc.gobob.xyz'] } },
+      http: ['https://bob-sepolia.rpc.gobob.xyz'],
+    },
+  },
   blockExplorers: {
     default: {
       name: 'BOB Sepolia Explorer',
-      url: 'https://bob-sepolia.explorer.gobob.xyz/' } } });
+      url: 'https://bob-sepolia.explorer.gobob.xyz/',
+    },
+  },
+});
 
 export const monad = defineChain({
   id: 143,
@@ -93,18 +116,26 @@ export const monad = defineChain({
   nativeCurrency: {
     decimals: 18,
     name: 'Monad',
-    symbol: 'MONAD' },
+    symbol: 'MONAD',
+  },
   rpcUrls: {
     default: {
-      http: ['https://monad-mainnet.drpc.org'] } },
+      http: ['https://monad-mainnet.drpc.org'],
+    },
+  },
   blockExplorers: {
     default: {
       name: 'Monad Explorer',
-      url: 'https://monadvision.com' } },
+      url: 'https://monadvision.com',
+    },
+  },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 9248132 } } });
+      blockCreated: 9248132,
+    },
+  },
+});
 
 export const stable = defineChain({
   id: 988,
@@ -112,21 +143,28 @@ export const stable = defineChain({
   nativeCurrency: {
     decimals: 18,
     name: 'gUSDT',
-    symbol: 'gUSDT' },
+    symbol: 'gUSDT',
+  },
   rpcUrls: {
     default: {
       http: [
         'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf',
-      ] }, // TODO: Update with the correct RPC URL once the stable network is live
+      ],
+    }, // TODO: Update with the correct RPC URL once the stable network is live
   },
   blockExplorers: {
     default: {
       name: 'Stable Explorer',
-      url: 'https://stablescan.xyz' } },
+      url: 'https://stablescan.xyz',
+    },
+  },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 1 } } });
+      blockCreated: 1,
+    },
+  },
+});
 
 export const megaeth = defineChain({
   id: 4326,
@@ -134,19 +172,26 @@ export const megaeth = defineChain({
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
-    symbol: 'ETH' },
+    symbol: 'ETH',
+  },
   rpcUrls: {
     default: {
-      http: ['https://mainnet.megaeth.com/rpc'] } },
+      http: ['https://mainnet.megaeth.com/rpc'],
+    },
+  },
   blockExplorers: {
     default: {
       name: 'MegaETH Explorer',
-      url: 'https://megaeth.blockscout.com' } },
+      url: 'https://megaeth.blockscout.com',
+    },
+  },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 2591807, // TODO: Confirm this
-    } } });
+    },
+  },
+});
 
 export const allChains: Record<string, viem_chains.Chain> = {
   ...viem_chains,
@@ -154,7 +199,8 @@ export const allChains: Record<string, viem_chains.Chain> = {
   tac,
   monad,
   stable,
-  megaeth };
+  megaeth,
+};
 
 export const SUI_DEVNET_CHAIN = 'sui:devnet' as const;
 export const SUI_TESTNET_CHAIN = 'sui:testnet' as const;
@@ -237,7 +283,8 @@ export const ChainId = {
   holesky: 17000,
   morphHolesky: 2810,
   sepolia: 11155111,
-  sonicBlazeTestnet: 57054 } as const;
+  sonicBlazeTestnet: 57054,
+} as const;
 
 export type ChainId = (typeof ChainId)[keyof typeof ChainId];
 
@@ -263,9 +310,7 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   ...(featureConfig.isMorphEnabled ? { [ChainId.morph]: morph } : {}),
   [ChainId.sonic]: sonic,
   [ChainId.stable]: stable,
-  ...(featureConfig.isSwellchainEnabled
-    ? { [ChainId.swell]: swellchain }
-    : {}),
+  ...(featureConfig.isSwellchainEnabled ? { [ChainId.swell]: swellchain } : {}),
   ...(featureConfig.isTacEnabled ? { [ChainId.tac]: tac } : {}),
   ...(featureConfig.isBobEnabled ? { [ChainId.bob]: bob } : {}),
   // Testnets:
@@ -283,7 +328,8 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
     ? { [ChainId.morphHolesky]: morphHolesky }
     : {}),
   [ChainId.sepolia]: sepolia,
-  [ChainId.sonicBlazeTestnet]: sonicBlazeTestnet };
+  [ChainId.sonicBlazeTestnet]: sonicBlazeTestnet,
+};
 
 type KatanaChain = typeof ChainId.katana;
 export const isKatanaChain = (chainId: unknown): chainId is KatanaChain => {
@@ -296,7 +342,9 @@ export const isMonadChain = (chainId: unknown): chainId is MonadChain => {
 
 type EthereumChain = typeof ChainId.ethereum | typeof ChainId.sepolia;
 export const isEthereumChain = (chainId: unknown): chainId is EthereumChain => {
-  return ([ChainId.ethereum, ChainId.sepolia] as number[]).includes(chainId as number);
+  return ([ChainId.ethereum, ChainId.sepolia] as number[]).includes(
+    chainId as number,
+  );
 };
 
 type StableChain = typeof ChainId.stable;
@@ -324,7 +372,8 @@ export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.megaeth]: 'megaeth',
   [ChainId.monad]: 'monad',
   [ChainId.katana]: 'katana',
-  [ChainId.stable]: 'stable' } as const;
+  [ChainId.stable]: 'stable',
+} as const;
 type LlamaChain =
   (typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP)[keyof typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP];
 
@@ -340,7 +389,8 @@ export type AddChainParameters = {
 export async function addChain({ provider, chainId }: AddChainParameters) {
   const walletClient = makeWalletClient({
     provider,
-    chainId: ChainId.ethereum });
+    chainId: ChainId.ethereum,
+  });
 
   const chain = CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId];
 
@@ -349,7 +399,8 @@ export async function addChain({ provider, chainId }: AddChainParameters) {
   }
 
   await viem_addChain(walletClient, {
-    chain });
+    chain,
+  });
 }
 export const getLlamaChainName = (chainId: ChainId): LlamaChain | undefined => {
   const name =

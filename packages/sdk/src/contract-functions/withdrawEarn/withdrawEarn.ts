@@ -14,7 +14,8 @@ import {
   BTCE_VAULT,
   EARN_VAULT,
   isBtceVaultChain,
-  isEarnChain } from '../../vaults/lib/config';
+  isEarnChain,
+} from '../../vaults/lib/config';
 
 export type WithdrawEarnParameters = {
   /** Amount to withdraw, in the withdrawal asset's natural decimal units (BTC). */
@@ -65,7 +66,8 @@ export async function withdrawEarn({
   chainId,
   provider,
   rpcUrl,
-  env }: WithdrawEarnParameters): Promise<WithdrawEarnResult> {
+  env,
+}: WithdrawEarnParameters): Promise<WithdrawEarnResult> {
   if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain ${chainId}. Earn withdrawals are supported on: ${EARN_VAULT.chains.join(', ')}.`,
@@ -110,19 +112,22 @@ export async function withdrawEarn({
       address: lensAddress,
       abi: vault.lensContract.abi,
       functionName: 'balanceOf',
-      args: [account, vaultAddress] }) as Promise<bigint>,
+      args: [account, vaultAddress],
+    }) as Promise<bigint>,
     btceSupported
       ? (publicClient.readContract({
           address: BTCE_VAULT.contracts[chainId],
           abi: BTCE_VAULT.abi,
           functionName: 'balanceOf',
-          args: [account] }) as Promise<bigint>)
+          args: [account],
+        }) as Promise<bigint>)
       : Promise.resolve(0n),
     publicClient.readContract({
       address: vaultAddress,
       abi: erc20Abi,
       functionName: 'allowance',
-      args: [account, queueAddress] }) as Promise<bigint>,
+      args: [account, queueAddress],
+    }) as Promise<bigint>,
   ]);
   const underlyingBalance = reads[0];
   const btceBalance = reads[1];
@@ -146,7 +151,8 @@ export async function withdrawEarn({
       address: BTCE_VAULT.contracts[chainId],
       abi: BTCE_VAULT.abi,
       functionName: 'maxWithdraw',
-      args: [account] })) as bigint;
+      args: [account],
+    })) as bigint;
 
     if (maxWithdraw < lbtcvNeeded) {
       throw new Error(
@@ -169,10 +175,12 @@ export async function withdrawEarn({
         address: vaultAddress,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [queueAddress, maxUint256] });
+        args: [queueAddress, maxUint256],
+      });
       result.approveTxHash = await walletClient.writeContract(request);
       await publicClient.waitForTransactionReceipt({
-        hash: result.approveTxHash });
+        hash: result.approveTxHash,
+      });
     } catch (err) {
       throw new Error(
         `Approval of underlying share for withdraw queue failed: ${getErrorMessage(err)}`,
@@ -189,10 +197,12 @@ export async function withdrawEarn({
         address: BTCE_VAULT.contracts[chainId],
         abi: BTCE_VAULT.abi,
         functionName: 'withdraw',
-        args: [unwrapAmount, account, account] });
+        args: [unwrapAmount, account, account],
+      });
       result.unwrapTxHash = await walletClient.writeContract(request);
       await publicClient.waitForTransactionReceipt({
-        hash: result.unwrapTxHash });
+        hash: result.unwrapTxHash,
+      });
     } catch (err) {
       throw new Error(
         `Unwrap from BTCe to underlying share failed: ${getErrorMessage(err)}. Approval${result.approveTxHash ? ` (${result.approveTxHash})` : ''} may already be in place.`,
@@ -222,7 +232,8 @@ export async function withdrawEarn({
         [BigInt(expiry.toFixed(0)), 0n, amountBase, false],
         accountantAddress,
         BigInt(discount.toFixed(0)),
-      ] });
+      ],
+    });
     result.queueTxHash = await walletClient.writeContract(request);
   } catch (err) {
     throw new Error(

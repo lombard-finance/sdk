@@ -24,7 +24,8 @@ export type {
   FeeAuthResult,
   RouteDefinition,
   SignatureResult,
-  StoredFeeSignature } from './types';
+  StoredFeeSignature,
+} from './types';
 
 // Re-export individual configs
 export { evmConfig } from './evm';
@@ -46,7 +47,8 @@ export const chainConfigs: Partial<Record<ChainType, ChainConfig>> = {
   evm: evmConfig,
   solana: solanaConfig,
   sui: suiConfig,
-  starknet: starknetConfig };
+  starknet: starknetConfig,
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Lookup Functions
@@ -88,7 +90,7 @@ export function isRouteAvailable(
   if (!sourceChain) return true; // No source chain specified, allow all
 
   return config.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

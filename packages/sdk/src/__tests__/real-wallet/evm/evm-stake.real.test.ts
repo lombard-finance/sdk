@@ -8,7 +8,9 @@ import { createTestConfig as createConfig } from '../../helpers/createTestConfig
 import { walletClientToProvider } from '../../test-utils/eip1193-adapter';
 import { createTestEvmWallet } from '../../test-utils/evm-wallet';
 
-const runIfConfigured = process.env.TEST_EVM_PRIVATE_KEY ? describe : describe.skip;
+const runIfConfigured = process.env.TEST_EVM_PRIVATE_KEY
+  ? describe
+  : describe.skip;
 
 runIfConfigured('EVM Stake Real Wallet', () => {
   let wallet: WalletClient;
@@ -17,7 +19,7 @@ runIfConfigured('EVM Stake Real Wallet', () => {
     // EVM Stake usually happens on Avalanche (BTC.b -> LBTC)
     const res = await createTestEvmWallet(
       process.env.TEST_EVM_PRIVATE_KEY as `0x${string}`,
-      'avalanche-fuji'
+      'avalanche-fuji',
     );
     wallet = res.walletClient;
   });
@@ -26,18 +28,21 @@ runIfConfigured('EVM Stake Real Wallet', () => {
     const config = createConfig({
       env: Env.testnet,
       providers: {
-        evm: () => walletClientToProvider(wallet) } });
+        evm: () => walletClientToProvider(wallet),
+      },
+    });
 
     const stake = evmStake(config, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE,
-      destChain: Chain.AVALANCHE });
+      destChain: Chain.AVALANCHE,
+    });
 
     await stake.prepare({
-      amount: '0.0001' });
+      amount: '0.0001',
+    });
 
     expect(stake.status).toBe('needs-approval');
   });
 });
-

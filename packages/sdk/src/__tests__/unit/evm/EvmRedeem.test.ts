@@ -17,7 +17,8 @@ describe('EvmRedeem Interface', () => {
       const params = {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
-        sourceChain: Chain.AVALANCHE };
+        sourceChain: Chain.AVALANCHE,
+      };
 
       expect(params.assetIn).toBe(AssetId.LBTC);
     });
@@ -26,7 +27,8 @@ describe('EvmRedeem Interface', () => {
       const params = {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
-        sourceChain: Chain.AVALANCHE };
+        sourceChain: Chain.AVALANCHE,
+      };
 
       expect(params.assetOut).toBe(AssetId.BTCb);
     });
@@ -47,7 +49,8 @@ describe('EvmRedeem Interface', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      };
 
       expect(params.amount).toBe('0.1');
       expect(params.recipient).toBeDefined();
@@ -56,7 +59,8 @@ describe('EvmRedeem Interface', () => {
     it('should require EVM recipient address', () => {
       const params = {
         amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      };
 
       expect(params.recipient).toMatch(/^0x/);
     });
@@ -64,14 +68,9 @@ describe('EvmRedeem Interface', () => {
 
   describe('Status Transitions', () => {
     it('should define all required status values', () => {
-      const statuses = [
-        'idle',
-        'needs-approval',
-        'ready',
-        'completed',
-      ];
+      const statuses = ['idle', 'needs-approval', 'ready', 'completed'];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -79,7 +78,10 @@ describe('EvmRedeem Interface', () => {
 
   describe('Method Signatures', () => {
     it('should define prepare method', () => {
-      type PrepareMethod = (params: { amount: string; recipient: string }) => Promise<void>;
+      type PrepareMethod = (params: {
+        amount: string;
+        recipient: string;
+      }) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });
@@ -103,7 +105,8 @@ describe('EvmRedeem Interface', () => {
       const redeemFlow = {
         input: AssetId.LBTC,
         output: AssetId.BTCb,
-        operation: 'burn-and-mint' };
+        operation: 'burn-and-mint',
+      };
 
       expect(redeemFlow.operation).toBe('burn-and-mint');
     });
@@ -111,7 +114,7 @@ describe('EvmRedeem Interface', () => {
     it('should be 1:1 conversion', () => {
       const inputAmount = '0.1';
       const outputAmount = '0.1'; // 1:1 ratio
-      
+
       expect(inputAmount).toBe(outputAmount);
     });
   });
@@ -155,9 +158,9 @@ describe('EvmRedeem Interface', () => {
   describe('Chain Support', () => {
     it('should support Avalanche chains', () => {
       const supportedChains = [Chain.AVALANCHE, Chain.AVALANCHE_FUJI];
-      
+
       // Chains are CAIP-2 format (e.g., eip155:43114)
-      supportedChains.forEach(chain => {
+      supportedChains.forEach((chain) => {
         expect(chain).toBeDefined();
         expect(typeof chain).toBe('string');
       });
@@ -199,4 +202,3 @@ describe('EvmRedeem Interface', () => {
     });
   });
 });
-

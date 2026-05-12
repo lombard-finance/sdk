@@ -17,4 +17,3 @@ export {
   requiresRealWallet,
   useMockWallet,
 } from './useMockWallet';
-

@@ -32,7 +32,9 @@ import {
 // ─────────────────────────────────────────────────────────────────
 
 export type DevToolsEventCallback = (event: DevToolsEvent) => void;
-export type DevToolsStateCallback = (actions: Map<string, RegisteredAction>) => void;
+export type DevToolsStateCallback = (
+  actions: Map<string, RegisteredAction>,
+) => void;
 
 // ─────────────────────────────────────────────────────────────────
 // DevToolsBridge Class
@@ -73,7 +75,8 @@ export class DevToolsBridge {
 
   // Network logging
   private networkLog: Map<string, NetworkLogEntry> = new Map();
-  private networkListeners: Set<(entries: NetworkLogEntry[]) => void> = new Set();
+  private networkListeners: Set<(entries: NetworkLogEntry[]) => void> =
+    new Set();
   private requestIdCounter = 0;
 
   constructor(config?: DevToolsConfig) {
@@ -140,7 +143,9 @@ export class DevToolsBridge {
     this.handleEvent(name, 'registered', { status: action.status });
 
     // Return unregister function
-    return () => { this.unregisterAction(name); };
+    return () => {
+      this.unregisterAction(name);
+    };
   }
 
   /**
@@ -150,7 +155,9 @@ export class DevToolsBridge {
     // Unsubscribe from events
     const unsubs = this.unsubscribers.get(name);
     if (unsubs) {
-      unsubs.forEach(unsub => { unsub(); });
+      unsubs.forEach((unsub) => {
+        unsub();
+      });
       this.unsubscribers.delete(name);
     }
 
@@ -192,7 +199,7 @@ export class DevToolsBridge {
   }
 
   private notifyEventListeners(event: DevToolsEvent): void {
-    this.eventListeners.forEach(listener => {
+    this.eventListeners.forEach((listener) => {
       try {
         listener(event);
       } catch (err) {
@@ -202,7 +209,7 @@ export class DevToolsBridge {
   }
 
   private notifyStateListeners(): void {
-    this.stateListeners.forEach(listener => {
+    this.stateListeners.forEach((listener) => {
       try {
         listener(new Map(this.actions));
       } catch (err) {
@@ -252,8 +259,14 @@ export class DevToolsBridge {
   /**
    * Get current state summary for all actions
    */
-  getStateSummary(): Record<string, { status: string; isLoading: boolean; hasError: boolean }> {
-    const summary: Record<string, { status: string; isLoading: boolean; hasError: boolean }> = {};
+  getStateSummary(): Record<
+    string,
+    { status: string; isLoading: boolean; hasError: boolean }
+  > {
+    const summary: Record<
+      string,
+      { status: string; isLoading: boolean; hasError: boolean }
+    > = {};
 
     this.actions.forEach((reg, name) => {
       summary[name] = {
@@ -314,7 +327,10 @@ export class DevToolsBridge {
 
     // Console logging if enabled
     if (this.config.consoleLogging) {
-      console.log(`[DevTools] API ${params.method} ${params.url}`, params.payload);
+      console.log(
+        `[DevTools] API ${params.method} ${params.url}`,
+        params.payload,
+      );
     }
 
     this.notifyNetworkListeners();
@@ -404,7 +420,7 @@ export class DevToolsBridge {
 
   private notifyNetworkListeners(): void {
     const entries = this.getNetworkLog();
-    this.networkListeners.forEach(listener => {
+    this.networkListeners.forEach((listener) => {
       try {
         listener(entries);
       } catch (err) {
@@ -428,7 +444,9 @@ export class DevToolsBridge {
    * Clear all registered actions
    */
   clearActions(): void {
-    this.actions.forEach((_, name) => { this.unregisterAction(name); });
+    this.actions.forEach((_, name) => {
+      this.unregisterAction(name);
+    });
   }
 
   /**
@@ -468,4 +486,3 @@ export function resetDevToolsBridge(): void {
     globalBridge = null;
   }
 }
-

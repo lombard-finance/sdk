@@ -8,10 +8,10 @@ import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
-  toBaseDenomination } from '../../../tokens/tokens';
+  toBaseDenomination,
+} from '../../../tokens/tokens';
 import toBigInt from '../../../utils/numbers';
-import {
-  EARN_VAULT, isEarnChain } from '../config';
+import { EARN_VAULT, isEarnChain } from '../config';
 
 export type PreviewEarnDepositParameters = {
   /** The deposit amount in human-readable format (e.g., "0.001"). */
@@ -47,7 +47,8 @@ export async function previewEarnDeposit({
   token = Token.LBTC,
   chainId = ChainId.ethereum,
   rpcUrl,
-  env }: PreviewEarnDepositParameters): Promise<BigNumber> {
+  env,
+}: PreviewEarnDepositParameters): Promise<BigNumber> {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -55,9 +56,9 @@ export async function previewEarnDeposit({
     );
   }
 
-  const supportedChains = vault.tokens[
-    token as keyof typeof vault.tokens
-  ] as readonly ChainId[] | undefined;
+  const supportedChains = vault.tokens[token as keyof typeof vault.tokens] as
+    | readonly ChainId[]
+    | undefined;
   if (!supportedChains || !supportedChains.includes(chainId)) {
     throw new Error(
       `Token ${token} is not supported on chain ${chainId} for the Bitcoin Earn vault`,
@@ -97,7 +98,8 @@ export async function previewEarnDeposit({
   const ethPublicClient = makePublicClient({
     chainId: ChainId.ethereum,
     rpcUrl: chainId === ChainId.ethereum ? rpcUrl : undefined,
-    env });
+    env,
+  });
 
   const vaultAddress = vault.vaultContract.address as Address;
   const accountantAddress = vault.accountantContract.address as Address;
@@ -108,7 +110,8 @@ export async function previewEarnDeposit({
     address: lensAddress,
     abi: lensAbi,
     functionName: 'previewDeposit',
-    args: [ethTokenAddress, amountBase, vaultAddress, accountantAddress] });
+    args: [ethTokenAddress, amountBase, vaultAddress, accountantAddress],
+  });
 
   return fromBaseDenomination((shares as bigint).toString(), vault.decimals);
 }

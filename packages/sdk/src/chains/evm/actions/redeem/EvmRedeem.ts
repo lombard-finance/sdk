@@ -33,18 +33,21 @@ import { LombardError } from '../../../../shared/errors';
 import type { RedeemEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
-  validatePrepareParams } from '../../../../shared/validation';
+  validatePrepareParams,
+} from '../../../../shared/validation';
 import { Token } from '../../../../tokens/token-addresses';
 import {
   authorizeFee as authorizeFeeShared,
   checkFeeAuthorization,
   createInitialFeeAuthState,
-  type FeeAuthState } from '../../shared/feeAuth';
+  type FeeAuthState,
+} from '../../shared/feeAuth';
 import { evmConfig } from './config';
 import type {
   EvmRedeemParams,
   EvmRedeemPrepareParams,
-  IEvmRedeem } from './types';
+  IEvmRedeem,
+} from './types';
 
 export class EvmRedeem
   extends BaseAction<RedeemEventMap, EvmOperationStatus>
@@ -89,7 +92,8 @@ export class EvmRedeem
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
-        destChain: this.params.destChain });
+        destChain: this.params.destChain,
+      });
       this._amount = validated.amount as string;
       this._recipient = validated.recipient as string;
 
@@ -101,7 +105,8 @@ export class EvmRedeem
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts' });
+        method: 'eth_accounts',
+      });
       const account = accounts[0] as `0x${string}`;
 
       // Check fee authorization status (BTC.b redeem uses Token.BTCb)
@@ -118,7 +123,8 @@ export class EvmRedeem
         isAuthorized: feeAuthResult.hasValidSignature,
         feeInSatoshis: feeAuthResult.feeInSatoshis,
         feeFormatted: feeAuthResult.feeFormatted,
-        expirationDate: feeAuthResult.expirationDate };
+        expirationDate: feeAuthResult.expirationDate,
+      };
 
       // Determine next status based on fee auth
       // Note: Status is set here (not via act's successStatus) because the
@@ -127,7 +133,8 @@ export class EvmRedeem
         this.updateStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
         this.emitProgress({
           status: EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-          steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE } });
+          steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
+        });
         return;
       }
 
@@ -136,7 +143,8 @@ export class EvmRedeem
       this.updateStatus(EvmOperationStatus.READY);
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE } });
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
+      });
     });
   }
 
@@ -147,7 +155,10 @@ export class EvmRedeem
    * Signs the fee authorization and stores it on the server.
    */
   async authorizeFee(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION, 'authorizeFee');
+    this.assertStatus(
+      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
+      'authorizeFee',
+    );
 
     if (!this._feeAuth.feeInSatoshis) {
       throw LombardError.missingParameter('feeInSatoshis');
@@ -162,7 +173,8 @@ export class EvmRedeem
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts' });
+        method: 'eth_accounts',
+      });
       const account = accounts[0] as `0x${string}`;
 
       // Sign and store fee authorization
@@ -172,14 +184,16 @@ export class EvmRedeem
         feeInSatoshis: this._feeAuth.feeInSatoshis!,
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
-        token: Token.BTCb });
+        token: Token.BTCb,
+      });
 
       // Update state
       this._feeAuth.isAuthorized = true;
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE } });
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
+      });
     }, EvmOperationStatus.READY);
   }
 
@@ -190,7 +204,8 @@ export class EvmRedeem
       this._needsApproval = false;
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE } });
+        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
+      });
     }, EvmOperationStatus.READY);
   }
 
@@ -205,7 +220,8 @@ export class EvmRedeem
 
       // Get the connected EVM account address from the provider
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts' });
+        method: 'eth_accounts',
+      });
       const evmAccount = accounts[0] as `0x${string}`;
       if (!evmAccount) {
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
@@ -215,7 +231,8 @@ export class EvmRedeem
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE } });
+        steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
+      });
 
       // Execute BTC.b → BTC redemption (burn BTC.b, release BTC to Bitcoin address)
       const txHash = await redeemToken({
@@ -233,7 +250,8 @@ export class EvmRedeem
 
       this.emitProgress({
         status: EvmOperationStatus.COMPLETED,
-        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING } });
+        steps: { burning: StepStatus.COMPLETE, releasing: StepStatus.PENDING },
+      });
 
       this.emitCompleted();
 
@@ -244,6 +262,7 @@ export class EvmRedeem
   private get prepareSchema() {
     return z.object({
       amount: evmAmountSchema,
-      recipient: evmConfig.recipientSchema });
+      recipient: evmConfig.recipientSchema,
+    });
   }
 }

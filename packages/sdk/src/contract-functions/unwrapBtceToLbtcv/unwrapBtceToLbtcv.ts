@@ -11,7 +11,8 @@ import toBigInt from '../../utils/numbers';
 import {
   BTCE_VAULT,
   BTCE_VAULT_DECIMALS,
-  isBtceVaultChain } from '../../vaults/lib/config';
+  isBtceVaultChain,
+} from '../../vaults/lib/config';
 
 export type UnwrapBtceToLbtcvParameters = {
   /** Amount of LBTCv to receive (in BTC natural units, 8 decimals). */
@@ -42,7 +43,8 @@ export async function unwrapBtceToLbtcv({
   account,
   chainId,
   provider,
-  rpcUrl }: UnwrapBtceToLbtcvParameters): Promise<Hash> {
+  rpcUrl,
+}: UnwrapBtceToLbtcvParameters): Promise<Hash> {
   if (!isBtceVaultChain(chainId)) {
     throw new Error(
       `BTCe is not supported on chain ${chainId}. Supported chains: ${BTCE_VAULT.chains.join(', ')}.`,
@@ -76,15 +78,16 @@ export async function unwrapBtceToLbtcv({
     abi: BTCE_VAULT.abi,
     address: BTCE_VAULT.contracts[chainId],
     functionName: 'maxWithdraw',
-    args: [resolvedOwner] })) as bigint;
+    args: [resolvedOwner],
+  })) as bigint;
 
   if (amountBase > maxWithdrawRaw) {
     throw new Error(
-      `Unwrap amount ${amount.toFixed()} exceeds maxWithdraw ${
-        BigNumber(maxWithdrawRaw.toString())
-          .shiftedBy(-BTCE_VAULT_DECIMALS)
-          .toFixed()
-      } for owner ${resolvedOwner}.`,
+      `Unwrap amount ${amount.toFixed()} exceeds maxWithdraw ${BigNumber(
+        maxWithdrawRaw.toString(),
+      )
+        .shiftedBy(-BTCE_VAULT_DECIMALS)
+        .toFixed()} for owner ${resolvedOwner}.`,
     );
   }
 
@@ -95,7 +98,8 @@ export async function unwrapBtceToLbtcv({
       abi: BTCE_VAULT.abi,
       address: BTCE_VAULT.contracts[chainId],
       functionName: 'withdraw',
-      args: [amountBase, resolvedReceiver, resolvedOwner] });
+      args: [amountBase, resolvedReceiver, resolvedOwner],
+    });
 
     return await walletClient.writeContract(request);
   } catch (err) {

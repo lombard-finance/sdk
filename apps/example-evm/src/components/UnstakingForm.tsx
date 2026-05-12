@@ -1,4 +1,9 @@
-import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
+import {
+  AssetId,
+  Chain,
+  Env,
+  MIN_REDEEM_AMOUNT_BTC,
+} from '@lombard.finance/sdk';
 import { useCallback, useEffect, useState } from 'react';
 
 import { getAvailableChains, getBtcbUnstakeChains } from '../lib/chains';
@@ -6,8 +11,17 @@ import type { UnstakingFormData } from '../pages/UnstakePage/useEvmUnstaking';
 
 function WalletIcon() {
   return (
-    <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0.75 0H14.25H15V1.5H14.25H1.5V12.5H14.5V4.5H3.75H3V3H3.75H15.25H16V3.75V13.25V14H15.25H0.75H0V13.25V0.75V0H0.75ZM12 9.5C11.4375 9.5 11 9.0625 11 8.5C11 7.96875 11.4375 7.5 12 7.5C12.5312 7.5 13 7.96875 13 8.5C13 9.0625 12.5312 9.5 12 9.5Z" fill="currentColor" />
+    <svg
+      width="16"
+      height="14"
+      viewBox="0 0 16 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0.75 0H14.25H15V1.5H14.25H1.5V12.5H14.5V4.5H3.75H3V3H3.75H15.25H16V3.75V13.25V14H15.25H0.75H0V13.25V0.75V0H0.75ZM12 9.5C11.4375 9.5 11 9.0625 11 8.5C11 7.96875 11.4375 7.5 12 7.5C12.5312 7.5 13 7.96875 13 8.5C13 9.0625 12.5312 9.5 12 9.5Z"
+        fill="currentColor"
+      />
     </svg>
   );
 }
@@ -126,7 +140,7 @@ export function UnstakingForm({
           <select
             id="assetOut"
             value={assetOut}
-            onChange={e => setAssetOut(e.target.value as AssetId)}
+            onChange={(e) => setAssetOut(e.target.value as AssetId)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
           >
             <option value={AssetId.BTC}>BTC (Cross-chain to Bitcoin)</option>
@@ -150,10 +164,10 @@ export function UnstakingForm({
           <select
             id="sourceChain"
             value={sourceChain}
-            onChange={e => setSourceChain(e.target.value)}
+            onChange={(e) => setSourceChain(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
           >
-            {availableChains.map(chain => (
+            {availableChains.map((chain) => (
               <option key={chain.value} value={chain.value}>
                 {chain.label}
               </option>
@@ -175,7 +189,7 @@ export function UnstakingForm({
             step="0.00000001"
             min={minAmount}
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             placeholder={String(minAmount)}
             required
@@ -195,7 +209,7 @@ export function UnstakingForm({
               id="recipient"
               type="text"
               value={recipient}
-              onChange={e => setRecipient(e.target.value)}
+              onChange={(e) => setRecipient(e.target.value)}
               className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm ${!isBtcOutput && hasEthereum ? 'pr-10' : ''}`}
               placeholder={
                 isBtcOutput
@@ -209,7 +223,9 @@ export function UnstakingForm({
             {!isBtcOutput && hasEthereum && (
               <button
                 type="button"
-                onClick={() => { void handleUseWalletAddress(); }}
+                onClick={() => {
+                  void handleUseWalletAddress();
+                }}
                 title="Use wallet address"
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-600 transition-colors"
               >

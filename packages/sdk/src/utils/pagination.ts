@@ -37,7 +37,8 @@ export async function fetchAllPaginated<T>({
   extractItems,
   query = {},
   pageSize = 1_000,
-  maxRecords }: FetchAllPaginatedParameters<T>): Promise<T[]> {
+  maxRecords,
+}: FetchAllPaginatedParameters<T>): Promise<T[]> {
   let allItems: T[] = [];
   let offset = 0;
   let hasMore = true;

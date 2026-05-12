@@ -22,10 +22,12 @@ vi.mock('@lombard.finance/sdk-starknet', () => ({
 // Capture the config factory so we can call it in tests
 let capturedConfigFn: (() => unknown) | null = null;
 
-const mockUseLombardSDK = vi.fn().mockImplementation((configFn: () => unknown) => {
-  capturedConfigFn = configFn;
-  return { sdk: null, isInitializing: false, error: null };
-});
+const mockUseLombardSDK = vi
+  .fn()
+  .mockImplementation((configFn: () => unknown) => {
+    capturedConfigFn = configFn;
+    return { sdk: null, isInitializing: false, error: null };
+  });
 
 const mockUnstake = vi.fn();
 const mockReset = vi.fn();
@@ -78,9 +80,7 @@ describe('useStarknetUnstaking', () => {
   });
 
   it('returns idle state when no address', () => {
-    const { result } = renderHook(() =>
-      useStarknetUnstaking(undefined),
-    );
+    const { result } = renderHook(() => useStarknetUnstaking(undefined));
 
     expect(result.current.status.phase).toBe('idle');
     expect(result.current.txHash).toBeNull();
@@ -91,7 +91,12 @@ describe('useStarknetUnstaking', () => {
     const fakeProvider = { id: 'braavos' };
 
     renderHook(() =>
-      useStarknetUnstaking('0xStarknetAddress', undefined, fakeProvider, 'braavos'),
+      useStarknetUnstaking(
+        '0xStarknetAddress',
+        undefined,
+        fakeProvider,
+        'braavos',
+      ),
     );
 
     await waitFor(() => {
@@ -112,7 +117,12 @@ describe('useStarknetUnstaking', () => {
     };
 
     renderHook(() =>
-      useStarknetUnstaking('0xStarknetAddress', undefined, fakeProvider, 'braavos'),
+      useStarknetUnstaking(
+        '0xStarknetAddress',
+        undefined,
+        fakeProvider,
+        'braavos',
+      ),
     );
 
     await waitFor(() => {
@@ -143,7 +153,12 @@ describe('useStarknetUnstaking', () => {
     mockWalletAccountConnect.mockResolvedValue(fakeWalletAccount);
 
     renderHook(() =>
-      useStarknetUnstaking('0xStarknetAddress', undefined, fakeProvider, 'argentX'),
+      useStarknetUnstaking(
+        '0xStarknetAddress',
+        undefined,
+        fakeProvider,
+        'argentX',
+      ),
     );
 
     await waitFor(() => {
@@ -188,7 +203,12 @@ describe('useStarknetUnstaking', () => {
     mockUseNonEvmUnstake.mockReturnValue(unstakeReturn);
 
     const { result } = renderHook(() =>
-      useStarknetUnstaking('0xStarknetAddress', undefined, { id: 'braavos' }, 'braavos'),
+      useStarknetUnstaking(
+        '0xStarknetAddress',
+        undefined,
+        { id: 'braavos' },
+        'braavos',
+      ),
     );
 
     // useNonEvmUnstake should have been called with sdk and 'starknet'

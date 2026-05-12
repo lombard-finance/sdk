@@ -10,13 +10,16 @@ export {
   monitorDeposit,
   type MonitorOptions,
   type MonitorProgress,
-  type NetworkMode } from './depositMonitor';
+  type NetworkMode,
+} from './depositMonitor';
 
 // Re-export existing utilities
 export {
   createEventEmitter,
   type EventEmitter,
-  type EventHandler } from './createEventEmitter';
+  type EventHandler,
+} from './createEventEmitter';
 export {
   createProgressEmitter,
-  type ProgressEmitter } from './createProgressEmitter';
+  type ProgressEmitter,
+} from './createProgressEmitter';

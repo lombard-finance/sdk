@@ -18,7 +18,8 @@ describe('EvmDeploy Interface', () => {
         assetIn: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC' };
+        vault: 'LBTC',
+      };
 
       expect(params.assetIn).toBe(AssetId.LBTC);
     });
@@ -28,7 +29,8 @@ describe('EvmDeploy Interface', () => {
         assetIn: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC' };
+        vault: 'LBTC',
+      };
 
       expect(params.protocol).toBe('veda');
     });
@@ -38,28 +40,24 @@ describe('EvmDeploy Interface', () => {
         assetIn: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC' };
+        vault: 'LBTC',
+      };
 
       expect(params.vault).toBe('LBTC');
     });
 
     it('should support multiple protocols', () => {
       const protocols = ['corn-silo', 'euler-lbtc', 'aave', 'morpho', 'pendle'];
-      
-      protocols.forEach(protocol => {
+
+      protocols.forEach((protocol) => {
         expect(typeof protocol).toBe('string');
       });
     });
 
     it('should support multiple chains', () => {
-      const chains = [
-        Chain.ETHEREUM,
-        Chain.BASE,
-        Chain.BSC,
-        Chain.SEPOLIA,
-      ];
+      const chains = [Chain.ETHEREUM, Chain.BASE, Chain.BSC, Chain.SEPOLIA];
 
-      chains.forEach(chain => {
+      chains.forEach((chain) => {
         expect(typeof chain).toBe('string');
       });
     });
@@ -68,7 +66,8 @@ describe('EvmDeploy Interface', () => {
   describe('EvmDeployPrepareParams', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
-        amount: '0.1' };
+        amount: '0.1',
+      };
 
       expect(params.amount).toBe('0.1');
     });
@@ -76,7 +75,8 @@ describe('EvmDeploy Interface', () => {
     it('should support optional recipient', () => {
       const params = {
         amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      };
 
       expect(params.recipient).toBeDefined();
     });
@@ -84,14 +84,9 @@ describe('EvmDeploy Interface', () => {
 
   describe('Status Transitions', () => {
     it('should define all required status values', () => {
-      const statuses = [
-        'idle',
-        'needs-approval',
-        'ready',
-        'completed',
-      ];
+      const statuses = ['idle', 'needs-approval', 'ready', 'completed'];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -120,8 +115,8 @@ describe('EvmDeploy Interface', () => {
   describe('Protocol Integration', () => {
     it('should support DeFi protocols from registry', () => {
       const protocolTypes = ['lending', 'yield', 'liquidity'];
-      
-      protocolTypes.forEach(type => {
+
+      protocolTypes.forEach((type) => {
         expect(typeof type).toBe('string');
       });
     });
@@ -129,7 +124,7 @@ describe('EvmDeploy Interface', () => {
     it('should validate vault exists for protocol', () => {
       const protocol = 'corn-silo';
       const vault = 'LBTC';
-      
+
       expect(protocol).toBeDefined();
       expect(vault).toBeDefined();
     });
@@ -216,4 +211,3 @@ describe('EvmDeploy Interface', () => {
     });
   });
 });
-

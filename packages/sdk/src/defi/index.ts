@@ -1,6 +1,8 @@
 export {
   EARN_STAKE_AND_BAKE_CHAINS,
-  type EarnStakeAndBakeChain,  isEarnStakeAndBakeChain } from '../vaults/lib/config';
+  type EarnStakeAndBakeChain,
+  isEarnStakeAndBakeChain,
+} from '../vaults/lib/config';
 export {
   DEFI_REGISTRY,
   DefiProtocol,
@@ -11,4 +13,5 @@ export {
   getStakeAndBakeSupportedChains,
   getSupportedProtocols,
   type StakeAndBakeRegistry,
-  type StakeAndBakeToken } from './defi-registry';
+  type StakeAndBakeToken,
+} from './defi-registry';

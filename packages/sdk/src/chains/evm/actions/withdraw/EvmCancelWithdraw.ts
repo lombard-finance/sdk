@@ -19,9 +19,7 @@ import type { WithdrawEventMap } from '../../../../shared/events';
 import { isEarnChain } from '../../../../vaults/lib/config';
 import { cancelWithdrawInternal } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
-import type {
-  EvmCancelWithdrawParams,
-  IEvmCancelWithdraw } from './types';
+import type { EvmCancelWithdrawParams, IEvmCancelWithdraw } from './types';
 
 export class EvmCancelWithdraw
   extends BaseAction<WithdrawEventMap, EvmOperationStatus>
@@ -55,7 +53,8 @@ export class EvmCancelWithdraw
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts' });
+        method: 'eth_accounts',
+      });
       const account = (accounts as string[])[0] as `0x${string}`;
       if (!account) {
         throw LombardError.providerMissing(this.params.chain, 'evm');
@@ -75,7 +74,8 @@ export class EvmCancelWithdraw
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { cancelling: StepStatus.PENDING } });
+        steps: { cancelling: StepStatus.PENDING },
+      });
       this.updateStatus(EvmOperationStatus.READY);
     });
   }
@@ -95,20 +95,23 @@ export class EvmCancelWithdraw
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { cancelling: StepStatus.PENDING } });
+        steps: { cancelling: StepStatus.PENDING },
+      });
 
       // Execute vault cancel withdraw
       const txHash = await cancelWithdrawInternal({
         account: this._account,
         chainId: this._chainId,
         provider: provider as EIP1193Provider,
-        env: this.ctx.env });
+        env: this.ctx.env,
+      });
 
       this._txHash = txHash;
 
       this.emitProgress({
         status: EvmOperationStatus.COMPLETED,
-        steps: { cancelling: StepStatus.COMPLETE } });
+        steps: { cancelling: StepStatus.COMPLETE },
+      });
 
       this.emitCompleted();
 
@@ -118,7 +121,7 @@ export class EvmCancelWithdraw
 
   private validateProtocol(protocol: DeployProtocol): void {
     const isSupported = evmWithdrawConfig.routes.some(
-      route =>
+      (route) =>
         route.protocols.includes(protocol) && route.envs.includes(this.ctx.env),
     );
     if (!isSupported) {

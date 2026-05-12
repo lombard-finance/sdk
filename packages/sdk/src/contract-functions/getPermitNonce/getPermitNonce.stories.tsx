@@ -10,7 +10,8 @@ const meta = {
   title: 'read/getPermitNonce',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [functionType('read')] } satisfies Meta<typeof StoryView>;
+  decorators: [functionType('read')],
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -19,7 +20,9 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     owner: '0x1234567890123456789012345678901234567890',
-    chainId: 1 } };
+    chainId: 1,
+  },
+};
 
 type GetPermitNonceProps = Parameters<typeof getPermitNonce>[0];
 

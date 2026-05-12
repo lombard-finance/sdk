@@ -7,8 +7,7 @@ import { ChainId } from '../../../common/chains';
 import { Token } from '../../../tokens/token-addresses';
 import { getTokenInfo } from '../../../tokens/tokens';
 import { fromBaseDenomination } from '../../../tokens/tokens';
-import {
-  EARN_VAULT, isEarnChain } from '../config';
+import { EARN_VAULT, isEarnChain } from '../config';
 
 export type GetEarnMinimumDepositParameters = {
   /** The deposit token. Defaults to LBTC. */
@@ -38,7 +37,8 @@ export async function getEarnMinimumDeposit({
   token = Token.LBTC,
   chainId = ChainId.ethereum,
   rpcUrl,
-  env }: GetEarnMinimumDepositParameters = {}): Promise<BigNumber> {
+  env,
+}: GetEarnMinimumDepositParameters = {}): Promise<BigNumber> {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -46,9 +46,9 @@ export async function getEarnMinimumDeposit({
     );
   }
 
-  const supportedChains = vault.tokens[
-    token as keyof typeof vault.tokens
-  ] as readonly ChainId[] | undefined;
+  const supportedChains = vault.tokens[token as keyof typeof vault.tokens] as
+    | readonly ChainId[]
+    | undefined;
   if (!supportedChains || !supportedChains.includes(chainId)) {
     throw new Error(
       `Token ${token} is not supported on chain ${chainId} for the Bitcoin Earn vault`,
@@ -84,7 +84,8 @@ export async function getEarnMinimumDeposit({
   const ethPublicClient = makePublicClient({
     chainId: ChainId.ethereum,
     rpcUrl: chainId === ChainId.ethereum ? rpcUrl : undefined,
-    env });
+    env,
+  });
 
   const vaultAddress = vault.vaultContract.address as Address;
   const accountantAddress = vault.accountantContract.address as Address;
@@ -99,13 +100,16 @@ export async function getEarnMinimumDeposit({
         address: accountantAddress,
         abi: accountantAbi,
         functionName: 'getRateInQuote',
-        args: [ethTokenAddress] },
+        args: [ethTokenAddress],
+      },
       {
         address: lensAddress,
         abi: lensAbi,
         functionName: 'previewDeposit',
-        args: [ethTokenAddress, 1n, vaultAddress, accountantAddress] },
-    ] });
+        args: [ethTokenAddress, 1n, vaultAddress, accountantAddress],
+      },
+    ],
+  });
 
   if (rateResult.status !== 'success') {
     throw new Error(
@@ -134,7 +138,8 @@ export async function getEarnMinimumDeposit({
     address: lensAddress,
     abi: lensAbi,
     functionName: 'previewDeposit',
-    args: [ethTokenAddress, estimatedMin, vaultAddress, accountantAddress] });
+    args: [ethTokenAddress, estimatedMin, vaultAddress, accountantAddress],
+  });
 
   if ((verifyResult as bigint) > 0n) {
     return fromBaseDenomination(estimatedMin.toString(), tokenDecimals);
@@ -153,7 +158,9 @@ export async function getEarnMinimumDeposit({
       address: lensAddress,
       abi: lensAbi,
       functionName: 'previewDeposit' as const,
-      args: [ethTokenAddress, candidate, vaultAddress, accountantAddress] })) });
+      args: [ethTokenAddress, candidate, vaultAddress, accountantAddress],
+    })),
+  });
 
   for (let i = 0; i < batchResults.length; i++) {
     const result = batchResults[i];

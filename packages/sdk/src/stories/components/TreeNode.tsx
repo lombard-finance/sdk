@@ -18,7 +18,8 @@ export function TreeNode({
   onToggle,
   badge,
   level = 0,
-  children }: TreeNodeProps) {
+  children,
+}: TreeNodeProps) {
   const bgColors = ['transparent', '#f8f9fa', '#e9ecef', '#dee2e6'];
   const backgroundColor = bgColors[level] || bgColors[bgColors.length - 1];
   const marginLeft = level > 0 ? '1rem' : '0';
@@ -31,7 +32,8 @@ export function TreeNode({
         style={{
           border: '1px solid #dee2e6',
           borderRadius: '4px',
-          backgroundColor }}
+          backgroundColor,
+        }}
         onClick={onToggle}
       >
         <span className="me-2">{isExpanded ? '▼' : '▶'}</span>

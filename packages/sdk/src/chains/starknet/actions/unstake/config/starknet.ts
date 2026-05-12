@@ -22,21 +22,24 @@ export const starknetToBtcConfig: ChainConfig = {
     {
       sourceChains: [Chain.STARKNET_MAINNET],
       destChain: Chain.BITCOIN_MAINNET,
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
     {
       sourceChains: [Chain.STARKNET_SEPOLIA],
       destChain: Chain.BITCOIN_SIGNET,
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
+    },
   ],
 
-  recipientSchema: bitcoinAddressSchema };
+  recipientSchema: bitcoinAddressSchema,
+};
 
 /**
  * Check if unstake to BTC is supported from this Starknet chain
  */
 export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return starknetToBtcConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

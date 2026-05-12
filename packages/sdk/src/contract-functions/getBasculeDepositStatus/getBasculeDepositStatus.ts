@@ -6,7 +6,8 @@ import {
   getContract,
   keccak256,
   PublicClient,
-  zeroAddress } from 'viem';
+  zeroAddress,
+} from 'viem';
 
 import { Deposit } from '../../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { makePublicClient } from '../../clients/public-client';
@@ -17,7 +18,8 @@ import {
   isKatanaChain,
   isMegaethChain,
   isMonadChain,
-  isStableChain } from '../../common/chains';
+  isStableChain,
+} from '../../common/chains';
 import { CommonOptionalWriteParameters } from '../../common/parameters';
 import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 import KATANA_BASCULE_ABI from '../../tokens/abi/KATANA_BASCULE_ABI';
@@ -27,7 +29,8 @@ import { getTokenContractInfo, isUpgradedAbi } from '../../tokens/tokens';
 import { getErrorMessage } from '../../utils/err';
 import {
   calcMintIDFromDecoded,
-  decodeGmpMintPayload } from './decodeBasculeDepositStatus';
+  decodeGmpMintPayload,
+} from './decodeBasculeDepositStatus';
 
 /**
  * The bascule drawbridge deposit status.
@@ -45,10 +48,10 @@ export enum BasculeDepositStatus {
   /**
    * The value representing that the deposit has already been withdrawn.
    */
-  WITHDRAWN = 2 }
+  WITHDRAWN = 2,
+}
 
-export interface IGetBasculeDepositStatusParameters
-  extends CommonOptionalWriteParameters {
+export interface IGetBasculeDepositStatusParameters extends CommonOptionalWriteParameters {
   /**
    * The deposit for which the bascule status will be checked.
    * You can omit `rawPayload` parameter if `deposit` is provided.
@@ -95,7 +98,8 @@ export async function getBasculeDepositStatus({
   chainId,
   rpcUrl,
   env = DEFAULT_ENV,
-  token = Token.LBTC }: IGetBasculeDepositStatusParameters) {
+  token = Token.LBTC,
+}: IGetBasculeDepositStatusParameters) {
   const payload = deposit?.rawPayload || rawPayload;
 
   if (!payload) {
@@ -127,23 +131,27 @@ export async function getBasculeDepositStatus({
     basculeContractAddress = (await publicClient.readContract({
       abi: tokenContractInfo.abi,
       address: tokenContractInfo.address,
-      functionName: 'getBascule' })) as Address;
+      functionName: 'getBascule',
+    })) as Address;
   } else if (isUpgradedAbi(tokenContractInfo.abi) && token === Token.LBTC) {
     // Upgraded contract - get bascule from Asset Router
     const assetRouterAddress = (await publicClient.readContract({
       abi: tokenContractInfo.abi,
       address: tokenContractInfo.address,
-      functionName: 'getAssetRouter' })) as Address;
+      functionName: 'getAssetRouter',
+    })) as Address;
 
     basculeContractAddress = (await publicClient.readContract({
       abi: ASSET_ROUTER_ABI,
       address: assetRouterAddress,
-      functionName: 'bascule' })) as Address;
+      functionName: 'bascule',
+    })) as Address;
   } else {
     basculeContractAddress = (await publicClient.readContract({
       abi: tokenContractInfo.abi,
       address: tokenContractInfo.address,
-      functionName: 'Bascule' })) as Address;
+      functionName: 'Bascule',
+    })) as Address;
   }
 
   // If there's no bascule contract address on the LBTC contract then return
@@ -186,7 +194,8 @@ export async function getBasculeDepositStatus({
         abi: KATANA_BASCULE_ABI,
         address: basculeContractAddress,
         functionName: 'mintHistory',
-        args: [mintId] })) as [unknown, BasculeDepositStatus];
+        args: [mintId],
+      })) as [unknown, BasculeDepositStatus];
 
       return status;
     }
@@ -199,7 +208,8 @@ export async function getBasculeDepositStatus({
     const basculeContract = getContract({
       abi: LBTC_BASCULE_ABI,
       address: basculeContractAddress,
-      client: publicClient });
+      client: publicClient,
+    });
 
     const status = await basculeContract.read.depositHistory([
       basculeDepositId,

@@ -10,7 +10,7 @@
 export { EvmStake } from './EvmStake';
 
 // Factory functions
-export { createEvmStake,evmStake } from './factory';
+export { createEvmStake, evmStake } from './factory';
 
 // Types
 export {
@@ -18,11 +18,13 @@ export {
   type EvmStakePrepareParams,
   type EvmStakeProgress,
   EvmStakeStatus,
-  type IEvmStake } from './types';
+  type IEvmStake,
+} from './types';
 
 // Config (for advanced usage)
 export type { ChainConfig, RouteDefinition } from './config';
 export {
   evmConfig,
   isProtocolSupported,
-  isSourceChainSupported } from './config';
+  isSourceChainSupported,
+} from './config';

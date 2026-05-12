@@ -77,9 +77,7 @@ export async function getTokenFeeConfig(
     const accountInfo = await connection.getAccountInfo(tokenConfigPDA);
 
     if (!accountInfo) {
-      throw new Error(
-        `TokenConfig account not found for mint ${mintAddress}`,
-      );
+      throw new Error(`TokenConfig account not found for mint ${mintAddress}`);
     }
 
     if (accountInfo.data.length < TOKEN_CONFIG_MIN_SIZE) {

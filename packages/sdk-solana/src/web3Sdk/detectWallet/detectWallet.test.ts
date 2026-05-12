@@ -33,7 +33,7 @@ describe('detectWallet utilities', () => {
   describe('getSolanaWalletProvider', () => {
     it.each([InjectedWallet.PHANTOM])(
       'should return a solana wallet provider if available',
-      wallet => {
+      (wallet) => {
         const provider = getSolanaWalletProvider(wallet);
         expect(provider).toBeDefined();
       },
@@ -41,7 +41,7 @@ describe('detectWallet utilities', () => {
 
     it.each([InjectedWallet.COINBASE, InjectedWallet.OKX])(
       'should throw if wallet is not available',
-      wallet => {
+      (wallet) => {
         expect(() => getSolanaWalletProvider(wallet)).toThrow();
       },
     );

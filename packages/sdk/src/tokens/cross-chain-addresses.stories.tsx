@@ -9,7 +9,8 @@ import {
   STARKNET_MAINNET_CHAIN,
   STARKNET_SEPOLIA_CHAIN,
   SUI_MAINNET_CHAIN,
-  SUI_TESTNET_CHAIN } from '../common/chains';
+  SUI_TESTNET_CHAIN,
+} from '../common/chains';
 import { envSelector } from '../stories/arg-types';
 import { Button } from '../stories/components/Button';
 import { CodeBlock } from '../stories/components/CodeBlock';
@@ -17,7 +18,8 @@ import { functionType } from '../stories/components/decorators';
 import {
   getSolanaTokenAddress,
   getStarknetTokenAddress,
-  getSuiTokenAddress } from './token-addresses';
+  getSuiTokenAddress,
+} from './token-addresses';
 
 const meta = {
   title: 'tokens/cross-chain-addresses',
@@ -28,7 +30,10 @@ const meta = {
     ...envSelector,
     blockchain: {
       options: ['Sui', 'Solana', 'Starknet'],
-      control: { type: 'select' } } } } satisfies Meta<typeof StoryView>;
+      control: { type: 'select' },
+    },
+  },
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -37,22 +42,30 @@ type Story = StoryObj<typeof meta>;
 export const SuiMainnet: Story = {
   args: {
     blockchain: 'Sui',
-    env: 'prod' } };
+    env: 'prod',
+  },
+};
 
 export const SolanaMainnet: Story = {
   args: {
     blockchain: 'Solana',
-    env: 'prod' } };
+    env: 'prod',
+  },
+};
 
 export const StarknetMainnet: Story = {
   args: {
     blockchain: 'Starknet',
-    env: 'prod' } };
+    env: 'prod',
+  },
+};
 
 export const SuiTestnet: Story = {
   args: {
     blockchain: 'Sui',
-    env: 'testnet' } };
+    env: 'testnet',
+  },
+};
 
 interface StoryViewProps {
   blockchain: 'Sui' | 'Solana' | 'Starknet';

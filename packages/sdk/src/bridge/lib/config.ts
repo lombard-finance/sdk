@@ -15,11 +15,13 @@ export enum BridgeType {
   CCIP = 'CCIP',
 
   /** OFT - (LayerZero) Omnichain Fungible Token */
-  OFT = 'OFT' }
+  OFT = 'OFT',
+}
 
 export const BRIDGE_EXPLORER_URL_MAP = {
   [BridgeType.CCIP]: 'https://ccip.chain.link/tx/{txHash}',
-  [BridgeType.OFT]: 'https://layerzeroscan.com/tx/{txHash}' };
+  [BridgeType.OFT]: 'https://layerzeroscan.com/tx/{txHash}',
+};
 
 export const CCIP_BRIDGE_CHAINS = [
   // Mainnets:
@@ -101,7 +103,9 @@ const CCIP_FROM_ETH = {
   contract: {
     address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b' as Address,
     abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-    chainId: ChainId.ethereum } };
+    chainId: ChainId.ethereum,
+  },
+};
 
 const CCIP_FROM_BASE = {
   routes: [
@@ -113,7 +117,9 @@ const CCIP_FROM_BASE = {
   contract: {
     address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b' as Address,
     abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-    chainId: ChainId.base } };
+    chainId: ChainId.base,
+  },
+};
 
 const CCIP_FROM_BSC = {
   routes: [
@@ -125,7 +131,9 @@ const CCIP_FROM_BSC = {
   contract: {
     address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b' as Address,
     abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-    chainId: ChainId.binanceSmartChain } };
+    chainId: ChainId.binanceSmartChain,
+  },
+};
 
 const CCIP_FROM_KATANA = {
   routes: [
@@ -138,7 +146,9 @@ const CCIP_FROM_KATANA = {
   contract: {
     address: '0xA869817b48b25EeE986bdF4bE04062e6fd2C418B' as Address,
     abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-    chainId: ChainId.katana } };
+    chainId: ChainId.katana,
+  },
+};
 
 const CCIP_FROM_SONIC = {
   routes: [
@@ -149,7 +159,9 @@ const CCIP_FROM_SONIC = {
   contract: {
     address: '0xa869817b48b25eee986bdf4be04062e6fd2c418b' as Address,
     abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-    chainId: ChainId.sonic } };
+    chainId: ChainId.sonic,
+  },
+};
 
 const CCIP_FROM_BASE_SEPOLIA = {
   routes: [bridgeIdentifier([ChainId.baseSepoliaTestnet, ChainId.holesky])],
@@ -157,7 +169,9 @@ const CCIP_FROM_BASE_SEPOLIA = {
   contract: {
     address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F' as Address,
     abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-    chainId: ChainId.baseSepoliaTestnet } };
+    chainId: ChainId.baseSepoliaTestnet,
+  },
+};
 
 const CCIP_FROM_HOLESKY = {
   routes: [bridgeIdentifier([ChainId.holesky, ChainId.baseSepoliaTestnet])],
@@ -165,7 +179,9 @@ const CCIP_FROM_HOLESKY = {
   contract: {
     address: '0x38247C4c846D549CAAd2C6c0b6fec0c402b77a0F' as Address,
     abi: CCIP_BRIDGE_ADAPTER_ABI as Abi,
-    chainId: ChainId.holesky } };
+    chainId: ChainId.holesky,
+  },
+};
 
 const CCIP_BRIDGES: CCIPBridgesConfig[] = [
   // Mainnets:
@@ -180,7 +196,7 @@ const CCIP_BRIDGES: CCIPBridgesConfig[] = [
 ].reduce((acc, cur) => {
   if (cur.type !== BridgeType.CCIP) return acc;
 
-  const c: CCIPBridgesConfig[] = cur.routes.map(route => [
+  const c: CCIPBridgesConfig[] = cur.routes.map((route) => [
     route,
     { type: BridgeType.CCIP, contract: cur.contract },
   ]);
@@ -202,7 +218,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0x1290A6b480f7eF14925229fdB66f5680aD8F44AD',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum } },
+        chainId: ChainId.ethereum,
+      },
+    },
   ],
   [
     bridgeIdentifier([ChainId.ethereum, ChainId.corn]),
@@ -211,7 +229,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0x6bc15d7930839ec18a57f6f7df72ae1b439d077f',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum } },
+        chainId: ChainId.ethereum,
+      },
+    },
   ],
   [
     bridgeIdentifier([ChainId.ethereum, ChainId.etherlink]),
@@ -220,7 +240,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0x3a7647c1323144a16e7D0D71A581E3FE5BD95299',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum } },
+        chainId: ChainId.ethereum,
+      },
+    },
   ],
   [
     bridgeIdentifier([ChainId.ethereum, ChainId.swell]),
@@ -229,7 +251,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0x37E92d760a15231e652a2C502182a6b44c7510c0',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum } },
+        chainId: ChainId.ethereum,
+      },
+    },
   ],
   [
     bridgeIdentifier([ChainId.ethereum, ChainId.tac]),
@@ -238,7 +262,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0xA7c4d94F98b6e94C139c4645e4E9a94CD7C0Abf7',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum } },
+        chainId: ChainId.ethereum,
+      },
+    },
   ],
 
   [
@@ -248,7 +274,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0x630e12D53D4E041b8C5451aD035Ea841E08391d7',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.berachain } },
+        chainId: ChainId.berachain,
+      },
+    },
   ],
 
   [
@@ -258,7 +286,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0xfc7B20D9B59A8A466f4fC3d34aA69a7D98e71d7A',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.corn } },
+        chainId: ChainId.corn,
+      },
+    },
   ],
 
   [
@@ -268,7 +298,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0xC832183d4d5fc5831daaC892a93dBBfd798034E3',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.etherlink } },
+        chainId: ChainId.etherlink,
+      },
+    },
   ],
 
   [
@@ -278,7 +310,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0x7B3784AD646C10A8Ddf42b47a4f4bd9aFD351E54',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.swell } },
+        chainId: ChainId.swell,
+      },
+    },
   ],
   [
     bridgeIdentifier([ChainId.tac, ChainId.ethereum]),
@@ -287,7 +321,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0x1298131cDa718bBcA7ACB1f2411e71c05E16f269',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.tac } },
+        chainId: ChainId.tac,
+      },
+    },
   ],
 
   // Testnets:
@@ -299,7 +335,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0x1977013acaf27856ac8048C42EE2ed0134d53895',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.berachainBartioTestnet } },
+        chainId: ChainId.berachainBartioTestnet,
+      },
+    },
   ],
 
   [
@@ -309,7 +347,9 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
       contract: {
         address: '0xe3748bF0Ec0A76767539eE28610B3367e35fe2C2',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.sepolia } },
+        chainId: ChainId.sepolia,
+      },
+    },
   ],
 ];
 

@@ -32,13 +32,15 @@ export const EARN_CHAIN_TO_NETWORK_MAP: Record<EarnChain, string> = {
   [ChainId.ethereum]: 'ethereum',
   [ChainId.base]: 'base',
   [ChainId.corn]: 'corn',
-  [ChainId.binanceSmartChain]: 'bnb' };
+  [ChainId.binanceSmartChain]: 'bnb',
+};
 
 export const NETWORK_TO_EARN_CHAIN_MAP: Record<string, EarnChain> = {
   ethereum: ChainId.ethereum,
   base: ChainId.base,
   corn: ChainId.corn,
-  bnb: ChainId.binanceSmartChain };
+  bnb: ChainId.binanceSmartChain,
+};
 
 /** A list of chains where stake and bake is enabled */
 export const EARN_STAKE_AND_BAKE_CHAINS = [
@@ -46,14 +48,11 @@ export const EARN_STAKE_AND_BAKE_CHAINS = [
   // Testnets:
   ChainId.sepolia,
 ];
-export type EarnStakeAndBakeChain =
-  (typeof EARN_STAKE_AND_BAKE_CHAINS)[number];
+export type EarnStakeAndBakeChain = (typeof EARN_STAKE_AND_BAKE_CHAINS)[number];
 export const isEarnStakeAndBakeChain = (
   chainId: number,
 ): chainId is EarnStakeAndBakeChain =>
-  EARN_STAKE_AND_BAKE_CHAINS.includes(
-    chainId as EarnStakeAndBakeChain,
-  );
+  EARN_STAKE_AND_BAKE_CHAINS.includes(chainId as EarnStakeAndBakeChain);
 
 export const EARN_DEFAULT_CHAIN_ID: EarnChain = ChainId.ethereum;
 
@@ -63,24 +62,28 @@ export const EARN_VAULT_ACCOUNTANT_CONTRACT =
 export const EARN_VAULT_LENS_CONTRACT =
   '0x5232bc0F5999f8dA604c42E1748A13a170F94A1B';
 
-export const EARN_VAULT_TELLER_CONTRACTS: Record<EarnChain, ContractInfo> =
-  {
-    [ChainId.ethereum]: {
-      abi: VEDA_VAULT_TELLER_ABI as Abi,
-      address: '0x4E8f5128F473C6948127f9Cbca474a6700F99bab',
-      chainId: ChainId.ethereum },
-    [ChainId.base]: {
-      abi: VEDA_VAULT_TELLER_ABI as Abi,
-      address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
-      chainId: ChainId.base },
-    [ChainId.binanceSmartChain]: {
-      abi: VEDA_VAULT_TELLER_ABI as Abi,
-      address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
-      chainId: ChainId.binanceSmartChain },
-    [ChainId.corn]: {
-      abi: VEDA_VAULT_TELLER_ABI as Abi,
-      address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
-      chainId: ChainId.corn } } as const;
+export const EARN_VAULT_TELLER_CONTRACTS: Record<EarnChain, ContractInfo> = {
+  [ChainId.ethereum]: {
+    abi: VEDA_VAULT_TELLER_ABI as Abi,
+    address: '0x4E8f5128F473C6948127f9Cbca474a6700F99bab',
+    chainId: ChainId.ethereum,
+  },
+  [ChainId.base]: {
+    abi: VEDA_VAULT_TELLER_ABI as Abi,
+    address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
+    chainId: ChainId.base,
+  },
+  [ChainId.binanceSmartChain]: {
+    abi: VEDA_VAULT_TELLER_ABI as Abi,
+    address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
+    chainId: ChainId.binanceSmartChain,
+  },
+  [ChainId.corn]: {
+    abi: VEDA_VAULT_TELLER_ABI as Abi,
+    address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
+    chainId: ChainId.corn,
+  },
+} as const;
 
 /** Stake and bake contracts */
 export const EARN_VAULT_SPENDER_CONTRACTS: Record<
@@ -90,12 +93,15 @@ export const EARN_VAULT_SPENDER_CONTRACTS: Record<
   [ChainId.ethereum]: {
     abi: VEDA_VAULT_SPENDER_ABI as Abi,
     address: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
-    chainId: ChainId.ethereum },
+    chainId: ChainId.ethereum,
+  },
   // Testnets:
   [ChainId.sepolia]: {
     abi: VEDA_VAULT_SPENDER_ABI as Abi,
     address: '0x77eD6a84fEF665156e81247ECbd43A847B8A6398',
-    chainId: ChainId.sepolia } } as const;
+    chainId: ChainId.sepolia,
+  },
+} as const;
 
 export const EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS: Record<
   EarnChain,
@@ -104,26 +110,32 @@ export const EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS: Record<
   [ChainId.ethereum]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
     address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
-    chainId: ChainId.ethereum },
+    chainId: ChainId.ethereum,
+  },
   [ChainId.base]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
     address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
-    chainId: ChainId.ethereum },
+    chainId: ChainId.ethereum,
+  },
   [ChainId.binanceSmartChain]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
     address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
-    chainId: ChainId.ethereum },
+    chainId: ChainId.ethereum,
+  },
   [ChainId.corn]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
     address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
-    chainId: ChainId.ethereum } };
+    chainId: ChainId.ethereum,
+  },
+};
 
 export const EARN_VAULT_BASE_ASSET = {
   abi: VEDA_VAULT_BASE_ASSET_ABI,
   symbol: 'WBTC',
   displayName: 'wBTC',
   address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-  decimals: 8 };
+  decimals: 8,
+};
 
 /**
  * BTCe is an ERC4626 wrapper vault around the Veda vault's LBTCv share token.
@@ -151,7 +163,8 @@ export const isBtceVaultChain = (chainId: number): chainId is BtceVaultChain =>
 export const BTCE_VAULT_CONTRACTS: Record<BtceVaultChain, Address> = {
   [ChainId.ethereum]: '0x3a4baaBf4DC9910596821615e848f0e6545762F3',
   [ChainId.base]: '0x3a4baaBf4DC9910596821615e848f0e6545762F3',
-  [ChainId.binanceSmartChain]: '0x3a4baaBf4DC9910596821615e848f0e6545762F3' };
+  [ChainId.binanceSmartChain]: '0x3a4baaBf4DC9910596821615e848f0e6545762F3',
+};
 
 export const BTCE_VAULT_DECIMALS = 8;
 
@@ -159,7 +172,8 @@ export const BTCE_VAULT = {
   abi: BTCE_VAULT_ABI as Abi,
   decimals: BTCE_VAULT_DECIMALS,
   chains: BTCE_VAULT_CHAINS,
-  contracts: BTCE_VAULT_CONTRACTS } as const;
+  contracts: BTCE_VAULT_CONTRACTS,
+} as const;
 
 /**
  * Bitcoin Earn vault configuration. Single underlying vault (Veda Labs'
@@ -176,21 +190,26 @@ export const EARN_VAULT = {
     [Token.cbBTC]: [ChainId.ethereum, ChainId.base],
     [Token.eBTC]: [ChainId.ethereum],
     [Token.wBTC]: [ChainId.ethereum],
-    [Token.wBTCN]: [ChainId.corn] },
+    [Token.wBTCN]: [ChainId.corn],
+  },
   stakeAndBakeChains: EARN_STAKE_AND_BAKE_CHAINS,
   decimals: 8,
   vaultContract: {
     abi: VEDA_VAULT_ABI,
-    address: EARN_VAULT_CONTRACT },
+    address: EARN_VAULT_CONTRACT,
+  },
   accountantContract: {
     abi: VEDA_VAULT_ACCOUNTANT_ABI,
-    address: EARN_VAULT_ACCOUNTANT_CONTRACT },
+    address: EARN_VAULT_ACCOUNTANT_CONTRACT,
+  },
   lensContract: {
     abi: VEDA_VAULT_LENS_ABI,
-    address: EARN_VAULT_LENS_CONTRACT },
+    address: EARN_VAULT_LENS_CONTRACT,
+  },
   spenderContracts: EARN_VAULT_SPENDER_CONTRACTS,
   tellerContracts: EARN_VAULT_TELLER_CONTRACTS,
   withdrawQueueContracts: EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS,
 
   queueWithdrawDiscountPercent: '0.01',
-  queueWithdrawDaysValid: '14' } as const;
+  queueWithdrawDaysValid: '14',
+} as const;

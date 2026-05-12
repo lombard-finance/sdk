@@ -18,20 +18,23 @@ import {
   ChainId,
   SolanaChain,
   StarknetChainId,
-  SuiChain } from '../../../../common/chains';
+  SuiChain,
+} from '../../../../common/chains';
 import { Chain, StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions';
 import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 import type {
   MonitorProgress,
-  NetworkMode } from '../../../../shared/monitoring';
+  NetworkMode,
+} from '../../../../shared/monitoring';
 import { monitorDeposit } from '../../../../shared/monitoring';
 import type { EventHandler } from '../../../../shared/monitoring/createEventEmitter';
 import {
   btcStakeAmountSchema,
   referralCodeSchema,
-  validatePrepareParams as zodValidate } from '../../../../shared/validation';
+  validatePrepareParams as zodValidate,
+} from '../../../../shared/validation';
 import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctionedAddress';
 import { toSatoshi } from '../../../../utils/satoshi';
 
@@ -215,7 +218,8 @@ export abstract class BaseBtcAction<
     return z.object({
       amount: btcStakeAmountSchema,
       recipient: this.getAddressSchema(),
-      referralCode: referralCodeSchema });
+      referralCode: referralCodeSchema,
+    });
   }
 
   /**
@@ -226,7 +230,8 @@ export abstract class BaseBtcAction<
     params: BasePrepareParams,
   ): BasePrepareParams {
     return zodValidate(this.prepareSchema, params, {
-      destChain: this.params.destChain });
+      destChain: this.params.destChain,
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -296,7 +301,8 @@ export abstract class BaseBtcAction<
         address: recipient,
         chainId: this.getChainId(),
         token: this.getExpectedToken(),
-        partnerId: this.ctx.partner.getPartnerId() });
+        partnerId: this.ctx.partner.getPartnerId(),
+      });
 
       if (!depositAddress) {
         return false;
@@ -358,7 +364,8 @@ export abstract class BaseBtcAction<
       this.emitProgress({
         status: statusConfig.addressReady,
         steps: addressReadySteps,
-        metadata: { depositAddress } });
+        metadata: { depositAddress },
+      });
 
       return depositAddress;
     }, statusConfig.addressReady);
@@ -406,7 +413,8 @@ export abstract class BaseBtcAction<
   protected emitInitialProgress(): void {
     this.emitProgress({
       status: this.status,
-      steps: this.getInitialSteps() });
+      steps: this.getInitialSteps(),
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -430,7 +438,7 @@ export abstract class BaseBtcAction<
       fetchDeposit: async () => {
         const deposits = await this.ctx.api.getDeposits(recipient);
         const ourDeposit = deposits.find(
-          deposit => deposit.depositAddress === depositAddress,
+          (deposit) => deposit.depositAddress === depositAddress,
         );
 
         if (!ourDeposit) {
@@ -439,19 +447,22 @@ export abstract class BaseBtcAction<
 
         return {
           blockHeight: ourDeposit.blockHeight,
-          isClaimed: ourDeposit.isClaimed };
+          isClaimed: ourDeposit.isClaimed,
+        };
       },
-      onProgress: p => {
+      onProgress: (p) => {
         this.emitProgress({
           status: this.status,
           steps: p.steps,
           confirmations: p.confirmations,
           requiredConfirmations: p.requiredConfirmations,
-          metadata: { isClaimed: p.isClaimed } });
+          metadata: { isClaimed: p.isClaimed },
+        });
       },
       onComplete: () => {
         this.emitCompleted();
-      } });
+      },
+    });
 
     return progress;
   }

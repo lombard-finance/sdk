@@ -10,4 +10,5 @@ export type {
   IStarknetUnstake,
   StarknetUnstakeParams,
   StarknetUnstakePrepareParams,
-  StarknetUnstakeProgress } from './types';
+  StarknetUnstakeProgress,
+} from './types';

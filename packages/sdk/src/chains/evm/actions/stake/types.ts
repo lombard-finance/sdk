@@ -27,10 +27,11 @@
  */
 
 import type {
-    AssetId,
-    Chain,
-    StepStatus,
-    StrategyProgress } from '../../../../core';
+  AssetId,
+  Chain,
+  StepStatus,
+  StrategyProgress,
+} from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { LombardError } from '../../../../shared/errors';

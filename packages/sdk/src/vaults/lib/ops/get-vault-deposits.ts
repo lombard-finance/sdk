@@ -8,7 +8,8 @@ import { IEnvParam } from '../../../common/parameters';
 import {
   fromBaseDenomination,
   getAssetInfo,
-  TokenInfo } from '../../../tokens/tokens';
+  TokenInfo,
+} from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
 import {
@@ -16,7 +17,8 @@ import {
   EARN_VAULT,
   EarnChain,
   isEarnChain,
-  NETWORK_TO_EARN_CHAIN_MAP } from '../config';
+  NETWORK_TO_EARN_CHAIN_MAP,
+} from '../config';
 
 type SevenSeasDepositEntry = {
   block_number: number;
@@ -96,7 +98,8 @@ export async function getEarnDeposits({
   account,
   chainId,
   rpcUrl,
-  env }: GetEarnDepositsParameters) {
+  env,
+}: GetEarnDepositsParameters) {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -117,7 +120,7 @@ export async function getEarnDeposits({
   const entries = normalizeSevenSeasDeposits(data);
 
   const depositAssetsAddresses = unique(
-    entries.map(d => ensureHex(d.deposit_asset)),
+    entries.map((d) => ensureHex(d.deposit_asset)),
   );
 
   const depositAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> = {};
@@ -127,13 +130,14 @@ export async function getEarnDeposits({
       depositAssets[asset] = {
         address: assetInfo.address,
         decimals: assetInfo.decimals,
-        symbol: assetInfo.symbol };
+        symbol: assetInfo.symbol,
+      };
     } else {
       depositAssets[asset] = undefined;
     }
   }
 
-  const deposits = entries.map(d => {
+  const deposits = entries.map((d) => {
     const token = depositAssets[ensureHex(d.deposit_asset)];
     const amount = fromBaseDenomination(d.deposit_amount, token?.decimals || 0);
     const shareAmount = fromBaseDenomination(d.share_amount, vault.decimals);
@@ -145,12 +149,13 @@ export async function getEarnDeposits({
       amount,
       shareAmount,
       token,
-      toAddress: ensureHex(d.user) };
+      toAddress: ensureHex(d.user),
+    };
 
     return vaultDeposit;
   });
 
-  return orderBy(deposits, d => d.blockNumber, 'desc');
+  return orderBy(deposits, (d) => d.blockNumber, 'desc');
 }
 
 export type GetEarnDepositsAllChainsParameters = {
@@ -170,7 +175,8 @@ export type GetEarnDepositsAllChainsParameters = {
  */
 export async function getEarnDepositsAllChains({
   account,
-  rpcUrl }: GetEarnDepositsAllChainsParameters): Promise<EarnDeposit[]> {
+  rpcUrl,
+}: GetEarnDepositsAllChainsParameters): Promise<EarnDeposit[]> {
   const vault = EARN_VAULT;
   // Fetch deposits from all supported chains in parallel
   const depositsPromises = vault.chains.map((chainId: EarnChain) =>
@@ -184,5 +190,5 @@ export async function getEarnDepositsAllChains({
 
   // Flatten and sort all deposits by block number (newest first)
   const allDeposits = depositsArrays.flat();
-  return orderBy(allDeposits, d => d.blockNumber, 'desc');
+  return orderBy(allDeposits, (d) => d.blockNumber, 'desc');
 }

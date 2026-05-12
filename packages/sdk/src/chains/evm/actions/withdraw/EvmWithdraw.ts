@@ -21,7 +21,10 @@ import { z } from 'zod';
 
 import { makePublicClient } from '../../../../clients/public-client';
 import { makeWalletClient } from '../../../../clients/wallet-client';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, type ChainId } from '../../../../common/chains';
+import {
+  CHAIN_ID_TO_VIEM_CHAIN_MAP,
+  type ChainId,
+} from '../../../../common/chains';
 import { withdrawEarn } from '../../../../contract-functions/withdrawEarn';
 import type { DeployProtocol } from '../../../../core';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
@@ -32,8 +35,12 @@ import { LombardError, WithdrawErrorCode } from '../../../../shared/errors';
 import type { WithdrawEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
-  validatePrepareParams } from '../../../../shared/validation';
-import { fromBaseDenomination, toBaseDenomination } from '../../../../tokens/tokens';
+  validatePrepareParams,
+} from '../../../../shared/validation';
+import {
+  fromBaseDenomination,
+  toBaseDenomination,
+} from '../../../../tokens/tokens';
 import toBigInt from '../../../../utils/numbers';
 import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import {
@@ -41,13 +48,15 @@ import {
   EARN_VAULT,
   type EarnChain,
   isBtceVaultChain,
-  isEarnChain } from '../../../../vaults/lib/config';
+  isEarnChain,
+} from '../../../../vaults/lib/config';
 import { queueWithdrawInternal } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
 import type {
   EvmWithdrawParams,
   EvmWithdrawPrepareParams,
-  IEvmWithdraw } from './types';
+  IEvmWithdraw,
+} from './types';
 
 export class EvmWithdraw
   extends BaseAction<WithdrawEventMap, EvmOperationStatus>
@@ -100,7 +109,8 @@ export class EvmWithdraw
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts' });
+        method: 'eth_accounts',
+      });
       const account = (accounts as string[])[0] as `0x${string}`;
       if (!account) {
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
@@ -127,8 +137,12 @@ export class EvmWithdraw
         address: vault.lensContract.address,
         abi: vault.lensContract.abi,
         functionName: 'balanceOf',
-        args: [account, vault.vaultContract.address] })) as bigint;
-      const lbtcvBalance = fromBaseDenomination(String(lbtcvRaw), vault.decimals);
+        args: [account, vault.vaultContract.address],
+      })) as bigint;
+      const lbtcvBalance = fromBaseDenomination(
+        String(lbtcvRaw),
+        vault.decimals,
+      );
 
       // On BTCe-supported chains also include the BTCe wrapper position so
       // users who deposited via BTCe are not incorrectly rejected.
@@ -138,8 +152,12 @@ export class EvmWithdraw
           address: BTCE_VAULT.contracts[this._chainId],
           abi: BTCE_VAULT.abi,
           functionName: 'balanceOf',
-          args: [account] })) as bigint;
-        const btceBalance = fromBaseDenomination(String(btceRaw), vault.decimals);
+          args: [account],
+        })) as bigint;
+        const btceBalance = fromBaseDenomination(
+          String(btceRaw),
+          vault.decimals,
+        );
         totalBalance = lbtcvBalance.plus(btceBalance);
       }
 
@@ -156,20 +174,29 @@ export class EvmWithdraw
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
         functionName: 'allowance',
-        args: [account, vault.withdrawQueueContracts[this._chainId].address] });
-      const allowance = fromBaseDenomination(String(allowanceRaw), vault.decimals);
+        args: [account, vault.withdrawQueueContracts[this._chainId].address],
+      });
+      const allowance = fromBaseDenomination(
+        String(allowanceRaw),
+        vault.decimals,
+      );
 
       this._needsApproval = amount.isGreaterThan(allowance);
 
       if (this._needsApproval) {
         this.emitProgress({
           status: EvmOperationStatus.NEEDS_APPROVAL,
-          steps: { approval: StepStatus.PENDING, queueing: StepStatus.IDLE } });
+          steps: { approval: StepStatus.PENDING, queueing: StepStatus.IDLE },
+        });
         this.updateStatus(EvmOperationStatus.NEEDS_APPROVAL);
       } else {
         this.emitProgress({
           status: EvmOperationStatus.READY,
-          steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING } });
+          steps: {
+            approval: StepStatus.COMPLETE,
+            queueing: StepStatus.PENDING,
+          },
+        });
         this.updateStatus(EvmOperationStatus.READY);
       }
     });
@@ -195,7 +222,8 @@ export class EvmWithdraw
       const publicClient = makePublicClient({ chainId: this._chainId });
       const walletClient = makeWalletClient({
         provider: provider as EIP1193Provider,
-        chainId: this._chainId });
+        chainId: this._chainId,
+      });
 
       // Chain is validated as EarnChain in prepare()
       const vedaChainId = this._chainId as EarnChain;
@@ -206,15 +234,21 @@ export class EvmWithdraw
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
         functionName: 'approve',
-        args: [vault.withdrawQueueContracts[vedaChainId].address, amountBase] });
+        args: [vault.withdrawQueueContracts[vedaChainId].address, amountBase],
+      });
 
       const txHash = await walletClient.writeContract(request);
-      await waitForTransactionReceipt(publicClient, txHash, 'vault share approval');
+      await waitForTransactionReceipt(
+        publicClient,
+        txHash,
+        'vault share approval',
+      );
 
       this._needsApproval = false;
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING } });
+        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING },
+      });
     }, EvmOperationStatus.READY);
   }
 
@@ -233,7 +267,8 @@ export class EvmWithdraw
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING } });
+        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING },
+      });
 
       let txHash: string;
 
@@ -248,7 +283,8 @@ export class EvmWithdraw
           account: this._account,
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
-          env: this.ctx.env });
+          env: this.ctx.env,
+        });
 
         txHash = result.queueTxHash;
       } else {
@@ -260,14 +296,16 @@ export class EvmWithdraw
           account: this._account,
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
-          env: this.ctx.env });
+          env: this.ctx.env,
+        });
       }
 
       this._txHash = txHash;
 
       this.emitProgress({
         status: EvmOperationStatus.COMPLETED,
-        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.COMPLETE } });
+        steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.COMPLETE },
+      });
 
       this.emitCompleted();
 
@@ -277,12 +315,13 @@ export class EvmWithdraw
 
   private get prepareSchema() {
     return z.object({
-      amount: evmAmountSchema });
+      amount: evmAmountSchema,
+    });
   }
 
   private validateProtocol(protocol: DeployProtocol): void {
     const isSupported = evmWithdrawConfig.routes.some(
-      route =>
+      (route) =>
         route.protocols.includes(protocol) && route.envs.includes(this.ctx.env),
     );
     if (!isSupported) {

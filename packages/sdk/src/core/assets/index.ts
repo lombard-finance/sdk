@@ -12,7 +12,8 @@ export {
   AssetId,
   assetValueToKey,
   getAssetDisplayName,
-  isAssetId } from './types';
+  isAssetId,
+} from './types';
 
 // Catalog
 export { ASSET_CATALOG } from './catalog';
@@ -35,4 +36,5 @@ export {
   getPublicMarketMaker,
   getSupportedAssets,
   isAssetDeployed,
-  usesAssetRouter } from './utils';
+  usesAssetRouter,
+} from './utils';

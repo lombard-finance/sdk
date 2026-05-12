@@ -1,5 +1,11 @@
 import { getWallets, isSuiChain } from '@mysten/wallet-standard';
-import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 
 interface SuiWalletState {
   address: string | null;
@@ -38,7 +44,7 @@ export function SuiWalletProvider({ children }: { children: ReactNode }) {
   const getSuiWallets = useCallback(() => {
     return getWallets()
       .get()
-      .filter(w => w.chains.some(chain => isSuiChain(chain)));
+      .filter((w) => w.chains.some((chain) => isSuiChain(chain)));
   }, []);
 
   // Check for auto-connected wallets on mount

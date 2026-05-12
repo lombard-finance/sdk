@@ -32,14 +32,16 @@ export const starknetConfig: ChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
+    },
   ],
 
   // Derived from ASSET_CATALOG - Starknet chains where LBTC is deployed
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain =>
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) =>
     isStarknetChain(chain),
   ),
 
@@ -54,10 +56,12 @@ export const starknetConfig: ChainConfig = {
   async getSignature(ctx, recipient, chainId) {
     const starknet = ctx.capabilities.require('starknet') as StarknetService;
     const { signature, pubKey } = await starknet.signLbtcDestination({
-      chainId: chainId as string });
+      chainId: chainId as string,
+    });
 
     // Starknet addresses need to be padded to 32 bytes
     const paddedAddress = pad(recipient as `0x${string}`, { size: 32 });
 
     return { signature, pubKey, paddedAddress };
-  } };
+  },
+};

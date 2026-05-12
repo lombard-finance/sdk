@@ -10,14 +10,15 @@
 import type { Env } from '@lombard.finance/sdk-common';
 
 import type { AssetId, Chain } from '../../../../../core';
-import { DEFI_REGISTRY,DefiProtocol } from '../../../../../defi';
+import { DEFI_REGISTRY, DefiProtocol } from '../../../../../defi';
 import { evmDepositAndDeployConfig } from './evm';
 import type { DepositAndDeployChainConfig } from './types';
 
 export type {
   DepositAndDeployAuthResult,
   DepositAndDeployChainConfig,
-  DepositAndDeployRouteDefinition } from './types';
+  DepositAndDeployRouteDefinition,
+} from './types';
 
 /**
  * The default config for DepositAndDeploy
@@ -84,7 +85,7 @@ export function getSupportedProtocols(assetId: AssetId): DefiProtocol[] {
  */
 export function isRouteAvailable(sourceChain: Chain, env: Env): boolean {
   return depositAndDeployConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

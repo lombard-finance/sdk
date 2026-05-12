@@ -26,10 +26,9 @@ import {
   STARKNET_SEPOLIA_CHAIN,
   SUI_DEVNET_CHAIN,
   SUI_MAINNET_CHAIN,
-  SUI_TESTNET_CHAIN } from '../../../common/chains';
-import {
-  Chain,
-  parseChainIdentifier } from '../../../core';
+  SUI_TESTNET_CHAIN,
+} from '../../../common/chains';
+import { Chain, parseChainIdentifier } from '../../../core';
 
 describe('parseChainIdentifier', () => {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -73,25 +72,31 @@ describe('parseChainIdentifier', () => {
      * CAIP-2 Solana chains use genesis hash references
      * (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for mainnet),
      * but the Solana SDK expects network names ('solana:mainnet-beta').
-     * 
+     *
      * The SDK maps genesis hash references to their corresponding network names.
      */
 
     describe('Legacy format (network names)', () => {
       it('should parse mainnet-beta', () => {
-        const result = parseChainIdentifier(SOLANA_MAINNET_CHAIN as unknown as Chain);
+        const result = parseChainIdentifier(
+          SOLANA_MAINNET_CHAIN as unknown as Chain,
+        );
         expect(result).toBe(SOLANA_MAINNET_CHAIN);
         expect(isSolanaChain(result)).toBe(true);
       });
 
       it('should parse devnet', () => {
-        const result = parseChainIdentifier(SOLANA_DEVNET_CHAIN as unknown as Chain);
+        const result = parseChainIdentifier(
+          SOLANA_DEVNET_CHAIN as unknown as Chain,
+        );
         expect(result).toBe(SOLANA_DEVNET_CHAIN);
         expect(isSolanaChain(result)).toBe(true);
       });
 
       it('should parse testnet', () => {
-        const result = parseChainIdentifier(SOLANA_TESTNET_CHAIN as unknown as Chain);
+        const result = parseChainIdentifier(
+          SOLANA_TESTNET_CHAIN as unknown as Chain,
+        );
         expect(result).toBe(SOLANA_TESTNET_CHAIN);
         expect(isSolanaChain(result)).toBe(true);
       });
@@ -101,7 +106,7 @@ describe('parseChainIdentifier', () => {
       it('should map mainnet genesis hash to mainnet-beta', () => {
         // CAIP-2 mainnet: solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp
         const result = parseChainIdentifier(
-          'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' as Chain
+          'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' as Chain,
         );
         expect(result).toBe(SOLANA_MAINNET_CHAIN);
       });
@@ -109,7 +114,7 @@ describe('parseChainIdentifier', () => {
       it('should map devnet genesis hash to devnet', () => {
         // CAIP-2 devnet: solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1
         const result = parseChainIdentifier(
-          'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1' as Chain
+          'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1' as Chain,
         );
         expect(result).toBe(SOLANA_DEVNET_CHAIN);
       });
@@ -117,7 +122,7 @@ describe('parseChainIdentifier', () => {
       it('should map testnet genesis hash to testnet', () => {
         // CAIP-2 testnet: solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z
         const result = parseChainIdentifier(
-          'solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z' as Chain
+          'solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z' as Chain,
         );
         expect(result).toBe(SOLANA_TESTNET_CHAIN);
       });
@@ -141,13 +146,17 @@ describe('parseChainIdentifier', () => {
      */
 
     it('should parse sui:mainnet', () => {
-      const result = parseChainIdentifier(SUI_MAINNET_CHAIN as unknown as Chain);
+      const result = parseChainIdentifier(
+        SUI_MAINNET_CHAIN as unknown as Chain,
+      );
       expect(result).toBe(SUI_MAINNET_CHAIN);
       expect(isSuiChain(result)).toBe(true);
     });
 
     it('should parse sui:testnet', () => {
-      const result = parseChainIdentifier(SUI_TESTNET_CHAIN as unknown as Chain);
+      const result = parseChainIdentifier(
+        SUI_TESTNET_CHAIN as unknown as Chain,
+      );
       expect(result).toBe(SUI_TESTNET_CHAIN);
       expect(isSuiChain(result)).toBe(true);
     });
@@ -188,7 +197,7 @@ describe('parseChainIdentifier', () => {
     /**
      * CAIP-2 uses human-readable network names (SN_MAIN, SN_SEPOLIA),
      * but Starknet SDK expects hex-encoded chain IDs.
-     * 
+     *
      * The SDK maps network names to their corresponding hex chain IDs.
      */
 
@@ -244,4 +253,3 @@ describe('parseChainIdentifier', () => {
     });
   });
 });
-

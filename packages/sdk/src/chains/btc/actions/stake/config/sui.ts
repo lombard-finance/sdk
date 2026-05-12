@@ -30,14 +30,16 @@ export const suiConfig: ChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
+    },
   ],
 
   // Derived from ASSET_CATALOG - Sui chains where LBTC is deployed
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain =>
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) =>
     isSuiChain(chain),
   ),
 
@@ -52,7 +54,9 @@ export const suiConfig: ChainConfig = {
   async getSignature(ctx, _recipient, chainId) {
     const sui = ctx.capabilities.require('sui') as SuiService;
     const { signature } = await sui.signLbtcDestination({
-      chainId: chainId as string });
+      chainId: chainId as string,
+    });
 
     return { signature };
-  } };
+  },
+};

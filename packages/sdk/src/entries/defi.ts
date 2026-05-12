@@ -10,10 +10,12 @@ export {
   DefiProtocols,
   type DefiRegistryToken,
   EARN_STAKE_AND_BAKE_CHAINS,
-  type EarnStakeAndBakeChain,  getAvailableProtocols,
+  type EarnStakeAndBakeChain,
+  getAvailableProtocols,
   getAvailableProtocolsWithMetadata,
   getStakeAndBakeSupportedChains,
   getSupportedProtocols,
   isEarnStakeAndBakeChain,
   type StakeAndBakeRegistry,
-  type StakeAndBakeToken } from '../defi';
+  type StakeAndBakeToken,
+} from '../defi';

@@ -23,7 +23,8 @@ import type {
   AssetId,
   Chain,
   StepStatus,
-  StrategyProgress } from '../../../../core';
+  StrategyProgress,
+} from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { LombardError } from '../../../../shared/errors';
@@ -61,8 +62,7 @@ export interface EvmRedeemPrepareParams {
 /**
  * EVM Redeem progress
  */
-export interface EvmRedeemProgress
-  extends StrategyProgress<EvmOperationStatus> {
+export interface EvmRedeemProgress extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
   steps: {
     redeeming: StepStatus;

@@ -20,7 +20,8 @@ import type {
   AssetId,
   Chain,
   StepStatus,
-  StrategyProgress } from '../../../../core';
+  StrategyProgress,
+} from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { LombardError } from '../../../../shared/errors';
@@ -56,8 +57,7 @@ export interface EvmUnstakePrepareParams {
 /**
  * EVM Unstake progress
  */
-export interface EvmUnstakeProgress
-  extends StrategyProgress<EvmOperationStatus> {
+export interface EvmUnstakeProgress extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
   steps: {
     burning: StepStatus;

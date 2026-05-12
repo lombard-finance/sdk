@@ -6,7 +6,7 @@
  *
  * The minting fee (auto-mint commission) is denominated in satoshis and is
  * deducted from the minted LBTC to compensate for EVM gas costs.
- * 
+ *
  * Non-subsidized chains (Ethereum, Sepolia): Should return non-zero fees
  * Subsidized chains (Base, BSC): Return 0 (Lombard absorbs gas costs)
  */
@@ -17,7 +17,8 @@ import { describe, expect, it } from 'vitest';
 import { ChainId } from '../../common/chains';
 import {
   getLBTCMintingFee,
-  getMintingFee } from '../../contract-functions/getLBTCMintingFee/getLBTCMintingFee';
+  getMintingFee,
+} from '../../contract-functions/getLBTCMintingFee/getLBTCMintingFee';
 import { Token, TOKEN_ADDRESSES } from '../../tokens/token-addresses';
 import { isUpgradedContract } from '../../tokens/tokens';
 
@@ -84,7 +85,8 @@ describe('getLBTCMintingFee Integration Tests', () => {
       async () => {
         const fee = await getLBTCMintingFee({
           chainId: ChainId.sepolia,
-          env: Env.testnet });
+          env: Env.testnet,
+        });
         console.log(
           `Sepolia (testnet) LBTC minting fee: ${fee.toString()} BTC (${fee.times(1e8).toString()} satoshis)`,
         );
@@ -105,7 +107,8 @@ describe('getLBTCMintingFee Integration Tests', () => {
       async () => {
         const fee = await getLBTCMintingFee({
           chainId: ChainId.sepolia,
-          env: Env.stage });
+          env: Env.stage,
+        });
         console.log(
           `Sepolia (stage) LBTC minting fee: ${fee.toString()} BTC (${fee.times(1e8).toString()} satoshis)`,
         );
@@ -124,7 +127,8 @@ describe('getLBTCMintingFee Integration Tests', () => {
       async () => {
         const fee = await getLBTCMintingFee({
           chainId: ChainId.ethereum,
-          env: Env.prod });
+          env: Env.prod,
+        });
         console.log(
           `Ethereum mainnet LBTC minting fee: ${fee.toString()} BTC (${fee.times(1e8).toString()} satoshis)`,
         );
@@ -144,7 +148,8 @@ describe('getLBTCMintingFee Integration Tests', () => {
         try {
           const ethereumFee = await getLBTCMintingFee({
             chainId: ChainId.ethereum,
-            env: Env.prod });
+            env: Env.prod,
+          });
           fees['Ethereum (prod)'] = `${ethereumFee.toString()} BTC`;
         } catch (e) {
           fees['Ethereum (prod)'] = `Error: ${e}`;
@@ -153,7 +158,8 @@ describe('getLBTCMintingFee Integration Tests', () => {
         try {
           const sepoliaTestnetFee = await getLBTCMintingFee({
             chainId: ChainId.sepolia,
-            env: Env.testnet });
+            env: Env.testnet,
+          });
           fees['Sepolia (testnet)'] = `${sepoliaTestnetFee.toString()} BTC`;
         } catch (e) {
           fees['Sepolia (testnet)'] = `Error: ${e}`;
@@ -162,7 +168,8 @@ describe('getLBTCMintingFee Integration Tests', () => {
         try {
           const sepoliaStageFee = await getLBTCMintingFee({
             chainId: ChainId.sepolia,
-            env: Env.stage });
+            env: Env.stage,
+          });
           fees['Sepolia (stage)'] = `${sepoliaStageFee.toString()} BTC`;
         } catch (e) {
           fees['Sepolia (stage)'] = `Error: ${e}`;
@@ -172,7 +179,8 @@ describe('getLBTCMintingFee Integration Tests', () => {
           const baseFee = await getMintingFee({
             token: Token.LBTC,
             chainId: ChainId.base,
-            env: Env.prod });
+            env: Env.prod,
+          });
           fees['Base (prod)'] = `${baseFee.toString()} BTC`;
         } catch (e) {
           fees['Base (prod)'] = `Error: ${e}`;

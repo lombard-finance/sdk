@@ -12,13 +12,12 @@
 
 import type { z } from 'zod';
 
-import type {
-  ChainId,
-  SolanaChain } from '../../../../common/chains';
+import type { ChainId, SolanaChain } from '../../../../common/chains';
 import {
   getChainType,
   parseChainIdentifier,
-  StepStatus } from '../../../../core';
+  StepStatus,
+} from '../../../../core';
 import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 import type { DepositEventMap } from '../../../../shared/events';
@@ -28,19 +27,22 @@ import {
   assetIdToToken,
   BaseBtcAction,
   type StatusConfig,
-  type StepDefinition } from '../shared';
+  type StepDefinition,
+} from '../shared';
 import {
   type DepositChainConfig,
   type DepositFeeAuthConfig,
   getDepositChainConfig,
   isAssetOutSupported,
   isDestChainSupported,
-  isRouteAvailable } from './config';
+  isRouteAvailable,
+} from './config';
 import {
   BtcActionStatus,
   type BtcDeposit as IBtcDeposit,
   type BtcDepositParams,
-  type BtcDepositPrepareParams } from './types';
+  type BtcDepositPrepareParams,
+} from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -122,7 +124,8 @@ export class BtcDeposit
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
         destChain: params.destChain,
-        env: ctx.env });
+        env: ctx.env,
+      });
     }
 
     this.config = config;
@@ -141,14 +144,16 @@ export class BtcDeposit
     return {
       idle: BtcActionStatus.IDLE,
       ready: BtcActionStatus.READY,
-      addressReady: BtcActionStatus.ADDRESS_READY };
+      addressReady: BtcActionStatus.ADDRESS_READY,
+    };
   }
 
   protected getInitialSteps(): StepDefinition {
     return {
       created: StepStatus.IDLE,
       verifying: StepStatus.IDLE,
-      issuing: StepStatus.IDLE };
+      issuing: StepStatus.IDLE,
+    };
   }
 
   protected isAuthorized(): boolean {
@@ -177,12 +182,13 @@ export class BtcDeposit
       eip712Data: this.authState.typedData,
       partnerId: this.ctx.partner.getPartnerId(),
       referrerCode: this._referralCode,
-      captchaToken };
+      captchaToken,
+    };
   }
 
   /**
    * Override to ensure we have a signature before generating deposit address.
-   * 
+   *
    * When fee auth exists on server but signature isn't available locally,
    * we fall back to signing the destination address.
    */
@@ -229,9 +235,7 @@ export class BtcDeposit
       this._referralCode = validated.referralCode;
 
       // Get fee auth config for this destination chain (needed for both resume and new flow)
-      this.feeAuthConfig = this.config.getFeeAuthConfig(
-        this.params.destChain,
-      );
+      this.feeAuthConfig = this.config.getFeeAuthConfig(this.params.destChain);
 
       // Check for existing deposit address (resume flow)
       const hasExistingDeposit = await this.resumeFromExistingDeposit(
@@ -342,7 +346,8 @@ export class BtcDeposit
       const result = await this.feeAuthConfig!.authorizeFee(this.ctx, {
         chainId: this.chainId,
         recipient,
-        fee: this.authState.mintingFee! });
+        fee: this.authState.mintingFee!,
+      });
 
       this.authState.signature = result.signature;
       this.authState.typedData = result.typedData;

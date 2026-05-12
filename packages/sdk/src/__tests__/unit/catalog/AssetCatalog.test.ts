@@ -290,4 +290,3 @@ describe('Asset Catalog Resolution', () => {
     */
   });
 });
-

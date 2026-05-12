@@ -15,7 +15,8 @@ export type {
   BtcDepositParams,
   BtcDepositPrepareParams,
   BtcDepositProgress,
-  BtcDeposit as IBtcDeposit } from './types';
+  BtcDeposit as IBtcDeposit,
+} from './types';
 export { BtcActionStatus } from './types';
 
 // Configuration types (for advanced usage)

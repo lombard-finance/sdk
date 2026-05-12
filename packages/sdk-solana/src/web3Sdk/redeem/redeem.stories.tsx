@@ -53,7 +53,8 @@ export const StoryView = ({
 
   const request = async () => {
     if (!provider || !address) throw new Error('Wallet not connected.');
-    if (!recipient) throw new Error('Recipient address is required (set in args).');
+    if (!recipient)
+      throw new Error('Recipient address is required (set in args).');
     const parsedAmount = parseFloat(amount);
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0)
       throw new Error('Amount must be a positive number in BTC (set in args).');
@@ -89,7 +90,16 @@ export const StoryView = ({
     refetch: handleRedeem,
   } = useQuery(
     request,
-    [provider, address, amount, recipient, tokenMint, toLchainId, toTokenAddress, environment],
+    [
+      provider,
+      address,
+      amount,
+      recipient,
+      tokenMint,
+      toLchainId,
+      toTokenAddress,
+      environment,
+    ],
     false,
   );
 
@@ -149,10 +159,7 @@ export const StoryView = ({
             />
           )}
           {(error || connectError) && (
-            <ErrorDisplay
-              error={error || connectError}
-              title="Redeem Error"
-            />
+            <ErrorDisplay error={error || connectError} title="Redeem Error" />
           )}
 
           {transactionLogs && transactionLogs.length > 0 && (
@@ -213,11 +220,13 @@ const meta: Meta<typeof StoryView> = {
     },
     toLchainId: {
       control: { type: 'text' },
-      description: 'Destination Lombard routing chain ID (hex). Defaults to Solana routing chain ID',
+      description:
+        'Destination Lombard routing chain ID (hex). Defaults to Solana routing chain ID',
     },
     toTokenAddress: {
       control: { type: 'text' },
-      description: 'Destination token address/mint override (defaults to BTC.b from config)',
+      description:
+        'Destination token address/mint override (defaults to BTC.b from config)',
     },
   },
 };

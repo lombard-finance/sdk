@@ -8,13 +8,15 @@ import { EXAMPLE_EVM_ADDRESS } from '../../stories/constants';
 import useQuery from '../../stories/hooks/useQuery';
 import {
   IStoreNetworkFeeSignatureParams,
-  storeNetworkFeeSignature } from './storeNetworkFeeSignature';
+  storeNetworkFeeSignature,
+} from './storeNetworkFeeSignature';
 
 const meta = {
   title: 'api/storeNetworkFeeSignature',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [functionType('api-post')] } satisfies Meta<typeof StoryView>;
+  decorators: [functionType('api-post')],
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -25,14 +27,17 @@ export const WithParams: Story = {
     address: EXAMPLE_EVM_ADDRESS,
     signature: '0x... YOUR SIGNATURE GOES HERE',
     typedData: '{ ... } YOUR TYPED DATA GOES HERE',
-    env: DEFAULT_ENV } };
+    env: DEFAULT_ENV,
+  },
+};
 
 type StoreNetworkFeeSignatureProps = IStoreNetworkFeeSignatureParams;
 
 export function StoryView(props: StoreNetworkFeeSignatureProps) {
   const request = async () => {
     return storeNetworkFeeSignature({
-      ...props });
+      ...props,
+    });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

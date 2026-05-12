@@ -7,10 +7,12 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
-  wagmiDecorator } from '../../stories/components/decorators';
+  wagmiDecorator,
+} from '../../stories/components/decorators';
 import {
   canPerformAction,
-  useConnection } from '../../stories/hooks/useConnection';
+  useConnection,
+} from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
 import { Token } from '../../tokens/token-addresses';
 import { depositToken } from './depositToken';
@@ -22,7 +24,9 @@ const meta = {
   decorators: [wagmiDecorator, functionType('write')],
   argTypes: {
     ...makeTokenSelector([Token.BTCK, Token.BTCb], 'tokenIn'),
-    ...makeTokenSelector([Token.LBTC], 'tokenOut') } } satisfies Meta<typeof StoryView>;
+    ...makeTokenSelector([Token.LBTC], 'tokenOut'),
+  },
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -33,7 +37,9 @@ export const WithParams: Story = {
     env: DEFAULT_ENV,
     amount: 0,
     tokenIn: Token.BTCb,
-    tokenOut: Token.LBTC } };
+    tokenOut: Token.LBTC,
+  },
+};
 
 type StoryProps = Omit<
   Parameters<typeof depositToken>[0],
@@ -52,7 +58,8 @@ export function StoryView(props: StoryProps) {
       ...props,
       account: connection.account.address,
       chainId: connection.account.chainId,
-      provider: connection.provider });
+      provider: connection.provider,
+    });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

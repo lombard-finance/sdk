@@ -24,7 +24,8 @@ export interface DepositAddressReferrerResult {
  */
 export async function getDepositAddressReferrer({
   address,
-  env }: GetDepositAddressReferrerParams): Promise<DepositAddressReferrerResult> {
+  env,
+}: GetDepositAddressReferrerParams): Promise<DepositAddressReferrerResult> {
   const { baseApiUrl } = getApiConfig(env);
   const { data } = await axios.get<ApiResponse>(
     `${baseApiUrl}/api/v1/address/exists/${address}`,
@@ -32,5 +33,6 @@ export async function getDepositAddressReferrer({
 
   return {
     hasDepositAddress: Boolean(data.exists),
-    referrer: data.referrer };
+    referrer: data.referrer,
+  };
 }

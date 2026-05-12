@@ -18,10 +18,11 @@ import type { EIP1193Provider } from 'viem';
 
 import type { ChainId } from '../../../../../common/chains';
 import {
-    AssetId,
-    Chain,
-    getAllAssetChains,
-    isEvmChain } from '../../../../../core';
+  AssetId,
+  Chain,
+  getAllAssetChains,
+  isEvmChain,
+} from '../../../../../core';
 import { LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
 import { evmAddressSchema } from '../../../../../shared/validation';
@@ -32,7 +33,7 @@ import type { DepositChainConfig, DepositFeeAuthConfig } from './types';
 
 /**
  * Chains that require fee authorization (unsubsidized chains).
- * 
+ *
  * Ethereum mainnet and Sepolia require EIP-712 network fee signing.
  * Other chains are subsidized by Lombard.
  */
@@ -62,7 +63,8 @@ const feeAuthConfig: DepositFeeAuthConfig = {
     const result = await ctx.api.getFeeSignature({
       address,
       chainId: chainId as ChainId,
-      tokenAddress: tokenInfo.address });
+      tokenAddress: tokenInfo.address,
+    });
 
     // Check if signature exists on server (API returns has_signature flag)
     if (!result.hasSignature) {
@@ -71,7 +73,10 @@ const feeAuthConfig: DepositFeeAuthConfig = {
 
     // Check expiration - expirationDate is Unix timestamp in seconds
     // Convert to milliseconds for Date comparison
-    if (result.expirationDate && new Date(Number(result.expirationDate) * 1000) < new Date()) {
+    if (
+      result.expirationDate &&
+      new Date(Number(result.expirationDate) * 1000) < new Date()
+    ) {
       return null;
     }
 
@@ -80,7 +85,8 @@ const feeAuthConfig: DepositFeeAuthConfig = {
     return {
       hasSignature: true,
       signature: result.signature, // May be undefined - that's OK
-      typedData: result.typedData };
+      typedData: result.typedData,
+    };
   },
 
   async authorizeFee(ctx, { chainId, recipient, fee }) {
@@ -109,19 +115,23 @@ const feeAuthConfig: DepositFeeAuthConfig = {
       account: recipient,
       chainId: chainId as ChainId,
       provider: provider as EIP1193Provider,
-      token: Token.BTCb });
+      token: Token.BTCb,
+    });
 
     // Store the signature with token address to distinguish from LBTC signatures
     await ctx.api.storeFeeSignature({
       address: recipient,
       signature: result.signature,
       typedData: result.typedData,
-      tokenAddress: tokenInfo.address });
+      tokenAddress: tokenInfo.address,
+    });
 
     return {
       signature: result.signature,
-      typedData: result.typedData };
-  } };
+      typedData: result.typedData,
+    };
+  },
+};
 
 /**
  * EVM deposit configuration
@@ -135,14 +145,16 @@ export const evmDepositConfig: DepositChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.stage, Env.dev, Env.testnet, Env.ibc] },
+      envs: [Env.stage, Env.dev, Env.testnet, Env.ibc],
+    },
   ],
 
   // Derived from ASSET_CATALOG - all chains where BTC.b is deployed
-  destChains: getAllAssetChains(AssetId.BTCb).filter(chain =>
+  destChains: getAllAssetChains(AssetId.BTCb).filter((chain) =>
     isEvmChain(chain),
   ),
 
@@ -178,8 +190,11 @@ export const evmDepositConfig: DepositChainConfig = {
     const result = await evm.signLbtcDestination({
       address: recipient,
       chainId: chainId as ChainId,
-      provider: provider as EIP1193Provider });
+      provider: provider as EIP1193Provider,
+    });
 
     return {
-      signature: result.signature };
-  } };
+      signature: result.signature,
+    };
+  },
+};

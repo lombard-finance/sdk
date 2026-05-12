@@ -19,7 +19,8 @@ export enum ErrorCode {
   UNKNOWN_ERROR = 'unknown-error',
   INVALID_CONFIGURATION = 'invalid-configuration',
   OPERATION_TIMEOUT = 'operation-timeout',
-  OPERATION_CANCELLED = 'operation-cancelled' }
+  OPERATION_CANCELLED = 'operation-cancelled',
+}
 
 /**
  * Provider-related error codes
@@ -30,7 +31,8 @@ export enum ProviderErrorCode {
   PROVIDER_CALL_FAILED = 'provider-call-failed',
   SIGNER_MISSING = 'signer-missing',
   USER_REJECTED = 'user-rejected',
-  NETWORK_MISMATCH = 'network-mismatch' }
+  NETWORK_MISMATCH = 'network-mismatch',
+}
 
 /**
  * Registry-related error codes
@@ -41,7 +43,8 @@ export enum RegistryErrorCode {
   UNSUPPORTED_CHAIN = 'unsupported-chain',
   UNSUPPORTED_ASSET = 'unsupported-asset',
   INCOMPATIBLE_ROUTE = 'incompatible-route',
-  ENVIRONMENT_MISMATCH = 'environment-mismatch' }
+  ENVIRONMENT_MISMATCH = 'environment-mismatch',
+}
 
 /**
  * Validation error codes
@@ -56,7 +59,8 @@ export enum ValidationErrorCode {
   MISSING_REQUIRED_PARAMETER = 'missing-required-parameter',
   INVALID_CHAIN = 'invalid-chain',
   INVALID_STATE = 'invalid-state',
-  INVALID_ASSET = 'invalid-asset' }
+  INVALID_ASSET = 'invalid-asset',
+}
 
 /**
  * Contract interaction error codes
@@ -67,7 +71,8 @@ export enum ContractErrorCode {
   TRANSACTION_REVERTED = 'transaction-reverted',
   APPROVAL_FAILED = 'approval-failed',
   INSUFFICIENT_ALLOWANCE = 'insufficient-allowance',
-  GAS_ESTIMATION_FAILED = 'gas-estimation-failed' }
+  GAS_ESTIMATION_FAILED = 'gas-estimation-failed',
+}
 
 /**
  * Vault withdraw error codes
@@ -80,7 +85,8 @@ export enum WithdrawErrorCode {
   WITHDRAWAL_EXPIRED = 'withdraw-expired',
   WITHDRAWAL_NOT_FOUND = 'withdraw-not-found',
   PROTOCOL_NOT_SUPPORTED = 'withdraw-protocol-not-supported',
-  INSUFFICIENT_LIQUIDITY = 'withdraw-insufficient-liquidity' }
+  INSUFFICIENT_LIQUIDITY = 'withdraw-insufficient-liquidity',
+}
 
 /**
  * Union type of all error codes
@@ -164,7 +170,8 @@ export class LombardError extends Error {
       sdkVersion: this.sdkVersion,
       timestamp: this.timestamp,
       ...(this.metadata && { metadata: this.metadata }),
-      ...(this.stack && { stack: this.stack }) };
+      ...(this.stack && { stack: this.stack }),
+    };
   }
 
   /**
@@ -190,7 +197,8 @@ export class LombardError extends Error {
       'sdk.version': this.sdkVersion,
       'error.code': this.code,
       'error.timestamp': this.timestamp,
-      ...this.metadata };
+      ...this.metadata,
+    };
   }
 
   /**
@@ -283,7 +291,8 @@ export class LombardError extends Error {
    */
   static invalidParameter(parameter: string, reason: string): LombardError {
     return new LombardError(ValidationErrorCode.INVALID_PARAMETER, reason, {
-      parameter });
+      parameter,
+    });
   }
 
   /**
@@ -302,7 +311,8 @@ export class LombardError extends Error {
    */
   static invalidAmount(reason: string): LombardError {
     return new LombardError(ValidationErrorCode.INVALID_AMOUNT, reason, {
-      reason });
+      reason,
+    });
   }
 
   /**
@@ -400,9 +410,11 @@ export function wrapError(error: unknown): LombardError {
 
   if (error instanceof Error) {
     return new LombardError(ErrorCode.UNKNOWN_ERROR, error.message, {
-      originalError: error.stack });
+      originalError: error.stack,
+    });
   }
 
   return new LombardError(ErrorCode.UNKNOWN_ERROR, String(error), {
-    originalValue: error });
+    originalValue: error,
+  });
 }

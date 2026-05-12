@@ -11,7 +11,8 @@ import {
   StarknetChainId,
   SUI_MAINNET_CHAIN,
   SUI_TESTNET_CHAIN,
-  SuiChain } from './chains';
+  SuiChain,
+} from './chains';
 import { featureConfig } from './feature-config';
 
 export const BlockchainIdentifier = {
@@ -52,7 +53,8 @@ export const BlockchainIdentifier = {
   megaethOld: 'BLOCKCHAIN_MEGAETH',
 
   bitcoin: 'DESTINATION_BLOCKCHAIN_BITCOIN',
-  bitcoinOld: 'BLOCKCHAIN_BITCOIN' } as const;
+  bitcoinOld: 'BLOCKCHAIN_BITCOIN',
+} as const;
 
 export type BlockchainIdentifier =
   (typeof BlockchainIdentifier)[keyof typeof BlockchainIdentifier];
@@ -69,7 +71,8 @@ export function getChainNameById(
   }
 
   if (
-    (featureConfig.isAvalancheMainnetEnabled && chainId === ChainId.avalanche) ||
+    (featureConfig.isAvalancheMainnetEnabled &&
+      chainId === ChainId.avalanche) ||
     (featureConfig.isAvalancheFujiEnabled && chainId === ChainId.avalancheFuji)
   ) {
     return BlockchainIdentifier.avalanche;

@@ -5,19 +5,22 @@ import { Button } from '../../../stories/components/Button';
 import { CodeBlock } from '../../../stories/components/CodeBlock';
 import {
   functionType,
-  wagmiDecorator } from '../../../stories/components/decorators';
+  wagmiDecorator,
+} from '../../../stories/components/decorators';
 import { ErrorBlock } from '../../../stories/components/error-block';
 import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
 import useQuery from '../../../stories/hooks/useQuery';
 import {
   getEarnWithdrawals,
-  GetEarnWithdrawalsParameters } from './get-vault-withdrawals';
+  GetEarnWithdrawalsParameters,
+} from './get-vault-withdrawals';
 
 const meta = {
   title: 'vault/ops/getEarnWithdrawals',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('api-get')] } satisfies Meta<typeof StoryView>;
+  decorators: [wagmiDecorator, functionType('api-get')],
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -26,14 +29,17 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     account: EXAMPLE_EVM_ADDRESS,
-    chainId: ChainId.ethereum } };
+    chainId: ChainId.ethereum,
+  },
+};
 
 type SignNetworkFeeProps = GetEarnWithdrawalsParameters;
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
     return getEarnWithdrawals({
-      ...props });
+      ...props,
+    });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

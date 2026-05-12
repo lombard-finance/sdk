@@ -20,7 +20,8 @@ import type { SuiCoreContext } from '../../../shared/context';
 function createMockSuiService() {
   return {
     signLbtcDestination: vi.fn().mockResolvedValue({ signature: '0xmock' }),
-    unstake: vi.fn().mockResolvedValue({ txHash: 'mock-sui-digest-abc123' }) };
+    unstake: vi.fn().mockResolvedValue({ txHash: 'mock-sui-digest-abc123' }),
+  };
 }
 
 function createMockContext(
@@ -31,7 +32,8 @@ function createMockContext(
     partner: new PartnerConfiguration({ partnerId: 'test-partner' }),
     getProvider: vi.fn().mockResolvedValue({}),
     sui: createMockSuiService(),
-    ...overrides };
+    ...overrides,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -45,11 +47,13 @@ describe('SuiUnstake', () => {
     assetIn: AssetId.LBTC,
     assetOut: AssetId.BTC,
     sourceChain: Chain.SUI_MAINNET,
-    destChain: Chain.BITCOIN_MAINNET };
+    destChain: Chain.BITCOIN_MAINNET,
+  };
 
   const validPrepareParams = {
     amount: '0.001',
-    recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' };
+    recipient: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+  };
 
   beforeEach(() => {
     mockCtx = createMockContext({ env: Env.prod });
@@ -87,7 +91,8 @@ describe('SuiUnstake', () => {
       const testnetParams = {
         ...validParams,
         sourceChain: Chain.SUI_TESTNET,
-        destChain: Chain.BITCOIN_SIGNET };
+        destChain: Chain.BITCOIN_SIGNET,
+      };
 
       const unstake = new SuiUnstake(testnetCtx, testnetParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
@@ -115,7 +120,8 @@ describe('SuiUnstake', () => {
       await expect(
         unstake.prepare({
           amount: '0.001',
-          recipient: 'invalid-btc-address' }),
+          recipient: 'invalid-btc-address',
+        }),
       ).rejects.toThrow();
     });
 
@@ -125,7 +131,8 @@ describe('SuiUnstake', () => {
       await expect(
         unstake.prepare({
           amount: '0',
-          recipient: validPrepareParams.recipient }),
+          recipient: validPrepareParams.recipient,
+        }),
       ).rejects.toThrow();
     });
 
@@ -154,7 +161,8 @@ describe('SuiUnstake', () => {
         amount: validPrepareParams.amount,
         btcAddress: validPrepareParams.recipient,
         chainId: 'sui:mainnet',
-        env: Env.prod });
+        env: Env.prod,
+      });
       expect(result.txHash).toBe('mock-sui-digest-abc123');
     });
 
@@ -256,7 +264,8 @@ describe('SuiUnstake', () => {
       const testnetParams = {
         ...validParams,
         sourceChain: Chain.SUI_TESTNET,
-        destChain: Chain.BITCOIN_SIGNET };
+        destChain: Chain.BITCOIN_SIGNET,
+      };
       const unstake = new SuiUnstake(testnetCtx, testnetParams);
       await unstake.prepare(validPrepareParams);
 
@@ -298,4 +307,3 @@ describe('SuiUnstake', () => {
     });
   });
 });
-

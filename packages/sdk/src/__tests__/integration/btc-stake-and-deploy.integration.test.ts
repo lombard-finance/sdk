@@ -7,7 +7,7 @@
  */
 
 import { Env } from '@lombard.finance/sdk-common';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { btcStakeAndDeploy } from '../../chains/btc/actions/stakeAndDeploy';
 import { AssetId, Chain } from '../../index';
@@ -30,7 +30,8 @@ const createMockProvider = () => ({
       default:
         return null;
     }
-  }) });
+  }),
+});
 
 describe('BTC Stake And Deploy Integration', () => {
   let mockProvider: ReturnType<typeof createMockProvider>;
@@ -44,12 +45,13 @@ describe('BTC Stake And Deploy Integration', () => {
     it('should create stake and deploy action for Ethereum', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider } });
+        providers: { evm: () => mockProvider },
+      });
 
       const stakeAndDeploy = btcStakeAndDeploy(config, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: 'veda',  // Use Veda protocol from DefiRegistry
+        protocol: 'veda', // Use Veda protocol from DefiRegistry
       });
 
       expect(stakeAndDeploy).toBeDefined();
@@ -59,13 +61,14 @@ describe('BTC Stake And Deploy Integration', () => {
     it('should reject BTCb as output asset', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider } });
+        providers: { evm: () => mockProvider },
+      });
 
       expect(() => {
         btcStakeAndDeploy(config, {
           assetOut: AssetId.BTCb,
           destChain: Chain.ETHEREUM,
-          protocol: 'veda',  // Use Veda protocol from DefiRegistry
+          protocol: 'veda', // Use Veda protocol from DefiRegistry
         });
       }).toThrow(/not supported/);
     });
@@ -75,12 +78,13 @@ describe('BTC Stake And Deploy Integration', () => {
     it('should start in idle status', () => {
       const config = createConfig({
         env: Env.prod,
-        providers: { evm: () => mockProvider } });
+        providers: { evm: () => mockProvider },
+      });
 
       const stakeAndDeploy = btcStakeAndDeploy(config, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: 'veda',  // Use Veda protocol from DefiRegistry
+        protocol: 'veda', // Use Veda protocol from DefiRegistry
       });
 
       expect(stakeAndDeploy.status).toBe('idle');
@@ -89,4 +93,3 @@ describe('BTC Stake And Deploy Integration', () => {
     });
   });
 });
-

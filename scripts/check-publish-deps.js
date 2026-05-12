@@ -48,10 +48,14 @@ function validatePackageName(packageName) {
 function getPublishedVersions(packageName) {
   try {
     // Using execFileSync with arguments as array prevents shell injection
-    const result = execFileSync('npm', ['view', packageName, 'versions', '--json'], {
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
+    const result = execFileSync(
+      'npm',
+      ['view', packageName, 'versions', '--json'],
+      {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      },
+    );
     const versions = JSON.parse(result);
     return Array.isArray(versions) ? versions : [versions];
   } catch {
@@ -79,12 +83,15 @@ function versionSatisfies(versions, range) {
   const cleanRange = range.replace(/^[\^~]/, '');
   const [major, minor, patch] = cleanRange.split('.').map(Number);
 
-  return versions.some(v => {
+  return versions.some((v) => {
     const [vMajor, vMinor, vPatch] = v.split('.').map(Number);
 
     if (range.startsWith('^')) {
       // ^x.y.z means >=x.y.z and <(x+1).0.0
-      return vMajor === major && (vMinor > minor || (vMinor === minor && vPatch >= patch));
+      return (
+        vMajor === major &&
+        (vMinor > minor || (vMinor === minor && vPatch >= patch))
+      );
     } else if (range.startsWith('~')) {
       // ~x.y.z means >=x.y.z and <x.(y+1).0
       return vMajor === major && vMinor === minor && vPatch >= patch;
@@ -102,7 +109,9 @@ async function main() {
   const packageName = process.argv[2];
 
   if (!packageName) {
-    console.error('❌ Usage: node scripts/check-publish-deps.js <package-name>');
+    console.error(
+      '❌ Usage: node scripts/check-publish-deps.js <package-name>',
+    );
     console.error('   Example: node scripts/check-publish-deps.js sdk');
     process.exit(1);
   }
@@ -141,7 +150,9 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`\n📦 Checking publish dependencies for ${packageJson.name}@${packageJson.version}\n`);
+  console.log(
+    `\n📦 Checking publish dependencies for ${packageJson.name}@${packageJson.version}\n`,
+  );
 
   const dependencies = {
     ...packageJson.dependencies,
@@ -149,7 +160,7 @@ async function main() {
   };
 
   const lombardDeps = Object.entries(dependencies).filter(([name]) =>
-    name.startsWith(LOMBARD_SCOPE)
+    name.startsWith(LOMBARD_SCOPE),
   );
 
   if (lombardDeps.length === 0) {
@@ -191,7 +202,9 @@ async function main() {
     console.error('');
     console.error('   Some internal dependencies are not published to npm.');
     console.error('   Please publish them first using the publish workflow:');
-    console.error('   https://github.com/lombard-finance/sdk/actions/workflows/publish.yml');
+    console.error(
+      '   https://github.com/lombard-finance/sdk/actions/workflows/publish.yml',
+    );
     console.error('');
     process.exit(1);
   }
@@ -200,7 +213,7 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Unexpected error:', error.message);
   process.exit(1);
 });

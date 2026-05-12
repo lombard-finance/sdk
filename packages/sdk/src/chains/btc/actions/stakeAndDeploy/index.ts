@@ -15,10 +15,12 @@ export type {
   BtcStakeAndDeployParams,
   BtcStakeAndDeployPrepareParams,
   BtcStakeAndDeployProgress,
-  BtcStakeAndDeploy as IBtcStakeAndDeploy } from './types';
+  BtcStakeAndDeploy as IBtcStakeAndDeploy,
+} from './types';
 export { BtcActionStatus } from './types';
 
 // Configuration types (for advanced usage)
 export type {
   StakeAndDeployChainConfig,
-  StakeAndDeployRouteDefinition } from './config';
+  StakeAndDeployRouteDefinition,
+} from './config';

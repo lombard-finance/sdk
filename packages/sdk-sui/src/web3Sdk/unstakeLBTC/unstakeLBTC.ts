@@ -30,16 +30,18 @@ const WALLETS_FORCE_V1 = ['OKX Wallet', 'OKX'];
  * Check if we should force V1 for this wallet.
  * Some wallets advertise V2 support but don't properly handle the new Transaction class.
  */
-function shouldForceV1(wallet: WalletWithFeatures<SuiSignTransactionFeature>): boolean {
+function shouldForceV1(
+  wallet: WalletWithFeatures<SuiSignTransactionFeature>,
+): boolean {
   const walletName = wallet.name || '';
-  return WALLETS_FORCE_V1.some(name => 
-    walletName.toLowerCase().includes(name.toLowerCase())
+  return WALLETS_FORCE_V1.some((name) =>
+    walletName.toLowerCase().includes(name.toLowerCase()),
   );
 }
 
 /**
  * Unstake LBTC.
- * 
+ *
  * Supports both new (sui:signTransaction) and old (sui:signTransactionBlock) wallet interfaces.
  * Some wallets (like OKX) advertise V2 support but fail with the new Transaction class,
  * so we force V1 for known problematic wallets.
@@ -58,11 +60,11 @@ export async function unstakeLBTC({
   // Cast to any to access both V1 and V2 features
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const walletFeatures = (wallet as any).features || {};
-  
+
   const walletHasV2 = !!walletFeatures[SIGN_TRANSACTION_V2_FEATURE];
   const walletHasV1 = !!walletFeatures[SIGN_TRANSACTION_V1_FEATURE];
   const forceV1 = shouldForceV1(wallet);
-  
+
   // Use V2 only if available AND wallet is not in the force-V1 list
   const useV2 = walletHasV2 && !forceV1;
 
@@ -75,7 +77,10 @@ export async function unstakeLBTC({
     });
 
   const scriptPubKey = Array.from(
-    Buffer.from((await getOutputScript(btcAddress, env)).replace(/^0x/, ''), 'hex'),
+    Buffer.from(
+      (await getOutputScript(btcAddress, env)).replace(/^0x/, ''),
+      'hex',
+    ),
   );
 
   transaction.moveCall({
@@ -114,7 +119,9 @@ export async function unstakeLBTC({
   // Use V1 signTransactionBlock (OKX, and other wallets with V2 issues)
   transaction.setSender(walletAccount.address);
 
-  const signedTransaction = await walletFeatures[SIGN_TRANSACTION_V1_FEATURE].signTransactionBlock({
+  const signedTransaction = await walletFeatures[
+    SIGN_TRANSACTION_V1_FEATURE
+  ].signTransactionBlock({
     chain: chainId,
     transactionBlock: transaction,
     account: walletAccount,

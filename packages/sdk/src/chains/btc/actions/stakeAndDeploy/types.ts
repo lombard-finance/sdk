@@ -11,7 +11,8 @@ import type {
   Chain,
   DeployProtocol,
   StepStatus,
-  StrategyProgress } from '../../../../core';
+  StrategyProgress,
+} from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import { BtcActionStatus } from '../../../../shared/constants/statusConstants';
 import type { MonitorProgress } from '../../../../shared/monitoring';
@@ -58,8 +59,7 @@ export interface BtcStakeAndDeployPrepareParams {
 /**
  * BTC StakeAndDeploy progress
  */
-export interface BtcStakeAndDeployProgress
-  extends StrategyProgress<BtcActionStatus> {
+export interface BtcStakeAndDeployProgress extends StrategyProgress<BtcActionStatus> {
   status: BtcActionStatus;
   steps: {
     created: StepStatus;

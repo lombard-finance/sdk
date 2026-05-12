@@ -33,7 +33,8 @@ export async function getMintingFee({
   token,
   chainId,
   rpcUrl,
-  env }: { token: Token } & CommonParameters) {
+  env,
+}: { token: Token } & CommonParameters) {
   if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error(`Unsupported token: ${token}`);
   }
@@ -55,22 +56,26 @@ export async function getMintingFee({
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContractAbi,
       address: tokenContract.address,
-      functionName: 'getAssetRouter' });
+      functionName: 'getAssetRouter',
+    });
 
     const assetRouter = {
       abi: ASSET_ROUTER_ABI,
-      address: assetRouterAddress };
+      address: assetRouterAddress,
+    };
 
     rawFeeValue = (await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
       functionName: 'maxMintCommission',
-      args: [tokenContract.address] })) as bigint;
+      args: [tokenContract.address],
+    })) as bigint;
   } else {
     rawFeeValue = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
-      functionName: 'getMintFee' });
+      functionName: 'getMintFee',
+    });
   }
 
   return fromSatoshi(String(rawFeeValue));
@@ -80,7 +85,8 @@ export async function getRedeemFee({
   token,
   chainId,
   rpcUrl,
-  env }: { token: Token } & CommonParameters) {
+  env,
+}: { token: Token } & CommonParameters) {
   if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error(`Unsupported token: ${token}`);
   }
@@ -99,18 +105,21 @@ export async function getRedeemFee({
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
-      functionName: 'getAssetRouter' });
+      functionName: 'getAssetRouter',
+    });
 
     const assetRouter = {
       abi: ASSET_ROUTER_ABI,
-      address: assetRouterAddress };
+      address: assetRouterAddress,
+    };
 
     // 1.
     const toNativeCommissionValue = (await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
       functionName: 'toNativeCommission',
-      args: [tokenContract.address] })) as bigint;
+      args: [tokenContract.address],
+    })) as bigint;
 
     // 2.
     const [redeemFeeValue /* redeemForBtcMinAmountValue, isRedeemEnabled */] =
@@ -118,7 +127,8 @@ export async function getRedeemFee({
         abi: assetRouter.abi,
         address: assetRouter.address,
         functionName: 'tokenConfig',
-        args: [tokenContract.address] })) as [bigint];
+        args: [tokenContract.address],
+      })) as [bigint];
 
     rawFeeValue = toNativeCommissionValue + redeemFeeValue;
   } else {
@@ -126,7 +136,8 @@ export async function getRedeemFee({
     rawFeeValue = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
-      functionName: 'getBurnCommission' });
+      functionName: 'getBurnCommission',
+    });
   }
 
   return fromSatoshi(String(rawFeeValue));
@@ -136,7 +147,8 @@ export async function getMinRedeemAmount({
   token,
   chainId,
   rpcUrl,
-  env }: { token: Token } & CommonParameters) {
+  env,
+}: { token: Token } & CommonParameters) {
   if (![Token.LBTC, Token.BTCK, Token.BTCb].includes(token)) {
     throw new Error(`Unsupported token: ${token}`);
   }
@@ -156,17 +168,20 @@ export async function getMinRedeemAmount({
     const assetRouterAddress = await publicClient.readContract({
       abi: tokenContract.abi,
       address: tokenContract.address,
-      functionName: 'getAssetRouter' });
+      functionName: 'getAssetRouter',
+    });
 
     const assetRouter = {
       abi: ASSET_ROUTER_ABI,
-      address: assetRouterAddress };
+      address: assetRouterAddress,
+    };
 
     const [, redeemForBtcMinAmountValue] = (await publicClient.readContract({
       abi: assetRouter.abi,
       address: assetRouter.address,
       functionName: 'tokenConfig',
-      args: [tokenContract.address] })) as [undefined, bigint];
+      args: [tokenContract.address],
+    })) as [undefined, bigint];
 
     value = redeemForBtcMinAmountValue;
   } else {

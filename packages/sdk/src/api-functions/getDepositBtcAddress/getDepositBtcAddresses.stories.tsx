@@ -17,7 +17,9 @@ const meta = {
   tags: ['autodocs'],
   decorators: [functionType('api-get')],
   argTypes: {
-    ...chainSelector } } satisfies Meta<typeof StoryView>;
+    ...chainSelector,
+  },
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -30,7 +32,9 @@ export const WithParams: Story = {
     env: DEFAULT_ENV,
     limit: 1,
     offset: 0,
-    partnerId: 'lombard' } };
+    partnerId: 'lombard',
+  },
+};
 
 export function StoryView(props: IGetDepositBtcAddressesParameters) {
   const { data, error, isLoading, refetch } = useQuery(

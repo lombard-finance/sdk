@@ -27,17 +27,14 @@ import { getProviderGetter } from '../../config/types';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SolanaCoreContext } from '../../shared/context';
 import { SolanaRedeem } from './actions/redeem/SolanaRedeem';
-import type {
-  ISolanaRedeem,
-  SolanaRedeemParams } from './actions/redeem/types';
+import type { ISolanaRedeem, SolanaRedeemParams } from './actions/redeem/types';
 import { SolanaStake } from './actions/stake/SolanaStake';
-import type {
-  ISolanaStake,
-  SolanaStakeParams } from './actions/stake/types';
+import type { ISolanaStake, SolanaStakeParams } from './actions/stake/types';
 import { SolanaUnstake } from './actions/unstake/SolanaUnstake';
 import type {
   ISolanaUnstake,
-  SolanaUnstakeParams } from './actions/unstake/types';
+  SolanaUnstakeParams,
+} from './actions/unstake/types';
 
 /**
  * Create Solana core context from config
@@ -50,12 +47,13 @@ function createSolanaCoreContext(config: LombardConfig): SolanaCoreContext {
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
-    getProvider: async key => {
+    getProvider: async (key) => {
       const getter = getProviderGetter(config.providers, key);
       if (!getter) return undefined;
       return getter();
     },
-    solana };
+    solana,
+  };
 }
 
 /**

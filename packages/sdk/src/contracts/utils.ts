@@ -14,20 +14,23 @@ import {
   AssetId,
   evmChainIdToChain,
   getAssetAddress,
-  getBridgeAdapter } from '../core';
+  getBridgeAdapter,
+} from '../core';
 import {
   ASSET_ROUTER_ABI,
   BRIDGE_TOKEN_ADAPTER_ABI,
   BTCK_ABI,
   LBTC_ABI,
   NATIVE_LBTC_ABI,
-  STLBTC_ABI } from './abis';
+  STLBTC_ABI,
+} from './abis';
 import {
   AddressKind,
   type ContractInfo,
   ContractType,
   ContractVersion,
-  type GetContractInfoOptions } from './types';
+  type GetContractInfoOptions,
+} from './types';
 
 /**
  * ABI fragment for detecting upgraded contracts.
@@ -39,7 +42,8 @@ const UPGRADE_DETECTION_ABI = [
     name: 'getAssetRouter',
     outputs: [{ internalType: 'address', name: '', type: 'address' }],
     stateMutability: 'view',
-    type: 'function' },
+    type: 'function',
+  },
 ] as const;
 
 /**
@@ -66,7 +70,8 @@ export async function isUpgradedContract(
     const assetRouter = await publicClient.readContract({
       abi: UPGRADE_DETECTION_ABI,
       address,
-      functionName: 'getAssetRouter' });
+      functionName: 'getAssetRouter',
+    });
     return assetRouter !== zeroAddress;
   } catch {
     // Contract doesn't have getAssetRouter function = not upgraded
@@ -81,7 +86,7 @@ export function isUpgradedAbi(
   abi: unknown,
 ): abi is typeof STLBTC_ABI | typeof NATIVE_LBTC_ABI {
   const hasAssetRouter = (abi as Abi).find(
-    a => a.type === 'function' && a.name === 'getAssetRouter',
+    (a) => a.type === 'function' && a.name === 'getAssetRouter',
   );
   return hasAssetRouter != null;
 }
@@ -107,7 +112,8 @@ export async function getLbtcAbi(
   const upgraded = await isUpgradedContract(address, chainId, env, rpcUrl);
   return {
     abi: upgraded ? STLBTC_ABI : LBTC_ABI,
-    version: upgraded ? ContractVersion.Upgraded : ContractVersion.Legacy };
+    version: upgraded ? ContractVersion.Upgraded : ContractVersion.Legacy,
+  };
 }
 
 /**
@@ -131,7 +137,8 @@ export async function getBtckAbi(
   const upgraded = await isUpgradedContract(address, chainId, env, rpcUrl);
   return {
     abi: upgraded ? NATIVE_LBTC_ABI : BTCK_ABI,
-    version: upgraded ? ContractVersion.Upgraded : ContractVersion.Legacy };
+    version: upgraded ? ContractVersion.Upgraded : ContractVersion.Legacy,
+  };
 }
 
 /**
@@ -265,7 +272,8 @@ export async function getContractInfo(
     address,
     chainId,
     type: contractType,
-    version };
+    version,
+  };
 }
 
 /**

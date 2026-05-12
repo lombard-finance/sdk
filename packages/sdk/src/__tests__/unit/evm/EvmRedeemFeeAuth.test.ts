@@ -7,7 +7,7 @@
  * 3. EvmRedeem correctly handles existing valid signatures
  */
 
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
 import { requiresAutoMintFee } from '../../../common/fee-requirements';
@@ -15,7 +15,8 @@ import { EvmOperationStatus } from '../../../shared/constants/statusConstants';
 
 // Mock the fee requirements module
 vi.mock('../../../common/fee-requirements', () => ({
-  requiresAutoMintFee: vi.fn() }));
+  requiresAutoMintFee: vi.fn(),
+}));
 
 describe('EVM Redeem Fee Authorization', () => {
   beforeEach(() => {
@@ -50,12 +51,16 @@ describe('EVM Redeem Fee Authorization', () => {
 
   describe('EvmOperationStatus', () => {
     it('should have NEEDS_FEE_AUTHORIZATION status', () => {
-      expect(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION).toBe('needs_fee_authorization');
+      expect(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION).toBe(
+        'needs_fee_authorization',
+      );
     });
 
     it('should have all required statuses for EVM redeem flow', () => {
       expect(EvmOperationStatus.IDLE).toBe('idle');
-      expect(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION).toBe('needs_fee_authorization');
+      expect(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION).toBe(
+        'needs_fee_authorization',
+      );
       expect(EvmOperationStatus.READY).toBe('ready');
       expect(EvmOperationStatus.COMPLETED).toBe('completed');
     });
@@ -86,7 +91,9 @@ describe('EVM Redeem Fee Authorization', () => {
       ];
 
       expect(expectedFlow).toHaveLength(3);
-      expect(expectedFlow).not.toContain(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
+      expect(expectedFlow).not.toContain(
+        EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
+      );
     });
   });
 });

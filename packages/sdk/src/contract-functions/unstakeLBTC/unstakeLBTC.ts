@@ -7,11 +7,13 @@ import { makeWalletClient } from '../../clients/wallet-client';
 import {
   CHAIN_ID_TO_VIEM_CHAIN_MAP,
   ChainId,
-  isKatanaChain } from '../../common/chains';
+  isKatanaChain,
+} from '../../common/chains';
 import {
   CommonSignerWriteParameters,
   CommonWriteParameters,
-  isProviderFlow } from '../../common/parameters';
+  isProviderFlow,
+} from '../../common/parameters';
 import ASSET_ROUTER_ABI from '../../tokens/abi/ASSET_ROUTER_ABI';
 import { AddressKind, Token } from '../../tokens/token-addresses';
 import {
@@ -19,13 +21,15 @@ import {
   getTokenContractInfo,
   isUpgradedAbi,
   retrieveTokenProperties,
-  toBaseDenomination } from '../../tokens/tokens';
+  toBaseDenomination,
+} from '../../tokens/tokens';
 import { UnsupportedTokenFlow } from '../../utils/err';
 import { estimateGasFees } from '../../utils/gas';
 import toBigInt from '../../utils/numbers';
 import {
   executeContractTransaction,
-  waitForTransactionReceipt } from '../../utils/transaction-executor';
+  waitForTransactionReceipt,
+} from '../../utils/transaction-executor';
 
 /**
  * Supported redemption flows.
@@ -152,9 +156,10 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
     env,
     rpcUrl,
     tokenIn = Token.LBTC,
-    tokenOut } = params;
+    tokenOut,
+  } = params;
   const flow = AVAILABLE_FLOWS.find(
-    af => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
+    (af) => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
   );
   if (!flow) {
     throw new UnsupportedTokenFlow(tokenIn, tokenOut || 'BTC', chainId, env);
@@ -186,7 +191,8 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
     address: IN.address,
     abi: IN.abi as typeof erc20Abi,
     functionName: 'balanceOf',
-    args: [accountAddress] });
+    args: [accountAddress],
+  });
   const tokenInBalance = fromBaseDenomination(tokenInBalanceRaw, IN.decimals);
   if (amount.isGreaterThan(tokenInBalanceRaw)) {
     throw new Error(
@@ -217,14 +223,16 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
       const assetRouterContractAddress = (await publicClient.readContract({
         address: adapter.address,
         abi: adapter.abi,
-        functionName: 'getAssetRouter' })) as Address;
+        functionName: 'getAssetRouter',
+      })) as Address;
 
       // 2. Check allowance
       const allowance = await publicClient.readContract({
         address: IN.address,
         abi: IN.abi,
         functionName: 'allowance',
-        args: [accountAddress, adapter.address] });
+        args: [accountAddress, adapter.address],
+      });
 
       if (amount.isGreaterThan(allowance)) {
         const { txHash } = await executeContractTransaction({
@@ -236,8 +244,10 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
             abi: IN.abi,
             account: accountAddress as `0x${string}` | undefined,
             functionName: 'approve',
-            args: [adapter.address, toBigInt(amount)] },
-          operation: 'BTC.b approval' });
+            args: [adapter.address, toBigInt(amount)],
+          },
+          operation: 'BTC.b approval',
+        });
 
         const receipt = await waitForTransactionReceipt(
           publicClient,
@@ -267,8 +277,10 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
             adapter.address,
             outputScript,
             toBigInt(amount),
-          ] },
-        operation: 'BTC.b redeemForBtc' });
+          ],
+        },
+        operation: 'BTC.b redeemForBtc',
+      });
 
       return txHash;
     }
@@ -283,7 +295,8 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
         isUpgradedAbi(IN.abi) || tokenIn === Token.BTCb
           ? 'redeemForBtc' // upgraded
           : 'redeem', // legacy
-      args: [outputScript, toBigInt(amount)] } as const;
+      args: [outputScript, toBigInt(amount)],
+    } as const;
 
     const gasEstimationData = isKatanaChain(chainId)
       ? await estimateGasFees(publicClient, callData, parseGwei('1'))
@@ -296,8 +309,10 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
       simulateArgs: {
         ...callData,
         account: accountAddress as `0x${string}` | undefined,
-        ...gasEstimationData },
-      operation: `${tokenIn} redeem to BTC` });
+        ...gasEstimationData,
+      },
+      operation: `${tokenIn} redeem to BTC`,
+    });
 
     return txHash;
   }
@@ -315,7 +330,8 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
     account: accountAddress,
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     functionName: 'redeem',
-    args: [toBigInt(amount)] } as const;
+    args: [toBigInt(amount)],
+  } as const;
 
   const gasEstimationData = isKatanaChain(chainId)
     ? await estimateGasFees(publicClient, callData, parseGwei('1'))
@@ -328,8 +344,10 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
     simulateArgs: {
       ...callData,
       account: accountAddress as `0x${string}` | undefined,
-      ...gasEstimationData },
-    operation: `${tokenIn} redeem to ${tokenOut}` });
+      ...gasEstimationData,
+    },
+    operation: `${tokenIn} redeem to ${tokenOut}`,
+  });
 
   return txHash;
 }
@@ -373,5 +391,6 @@ export async function unstakeLBTC(params: IUnstakeLBTCParams): Promise<Hex> {
   return redeemToken({
     ...params,
     tokenIn: Token.LBTC,
-    tokenOut: undefined });
+    tokenOut: undefined,
+  });
 }

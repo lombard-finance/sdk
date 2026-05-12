@@ -8,15 +8,17 @@
  */
 
 import { Env } from '@lombard.finance/sdk-common';
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
   evmToBtcbConfig,
-  evmToBtcConfig } from '../../../chains/evm/actions/unstake/config/evm';
+  evmToBtcConfig,
+} from '../../../chains/evm/actions/unstake/config/evm';
 import { Chain } from '../../../core';
 import {
   bitcoinAddressSchema,
-  evmAddressSchema } from '../../../shared/validation';
+  evmAddressSchema,
+} from '../../../shared/validation';
 
 describe('EVM Unstake Config', () => {
   describe('Address Schema Selection', () => {
@@ -36,28 +38,42 @@ describe('EVM Unstake Config', () => {
 
     describe('Valid Bitcoin addresses', () => {
       it('should accept valid mainnet P2PKH address', () => {
-        expect(() => schema.parse('1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2')).not.toThrow();
+        expect(() =>
+          schema.parse('1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2'),
+        ).not.toThrow();
       });
 
       it('should accept valid mainnet P2SH address', () => {
-        expect(() => schema.parse('3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy')).not.toThrow();
+        expect(() =>
+          schema.parse('3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy'),
+        ).not.toThrow();
       });
 
       it('should accept valid mainnet Bech32 address', () => {
-        expect(() => schema.parse('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq')).not.toThrow();
+        expect(() =>
+          schema.parse('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'),
+        ).not.toThrow();
       });
 
       it('should accept valid testnet/signet P2PKH address', () => {
-        expect(() => schema.parse('mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn')).not.toThrow();
+        expect(() =>
+          schema.parse('mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'),
+        ).not.toThrow();
       });
 
       it('should accept valid testnet/signet Bech32 address', () => {
         // Valid testnet bech32 address from BIP-0173
-        expect(() => schema.parse('tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx')).not.toThrow();
+        expect(() =>
+          schema.parse('tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx'),
+        ).not.toThrow();
       });
 
       it('should accept valid Taproot (bc1p) address', () => {
-        expect(() => schema.parse('bc1pw0sr89hvfgwyhj98gamyewndt5yczw5cdkl7j3eystx2js48gfks2w72ct')).not.toThrow();
+        expect(() =>
+          schema.parse(
+            'bc1pw0sr89hvfgwyhj98gamyewndt5yczw5cdkl7j3eystx2js48gfks2w72ct',
+          ),
+        ).not.toThrow();
       });
     });
 
@@ -139,26 +155,28 @@ describe('EVM Unstake Config', () => {
   describe('Route Configuration', () => {
     describe('EVM to BTC routes', () => {
       it('should have Sepolia as source chain for testnet', () => {
-        const testnetRoutes = evmToBtcConfig.routes.filter(r =>
-          r.envs.some(e => e === Env.testnet),
+        const testnetRoutes = evmToBtcConfig.routes.filter((r) =>
+          r.envs.some((e) => e === Env.testnet),
         );
-        const sourceChains = testnetRoutes.flatMap(r => r.sourceChains);
+        const sourceChains = testnetRoutes.flatMap((r) => r.sourceChains);
         // Chain identifiers use CAIP-2 format
         expect(sourceChains).toContain(Chain.SEPOLIA);
       });
 
       it('should have Ethereum as source chain for production', () => {
-        const prodRoutes = evmToBtcConfig.routes.filter(r =>
+        const prodRoutes = evmToBtcConfig.routes.filter((r) =>
           r.envs.includes(Env.prod),
         );
-        const sourceChains = prodRoutes.flatMap(r => r.sourceChains);
+        const sourceChains = prodRoutes.flatMap((r) => r.sourceChains);
         expect(sourceChains).toContain(Chain.ETHEREUM);
       });
 
       it('should have Bitcoin as destination for cross-chain unstake', () => {
         // All routes should have Bitcoin as destination
-        evmToBtcConfig.routes.forEach(route => {
-          expect([Chain.BITCOIN_MAINNET, Chain.BITCOIN_SIGNET]).toContain(route.destChain);
+        evmToBtcConfig.routes.forEach((route) => {
+          expect([Chain.BITCOIN_MAINNET, Chain.BITCOIN_SIGNET]).toContain(
+            route.destChain,
+          );
         });
       });
     });
@@ -167,10 +185,10 @@ describe('EVM Unstake Config', () => {
       it('should have matching destination for same-chain operations', () => {
         // BTC.b unstake is same-chain (e.g., Avalanche → Avalanche)
         expect(evmToBtcbConfig.routes.length).toBeGreaterThan(0);
-        
+
         // Each route should have source and dest as the same chain
-        evmToBtcbConfig.routes.forEach(route => {
-          route.sourceChains.forEach(source => {
+        evmToBtcbConfig.routes.forEach((route) => {
+          route.sourceChains.forEach((source) => {
             expect(source).toBe(route.destChain);
           });
         });
@@ -182,7 +200,7 @@ describe('EVM Unstake Config', () => {
     it('should differentiate between BTC and EVM address requirements', () => {
       // When assetOut is BTC -> Bitcoin address required
       const btcSchema = evmToBtcConfig.recipientSchema;
-      
+
       // When assetOut is BTCb -> EVM address required
       const btcbSchema = evmToBtcbConfig.recipientSchema;
 
@@ -199,4 +217,3 @@ describe('EVM Unstake Config', () => {
     });
   });
 });
-

@@ -25,12 +25,14 @@ export async function cancelEarnWithdrawal({
   chainId,
   provider,
   rpcUrl,
-  env }: CancelEarnWithdrawalParameters): Promise<Hash> {
+  env,
+}: CancelEarnWithdrawalParameters): Promise<Hash> {
   return cancelWithdrawInternal({
     token: withdrawalAsset,
     account,
     chainId,
     provider,
     rpcUrl,
-    env });
+    env,
+  });
 }

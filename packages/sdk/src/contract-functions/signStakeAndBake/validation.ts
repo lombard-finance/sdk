@@ -10,7 +10,8 @@ import {
   DEFI_REGISTRY,
   DefiProtocol,
   StakeAndBakeStrategy,
-  StakeAndBakeToken } from '../../defi/defi-registry';
+  StakeAndBakeToken,
+} from '../../defi/defi-registry';
 
 /**
  * Custom error for stake and bake validation failures.
@@ -54,7 +55,8 @@ export function getStakeAndBakeConfig(
     );
   }
 
-  const tokenRegistry = protocolRegistry[token as keyof typeof protocolRegistry];
+  const tokenRegistry =
+    protocolRegistry[token as keyof typeof protocolRegistry];
   if (!tokenRegistry) {
     throw new StakeAndBakeValidationError(
       'UNSUPPORTED_TOKEN',
@@ -84,7 +86,8 @@ export function getStakeAndBakeConfig(
         token,
         chainId,
         env,
-        supportedChains: Object.keys(envRegistry) },
+        supportedChains: Object.keys(envRegistry),
+      },
     );
   }
 
@@ -93,7 +96,8 @@ export function getStakeAndBakeConfig(
     token,
     env,
     chainId,
-    ...registryEntry };
+    ...registryEntry,
+  };
 }
 
 /**

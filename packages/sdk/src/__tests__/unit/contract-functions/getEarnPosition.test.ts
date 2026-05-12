@@ -9,7 +9,9 @@ const mockReadContract = vi.fn();
 
 vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn().mockReturnValue({
-    readContract: (...args: unknown[]) => mockReadContract(...args) }) }));
+    readContract: (...args: unknown[]) => mockReadContract(...args),
+  }),
+}));
 
 const TEST_ADDRESS = '0x000000000000000000000000000000000000dEaD';
 const LENS_ADDRESS = '0x5232bc0F5999f8dA604c42E1748A13a170F94A1B';
@@ -93,7 +95,8 @@ describe('getEarnPosition', () => {
 
       const result = await getEarnPosition({
         address: TEST_ADDRESS,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(result.underlyingShares).toEqual(BigNumber('0.3'));
       expect(result.btceShares).toEqual(BigNumber('0.7'));
@@ -113,11 +116,13 @@ describe('getEarnPosition', () => {
         btceBalance: 70_000_000n, // 0.7 BTCe
         rate: 100_000_000n, // 1.0 (peg)
         convertRatioNum: 75n,
-        convertRatioDen: 70n });
+        convertRatioDen: 70n,
+      });
 
       const result = await getEarnPosition({
         address: TEST_ADDRESS,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(result.btceShares).toEqual(BigNumber('0.7'));
       expect(result.btceSharesInUnderlying).toEqual(BigNumber('0.75'));
@@ -131,11 +136,13 @@ describe('getEarnPosition', () => {
       setupContract({
         lbtcvBalance: 25_000_000n,
         btceBalance: 0n,
-        rate: 100_000_000n });
+        rate: 100_000_000n,
+      });
 
       const result = await getEarnPosition({
         address: TEST_ADDRESS,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(result.btceShares).toEqual(BigNumber(0));
       expect(result.btceSharesInUnderlying).toEqual(BigNumber(0));
@@ -151,11 +158,13 @@ describe('getEarnPosition', () => {
       setupContract({
         lbtcvBalance: 0n,
         btceBalance: 0n,
-        rate: 100_000_000n });
+        rate: 100_000_000n,
+      });
 
       const result = await getEarnPosition({
         address: TEST_ADDRESS,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(result.underlyingShares).toEqual(BigNumber(0));
       expect(result.btceShares).toEqual(BigNumber(0));
@@ -167,11 +176,13 @@ describe('getEarnPosition', () => {
     it('returns zero BTCe and only the LBTCv leg on Corn', async () => {
       setupContract({
         lbtcvBalance: 40_000_000n,
-        rate: 100_000_000n });
+        rate: 100_000_000n,
+      });
 
       const result = await getEarnPosition({
         address: TEST_ADDRESS,
-        chainId: ChainId.corn });
+        chainId: ChainId.corn,
+      });
 
       expect(result.btceShares).toEqual(BigNumber(0));
       expect(result.btceSharesInUnderlying).toEqual(BigNumber(0));
@@ -191,12 +202,14 @@ describe('getEarnPosition', () => {
       setupContract({
         lbtcvBalance: 10_000_000n,
         rate: 100_000_000n,
-        failOn: { functionName: 'balanceOf', address: BTCE_ADDRESS } });
+        failOn: { functionName: 'balanceOf', address: BTCE_ADDRESS },
+      });
 
       await expect(
         getEarnPosition({
           address: TEST_ADDRESS,
-          chainId: ChainId.ethereum }),
+          chainId: ChainId.ethereum,
+        }),
       ).rejects.toThrow();
     });
 
@@ -205,24 +218,28 @@ describe('getEarnPosition', () => {
         lbtcvBalance: 10_000_000n,
         btceBalance: 50_000_000n,
         rate: 100_000_000n,
-        failOn: { functionName: 'convertToAssets' } });
+        failOn: { functionName: 'convertToAssets' },
+      });
 
       await expect(
         getEarnPosition({
           address: TEST_ADDRESS,
-          chainId: ChainId.ethereum }),
+          chainId: ChainId.ethereum,
+        }),
       ).rejects.toThrow();
     });
 
     it('surfaces LBTCv read failures', async () => {
       setupContract({
         rate: 100_000_000n,
-        failOn: { functionName: 'balanceOf', address: LENS_ADDRESS } });
+        failOn: { functionName: 'balanceOf', address: LENS_ADDRESS },
+      });
 
       await expect(
         getEarnPosition({
           address: TEST_ADDRESS,
-          chainId: ChainId.ethereum }),
+          chainId: ChainId.ethereum,
+        }),
       ).rejects.toThrow();
     });
   });
@@ -232,7 +249,8 @@ describe('getEarnPosition', () => {
       await expect(
         getEarnPosition({
           address: '0xnotanaddress',
-          chainId: ChainId.ethereum }),
+          chainId: ChainId.ethereum,
+        }),
       ).rejects.toThrow(/Invalid address/);
     });
   });
@@ -248,11 +266,13 @@ describe('getEarnPosition', () => {
         btceBalance: 100_000_000n,
         rate: 100_000_000n,
         convertRatioNum: 1n,
-        convertRatioDen: 1n });
+        convertRatioDen: 1n,
+      });
 
       const result = await getEarnPosition({
         address: TEST_ADDRESS,
-        chainId });
+        chainId,
+      });
 
       expect(result.btceShares).toEqual(BigNumber('1'));
       expect(result.btceSharesInUnderlying).toEqual(BigNumber('1'));
@@ -261,11 +281,13 @@ describe('getEarnPosition', () => {
     it('supports Corn (LBTCv only, no BTCe)', async () => {
       setupContract({
         lbtcvBalance: 100_000_000n,
-        rate: 100_000_000n });
+        rate: 100_000_000n,
+      });
 
       const result = await getEarnPosition({
         address: TEST_ADDRESS,
-        chainId: ChainId.corn });
+        chainId: ChainId.corn,
+      });
 
       expect(result.underlyingShares).toEqual(BigNumber('1'));
       expect(result.position).toEqual(BigNumber('1'));

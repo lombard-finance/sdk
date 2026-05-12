@@ -97,7 +97,12 @@ export function StarknetUnstakePage({ env }: { env: Env }) {
                 env={env}
               />
             ) : (
-              <StarknetUnstakingProgress status={status} txHash={txHash} env={env} onReset={reset} />
+              <StarknetUnstakingProgress
+                status={status}
+                txHash={txHash}
+                env={env}
+                onReset={reset}
+              />
             )
           ) : (
             <div className="card">
@@ -106,7 +111,6 @@ export function StarknetUnstakePage({ env }: { env: Env }) {
               </p>
             </div>
           )}
-
         </div>
       </div>
     </div>

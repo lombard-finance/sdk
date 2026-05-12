@@ -1,4 +1,9 @@
-import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
+import {
+  AssetId,
+  Chain,
+  Env,
+  MIN_REDEEM_AMOUNT_BTC,
+} from '@lombard.finance/sdk';
 import { useState } from 'react';
 
 import type { UnstakingFormData } from '../lib/types';
@@ -81,7 +86,7 @@ export function SuiUnstakingForm({
             step="0.00000001"
             min={MIN_REDEEM_AMOUNT_BTC}
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             placeholder={String(MIN_REDEEM_AMOUNT_BTC)}
             required
@@ -137,7 +142,7 @@ export function SuiUnstakingForm({
             id="recipient"
             type="text"
             value={recipient}
-            onChange={e => setRecipient(e.target.value)}
+            onChange={(e) => setRecipient(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm"
             placeholder={env === Env.prod ? 'bc1q...' : 'tb1q...'}
             required

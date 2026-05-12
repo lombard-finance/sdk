@@ -42,7 +42,8 @@ export async function approveLBTC({
   chainId,
   provider,
   rpcUrl,
-  env }: IApproveLBTCParams): Promise<Hash> {
+  env,
+}: IApproveLBTCParams): Promise<Hash> {
   const publicClient = makePublicClient({ chainId, rpcUrl });
   const walletClient = makeWalletClient({ chainId, provider });
 
@@ -56,7 +57,8 @@ export async function approveLBTC({
     chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
     abi: lbtcContract.abi,
     functionName: 'approve',
-    args: [spender, BigInt(amountSat)] });
+    args: [spender, BigInt(amountSat)],
+  });
 
   const txHash = await walletClient.writeContract(request);
 

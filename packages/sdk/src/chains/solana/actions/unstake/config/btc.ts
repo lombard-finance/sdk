@@ -11,7 +11,8 @@ import { Env } from '@lombard.finance/sdk-common';
 import { AssetId, Chain } from '../../../../../core';
 import {
   bitcoinAddressSchema,
-  solanaAddressSchema } from '../../../../../shared/validation';
+  solanaAddressSchema,
+} from '../../../../../shared/validation';
 import type { ChainConfig } from './types';
 
 /**
@@ -28,16 +29,19 @@ export const solanaToBtcConfig: ChainConfig = {
       destChain: Chain.BITCOIN_MAINNET,
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTC,
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
     {
       sourceChains: [Chain.SOLANA_DEVNET],
       destChain: Chain.BITCOIN_SIGNET,
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTC,
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
+    },
   ],
 
-  recipientSchema: bitcoinAddressSchema };
+  recipientSchema: bitcoinAddressSchema,
+};
 
 /**
  * LBTC → BTC.b configuration (same-chain)
@@ -53,16 +57,19 @@ export const solanaToBtcbConfig: ChainConfig = {
       destChain: Chain.SOLANA_MAINNET,
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
     {
       sourceChains: [Chain.SOLANA_DEVNET],
       destChain: Chain.SOLANA_DEVNET,
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
-      envs: [Env.stage, Env.dev, Env.testnet] },
+      envs: [Env.stage, Env.dev, Env.testnet],
+    },
   ],
 
-  recipientSchema: solanaAddressSchema };
+  recipientSchema: solanaAddressSchema,
+};
 
 const allRoutes = [...solanaToBtcConfig.routes, ...solanaToBtcbConfig.routes];
 
@@ -77,7 +84,7 @@ export function isUnstakeSupported(
   env: Env,
 ): boolean {
   return allRoutes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) &&
       route.destChain === destChain &&
       route.assetIn === assetIn &&

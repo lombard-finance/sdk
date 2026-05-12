@@ -30,7 +30,8 @@ export const StakeEvent = {
   Failed: 'failed',
 
   /** Error occurred */
-  Error: 'error' } as const;
+  Error: 'error',
+} as const;
 
 export type StakeEvent = (typeof StakeEvent)[keyof typeof StakeEvent];
 
@@ -44,7 +45,8 @@ export const DepositEvent = {
   StatusChange: 'status-change',
   Completed: 'completed',
   Failed: 'failed',
-  Error: 'error' } as const;
+  Error: 'error',
+} as const;
 
 export type DepositEvent = (typeof DepositEvent)[keyof typeof DepositEvent];
 
@@ -58,7 +60,8 @@ export const RedeemEvent = {
   StatusChange: 'status-change',
   Completed: 'completed',
   Failed: 'failed',
-  Error: 'error' } as const;
+  Error: 'error',
+} as const;
 
 export type RedeemEvent = (typeof RedeemEvent)[keyof typeof RedeemEvent];
 
@@ -72,7 +75,8 @@ export const UnstakeEvent = {
   StatusChange: 'status-change',
   Completed: 'completed',
   Failed: 'failed',
-  Error: 'error' } as const;
+  Error: 'error',
+} as const;
 
 export type UnstakeEvent = (typeof UnstakeEvent)[keyof typeof UnstakeEvent];
 
@@ -86,7 +90,8 @@ export const DeployEvent = {
   StatusChange: 'status-change',
   Completed: 'completed',
   Failed: 'failed',
-  Error: 'error' } as const;
+  Error: 'error',
+} as const;
 
 export type DeployEvent = (typeof DeployEvent)[keyof typeof DeployEvent];
 
@@ -100,7 +105,8 @@ export const WithdrawEvent = {
   StatusChange: 'status-change',
   Completed: 'completed',
   Failed: 'failed',
-  Error: 'error' } as const;
+  Error: 'error',
+} as const;
 
 export type WithdrawEvent = (typeof WithdrawEvent)[keyof typeof WithdrawEvent];
 
@@ -114,7 +120,8 @@ export const BridgeEvent = {
   StatusChange: 'status-change',
   Completed: 'completed',
   Failed: 'failed',
-  Error: 'error' } as const;
+  Error: 'error',
+} as const;
 
 export type BridgeEvent = (typeof BridgeEvent)[keyof typeof BridgeEvent];
 
@@ -128,7 +135,8 @@ export const StakeAndDeployEvent = {
   StatusChange: 'status-change',
   Completed: 'completed',
   Failed: 'failed',
-  Error: 'error' } as const;
+  Error: 'error',
+} as const;
 
 export type StakeAndDeployEvent =
   (typeof StakeAndDeployEvent)[keyof typeof StakeAndDeployEvent];
@@ -144,7 +152,8 @@ export const DepositAndDeployEvent = {
   StatusChange: 'status-change',
   Completed: 'completed',
   Failed: 'failed',
-  Error: 'error' } as const;
+  Error: 'error',
+} as const;
 
 export type DepositAndDeployEvent =
   (typeof DepositAndDeployEvent)[keyof typeof DepositAndDeployEvent];

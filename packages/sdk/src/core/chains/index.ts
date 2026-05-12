@@ -13,7 +13,8 @@ export {
   Chain,
   CHAIN_PREFIXES,
   chainValueToKey,
-  isChain } from './types';
+  isChain,
+} from './types';
 
 // Catalog
 export { CHAIN_CATALOG } from './catalog';
@@ -34,4 +35,5 @@ export {
   isEvmChain,
   isMainnet,
   isTestnet,
-  parseChainIdentifier } from './utils';
+  parseChainIdentifier,
+} from './utils';

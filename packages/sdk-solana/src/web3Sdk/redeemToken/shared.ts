@@ -90,8 +90,6 @@ export function validateAmount(amount: string): void {
     throw new Error('Amount must be greater than zero');
   }
   if (parsedAmount > U64_MAX) {
-    throw new Error(
-      `Amount ${amount} exceeds the u64 maximum (${U64_MAX})`,
-    );
+    throw new Error(`Amount ${amount} exceeds the u64 maximum (${U64_MAX})`);
   }
 }

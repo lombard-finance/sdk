@@ -26,7 +26,7 @@ export function createDebugLogger(options: CreateDebugLoggerOptions = {}) {
   const logs: string[] = [];
 
   const debugLog = (...args: unknown[]): void => {
-    const formattedArgs = args.map(arg =>
+    const formattedArgs = args.map((arg) =>
       typeof arg === 'object' && arg !== null
         ? JSON.stringify(arg)
         : String(arg),

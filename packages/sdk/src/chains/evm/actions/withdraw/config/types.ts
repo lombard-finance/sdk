@@ -7,10 +7,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import type { z } from 'zod';
 
-import type {
-  Chain,
-  ChainType,
-  DeployProtocol } from '../../../../../core';
+import type { Chain, ChainType, DeployProtocol } from '../../../../../core';
 
 /**
  * Route definition for EVM withdraw operations

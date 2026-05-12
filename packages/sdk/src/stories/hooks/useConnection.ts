@@ -5,7 +5,8 @@ import {
   useAccount,
   type UseAccountReturnType,
   useConnect as useWagmiConnect,
-  useDisconnect as useWagmiDisconnect } from 'wagmi';
+  useDisconnect as useWagmiDisconnect,
+} from 'wagmi';
 import { injected } from 'wagmi/connectors';
 
 import { ChainId } from '../../common/chains';
@@ -23,10 +24,10 @@ export const canPerformAction = <config extends Config = Config>(arg: {
 }): arg is CanPerformAction =>
   Boolean(
     arg.account.status === 'connected' &&
-      arg.account.connector &&
-      arg.account.address &&
-      arg.account.chainId &&
-      arg.provider,
+    arg.account.connector &&
+    arg.account.address &&
+    arg.account.chainId &&
+    arg.provider,
   );
 
 export function useConnection() {
@@ -57,5 +58,6 @@ export function useConnection() {
     account,
     provider,
     connect: connectWallet,
-    disconnect };
+    disconnect,
+  };
 }

@@ -22,8 +22,12 @@ describe('validateAmount', () => {
   });
 
   it('should reject amounts exceeding u64 max', () => {
-    expect(() => validateAmount('18446744073709551616')).toThrow('exceeds the u64 maximum');
-    expect(() => validateAmount('99999999999999999999999')).toThrow('exceeds the u64 maximum');
+    expect(() => validateAmount('18446744073709551616')).toThrow(
+      'exceeds the u64 maximum',
+    );
+    expect(() => validateAmount('99999999999999999999999')).toThrow(
+      'exceeds the u64 maximum',
+    );
   });
 });
 

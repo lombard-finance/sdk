@@ -12,7 +12,8 @@ import {
   LombardError,
   ProviderErrorCode,
   RegistryErrorCode,
-  ValidationErrorCode } from '../errors';
+  ValidationErrorCode,
+} from '../errors';
 
 describe('LombardError', () => {
   it('should create error with code and message', () => {
@@ -34,12 +35,14 @@ describe('LombardError', () => {
       'Provider not configured',
       {
         chain: 'ethereum',
-        requiredProvider: 'evm' },
+        requiredProvider: 'evm',
+      },
     );
 
     expect(error.metadata).toEqual({
       chain: 'ethereum',
-      requiredProvider: 'evm' });
+      requiredProvider: 'evm',
+    });
   });
 
   it('should have proper stack trace', () => {
@@ -54,7 +57,8 @@ describe('LombardError', () => {
       'Route not found',
       {
         assetIn: 'BTC',
-        assetOut: 'LBTC' },
+        assetOut: 'LBTC',
+      },
     );
 
     const json = error.toJSON();
@@ -63,7 +67,9 @@ describe('LombardError', () => {
       message: 'Route not found',
       metadata: {
         assetIn: 'BTC',
-        assetOut: 'LBTC' } });
+        assetOut: 'LBTC',
+      },
+    });
     // Also verify new properties exist
     expect(json.name).toBe('LombardError');
     expect(json.sdkVersion).toBeDefined();
@@ -73,7 +79,8 @@ describe('LombardError', () => {
   it('should include cause if provided', () => {
     const cause = new Error('Original error');
     const error = new LombardError(ErrorCode.UNKNOWN_ERROR, 'Wrapped error', {
-      originalError: cause.message });
+      originalError: cause.message,
+    });
 
     expect(error.metadata?.originalError).toBe('Original error');
   });
@@ -169,7 +176,8 @@ describe('Error Factory Functions', () => {
       assetIn: 'BTC',
       assetOut: 'LBTC',
       sourceChain: 'bitcoin-mainnet',
-      destChain: 'ethereum' });
+      destChain: 'ethereum',
+    });
 
     expect(error.code).toBe(RegistryErrorCode.ROUTE_NOT_FOUND);
     expect(error.metadata).toBeDefined();

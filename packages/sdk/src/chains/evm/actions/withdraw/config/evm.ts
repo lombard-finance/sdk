@@ -26,10 +26,12 @@ export const evmWithdrawConfig: WithdrawChainConfig = {
     {
       sourceChains: [Chain.ETHEREUM, Chain.BASE, Chain.BSC, Chain.CORN],
       protocols: [DeployProtocol.Veda],
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
   ],
 
-  addressSchema: evmAddressSchema };
+  addressSchema: evmAddressSchema,
+};
 
 /**
  * Check if a withdraw route is supported
@@ -40,7 +42,7 @@ export function isWithdrawSupported(
   env: Env,
 ): boolean {
   return evmWithdrawConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(chain) &&
       route.protocols.includes(protocol) &&
       route.envs.includes(env),

@@ -8,7 +8,9 @@ const mockReadContract = vi.fn();
 
 vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn().mockReturnValue({
-    readContract: (...args: unknown[]) => mockReadContract(...args) }) }));
+    readContract: (...args: unknown[]) => mockReadContract(...args),
+  }),
+}));
 
 const TEST_ADDRESS = '0x000000000000000000000000000000000000dEaD';
 const BTCE_ADDRESS = '0x3a4baaBf4DC9910596821615e848f0e6545762F3';
@@ -24,7 +26,8 @@ describe('getBtceShares', () => {
 
       const result = await getBtceShares({
         address: TEST_ADDRESS,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(result).toEqual(BigNumber('0.5'));
     });
@@ -34,7 +37,8 @@ describe('getBtceShares', () => {
 
       const result = await getBtceShares({
         address: TEST_ADDRESS,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(result).toEqual(BigNumber(0));
     });
@@ -46,7 +50,8 @@ describe('getBtceShares', () => {
 
       await getBtceShares({
         address: TEST_ADDRESS,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(mockReadContract).toHaveBeenCalledTimes(1);
       const callArgs = mockReadContract.mock.calls[0][0];
@@ -73,7 +78,8 @@ describe('getBtceShares', () => {
       await expect(
         getBtceShares({
           address: TEST_ADDRESS,
-          chainId: ChainId.corn }),
+          chainId: ChainId.corn,
+        }),
       ).rejects.toThrow(/BTCe is not supported on chain/);
     });
 
@@ -81,7 +87,8 @@ describe('getBtceShares', () => {
       await expect(
         getBtceShares({
           address: TEST_ADDRESS,
-          chainId: ChainId.sepolia }),
+          chainId: ChainId.sepolia,
+        }),
       ).rejects.toThrow(/BTCe is not supported on chain/);
     });
   });
@@ -91,7 +98,8 @@ describe('getBtceShares', () => {
       await expect(
         getBtceShares({
           address: '0xnotanaddress',
-          chainId: ChainId.ethereum }),
+          chainId: ChainId.ethereum,
+        }),
       ).rejects.toThrow(/Invalid address/);
     });
 
@@ -99,7 +107,8 @@ describe('getBtceShares', () => {
       await expect(
         getBtceShares({
           address: '',
-          chainId: ChainId.ethereum }),
+          chainId: ChainId.ethereum,
+        }),
       ).rejects.toThrow(/Invalid address/);
     });
   });
@@ -111,7 +120,8 @@ describe('getBtceShares', () => {
       await expect(
         getBtceShares({
           address: TEST_ADDRESS,
-          chainId: ChainId.ethereum }),
+          chainId: ChainId.ethereum,
+        }),
       ).rejects.toThrow(/execution reverted/);
     });
   });

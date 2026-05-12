@@ -129,6 +129,7 @@ const result = await withdrawEarn({
 ```
 
 `withdrawEarn` is a single call but may issue 1–3 transactions depending on user state:
+
 1. **Approve** underlying-share token to the withdraw queue (skipped if allowance covers).
 2. **Unwrap** just enough BTCe to cover the requested amount (skipped if the user's direct underlying balance covers, or on chains where BTCe is not deployed).
 3. **Queue** the withdrawal (always).
@@ -179,12 +180,12 @@ Same underlying contract call. Atomic-request cancellations are indexed per `(us
 
 The following exported types are removed. New parameter types follow the new function names:
 
-| Removed | New |
-|---|---|
-| `DepositParameters` | `DepositEarnParameters` |
-| `QueueWithdrawParameters` | `WithdrawEarnParameters` |
-| `CancelWithdrawParameters` | `CancelEarnWithdrawalParameters` |
-| `IGetSharesByAddressParameters`, `IGetShareValueParameters` | `IGetEarnPositionParameters` |
+| Removed                                                     | New                              |
+| ----------------------------------------------------------- | -------------------------------- |
+| `DepositParameters`                                         | `DepositEarnParameters`          |
+| `QueueWithdrawParameters`                                   | `WithdrawEarnParameters`         |
+| `CancelWithdrawParameters`                                  | `CancelEarnWithdrawalParameters` |
+| `IGetSharesByAddressParameters`, `IGetShareValueParameters` | `IGetEarnPositionParameters`     |
 
 ---
 
@@ -192,15 +193,15 @@ The following exported types are removed. New parameter types follow the new fun
 
 The product is now called **Bitcoin Earn**. Public symbols that referenced "Veda" or the legacy "Vault" abstraction have been renamed. `DefiProtocol.Veda` and the underlying contract names are unchanged because they identify a real third-party protocol.
 
-| Removed | New |
-|---|---|
-| `Vault` enum, `VAULTS` map, `VaultNameMap` | (deleted, the SDK now exposes a single Bitcoin Earn vault) |
-| `getVaultDeposits`, `getVaultDepositsAllChains` | `getEarnDeposits`, `getEarnDepositsAllChains` |
-| `getVaultWithdrawals`, `getVaultWithdrawalsAllChains` | `getEarnWithdrawals`, `getEarnWithdrawalsAllChains` |
-| `getVaultMinimumDeposit`, `previewVaultDeposit` | `getEarnMinimumDeposit`, `previewEarnDeposit` |
-| `getVaultApy`, `getVaultPoints`, `getVaultTVL` | `getEarnApy`, `getEarnPoints`, `getEarnTVL` |
-| `GetVault*Parameters`, `VedaVaultDeposit`, `VedaVaultWithdrawal`, etc. | `GetEarn*Parameters`, `EarnDeposit`, `EarnWithdrawal` |
-| `vaultKey: Vault` parameter on the public Earn helpers | Removed (single vault, redundant) |
+| Removed                                                                | New                                                        |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `Vault` enum, `VAULTS` map, `VaultNameMap`                             | (deleted, the SDK now exposes a single Bitcoin Earn vault) |
+| `getVaultDeposits`, `getVaultDepositsAllChains`                        | `getEarnDeposits`, `getEarnDepositsAllChains`              |
+| `getVaultWithdrawals`, `getVaultWithdrawalsAllChains`                  | `getEarnWithdrawals`, `getEarnWithdrawalsAllChains`        |
+| `getVaultMinimumDeposit`, `previewVaultDeposit`                        | `getEarnMinimumDeposit`, `previewEarnDeposit`              |
+| `getVaultApy`, `getVaultPoints`, `getVaultTVL`                         | `getEarnApy`, `getEarnPoints`, `getEarnTVL`                |
+| `GetVault*Parameters`, `VedaVaultDeposit`, `VedaVaultWithdrawal`, etc. | `GetEarn*Parameters`, `EarnDeposit`, `EarnWithdrawal`      |
+| `vaultKey: Vault` parameter on the public Earn helpers                 | Removed (single vault, redundant)                          |
 
 ```ts
 // Before

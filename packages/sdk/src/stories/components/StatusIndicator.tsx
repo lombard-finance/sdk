@@ -13,7 +13,8 @@ export function StatusIndicator({
   active,
   activeLabel = 'Active',
   inactiveLabel = 'Inactive',
-  showLabel = true }: StatusIndicatorProps) {
+  showLabel = true,
+}: StatusIndicatorProps) {
   const backgroundColor = active ? '#198754' : '#dc3545';
 
   return (
@@ -23,7 +24,8 @@ export function StatusIndicator({
         style={{
           width: '12px',
           height: '12px',
-          backgroundColor }}
+          backgroundColor,
+        }}
       />
       {showLabel && (
         <span className="fw-semibold">

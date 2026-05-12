@@ -20,14 +20,16 @@ import { LombardError } from '../../../../shared/errors';
 import type { StakeEventMap } from '../../../../shared/events';
 import {
   amountSchema,
-  validatePrepareParams } from '../../../../shared/validation';
+  validatePrepareParams,
+} from '../../../../shared/validation';
 import { toSatoshi } from '../../../../utils/satoshi';
 import { envToSolanaNetwork } from '../../utils';
 import { isStakeSupported, solanaStakeConfig } from './config';
 import type {
   ISolanaStake,
   SolanaStakeParams,
-  SolanaStakePrepareParams } from './types';
+  SolanaStakePrepareParams,
+} from './types';
 
 export class SolanaStake
   extends BaseAction<StakeEventMap, NonEvmOperationStatus>
@@ -46,17 +48,13 @@ export class SolanaStake
     this.env = ctx.env;
 
     if (
-      !isStakeSupported(
-        params.chain,
-        params.assetIn,
-        params.assetOut,
-        this.env,
-      )
+      !isStakeSupported(params.chain, params.assetIn, params.assetOut, this.env)
     ) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
         chain: params.chain,
-        env: this.env });
+        env: this.env,
+      });
     }
   }
 
@@ -77,13 +75,15 @@ export class SolanaStake
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
-        destChain: this.params.chain });
+        destChain: this.params.chain,
+      });
       this._amount = validated.amount;
       this._recipient = validated.recipient;
 
       this.emitProgress({
         status: NonEvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, minting: StepStatus.IDLE } });
+        steps: { burning: StepStatus.IDLE, minting: StepStatus.IDLE },
+      });
     }, NonEvmOperationStatus.READY);
   }
 
@@ -100,7 +100,8 @@ export class SolanaStake
 
       this.emitProgress({
         status: NonEvmOperationStatus.READY,
-        steps: { burning: StepStatus.PENDING, minting: StepStatus.IDLE } });
+        steps: { burning: StepStatus.PENDING, minting: StepStatus.IDLE },
+      });
 
       const amountInSatoshis = toSatoshi(amount).toString();
       const network = envToSolanaNetwork(this.env);
@@ -109,14 +110,16 @@ export class SolanaStake
         amount: amountInSatoshis,
         recipient,
         network,
-        env: this.env });
+        env: this.env,
+      });
 
       this._txHash = signature;
 
       this.emitProgress({
         status: NonEvmOperationStatus.CONFIRMING,
         steps: { burning: StepStatus.COMPLETE, minting: StepStatus.PENDING },
-        txHash: signature });
+        txHash: signature,
+      });
 
       this.emitCompleted();
 
@@ -127,6 +130,7 @@ export class SolanaStake
   private get prepareSchema() {
     return z.object({
       amount: amountSchema,
-      recipient: solanaStakeConfig.recipientSchema });
+      recipient: solanaStakeConfig.recipientSchema,
+    });
   }
 }

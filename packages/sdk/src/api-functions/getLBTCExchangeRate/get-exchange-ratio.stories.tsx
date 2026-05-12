@@ -13,7 +13,8 @@ const meta = {
   component: StoryView,
   tags: ['autodocs'],
   decorators: [functionType('api-get')],
-  argTypes: { ...envSelector } } satisfies Meta<typeof StoryView>;
+  argTypes: { ...envSelector },
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -21,7 +22,9 @@ type Story = StoryObj<typeof meta>;
 
 export const WithDefaults: Story = {
   args: {
-    env: DEFAULT_ENV } };
+    env: DEFAULT_ENV,
+  },
+};
 
 export function StoryView(props: Parameters<typeof getExchangeRatio>[0]) {
   const { data, error, isLoading, refetch } = useQuery(

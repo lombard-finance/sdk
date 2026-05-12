@@ -21,7 +21,8 @@ describe('BtcStakeAndDeploy Interface', () => {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC' };
+        vault: 'LBTC',
+      };
 
       expect(params.assetOut).toBe(AssetId.LBTC);
     });
@@ -31,7 +32,8 @@ describe('BtcStakeAndDeploy Interface', () => {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC' };
+        vault: 'LBTC',
+      };
 
       expect(params.protocol).toBe('veda');
     });
@@ -41,15 +43,16 @@ describe('BtcStakeAndDeploy Interface', () => {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         protocol: 'veda',
-        vault: 'LBTC' };
+        vault: 'LBTC',
+      };
 
       expect(params.vault).toBe('LBTC');
     });
 
     it('should support different protocols', () => {
       const protocols = ['corn-silo', 'euler-lbtc', 'aave'];
-      
-      protocols.forEach(protocol => {
+
+      protocols.forEach((protocol) => {
         expect(typeof protocol).toBe('string');
       });
     });
@@ -59,7 +62,8 @@ describe('BtcStakeAndDeploy Interface', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0' };
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      };
 
       expect(params.amount).toBe('0.1');
       expect(params.recipient).toBeDefined();
@@ -75,7 +79,7 @@ describe('BtcStakeAndDeploy Interface', () => {
         'address_ready',
       ];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -83,7 +87,10 @@ describe('BtcStakeAndDeploy Interface', () => {
 
   describe('Method Signatures', () => {
     it('should define prepare method', () => {
-      type PrepareMethod = (params: { amount: string; recipient: string }) => Promise<void>;
+      type PrepareMethod = (params: {
+        amount: string;
+        recipient: string;
+      }) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });
@@ -121,7 +128,8 @@ describe('BtcStakeAndDeploy Interface', () => {
       const existingSignature = {
         signature: '0xexistingsig',
         expirationDate: '2025-01-01',
-        depositAmount: '0.1' };
+        depositAmount: '0.1',
+      };
 
       expect(existingSignature.signature).toBeDefined();
     });
@@ -148,7 +156,7 @@ describe('BtcStakeAndDeploy Interface', () => {
 
     it('should handle signature already exists error (Bug #7)', () => {
       const errorMessage = 'stake and bake signature already exists';
-      
+
       const isExistingSignatureError = (message: string): boolean => {
         return message.toLowerCase().includes('signature already exists');
       };
@@ -159,13 +167,16 @@ describe('BtcStakeAndDeploy Interface', () => {
 
   describe('Event Emissions', () => {
     it('should emit progress events', () => {
-      const handler = vi.fn((progress: { status: string; steps?: Record<string, string> }) => {
-        expect(progress.status).toBeDefined();
-      });
+      const handler = vi.fn(
+        (progress: { status: string; steps?: Record<string, string> }) => {
+          expect(progress.status).toBeDefined();
+        },
+      );
 
       handler({
         status: 'address_ready',
-        steps: { created: 'complete', deploying: 'idle' } });
+        steps: { created: 'complete', deploying: 'idle' },
+      });
 
       expect(handler).toHaveBeenCalledOnce();
     });
@@ -185,4 +196,3 @@ describe('BtcStakeAndDeploy Interface', () => {
     });
   });
 });
-

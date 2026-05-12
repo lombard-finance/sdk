@@ -36,7 +36,8 @@ export interface IStoreStakeAndBakeSignatureParams extends IEnvParam {
 export async function storeStakeAndBakeSignature({
   signature,
   typedData,
-  env }: IStoreStakeAndBakeSignatureParams): Promise<IStoreStakeAndBakeSignatureStatus> {
+  env,
+}: IStoreStakeAndBakeSignatureParams): Promise<IStoreStakeAndBakeSignatureStatus> {
   const { baseApiUrl } = getApiConfig(env);
 
   try {
@@ -46,7 +47,9 @@ export async function storeStakeAndBakeSignature({
       {
         params: {
           typed_data: typedData,
-          signature: signature || EMPTY_SIGNATURE } },
+          signature: signature || EMPTY_SIGNATURE,
+        },
+      },
     );
 
     return data.status;

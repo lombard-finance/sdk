@@ -5,10 +5,12 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
-  wagmiDecorator } from '../../stories/components/decorators';
+  wagmiDecorator,
+} from '../../stories/components/decorators';
 import {
   canPerformAction,
-  useConnection } from '../../stories/hooks/useConnection';
+  useConnection,
+} from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
 import { signLbtcDestinationAddr } from './signLbtcDestinationAddr';
 
@@ -16,7 +18,8 @@ const meta = {
   title: 'write/signLbtcDestionationAddr',
   component: StoryView,
   tags: ['autodocs'],
-  decorators: [wagmiDecorator, functionType('write')] } satisfies Meta<typeof StoryView>;
+  decorators: [wagmiDecorator, functionType('write')],
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -31,7 +34,8 @@ export function StoryView() {
     return signLbtcDestinationAddr({
       account: connection.account.address,
       chainId: connection.account.chainId,
-      provider: connection.provider });
+      provider: connection.provider,
+    });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);

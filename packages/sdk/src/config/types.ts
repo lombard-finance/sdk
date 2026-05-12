@@ -14,7 +14,8 @@ import type {
   EvmProvider,
   SolanaProvider,
   StarknetProvider,
-  SuiProvider } from './providers';
+  SuiProvider,
+} from './providers';
 
 /**
  * Provider getter function

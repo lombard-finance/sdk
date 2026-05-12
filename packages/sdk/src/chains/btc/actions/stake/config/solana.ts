@@ -14,17 +14,20 @@ import type { SolanaService } from '@lombard.finance/sdk-common';
 import { Env } from '@lombard.finance/sdk-common';
 
 import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
-import { LombardError, ValidationErrorCode } from '../../../../../shared/errors';
+import {
+  LombardError,
+  ValidationErrorCode,
+} from '../../../../../shared/errors';
 import { solanaAddressSchema } from '../../../../../shared/validation';
 import { isSolanaChain } from '../../../../../utils/chain';
 import type { ChainConfig } from './types';
 
 /**
  * Map CAIP-2 Solana chain identifier to SolanaNetwork format.
- * 
+ *
  * The Solana SDK's signLbtcDestination expects network names like 'devnet', 'mainnet-beta',
  * but the SDK uses CAIP-2 chain identifiers with genesis hash references.
- * 
+ *
  * @param chainId - CAIP-2 chain identifier (e.g., 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1')
  * @returns SolanaNetwork format (e.g., 'devnet')
  */
@@ -38,7 +41,8 @@ function chainToSolanaNetwork(chainId: string): string {
     // Legacy format (solana:network-name)
     'solana:mainnet-beta': 'mainnet-beta',
     'solana:devnet': 'devnet',
-    'solana:testnet': 'testnet' };
+    'solana:testnet': 'testnet',
+  };
 
   const network = CHAIN_TO_NETWORK[chainId];
   if (!network) {
@@ -62,14 +66,16 @@ export const solanaConfig: ChainConfig = {
   routes: [
     {
       sourceChains: [Chain.BITCOIN_MAINNET],
-      envs: [Env.prod] },
+      envs: [Env.prod],
+    },
     {
       sourceChains: [Chain.BITCOIN_SIGNET],
-      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] },
+      envs: [Env.testnet, Env.stage, Env.dev, Env.ibc],
+    },
   ],
 
   // Derived from ASSET_CATALOG - Solana chains where LBTC is deployed
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain =>
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) =>
     isSolanaChain(chain),
   ),
 
@@ -86,7 +92,9 @@ export const solanaConfig: ChainConfig = {
     // Convert CAIP-2 chain ID to SolanaNetwork format (e.g., 'devnet')
     const network = chainToSolanaNetwork(chainId as string);
     const { signature } = await solana.signLbtcDestination({
-      network });
+      network,
+    });
 
     return { signature };
-  } };
+  },
+};

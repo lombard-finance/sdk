@@ -5,8 +5,7 @@ import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
-import {
-  EARN_VAULT, isEarnChain } from '../../vaults/lib/config';
+import { EARN_VAULT, isEarnChain } from '../../vaults/lib/config';
 import { getShareValueInternal } from '../getShareValue/getShareValue';
 
 export interface IGetSharesByAddressParameters extends CommonParameters {
@@ -33,7 +32,8 @@ interface IGetSharesByAddressResponse {
 export async function getSharesByAddressInternal({
   chainId,
   rpcUrl,
-  address }: IGetSharesByAddressParameters): Promise<IGetSharesByAddressResponse> {
+  address,
+}: IGetSharesByAddressParameters): Promise<IGetSharesByAddressResponse> {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -47,7 +47,8 @@ export async function getSharesByAddressInternal({
     const lensContract = getContract({
       abi: vault.lensContract.abi,
       address: vault.lensContract.address,
-      client });
+      client,
+    });
 
     const balanceValue = await lensContract.read.balanceOf([
       address,
@@ -58,12 +59,14 @@ export async function getSharesByAddressInternal({
 
     const exchangeRate = await getShareValueInternal({
       chainId,
-      rpcUrl });
+      rpcUrl,
+    });
 
     return {
       balance,
       exchangeRate,
-      balanceLbtc: balance.multipliedBy(exchangeRate) };
+      balanceLbtc: balance.multipliedBy(exchangeRate),
+    };
   } catch (error) {
     const errorMessage = getErrorMessage(error);
     throw new Error(errorMessage);

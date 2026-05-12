@@ -5,8 +5,7 @@ import { makePublicClient } from '../../clients/public-client';
 import { CommonParameters } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 import { fromSatoshi } from '../../utils/satoshi';
-import {
-  EARN_VAULT, isEarnChain } from '../../vaults/lib/config';
+import { EARN_VAULT, isEarnChain } from '../../vaults/lib/config';
 
 export type IGetShareValueParameters = CommonParameters;
 
@@ -19,7 +18,8 @@ export type IGetShareValueParameters = CommonParameters;
  */
 export async function getShareValueInternal({
   chainId,
-  rpcUrl }: IGetShareValueParameters): Promise<BigNumber> {
+  rpcUrl,
+}: IGetShareValueParameters): Promise<BigNumber> {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -33,7 +33,8 @@ export async function getShareValueInternal({
     const accountantContract = getContract({
       abi: vault.accountantContract.abi,
       address: vault.accountantContract.address,
-      client });
+      client,
+    });
 
     const exchangeRate = await accountantContract.read.getRate();
     return fromSatoshi(String(exchangeRate));

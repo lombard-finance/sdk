@@ -174,8 +174,8 @@ export const DEFI_REGISTRY = {
     },
 
     // Add wBTC
-    [Token.wBTC]: forEnvs([Env.prod, Env.testnet], env => {
-      return forChains([ChainId.ethereum, ChainId.base], chain => ({
+    [Token.wBTC]: forEnvs([Env.prod, Env.testnet], (env) => {
+      return forChains([ChainId.ethereum, ChainId.base], (chain) => ({
         approvalConfig: WBTC_PERMIT_CONFIG,
         spenderContract: EARN_VAULT_SPENDER_CONTRACTS[chain],
       }));
@@ -236,7 +236,7 @@ export const DEFI_REGISTRY = {
   Aave: {
     // LBTC uses standard permit
     [Token.LBTC]: forEnvs([Env.prod], () => {
-      return forChains([ChainId.ethereum, ChainId.base], chain => ({
+      return forChains([ChainId.ethereum, ChainId.base], (chain) => ({
         approvalConfig: LBTC_PERMIT_CONFIG, // Reuse existing config
         spenderContract: AAVE_SPENDER_CONTRACTS[chain],
       }));
@@ -334,7 +334,7 @@ await signStakeAndBake({
 Generate config for multiple chains with same settings:
 
 ```typescript
-forChains([ChainId.ethereum, ChainId.base, ChainId.bsc], chain => ({
+forChains([ChainId.ethereum, ChainId.base, ChainId.bsc], (chain) => ({
   approvalConfig: LBTC_PERMIT_CONFIG,
   spenderContract: SPENDER_CONTRACTS[chain],
 }));
@@ -352,7 +352,7 @@ forChains([ChainId.ethereum, ChainId.base, ChainId.bsc], chain => ({
 Generate config for multiple environments:
 
 ```typescript
-forEnvs([Env.prod, Env.testnet], env => ({
+forEnvs([Env.prod, Env.testnet], (env) => ({
   // Config for this env
 }));
 

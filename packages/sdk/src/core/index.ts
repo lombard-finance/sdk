@@ -31,7 +31,8 @@ export {
   isEvmChain,
   isMainnet,
   isTestnet,
-  parseChainIdentifier } from './chains';
+  parseChainIdentifier,
+} from './chains';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Asset exports
@@ -60,7 +61,8 @@ export {
   getSupportedAssets,
   isAssetDeployed,
   isAssetId,
-  usesAssetRouter } from './assets';
+  usesAssetRouter,
+} from './assets';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Common types

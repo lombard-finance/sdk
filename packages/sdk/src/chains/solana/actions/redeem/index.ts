@@ -10,4 +10,5 @@ export type {
   ISolanaRedeem,
   SolanaRedeemParams,
   SolanaRedeemPrepareParams,
-  SolanaRedeemProgress } from './types';
+  SolanaRedeemProgress,
+} from './types';

@@ -53,4 +53,3 @@ export const SDK_RUNTIME: 'browser' | 'node' | 'unknown' = (() => {
   }
   return 'unknown';
 })();
-

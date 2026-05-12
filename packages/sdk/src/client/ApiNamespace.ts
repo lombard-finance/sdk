@@ -20,7 +20,7 @@
  * const points = await sdk.api.points('0x...');
  *
  * // Fetch LBTC exchange rate
-   * const rate = await sdk.api.exchangeRatio();
+ * const rate = await sdk.api.exchangeRatio();
  *
  * // Get existing BTC deposit address
  * const depositAddr = await sdk.api.depositAddress('0x...', ChainId.ethereum);
@@ -35,21 +35,30 @@ import type BigNumber from 'bignumber.js';
 import { getDepositBtcAddress } from '../api-functions/getDepositBtcAddress/getDepositBtcAddress';
 import {
   type Deposit,
-  getDepositsByAddress } from '../api-functions/getDepositsByAddress/getDepositsByAddress';
+  getDepositsByAddress,
+} from '../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { getExchangeRatio } from '../api-functions/getLBTCExchangeRate/get-exchange-ratio';
 import {
   getPointsByAddress,
   type IPointsByAddressSeason1,
-  type IPointsByAddressSeason2 } from '../api-functions/getPointsByAddress/getPointsByAddress';
+  type IPointsByAddressSeason2,
+} from '../api-functions/getPointsByAddress/getPointsByAddress';
 import {
   getUnstakesByAddress,
-  type Unstake } from '../api-functions/getUnstakesByAddress/getUnstakesByAddress';
-import type { ChainId, SolanaChain, StarknetChainId, SuiChain } from '../common/chains';
+  type Unstake,
+} from '../api-functions/getUnstakesByAddress/getUnstakesByAddress';
+import type {
+  ChainId,
+  SolanaChain,
+  StarknetChainId,
+  SuiChain,
+} from '../common/chains';
 import type { Token } from '../tokens/token-addresses';
 import {
   type EarnWithdrawals,
   getEarnWithdrawals,
-  getEarnWithdrawalsAllChains} from '../vaults/lib/ops/get-vault-withdrawals';
+  getEarnWithdrawalsAllChains,
+} from '../vaults/lib/ops/get-vault-withdrawals';
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -85,7 +94,11 @@ export interface DepositAddressOptions {
 }
 
 /** Destination chain types for deposit address */
-export type DestinationChain = ChainId | SuiChain | SolanaChain | StarknetChainId;
+export type DestinationChain =
+  | ChainId
+  | SuiChain
+  | SolanaChain
+  | StarknetChainId;
 
 /** Options for fetching vault withdrawals */
 export interface VaultWithdrawalsOptions {
@@ -165,7 +178,10 @@ export class ApiNamespace {
    * const redeems = await sdk.api.unstakes('0x1234...', { to_native: true });
    * ```
    */
-  async unstakes(address: string, options?: UnstakeOptions): Promise<Unstake[]> {
+  async unstakes(
+    address: string,
+    options?: UnstakeOptions,
+  ): Promise<Unstake[]> {
     // Future: if (this.apiVersion === 'v2') return this.unstakesV2(address, options);
     return getUnstakesByAddress({ address, env: this.env, options });
   }
@@ -181,10 +197,7 @@ export class ApiNamespace {
    * @param season - Season number (1)
    * @returns Promise resolving to Season 1 points breakdown
    */
-  async points(
-    address: string,
-    season: 1,
-  ): Promise<IPointsByAddressSeason1>;
+  async points(address: string, season: 1): Promise<IPointsByAddressSeason1>;
 
   /**
    * Fetch Lux points for an address (Season 2).
@@ -193,10 +206,7 @@ export class ApiNamespace {
    * @param season - Season number (2)
    * @returns Promise resolving to Season 2 points breakdown
    */
-  async points(
-    address: string,
-    season: 2,
-  ): Promise<IPointsByAddressSeason2>;
+  async points(address: string, season: 2): Promise<IPointsByAddressSeason2>;
 
   /**
    * Fetch Lux points for an address (defaults to current season).
@@ -291,7 +301,8 @@ export class ApiNamespace {
       chainId,
       env: this.env,
       partnerId: options?.partnerId,
-      token: options?.token });
+      token: options?.token,
+    });
   }
 
   /* -------------------------------------------------------------------------- */
@@ -337,13 +348,15 @@ export class ApiNamespace {
         account,
         chainId: options.chainId,
         rpcUrl: options.rpcUrl,
-        env: this.env });
+        env: this.env,
+      });
     }
 
     // Fetch from all chains
     return getEarnWithdrawalsAllChains({
       account,
-      rpcUrl: options?.rpcUrl });
+      rpcUrl: options?.rpcUrl,
+    });
   }
 
   /* -------------------------------------------------------------------------- */
@@ -359,4 +372,3 @@ export class ApiNamespace {
     return this.apiVersion;
   }
 }
-

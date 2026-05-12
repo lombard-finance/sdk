@@ -58,7 +58,6 @@ export interface FeatureConfig {
    * @default false - Not yet fully supported
    */
   isEtherlinkEnabled: boolean;
-
 }
 
 export const featureConfig: FeatureConfig = {
@@ -74,4 +73,5 @@ export const featureConfig: FeatureConfig = {
   isSwellchainEnabled: false,
   isTacEnabled: false,
   isBobEnabled: false,
-  isEtherlinkEnabled: false };
+  isEtherlinkEnabled: false,
+};

@@ -14,7 +14,8 @@ import type {
   BTCK_ABI,
   LBTC_ABI,
   NATIVE_LBTC_ABI,
-  STLBTC_ABI } from './abis';
+  STLBTC_ABI,
+} from './abis';
 
 /**
  * Address kinds for tokens that have multiple contract addresses.
@@ -61,7 +62,8 @@ export enum AddressKind {
    * The token contract address (standard ERC20).
    * Used for permit signatures, balance queries, and standard ERC20 operations.
    */
-  Token = 'token' }
+  Token = 'token',
+}
 
 /**
  * Address structure for tokens with both token and adapter addresses.
@@ -81,7 +83,8 @@ export enum ContractVersion {
   /** Legacy LBTC contract (pre-AssetRouter) */
   Legacy = 'legacy',
   /** Upgraded contract with AssetRouter support */
-  Upgraded = 'upgraded' }
+  Upgraded = 'upgraded',
+}
 
 /**
  * Contract types supported by the SDK.
@@ -98,7 +101,8 @@ export enum ContractType {
   /** Asset Router contract */
   AssetRouter = 'asset_router',
   /** Standard ERC20 */
-  ERC20 = 'erc20' }
+  ERC20 = 'erc20',
+}
 
 /**
  * ABI type mapping for contract types.

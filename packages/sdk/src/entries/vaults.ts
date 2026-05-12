@@ -10,7 +10,8 @@
 export {
   type EarnDeposit,
   type EarnWithdrawal,
-  type EarnWithdrawals,  getEarnApy,
+  type EarnWithdrawals,
+  getEarnApy,
   type GetEarnApyParameters,
   getEarnDeposits,
   getEarnDepositsAllChains,
@@ -27,4 +28,5 @@ export {
   type GetEarnWithdrawalsAllChainsParameters,
   type GetEarnWithdrawalsParameters,
   previewEarnDeposit,
-  type PreviewEarnDepositParameters } from '../vaults';
+  type PreviewEarnDepositParameters,
+} from '../vaults';

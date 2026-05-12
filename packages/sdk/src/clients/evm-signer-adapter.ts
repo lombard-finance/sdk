@@ -6,7 +6,8 @@ import {
   isHex,
   LocalAccount,
   TransactionSerializable,
-  WalletClient } from 'viem';
+  WalletClient,
+} from 'viem';
 
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId } from '../common/chains';
 
@@ -209,7 +210,8 @@ export function createAccountFromSigner(
         chainId: transaction.chainId
           ? `0x${transaction.chainId.toString(16)}`
           : `0x${chain.id.toString(16)}`,
-        nonce: transaction.nonce };
+        nonce: transaction.nonce,
+      };
 
       // Validate before signing
       validateTransactionRequest(evmTx, 'signTransaction');
@@ -219,7 +221,7 @@ export function createAccountFromSigner(
       // because we want the signed transaction, not to broadcast it yet
       let signedTx: Hex | undefined;
 
-      await signer.sign(evmTx, async serialized => {
+      await signer.sign(evmTx, async (serialized) => {
         signedTx = serialized;
         // Return a dummy hash - the actual broadcasting happens via walletClient
         return serialized;
@@ -259,7 +261,8 @@ export function createAccountFromSigner(
         'Typed data signing is not supported by this adapter',
         { method: 'signTypedData' },
       );
-    } };
+    },
+  };
 
   return customAccount;
 }

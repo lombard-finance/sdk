@@ -7,7 +7,7 @@
 import type { LombardConfig } from '../../../../config/types';
 import type { SuiCoreContext } from '../../../../shared/context';
 import { SuiUnstake } from './SuiUnstake';
-import type { ISuiUnstake,SuiUnstakeParams } from './types';
+import type { ISuiUnstake, SuiUnstakeParams } from './types';
 
 /**
  * Create Sui unstake from context

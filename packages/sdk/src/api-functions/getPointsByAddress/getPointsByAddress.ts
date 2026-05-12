@@ -178,7 +178,8 @@ function getLombardPointsUrl(
  */
 async function fetchPointsSeason1({
   address,
-  env }: Omit<
+  env,
+}: Omit<
   IGetPointsByAddressParameters,
   'season'
 >): Promise<IPointsByAddressSeason1> {
@@ -200,7 +201,8 @@ async function fetchPointsSeason1({
     totalPoints: parse(data.total).toNumber(),
     protocolPointsBreakdown: toProtocolBreakdown(data.protocol_points_map),
     badgesPoints: parse(data.badges).toNumber(),
-    totalWithoutBadgesPoints: parse(data.total_without_badges).toNumber() };
+    totalWithoutBadgesPoints: parse(data.total_without_badges).toNumber(),
+  };
 }
 
 /**
@@ -211,7 +213,8 @@ async function fetchPointsSeason1({
  */
 async function fetchPointsSeason2({
   address,
-  env }: Omit<
+  env,
+}: Omit<
   IGetPointsByAddressParameters,
   'season'
 >): Promise<IPointsByAddressSeason2> {
@@ -228,7 +231,8 @@ async function fetchPointsSeason2({
     checkinPoints: parse(data.checkin_points).toNumber(),
     totalPoints: parse(data.total).toNumber(),
     protocolPointsBreakdown: toProtocolBreakdown(data.protocol_points_map),
-    totalWithoutBadgesPoints: parse(data.total).toNumber() };
+    totalWithoutBadgesPoints: parse(data.total).toNumber(),
+  };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -272,7 +276,8 @@ export async function getPointsByAddress(
 export async function getPointsByAddress({
   address,
   env,
-  season = CURRENT_SEASON }: IGetPointsByAddressParameters): Promise<
+  season = CURRENT_SEASON,
+}: IGetPointsByAddressParameters): Promise<
   IPointsByAddressSeason1 | IPointsByAddressSeason2
 > {
   return season === 2

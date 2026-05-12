@@ -10,4 +10,5 @@ export type {
   ISolanaStake,
   SolanaStakeParams,
   SolanaStakePrepareParams,
-  SolanaStakeProgress } from './types';
+  SolanaStakeProgress,
+} from './types';

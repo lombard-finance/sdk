@@ -62,13 +62,15 @@ export type GetEarnApyParameters = IEnvParam & {
 export async function getEarnApy({
   aggregationPeriod = 7,
   chainId = ChainId.ethereum,
-  env }: GetEarnApyParameters) {
+  env,
+}: GetEarnApyParameters) {
   const response = await getVaultPerformance({
     aggregationPeriod,
     chainId,
-    env });
+    env,
+  });
 
-  const apys = response.map(r => {
+  const apys = response.map((r) => {
     const allocations = Object.entries(r.chain_allocation)
       .map(([network, value]) => [
         NETWORK_TO_CHAIN_ID_MAP[network],
@@ -83,20 +85,22 @@ export async function getEarnApy({
         {} as Partial<Record<ChainId, BigNumber>>,
       );
 
-    const breakdown = r.real_apy_breakdown.map(b => ({
+    const breakdown = r.real_apy_breakdown.map((b) => ({
       allocations: BigNumber(b.allocation),
       apy: BigNumber(b.apy),
       chainId: NETWORK_TO_CHAIN_ID_MAP[b.chain],
-      protocol: b.protocol }));
+      protocol: b.protocol,
+    }));
 
     return {
       apy: BigNumber(r.apy),
       allocations,
       breakdown,
-      timestamp: new Date(r.timestamp) };
+      timestamp: new Date(r.timestamp),
+    };
   });
 
-  return orderBy(apys, a => a.timestamp.getTime(), 'desc');
+  return orderBy(apys, (a) => a.timestamp.getTime(), 'desc');
 }
 
 type GetVaultPerformanceParameters = {
@@ -112,13 +116,15 @@ const CHAIN_ID_TO_NETWORK_MAP: Record<EarnChain, string> = {
   // to return the aggregated data for all vault chains.
   [ChainId.base]: 'base',
   [ChainId.binanceSmartChain]: 'bnb',
-  [ChainId.corn]: 'corn' };
+  [ChainId.corn]: 'corn',
+};
 
 const NETWORK_TO_CHAIN_ID_MAP: Record<string, EarnChain> = {
   ethereum: ChainId.ethereum,
   base: ChainId.base,
   bnb: ChainId.binanceSmartChain,
-  corn: ChainId.corn };
+  corn: ChainId.corn,
+};
 
 /**
  * Gets the raw response of the performance apy api for the provided vault.
@@ -126,7 +132,8 @@ const NETWORK_TO_CHAIN_ID_MAP: Record<string, EarnChain> = {
 async function getVaultPerformance({
   aggregationPeriod = 7,
   chainId,
-  env }: GetVaultPerformanceParameters) {
+  env,
+}: GetVaultPerformanceParameters) {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -150,7 +157,8 @@ async function getVaultPerformance({
 
   const params = new URLSearchParams({
     aggregation_period: String(aggregationPeriod),
-    historical: 'true' });
+    historical: 'true',
+  });
   const url = `${bffApiUrl}/sevenseas-api/performance/${network}/${vault.vaultContract.address}?${params.toString()}`;
 
   const { data } = await axios.get<PerformancePayload>(url);

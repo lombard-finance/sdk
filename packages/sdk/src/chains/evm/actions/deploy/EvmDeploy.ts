@@ -21,7 +21,10 @@ import { z } from 'zod';
 
 import { makePublicClient } from '../../../../clients/public-client';
 import { makeWalletClient } from '../../../../clients/wallet-client';
-import { CHAIN_ID_TO_VIEM_CHAIN_MAP, type ChainId } from '../../../../common/chains';
+import {
+  CHAIN_ID_TO_VIEM_CHAIN_MAP,
+  type ChainId,
+} from '../../../../common/chains';
 import { depositEarn } from '../../../../contract-functions/depositEarn';
 import { DeployProtocol } from '../../../../core';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
@@ -31,8 +34,9 @@ import type { EvmCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
 import type { DeployEventMap } from '../../../../shared/events';
 import {
-    evmAmountSchema,
-    validatePrepareParams } from '../../../../shared/validation';
+  evmAmountSchema,
+  validatePrepareParams,
+} from '../../../../shared/validation';
 import { Token } from '../../../../tokens/token-addresses';
 import { getTokenInfo, toBaseDenomination } from '../../../../tokens/tokens';
 import toBigInt from '../../../../utils/numbers';
@@ -40,13 +44,15 @@ import { waitForTransactionReceipt } from '../../../../utils/transaction-executo
 import {
   BTCE_VAULT,
   EARN_VAULT,
-  isBtceVaultChain } from '../../../../vaults/lib/config';
+  isBtceVaultChain,
+} from '../../../../vaults/lib/config';
 import { depositInternal } from '../../../../vaults/lib/ops/deposit';
 import { evmConfig } from './config';
 import type {
-    EvmDeployParams,
-    EvmDeployPrepareParams,
-    IEvmDeploy } from './types';
+  EvmDeployParams,
+  EvmDeployPrepareParams,
+  IEvmDeploy,
+} from './types';
 
 export class EvmDeploy
   extends BaseAction<DeployEventMap, EvmOperationStatus>
@@ -101,7 +107,9 @@ export class EvmDeploy
    */
   private getSpenderAddress(): Address {
     if (this.isVedaBtcePath()) {
-      return BTCE_VAULT.contracts[this._chainId as keyof typeof BTCE_VAULT.contracts];
+      return BTCE_VAULT.contracts[
+        this._chainId as keyof typeof BTCE_VAULT.contracts
+      ];
     }
     return EARN_VAULT.vaultContract.address;
   }
@@ -123,7 +131,8 @@ export class EvmDeploy
       }
 
       const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts' });
+        method: 'eth_accounts',
+      });
       const account = (accounts as string[])[0] as `0x${string}`;
       if (!account) {
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
@@ -132,9 +141,16 @@ export class EvmDeploy
       this._account = account;
       this._chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
-      const depositToken = await getTokenInfo(Token.LBTC, this._chainId, this.ctx.env);
+      const depositToken = await getTokenInfo(
+        Token.LBTC,
+        this._chainId,
+        this.ctx.env,
+      );
       if (!depositToken) {
-        throw LombardError.invalidParameter('token', 'Could not get LBTC token info');
+        throw LombardError.invalidParameter(
+          'token',
+          'Could not get LBTC token info',
+        );
       }
 
       const spender = this.getSpenderAddress();
@@ -143,7 +159,8 @@ export class EvmDeploy
         address: depositToken.address,
         abi: erc20Abi,
         functionName: 'allowance',
-        args: [account, spender] });
+        args: [account, spender],
+      });
 
       const amount = new BigNumber(validated.amount);
       const amountBase = toBaseDenomination(amount, depositToken.decimals);
@@ -154,12 +171,17 @@ export class EvmDeploy
       if (this._needsApproval) {
         this.emitProgress({
           status: EvmOperationStatus.NEEDS_APPROVAL,
-          steps: { approval: StepStatus.PENDING, deploying: StepStatus.IDLE } });
+          steps: { approval: StepStatus.PENDING, deploying: StepStatus.IDLE },
+        });
         this.updateStatus(EvmOperationStatus.NEEDS_APPROVAL);
       } else {
         this.emitProgress({
           status: EvmOperationStatus.READY,
-          steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING } });
+          steps: {
+            approval: StepStatus.COMPLETE,
+            deploying: StepStatus.PENDING,
+          },
+        });
         this.updateStatus(EvmOperationStatus.READY);
       }
     });
@@ -178,19 +200,29 @@ export class EvmDeploy
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
-      const depositToken = await getTokenInfo(Token.LBTC, this._chainId, this.ctx.env);
+      const depositToken = await getTokenInfo(
+        Token.LBTC,
+        this._chainId,
+        this.ctx.env,
+      );
       if (!depositToken) {
-        throw LombardError.invalidParameter('token', 'Could not get LBTC token info');
+        throw LombardError.invalidParameter(
+          'token',
+          'Could not get LBTC token info',
+        );
       }
 
       const amount = new BigNumber(this._amount);
-      const amountBase = toBigInt(toBaseDenomination(amount, depositToken.decimals));
+      const amountBase = toBigInt(
+        toBaseDenomination(amount, depositToken.decimals),
+      );
       const spender = this.getSpenderAddress();
 
       const publicClient = makePublicClient({ chainId: this._chainId });
       const walletClient = makeWalletClient({
         provider: provider as EIP1193Provider,
-        chainId: this._chainId });
+        chainId: this._chainId,
+      });
 
       const { request } = await publicClient.simulateContract({
         account: this._account,
@@ -198,15 +230,21 @@ export class EvmDeploy
         address: depositToken.address,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [spender, amountBase] });
+        args: [spender, amountBase],
+      });
 
       const txHash = await walletClient.writeContract(request);
-      await waitForTransactionReceipt(publicClient, txHash, 'LBTC deposit approval');
+      await waitForTransactionReceipt(
+        publicClient,
+        txHash,
+        'LBTC deposit approval',
+      );
 
       this._needsApproval = false;
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING } });
+        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING },
+      });
     }, EvmOperationStatus.READY);
   }
 
@@ -225,7 +263,8 @@ export class EvmDeploy
 
       this.emitProgress({
         status: EvmOperationStatus.READY,
-        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING } });
+        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.PENDING },
+      });
 
       let txHash: string;
 
@@ -240,7 +279,8 @@ export class EvmDeploy
           account: this._account,
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
-          env: this.ctx.env });
+          env: this.ctx.env,
+        });
       } else {
         // Veda on Corn (no BTCe wrapper) or other protocols:
         // deposit directly into the LBTCv BoringVault teller.
@@ -252,14 +292,19 @@ export class EvmDeploy
           account: this._account,
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
-          env: this.ctx.env });
+          env: this.ctx.env,
+        });
       }
 
       this._txHash = txHash;
 
       this.emitProgress({
         status: EvmOperationStatus.COMPLETED,
-        steps: { approval: StepStatus.COMPLETE, deploying: StepStatus.COMPLETE } });
+        steps: {
+          approval: StepStatus.COMPLETE,
+          deploying: StepStatus.COMPLETE,
+        },
+      });
 
       this.emitCompleted();
 
@@ -270,12 +315,13 @@ export class EvmDeploy
   private get prepareSchema() {
     return z.object({
       amount: evmAmountSchema,
-      protocol: z.string().min(1, 'Protocol is required') });
+      protocol: z.string().min(1, 'Protocol is required'),
+    });
   }
 
   private validateProtocol(protocol: DeployProtocol): void {
     const isSupported = evmConfig.routes.some(
-      route =>
+      (route) =>
         route.protocols.includes(protocol) && route.envs.includes(this.ctx.env),
     );
     if (!isSupported) {

@@ -24,5 +24,5 @@ export {
   // Constants
   MIN_CLAIM_AMOUNT_BTC,
   REQUIRED_CONFIRMATIONS,
-  type StatusSeverity } from './depositStatus';
-
+  type StatusSeverity,
+} from './depositStatus';

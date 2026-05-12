@@ -9,7 +9,9 @@ const mockReadContract = vi.fn();
 
 vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn().mockReturnValue({
-    readContract: (...args: unknown[]) => mockReadContract(...args) }) }));
+    readContract: (...args: unknown[]) => mockReadContract(...args),
+  }),
+}));
 
 vi.mock('../../../tokens/tokens', async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
@@ -19,7 +21,9 @@ vi.mock('../../../tokens/tokens', async (importOriginal) => {
       address: '0x8236a87084f8B84306f72007F36F2618A5634494',
       abi: [],
       symbol: 'LBTC',
-      decimals: 8 }) };
+      decimals: 8,
+    }),
+  };
 });
 
 describe('previewEarnDeposit', () => {
@@ -35,7 +39,8 @@ describe('previewEarnDeposit', () => {
       const result = await previewEarnDeposit({
         amount: '0.001',
         token: Token.LBTC,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(result).toEqual(BigNumber('0.00098039'));
     });
@@ -46,7 +51,8 @@ describe('previewEarnDeposit', () => {
       const result = await previewEarnDeposit({
         amount: '0.00000001', // 1 satoshi
         token: Token.LBTC,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(result).toEqual(BigNumber(0));
     });
@@ -57,7 +63,8 @@ describe('previewEarnDeposit', () => {
 
       const result = await previewEarnDeposit({
         amount: '1.0',
-        token: Token.LBTC });
+        token: Token.LBTC,
+      });
 
       expect(result).toEqual(BigNumber('0.98039215'));
     });
@@ -70,7 +77,8 @@ describe('previewEarnDeposit', () => {
       await previewEarnDeposit({
         amount: '0.0001', // 10000 sats
         token: Token.LBTC,
-        chainId: ChainId.ethereum });
+        chainId: ChainId.ethereum,
+      });
 
       expect(mockReadContract).toHaveBeenCalledTimes(1);
       const callArgs = mockReadContract.mock.calls[0][0];
@@ -97,7 +105,7 @@ describe('previewEarnDeposit', () => {
 
       await previewEarnDeposit({
         amount: '0.001',
-        });
+      });
 
       const callArgs = mockReadContract.mock.calls[0][0];
       expect(callArgs.address).toBe(
@@ -112,7 +120,7 @@ describe('previewEarnDeposit', () => {
 
       const result = await previewEarnDeposit({
         amount: '0.001',
-        });
+      });
 
       expect(result).toEqual(BigNumber('0.00098039'));
     });
@@ -120,22 +128,23 @@ describe('previewEarnDeposit', () => {
 
   describe('error handling', () => {
     it('should throw for zero amount', async () => {
-      await expect(
-        previewEarnDeposit({ amount: '0', }),
-      ).rejects.toThrow(/must be greater than zero/);
+      await expect(previewEarnDeposit({ amount: '0' })).rejects.toThrow(
+        /must be greater than zero/,
+      );
     });
 
     it('should throw for negative amount', async () => {
-      await expect(
-        previewEarnDeposit({ amount: '-0.001', }),
-      ).rejects.toThrow(/must be greater than zero/);
+      await expect(previewEarnDeposit({ amount: '-0.001' })).rejects.toThrow(
+        /must be greater than zero/,
+      );
     });
 
     it('should throw for unsupported chain', async () => {
       await expect(
         previewEarnDeposit({
           amount: '0.001',
-          chainId: ChainId.sepolia }),
+          chainId: ChainId.sepolia,
+        }),
       ).rejects.toThrow(/Unsupported chain id/);
     });
 
@@ -144,7 +153,8 @@ describe('previewEarnDeposit', () => {
         previewEarnDeposit({
           amount: '0.001',
           token: Token.eBTC,
-          chainId: ChainId.base }),
+          chainId: ChainId.base,
+        }),
       ).rejects.toThrow(/not supported on chain/);
     });
   });
@@ -158,7 +168,8 @@ describe('previewEarnDeposit', () => {
       await previewEarnDeposit({
         amount: '0.0001',
         token: Token.LBTC,
-        chainId: ChainId.base });
+        chainId: ChainId.base,
+      });
 
       // Should resolve Ethereum address for Lens query
       expect(getTokenInfo).toHaveBeenCalledWith(
@@ -175,7 +186,7 @@ describe('previewEarnDeposit', () => {
 
       await previewEarnDeposit({
         amount: '0.005',
-        }); // 500000 sats
+      }); // 500000 sats
 
       const callArgs = mockReadContract.mock.calls[0][0];
       expect(callArgs.args[1]).toBe(500000n);
@@ -186,7 +197,7 @@ describe('previewEarnDeposit', () => {
 
       const result = await previewEarnDeposit({
         amount: '0.0001',
-        });
+      });
 
       expect(result).toEqual(BigNumber('0.00009804'));
     });
@@ -196,7 +207,7 @@ describe('previewEarnDeposit', () => {
 
       const result = await previewEarnDeposit({
         amount: 0.0001,
-        });
+      });
 
       expect(result).toEqual(BigNumber('0.00009804'));
     });
@@ -206,7 +217,7 @@ describe('previewEarnDeposit', () => {
 
       const result = await previewEarnDeposit({
         amount: BigNumber('0.0001'),
-        });
+      });
 
       expect(result).toEqual(BigNumber('0.00009804'));
     });

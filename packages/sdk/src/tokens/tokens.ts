@@ -23,7 +23,7 @@ import BTCK_ABI from './abi/BTCK_ABI';
 import { LBTC_ABI } from './abi/LBTC_ABI';
 import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
 import STLBTC_ABI from './abi/STLBTC_ABI';
-import { AddressKind, Token,TOKEN_ADDRESSES } from './token-addresses';
+import { AddressKind, Token, TOKEN_ADDRESSES } from './token-addresses';
 
 export type TokenInfo = {
   address: Address;
@@ -38,7 +38,8 @@ const MAYBE_UPGRADED_CONTRACT_ABI = [
     name: 'getAssetRouter',
     outputs: [{ internalType: 'address', name: '', type: 'address' }],
     stateMutability: 'view',
-    type: 'function' },
+    type: 'function',
+  },
 ] as const;
 const UPGRADED_CONTRACT_POINTER = MAYBE_UPGRADED_CONTRACT_ABI[0].name;
 
@@ -60,7 +61,8 @@ export async function isUpgradedContract(
     const assetRouter = await publicClient.readContract({
       abi: MAYBE_UPGRADED_CONTRACT_ABI,
       address: typeof address === 'string' ? address : address.adapter,
-      functionName: UPGRADED_CONTRACT_POINTER });
+      functionName: UPGRADED_CONTRACT_POINTER,
+    });
     return assetRouter !== zeroAddress;
   } catch {
     return false;
@@ -108,7 +110,7 @@ export const isUpgradedAbi = (
   abi: unknown,
 ): abi is typeof STLBTC_ABI | typeof NATIVE_LBTC_ABI => {
   const redeemForBtcAbi = (abi as Abi).find(
-    a => a.type === 'function' && a.name === UPGRADED_CONTRACT_POINTER,
+    (a) => a.type === 'function' && a.name === UPGRADED_CONTRACT_POINTER,
   );
   return redeemForBtcAbi != null;
 };
@@ -162,7 +164,8 @@ export async function getTokenContractInfo<
   return {
     abi,
     address: typeof address === 'string' ? address : address[addressKind],
-    chainId };
+    chainId,
+  };
 }
 
 export const retrieveTokenProperties = async <
@@ -177,12 +180,15 @@ export const retrieveTokenProperties = async <
       {
         address: tokenContractInfo.address,
         abi: tokenContractInfo.abi as Abi,
-        functionName: 'symbol' },
+        functionName: 'symbol',
+      },
       {
         address: tokenContractInfo.address,
         abi: tokenContractInfo.abi as Abi,
-        functionName: 'decimals' },
-    ] });
+        functionName: 'decimals',
+      },
+    ],
+  });
 
   if (
     symbolResult.status === 'success' &&
@@ -192,7 +198,8 @@ export const retrieveTokenProperties = async <
       address: tokenContractInfo.address,
       abi: tokenContractInfo.abi,
       symbol: String(symbolResult.result),
-      decimals: Number(decimalsResult.result) };
+      decimals: Number(decimalsResult.result),
+    };
   }
 };
 
@@ -218,7 +225,8 @@ export async function getAssetInfo(
   return retrieveTokenProperties(publicClient, {
     abi: erc20Abi,
     address,
-    chainId });
+    chainId,
+  });
 }
 
 // Utils:

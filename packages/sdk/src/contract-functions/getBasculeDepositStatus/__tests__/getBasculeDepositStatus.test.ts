@@ -9,7 +9,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
 import { AddressKind, Token } from '../../../tokens/token-addresses';
-import { BasculeDepositStatus, getBasculeDepositStatus } from '../getBasculeDepositStatus';
+import {
+  BasculeDepositStatus,
+  getBasculeDepositStatus,
+} from '../getBasculeDepositStatus';
 
 const readContractMock = vi.fn();
 const getTokenContractInfoMock = vi.fn();
@@ -17,11 +20,15 @@ const isUpgradedAbiMock = vi.fn();
 
 vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn(() => ({
-    readContract: (...args: unknown[]) => readContractMock(...args) })) }));
+    readContract: (...args: unknown[]) => readContractMock(...args),
+  })),
+}));
 
 vi.mock('../../../tokens/tokens', () => ({
-  getTokenContractInfo: (...args: unknown[]) => getTokenContractInfoMock(...args),
-  isUpgradedAbi: (...args: unknown[]) => isUpgradedAbiMock(...args) }));
+  getTokenContractInfo: (...args: unknown[]) =>
+    getTokenContractInfoMock(...args),
+  isUpgradedAbi: (...args: unknown[]) => isUpgradedAbiMock(...args),
+}));
 
 describe('getBasculeDepositStatus', () => {
   beforeEach(() => {
@@ -35,14 +42,16 @@ describe('getBasculeDepositStatus', () => {
       address: '0xAdapterAddress',
       abi: [{ type: 'function', name: 'getBascule', inputs: [], outputs: [] }],
       chainId: ChainId.avalancheFuji,
-      addressKind: AddressKind.Adapter });
+      addressKind: AddressKind.Adapter,
+    });
     isUpgradedAbiMock.mockReturnValue(false);
     readContractMock.mockResolvedValue(zeroAddress);
 
     const status = await getBasculeDepositStatus({
       chainId: ChainId.avalancheFuji,
       rawPayload: '0x1234',
-      token: Token.BTCb });
+      token: Token.BTCb,
+    });
 
     expect(status).toBe(BasculeDepositStatus.REPORTED);
     expect(readContractMock).toHaveBeenCalledWith(
@@ -58,14 +67,16 @@ describe('getBasculeDepositStatus', () => {
       address: '0xLegacyLbtcAddress',
       abi: [{ type: 'function', name: 'Bascule', inputs: [], outputs: [] }],
       chainId: ChainId.ethereum,
-      addressKind: AddressKind.Adapter });
+      addressKind: AddressKind.Adapter,
+    });
     isUpgradedAbiMock.mockReturnValue(false);
     readContractMock.mockResolvedValue(zeroAddress);
 
     const status = await getBasculeDepositStatus({
       chainId: ChainId.ethereum,
       rawPayload: '0x5678',
-      token: Token.LBTC });
+      token: Token.LBTC,
+    });
 
     expect(status).toBe(BasculeDepositStatus.REPORTED);
     expect(readContractMock).toHaveBeenCalledWith(

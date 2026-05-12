@@ -21,7 +21,8 @@ import {
   STARKNET_MAINNET_CHAIN,
   STARKNET_SEPOLIA_CHAIN,
   SUI_MAINNET_CHAIN,
-  SUI_TESTNET_CHAIN } from '../../common/chains';
+  SUI_TESTNET_CHAIN,
+} from '../../common/chains';
 import { featureConfig } from '../../common/feature-config';
 import {
   AddressKind,
@@ -31,7 +32,8 @@ import {
   getSuiTokenAddress,
   getTokenAddressForChain,
   getTokenByAddress,
-  Token } from '../token-addresses';
+  Token,
+} from '../token-addresses';
 
 describe('Token Addresses', () => {
   describe('getTokenAddressForChain', () => {

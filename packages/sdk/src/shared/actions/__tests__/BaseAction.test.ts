@@ -74,12 +74,14 @@ describe('BaseAction', () => {
     action.on(DepositEvent.Progress, handler);
     action.testEmitProgress({
       status: 'executing',
-      steps: { approval: 'complete' } });
+      steps: { approval: 'complete' },
+    });
 
     expect(handler).toHaveBeenCalledOnce();
     expect(handler).toHaveBeenCalledWith({
       status: 'executing',
-      steps: { approval: 'complete' } });
+      steps: { approval: 'complete' },
+    });
   });
 
   it('should register and call status change handlers', () => {

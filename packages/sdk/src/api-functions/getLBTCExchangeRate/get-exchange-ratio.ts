@@ -6,7 +6,8 @@ import { IEnvParam } from '../../common/parameters';
 import {
   RATIO_TOKEN_MAP,
   RatioToken,
-  Token } from '../../tokens/token-addresses';
+  Token,
+} from '../../tokens/token-addresses';
 
 type RatioResponse = {
   token_ratio: {
@@ -41,11 +42,12 @@ export async function getExchangeRatio({ env }: IEnvParam) {
   const { data } = await axios.get<RatioResponse>(url);
 
   const ratios = data.token_ratio
-    .map(r => ({
+    .map((r) => ({
       token: RATIO_TOKEN_MAP[r.name],
       tokenBTCRatio: BigNumber(r.ratio),
-      BTCTokenRatio: BigNumber(r.price) }))
-    .filter(r => (enabledTokens as unknown as Token[]).includes(r.token));
+      BTCTokenRatio: BigNumber(r.price),
+    }))
+    .filter((r) => (enabledTokens as unknown as Token[]).includes(r.token));
 
   const result: RatioResult = ratios.reduce((acc, cur) => {
     const { token: _token, ...ratios } = cur;

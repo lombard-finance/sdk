@@ -79,9 +79,9 @@ describe('WalletConnect', () => {
 
     expect(container.textContent).toContain('0x1234...5678');
 
-    const disconnectButton = Array.from(container.querySelectorAll('button')).find(
-      button => button.textContent === 'Disconnect',
-    );
+    const disconnectButton = Array.from(
+      container.querySelectorAll('button'),
+    ).find((button) => button.textContent === 'Disconnect');
 
     act(() => {
       disconnectButton?.click();
@@ -104,7 +104,7 @@ describe('WalletConnect', () => {
     renderComponent();
 
     const copyButton = Array.from(container.querySelectorAll('button')).find(
-      button => button.getAttribute('title') === 'Copy address',
+      (button) => button.getAttribute('title') === 'Copy address',
     );
     expect(copyButton).toBeTruthy();
   });
@@ -126,13 +126,15 @@ describe('WalletConnect', () => {
     renderComponent();
 
     const copyButton = Array.from(container.querySelectorAll('button')).find(
-      button => button.getAttribute('title') === 'Copy address',
+      (button) => button.getAttribute('title') === 'Copy address',
     );
 
     await act(async () => {
       copyButton?.click();
     });
 
-    expect(writeText).toHaveBeenCalledWith('0x1234567890abcdef1234567890abcdef12345678');
+    expect(writeText).toHaveBeenCalledWith(
+      '0x1234567890abcdef1234567890abcdef12345678',
+    );
   });
 });

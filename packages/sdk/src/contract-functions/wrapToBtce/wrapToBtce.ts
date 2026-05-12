@@ -11,7 +11,8 @@ import toBigInt from '../../utils/numbers';
 import {
   BTCE_VAULT,
   BTCE_VAULT_DECIMALS,
-  isBtceVaultChain } from '../../vaults/lib/config';
+  isBtceVaultChain,
+} from '../../vaults/lib/config';
 
 export type WrapToBtceParameters = {
   /** Address of the deposit token (e.g. LBTCv vault address, LBTC, wBTC). */
@@ -48,7 +49,8 @@ export async function wrapToBtce({
   account,
   chainId,
   provider,
-  rpcUrl }: WrapToBtceParameters): Promise<Hash> {
+  rpcUrl,
+}: WrapToBtceParameters): Promise<Hash> {
   if (!isAddress(tokenAddress, { strict: false })) {
     throw new Error(`Invalid token address: ${tokenAddress}`);
   }
@@ -81,12 +83,8 @@ export async function wrapToBtce({
       abi: BTCE_VAULT.abi,
       address: BTCE_VAULT.contracts[chainId],
       functionName: 'deposit',
-      args: [
-        tokenAddress,
-        amountBase,
-        receiver ?? account,
-        minMintBase,
-      ] });
+      args: [tokenAddress, amountBase, receiver ?? account, minMintBase],
+    });
 
     return await walletClient.writeContract(request);
   } catch (err) {
@@ -95,4 +93,3 @@ export async function wrapToBtce({
     throw new Error(msg);
   }
 }
-

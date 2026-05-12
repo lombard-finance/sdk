@@ -43,7 +43,9 @@ describe('Sui StakingForm', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -59,7 +61,9 @@ describe('Sui StakingForm', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     expect(alertMock).toHaveBeenCalled();
@@ -70,14 +74,18 @@ describe('Sui StakingForm', () => {
   it('disables submit when disabled prop is true', () => {
     renderForm({ disabled: true });
 
-    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const button = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
   });
 
   it('shows loading state when isLoading is true', () => {
     renderForm({ isLoading: true });
 
-    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const button = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Initializing');
   });
@@ -87,7 +95,9 @@ describe('Sui StakingForm', () => {
       fixedDestChain: 'sui:testnet' as never,
     });
 
-    const destChainInput = container.querySelector('#destChain') as HTMLInputElement;
+    const destChainInput = container.querySelector(
+      '#destChain',
+    ) as HTMLInputElement;
     expect(destChainInput.disabled).toBe(true);
     expect(destChainInput.tagName).toBe('INPUT');
   });

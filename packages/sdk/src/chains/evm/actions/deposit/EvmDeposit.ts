@@ -16,20 +16,22 @@ import { z } from 'zod';
 
 import type { ChainId } from '../../../../common/chains';
 import { claimLBTC } from '../../../../contract-functions';
-import { parseChainIdentifier,StepStatus } from '../../../../core';
+import { parseChainIdentifier, StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import type { EvmCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
 import type { DepositEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
-  validatePrepareParams } from '../../../../shared/validation';
+  validatePrepareParams,
+} from '../../../../shared/validation';
 import { evmConfig } from './config';
 import {
   type EvmDepositParams,
   type EvmDepositPrepareParams,
   EvmDepositStatus,
-  type IEvmDeposit } from './types';
+  type IEvmDeposit,
+} from './types';
 
 export class EvmDeposit
   extends BaseAction<DepositEventMap, EvmDepositStatus>
@@ -73,7 +75,8 @@ export class EvmDeposit
 
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params, {
-        destChain: this.params.destChain });
+        destChain: this.params.destChain,
+      });
       this._amount = validated.amount;
       this._recipient = validated.recipient;
 
@@ -83,7 +86,9 @@ export class EvmDeposit
         steps: {
           approval: StepStatus.COMPLETE,
           execution: StepStatus.IDLE,
-          bridging: StepStatus.IDLE } });
+          bridging: StepStatus.IDLE,
+        },
+      });
     }, EvmDepositStatus.READY);
   }
 
@@ -115,7 +120,9 @@ export class EvmDeposit
         steps: {
           approval: StepStatus.COMPLETE,
           execution: StepStatus.PENDING,
-          bridging: StepStatus.IDLE } });
+          bridging: StepStatus.IDLE,
+        },
+      });
 
       const txHash = await claimLBTC({
         provider: provider as EIP1193Provider,
@@ -123,7 +130,8 @@ export class EvmDeposit
         data: this._claimData!.data,
         proofSignature: this._claimData!.proofSignature,
         chainId,
-        env: this.ctx.env });
+        env: this.ctx.env,
+      });
 
       this._txHash = txHash;
 
@@ -132,7 +140,9 @@ export class EvmDeposit
         steps: {
           approval: StepStatus.COMPLETE,
           execution: StepStatus.COMPLETE,
-          bridging: StepStatus.IDLE } });
+          bridging: StepStatus.IDLE,
+        },
+      });
 
       this.emitCompleted();
 
@@ -143,6 +153,7 @@ export class EvmDeposit
   private get prepareSchema() {
     return z.object({
       amount: evmAmountSchema,
-      recipient: evmConfig.addressSchema });
+      recipient: evmConfig.addressSchema,
+    });
   }
 }

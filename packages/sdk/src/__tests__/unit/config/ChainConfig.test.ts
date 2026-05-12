@@ -1,4 +1,4 @@
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { getChainConfig } from '../../../chains/btc/actions/stake/config';
 import { Chain } from '../../../core';
@@ -36,7 +36,7 @@ describe('ChainConfig', () => {
     it('should validate Solana addresses', () => {
       const config = getChainConfig('solana');
       // A valid base58 address
-      const validAddr = '5U3bH5b6XtG99aV6ce2ifLkLXLkHeHuAy46sDjr9Gf3C'; 
+      const validAddr = '5U3bH5b6XtG99aV6ce2ifLkLXLkHeHuAy46sDjr9Gf3C';
       const invalidAddr = 'invalid';
 
       expect(() => config?.addressSchema.parse(validAddr)).not.toThrow();
@@ -44,4 +44,3 @@ describe('ChainConfig', () => {
     });
   });
 });
-

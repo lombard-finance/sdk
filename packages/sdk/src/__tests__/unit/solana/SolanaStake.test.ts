@@ -20,7 +20,8 @@ function createMockSolanaService() {
       .fn()
       .mockResolvedValue({ signature: 'mock-redeemForBtc-tx-hash' }),
     redeem: vi.fn().mockResolvedValue({ signature: 'mock-redeem-tx-hash' }),
-    deposit: vi.fn().mockResolvedValue({ signature: MOCK_SIGNATURE }) };
+    deposit: vi.fn().mockResolvedValue({ signature: MOCK_SIGNATURE }),
+  };
 }
 
 function createMockContext(
@@ -31,7 +32,8 @@ function createMockContext(
     partner: new PartnerConfiguration({ partnerId: 'test-partner' }),
     getProvider: vi.fn().mockResolvedValue({}),
     solana: createMockSolanaService(),
-    ...overrides };
+    ...overrides,
+  };
 }
 
 describe('SolanaStake — BTC.b → LBTC on Solana', () => {
@@ -40,11 +42,13 @@ describe('SolanaStake — BTC.b → LBTC on Solana', () => {
   const validParams = {
     assetIn: AssetId.BTCb,
     assetOut: AssetId.LBTC,
-    chain: Chain.SOLANA_DEVNET };
+    chain: Chain.SOLANA_DEVNET,
+  };
 
   const validPrepareParams = {
     amount: '0.001',
-    recipient: '11111111111111111111111111111111' };
+    recipient: '11111111111111111111111111111111',
+  };
 
   beforeEach(() => {
     mockCtx = createMockContext({ env: Env.dev });
@@ -57,7 +61,7 @@ describe('SolanaStake — BTC.b → LBTC on Solana', () => {
       await stake.prepare(validPrepareParams);
 
       const confirmingPayloads: { txHash?: string; status: string }[] = [];
-      stake.on('progress', progress => {
+      stake.on('progress', (progress) => {
         if (progress.status === NonEvmOperationStatus.CONFIRMING) {
           confirmingPayloads.push(progress);
         }

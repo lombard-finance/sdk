@@ -8,10 +8,12 @@ import { CodeBlock } from '../../stories/components/CodeBlock';
 import { ConnectButton } from '../../stories/components/ConnectButton';
 import {
   functionType,
-  wagmiDecorator } from '../../stories/components/decorators';
+  wagmiDecorator,
+} from '../../stories/components/decorators';
 import {
   canPerformAction,
-  useConnection } from '../../stories/hooks/useConnection';
+  useConnection,
+} from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
 import { Token } from '../../tokens/token-addresses';
 import { ISignStakeAndBakeParams, signStakeAndBake } from './signStakeAndBake';
@@ -26,18 +28,24 @@ const meta = {
       options: ['BTC', Token.LBTC, Token.BTCb],
       control: { type: 'select' },
       description:
-        'Token to stake (BTC converts to LBTC, BTCb uses approve mode)' },
+        'Token to stake (BTC converts to LBTC, BTCb uses approve mode)',
+    },
     vault: {
       options: Object.values(DefiProtocol),
       control: { type: 'select' },
-      description: 'Vault to stake into (Veda: LBTC/BTC, Silo: BTCb)' },
+      description: 'Vault to stake into (Veda: LBTC/BTC, Silo: BTCb)',
+    },
     env: {
       options: [Env.prod, Env.testnet, Env.stage, Env.dev],
       control: { type: 'select' },
-      description: 'Environment (affects contract addresses)' },
+      description: 'Environment (affects contract addresses)',
+    },
     value: {
       control: { type: 'text' },
-      description: 'Amount to stake (in token units)' } } } satisfies Meta<typeof StoryView>;
+      description: 'Amount to stake (in token units)',
+    },
+  },
+} satisfies Meta<typeof StoryView>;
 
 export default meta;
 
@@ -49,7 +57,9 @@ export const PermitFlow_LBTC_Ethereum: Story = {
     value: '10000',
     token: Token.LBTC,
     vault: DefiProtocol.Veda,
-    env: Env.prod } };
+    env: Env.prod,
+  },
+};
 
 export const PermitFlow_BTC_Ethereum: Story = {
   name: 'Permit Flow: BTC to LBTC on Ethereum',
@@ -57,7 +67,9 @@ export const PermitFlow_BTC_Ethereum: Story = {
     value: '10000',
     token: 'BTC',
     vault: DefiProtocol.Veda,
-    env: Env.prod } };
+    env: Env.prod,
+  },
+};
 
 export const ApproveFlow_BTCb_Fuji: Story = {
   name: 'Approve Flow: BTCb on Avalanche Fuji',
@@ -65,7 +77,9 @@ export const ApproveFlow_BTCb_Fuji: Story = {
     value: '5000',
     token: Token.BTCb,
     vault: DefiProtocol.Silo,
-    env: Env.testnet } };
+    env: Env.testnet,
+  },
+};
 
 type SignStakeAndBakeParams = Omit<
   ISignStakeAndBakeParams,
@@ -93,7 +107,8 @@ export function StoryView(props: SignStakeAndBakeParams) {
       account: connection.account.address,
       chainId: connection.account.chainId,
       provider: connection.provider,
-      env: props.env || Env.stage });
+      env: props.env || Env.stage,
+    });
   };
 
   const { data, error, isLoading, refetch } = useQuery(request, [], false);
@@ -175,7 +190,8 @@ export function StoryView(props: SignStakeAndBakeParams) {
               mode: data.mode,
               signature: data.signature,
               approvalTxHash: data.approvalTxHash,
-              typedData: data.typedData ? JSON.parse(data.typedData) : '' }}
+              typedData: data.typedData ? JSON.parse(data.typedData) : '',
+            }}
           />
         </>
       )}

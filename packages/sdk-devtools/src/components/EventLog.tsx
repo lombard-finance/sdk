@@ -42,7 +42,7 @@ export function EventLog({
   className = '',
 }: EventLogProps) {
   // Count SDK events
-  const sdkEventCount = events.filter(e => e.isSDKEvent).length;
+  const sdkEventCount = events.filter((e) => e.isSDKEvent).length;
 
   return (
     <div className={`h-full flex flex-col ${className}`}>
@@ -74,7 +74,10 @@ export function EventLog({
       {showInfoBanner && (
         <div className="px-3 py-1 bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700/50 text-[10px] text-gray-500">
           💡 These events are emitted by the SDK's{' '}
-          <code className="text-gray-900 dark:text-white font-semibold">action.on()</code> method
+          <code className="text-gray-900 dark:text-white font-semibold">
+            action.on()
+          </code>{' '}
+          method
         </div>
       )}
 
@@ -86,7 +89,7 @@ export function EventLog({
           </div>
         ) : (
           <div className="space-y-0.5">
-            {events.map(event => (
+            {events.map((event) => (
               <EventRow key={event.id} event={event} />
             ))}
           </div>
@@ -164,4 +167,3 @@ function formatEventData(data: unknown): string {
   }
   return String(data);
 }
-

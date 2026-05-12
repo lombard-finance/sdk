@@ -26,7 +26,8 @@ export type LbtcApy = {
 /** Returns the current APY (annual percentage yield) for LBTC. */
 export async function getApy({
   account,
-  env }: {
+  env,
+}: {
   /** The optional account address. Pass it for more accurate APY data. */
   account?: Address;
 } & IEnvParam) {
@@ -37,7 +38,8 @@ export async function getApy({
 
   const apy: LbtcApy = {
     baseApy: BigNumber(data.lbtc_base_apy),
-    effectiveApy: BigNumber(data.lbtc_effective_apy) };
+    effectiveApy: BigNumber(data.lbtc_effective_apy),
+  };
 
   return apy;
 }
@@ -57,14 +59,16 @@ export type LbtcEstimatedApy = {
 /** Returns the estimated APY for LBTC. */
 export async function getEstimatedApy({
   partnerId,
-  env }: { partnerId?: string } & IEnvParam) {
+  env,
+}: { partnerId?: string } & IEnvParam) {
   const { baseApiUrl } = getApiConfig(env);
 
   const url = `${baseApiUrl}/api/v1/analytics/estimated-apy?partner_id=${partnerId || ''}`;
   const { data } = await axios.get<EstimatedApyResponse>(url);
 
   const apy: LbtcEstimatedApy = {
-    estimatedApy: BigNumber(data.lbtc_estimated_apy) };
+    estimatedApy: BigNumber(data.lbtc_estimated_apy),
+  };
 
   return apy;
 }

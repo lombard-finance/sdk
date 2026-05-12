@@ -9,12 +9,12 @@ import { Token } from '../../../tokens/token-addresses';
 import {
   fromBaseDenomination,
   getTokenInfo,
-  toBaseDenomination } from '../../../tokens/tokens';
+  toBaseDenomination,
+} from '../../../tokens/tokens';
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
 import { DAY } from '../../../utils/time';
-import {
-  EARN_VAULT, isEarnChain } from '../config';
+import { EARN_VAULT, isEarnChain } from '../config';
 
 export type QueueWithdrawParameters = {
   /** The amount to be withdrawn from the DeFi vault. */
@@ -26,7 +26,8 @@ export type QueueWithdrawParameters = {
    */
   approve?: boolean;
   /** The optional deposit asset. */
-  token?: Token;} & CommonWriteParameters;
+  token?: Token;
+} & CommonWriteParameters;
 
 /**
  * @internal Internal helper used by `EvmWithdraw` and other action classes.
@@ -43,7 +44,8 @@ export async function queueWithdrawInternal({
   chainId,
   provider,
   rpcUrl,
-  env }: QueueWithdrawParameters) {
+  env,
+}: QueueWithdrawParameters) {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -66,14 +68,16 @@ export async function queueWithdrawInternal({
     address: vault.lensContract.address,
     abi: vault.lensContract.abi,
     functionName: 'balanceOf',
-    args: [account, vault.vaultContract.address] });
+    args: [account, vault.vaultContract.address],
+  });
   const balance = fromBaseDenomination(String(balanceRaw), vault.decimals);
 
   const allowanceRaw = await publicClient.readContract({
     address: vault.vaultContract.address,
     abi: vault.vaultContract.abi,
     functionName: 'allowance',
-    args: [account, vault.withdrawQueueContracts[chainId].address] });
+    args: [account, vault.withdrawQueueContracts[chainId].address],
+  });
   const allowance = fromBaseDenomination(String(allowanceRaw), vault.decimals);
 
   // check if amount exceeds balance
@@ -99,7 +103,8 @@ export async function queueWithdrawInternal({
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
         functionName: 'approve',
-        args: [vault.withdrawQueueContracts[chainId].address, amountBase] });
+        args: [vault.withdrawQueueContracts[chainId].address, amountBase],
+      });
 
       const txHash = await walletClient.writeContract(request);
       console.info(`Approve tx hash: ${txHash}`);
@@ -134,7 +139,8 @@ export async function queueWithdrawInternal({
       [expiry.toFixed(0), 0n, amountBase, false],
       vault.accountantContract.address,
       discount.toFixed(0),
-    ] });
+    ],
+  });
 
   const txHash = await walletClient.writeContract(request);
   return txHash;
@@ -155,7 +161,8 @@ export async function cancelWithdrawInternal({
   chainId,
   provider,
   rpcUrl,
-  env }: CancelWithdrawParameters): Promise<Hash> {
+  env,
+}: CancelWithdrawParameters): Promise<Hash> {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -182,7 +189,8 @@ export async function cancelWithdrawInternal({
       vault.vaultContract.address,
       withdrawToken.address,
       [0, 0, 0, false],
-    ] });
+    ],
+  });
 
   const txHash = await walletClient.writeContract(request);
   return txHash;

@@ -9,7 +9,9 @@ import { walletClientToProvider } from '../../test-utils/eip1193-adapter';
 import { createTestEvmWallet } from '../../test-utils/evm-wallet';
 
 // Skip if no private key provided
-const runIfConfigured = process.env.TEST_EVM_PRIVATE_KEY ? describe : describe.skip;
+const runIfConfigured = process.env.TEST_EVM_PRIVATE_KEY
+  ? describe
+  : describe.skip;
 
 runIfConfigured('BTC Stake Real Wallet', () => {
   let wallet: WalletClient;
@@ -18,7 +20,7 @@ runIfConfigured('BTC Stake Real Wallet', () => {
   beforeAll(async () => {
     const res = await createTestEvmWallet(
       process.env.TEST_EVM_PRIVATE_KEY as `0x${string}`,
-      'sepolia'
+      'sepolia',
     );
     wallet = res.walletClient;
     account = res.account;
@@ -28,15 +30,19 @@ runIfConfigured('BTC Stake Real Wallet', () => {
     const config = createConfig({
       env: Env.testnet,
       providers: {
-        evm: () => walletClientToProvider(wallet) } });
+        evm: () => walletClientToProvider(wallet),
+      },
+    });
 
     const stake = btcStake(config, {
       destChain: Chain.SEPOLIA,
-      assetOut: AssetId.LBTC });
+      assetOut: AssetId.LBTC,
+    });
 
     await stake.prepare({
       amount: '0.0002', // Min amount
-      recipient: account.address });
+      recipient: account.address,
+    });
 
     // Authorize is the unified step:
     // - If the chain needs fee auth, it signs and stores the fee signature
