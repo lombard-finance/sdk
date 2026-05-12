@@ -157,9 +157,12 @@ const devnetConfig: IConfig = {
   ratioOracle: 'LomfreVHrrMrSpv54KCJ6AC1eKL8QbL1Ej28S3gwawa',
   bridge: 'Lom9Em2WzV7gvtttdub9LZSR8gLgtbzFDhFm1zMQRp6',
   lombardTokenPool: 'LomdWAg9hHyz3VrvK5wXTap7o348Ku2QJ2j2H8Etj3C',
-  ledgerChainId: '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e',
-  solanaRoutingChainId: '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
-  bitcoinRoutingChainId: 'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
+  ledgerChainId:
+    '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e',
+  solanaRoutingChainId:
+    '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
+  bitcoinRoutingChainId:
+    'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
 };
 
 const stageConfig: IConfig = {
@@ -209,9 +212,12 @@ const testnetConfig: IConfig = {
   ratioOracle: 'LomWze3gBt8Y7RN3sspuh2jupqAQPUi4tuaLWDnf6CZ',
   bridge: 'LombUtstgyrZUhjvi12hUnm7HG7CxhtanUv6hakuCm4',
   lombardTokenPool: 'Lomi5fKsXdGrrW2M3JRbJx5DnT3zgmSEfYWMUPeNaAB',
-  ledgerChainId: '033bc7baf196ce32b8b9200518df11c35bad882fc6e3b6f45b4a8885f4c1281b',
-  solanaRoutingChainId: '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
-  bitcoinRoutingChainId: 'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
+  ledgerChainId:
+    '033bc7baf196ce32b8b9200518df11c35bad882fc6e3b6f45b4a8885f4c1281b',
+  solanaRoutingChainId:
+    '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab',
+  bitcoinRoutingChainId:
+    'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6',
 };
 
 /**
@@ -235,9 +241,12 @@ const prodConfig: IConfig = {
   ratioOracle: 'LomyRmBeQiuqiwcPmr23RRA1SMLAuDEgj5tHHe7rsDn',
   bridge: 'Lomva5kTftuXE8992qRufkaeq3XrXV47qv3C1W9xW6Z',
   lombardTokenPool: 'Lomb8TTCwJKEhZrJ1J8UbsCRjNSf7NNQUEr4qo3dkSk',
-  ledgerChainId: '0387b25e8e61f2ce4838b04795b231f09ee73ffd391da018bef4bc5c4975897b',
-  solanaRoutingChainId: '02296998a6f8e2a784db5d9f95e18fc23f70441a1039446801089879b08c7ef0',
-  bitcoinRoutingChainId: 'ff0000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f',
+  ledgerChainId:
+    '0387b25e8e61f2ce4838b04795b231f09ee73ffd391da018bef4bc5c4975897b',
+  solanaRoutingChainId:
+    '02296998a6f8e2a784db5d9f95e18fc23f70441a1039446801089879b08c7ef0',
+  bitcoinRoutingChainId:
+    'ff0000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f',
 };
 
 /**

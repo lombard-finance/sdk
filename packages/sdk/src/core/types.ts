@@ -118,4 +118,3 @@ export interface DeployConfig {
   /** Optional: Protocol-specific options */
   options?: Record<string, unknown>;
 }
-

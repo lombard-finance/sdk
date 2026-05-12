@@ -155,11 +155,11 @@ export function createAmountSchema(minAmount?: number) {
   const baseSchema = z
     .string({ message: 'Amount is required' })
     .min(1, 'Amount is required')
-    .refine(val => val !== '0', {
+    .refine((val) => val !== '0', {
       message: 'Amount must be greater than 0',
     })
     .refine(
-      val => {
+      (val) => {
         const num = Number.parseFloat(val);
         return !Number.isNaN(num) && num > 0;
       },
@@ -168,7 +168,7 @@ export function createAmountSchema(minAmount?: number) {
 
   if (minAmount !== undefined && minAmount > 0) {
     return baseSchema.refine(
-      val => {
+      (val) => {
         const num = Number.parseFloat(val);
         return num >= minAmount;
       },
@@ -207,7 +207,7 @@ export const evmAmountSchema = amountSchema;
  */
 export const satoshiAmountSchema = z
   .union([z.bigint(), z.number()])
-  .refine(val => val > 0, { message: 'Amount must be greater than 0' });
+  .refine((val) => val > 0, { message: 'Amount must be greater than 0' });
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Address Schemas

@@ -16,7 +16,11 @@ import type { StakingFormData } from '../../lib/types';
 export function useBtcStakingEvm(partnerId?: string, env?: Env) {
   const currentEnv = env ?? getEnvironment();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(
     () =>
       createConfig({
         env: currentEnv,

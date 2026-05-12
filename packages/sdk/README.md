@@ -75,21 +75,21 @@ create → prepare → execute → complete
 
 ### Available Actions
 
-| Chain | Action | Description |
-|-------|--------|-------------|
-| BTC | `sdk.chain.btc.stake()` | Stake BTC → LBTC |
-| BTC | `sdk.chain.btc.deposit()` | Deposit BTC → BTC.b |
-| EVM | `sdk.chain.evm.stake()` | Stake BTC.b → LBTC |
-| EVM | `sdk.chain.evm.unstake()` | Burn LBTC → BTC or BTC.b |
-| EVM | `sdk.chain.evm.deposit()` | Deposit BTC.b → LBTC |
-| EVM | `sdk.chain.evm.redeem()` | Redeem BTC.b → BTC |
-| EVM | `sdk.chain.evm.deploy()` | Deploy LBTC/BTC.b to DeFi vaults |
-| EVM | `sdk.chain.evm.withdraw()` | Withdraw vault shares → LBTC |
-| Solana | `sdk.chain.solana.stake()` | Stake BTC.b → LBTC |
-| Solana | `sdk.chain.solana.unstake()` | Burn LBTC → BTC or BTC.b |
-| Solana | `sdk.chain.solana.redeem()` | Redeem BTC.b → BTC |
-| Sui | `sdk.chain.sui.unstake()` | Burn LBTC on Sui |
-| Starknet | `sdk.chain.starknet.unstake()` | Burn LBTC on Starknet |
+| Chain    | Action                         | Description                      |
+| -------- | ------------------------------ | -------------------------------- |
+| BTC      | `sdk.chain.btc.stake()`        | Stake BTC → LBTC                 |
+| BTC      | `sdk.chain.btc.deposit()`      | Deposit BTC → BTC.b              |
+| EVM      | `sdk.chain.evm.stake()`        | Stake BTC.b → LBTC               |
+| EVM      | `sdk.chain.evm.unstake()`      | Burn LBTC → BTC or BTC.b         |
+| EVM      | `sdk.chain.evm.deposit()`      | Deposit BTC.b → LBTC             |
+| EVM      | `sdk.chain.evm.redeem()`       | Redeem BTC.b → BTC               |
+| EVM      | `sdk.chain.evm.deploy()`       | Deploy LBTC/BTC.b to DeFi vaults |
+| EVM      | `sdk.chain.evm.withdraw()`     | Withdraw vault shares → LBTC     |
+| Solana   | `sdk.chain.solana.stake()`     | Stake BTC.b → LBTC               |
+| Solana   | `sdk.chain.solana.unstake()`   | Burn LBTC → BTC or BTC.b         |
+| Solana   | `sdk.chain.solana.redeem()`    | Redeem BTC.b → BTC               |
+| Sui      | `sdk.chain.sui.unstake()`      | Burn LBTC on Sui                 |
+| Starknet | `sdk.chain.starknet.unstake()` | Burn LBTC on Starknet            |
 
 ### Data API
 
@@ -107,6 +107,7 @@ const rate = await sdk.api.exchangeRatio();
 Try the SDK interactively at **[lombard.finance/playground](https://lombard.finance/playground)**.
 
 The playground provides:
+
 - Live code examples for all actions
 - Real wallet connections
 - Testnet and mainnet environments
@@ -127,7 +128,7 @@ For Solana, Sui, and Starknet, install the chain-specific modules:
 # Solana
 npm install @lombard.finance/sdk-solana
 
-# Sui  
+# Sui
 npm install @lombard.finance/sdk-sui
 
 # Starknet
@@ -158,11 +159,11 @@ const sdk = await createLombardSDK({
 
 ## Environment
 
-| Environment | Description | Use For |
-|-------------|-------------|---------|
-| `prod` | Production mainnet | Live deployments |
-| `testnet` | Public testnet | Integration testing |
-| `stage` | Staging environment | Internal testing |
+| Environment | Description         | Use For             |
+| ----------- | ------------------- | ------------------- |
+| `prod`      | Production mainnet  | Live deployments    |
+| `testnet`   | Public testnet      | Integration testing |
+| `stage`     | Staging environment | Internal testing    |
 
 ## License
 

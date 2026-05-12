@@ -11,4 +11,3 @@ export {
   getDevToolsBridge,
   resetDevToolsBridge,
 } from './DevToolsBridge';
-

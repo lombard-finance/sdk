@@ -225,7 +225,7 @@ export async function executeContractTransaction({
       validateTransactionRequest(evmTx, operation);
 
       // Sign and broadcast using the signer adapter
-      txHash = await params.signer.sign(evmTx, async signedTx => {
+      txHash = await params.signer.sign(evmTx, async (signedTx) => {
         // Dispatch callback: broadcast the signed transaction
         return await publicClient.sendRawTransaction({
           serializedTransaction: signedTx,

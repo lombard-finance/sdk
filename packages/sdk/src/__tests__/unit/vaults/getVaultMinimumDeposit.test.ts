@@ -3,8 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
 import { Token } from '../../../tokens/token-addresses';
-import { Vault } from '../../../vaults/lib/config';
-import { getVaultMinimumDeposit } from '../../../vaults/lib/ops/get-vault-minimum-deposit';
+import { getEarnMinimumDeposit } from '../../../vaults/lib/ops/get-vault-minimum-deposit';
 
 // Mock the public client
 const mockMulticall = vi.fn();
@@ -37,7 +36,7 @@ const LBTC_RATE = 101997225n;
 // Minimum: ceil(101997225 / 10^8) = 2 base units
 const ONE_SHARE = 100000000n;
 
-describe('getVaultMinimumDeposit', () => {
+describe('getEarnMinimumDeposit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -50,8 +49,7 @@ describe('getVaultMinimumDeposit', () => {
         { status: 'success', result: 2n }, // 1 sat → 2 shares
       ]);
 
-      const result = await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      const result = await getEarnMinimumDeposit({
         token: Token.LBTC,
         chainId: ChainId.ethereum,
       });
@@ -72,8 +70,7 @@ describe('getVaultMinimumDeposit', () => {
       // Verify: 2 * 10^8 / 101997225 = 1.96... → floor = 1 share ✓
       mockReadContract.mockResolvedValueOnce(1n);
 
-      const result = await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      const result = await getEarnMinimumDeposit({
         token: Token.LBTC,
         chainId: ChainId.ethereum,
       });
@@ -92,8 +89,7 @@ describe('getVaultMinimumDeposit', () => {
       // ceil(550000000 / 100000000) = 6
       mockReadContract.mockResolvedValueOnce(1n);
 
-      const result = await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      const result = await getEarnMinimumDeposit({
         token: Token.LBTC,
         chainId: ChainId.ethereum,
       });
@@ -121,8 +117,7 @@ describe('getVaultMinimumDeposit', () => {
         })),
       ]);
 
-      const result = await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      const result = await getEarnMinimumDeposit({
         token: Token.LBTC,
         chainId: ChainId.ethereum,
       });
@@ -139,8 +134,7 @@ describe('getVaultMinimumDeposit', () => {
       ]);
       mockReadContract.mockResolvedValueOnce(1n);
 
-      await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      await getEarnMinimumDeposit({
         token: Token.LBTC,
         chainId: ChainId.ethereum,
       });
@@ -166,7 +160,7 @@ describe('getVaultMinimumDeposit', () => {
       ]);
       mockReadContract.mockResolvedValueOnce(1n);
 
-      await getVaultMinimumDeposit({ vaultKey: Vault.Veda });
+      await getEarnMinimumDeposit({});
 
       expect(mockReadContract).toHaveBeenCalledTimes(1);
       const readArgs = mockReadContract.mock.calls[0][0];
@@ -184,7 +178,7 @@ describe('getVaultMinimumDeposit', () => {
       ]);
       mockReadContract.mockResolvedValueOnce(1n);
 
-      const result = await getVaultMinimumDeposit({ vaultKey: Vault.Veda });
+      const result = await getEarnMinimumDeposit({});
 
       expect(result).toEqual(BigNumber('0.00000002'));
     });
@@ -193,8 +187,7 @@ describe('getVaultMinimumDeposit', () => {
   describe('error handling', () => {
     it('should throw for unsupported chain', async () => {
       await expect(
-        getVaultMinimumDeposit({
-          vaultKey: Vault.Veda,
+        getEarnMinimumDeposit({
           chainId: ChainId.sepolia,
         }),
       ).rejects.toThrow(/Unsupported chain id/);
@@ -203,8 +196,7 @@ describe('getVaultMinimumDeposit', () => {
     it('should throw for unsupported token/chain combination', async () => {
       // eBTC is only supported on Ethereum, not Base
       await expect(
-        getVaultMinimumDeposit({
-          vaultKey: Vault.Veda,
+        getEarnMinimumDeposit({
           token: Token.eBTC,
           chainId: ChainId.base,
         }),
@@ -217,9 +209,9 @@ describe('getVaultMinimumDeposit', () => {
         { status: 'success', result: 0n },
       ]);
 
-      await expect(
-        getVaultMinimumDeposit({ vaultKey: Vault.Veda }),
-      ).rejects.toThrow(/Failed to get exchange rate/);
+      await expect(getEarnMinimumDeposit({})).rejects.toThrow(
+        /Failed to get exchange rate/,
+      );
     });
 
     it('should throw when previewDeposit fails', async () => {
@@ -228,9 +220,9 @@ describe('getVaultMinimumDeposit', () => {
         { status: 'failure', error: new Error('Preview failed') },
       ]);
 
-      await expect(
-        getVaultMinimumDeposit({ vaultKey: Vault.Veda }),
-      ).rejects.toThrow(/Failed to preview deposit/);
+      await expect(getEarnMinimumDeposit({})).rejects.toThrow(
+        /Failed to preview deposit/,
+      );
     });
 
     it('should throw after max attempts if no minimum found', async () => {
@@ -250,15 +242,9 @@ describe('getVaultMinimumDeposit', () => {
         })),
       );
 
-      await expect(
-        getVaultMinimumDeposit({ vaultKey: Vault.Veda }),
-      ).rejects.toThrow(/Could not determine minimum deposit amount/);
-    });
-
-    it('should throw for unknown vault key', async () => {
-      await expect(
-        getVaultMinimumDeposit({ vaultKey: 'unknown' as Vault }),
-      ).rejects.toThrow(/Unknown vault key/);
+      await expect(getEarnMinimumDeposit({})).rejects.toThrow(
+        /Could not determine minimum deposit amount/,
+      );
     });
   });
 
@@ -272,8 +258,7 @@ describe('getVaultMinimumDeposit', () => {
       ]);
       mockReadContract.mockResolvedValueOnce(1n);
 
-      await getVaultMinimumDeposit({
-        vaultKey: Vault.Veda,
+      await getEarnMinimumDeposit({
         token: Token.LBTC,
         chainId: ChainId.base,
       });
@@ -326,7 +311,7 @@ describe('getVaultMinimumDeposit', () => {
           mockReadContract.mockResolvedValueOnce(1n);
         }
 
-        const result = await getVaultMinimumDeposit({ vaultKey: Vault.Veda });
+        const result = await getEarnMinimumDeposit({});
         expect(result).toEqual(BigNumber(expectedMin));
       },
     );

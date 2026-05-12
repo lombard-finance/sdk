@@ -38,7 +38,7 @@ import type {
  * Create a provider resolver from config
  */
 function createProviderResolver(config: LombardConfig): ProviderResolver {
-  return async key => {
+  return async (key) => {
     const getter = getProviderGetter(config.providers, key as ProviderKey);
     if (!getter) {
       return undefined;

@@ -21,7 +21,7 @@ export const NetworkSelector: React.FC<NetworkSelectorProps> = ({
   label = 'Network',
   className,
 }) => {
-  const networkOptions = Object.keys(RPC_URLS).map(net => ({
+  const networkOptions = Object.keys(RPC_URLS).map((net) => ({
     value: net,
     label: net, // Consider using fromCamelCase for better display if needed
   }));

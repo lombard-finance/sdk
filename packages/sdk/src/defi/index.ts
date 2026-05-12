@@ -1,7 +1,7 @@
 export {
-  isVedaVaultStakeAndBakeChain,
-  VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
-  type VedaVaultStakeAndBakeChain,
+  EARN_STAKE_AND_BAKE_CHAINS,
+  type EarnStakeAndBakeChain,
+  isEarnStakeAndBakeChain,
 } from '../vaults/lib/config';
 export {
   DEFI_REGISTRY,

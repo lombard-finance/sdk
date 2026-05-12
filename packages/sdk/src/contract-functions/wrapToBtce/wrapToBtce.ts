@@ -83,12 +83,7 @@ export async function wrapToBtce({
       abi: BTCE_VAULT.abi,
       address: BTCE_VAULT.contracts[chainId],
       functionName: 'deposit',
-      args: [
-        tokenAddress,
-        amountBase,
-        receiver ?? account,
-        minMintBase,
-      ],
+      args: [tokenAddress, amountBase, receiver ?? account, minMintBase],
     });
 
     return await walletClient.writeContract(request);
@@ -98,4 +93,3 @@ export async function wrapToBtce({
     throw new Error(msg);
   }
 }
-

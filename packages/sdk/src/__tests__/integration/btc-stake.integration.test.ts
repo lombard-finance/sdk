@@ -147,7 +147,7 @@ describe('BTC Stake Action', () => {
       });
 
       const statusChanges: string[] = [];
-      stake.on('status-change', status => statusChanges.push(status));
+      stake.on('status-change', (status) => statusChanges.push(status));
 
       vi.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
@@ -321,7 +321,7 @@ describe('BTC Stake Action', () => {
       const errors: Error[] = [];
       const failedEvents: number[] = [];
 
-      stake.on('error', error => errors.push(error));
+      stake.on('error', (error) => errors.push(error));
       stake.on('failed', () => failedEvents.push(1));
 
       await expect(
@@ -349,7 +349,7 @@ describe('BTC Stake Action', () => {
       });
 
       const loadingStates: boolean[] = [];
-      stake.on('loading', isLoading => loadingStates.push(isLoading));
+      stake.on('loading', (isLoading) => loadingStates.push(isLoading));
 
       vi.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,

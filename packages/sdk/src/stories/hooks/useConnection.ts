@@ -24,10 +24,10 @@ export const canPerformAction = <config extends Config = Config>(arg: {
 }): arg is CanPerformAction =>
   Boolean(
     arg.account.status === 'connected' &&
-      arg.account.connector &&
-      arg.account.address &&
-      arg.account.chainId &&
-      arg.provider,
+    arg.account.connector &&
+    arg.account.address &&
+    arg.account.chainId &&
+    arg.provider,
   );
 
 export function useConnection() {

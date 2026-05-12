@@ -157,8 +157,7 @@ export async function generateDepositBtcAddress({
   try {
     if (EXTRA_PARAMS_TOKENS.includes(token)) {
       if (isSolanaChain(chainId)) {
-        const solanaToken =
-          token === Token.BTCb ? Token.BTCb : Token.LBTC;
+        const solanaToken = token === Token.BTCb ? Token.BTCb : Token.LBTC;
         const solanaTokenAddress = getSolanaTokenAddress(
           chainId,
           env,

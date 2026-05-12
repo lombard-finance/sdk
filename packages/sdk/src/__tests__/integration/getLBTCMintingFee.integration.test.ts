@@ -6,7 +6,7 @@
  *
  * The minting fee (auto-mint commission) is denominated in satoshis and is
  * deducted from the minted LBTC to compensate for EVM gas costs.
- * 
+ *
  * Non-subsidized chains (Ethereum, Sepolia): Should return non-zero fees
  * Subsidized chains (Base, BSC): Return 0 (Lombard absorbs gas costs)
  */

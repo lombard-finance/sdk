@@ -15,8 +15,8 @@ import {
   useConnection,
 } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
-import { Vault,VAULTS } from '../../vaults/lib/config';
-import { approveLBTC,IApproveLBTCParams } from './approveLBTC';
+import { EARN_VAULT } from '../../vaults/lib/config';
+import { approveLBTC, IApproveLBTCParams } from './approveLBTC';
 
 const meta = {
   title: 'write/approveLBTC',
@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     chainId: ChainId.sepolia,
-    spender: VAULTS[Vault.Veda].spenderContracts[ChainId.sepolia]?.address,
+    spender: EARN_VAULT.spenderContracts[ChainId.sepolia]?.address,
     amount: 0.00001,
     env: Env.stage,
   },

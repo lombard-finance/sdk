@@ -37,7 +37,9 @@ export function SuiUnstakingProgress({
 
   const getExplorerUrl = (hash: string) => {
     const chain = env === Env.prod ? Chain.SUI_MAINNET : Chain.SUI_TESTNET;
-    return getExplorerTxUrl(chain, hash) ?? `https://suiscan.xyz/mainnet/tx/${hash}`;
+    return (
+      getExplorerTxUrl(chain, hash) ?? `https://suiscan.xyz/mainnet/tx/${hash}`
+    );
   };
 
   return (
@@ -95,12 +97,15 @@ export function SuiUnstakingProgress({
       </div>
 
       {/* Action buttons */}
-      {(isComplete || hasError) ? (
+      {isComplete || hasError ? (
         <button onClick={onReset} className="btn btn-secondary w-full">
           Start New Unstake
         </button>
       ) : (
-        <button onClick={onReset} className="btn btn-secondary w-full mt-4 text-sm">
+        <button
+          onClick={onReset}
+          className="btn btn-secondary w-full mt-4 text-sm"
+        >
           Cancel
         </button>
       )}

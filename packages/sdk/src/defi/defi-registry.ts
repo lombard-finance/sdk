@@ -14,9 +14,9 @@ import { AssetId } from '../core/assets';
 import { Token } from '../tokens/token-addresses';
 import { SILO_VAULT_SPENDER_ABI } from '../vaults/abi';
 import {
-  VEDA_VAULT_SPENDER_CONTRACTS,
-  VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
-  VedaVaultStakeAndBakeChain,
+  EARN_STAKE_AND_BAKE_CHAINS,
+  EARN_VAULT_SPENDER_CONTRACTS,
+  EarnStakeAndBakeChain,
 } from '../vaults/lib/config';
 
 /**
@@ -57,7 +57,7 @@ export type StakeAndBakeRegistry = Record<DefiProtocol, TokenStrategyMap>;
 const ALL_ENVS = Object.values(Env) as Env[];
 
 // Use single source of truth from vaults/lib/config.ts
-// VEDA_VAULT_STAKE_AND_BAKE_CHAINS is imported and used directly below
+// EARN_STAKE_AND_BAKE_CHAINS is imported and used directly below
 
 export const SILO_VAULT_SPENDER_CONTRACT_GASTALD_FUJI: `0x${string}` =
   '0xFe1e76D9e065e879A9D1914482f0F13d85F39877';
@@ -82,10 +82,8 @@ function mapEnvs<const E extends readonly Env[]>(
   }, {} as EnvStrategyMap);
 }
 
-function getVedaSpenderContract(
-  chainId: VedaVaultStakeAndBakeChain,
-): ContractInfo {
-  const contract = VEDA_VAULT_SPENDER_CONTRACTS[chainId];
+function getVedaSpenderContract(chainId: EarnStakeAndBakeChain): ContractInfo {
+  const contract = EARN_VAULT_SPENDER_CONTRACTS[chainId];
   if (!contract) {
     throw new Error(`Missing Veda spender contract for chain ${chainId}`);
   }
@@ -143,20 +141,20 @@ const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
 
 /**
  * DeFi Registry: Token approval configurations by vault, token, env, and chain.
- * 
+ *
  * TODO: Update the format of this registry to match asset catalog and chain catalog
  */
 export const DEFI_REGISTRY: StakeAndBakeRegistry = {
   [DefiProtocol.Veda]: {
     [Token.LBTC]: mapEnvs(ALL_ENVS, () =>
-      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, chain => ({
+      mapChains(EARN_STAKE_AND_BAKE_CHAINS, (chain) => ({
         amountStrategy: 'identity',
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
         spenderContract: getVedaSpenderContract(chain),
       })),
     ),
     BTC: mapEnvs(ALL_ENVS, () =>
-      mapChains(VEDA_VAULT_STAKE_AND_BAKE_CHAINS, chain => ({
+      mapChains(EARN_STAKE_AND_BAKE_CHAINS, (chain) => ({
         amountStrategy: 'btcToLbtc',
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
         spenderContract: getVedaSpenderContract(chain),
@@ -167,7 +165,7 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
     [Token.BTCb]: {
       // Silo on Avalanche Fuji is only available on testnet (Gastald backend)
       // Stage environment does not support Avalanche Fuji
-      [Env.testnet]: mapChains([ChainId.avalancheFuji], chain => ({
+      [Env.testnet]: mapChains([ChainId.avalancheFuji], (chain) => ({
         amountStrategy: 'identity',
         approval: { ...SILO_BTCB_APPROVE_APPROVAL },
         spenderContract: {
@@ -259,7 +257,8 @@ export function getAvailableProtocols(
 
   for (const [protocol, tokenStrategyMap] of Object.entries(DEFI_REGISTRY)) {
     for (const token of tokens) {
-      const tokenRegistry = tokenStrategyMap[token as keyof typeof tokenStrategyMap];
+      const tokenRegistry =
+        tokenStrategyMap[token as keyof typeof tokenStrategyMap];
       if (!tokenRegistry) continue;
 
       const envRegistry = tokenRegistry[env];
@@ -286,8 +285,8 @@ export function getAvailableProtocolsWithMetadata(
   env: Env,
 ): Array<{ value: DefiProtocol; label: string; url: string }> {
   const protocols = getAvailableProtocols(assetId, env);
-  
-  return protocols.map(protocol => ({
+
+  return protocols.map((protocol) => ({
     value: protocol,
     label: DefiProtocols[protocol]?.name ?? protocol,
     url: DefiProtocols[protocol]?.url ?? '',

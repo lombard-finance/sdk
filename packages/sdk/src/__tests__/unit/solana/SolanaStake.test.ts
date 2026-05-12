@@ -61,7 +61,7 @@ describe('SolanaStake — BTC.b → LBTC on Solana', () => {
       await stake.prepare(validPrepareParams);
 
       const confirmingPayloads: { txHash?: string; status: string }[] = [];
-      stake.on('progress', progress => {
+      stake.on('progress', (progress) => {
         if (progress.status === NonEvmOperationStatus.CONFIRMING) {
           confirmingPayloads.push(progress);
         }

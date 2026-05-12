@@ -57,9 +57,8 @@ describe('EvmUnstake fee authorization status', () => {
   });
 
   it('transitions to NEEDS_FEE_AUTHORIZATION when fee auth required and no valid signature', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+    const { checkFeeAuthorization } =
+      await import('../../../chains/evm/shared/feeAuth');
 
     // Mock: fee auth required, no valid signature (unsubsidized chain like Ethereum)
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
@@ -97,9 +96,8 @@ describe('EvmUnstake fee authorization status', () => {
   });
 
   it('transitions to READY when fee auth not required (subsidized chain)', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+    const { checkFeeAuthorization } =
+      await import('../../../chains/evm/shared/feeAuth');
 
     // Mock: no fee auth required (subsidized chain like Base)
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
@@ -128,9 +126,8 @@ describe('EvmUnstake fee authorization status', () => {
   });
 
   it('transitions to READY when fee auth required but valid signature exists', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+    const { checkFeeAuthorization } =
+      await import('../../../chains/evm/shared/feeAuth');
 
     // Mock: fee auth required AND valid signature already exists
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
@@ -160,9 +157,8 @@ describe('EvmUnstake fee authorization status', () => {
   });
 
   it('emits status-change event with NEEDS_FEE_AUTHORIZATION', async () => {
-    const { checkFeeAuthorization } = await import(
-      '../../../chains/evm/shared/feeAuth'
-    );
+    const { checkFeeAuthorization } =
+      await import('../../../chains/evm/shared/feeAuth');
 
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
       requiresAuth: true,
@@ -191,9 +187,7 @@ describe('EvmUnstake fee authorization status', () => {
     });
 
     // Should include NEEDS_FEE_AUTHORIZATION in emitted statuses
-    expect(statusChanges).toContain(
-      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-    );
+    expect(statusChanges).toContain(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
     // Should NOT contain READY (the bug would emit READY after NEEDS_FEE_AUTHORIZATION)
     expect(statusChanges).not.toContain(EvmOperationStatus.READY);
   });

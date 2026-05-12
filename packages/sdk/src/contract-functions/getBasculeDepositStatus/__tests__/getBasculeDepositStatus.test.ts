@@ -9,7 +9,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
 import { AddressKind, Token } from '../../../tokens/token-addresses';
-import { BasculeDepositStatus, getBasculeDepositStatus } from '../getBasculeDepositStatus';
+import {
+  BasculeDepositStatus,
+  getBasculeDepositStatus,
+} from '../getBasculeDepositStatus';
 
 const readContractMock = vi.fn();
 const getTokenContractInfoMock = vi.fn();
@@ -22,7 +25,8 @@ vi.mock('../../../clients/public-client', () => ({
 }));
 
 vi.mock('../../../tokens/tokens', () => ({
-  getTokenContractInfo: (...args: unknown[]) => getTokenContractInfoMock(...args),
+  getTokenContractInfo: (...args: unknown[]) =>
+    getTokenContractInfoMock(...args),
   isUpgradedAbi: (...args: unknown[]) => isUpgradedAbiMock(...args),
 }));
 

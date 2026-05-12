@@ -87,13 +87,13 @@ export const evmToBtcbConfig: ChainConfig = {
 
   routes: [
     // Production: Same-chain routes for chains with both LBTC and BTCb
-    ...LBTC_BTCB_PROD_CHAINS.map(chain => ({
+    ...LBTC_BTCB_PROD_CHAINS.map((chain) => ({
       sourceChains: [chain],
       destChain: chain,
       envs: [Env.prod] as Env[],
     })),
     // Testnet: Same-chain routes
-    ...LBTC_BTCB_TESTNET_CHAINS.map(chain => ({
+    ...LBTC_BTCB_TESTNET_CHAINS.map((chain) => ({
       sourceChains: [chain],
       destChain: chain,
       envs: [Env.testnet, Env.stage, Env.dev, Env.ibc] as Env[],
@@ -108,7 +108,7 @@ export const evmToBtcbConfig: ChainConfig = {
  */
 export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return evmToBtcConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }
@@ -118,7 +118,7 @@ export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
  */
 export function isBtcbUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return evmToBtcbConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

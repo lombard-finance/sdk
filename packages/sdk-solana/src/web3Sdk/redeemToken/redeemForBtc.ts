@@ -6,10 +6,7 @@ import { DEFAULT_ENV, getConfig, networkToEnv } from '../../const/getConfig';
 import { getConnection } from '../../const/rpcUrls';
 import { getAssetRouterIdl } from '../../idl/getAssetRouterIdl';
 import { ISolanaWalletProvider } from '../../types';
-import {
-  ErrorCode,
-  SolanaSdkError,
-} from '../../utils';
+import { ErrorCode, SolanaSdkError } from '../../utils';
 import { createDebugLogger } from '../../utils/createDebugLogger';
 import { getTokenProgramForMint } from '../../utils/tokenAccount';
 import { redeemBtcbForBtc } from './redeemBtcb';
@@ -29,7 +26,14 @@ export async function redeemForBtc(
   provider: ISolanaWalletProvider,
   params: RedeemForBtcParams,
 ): Promise<string> {
-  const { amount, btcAddress, network, env: envOverride, rpcUrl, debug = false } = params;
+  const {
+    amount,
+    btcAddress,
+    network,
+    env: envOverride,
+    rpcUrl,
+    debug = false,
+  } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
   try {
@@ -47,10 +51,14 @@ export async function redeemForBtc(
       throw new Error(`Mailbox not configured for network: ${network}`);
     }
     if (!config.solanaRoutingChainId) {
-      throw new Error(`Solana routing chain ID not configured for network: ${network}`);
+      throw new Error(
+        `Solana routing chain ID not configured for network: ${network}`,
+      );
     }
     if (!config.bitcoinRoutingChainId) {
-      throw new Error(`Bitcoin routing chain ID not configured for network: ${network}`);
+      throw new Error(
+        `Bitcoin routing chain ID not configured for network: ${network}`,
+      );
     }
 
     const mintAddress = params.tokenMint;
@@ -70,8 +78,14 @@ export async function redeemForBtc(
     const mint = new PublicKey(mintAddress);
     const assetRouterProgramId = new PublicKey(config.assetRouter);
     const mailboxProgramId = new PublicKey(config.mailbox);
-    const solanaRoutingChainId = Buffer.from(config.solanaRoutingChainId, 'hex');
-    const bitcoinRoutingChainId = Buffer.from(config.bitcoinRoutingChainId, 'hex');
+    const solanaRoutingChainId = Buffer.from(
+      config.solanaRoutingChainId,
+      'hex',
+    );
+    const bitcoinRoutingChainId = Buffer.from(
+      config.bitcoinRoutingChainId,
+      'hex',
+    );
 
     debugLog('Payer:', payer.toBase58());
     debugLog('Mint:', mint.toBase58());
@@ -143,10 +157,9 @@ export async function redeemForBtc(
     );
     debugLog('Mailbox treasury:', mailboxTreasury.toBase58());
 
-    const assetRouterProgram = new Program(
-      getAssetRouterIdl(env),
-      { connection },
-    );
+    const assetRouterProgram = new Program(getAssetRouterIdl(env), {
+      connection,
+    });
 
     const ctx: RedeemContext = {
       provider,

@@ -48,12 +48,7 @@ export class SolanaStake
     this.env = ctx.env;
 
     if (
-      !isStakeSupported(
-        params.chain,
-        params.assetIn,
-        params.assetOut,
-        this.env,
-      )
+      !isStakeSupported(params.chain, params.assetIn, params.assetOut, this.env)
     ) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,

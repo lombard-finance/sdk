@@ -34,7 +34,13 @@ export async function claimToken(
   provider: ISolanaWalletProvider,
   params: ClaimTokenParams,
 ): Promise<string> {
-  const { network, env = DEFAULT_ENV, rawPayload, rpcUrl, debug = false } = params;
+  const {
+    network,
+    env = DEFAULT_ENV,
+    rawPayload,
+    rpcUrl,
+    debug = false,
+  } = params;
   const { debugLog, printLogs } = createDebugLogger({ debug });
 
   try {
@@ -127,10 +133,14 @@ export async function claimToken(
       assetRouterConfigPDA,
     );
     debugLog(
-      'Asset Router config — paused:', arConfig.paused,
-      'nativeMint:', arConfig.nativeMint.toBase58(),
-      'bascule:', arConfig.basculeProgramId?.toBase58() ?? 'null',
-      'basculeGmp:', arConfig.basculeGmpProgramId?.toBase58() ?? 'null',
+      'Asset Router config — paused:',
+      arConfig.paused,
+      'nativeMint:',
+      arConfig.nativeMint.toBase58(),
+      'bascule:',
+      arConfig.basculeProgramId?.toBase58() ?? 'null',
+      'basculeGmp:',
+      arConfig.basculeGmpProgramId?.toBase58() ?? 'null',
     );
 
     if (arConfig.paused) {

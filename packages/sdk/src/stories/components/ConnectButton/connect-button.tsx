@@ -155,7 +155,7 @@ export function ConnectButton({ label }: ConnectButtonProps) {
                 overflowY: 'auto',
               }}
             >
-              {AVAILABLE_NETWORKS.map(network => {
+              {AVAILABLE_NETWORKS.map((network) => {
                 const isCurrentNetwork = account.chainId === network.chain.id;
                 return (
                   <button
@@ -181,12 +181,12 @@ export function ConnectButton({ label }: ConnectButtonProps) {
                       }
                     }}
                     disabled={isCurrentNetwork || isSwitchingNetwork}
-                    onMouseEnter={e => {
+                    onMouseEnter={(e) => {
                       if (!isCurrentNetwork) {
                         e.currentTarget.style.background = 'var(--bs-gray-100)';
                       }
                     }}
-                    onMouseLeave={e => {
+                    onMouseLeave={(e) => {
                       if (!isCurrentNetwork) {
                         e.currentTarget.style.background = 'transparent';
                       }

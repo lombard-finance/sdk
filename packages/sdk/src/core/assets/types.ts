@@ -123,7 +123,7 @@ export interface AssetCatalog {
 export function assetValueToKey(value: string): string {
   return (
     Object.keys(AssetId).find(
-      key => AssetId[key as keyof typeof AssetId] === value,
+      (key) => AssetId[key as keyof typeof AssetId] === value,
     ) ?? ''
   );
 }

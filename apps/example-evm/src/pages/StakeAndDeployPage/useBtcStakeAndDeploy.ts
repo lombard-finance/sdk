@@ -1,9 +1,4 @@
-import {
-  Chain,
-  createConfig,
-  DeployProtocol,
-  Env,
-} from '@lombard.finance/sdk';
+import { Chain, createConfig, DeployProtocol, Env } from '@lombard.finance/sdk';
 import {
   useBtcStakeAndBake as useBtcStakeAndBakeHook,
   useLombardSDK,
@@ -31,7 +26,11 @@ export function useBtcStakeAndDeploy(
 ) {
   const currentEnv = env ?? getEnvironment();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(
     () =>
       createConfig({
         env: currentEnv,

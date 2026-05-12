@@ -155,7 +155,10 @@ export class EvmUnstake
    * Signs the fee authorization and stores it on the server.
    */
   async authorizeFee(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION, 'authorizeFee');
+    this.assertStatus(
+      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
+      'authorizeFee',
+    );
 
     if (!this._feeAuth.feeInSatoshis) {
       throw LombardError.missingParameter('feeInSatoshis');
@@ -224,7 +227,9 @@ export class EvmUnstake
       // For BTCb output: account = recipient (same EVM address receives BTCb)
       const txHash = await redeemToken({
         provider: provider as EIP1193Provider,
-        account: isBtcbOutput ? (this._recipient! as `0x${string}`) : evmAccount,
+        account: isBtcbOutput
+          ? (this._recipient! as `0x${string}`)
+          : evmAccount,
         amount: this._amount!,
         btcAddress: isBtcbOutput ? undefined : this._recipient!,
         chainId,

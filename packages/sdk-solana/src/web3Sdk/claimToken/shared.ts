@@ -201,11 +201,19 @@ export async function fetchAssetRouterConfig(
  * Execute the consortium session flow: create_session, post_signatures, finalize_session.
  * Skips steps that are already completed on-chain.
  */
-export async function executeConsortiumSession(ctx: ClaimContext): Promise<void> {
+export async function executeConsortiumSession(
+  ctx: ClaimContext,
+): Promise<void> {
   const {
-    provider, connection, consortiumProgram,
-    consortiumConfigPDA, sessionPDA, validatedPayloadPDA,
-    payloadHashArray, params, debugLog,
+    provider,
+    connection,
+    consortiumProgram,
+    consortiumConfigPDA,
+    sessionPDA,
+    validatedPayloadPDA,
+    payloadHashArray,
+    params,
+    debugLog,
   } = ctx;
 
   const validatedPayloadAccount =
@@ -294,14 +302,15 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
 
   if (!sessionSigned) {
     debugLog('Step 2: post_session_signatures...');
-    const { signatures: parsedSigs, indices } =
-      parseSignaturesFromProof(params.proofSignature);
+    const { signatures: parsedSigs, indices } = parseSignaturesFromProof(
+      params.proofSignature,
+    );
 
     if (parsedSigs.length === 0 || indices.length === 0) {
       throw new Error('No valid signatures found in the proof');
     }
 
-    const signatures = parsedSigs.map(sig => Array.from(sig));
+    const signatures = parsedSigs.map((sig) => Array.from(sig));
 
     const postSigsTx = await consortiumProgram.methods
       .postSessionSignatures(payloadHashArray, signatures, indices)
@@ -328,7 +337,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
   debugLog('Step 3: finalize_session...');
   const finalizeSessionTx = await consortiumProgram.methods
     .finalizeSession(payloadHashArray)
-      .accounts({
+    .accounts({
       payer: provider.publicKey,
       config: consortiumConfigPDA,
       session: sessionPDA,
@@ -350,10 +359,7 @@ export async function executeConsortiumSession(ctx: ClaimContext): Promise<void>
 // ── Helpers ──
 
 export function computePayloadHash(payloadBytes: Buffer): Buffer {
-  return Buffer.from(
-    sha256(payloadBytes as unknown as Uint8Array),
-    'hex',
-  );
+  return Buffer.from(sha256(payloadBytes as unknown as Uint8Array), 'hex');
 }
 
 /**

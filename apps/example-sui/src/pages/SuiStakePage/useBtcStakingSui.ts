@@ -26,25 +26,26 @@ export function useBtcStakingSui(
 ) {
   const currentEnv = env ?? getEnvironment();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
-    () => {
-      if (!suiWallet) return undefined;
-      const suiProvider =
-        suiWallet && suiWalletAccount
-          ? {
-              getWallet: () => suiWallet,
-              getWalletAccount: () => suiWalletAccount,
-            }
-          : undefined;
-      return createConfig({
-        env: currentEnv,
-        providers: { ...(suiProvider && { sui: () => suiProvider }) },
-        modules: [suiModule()],
-        ...(partnerId && { partner: { partnerId } }),
-      });
-    },
-    [suiWallet, suiWalletAccount, partnerId, currentEnv],
-  );
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(() => {
+    if (!suiWallet) return undefined;
+    const suiProvider =
+      suiWallet && suiWalletAccount
+        ? {
+            getWallet: () => suiWallet,
+            getWalletAccount: () => suiWalletAccount,
+          }
+        : undefined;
+    return createConfig({
+      env: currentEnv,
+      providers: { ...(suiProvider && { sui: () => suiProvider }) },
+      modules: [suiModule()],
+      ...(partnerId && { partner: { partnerId } }),
+    });
+  }, [suiWallet, suiWalletAccount, partnerId, currentEnv]);
 
   const {
     stake: stakeCore,

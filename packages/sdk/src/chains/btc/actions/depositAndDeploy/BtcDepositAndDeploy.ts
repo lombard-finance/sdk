@@ -12,7 +12,7 @@ import type { z } from 'zod';
 
 import type { ChainId } from '../../../../common/chains';
 import { isValidChain } from '../../../../common/chains';
-import { Chain, parseChainIdentifier,StepStatus } from '../../../../core';
+import { Chain, parseChainIdentifier, StepStatus } from '../../../../core';
 import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 import type { DepositAndDeployEventMap } from '../../../../shared/events';
@@ -330,7 +330,7 @@ export class BtcDepositAndDeploy
       fetchDeposit: async () => {
         const deposits = await this.ctx.api.getDeposits(recipient);
         const ourDeposit = deposits.find(
-          deposit => deposit.depositAddress === depositAddress,
+          (deposit) => deposit.depositAddress === depositAddress,
         );
 
         if (!ourDeposit) {
@@ -342,7 +342,7 @@ export class BtcDepositAndDeploy
           isClaimed: ourDeposit.isClaimed,
         };
       },
-      onProgress: p => {
+      onProgress: (p) => {
         this.emitProgress({
           status: this.status,
           steps: {

@@ -86,7 +86,7 @@ export function isUpgradedAbi(
   abi: unknown,
 ): abi is typeof STLBTC_ABI | typeof NATIVE_LBTC_ABI {
   const hasAssetRouter = (abi as Abi).find(
-    a => a.type === 'function' && a.name === 'getAssetRouter',
+    (a) => a.type === 'function' && a.name === 'getAssetRouter',
   );
   return hasAssetRouter != null;
 }

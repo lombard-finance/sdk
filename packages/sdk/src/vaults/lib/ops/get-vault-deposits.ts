@@ -13,12 +13,11 @@ import {
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
 import {
-  isVedaVaultChain,
-  NETWORK_TO_VEDA_VAULT_CHAIN_MAP,
-  Vault,
-  VAULTS,
-  VEDA_VAULT_CHAIN_TO_NETWORK_MAP,
-  VedaVaultChain,
+  EARN_CHAIN_TO_NETWORK_MAP,
+  EARN_VAULT,
+  EarnChain,
+  isEarnChain,
+  NETWORK_TO_EARN_CHAIN_MAP,
 } from '../config';
 
 type SevenSeasDepositEntry = {
@@ -63,20 +62,19 @@ const normalizeSevenSeasDeposits = (
   return [payload];
 };
 
-export type GetVaultDepositsParameters = IEnvParam & {
+export type GetEarnDepositsParameters = IEnvParam & {
   account: Address;
   chainId: ChainId;
-  vaultKey?: Vault;
   rpcUrl?: string;
 };
 
-export type VaultDeposit = {
+export type EarnDeposit = {
   /** The transaction hash */
   txHash: Hash;
   /** The transaction's block number */
   blockNumber: number;
   /** The chain id */
-  chainId: VedaVaultChain;
+  chainId: EarnChain;
   /** The deposited amount */
   amount: BigNumber;
   /** The amount of shares received */
@@ -92,30 +90,24 @@ export type VaultDeposit = {
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
  * @param parameters.chainId - The chain id.
- * @param parameters.vaultKey - The optional vault identifier.
  * @param parameters.rpcUrl - The optional RPC url.
  *
- * @returns {Promise<VaultDeposit[]>}
+ * @returns {Promise<EarnDeposit[]>}
  */
-export async function getVaultDeposits({
+export async function getEarnDeposits({
   account,
   chainId,
-  vaultKey = Vault.Veda,
   rpcUrl,
   env,
-}: GetVaultDepositsParameters) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+}: GetEarnDepositsParameters) {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );
   }
 
-  const network = VEDA_VAULT_CHAIN_TO_NETWORK_MAP[chainId];
+  const network = EARN_CHAIN_TO_NETWORK_MAP[chainId];
   const { bffApiUrl } = getApiConfig(env);
   if (!bffApiUrl) {
     throw new Error(
@@ -128,7 +120,7 @@ export async function getVaultDeposits({
   const entries = normalizeSevenSeasDeposits(data);
 
   const depositAssetsAddresses = unique(
-    entries.map(d => ensureHex(d.deposit_asset)),
+    entries.map((d) => ensureHex(d.deposit_asset)),
   );
 
   const depositAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> = {};
@@ -145,15 +137,15 @@ export async function getVaultDeposits({
     }
   }
 
-  const deposits = entries.map(d => {
+  const deposits = entries.map((d) => {
     const token = depositAssets[ensureHex(d.deposit_asset)];
     const amount = fromBaseDenomination(d.deposit_amount, token?.decimals || 0);
     const shareAmount = fromBaseDenomination(d.share_amount, vault.decimals);
 
-    const vaultDeposit: VaultDeposit = {
+    const vaultDeposit: EarnDeposit = {
       txHash: ensureHex(d.tx_hash),
       blockNumber: d.block_number,
-      chainId: NETWORK_TO_VEDA_VAULT_CHAIN_MAP[d.chain],
+      chainId: NETWORK_TO_EARN_CHAIN_MAP[d.chain],
       amount,
       shareAmount,
       token,
@@ -163,12 +155,11 @@ export async function getVaultDeposits({
     return vaultDeposit;
   });
 
-  return orderBy(deposits, d => d.blockNumber, 'desc');
+  return orderBy(deposits, (d) => d.blockNumber, 'desc');
 }
 
-export type GetVaultDepositsAllChainsParameters = {
+export type GetEarnDepositsAllChainsParameters = {
   account: Address;
-  vaultKey?: Vault;
   rpcUrl?: string;
 };
 
@@ -178,24 +169,18 @@ export type GetVaultDepositsAllChainsParameters = {
  *
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
- * @param parameters.vaultKey - The optional vault identifier (defaults to Veda).
  * @param parameters.rpcUrl - The optional RPC url.
  *
- * @returns {Promise<VaultDeposit[]>} All deposits across all supported chains, sorted by block number (newest first)
+ * @returns {Promise<EarnDeposit[]>} All deposits across all supported chains, sorted by block number (newest first)
  */
-export async function getVaultDepositsAllChains({
+export async function getEarnDepositsAllChains({
   account,
-  vaultKey = Vault.Veda,
   rpcUrl,
-}: GetVaultDepositsAllChainsParameters): Promise<VaultDeposit[]> {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
+}: GetEarnDepositsAllChainsParameters): Promise<EarnDeposit[]> {
+  const vault = EARN_VAULT;
   // Fetch deposits from all supported chains in parallel
-  const depositsPromises = vault.chains.map(chainId =>
-    getVaultDeposits({ account, chainId, vaultKey, rpcUrl }).catch(error => {
+  const depositsPromises = vault.chains.map((chainId: EarnChain) =>
+    getEarnDeposits({ account, chainId, rpcUrl }).catch((error: unknown) => {
       console.error(`Failed to fetch deposits for chain ${chainId}:`, error);
       return []; // Return empty array on error to not break the entire query
     }),
@@ -205,5 +190,5 @@ export async function getVaultDepositsAllChains({
 
   // Flatten and sort all deposits by block number (newest first)
   const allDeposits = depositsArrays.flat();
-  return orderBy(allDeposits, d => d.blockNumber, 'desc');
+  return orderBy(allDeposits, (d) => d.blockNumber, 'desc');
 }

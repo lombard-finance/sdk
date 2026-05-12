@@ -11,7 +11,7 @@ vi.mock('../../../clients/public-client', () => ({
   makePublicClient: vi.fn(() => ({})),
 }));
 
-vi.mock('viem', async importOriginal => {
+vi.mock('viem', async (importOriginal) => {
   const actual = await importOriginal<typeof import('viem')>();
   return {
     ...actual,

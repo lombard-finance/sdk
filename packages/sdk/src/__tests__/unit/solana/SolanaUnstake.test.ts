@@ -84,9 +84,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     it('should throw for unsupported env/chain combination', () => {
       const testnetCtx = createMockContext({ env: Env.testnet });
 
-      expect(
-        () => new SolanaUnstake(testnetCtx, validParams),
-      ).toThrow();
+      expect(() => new SolanaUnstake(testnetCtx, validParams)).toThrow();
     });
 
     it('should accept valid testnet configuration', () => {

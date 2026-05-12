@@ -7,7 +7,7 @@ import { getAvailableChains, getDefaultChain } from '../chains';
 describe('getAvailableChains', () => {
   it('returns correct prod chains', () => {
     const chains = getAvailableChains(Env.prod);
-    const values = chains.map(c => c.value);
+    const values = chains.map((c) => c.value);
 
     expect(values).toContain(Chain.ETHEREUM);
     expect(values).toContain(Chain.BASE);
@@ -23,7 +23,7 @@ describe('getAvailableChains', () => {
 
   it('returns correct stage chains', () => {
     const chains = getAvailableChains(Env.stage);
-    const values = chains.map(c => c.value);
+    const values = chains.map((c) => c.value);
 
     expect(values).toContain(Chain.BASE_SEPOLIA);
     expect(values).toContain(Chain.SEPOLIA);
@@ -39,7 +39,7 @@ describe('getAvailableChains', () => {
 
   it('returns correct testnet chains', () => {
     const chains = getAvailableChains(Env.testnet);
-    const values = chains.map(c => c.value);
+    const values = chains.map((c) => c.value);
 
     expect(values).toContain(Chain.BASE_SEPOLIA);
     expect(values).toContain(Chain.SEPOLIA);

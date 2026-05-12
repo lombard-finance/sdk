@@ -1,3 +1,81 @@
+# 5.0.0
+
+## 🚨 BREAKING CHANGES
+
+The five vault-shaped functions deprecated in 4.8.0 have been removed from the public API. They were replaced by Earn-native equivalents that handle the BTCe wrapper internally. The two deprecated `getEarnPosition` response field aliases have also been removed.
+
+### Bitcoin Earn rename
+
+The product is now called **Bitcoin Earn**. Public symbols that referenced "Veda" (the underlying protocol) or the legacy "Vault" abstraction have been renamed. Internal references to Veda's contracts, ABIs, and the `DefiProtocol.Veda` enum are unchanged because they identify a real third-party protocol.
+
+| Removed                                                        | Replacement                                          |
+| -------------------------------------------------------------- | ---------------------------------------------------- |
+| `Vault` enum, `VAULTS` map, `VaultNameMap`                     | (deleted, single Bitcoin Earn vault)                 |
+| `getVaultDeposits`, `getVaultDepositsAllChains`                | `getEarnDeposits`, `getEarnDepositsAllChains`        |
+| `getVaultWithdrawals`, `getVaultWithdrawalsAllChains`          | `getEarnWithdrawals`, `getEarnWithdrawalsAllChains`  |
+| `getVaultMinimumDeposit`, `previewVaultDeposit`                | `getEarnMinimumDeposit`, `previewEarnDeposit`        |
+| `getVaultApy`, `getVaultPoints`, `getVaultTVL`                 | `getEarnApy`, `getEarnPoints`, `getEarnTVL`          |
+| Type aliases (`GetVault*Parameters`, `VedaVaultDeposit`, etc.) | Renamed to `GetEarn*Parameters`, `EarnDeposit`, etc. |
+| `vaultKey: Vault` parameter on the public Earn helpers         | Removed (single vault, redundant)                    |
+
+The list above covers the public-facing renames. The full mapping is in [`MIGRATION_5.md`](./MIGRATION_5.md).
+
+### Removed exports
+
+| Removed                                                                                                                                                  | Replacement                                                                                                                  |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `deposit({ amount, token, vaultKey, account, chainId, provider })`                                                                                       | `depositEarn({ amount, token, account, chainId, provider })`                                                                 |
+| `queueWithdraw({ amount, token, vaultKey, account, chainId, provider })`                                                                                 | `withdrawEarn({ amount, account, chainId, provider })`                                                                       |
+| `cancelWithdraw({ token, vaultKey, account, chainId, provider })`                                                                                        | `cancelEarnWithdrawal({ withdrawalAsset?, account, chainId, provider })`                                                     |
+| `getSharesByAddress({ vaultKey, chainId, address })`                                                                                                     | `getEarnPosition({ address, chainId })` then read `.underlyingShares`                                                        |
+| `getShareValue({ vaultKey, chainId })`                                                                                                                   | `getEarnPosition({ address, chainId }).exchangeRate`                                                                         |
+| Parameter types: `DepositParameters`, `QueueWithdrawParameters`, `CancelWithdrawParameters`, `IGetSharesByAddressParameters`, `IGetShareValueParameters` | New types: `DepositEarnParameters`, `WithdrawEarnParameters`, `CancelEarnWithdrawalParameters`, `IGetEarnPositionParameters` |
+| `IGetEarnPositionResponse.lbtcvShares` (deprecated alias added in 4.8.0)                                                                                 | `IGetEarnPositionResponse.underlyingShares`                                                                                  |
+| `IGetEarnPositionResponse.btceSharesInLbtcv` (deprecated alias added in 4.8.0)                                                                           | `IGetEarnPositionResponse.btceSharesInUnderlying`                                                                            |
+
+The `lbtcvShares` / `btceSharesInLbtcv` removal is a **runtime-shape break** (not just a type rename): destructuring those names from a `getEarnPosition` result returns `undefined` even in untyped JavaScript. Update reads to the new names.
+
+The `LOMBARD_SDK_SUPPRESS_DEPRECATION` env var no longer has any effect (no deprecation warnings remain in 5.0.0).
+
+### Migration
+
+See [`MIGRATION_5.md`](./MIGRATION_5.md) at the package root for per-symbol before/after code blocks.
+
+### Internal-only retention
+
+The implementations live on as `@internal` helpers (`depositInternal`, `queueWithdrawInternal`, `cancelWithdrawInternal`, `getSharesByAddressInternal`, `getShareValueInternal`) and remain reachable from the SDK's own action classes (`EvmDeploy`, `EvmWithdraw`, `EvmCancelWithdraw`) and the new BTCe-native helpers. They are not part of the public API and are not re-exported from any entry point.
+
+### Migration support
+
+The `4.8.0` line stays available on npm and includes runtime deprecation warnings for the same functions. If you need a soak window, pin to `^4.8.0` until you're ready to bump.
+
+---
+
+# 4.8.0
+
+### Added
+
+- `depositEarn()` — high-level deposit orchestrator. Handles ERC20 approval to the BTCe contract and routes the deposit through the wrapper, returning the wrap transaction hash. Accepts the same `Token` enum as the legacy `deposit`.
+- `withdrawEarn()` — high-level withdrawal orchestrator. Reads both legs of the user's position (direct underlying-share + BTCe), checks the wrapper's `maxWithdraw` before sending any transaction, then issues 1–3 transactions in order (approve, conditional unwrap, queue). Throws typed errors on insufficient position or insufficient unwrappable balance before any state change.
+- `previewWithdrawEarn()` — read-only predictor that returns the steps `withdrawEarn` would execute and the expected wallet-popup count, so integrators can render a step indicator before the user signs.
+- `cancelEarnWithdrawal()` — cancels a pending Earn withdrawal request.
+
+### Changed
+
+- `getEarnPosition()` response renamed: `lbtcvShares` → `underlyingShares`, `btceSharesInLbtcv` → `btceSharesInUnderlying`. Behavior unchanged.
+
+### Deprecated
+
+The following exports are now `@deprecated` and emit a one-time runtime warning when called. They will be removed in 5.0.0. Set `process.env.LOMBARD_SDK_SUPPRESS_DEPRECATION` to silence the warning.
+
+- `getSharesByAddress` → use `getEarnPosition`
+- `getShareValue` → use `getEarnPosition().exchangeRate`
+- `deposit` → use `depositEarn`
+- `queueWithdraw` → use `withdrawEarn`
+- `cancelWithdraw` → use `cancelEarnWithdrawal`
+
+---
+
 # 4.7.2
 
 ### Fixed
@@ -181,18 +259,21 @@ See the [Migration Guide](./docs/user-guides/MIGRATION-V4.md) for detailed upgra
 ---
 
 # 3.7.4
+
 - added missed chains to CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP
 
 # 3.7.3
+
 - added from_token_address fiild for unstakes
 - added bitcoin blockchain identifier
 
 # 3.7.2
-* **added stable support**
+
+- **added stable support**
 
 # 3.7.1
 
-* **added monad support**
+- **added monad support**
 
 # 3.7.0
 

@@ -62,7 +62,9 @@ describe('EVM UnstakingForm', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -75,10 +77,12 @@ describe('EVM UnstakingForm', () => {
     mockWallet();
     renderForm();
 
-    const assetSelect = container.querySelector('#assetOut') as HTMLSelectElement;
+    const assetSelect = container.querySelector(
+      '#assetOut',
+    ) as HTMLSelectElement;
     expect(assetSelect).toBeTruthy();
 
-    const options = Array.from(assetSelect.options).map(o => o.value);
+    const options = Array.from(assetSelect.options).map((o) => o.value);
     expect(options).toContain(AssetId.BTC);
     expect(options).toContain(AssetId.BTCb);
   });
@@ -96,7 +100,9 @@ describe('EVM UnstakingForm', () => {
     mockWallet();
     renderForm({ disabled: true });
 
-    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const button = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Connect Wallet');
   });
@@ -105,7 +111,9 @@ describe('EVM UnstakingForm', () => {
     mockWallet();
     renderForm({ isLoading: true });
 
-    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const button = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Processing');
   });
@@ -114,7 +122,9 @@ describe('EVM UnstakingForm', () => {
     mockWallet();
     renderForm();
 
-    const sourceChainSelect = container.querySelector('#sourceChain') as HTMLSelectElement;
+    const sourceChainSelect = container.querySelector(
+      '#sourceChain',
+    ) as HTMLSelectElement;
     expect(sourceChainSelect).toBeTruthy();
     expect(sourceChainSelect.options.length).toBeGreaterThan(0);
   });

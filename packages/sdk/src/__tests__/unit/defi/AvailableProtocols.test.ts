@@ -63,7 +63,10 @@ describe('getAvailableProtocols', () => {
   describe('unsupported assets', () => {
     it('should return empty array for unsupported asset', () => {
       // Using a made-up asset ID that's not in the registry
-      const protocols = getAvailableProtocols('unsupported' as AssetId, Env.prod);
+      const protocols = getAvailableProtocols(
+        'unsupported' as AssetId,
+        Env.prod,
+      );
 
       expect(protocols).toEqual([]);
     });
@@ -76,16 +79,19 @@ describe('getAvailableProtocolsWithMetadata', () => {
 
     expect(protocols.length).toBeGreaterThan(0);
 
-    const veda = protocols.find(p => p.value === DefiProtocol.Veda);
+    const veda = protocols.find((p) => p.value === DefiProtocol.Veda);
     expect(veda).toBeDefined();
     expect(veda?.label).toBe('Lombard DeFi Vault');
     expect(veda?.url).toBe('https://lombard.finance');
   });
 
   it('should return Silo metadata for BTCb in testnet', () => {
-    const protocols = getAvailableProtocolsWithMetadata(AssetId.BTCb, Env.testnet);
+    const protocols = getAvailableProtocolsWithMetadata(
+      AssetId.BTCb,
+      Env.testnet,
+    );
 
-    const silo = protocols.find(p => p.value === DefiProtocol.Silo);
+    const silo = protocols.find((p) => p.value === DefiProtocol.Silo);
     expect(silo).toBeDefined();
     expect(silo?.label).toBe('Silo Finance Vault');
     expect(silo?.url).toBe('https://silo.finance');

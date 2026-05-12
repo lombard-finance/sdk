@@ -41,7 +41,7 @@ export const starknetConfig: ChainConfig = {
   ],
 
   // Derived from ASSET_CATALOG - Starknet chains where LBTC is deployed
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain =>
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) =>
     isStarknetChain(chain),
   ),
 

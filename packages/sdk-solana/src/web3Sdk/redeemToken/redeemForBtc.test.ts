@@ -10,16 +10,23 @@ import { ErrorCode, SolanaSdkError } from '../../utils';
 const mockRedeemBtcbForBtc = vi.fn().mockResolvedValue('btcb-sig');
 const mockRedeemLbtcForBtc = vi.fn().mockResolvedValue('lbtc-sig');
 
-vi.mock('./redeemBtcb', () => ({ redeemBtcbForBtc: (...a: unknown[]) => mockRedeemBtcbForBtc(...a) }));
-vi.mock('./redeemLbtc', () => ({ redeemLbtcForBtc: (...a: unknown[]) => mockRedeemLbtcForBtc(...a) }));
+vi.mock('./redeemBtcb', () => ({
+  redeemBtcbForBtc: (...a: unknown[]) => mockRedeemBtcbForBtc(...a),
+}));
+vi.mock('./redeemLbtc', () => ({
+  redeemLbtcForBtc: (...a: unknown[]) => mockRedeemLbtcForBtc(...a),
+}));
 
 const MOCK_LBTC_MINT = 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J';
 const MOCK_BTCB_MINT = 'BTCB3ripBAut19jM8kDPVbJHb2ZdR2GcZvGZkCmFPtV8';
 const MOCK_ASSET_ROUTER = 'LomVyJDZ91jeVbNnTupJXKJTQFakJVMc87CmwDHYt95';
 const MOCK_MAILBOX = 'LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9';
-const MOCK_SOLANA_CHAIN_ID = '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab';
-const MOCK_BITCOIN_CHAIN_ID = 'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6';
-const MOCK_LEDGER_CHAIN_ID = '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e';
+const MOCK_SOLANA_CHAIN_ID =
+  '0259db5080fc2c6d3bcf7ca90712d3c2e5e6c28f27f0dfbb9953bdb0894c03ab';
+const MOCK_BITCOIN_CHAIN_ID =
+  'ff000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6';
+const MOCK_LEDGER_CHAIN_ID =
+  '031f51c4e4cc1dae1c752d2f8fe2ae045da668a13f2e47a465964d630f5ed22e';
 const MOCK_PAYER = '8yarEiDaJVikHZbk3PQSoWiDn2T3oM1FHZN1Jv4VZFdr';
 
 const fullConfig: IConfig = {
@@ -60,7 +67,11 @@ vi.mock('@lombard.finance/sdk-common', () => ({
 }));
 
 vi.mock('../../utils/tokenAccount', () => ({
-  getTokenProgramForMint: vi.fn().mockResolvedValue(new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')),
+  getTokenProgramForMint: vi
+    .fn()
+    .mockResolvedValue(
+      new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
+    ),
 }));
 
 vi.mock('../../idl/getAssetRouterIdl', () => ({
@@ -79,7 +90,9 @@ vi.mock('@coral-xyz/anchor', () => ({
 // Build AR config data: 8 (disc) + 32 (admin) + 32 (pending_admin) + 32 (treasury) + 1 (paused=0)
 function buildArConfigData(paused = false) {
   const data = Buffer.alloc(105, 0);
-  const treasury = new PublicKey('8yarEiDaJVikHZbk3PQSoWiDn2T3oM1FHZN1Jv4VZFdr');
+  const treasury = new PublicKey(
+    '8yarEiDaJVikHZbk3PQSoWiDn2T3oM1FHZN1Jv4VZFdr',
+  );
   treasury.toBuffer().copy(data, 72);
   data[104] = paused ? 1 : 0;
   return data;
@@ -88,7 +101,9 @@ function buildArConfigData(paused = false) {
 // Build mailbox config data: 8 (disc) + 32 (admin) + 32 (pending_admin) + 32 (treasury) = 104
 function buildMailboxConfigData() {
   const data = Buffer.alloc(104, 0);
-  const treasury = new PublicKey('8yarEiDaJVikHZbk3PQSoWiDn2T3oM1FHZN1Jv4VZFdr');
+  const treasury = new PublicKey(
+    '8yarEiDaJVikHZbk3PQSoWiDn2T3oM1FHZN1Jv4VZFdr',
+  );
   treasury.toBuffer().copy(data, 72);
   return data;
 }
@@ -154,7 +169,10 @@ describe('redeemForBtc', () => {
 
   it('should throw when Asset Router is not configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, assetRouter: null });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      assetRouter: null,
+    });
 
     await expect(
       redeemForBtcFn(mockProvider as any, baseParams),
@@ -172,7 +190,10 @@ describe('redeemForBtc', () => {
 
   it('should throw when Solana routing chain ID is not configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, solanaRoutingChainId: null });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      solanaRoutingChainId: null,
+    });
 
     await expect(
       redeemForBtcFn(mockProvider as any, baseParams),
@@ -181,7 +202,10 @@ describe('redeemForBtc', () => {
 
   it('should throw when Bitcoin routing chain ID is not configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, bitcoinRoutingChainId: null });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      bitcoinRoutingChainId: null,
+    });
 
     await expect(
       redeemForBtcFn(mockProvider as any, baseParams),
@@ -190,7 +214,10 @@ describe('redeemForBtc', () => {
 
   it('should throw when tokenMint is BTC.b but env has no BTC.b mint configured', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, btcbTokenMint: null });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      btcbTokenMint: null,
+    });
 
     await expect(
       redeemForBtcFn(mockProvider as any, baseParams),
@@ -282,7 +309,10 @@ describe('redeemForBtc', () => {
 
   it('should wrap errors with SolanaSdkError', async () => {
     const { getConfig } = await import('../../const/getConfig');
-    vi.mocked(getConfig).mockReturnValueOnce({ ...fullConfig, assetRouter: null });
+    vi.mocked(getConfig).mockReturnValueOnce({
+      ...fullConfig,
+      assetRouter: null,
+    });
 
     try {
       await redeemForBtcFn(mockProvider as any, baseParams);

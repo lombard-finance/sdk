@@ -9,7 +9,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { Chain } from '../../../core';
-import { LombardError, ValidationErrorCode, WithdrawErrorCode } from '../../../shared/errors';
+import {
+  LombardError,
+  ValidationErrorCode,
+  WithdrawErrorCode,
+} from '../../../shared/errors';
 
 describe('EvmWithdraw Interface', () => {
   describe('EvmWithdrawParams', () => {
@@ -39,14 +43,9 @@ describe('EvmWithdraw Interface', () => {
     });
 
     it('should support multiple chains', () => {
-      const chains = [
-        Chain.ETHEREUM,
-        Chain.BASE,
-        Chain.BSC,
-        Chain.CORN,
-      ];
+      const chains = [Chain.ETHEREUM, Chain.BASE, Chain.BSC, Chain.CORN];
 
-      chains.forEach(chain => {
+      chains.forEach((chain) => {
         expect(typeof chain).toBe('string');
       });
     });
@@ -64,7 +63,7 @@ describe('EvmWithdraw Interface', () => {
     it('should validate amount format', () => {
       const validAmounts = ['0.1', '1', '1.5', '0.00001'];
 
-      validAmounts.forEach(amount => {
+      validAmounts.forEach((amount) => {
         expect(parseFloat(amount)).toBeGreaterThan(0);
       });
     });
@@ -72,14 +71,9 @@ describe('EvmWithdraw Interface', () => {
 
   describe('Status Transitions', () => {
     it('should define all required status values', () => {
-      const statuses = [
-        'idle',
-        'needs-approval',
-        'ready',
-        'completed',
-      ];
+      const statuses = ['idle', 'needs-approval', 'ready', 'completed'];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -127,7 +121,9 @@ describe('EvmWithdraw Interface', () => {
 
   describe('WithdrawErrorCode', () => {
     it('should have INSUFFICIENT_SHARES error code', () => {
-      expect(WithdrawErrorCode.INSUFFICIENT_SHARES).toBe('withdraw-insufficient-shares');
+      expect(WithdrawErrorCode.INSUFFICIENT_SHARES).toBe(
+        'withdraw-insufficient-shares',
+      );
     });
 
     it('should have INVALID_AMOUNT error code', () => {
@@ -135,7 +131,9 @@ describe('EvmWithdraw Interface', () => {
     });
 
     it('should have NO_PENDING_WITHDRAWAL error code', () => {
-      expect(WithdrawErrorCode.NO_PENDING_WITHDRAWAL).toBe('withdraw-no-pending');
+      expect(WithdrawErrorCode.NO_PENDING_WITHDRAWAL).toBe(
+        'withdraw-no-pending',
+      );
     });
 
     it('should have WITHDRAWAL_EXPIRED error code', () => {
@@ -143,7 +141,9 @@ describe('EvmWithdraw Interface', () => {
     });
 
     it('should have PROTOCOL_NOT_SUPPORTED error code', () => {
-      expect(WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED).toBe('withdraw-protocol-not-supported');
+      expect(WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED).toBe(
+        'withdraw-protocol-not-supported',
+      );
     });
   });
 

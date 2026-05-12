@@ -26,8 +26,7 @@ export interface StarknetUnstakeParams {
 /**
  * Starknet Unstake progress
  */
-export interface StarknetUnstakeProgress
-  extends StrategyProgress<NonEvmOperationStatus> {
+export interface StarknetUnstakeProgress extends StrategyProgress<NonEvmOperationStatus> {
   status: NonEvmOperationStatus;
   steps: {
     burning: StepStatus;

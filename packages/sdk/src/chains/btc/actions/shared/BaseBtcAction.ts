@@ -438,7 +438,7 @@ export abstract class BaseBtcAction<
       fetchDeposit: async () => {
         const deposits = await this.ctx.api.getDeposits(recipient);
         const ourDeposit = deposits.find(
-          deposit => deposit.depositAddress === depositAddress,
+          (deposit) => deposit.depositAddress === depositAddress,
         );
 
         if (!ourDeposit) {
@@ -450,7 +450,7 @@ export abstract class BaseBtcAction<
           isClaimed: ourDeposit.isClaimed,
         };
       },
-      onProgress: p => {
+      onProgress: (p) => {
         this.emitProgress({
           status: this.status,
           steps: p.steps,

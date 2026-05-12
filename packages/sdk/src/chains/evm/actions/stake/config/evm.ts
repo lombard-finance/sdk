@@ -70,7 +70,7 @@ export const evmConfig: ChainConfig = {
  */
 export function isSourceChainSupported(chain: Chain, env: Env): boolean {
   return evmConfig.routes.some(
-    route => route.sourceChains.includes(chain) && route.envs.includes(env),
+    (route) => route.sourceChains.includes(chain) && route.envs.includes(env),
   );
 }
 
@@ -83,7 +83,7 @@ export function isProtocolSupported(
   env: Env,
 ): boolean {
   return evmConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(chain) &&
       route.protocols.includes(protocol) &&
       route.envs.includes(env),

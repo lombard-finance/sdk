@@ -123,9 +123,10 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const hasDeposit = false;
       const hasValidSignature = false;
 
-      const expectedStatus = !hasDeposit && !hasValidSignature
-        ? 'NEEDS_DEPLOY_AUTHORIZATION'
-        : 'READY';
+      const expectedStatus =
+        !hasDeposit && !hasValidSignature
+          ? 'NEEDS_DEPLOY_AUTHORIZATION'
+          : 'READY';
 
       expect(expectedStatus).toBe('NEEDS_DEPLOY_AUTHORIZATION');
     });
@@ -134,7 +135,9 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const _hasDeposit = false; // Not used in this scenario - signature alone determines status
       const hasValidSignature = true;
 
-      const expectedStatus = hasValidSignature ? 'READY' : 'NEEDS_DEPLOY_AUTHORIZATION';
+      const expectedStatus = hasValidSignature
+        ? 'READY'
+        : 'NEEDS_DEPLOY_AUTHORIZATION';
 
       expect(expectedStatus).toBe('READY');
     });
@@ -143,9 +146,10 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const hasDeposit = true;
       const hasValidSignature = true;
 
-      const expectedStatus = hasDeposit && hasValidSignature
-        ? 'ADDRESS_READY'
-        : 'NEEDS_DEPLOY_AUTHORIZATION';
+      const expectedStatus =
+        hasDeposit && hasValidSignature
+          ? 'ADDRESS_READY'
+          : 'NEEDS_DEPLOY_AUTHORIZATION';
 
       expect(expectedStatus).toBe('ADDRESS_READY');
     });
@@ -154,9 +158,10 @@ describe('StakeAndBake Signature Restoration Logic', () => {
       const hasDeposit = true;
       const hasValidSignature = false;
 
-      const expectedStatus = hasDeposit && !hasValidSignature
-        ? 'NEEDS_DEPLOY_AUTHORIZATION'
-        : 'ADDRESS_READY';
+      const expectedStatus =
+        hasDeposit && !hasValidSignature
+          ? 'NEEDS_DEPLOY_AUTHORIZATION'
+          : 'ADDRESS_READY';
 
       expect(expectedStatus).toBe('NEEDS_DEPLOY_AUTHORIZATION');
     });
@@ -207,7 +212,9 @@ describe('getUserStakeAndBakeSignature API Response Parsing', () => {
 
     const parsed = parseApiResponse(apiResponse);
 
-    expect(parsed.userDestinationAddress).toBe('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
+    expect(parsed.userDestinationAddress).toBe(
+      '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+    );
     expect(parsed.signature).toBe('0xabc123def456');
     expect(parsed.expirationDate).toBe('1704067200');
     expect(parsed.depositAmount).toBe('20000');

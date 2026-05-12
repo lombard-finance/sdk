@@ -155,7 +155,10 @@ export class EvmRedeem
    * Signs the fee authorization and stores it on the server.
    */
   async authorizeFee(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION, 'authorizeFee');
+    this.assertStatus(
+      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
+      'authorizeFee',
+    );
 
     if (!this._feeAuth.feeInSatoshis) {
       throw LombardError.missingParameter('feeInSatoshis');

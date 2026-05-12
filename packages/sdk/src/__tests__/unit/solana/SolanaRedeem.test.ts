@@ -121,7 +121,10 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
 
       await expect(
-        redeem.prepare({ amount: '0', recipient: validPrepareParams.recipient }),
+        redeem.prepare({
+          amount: '0',
+          recipient: validPrepareParams.recipient,
+        }),
       ).rejects.toThrow();
     });
 
@@ -129,7 +132,9 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
       const redeem = new SolanaRedeem(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
-      await expect(redeem.prepare(validPrepareParams)).rejects.toThrow(/prepare/);
+      await expect(redeem.prepare(validPrepareParams)).rejects.toThrow(
+        /prepare/,
+      );
     });
   });
 

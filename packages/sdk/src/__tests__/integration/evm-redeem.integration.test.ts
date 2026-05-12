@@ -7,7 +7,7 @@
  */
 
 import { Env } from '@lombard.finance/sdk-common';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { evmRedeem } from '../../chains/evm/actions/redeem';
 import { AssetId, Chain, evmActions } from '../../index';
@@ -154,4 +154,3 @@ describe('EVM Redeem Integration', () => {
     });
   });
 });
-

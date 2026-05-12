@@ -18,13 +18,13 @@ export function getErrorMessage(error: unknown): string {
   const hasDataMessage = (err: unknown): err is { data: { message: string } } =>
     Boolean(
       err &&
-        typeof err === 'object' &&
-        'data' in err &&
-        err.data &&
-        typeof err.data === 'object' &&
-        'message' in err.data &&
-        err?.data?.message &&
-        typeof err.data.message === 'string',
+      typeof err === 'object' &&
+      'data' in err &&
+      err.data &&
+      typeof err.data === 'object' &&
+      'message' in err.data &&
+      err?.data?.message &&
+      typeof err.data.message === 'string',
     );
 
   if (hasDataMessage(error)) {

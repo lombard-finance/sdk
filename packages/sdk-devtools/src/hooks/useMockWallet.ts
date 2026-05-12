@@ -15,7 +15,7 @@
  * @module sdk-devtools/hooks/useMockWallet
  */
 
-import { useCallback, useMemo,useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import type { MockAddresses, MockWalletState } from '../types';
 
@@ -37,7 +37,8 @@ export const MOCK_ADDRESSES: MockAddresses = {
   // Valid Sui address
   sui: '0x7d20dcdb2bca4f508ea9613994683eb4e76e9cc555c8e2d4f8362e10e4eca31b',
   // Valid Starknet address
-  starknet: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+  starknet:
+    '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -58,7 +59,8 @@ export const MOCK_WALLET_LIMITATIONS = {
   unsupportedSteps: ['Authorize', 'Sign', 'Execute'] as const,
 
   /** User-friendly message */
-  message: 'Mock wallet cannot sign transactions. Connect a real wallet for full flow.',
+  message:
+    'Mock wallet cannot sign transactions. Connect a real wallet for full flow.',
 
   /** Short message for badges */
   shortMessage: 'Cannot sign - connect real wallet',
@@ -115,7 +117,7 @@ export function useMockWallet(): MockWalletState {
   }, []);
 
   const toggle = useCallback(() => {
-    setIsEnabled(prev => {
+    setIsEnabled((prev) => {
       const newValue = !prev;
       if (typeof window !== 'undefined') {
         localStorage.setItem(STORAGE_KEY, String(newValue));
@@ -171,4 +173,3 @@ export function requiresRealWallet(stepLabel: string): boolean {
     lower.includes('execute')
   );
 }
-

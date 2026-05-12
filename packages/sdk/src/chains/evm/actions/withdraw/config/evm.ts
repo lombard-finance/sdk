@@ -42,7 +42,7 @@ export function isWithdrawSupported(
   env: Env,
 ): boolean {
   return evmWithdrawConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(chain) &&
       route.protocols.includes(protocol) &&
       route.envs.includes(env),

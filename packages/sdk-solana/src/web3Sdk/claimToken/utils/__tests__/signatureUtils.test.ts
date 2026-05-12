@@ -25,10 +25,12 @@ describe('signatureUtils', () => {
       expect(result.indices).toHaveLength(expectedSignatureCount);
 
       // Check indices
-      expect(result.indices.map(bn => bn.toNumber())).toEqual(expectedIndices);
+      expect(result.indices.map((bn) => bn.toNumber())).toEqual(
+        expectedIndices,
+      );
 
       // Check each signature
-      result.signatures.forEach(sig => {
+      result.signatures.forEach((sig) => {
         expect(sig).toBeInstanceOf(Uint8Array);
         expect(sig.length).toBe(64);
       });
@@ -54,7 +56,9 @@ describe('signatureUtils', () => {
       const result = parseSignaturesFromProof(proof);
 
       expect(result.signatures).toHaveLength(expectedSignatureCount);
-      expect(result.indices.map(bn => bn.toNumber())).toEqual(expectedIndices);
+      expect(result.indices.map((bn) => bn.toNumber())).toEqual(
+        expectedIndices,
+      );
 
       for (const sig of result.signatures) {
         expect(sig).toBeInstanceOf(Uint8Array);
@@ -82,7 +86,9 @@ describe('signatureUtils', () => {
       const result = parseSignaturesFromProof(proof);
 
       expect(result.signatures).toHaveLength(expectedSignatureCount);
-      expect(result.indices.map(bn => bn.toNumber())).toEqual(expectedIndices);
+      expect(result.indices.map((bn) => bn.toNumber())).toEqual(
+        expectedIndices,
+      );
 
       for (const sig of result.signatures) {
         expect(sig).toBeInstanceOf(Uint8Array);

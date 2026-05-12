@@ -60,7 +60,12 @@ export type DepositStatus =
 /**
  * Status severity for UI styling
  */
-export type StatusSeverity = 'info' | 'warning' | 'success' | 'error' | 'neutral';
+export type StatusSeverity =
+  | 'info'
+  | 'warning'
+  | 'success'
+  | 'error'
+  | 'neutral';
 
 /**
  * Status display configuration
@@ -218,8 +223,7 @@ export function getDepositStatus(
     deposit.blockHeight,
   );
   const hasEnoughConfirmations =
-    currentBlockHeight === undefined ||
-    confirmations >= requiredConfirmations;
+    currentBlockHeight === undefined || confirmations >= requiredConfirmations;
 
   switch (notarizationStatus) {
     case ENotarizationStatus.NOTARIZATION_STATUS_PENDING:
@@ -411,4 +415,3 @@ export function depositRequiresAction(
   const display = getDepositStatusDisplay(status);
   return display.requiresAction;
 }
-

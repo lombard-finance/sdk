@@ -58,7 +58,7 @@ describe('BaseAction', () => {
 
     it('should update status on success if provided', async () => {
       const action = new TestAction('idle');
-      
+
       await action.testAct(async () => {
         // do work
       }, 'ready');
@@ -68,7 +68,7 @@ describe('BaseAction', () => {
 
     it('should NOT update status if successStatus not provided', async () => {
       const action = new TestAction('idle');
-      
+
       await action.testAct(async () => {
         // do work
       });
@@ -81,13 +81,15 @@ describe('BaseAction', () => {
       const initialStatus = action.status;
       const error = new Error('Something went wrong');
 
-      await expect(action.testAct(async () => {
-        throw error;
-      })).rejects.toThrow();
+      await expect(
+        action.testAct(async () => {
+          throw error;
+        }),
+      ).rejects.toThrow();
 
       expect(action.status).toBe(initialStatus); // Status unchanged
-      expect(action.isFailed).toBe(true);        // Error flag set
-      expect(action.error).not.toBeNull();       // Error captured
+      expect(action.isFailed).toBe(true); // Error flag set
+      expect(action.error).not.toBeNull(); // Error captured
     });
 
     it('should emit error and failed events on failure', async () => {
@@ -97,9 +99,11 @@ describe('BaseAction', () => {
       action.on('error', errorFn);
       action.on('failed', failedFn);
 
-      await expect(action.testAct(async () => {
-        throw new Error('Boom');
-      })).rejects.toThrow('Boom');
+      await expect(
+        action.testAct(async () => {
+          throw new Error('Boom');
+        }),
+      ).rejects.toThrow('Boom');
 
       expect(errorFn).toHaveBeenCalled();
       expect(failedFn).toHaveBeenCalled();
@@ -110,7 +114,9 @@ describe('BaseAction', () => {
     it('should allow allowed statuses', () => {
       const action = new TestAction('idle');
       expect(() => action.testAssertStatus('idle', 'test')).not.toThrow();
-      expect(() => action.testAssertStatus(['idle', 'ready'], 'test')).not.toThrow();
+      expect(() =>
+        action.testAssertStatus(['idle', 'ready'], 'test'),
+      ).not.toThrow();
     });
 
     it('should throw on disallowed statuses', () => {
@@ -119,4 +125,3 @@ describe('BaseAction', () => {
     });
   });
 });
-

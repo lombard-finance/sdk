@@ -7,7 +7,7 @@
  */
 
 import type { Env, SuiService } from '@lombard.finance/sdk-common';
-import { getFullnodeUrl,SuiClient } from '@mysten/sui/client';
+import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import type {
   SuiChain,
   SuiSignPersonalMessageFeature,
@@ -28,7 +28,8 @@ type ProviderResolver = () => Promise<unknown>;
 /**
  * Sui wallet features required for signing and transactions
  */
-type SuiWalletFeatures = SuiSignPersonalMessageFeature & SuiSignTransactionFeature;
+type SuiWalletFeatures = SuiSignPersonalMessageFeature &
+  SuiSignTransactionFeature;
 
 /**
  * Sui wallet provider interface
@@ -41,7 +42,9 @@ interface SuiWalletProvider {
 /**
  * Get Sui network from chain ID
  */
-function getSuiNetworkFromChainId(chainId: string): 'mainnet' | 'testnet' | 'devnet' {
+function getSuiNetworkFromChainId(
+  chainId: string,
+): 'mainnet' | 'testnet' | 'devnet' {
   if (chainId.includes('mainnet')) return 'mainnet';
   if (chainId.includes('testnet')) return 'testnet';
   return 'devnet';

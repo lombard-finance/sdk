@@ -10,7 +10,7 @@
 export { EvmStake } from './EvmStake';
 
 // Factory functions
-export { createEvmStake,evmStake } from './factory';
+export { createEvmStake, evmStake } from './factory';
 
 // Types
 export {

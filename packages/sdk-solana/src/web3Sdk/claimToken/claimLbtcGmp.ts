@@ -15,10 +15,7 @@ import { ClaimContext, executeConsortiumSession } from './shared';
  * Payload: nonce u256 at [36:68], token at [232:264], recipient at [264:296], amount u256 at [296:328].
  * Only the low 8 bytes of each u256 are used (placed in the last 8 bytes of the 32-byte slot).
  */
-function computeBasculeGmpMintId(
-  payload: Buffer,
-  chainId: Buffer,
-): Uint8Array {
+function computeBasculeGmpMintId(payload: Buffer, chainId: Buffer): Uint8Array {
   if (payload.length < 328) {
     throw new Error(
       `payload too short for bascule_gmp mint_id: ${payload.length} bytes`,
@@ -49,11 +46,22 @@ function computeBasculeGmpMintId(
  */
 export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   const {
-    provider, connection, params, config,
-    payloadBytes, payloadHash, payloadHashArray,
-    payer, assetRouterProgramId, consortiumProgramId,
-    consortiumProgram, assetRouterConfigPDA, tokenAuthorityPDA,
-    validatedPayloadPDA, arConfig, debugLog,
+    provider,
+    connection,
+    params,
+    config,
+    payloadBytes,
+    payloadHash,
+    payloadHashArray,
+    payer,
+    assetRouterProgramId,
+    consortiumProgramId,
+    consortiumProgram,
+    assetRouterConfigPDA,
+    tokenAuthorityPDA,
+    validatedPayloadPDA,
+    arConfig,
+    debugLog,
   } = ctx;
 
   if (payloadBytes.length < 328) {
@@ -67,7 +75,8 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
     [Buffer.from('message_handled'), payloadHash],
     assetRouterProgramId,
   );
-  const messageHandledAccount = await connection.getAccountInfo(messageHandledPDA);
+  const messageHandledAccount =
+    await connection.getAccountInfo(messageHandledPDA);
   if (messageHandledAccount) {
     debugLog('Message already handled (LBTC already minted)');
     return ALREADY_MINTED_TX_HASH;
@@ -82,7 +91,8 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
     consortiumProgramId,
   );
 
-  const sessionPayloadAccount = await connection.getAccountInfo(sessionPayloadPDA);
+  const sessionPayloadAccount =
+    await connection.getAccountInfo(sessionPayloadPDA);
   if (sessionPayloadAccount) {
     debugLog('Session payload already exists, skipping post_session_payload');
   } else {
@@ -112,7 +122,9 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
 
   // ── Step 5: deliver_message (mailbox) ──
   if (!config.mailbox) {
-    throw new Error(`Mailbox program not configured for network: ${params.network}`);
+    throw new Error(
+      `Mailbox program not configured for network: ${params.network}`,
+    );
   }
   const mailboxProgramId = new PublicKey(config.mailbox);
   const mailboxProgram = new Program(
@@ -130,7 +142,9 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   );
 
   if (!config.ledgerChainId) {
-    throw new Error(`Ledger chain ID not configured for network: ${params.network}`);
+    throw new Error(
+      `Ledger chain ID not configured for network: ${params.network}`,
+    );
   }
   const ledgerChainId = Buffer.from(config.ledgerChainId, 'hex');
   debugLog('Ledger chain ID:', config.ledgerChainId);
@@ -188,7 +202,12 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   }
   const tokenProgramId = mintAccountInfo.owner;
 
-  const mintAccount = await getMint(connection, mint, undefined, tokenProgramId);
+  const mintAccount = await getMint(
+    connection,
+    mint,
+    undefined,
+    tokenProgramId,
+  );
   if (!mintAccount.mintAuthority) {
     throw new Error('Mint has no mint authority');
   }
@@ -206,7 +225,7 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   // Build handle_message instruction
   const handleIx = await mailboxProgram.methods
     .handleMessage(payloadHashArray)
-      .accounts({
+    .accounts({
       handler: provider.publicKey,
       config: mailboxConfigPDA,
       messageInfo: messageInfoPDA,
@@ -262,12 +281,22 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
     debugLog('Bascule GMP program:', effectiveBasculeGmpProgramId.toBase58());
     debugLog('Bascule validator PDA:', basculeValidatorPDA.toBase58());
     debugLog('Bascule GMP config PDA:', basculeGmpConfigPDA.toBase58());
-    debugLog('Bascule GMP account roles PDA:', basculeGmpAccountRolesPDA.toBase58());
-    debugLog('Bascule GMP mint payload PDA:', basculeGmpMintPayloadPDA.toBase58());
+    debugLog(
+      'Bascule GMP account roles PDA:',
+      basculeGmpAccountRolesPDA.toBase58(),
+    );
+    debugLog(
+      'Bascule GMP mint payload PDA:',
+      basculeGmpMintPayloadPDA.toBase58(),
+    );
 
     handleIx.keys.push(
       { pubkey: basculeValidatorPDA, isSigner: false, isWritable: true },
-      { pubkey: effectiveBasculeGmpProgramId, isSigner: false, isWritable: false },
+      {
+        pubkey: effectiveBasculeGmpProgramId,
+        isSigner: false,
+        isWritable: false,
+      },
       { pubkey: basculeGmpConfigPDA, isSigner: false, isWritable: false },
       { pubkey: basculeGmpAccountRolesPDA, isSigner: false, isWritable: false },
       { pubkey: basculeGmpMintPayloadPDA, isSigner: false, isWritable: true },
@@ -275,18 +304,19 @@ export async function claimLbtcGmp(ctx: ClaimContext): Promise<string> {
   } else {
     debugLog('Bascule GMP not enabled, adding placeholder accounts');
     for (let i = 0; i < 5; i++) {
-      handleIx.keys.push(
-        { pubkey: assetRouterProgramId, isSigner: false, isWritable: false },
-      );
+      handleIx.keys.push({
+        pubkey: assetRouterProgramId,
+        isSigner: false,
+        isWritable: false,
+      });
     }
   }
 
   debugLog('handle_message account count:', handleIx.keys.length);
+  debugLog('handle_message program:', handleIx.programId.toBase58());
   debugLog(
-    'handle_message program:', handleIx.programId.toBase58(),
-  );
-  debugLog(
-    'handle_message data (hex):', Buffer.from(handleIx.data).toString('hex'),
+    'handle_message data (hex):',
+    Buffer.from(handleIx.data).toString('hex'),
   );
   handleIx.keys.forEach((k, i) => {
     debugLog(

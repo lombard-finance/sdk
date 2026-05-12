@@ -1,6 +1,6 @@
 import { Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../common/chains';
 import { EvmService } from '../../services/EvmService';
@@ -23,9 +23,9 @@ describe('EvmService', () => {
   describe('getMintingFee', () => {
     it('should return minting fee as BTC decimal string', async () => {
       vi.mocked(getMintingFee).mockResolvedValue(new BigNumber('0.00001992'));
-      
+
       const fee = await service.getMintingFee(ChainId.sepolia);
-      
+
       expect(fee).toBe('0.00001992');
       expect(typeof fee).toBe('string');
       expect(getMintingFee).toHaveBeenCalledWith({
@@ -36,4 +36,3 @@ describe('EvmService', () => {
     });
   });
 });
-

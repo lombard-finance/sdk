@@ -7,7 +7,7 @@
 import type { LombardConfig } from '../../../../config/types';
 import type { SolanaCoreContext } from '../../../../shared/context';
 import { SolanaUnstake } from './SolanaUnstake';
-import type { ISolanaUnstake,SolanaUnstakeParams } from './types';
+import type { ISolanaUnstake, SolanaUnstakeParams } from './types';
 
 /**
  * Create Solana unstake from context

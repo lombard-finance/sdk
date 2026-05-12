@@ -80,7 +80,7 @@ export function isRouteAvailable(
   env: Env,
 ): boolean {
   return config.routes.some(
-    route =>
+    (route) =>
       route.envs.includes(env) &&
       (!sourceChain || route.sourceChains.includes(sourceChain)),
   );

@@ -68,14 +68,9 @@ describe('EvmRedeem Interface', () => {
 
   describe('Status Transitions', () => {
     it('should define all required status values', () => {
-      const statuses = [
-        'idle',
-        'needs-approval',
-        'ready',
-        'completed',
-      ];
+      const statuses = ['idle', 'needs-approval', 'ready', 'completed'];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -83,7 +78,10 @@ describe('EvmRedeem Interface', () => {
 
   describe('Method Signatures', () => {
     it('should define prepare method', () => {
-      type PrepareMethod = (params: { amount: string; recipient: string }) => Promise<void>;
+      type PrepareMethod = (params: {
+        amount: string;
+        recipient: string;
+      }) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });
@@ -116,7 +114,7 @@ describe('EvmRedeem Interface', () => {
     it('should be 1:1 conversion', () => {
       const inputAmount = '0.1';
       const outputAmount = '0.1'; // 1:1 ratio
-      
+
       expect(inputAmount).toBe(outputAmount);
     });
   });
@@ -160,9 +158,9 @@ describe('EvmRedeem Interface', () => {
   describe('Chain Support', () => {
     it('should support Avalanche chains', () => {
       const supportedChains = [Chain.AVALANCHE, Chain.AVALANCHE_FUJI];
-      
+
       // Chains are CAIP-2 format (e.g., eip155:43114)
-      supportedChains.forEach(chain => {
+      supportedChains.forEach((chain) => {
         expect(chain).toBeDefined();
         expect(typeof chain).toBe('string');
       });
@@ -204,4 +202,3 @@ describe('EvmRedeem Interface', () => {
     });
   });
 });
-

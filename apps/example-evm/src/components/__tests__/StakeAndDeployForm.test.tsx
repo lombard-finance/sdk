@@ -56,7 +56,9 @@ describe('StakeAndDeployForm', () => {
   it('shows "Stake and Deploy" button', () => {
     renderForm();
 
-    const submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const submitButton = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(submitButton.textContent).toBe('Stake and Deploy');
     expect(submitButton.disabled).toBe(false);
   });
@@ -64,7 +66,9 @@ describe('StakeAndDeployForm', () => {
   it('shows "Processing..." when loading', () => {
     renderForm({ isLoading: true });
 
-    const submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const submitButton = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(submitButton.textContent).toContain('Processing');
     expect(submitButton.disabled).toBe(true);
   });
@@ -72,7 +76,9 @@ describe('StakeAndDeployForm', () => {
   it('shows wallet icon button when ethereum is available', () => {
     renderForm();
 
-    const walletButton = container.querySelector('button[title="Use wallet address"]');
+    const walletButton = container.querySelector(
+      'button[title="Use wallet address"]',
+    );
     expect(walletButton).toBeTruthy();
   });
 
@@ -84,20 +90,26 @@ describe('StakeAndDeployForm', () => {
     });
     renderForm();
 
-    const walletButton = container.querySelector('button[title="Use wallet address"]');
+    const walletButton = container.querySelector(
+      'button[title="Use wallet address"]',
+    );
     expect(walletButton).toBeFalsy();
   });
 
   it('fills address when wallet icon button is clicked', async () => {
     renderForm();
 
-    const walletButton = container.querySelector('button[title="Use wallet address"]');
+    const walletButton = container.querySelector(
+      'button[title="Use wallet address"]',
+    );
 
     await act(async () => {
       walletButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    const destInput = container.querySelector('#destAddress') as HTMLInputElement;
+    const destInput = container.querySelector(
+      '#destAddress',
+    ) as HTMLInputElement;
     expect(destInput.value).toBe('0xabc123');
   });
 
@@ -111,6 +123,8 @@ describe('StakeAndDeployForm', () => {
   it('shows minimum stake amount', () => {
     renderForm();
 
-    expect(container.textContent).toContain(`Minimum: ${MIN_STAKE_AMOUNT_BTC} BTC`);
+    expect(container.textContent).toContain(
+      `Minimum: ${MIN_STAKE_AMOUNT_BTC} BTC`,
+    );
   });
 });

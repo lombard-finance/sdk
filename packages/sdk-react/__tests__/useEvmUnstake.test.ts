@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useEvmUnstake } from '../src/hooks/useEvmUnstake';
 
-vi.mock('@lombard.finance/sdk', async importOriginal => {
+vi.mock('@lombard.finance/sdk', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@lombard.finance/sdk')>();
   return { ...actual };
 });
@@ -27,7 +27,7 @@ function createMockUnstakeAction(
       if (!handlers[event]) handlers[event] = [];
       handlers[event].push(handler);
       return () => {
-        handlers[event] = handlers[event].filter(h => h !== handler);
+        handlers[event] = handlers[event].filter((h) => h !== handler);
       };
     }),
     prepare: vi.fn(),

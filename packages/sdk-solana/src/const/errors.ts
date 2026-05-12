@@ -75,4 +75,3 @@ export const CLAIM_REJECTED_ERROR = createSdkError({
   code: ErrorCode.CLAIM_REJECTED,
   message: 'LBTC claim operation was rejected.',
 });
-

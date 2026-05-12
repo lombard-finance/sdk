@@ -7,7 +7,7 @@
 import type { LombardConfig } from '../../../../config/types';
 import type { StarknetCoreContext } from '../../../../shared/context';
 import { StarknetUnstake } from './StarknetUnstake';
-import type { IStarknetUnstake,StarknetUnstakeParams } from './types';
+import type { IStarknetUnstake, StarknetUnstakeParams } from './types';
 
 /**
  * Create Starknet unstake from context

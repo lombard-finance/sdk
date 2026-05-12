@@ -36,8 +36,16 @@ const { sdk, isInitializing, error } = useLombardSDK(
 BTC → LBTC staking. Manages the full lifecycle: `prepare → authorize (if needed) → generateDepositAddress`. Subscribes to `status-change` and `progress` events for real-time confirmation tracking.
 
 ```ts
-const { stake, reset, depositAddress, stakeAmount, status, progress, error, isLoading } =
-  useBtcStake(sdk);
+const {
+  stake,
+  reset,
+  depositAddress,
+  stakeAmount,
+  status,
+  progress,
+  error,
+  isLoading,
+} = useBtcStake(sdk);
 
 await stake({ amount, destChain, sourceChain, assetOut, recipient });
 ```
@@ -47,8 +55,16 @@ await stake({ amount, destChain, sourceChain, assetOut, recipient });
 BTC → LBTC → Vault (stake-and-deploy). Lifecycle: `prepare → authorizeDeposit (if needed) → generateDepositAddress`.
 
 ```ts
-const { stakeAndDeploy, reset, depositAddress, stakeAmount, status, progress, error, isLoading } =
-  useBtcStakeAndBake(sdk);
+const {
+  stakeAndDeploy,
+  reset,
+  depositAddress,
+  stakeAmount,
+  status,
+  progress,
+  error,
+  isLoading,
+} = useBtcStakeAndBake(sdk);
 
 await stakeAndDeploy({ amount, destChain, sourceChain, protocol, recipient });
 ```
@@ -68,7 +84,10 @@ await unstake({ amount, sourceChain, destChain, assetOut, recipient });
 LBTC burn on Solana, Starknet, or Sui. Lifecycle: `prepare → execute`.
 
 ```ts
-const { unstake, reset, txHash, status, error, isLoading } = useNonEvmUnstake(sdk, 'solana');
+const { unstake, reset, txHash, status, error, isLoading } = useNonEvmUnstake(
+  sdk,
+  'solana',
+);
 
 await unstake({ amount, sourceChain, destChain, recipient });
 ```

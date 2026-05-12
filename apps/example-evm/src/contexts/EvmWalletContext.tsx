@@ -1,4 +1,10 @@
-import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 
 interface EvmWalletState {
   address: string | null;
@@ -77,7 +83,10 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
       clearTimeout(retryTimer);
       window.removeEventListener('ethereum#initialized', handleEthereumInit);
       try {
-        window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum?.removeListener(
+          'accountsChanged',
+          handleAccountsChanged,
+        );
       } catch {
         // Provider may not support removeListener
       }
@@ -147,7 +156,15 @@ export function EvmWalletProvider({ children }: { children: ReactNode }) {
 
   return (
     <EvmWalletContext.Provider
-      value={{ address, isConnected, isConnecting, error, connect, disconnect, switchNetwork }}
+      value={{
+        address,
+        isConnected,
+        isConnecting,
+        error,
+        connect,
+        disconnect,
+        switchNetwork,
+      }}
     >
       {children}
     </EvmWalletContext.Provider>

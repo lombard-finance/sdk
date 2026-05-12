@@ -4,58 +4,54 @@ export {
   BTCE_VAULT_CHAINS,
   BTCE_VAULT_CONTRACTS,
   type BtceVaultChain,
+  EARN_STAKE_AND_BAKE_CHAINS,
   isBtceVaultChain,
-  Vault,
-  VEDA_VAULT_STAKE_AND_BAKE_CHAINS,
 } from './lib/config';
 
 // Ops - Deposit:
+// Note: `deposit` (the underlying-vault deposit) was removed in 5.0.0.
+// Use `depositEarn` from the contracts entry instead.
 
-export { deposit, type DepositParameters } from './lib/ops/deposit';
 export {
-  getVaultDeposits,
-  getVaultDepositsAllChains,
-  type GetVaultDepositsAllChainsParameters,
-  type GetVaultDepositsParameters,
-  type VaultDeposit,
+  type EarnDeposit,
+  getEarnDeposits,
+  getEarnDepositsAllChains,
+  type GetEarnDepositsAllChainsParameters,
+  type GetEarnDepositsParameters,
 } from './lib/ops/get-vault-deposits';
 export {
-  getVaultMinimumDeposit,
-  type GetVaultMinimumDepositParameters,
+  getEarnMinimumDeposit,
+  type GetEarnMinimumDepositParameters,
 } from './lib/ops/get-vault-minimum-deposit';
 export {
-  previewVaultDeposit,
-  type PreviewVaultDepositParameters,
+  previewEarnDeposit,
+  type PreviewEarnDepositParameters,
 } from './lib/ops/preview-vault-deposit';
 
 // Ops - Withdraw:
+// Note: `queueWithdraw` and `cancelWithdraw` were removed in 5.0.0.
+// Use `withdrawEarn` and `cancelEarnWithdrawal` from the contracts entry.
 
 export {
-  getVaultWithdrawals,
-  getVaultWithdrawalsAllChains,
-  type GetVaultWithdrawalsAllChainsParameters,
-  type GetVaultWithdrawalsParameters,
-  type VaultWithdrawal,
-  type VaultWithdrawals,
+  type EarnWithdrawal,
+  type EarnWithdrawals,
+  getEarnWithdrawals,
+  getEarnWithdrawalsAllChains,
+  type GetEarnWithdrawalsAllChainsParameters,
+  type GetEarnWithdrawalsParameters,
 } from './lib/ops/get-vault-withdrawals';
-export {
-  cancelWithdraw,
-  type CancelWithdrawParameters,
-  queueWithdraw,
-  type QueueWithdrawParameters,
-} from './lib/ops/withdraw';
 
 // Metrics - Vault points:
 
 export {
-  getVaultApy,
-  type GetVaultApyParameters,
+  getEarnApy,
+  type GetEarnApyParameters,
 } from './lib/metrics/get-vault-apy';
 export {
-  getVaultPoints,
-  type GetVaultPointsParameters,
+  getEarnPoints,
+  type GetEarnPointsParameters,
 } from './lib/metrics/get-vault-points';
 export {
-  getVaultTVL,
-  type GetVaultTVLParameters,
+  getEarnTVL,
+  type GetEarnTVLParameters,
 } from './lib/metrics/get-vault-tvl';

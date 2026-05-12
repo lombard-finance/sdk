@@ -19,7 +19,7 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
-import { isBtcUnstakeSupported,starknetToBtcConfig } from './config';
+import { isBtcUnstakeSupported, starknetToBtcConfig } from './config';
 import type {
   IStarknetUnstake,
   StarknetUnstakeParams,

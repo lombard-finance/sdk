@@ -39,7 +39,7 @@ describe('FeeAuthConfig', () => {
 
   it('should return FeeAuthConfig for Ethereum mainnet', () => {
     const feeAuth = evmConfig?.getFeeAuthConfig(Chain.ETHEREUM);
-    
+
     expect(feeAuth).not.toBeNull();
     expect(feeAuth?.getMintingFee).toBeDefined();
     expect(feeAuth?.authorizeFee).toBeDefined();
@@ -47,7 +47,7 @@ describe('FeeAuthConfig', () => {
 
   it('should return null FeeAuthConfig for non-Ethereum EVM chains', () => {
     const feeAuth = evmConfig?.getFeeAuthConfig(Chain.BASE);
-    
+
     expect(feeAuth).toBeNull();
   });
 
@@ -73,4 +73,3 @@ describe('FeeAuthConfig', () => {
     });
   });
 });
-

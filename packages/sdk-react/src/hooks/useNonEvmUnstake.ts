@@ -20,7 +20,10 @@ export interface UseNonEvmUnstakeReturn {
 
 const NON_EVM_UNSTAKE_STATUS_MAP: Partial<Record<string, UnstakingStatus>> = {
   [NonEvmOperationStatus.IDLE]: { phase: 'idle', message: 'Ready' },
-  [NonEvmOperationStatus.READY]: { phase: 'ready', message: 'Ready to execute' },
+  [NonEvmOperationStatus.READY]: {
+    phase: 'ready',
+    message: 'Ready to execute',
+  },
   [NonEvmOperationStatus.CONFIRMING]: {
     phase: 'confirming',
     message: 'Confirming transaction...',
@@ -66,7 +69,10 @@ export function useNonEvmUnstake(
       try {
         setError(null);
         setIsLoading(true);
-        setStatus({ phase: 'preparing', message: 'Creating unstake action...' });
+        setStatus({
+          phase: 'preparing',
+          message: 'Creating unstake action...',
+        });
 
         const chain = sdk.chain[chainNamespace];
         const action = chain.unstake({
@@ -88,14 +94,23 @@ export function useNonEvmUnstake(
 
         unsubscribeRef.current = unsubStatus;
 
-        setStatus({ phase: 'preparing', message: 'Preparing unstake parameters...' });
-        await action.prepare({ amount: params.amount, recipient: params.recipient });
+        setStatus({
+          phase: 'preparing',
+          message: 'Preparing unstake parameters...',
+        });
+        await action.prepare({
+          amount: params.amount,
+          recipient: params.recipient,
+        });
 
         setStatus({ phase: 'executing', message: 'Burning LBTC...' });
         const result = await action.execute();
 
         setTxHash(result.txHash);
-        setStatus({ phase: 'complete', message: 'Unstake complete! BTC will be released.' });
+        setStatus({
+          phase: 'complete',
+          message: 'Unstake complete! BTC will be released.',
+        });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unstaking failed';
         setError(message);

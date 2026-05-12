@@ -221,4 +221,3 @@ export async function httpDelete<T = unknown>(
 ): Promise<HttpResponse<T>> {
   return httpRequest<T>({ ...options, url, method: 'DELETE' });
 }
-

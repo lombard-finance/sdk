@@ -47,7 +47,9 @@ const STAKE_AND_BAKE_STATUS_MAP: Partial<Record<string, StakeAndBakeStatus>> = {
  *
  * @param sdk - LombardSDK instance from useLombardSDK, or null if not yet initialized
  */
-export function useBtcStakeAndBake(sdk: LombardSDK | null): UseBtcStakeAndBakeReturn {
+export function useBtcStakeAndBake(
+  sdk: LombardSDK | null,
+): UseBtcStakeAndBakeReturn {
   const [depositAddress, setDepositAddress] = useState<string | null>(null);
   const [stakeAmount, setStakeAmount] = useState<string | null>(null);
   const [status, setStatus] = useState<StakeAndBakeStatus>({
@@ -72,7 +74,10 @@ export function useBtcStakeAndBake(sdk: LombardSDK | null): UseBtcStakeAndBakeRe
       try {
         setError(null);
         setIsLoading(true);
-        setStatus({ phase: 'preparing', message: 'Creating stake-and-bake action...' });
+        setStatus({
+          phase: 'preparing',
+          message: 'Creating stake-and-bake action...',
+        });
 
         const action = sdk.chain.btc.stakeAndDeploy({
           assetOut: AssetId.LBTC,
@@ -103,14 +108,23 @@ export function useBtcStakeAndBake(sdk: LombardSDK | null): UseBtcStakeAndBakeRe
 
           if (data.confirmations !== undefined) {
             if (data.hasEnoughConfirmations && !data.isDeposited) {
-              setStatus({ phase: 'depositing', message: 'Minting LBTC and depositing to vault...' });
+              setStatus({
+                phase: 'depositing',
+                message: 'Minting LBTC and depositing to vault...',
+              });
             } else if (!data.hasEnoughConfirmations) {
-              setStatus({ phase: 'confirming', message: 'Confirming transaction...' });
+              setStatus({
+                phase: 'confirming',
+                message: 'Confirming transaction...',
+              });
             }
           }
 
           if (data.isDeposited) {
-            setStatus({ phase: 'complete', message: 'Stake and bake complete!' });
+            setStatus({
+              phase: 'complete',
+              message: 'Stake and bake complete!',
+            });
           }
         });
 
@@ -128,26 +142,45 @@ export function useBtcStakeAndBake(sdk: LombardSDK | null): UseBtcStakeAndBakeRe
         });
 
         if (action.status === BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION) {
-          setStatus({ phase: 'authorizing', message: 'Authorizing vault deposit...' });
+          setStatus({
+            phase: 'authorizing',
+            message: 'Authorizing vault deposit...',
+          });
           await action.authorizeDeposit();
         }
 
-        if (action.status === BtcActionStatus.ADDRESS_READY && action.depositAddress) {
+        if (
+          action.status === BtcActionStatus.ADDRESS_READY &&
+          action.depositAddress
+        ) {
           setDepositAddress(action.depositAddress);
           setStakeAmount(params.amount);
-          setStatus({ phase: 'waiting-deposit', message: 'Send BTC to the address below' });
+          setStatus({
+            phase: 'waiting-deposit',
+            message: 'Send BTC to the address below',
+          });
         } else if (action.status === BtcActionStatus.READY) {
-          setStatus({ phase: 'waiting-deposit', message: 'Generating deposit address...' });
+          setStatus({
+            phase: 'waiting-deposit',
+            message: 'Generating deposit address...',
+          });
           const address = await action.generateDepositAddress();
 
           setDepositAddress(address);
           setStakeAmount(params.amount);
-          setStatus({ phase: 'waiting-deposit', message: 'Send BTC to the address below' });
+          setStatus({
+            phase: 'waiting-deposit',
+            message: 'Send BTC to the address below',
+          });
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Stake and bake failed';
+        const message =
+          err instanceof Error ? err.message : 'Stake and bake failed';
         setError(message);
-        setStatus({ phase: 'error', message: 'Failed to create stake and bake' });
+        setStatus({
+          phase: 'error',
+          message: 'Failed to create stake and bake',
+        });
         throw err;
       } finally {
         // Do NOT unsubscribe here — progress events must continue firing after deposit
@@ -176,5 +209,14 @@ export function useBtcStakeAndBake(sdk: LombardSDK | null): UseBtcStakeAndBakeRe
     };
   }, []);
 
-  return { stakeAndDeploy, reset, depositAddress, stakeAmount, status, progress, error, isLoading };
+  return {
+    stakeAndDeploy,
+    reset,
+    depositAddress,
+    stakeAmount,
+    status,
+    progress,
+    error,
+    isLoading,
+  };
 }
