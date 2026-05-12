@@ -34,11 +34,15 @@ export async function POST(request: Request) {
         : null;
 
     if (addr) {
-      system += `\n\nUser's wallet context:`;
-      system += `\n- Address: ${addr}`;
-      if (chainId) system += `\n- Chain ID: ${chainId}`;
-      if (chainName) system += `\n- Chain name: ${chainName}`;
+      system += `\n\n# Wallet context (this turn)\n`;
+      system += `Use these values when a tool needs the user's address or chain. Do not ask the user for them.\n`;
+      system += `- address: ${addr}\n`;
+      if (chainId) system += `- chainId: ${chainId}\n`;
+      if (chainName) system += `- chainName: ${chainName}\n`;
     }
+  } else {
+    // No wallet connected — make this explicit so the LLM tells the user.
+    system += `\n\n# Wallet context (this turn)\nNo wallet is connected. If the user asks for balances, deposits, or any address-bound operation, tell them to connect a wallet first.`;
   }
 
   const result = streamText({

@@ -20,7 +20,7 @@ export const amount = z
   );
 
 export const CHAIN_ID_DESCRIPTION =
-  "Chain ID (1=Ethereum, 11155111=Sepolia, 8453=Base, 84532=Base Sepolia)";
+  "Chain ID. Default to the user's connected chain (provided in your wallet context) unless they specify a different one. Supported: 1=Ethereum, 11155111=Sepolia, 8453=Base, 84532=Base Sepolia.";
 
 export const chainId = z.number().describe(CHAIN_ID_DESCRIPTION);
 
