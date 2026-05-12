@@ -88,7 +88,12 @@ export function TransactionPrompt({
         } = await import("@lombard.finance/sdk");
 
         const destChain = evmChainIdToChain(sdkChainId);
-        const partnerId = import.meta.env.VITE_LOMBARD_PARTNER_ID;
+        // Resolve partnerId. On testnet, fall back to 'test1' so the BFF's
+        // captcha path is bypassed for this example flow — matches the agent
+        // tool's resolvePartnerId() so both code paths behave identically.
+        const configuredPartnerId = import.meta.env.VITE_LOMBARD_PARTNER_ID;
+        const partnerId =
+          configuredPartnerId || (env === "testnet" ? "test1" : undefined);
 
         const sdk = await createLombardSDK({
           env: env === "testnet" ? Env.testnet : Env.prod,
