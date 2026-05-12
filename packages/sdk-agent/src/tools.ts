@@ -142,20 +142,24 @@ async function readTokenBalance(
     env: config.env,
   });
 
-  const balance = await client.readContract({
-    address: tokenInfo.address as Address,
-    abi: [
-      {
-        name: "balanceOf",
-        type: "function",
-        stateMutability: "view",
-        inputs: [{ name: "account", type: "address" }],
-        outputs: [{ name: "", type: "uint256" }],
-      },
-    ] as const,
-    functionName: "balanceOf",
-    args: [address as Address],
-  });
+  const balance = await withTimeout(
+    client.readContract({
+      address: tokenInfo.address as Address,
+      abi: [
+        {
+          name: "balanceOf",
+          type: "function",
+          stateMutability: "view",
+          inputs: [{ name: "account", type: "address" }],
+          outputs: [{ name: "", type: "uint256" }],
+        },
+      ] as const,
+      functionName: "balanceOf",
+      args: [address as Address],
+    }),
+    10_000,
+    `${token}.balanceOf on ${config.name}`,
+  );
 
   const decimals =
     "decimals" in tokenInfo && typeof tokenInfo.decimals === "number"
@@ -168,35 +172,66 @@ async function readTokenBalance(
 
 export const getLbtcBalance: ToolDefinition<
   { address: string; chainId: number },
-  { balance: string; token: string; chain: string; address: string }
+  {
+    balance: string;
+    token: string;
+    chain: string;
+    address: string;
+    error?: string;
+  }
 > = {
   name: "get_lbtc_balance",
-  description:
-    "Check the LBTC (Lombard Staked Bitcoin) balance for a wallet address.",
+  description: "Check the LBTC balance for a wallet address on a given chain.",
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
     const { address, chainId } = AddressAndChainZod.parse(params);
-    const balance = await readTokenBalance(Token.LBTC, address, chainId);
     const { name } = getChainConfig(chainId);
-    return { balance, token: "LBTC", chain: name, address };
+    try {
+      const balance = await readTokenBalance(Token.LBTC, address, chainId);
+      return { balance, token: "LBTC", chain: name, address };
+    } catch (err) {
+      return {
+        balance: "",
+        token: "LBTC",
+        chain: name,
+        address,
+        error: err instanceof Error ? err.message : "Failed to fetch LBTC balance",
+      };
+    }
   },
 };
 
 export const getBtcbBalance: ToolDefinition<
   { address: string; chainId: number },
-  { balance: string; token: string; chain: string; address: string }
+  {
+    balance: string;
+    token: string;
+    chain: string;
+    address: string;
+    error?: string;
+  }
 > = {
   name: "get_btcb_balance",
   description:
-    "Check the BTC.b (cross-chain Bitcoin) balance for a wallet address.",
+    "Check the BTC.b (cross-chain Bitcoin) balance for a wallet address on a given chain.",
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
     const { address, chainId } = AddressAndChainZod.parse(params);
-    const balance = await readTokenBalance(Token.BTCb, address, chainId);
     const { name } = getChainConfig(chainId);
-    return { balance, token: "BTC.b", chain: name, address };
+    try {
+      const balance = await readTokenBalance(Token.BTCb, address, chainId);
+      return { balance, token: "BTC.b", chain: name, address };
+    } catch (err) {
+      return {
+        balance: "",
+        token: "BTC.b",
+        chain: name,
+        address,
+        error: err instanceof Error ? err.message : "Failed to fetch BTC.b balance",
+      };
+    }
   },
 };
 
@@ -329,22 +364,31 @@ export const getUnstakeStatusTool: ToolDefinition<{
 
 export const getBalance: ToolDefinition<
   { address: string; chainId: number },
-  { lbtc: string; btcb: string; chain: string; address: string }
+  {
+    lbtc: string;
+    btcb: string;
+    chain: string;
+    address: string;
+    error?: string;
+  }
 > = {
   name: "get_balance",
   description:
-    "Check both LBTC and BTC.b balances for a wallet address in a single call. " +
-    "Returns both token balances on the specified chain.",
+    "Check both LBTC and BTC.b balances for a wallet on a given chain in a single call.",
   parameters: BalanceSchema as Record<string, unknown>,
   schema: BalanceZod,
   execute: async (params) => {
     const { address, chainId } = BalanceZod.parse(params);
     const config = getChainConfig(chainId);
-    const [lbtcBal, btcbBal] = await Promise.all([
-      readTokenBalance(Token.LBTC, address, chainId),
-      readTokenBalance(Token.BTCb, address, chainId),
+    const [lbtc, btcb] = await Promise.all([
+      readTokenBalance(Token.LBTC, address, chainId).catch((e) =>
+        e instanceof Error ? `error: ${e.message}` : "error",
+      ),
+      readTokenBalance(Token.BTCb, address, chainId).catch((e) =>
+        e instanceof Error ? `error: ${e.message}` : "error",
+      ),
     ]);
-    return { lbtc: lbtcBal, btcb: btcbBal, chain: config.name, address };
+    return { lbtc, btcb, chain: config.name, address };
   },
 };
 
