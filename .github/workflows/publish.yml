@@ -61,10 +61,17 @@ jobs:
           cache: yarn
           registry-url: 'https://registry.npmjs.org'
 
-      # Trusted publishing requires npm >= 11.5.1. Node 22 ships with npm 10.x,
-      # so upgrade the global npm before publishing.
-      - name: Upgrade npm for trusted publishing
-        run: npm install -g npm@latest
+      # Trusted publishing requires npm >= 11.5.1. Node 22 ships with npm 10.x.
+      # We don't rely on a global upgrade landing on PATH inside this container;
+      # the publish step below invokes the latest npm via `npx -y npm@latest`.
+      - name: Show tool versions and OIDC env presence
+        run: |
+          node --version
+          echo "default npm: $(npm --version)"
+          echo "npx-resolved npm: $(npx -y npm@latest --version)"
+          # We only log whether the OIDC env vars exist, not their values.
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" && echo "ACTIONS_ID_TOKEN_REQUEST_URL: set" || echo "ACTIONS_ID_TOKEN_REQUEST_URL: MISSING"
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" && echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN: set" || echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN: MISSING"
 
       - name: Install dependencies
         run: yarn install --immutable
@@ -115,12 +122,31 @@ jobs:
       - name: Build packages
         run: yarn turbo run build --filter=...@lombard.finance/${{ github.event.inputs.package }}
 
-      # No registry auth step: npm authenticates to the registry via the
-      # GitHub-issued OIDC token (id-token: write + setup-node registry-url).
-      # Provenance attestations are attached automatically by trusted publishing.
+      # npm authenticates to the registry via the GitHub-issued OIDC token
+      # (id-token: write granted at workflow level). Provenance attestations are
+      # attached automatically by trusted publishing.
+      #
+      # Two things to neutralize so OIDC actually fires:
+      #   - NODE_AUTH_TOKEN: setup-node exports a literal "XXXXX-XXXXX-..."
+      #     placeholder when registry-url is set. We blank it so npm doesn't
+      #     try to authenticate with a junk static token.
+      #   - NPM_CONFIG_USERCONFIG: setup-node also points this at an .npmrc
+      #     containing `_authToken=${NODE_AUTH_TOKEN}`. Point it at /dev/null
+      #     so npm reads no static creds and falls back to OIDC.
+      #
+      # `npx -y npm@latest` is used instead of plain `npm` to guarantee we run
+      # npm >= 11.5.1 (the minimum that supports trusted publishing). The
+      # container ships npm 10.x and a global upgrade isn't guaranteed to land
+      # ahead of the container's pre-installed npm on PATH.
       - name: Publish
         working-directory: ./packages/${{ github.event.inputs.package }}/
-        run: npm publish --access public --registry https://registry.npmjs.org
+        env:
+          NODE_AUTH_TOKEN: ''
+          NPM_CONFIG_USERCONFIG: /dev/null
+        run: |
+          npx -y npm@latest publish \
+            --access public \
+            --registry https://registry.npmjs.org
 
       - name: Send Slack message for SDK publish
         uses: slackapi/slack-github-action@v2.1.1
