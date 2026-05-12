@@ -16,6 +16,12 @@ on:
           - sdk-starknet
           - sdk-devtools
 
+# Required for npm trusted publishing via OIDC.
+# See https://docs.npmjs.com/trusted-publishers
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -53,6 +59,12 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: yarn
+          registry-url: 'https://registry.npmjs.org'
+
+      # Trusted publishing requires npm >= 11.5.1. Node 22 ships with npm 10.x,
+      # so upgrade the global npm before publishing.
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: yarn install --immutable
@@ -103,15 +115,12 @@ jobs:
       - name: Build packages
         run: yarn turbo run build --filter=...@lombard.finance/${{ github.event.inputs.package }}
 
-      - name: Configure registry
-        working-directory: ./packages/${{ github.event.inputs.package }}/
-        run: |
-          npm config set access public -ws=false -iwr
-          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPMJS_TOKEN }} -ws=false -iwr
-
+      # No registry auth step: npm authenticates to the registry via the
+      # GitHub-issued OIDC token (id-token: write + setup-node registry-url).
+      # Provenance attestations are attached automatically by trusted publishing.
       - name: Publish
         working-directory: ./packages/${{ github.event.inputs.package }}/
-        run: npm publish --registry https://registry.npmjs.org
+        run: npm publish --access public --registry https://registry.npmjs.org
 
       - name: Send Slack message for SDK publish
         uses: slackapi/slack-github-action@v2.1.1
