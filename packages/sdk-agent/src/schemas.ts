@@ -77,6 +77,9 @@ export const LbtcApyZod = z.object({});
 
 export const VaultWithdrawalZod = z.object({
   amount: amount.describe("Amount of vault shares to withdraw"),
+  address: evmAddress.describe(
+    "EVM wallet address requesting the withdrawal. Used to check for an existing active withdrawal (only one is allowed per user per vault).",
+  ),
   chainId: chainId,
 });
 
@@ -89,9 +92,31 @@ export const ClaimDepositZod = z.object({
   chainId: chainId,
 });
 
+export const TokenInfoZod = z.object({
+  query: z
+    .string()
+    .optional()
+    .describe(
+      "Free-text token name or symbol (e.g. 'BTCe', 'LBTC', 'Bitcoin Earn vault share').",
+    ),
+  address: z
+    .string()
+    .optional()
+    .describe(
+      "Optional contract address (0x...). When provided, chainId is required too.",
+    ),
+  chainId: z
+    .number()
+    .optional()
+    .describe("Chain ID for an address-based lookup."),
+});
+
 // ─── Cancel Withdrawal Schema ──────────────────────────────────────
 
 export const CancelWithdrawalZod = z.object({
+  address: evmAddress.describe(
+    "EVM wallet address that owns the active withdrawal being cancelled.",
+  ),
   chainId: chainId,
 });
 
@@ -193,6 +218,7 @@ export const VaultWithdrawalSchema = toJsonSchema(VaultWithdrawalZod);
 export const ClaimDepositSchema = toJsonSchema(ClaimDepositZod);
 export const OpportunitiesSchema = toJsonSchema(OpportunitiesZod);
 export const TokenBalanceSchema = toJsonSchema(TokenBalanceZod);
+export const TokenInfoSchema = toJsonSchema(TokenInfoZod);
 export const MorphoLbtcMarketsSchema = toJsonSchema(MorphoLbtcMarketsZod);
 export const MorphoSupplyCollateralSchema = toJsonSchema(
   MorphoSupplyCollateralZod,

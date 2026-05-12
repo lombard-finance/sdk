@@ -1,3 +1,11 @@
+export {
+  buildAssetGlossary,
+  LOMBARD_ASSETS,
+  LOMBARD_ASSETS_GLOSSARY,
+  type LombardAsset,
+  resolveAssetByAddress,
+  resolveAssetByName,
+} from "./assets";
 export { type ChainConfig, getChainConfig, SUPPORTED_CHAINS } from "./chains";
 export { LOMBARD_SYSTEM_PROMPT } from "./prompt";
 export {
@@ -37,6 +45,8 @@ export {
   StrategiesZod,
   TokenBalanceSchema,
   TokenBalanceZod,
+  TokenInfoSchema,
+  TokenInfoZod,
   UnstakeSchema,
   UnstakeZod,
   VaultWithdrawalSchema,
@@ -57,9 +67,12 @@ export {
   getOpportunities,
   getStrategies,
   getTokenBalance,
+  getTokenInfo,
   getUnstakeStatusTool,
   getVaultPositions,
   prepareBtcDeposit,
+  prepareBtcToBtcbDeposit,
+  prepareCancelWithdrawal,
   prepareClaimDeposit,
   prepareDeployToVault,
   prepareMorphoBorrow,

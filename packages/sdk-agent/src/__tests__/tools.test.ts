@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import BigNumber from "bignumber.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   allTools,
@@ -8,8 +9,11 @@ import {
   getExchangeRate,
   getLbtcApy,
   getStrategies,
+  getTokenInfo,
   getVaultPositions,
   prepareBtcDeposit,
+  prepareBtcToBtcbDeposit,
+  prepareCancelWithdrawal,
   prepareClaimDeposit,
   prepareDeployToVault,
   prepareStake,
@@ -17,6 +21,8 @@ import {
   prepareVaultWithdrawal,
   toolsByName,
 } from "../tools";
+
+const mockGetEarnWithdrawals = vi.fn();
 
 vi.mock("@lombard.finance/sdk", async () => {
   const actual = await vi.importActual<Record<string, unknown>>(
@@ -31,8 +37,24 @@ vi.mock("@lombard.finance/sdk", async () => {
       exchangeRate: 1,
       minAmount: 100000,
     }),
+    getEarnWithdrawals: (params: unknown) => mockGetEarnWithdrawals(params),
   };
 });
+
+function withdrawalsResponse(open: number) {
+  return {
+    open: Array.from({ length: open }).map((_, i) => ({
+      shareAmount: new BigNumber(100 * (i + 1)),
+      deadline: 1_900_000_000 + i,
+      timestamp: 1_800_000_000 + i,
+      txHash: `0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${i.toString().padStart(4, "0")}`,
+      blockNumber: 12_000_000 + i,
+    })),
+    fulfilled: [],
+    cancelled: [],
+    expired: [],
+  };
+}
 
 describe("getBalance", () => {
   it("has correct name and schema", () => {
@@ -108,8 +130,8 @@ describe("prepareClaimDeposit", () => {
 });
 
 describe("allTools", () => {
-  it("has 24 entries", () => {
-    expect(allTools).toHaveLength(24);
+  it("has 27 entries", () => {
+    expect(allTools).toHaveLength(27);
   });
 
   it("contains all expected tools including new ones", () => {
@@ -264,7 +286,11 @@ describe("prepare_* tools: validate-first contract", () => {
     });
 
     it("withdrawal returns valid:false on negative-looking amount", async () => {
-      const result = await prepareVaultWithdrawal.execute({ amount: "-0.5", chainId: 1 });
+      const result = await prepareVaultWithdrawal.execute({
+        amount: "-0.5",
+        address: "0x1234567890abcdef1234567890abcdef12345678",
+        chainId: 1,
+      });
       expect(result).toMatchObject({ valid: false });
     });
   });
@@ -281,5 +307,196 @@ describe("prepare_btc_deposit does not truncate the wallet address", () => {
     });
     expect(result.description).toContain(fullAddr);
     expect(result.description).not.toMatch(/0x[0-9a-f]{4}\.\.\.[0-9a-f]{4}/i);
+  });
+});
+
+// ─── BTC -> BTC.b deposit tool ──────────────────────────────────────
+
+describe("prepareBtcToBtcbDeposit", () => {
+  it("registers under the new name and is in allTools", () => {
+    expect(prepareBtcToBtcbDeposit.name).toBe("prepare_btc_to_btcb_deposit");
+    expect(toolsByName).toHaveProperty("prepare_btc_to_btcb_deposit");
+    expect(allTools.map((t) => t.name)).toContain(
+      "prepare_btc_to_btcb_deposit",
+    );
+  });
+
+  it("returns btc.generateBtcbDepositAddress as the method", async () => {
+    const result = await prepareBtcToBtcbDeposit.execute({
+      address: "0x1234567890abcdef1234567890abcdef12345678",
+      chainId: 1,
+    });
+    expect(result).toMatchObject({
+      action: "sdk_execute",
+      method: "btc.generateBtcbDepositAddress",
+    });
+  });
+
+  it("description names BTC.b explicitly (not LBTC) so the LLM doesn't conflate the flows", async () => {
+    const result = await prepareBtcToBtcbDeposit.execute({
+      address: "0x1234567890abcdef1234567890abcdef12345678",
+      chainId: 1,
+    });
+    expect(result.description).toMatch(/BTC\.b/);
+    expect(result.description).not.toMatch(/mint LBTC/);
+  });
+});
+
+// ─── Withdrawal pre-flight (one active per user per vault) ─────────
+
+const TEST_ADDR = "0x1234567890abcdef1234567890abcdef12345678";
+
+describe("prepare_vault_withdrawal active-withdrawal pre-flight", () => {
+  beforeEach(() => {
+    mockGetEarnWithdrawals.mockReset();
+  });
+
+  it("returns valid:true when there is no active withdrawal", async () => {
+    mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(0));
+
+    const result = await prepareVaultWithdrawal.execute({
+      amount: "0.5",
+      address: TEST_ADDR,
+      chainId: 1,
+    });
+
+    expect(result).toMatchObject({
+      valid: true,
+      method: "evm.withdrawFromVault",
+    });
+    expect(mockGetEarnWithdrawals).toHaveBeenCalledOnce();
+  });
+
+  it("refuses with valid:false and surfaces existing withdrawal details when one is already queued", async () => {
+    mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(1));
+
+    const result = await prepareVaultWithdrawal.execute({
+      amount: "0.5",
+      address: TEST_ADDR,
+      chainId: 1,
+    });
+
+    expect(result).toMatchObject({ valid: false });
+    if ("valid" in result && result.valid === false) {
+      expect(result.errors.join(" ")).toMatch(/active withdrawal already exists/i);
+      expect(result.note).toMatch(/prepare_cancel_withdrawal/);
+      // Existing withdrawal details surfaced verbatim
+      expect(result.errors.join(" ")).toContain("100"); // shareAmount
+      expect(result.note).toMatch(/0xaaaaaaaa/); // txHash prefix
+    }
+  });
+
+  it("surfaces the error when the pre-flight check itself fails (does not silently queue)", async () => {
+    mockGetEarnWithdrawals.mockRejectedValue(new Error("BFF timeout"));
+
+    const result = await prepareVaultWithdrawal.execute({
+      amount: "0.5",
+      address: TEST_ADDR,
+      chainId: 1,
+    });
+
+    expect(result).toMatchObject({ valid: false });
+    if ("valid" in result && result.valid === false) {
+      expect(result.errors.join(" ")).toMatch(/Could not verify/i);
+    }
+  });
+});
+
+// ─── prepare_cancel_withdrawal ─────────────────────────────────────
+
+describe("prepare_cancel_withdrawal", () => {
+  beforeEach(() => {
+    mockGetEarnWithdrawals.mockReset();
+  });
+
+  it("refuses with valid:false when there is no active withdrawal to cancel", async () => {
+    mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(0));
+
+    const result = await prepareCancelWithdrawal.execute({
+      address: TEST_ADDR,
+      chainId: 1,
+    });
+
+    expect(result).toMatchObject({ valid: false });
+    if ("valid" in result && result.valid === false) {
+      expect(result.errors.join(" ")).toMatch(/No active withdrawal/i);
+    }
+  });
+
+  it("returns the cancel tx with active withdrawal details in the description", async () => {
+    mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(1));
+
+    const result = await prepareCancelWithdrawal.execute({
+      address: TEST_ADDR,
+      chainId: 1,
+    });
+
+    expect(result).toMatchObject({
+      valid: true,
+      action: "sdk_execute",
+      method: "evm.cancelWithdrawal",
+    });
+    if ("valid" in result && result.valid === true) {
+      expect(result.description).toContain("100"); // shareAmount
+      expect(result.description).toMatch(/0xaaaaaaaa/); // txHash prefix
+      expect(result.description).toMatch(/Cancel pending Bitcoin Earn/i);
+    }
+  });
+
+  it("surfaces the error if the lookup itself fails", async () => {
+    mockGetEarnWithdrawals.mockRejectedValue(new Error("BFF timeout"));
+
+    const result = await prepareCancelWithdrawal.execute({
+      address: TEST_ADDR,
+      chainId: 1,
+    });
+
+    expect(result).toMatchObject({ valid: false });
+  });
+});
+
+// ─── get_token_info ─────────────────────────────────────────────────
+
+describe("get_token_info", () => {
+  it("resolves canonical Lombard symbols", async () => {
+    const result = await getTokenInfo.execute({ query: "BTCe" });
+    expect(result.found).toBe(true);
+    expect(result.asset?.symbol).toBe("BTCe");
+    expect(result.asset?.isYieldBearing).toBe(true);
+    expect(result.asset?.description.toLowerCase()).toContain("bitcoin earn");
+  });
+
+  it("resolves aliases", async () => {
+    const lbtc = await getTokenInfo.execute({ query: "Lombard BTC" });
+    expect(lbtc.found).toBe(true);
+    expect(lbtc.asset?.symbol).toBe("LBTC");
+
+    const btcb = await getTokenInfo.execute({ query: "BTCb" });
+    expect(btcb.found).toBe(true);
+    expect(btcb.asset?.symbol).toBe("BTC.b");
+  });
+
+  it("resolves a BTCe contract address scoped to its chain", async () => {
+    // BTCe contract address on Ethereum mainnet
+    const result = await getTokenInfo.execute({
+      address: "0x3a4baaBf4DC9910596821615e848f0e6545762F3",
+      chainId: 1,
+    });
+    expect(result.found).toBe(true);
+    expect(result.asset?.symbol).toBe("BTCe");
+  });
+
+  it("returns found:false with suggestions for unknown tokens", async () => {
+    const result = await getTokenInfo.execute({ query: "DOGE" });
+    expect(result.found).toBe(false);
+    expect(result.suggestions).toContain("BTCe");
+    expect(result.suggestions).toContain("LBTC");
+    expect(result.note).toMatch(/Known symbols/i);
+  });
+
+  it("returns guidance when neither query nor address provided", async () => {
+    const result = await getTokenInfo.execute({});
+    expect(result.found).toBe(false);
+    expect(result.note).toMatch(/Provide a `query`/);
   });
 });

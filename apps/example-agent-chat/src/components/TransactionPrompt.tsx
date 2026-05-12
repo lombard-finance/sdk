@@ -18,7 +18,9 @@ const METHOD_LABELS = {
   "evm.deploy": "Deploy to Vault",
   "evm.claimDeposit": "Claim Deposit",
   "evm.withdrawFromVault": "Withdraw from Vault",
-  "btc.generateDepositAddress": "Generate BTC Deposit Address",
+  "evm.cancelWithdrawal": "Cancel Vault Withdrawal",
+  "btc.generateDepositAddress": "Generate BTC Deposit Address (LBTC)",
+  "btc.generateBtcbDepositAddress": "Generate BTC Deposit Address (BTC.b)",
   "morpho.supplyCollateral": "Supply Collateral to Morpho",
   "morpho.borrow": "Borrow from Morpho",
   "morpho.repay": "Repay on Morpho",
@@ -160,6 +162,81 @@ export function TransactionPrompt({
         throw new Error(`Unexpected state: ${stake.status}. Please try again.`);
       }
 
+      if (method === "btc.generateBtcbDepositAddress") {
+        const {
+          createLombardSDK,
+          Env,
+          AssetId,
+          evmChainIdToChain,
+          BtcActionStatus,
+          MIN_STAKE_AMOUNT_BTC,
+        } = await import("@lombard.finance/sdk");
+
+        const destChain = evmChainIdToChain(sdkChainId);
+        const partnerId = getPartnerId(env === "testnet" ? "testnet" : "mainnet");
+
+        const sdk = await createLombardSDK({
+          env: env === "testnet" ? Env.testnet : Env.prod,
+          providers: {
+            evm: () => provider,
+          },
+          ...(partnerId ? { partner: { partnerId } } : {}),
+        });
+
+        // sdk.chain.btc.deposit produces BTC.b (vs. .stake which produces LBTC)
+        const deposit = sdk.chain.btc.deposit({
+          assetOut: AssetId.BTCb,
+          destChain,
+        });
+
+        await deposit.prepare({
+          amount: String(MIN_STAKE_AMOUNT_BTC),
+          recipient: address,
+        });
+
+        if (
+          deposit.status === BtcActionStatus.ADDRESS_READY &&
+          deposit.depositAddress
+        ) {
+          setBtcDepositAddress(deposit.depositAddress);
+          setStatus("success");
+          onSuccess?.(
+            `Your existing BTC -> BTC.b deposit address is ${deposit.depositAddress}. Send BTC to this address to receive BTC.b on ${chain?.name || "Ethereum"}.`,
+          );
+          return;
+        }
+
+        if (
+          deposit.status === BtcActionStatus.NEEDS_FEE_AUTHORIZATION ||
+          deposit.status === BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION
+        ) {
+          await deposit.authorizeFee();
+        }
+
+        if (deposit.status === BtcActionStatus.READY) {
+          const btcAddr = await deposit.generateDepositAddress();
+          setBtcDepositAddress(btcAddr);
+          setStatus("success");
+          onSuccess?.(
+            `BTC -> BTC.b deposit address generated: ${btcAddr}. Send BTC to this address to receive BTC.b on ${chain?.name || "Ethereum"}.`,
+          );
+          return;
+        }
+
+        if (deposit.depositAddress) {
+          setBtcDepositAddress(deposit.depositAddress);
+          setStatus("success");
+          onSuccess?.(
+            `BTC -> BTC.b deposit address: ${deposit.depositAddress}. Send BTC to this address to receive BTC.b.`,
+          );
+          return;
+        }
+
+        throw new Error(
+          `Unexpected state: ${deposit.status}. Please try again.`,
+        );
+      }
+
       let hash: string;
 
       switch (method as MethodName) {
@@ -237,6 +314,18 @@ export function TransactionPrompt({
             env,
           });
           hash = result.queueTxHash;
+          break;
+        }
+        case "evm.cancelWithdrawal": {
+          const { cancelEarnWithdrawal } = await import(
+            "@lombard.finance/sdk"
+          );
+          hash = await cancelEarnWithdrawal({
+            account: address,
+            chainId: sdkChainId,
+            provider,
+            env,
+          });
           break;
         }
         case "morpho.repay":
