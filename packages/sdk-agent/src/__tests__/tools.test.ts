@@ -11,6 +11,10 @@ import {
   getVaultPositions,
   prepareBtcDeposit,
   prepareClaimDeposit,
+  prepareDeployToVault,
+  prepareStake,
+  prepareUnstake,
+  prepareVaultWithdrawal,
   toolsByName,
 } from "../tools";
 
@@ -182,5 +186,100 @@ describe("getExchangeRate.execute", () => {
     expect(typeof result.btcToLbtc).toBe("string");
     expect(typeof result.description).toBe("string");
     expect(typeof result.minStakeAmountBtc).toBe("string");
+  });
+});
+
+// ─── Validate-first behavior on prepare_* tools ────────────────────
+
+describe("prepare_* tools: validate-first contract", () => {
+  const MAINNET_BECH32 = "bc1q9zpgru5xkx4ekzgdsv9zg9pe6ye2qu5jq3jukx";
+
+  describe("prepareUnstake", () => {
+    it("returns valid:false when outputAsset='BTC' and recipient is missing", async () => {
+      const result = await prepareUnstake.execute({
+        amount: "0.5",
+        outputAsset: "BTC",
+        chainId: 1,
+      });
+      expect(result).toMatchObject({ valid: false });
+      if (!("valid" in result) || result.valid === true) throw new Error("expected validation failure");
+      expect(result.missing).toContain("recipient");
+    });
+
+    it("returns valid:false when amount is below minimum", async () => {
+      const result = await prepareUnstake.execute({
+        amount: "0.0000001",
+        outputAsset: "BTCb",
+        chainId: 11155111,
+      });
+      expect(result).toMatchObject({ valid: false });
+    });
+
+    it("returns valid:false when recipient looks like an EVM address on BTC output", async () => {
+      const result = await prepareUnstake.execute({
+        amount: "0.5",
+        outputAsset: "BTC",
+        recipient: "0x1234567890abcdef1234567890abcdef12345678",
+        chainId: 1,
+      });
+      expect(result).toMatchObject({ valid: false });
+    });
+
+    it("returns a prepared tx (valid:true) when all inputs check out", async () => {
+      const result = await prepareUnstake.execute({
+        amount: "0.5",
+        outputAsset: "BTC",
+        recipient: MAINNET_BECH32,
+        chainId: 1,
+      });
+      expect(result).toMatchObject({
+        valid: true,
+        action: "sdk_execute",
+        method: "evm.unstake",
+      });
+    });
+  });
+
+  describe("prepareStake", () => {
+    it("returns valid:false when amount is below MIN_STAKE_AMOUNT_BTC", async () => {
+      const result = await prepareStake.execute({ amount: "0.00001", chainId: 1 });
+      expect(result).toMatchObject({ valid: false });
+    });
+
+    it("returns a prepared tx (valid:true) for a valid stake", async () => {
+      const result = await prepareStake.execute({ amount: "0.5", chainId: 1 });
+      expect(result).toMatchObject({ valid: true, method: "evm.stake" });
+    });
+  });
+
+  describe("prepareDeployToVault / prepareVaultWithdrawal", () => {
+    it("deploy returns valid:false on zero amount", async () => {
+      const result = await prepareDeployToVault.execute({ amount: "0", chainId: 1 });
+      expect(result).toMatchObject({ valid: false });
+    });
+
+    it("deploy returns valid:true on positive amount", async () => {
+      const result = await prepareDeployToVault.execute({ amount: "0.1", chainId: 1 });
+      expect(result).toMatchObject({ valid: true, method: "evm.deploy" });
+    });
+
+    it("withdrawal returns valid:false on negative-looking amount", async () => {
+      const result = await prepareVaultWithdrawal.execute({ amount: "-0.5", chainId: 1 });
+      expect(result).toMatchObject({ valid: false });
+    });
+  });
+});
+
+// ─── Truncation guard: prepare_btc_deposit emits the full address ───
+
+describe("prepare_btc_deposit does not truncate the wallet address", () => {
+  it("emits the full 0x-prefixed 40-char address in the description", async () => {
+    const fullAddr = "0x1234567890abcdef1234567890abcdef12345678";
+    const result = await prepareBtcDeposit.execute({
+      address: fullAddr,
+      chainId: 1,
+    });
+    expect(result.description).toContain(fullAddr);
+    expect(result.description).not.toMatch(/0x[0-9a-f]{4}\.\.\.[0-9a-f]{4}/i);
   });
 });

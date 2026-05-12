@@ -72,6 +72,13 @@ import {
   VaultWithdrawalSchema,
   VaultWithdrawalZod,
 } from "./schemas";
+import {
+  resolvePartnerId,
+  validateAmountInputs,
+  validateStakeInputs,
+  validateUnstakeInputs,
+  type ValidationFailure,
+} from "./validation";
 
 export interface ToolDefinition<
   TParams = Record<string, unknown>,
@@ -82,6 +89,19 @@ export interface ToolDefinition<
   parameters: Record<string, unknown>;
   schema: z.ZodType<TParams>;
   execute: (params: TParams) => Promise<TResult>;
+}
+
+/**
+ * Shape returned by prepare_* tools on success. The frontend executes the
+ * transaction by dispatching on `method`. `valid: true` tags this as the
+ * happy path so the LLM can branch cleanly on it vs ValidationFailure.
+ */
+export interface PreparedTx {
+  valid: true;
+  action: string;
+  method: string;
+  params: Record<string, unknown>;
+  description: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -550,7 +570,7 @@ export const getDepositBtcAddress: ToolDefinition<
         address,
         chainId: config.chainId,
         env: config.env,
-        partnerId: process.env.LOMBARD_PARTNER_ID,
+        partnerId: resolvePartnerId(config.env),
       });
       return {
         btcAddress,
@@ -661,56 +681,81 @@ export const prepareBtcDeposit: ToolDefinition<
       action: "sdk_execute",
       method: "btc.generateDepositAddress",
       params: { address, chainId: config.chainId },
-      description: `Generate a BTC deposit address for ${address.slice(0, 6)}...${address.slice(-4)} on ${config.name}. Your wallet will prompt you to sign an authorization.`,
+      description: `Generate a BTC deposit address for ${address} on ${config.name}. Your wallet will prompt you to sign an authorization.`,
     };
   },
 };
 
 // ─── Write Tools (return tx params, don't execute) ────────────────────
 
-export const prepareStake: ToolDefinition<{ amount: string; chainId: number }> =
-  {
-    name: "prepare_stake",
-    description:
-      "Prepare a BTC.b to LBTC stake transaction. Returns transaction parameters for the user's wallet to sign.",
-    parameters: StakeSchema as Record<string, unknown>,
-    schema: StakeZod,
-    execute: async (params) => {
-      const { amount, chainId } = StakeZod.parse(params);
-      const config = getChainConfig(chainId);
+export const prepareStake: ToolDefinition<
+  { amount: string; chainId: number },
+  PreparedTx | ValidationFailure
+> = {
+  name: "prepare_stake",
+  description:
+    "Prepare a BTC.b → LBTC stake. Returns transaction parameters for the user's wallet to sign, or a validation failure listing what to ask the user for.",
+  parameters: StakeSchema as Record<string, unknown>,
+  schema: StakeZod,
+  execute: async (params) => {
+    const parsed = StakeZod.safeParse(params);
+    if (!parsed.success) {
       return {
-        action: "sdk_execute",
-        method: "evm.stake",
-        params: {
-          amount,
-          chainId: config.chainId,
-          assetIn: "BTCb",
-          assetOut: "LBTC",
-        },
-        description: `Stake ${amount} BTC.b to receive LBTC on ${config.name}`,
+        valid: false,
+        missing: [],
+        errors: parsed.error.issues.map((i) => i.message),
+        note: "Surface the listed errors to the user and re-prompt with valid input.",
       };
-    },
-  };
+    }
+    const v = validateStakeInputs(parsed.data);
+    if (!v.valid) return v;
+    const { amount, chainId } = parsed.data;
+    const config = getChainConfig(chainId);
+    return {
+      valid: true,
+      action: "sdk_execute",
+      method: "evm.stake",
+      params: {
+        amount,
+        chainId: config.chainId,
+        assetIn: "BTCb",
+        assetOut: "LBTC",
+      },
+      description: `Stake ${amount} BTC.b to receive LBTC on ${config.name}`,
+    };
+  },
+};
 
-export const prepareUnstake: ToolDefinition<{
-  amount: string;
-  outputAsset: string;
-  recipient?: string;
-  chainId: number;
-}> = {
+export const prepareUnstake: ToolDefinition<
+  {
+    amount: string;
+    outputAsset: string;
+    recipient?: string;
+    chainId: number;
+  },
+  PreparedTx | ValidationFailure
+> = {
   name: "prepare_unstake",
   description:
-    "Prepare an LBTC unstake transaction. Returns parameters for the user's wallet to sign.",
+    "Prepare an LBTC unstake. When outputAsset is 'BTC', the user MUST supply a Bitcoin destination address — do not infer or fill it from prior context. Returns either prepared transaction parameters or a validation failure listing what to ask the user for.",
   parameters: UnstakeSchema as Record<string, unknown>,
   schema: UnstakeZod,
   execute: async (params) => {
-    const { amount, outputAsset, recipient, chainId } =
-      UnstakeZod.parse(params);
-    if (outputAsset === "BTC" && !recipient) {
-      throw new Error("recipient address is required when unstaking to BTC");
+    const parsed = UnstakeZod.safeParse(params);
+    if (!parsed.success) {
+      return {
+        valid: false,
+        missing: [],
+        errors: parsed.error.issues.map((i) => i.message),
+        note: "Surface the listed errors to the user and re-prompt with valid input.",
+      };
     }
+    const v = validateUnstakeInputs(parsed.data);
+    if (!v.valid) return v;
+    const { amount, outputAsset, recipient, chainId } = parsed.data;
     const config = getChainConfig(chainId);
     return {
+      valid: true,
       action: "sdk_execute",
       method: "evm.unstake",
       params: {
@@ -724,50 +769,67 @@ export const prepareUnstake: ToolDefinition<{
   },
 };
 
-export const prepareDeployToVault: ToolDefinition<{
-  amount: string;
-  chainId: number;
-}> = {
+export const prepareDeployToVault: ToolDefinition<
+  { amount: string; chainId: number },
+  PreparedTx | ValidationFailure
+> = {
   name: "prepare_deploy_to_vault",
   description:
-    "Prepare a transaction to deploy LBTC into Bitcoin Earn for passive yield. Returns parameters for wallet signing.",
+    "Prepare a transaction to deploy LBTC into Bitcoin Earn. Returns prepared transaction parameters or a validation failure.",
   parameters: DeployToVaultSchema as Record<string, unknown>,
   schema: DeployToVaultZod,
   execute: async (params) => {
-    const { amount, chainId } = DeployToVaultZod.parse(params);
+    const parsed = DeployToVaultZod.safeParse(params);
+    if (!parsed.success) {
+      return {
+        valid: false,
+        missing: [],
+        errors: parsed.error.issues.map((i) => i.message),
+        note: "Surface the listed errors to the user and re-prompt with valid input.",
+      };
+    }
+    const v = validateAmountInputs(parsed.data);
+    if (!v.valid) return v;
+    const { amount, chainId } = parsed.data;
     const config = getChainConfig(chainId);
     return {
+      valid: true,
       action: "sdk_execute",
       method: "evm.deploy",
-      params: {
-        amount,
-        chainId: config.chainId,
-        token: "LBTC",
-      },
+      params: { amount, chainId: config.chainId, token: "LBTC" },
       description: `Deploy ${amount} LBTC to Bitcoin Earn on ${config.name}`,
     };
   },
 };
 
-export const prepareVaultWithdrawal: ToolDefinition<{
-  amount: string;
-  chainId: number;
-}> = {
+export const prepareVaultWithdrawal: ToolDefinition<
+  { amount: string; chainId: number },
+  PreparedTx | ValidationFailure
+> = {
   name: "prepare_vault_withdrawal",
   description:
-    "Prepare a withdrawal from Bitcoin Earn. Withdrawals are queued and may take time to process.",
+    "Prepare a withdrawal from Bitcoin Earn. Withdrawals are queued and may take time to process. Returns prepared transaction parameters or a validation failure.",
   parameters: VaultWithdrawalSchema as Record<string, unknown>,
   schema: VaultWithdrawalZod,
   execute: async (params) => {
-    const { amount, chainId } = VaultWithdrawalZod.parse(params);
+    const parsed = VaultWithdrawalZod.safeParse(params);
+    if (!parsed.success) {
+      return {
+        valid: false,
+        missing: [],
+        errors: parsed.error.issues.map((i) => i.message),
+        note: "Surface the listed errors to the user and re-prompt with valid input.",
+      };
+    }
+    const v = validateAmountInputs(parsed.data);
+    if (!v.valid) return v;
+    const { amount, chainId } = parsed.data;
     const config = getChainConfig(chainId);
     return {
+      valid: true,
       action: "sdk_execute",
       method: "evm.withdrawFromVault",
-      params: {
-        amount,
-        chainId: config.chainId,
-      },
+      params: { amount, chainId: config.chainId },
       description: `Withdraw ${amount} shares from Bitcoin Earn on ${config.name}. Withdrawals are queued and may take time to process.`,
     };
   },
