@@ -2,6 +2,8 @@ import { ChainId } from "@lombard.finance/sdk";
 import { useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 
+import { getPartnerId } from "../lib/partnerId";
+
 interface TransactionPromptProps {
   method: string;
   description: string;
@@ -88,12 +90,12 @@ export function TransactionPrompt({
         } = await import("@lombard.finance/sdk");
 
         const destChain = evmChainIdToChain(sdkChainId);
-        // Resolve partnerId. On testnet, fall back to 'test1' so the BFF's
-        // captcha path is bypassed for this example flow — matches the agent
-        // tool's resolvePartnerId() so both code paths behave identically.
-        const configuredPartnerId = import.meta.env.VITE_LOMBARD_PARTNER_ID;
-        const partnerId =
-          configuredPartnerId || (env === "testnet" ? "test1" : undefined);
+        // Partner ID comes from getPartnerId, which respects the
+        // header selector (localStorage override) and falls back to the
+        // env var / default. Testnet and mainnet have separate BFF
+        // partner registries — sending a mainnet partner like "okx" to
+        // Sepolia returns "partner not found".
+        const partnerId = getPartnerId(env === "testnet" ? "testnet" : "mainnet");
 
         const sdk = await createLombardSDK({
           env: env === "testnet" ? Env.testnet : Env.prod,

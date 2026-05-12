@@ -202,20 +202,33 @@ describe("validateAmountInputs", () => {
 
 describe("resolvePartnerId", () => {
   it("returns 'test1' on testnet when nothing is configured", () => {
-    expect(resolvePartnerId(Env.testnet, undefined)).toBe("test1");
+    expect(resolvePartnerId(Env.testnet, {})).toBe("test1");
   });
 
   it("returns undefined on prod when nothing is configured", () => {
-    expect(resolvePartnerId(Env.prod, undefined)).toBeUndefined();
+    expect(resolvePartnerId(Env.prod, {})).toBeUndefined();
   });
 
-  it("honors an explicitly configured partner ID on prod", () => {
-    expect(resolvePartnerId(Env.prod, "custom-partner")).toBe("custom-partner");
+  it("honors an explicitly configured mainnet partner ID on prod", () => {
+    expect(resolvePartnerId(Env.prod, { mainnet: "okx" })).toBe("okx");
   });
 
-  it("honors an explicitly configured partner ID on testnet (override)", () => {
-    expect(resolvePartnerId(Env.testnet, "different-test-partner")).toBe(
-      "different-test-partner",
-    );
+  it("does NOT use the mainnet partner on testnet (separate registries)", () => {
+    // The bug: previously a configured mainnet partner shadowed the testnet
+    // default and got sent to the testnet BFF, returning "partner not found".
+    expect(resolvePartnerId(Env.testnet, { mainnet: "okx" })).toBe("test1");
+  });
+
+  it("honors a testnet-specific override", () => {
+    expect(resolvePartnerId(Env.testnet, { testnet: "test7" })).toBe("test7");
+  });
+
+  it("uses the matching env's partner when both are set", () => {
+    expect(
+      resolvePartnerId(Env.prod, { mainnet: "lombard", testnet: "test3" }),
+    ).toBe("lombard");
+    expect(
+      resolvePartnerId(Env.testnet, { mainnet: "okx", testnet: "test3" }),
+    ).toBe("test3");
   });
 });
