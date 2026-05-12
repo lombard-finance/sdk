@@ -20,6 +20,8 @@ const TASKS = [
   "Check if I have any pending unstakes.",
 ];
 
+const TASK_TIMEOUT_MS = Number(process.env.TASK_TIMEOUT_MS) || 60_000;
+
 async function main() {
   console.log("Lombard AgentKit - Autonomous Validation");
   console.log("==========================================\n");
@@ -65,10 +67,12 @@ async function main() {
 
   for (const task of TASKS) {
     console.log(`\n--- Task: ${task}`);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TASK_TIMEOUT_MS);
     try {
       const stream = await agent.stream(
         { messages: [new HumanMessage(task)] },
-        config,
+        { ...config, signal: controller.signal },
       );
 
       for await (const chunk of stream) {
@@ -90,7 +94,15 @@ async function main() {
       console.log("  PASS");
     } catch (error) {
       failed++;
-      console.error(`  FAIL: ${error instanceof Error ? error.message : error}`);
+      const msg =
+        controller.signal.aborted
+          ? `timed out after ${TASK_TIMEOUT_MS}ms`
+          : error instanceof Error
+            ? error.message
+            : String(error);
+      console.error(`  FAIL: ${msg}`);
+    } finally {
+      clearTimeout(timeout);
     }
   }
 

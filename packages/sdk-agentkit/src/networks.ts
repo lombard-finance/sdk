@@ -1,6 +1,8 @@
 import type { Network } from "@coinbase/agentkit";
 import { ChainId } from "@lombard.finance/sdk";
 import { Env } from "@lombard.finance/sdk-common";
+import type { Chain } from "viem";
+import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
 
 /**
  * Maps AgentKit network IDs to Lombard SDK ChainId values.
@@ -22,6 +24,17 @@ const NETWORK_ID_TO_ENV: Record<string, Env> = {
   "ethereum-sepolia": Env.testnet,
   "base-mainnet": Env.prod,
   "base-sepolia": Env.testnet,
+};
+
+/**
+ * Maps AgentKit network IDs to viem `Chain` objects, for callers that need
+ * to construct a wallet/public client outside of the action provider.
+ */
+export const NETWORK_ID_TO_VIEM_CHAIN: Record<string, Chain> = {
+  "ethereum-mainnet": mainnet,
+  "ethereum-sepolia": sepolia,
+  "base-mainnet": base,
+  "base-sepolia": baseSepolia,
 };
 
 export interface ResolvedNetwork {

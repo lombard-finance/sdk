@@ -4,6 +4,7 @@ export {
 } from "./lombardActionProvider";
 export {
   isLombardSupportedNetwork,
+  NETWORK_ID_TO_VIEM_CHAIN,
   resolveChainName,
   type ResolvedNetwork,
   resolveNetwork,

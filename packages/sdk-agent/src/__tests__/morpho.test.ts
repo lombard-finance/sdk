@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  computeMorphoPositionHealth,
   getMorphoLbtcMarkets,
   getMorphoPosition,
   prepareMorphoBorrow,
@@ -16,6 +17,10 @@ vi.stubGlobal("fetch", mockFetch);
 const mockReadContract = vi.fn();
 vi.mock("@lombard.finance/sdk", () => ({
   makePublicClient: () => ({ readContract: mockReadContract }),
+  BTC_DECIMALS: 8,
+  getLbtcContractAddresses: () => ({
+    ethereum: "0x8236a87084f8B84306f72007F36F2618A5634494",
+  }),
   Env: { prod: "prod", testnet: "testnet" },
   ChainId: {
     ethereum: "ethereum",
@@ -436,7 +441,7 @@ describe("getMorphoPosition", () => {
 
     const result = await getMorphoPosition.execute(validParams);
     expect(result.collateral).toBe("0");
-    expect(result.healthStatus).toBe("No position");
+    expect(result.healthStatus).toBe("Empty");
   });
 
   it("returns error when market not found", async () => {
@@ -444,5 +449,115 @@ describe("getMorphoPosition", () => {
 
     const result = await getMorphoPosition.execute(validParams);
     expect(result.error).toContain("not found");
+  });
+});
+
+describe("computeMorphoPositionHealth", () => {
+  // 86% LLTV (common LBTC/USDC market liquidation LTV)
+  const lltvRaw = 860000000000000000n;
+
+  // Oracle price scaled by ORACLE_PRICE_SCALE (1e36) representing 1 LBTC = 100_000 USDC.
+  // collateral has 8 decimals, loan has 6 decimals, so the scale factor follows
+  // Morpho's formula: price = 10^(36 + loanDecimals - collateralDecimals) * priceRatio.
+  // For LBTC(8)/USDC(6) at $100k: 10^(36+6-8) * 100_000 = 10^39.
+  const oraclePrice = 10n ** 39n;
+
+  it("returns Empty when there is no collateral and no debt", () => {
+    const result = computeMorphoPositionHealth({
+      collateralRaw: 0n,
+      borrowAssetsRaw: 0n,
+      oraclePrice,
+      lltvRaw,
+    });
+    expect(result.healthStatus).toBe("Empty");
+    expect(result.currentLtv).toBe(0);
+    expect(result.lltv).toBeCloseTo(0.86, 5);
+  });
+
+  it("returns Bad debt when there is debt but no collateral", () => {
+    const result = computeMorphoPositionHealth({
+      collateralRaw: 0n,
+      borrowAssetsRaw: 1_000_000n, // 1 USDC
+      oraclePrice,
+      lltvRaw,
+    });
+    expect(result.healthStatus).toBe("Bad debt");
+  });
+
+  it("returns Collateral only (no borrows) when there is collateral but no debt", () => {
+    const result = computeMorphoPositionHealth({
+      collateralRaw: 100_000_000n, // 1 LBTC
+      borrowAssetsRaw: 0n,
+      oraclePrice,
+      lltvRaw,
+    });
+    expect(result.healthStatus).toBe("Collateral only (no borrows)");
+    expect(result.currentLtv).toBe(0);
+  });
+
+  it("returns Unknown when oracle price is unavailable", () => {
+    const result = computeMorphoPositionHealth({
+      collateralRaw: 100_000_000n,
+      borrowAssetsRaw: 1_000_000n,
+      oraclePrice: 0n,
+      lltvRaw,
+    });
+    expect(result.healthStatus).toBe("Unknown (oracle unavailable)");
+  });
+
+  it("returns Healthy when LTV is below 80% of LLTV", () => {
+    // 1 LBTC collateral worth $100k, borrow 50k USDC => LTV = 0.5 (below 0.86 * 0.8 = 0.688)
+    const result = computeMorphoPositionHealth({
+      collateralRaw: 100_000_000n,
+      borrowAssetsRaw: 50_000_000_000n, // 50k USDC
+      oraclePrice,
+      lltvRaw,
+    });
+    expect(result.healthStatus).toBe("Healthy");
+    expect(result.currentLtv).toBeCloseTo(0.5, 3);
+  });
+
+  it("returns At risk when LTV is between healthy threshold and LLTV", () => {
+    // borrow 75k USDC => LTV = 0.75 (above 0.688, below 0.86)
+    const result = computeMorphoPositionHealth({
+      collateralRaw: 100_000_000n,
+      borrowAssetsRaw: 75_000_000_000n,
+      oraclePrice,
+      lltvRaw,
+    });
+    expect(result.healthStatus).toBe("At risk");
+    expect(result.currentLtv).toBeCloseTo(0.75, 3);
+  });
+
+  it("returns Liquidatable when LTV is at or above LLTV", () => {
+    // borrow 90k USDC => LTV = 0.9 (above 0.86)
+    const result = computeMorphoPositionHealth({
+      collateralRaw: 100_000_000n,
+      borrowAssetsRaw: 90_000_000_000n,
+      oraclePrice,
+      lltvRaw,
+    });
+    expect(result.healthStatus).toBe("Liquidatable");
+    expect(result.currentLtv).toBeCloseTo(0.9, 3);
+  });
+
+  it("flips from Healthy to At risk as LTV crosses 80% of LLTV", () => {
+    // 0.86 LLTV, 80% boundary at 0.688.
+    // Borrow 60_000 USDC => LTV 0.6 (below boundary, Healthy).
+    const healthy = computeMorphoPositionHealth({
+      collateralRaw: 100_000_000n,
+      borrowAssetsRaw: 60_000_000_000n,
+      oraclePrice,
+      lltvRaw,
+    });
+    expect(healthy.healthStatus).toBe("Healthy");
+    // Borrow 70_000 USDC => LTV 0.7 (above boundary, At risk).
+    const atRisk = computeMorphoPositionHealth({
+      collateralRaw: 100_000_000n,
+      borrowAssetsRaw: 70_000_000_000n,
+      oraclePrice,
+      lltvRaw,
+    });
+    expect(atRisk.healthStatus).toBe("At risk");
   });
 });

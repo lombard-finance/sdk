@@ -4,7 +4,13 @@
  * Queries the Morpho GraphQL API for market data and constructs
  * unsigned transactions for supplying LBTC as collateral.
  */
-import { makePublicClient } from "@lombard.finance/sdk";
+import {
+  BTC_DECIMALS,
+  ChainId,
+  Env,
+  getLbtcContractAddresses,
+  makePublicClient,
+} from "@lombard.finance/sdk";
 import type { Address } from "viem";
 import { encodeFunctionData, erc20Abi, formatUnits, parseUnits } from "viem";
 import type { z } from "zod";
@@ -30,15 +36,15 @@ import type { ToolDefinition } from "./tools";
 const MORPHO_BLUE_ADDRESS =
   "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb" as const;
 
-/** LBTC token address on Ethereum mainnet */
-const LBTC_ADDRESS = "0x8236a87084f8B84306f72007F36F2618A5634494" as const;
+/** LBTC token address on Ethereum mainnet, resolved via the SDK. */
+const LBTC_ADDRESS = getLbtcContractAddresses(Env.prod)[
+  ChainId.ethereum
+] as Address;
 
 const MORPHO_API_URL = "https://api.morpho.org/graphql";
 
 /** Minimum TVL in USD to surface a market (filters out dust) */
 const MIN_TVL_USD = 10_000;
-
-const LBTC_DECIMALS = 8;
 
 // ─── Morpho Blue ABI (subset) ───────────────────────────────────────
 
@@ -151,6 +157,93 @@ const morphoOracleAbi = [
 
 /** Morpho Blue uses 1e36 as the oracle price scale factor */
 const ORACLE_PRICE_SCALE = 10n ** 36n;
+
+/** WAD = 10^18, the precision Morpho Blue uses for LTV / LLTV ratios. */
+const WAD = 10n ** 18n;
+
+/**
+ * Fraction of LLTV below which a position is considered Healthy.
+ * Above this and up to LLTV, the position is At risk; at/above LLTV it is
+ * Liquidatable. Mirrors common Morpho UI conventions.
+ */
+const HEALTHY_THRESHOLD = 0.8;
+
+export type MorphoHealthStatus =
+  | "Empty"
+  | "Bad debt"
+  | "Collateral only (no borrows)"
+  | "Unknown (oracle unavailable)"
+  | "Healthy"
+  | "At risk"
+  | "Liquidatable";
+
+export interface MorphoPositionHealthInputs {
+  /** Raw collateral amount as returned by `Morpho.position`. */
+  collateralRaw: bigint;
+  /** Borrow amount in loan-asset units, after converting shares to assets. */
+  borrowAssetsRaw: bigint;
+  /** Oracle price scaled by `ORACLE_PRICE_SCALE` (1e36). */
+  oraclePrice: bigint;
+  /** Liquidation LTV as returned by `Morpho.market`, scaled by WAD (1e18). */
+  lltvRaw: bigint;
+}
+
+export interface MorphoPositionHealth {
+  /** LTV as a 0-1 fraction; 0 when there is no debt. */
+  currentLtv: number;
+  /** LLTV as a 0-1 fraction. */
+  lltv: number;
+  healthStatus: MorphoHealthStatus;
+}
+
+/**
+ * Classifies a Morpho Blue position's health from the raw on-chain values.
+ * Extracted from the `get_morpho_position` tool so it can be unit-tested
+ * without an RPC dependency.
+ */
+export function computeMorphoPositionHealth({
+  collateralRaw,
+  borrowAssetsRaw,
+  oraclePrice,
+  lltvRaw,
+}: MorphoPositionHealthInputs): MorphoPositionHealth {
+  const lltv = Number(formatUnits(lltvRaw, 18));
+
+  if (collateralRaw === 0n) {
+    return {
+      currentLtv: 0,
+      lltv,
+      healthStatus: borrowAssetsRaw > 0n ? "Bad debt" : "Empty",
+    };
+  }
+  if (borrowAssetsRaw === 0n) {
+    return {
+      currentLtv: 0,
+      lltv,
+      healthStatus: "Collateral only (no borrows)",
+    };
+  }
+  if (oraclePrice === 0n) {
+    return {
+      currentLtv: 0,
+      lltv,
+      healthStatus: "Unknown (oracle unavailable)",
+    };
+  }
+
+  // LTV = borrowAssets / (collateral * oraclePrice / ORACLE_PRICE_SCALE)
+  const collateralValue = (collateralRaw * oraclePrice) / ORACLE_PRICE_SCALE;
+  const ltvWad = (borrowAssetsRaw * WAD) / collateralValue;
+  const currentLtv = Number(formatUnits(ltvWad, 18));
+
+  const lltvHealthy = lltv * HEALTHY_THRESHOLD;
+  let healthStatus: MorphoHealthStatus;
+  if (currentLtv < lltvHealthy) healthStatus = "Healthy";
+  else if (currentLtv < lltv) healthStatus = "At risk";
+  else healthStatus = "Liquidatable";
+
+  return { currentLtv, lltv, healthStatus };
+}
 
 // ─── GraphQL Queries ────────────────────────────────────────────────
 
@@ -350,7 +443,7 @@ export const prepareMorphoSupplyCollateral: ToolDefinition<
         };
       }
 
-      const assetsRaw = parseUnits(amount, LBTC_DECIMALS);
+      const assetsRaw = parseUnits(amount, BTC_DECIMALS);
 
       // 1. ERC-20 approve
       const approveData = encodeFunctionData({
@@ -694,41 +787,18 @@ export const getMorphoPosition: ToolDefinition<
           ? (borrowSharesRaw * totalBorrowAssets) / totalBorrowShares
           : 0n;
 
-      const collateral = formatUnits(collateralRaw, LBTC_DECIMALS);
+      const collateral = formatUnits(collateralRaw, BTC_DECIMALS);
       const borrowAssets = formatUnits(
         borrowAssetsRaw,
         market.loanAsset.decimals,
       );
 
-      // Calculate LTV using the same formula as Morpho Blue:
-      // LTV = borrowAssets / (collateral * oraclePrice / ORACLE_PRICE_SCALE)
-      // Rearranged to avoid precision loss:
-      // LTV = (borrowAssets * ORACLE_PRICE_SCALE) / (collateral * oraclePrice)
-      const lltvNum = Number(market.lltv) / 1e18;
-      let currentLtv = 0;
-      let healthStatus = "No position";
-
-      if (collateralRaw > 0n) {
-        if (borrowAssetsRaw > 0n && oraclePrice > 0n) {
-          // collateralValue = collateral * oraclePrice / ORACLE_PRICE_SCALE (in loan asset units)
-          const collateralValueScaled =
-            collateralRaw * (oraclePrice as bigint);
-          // LTV as a ratio (0 to 1)
-          currentLtv =
-            Number(
-              (borrowAssetsRaw * ORACLE_PRICE_SCALE * 10000n) /
-                collateralValueScaled,
-            ) / 10000;
-          healthStatus =
-            currentLtv < lltvNum * 0.8
-              ? "Healthy"
-              : currentLtv < lltvNum
-                ? "At risk"
-                : "Liquidatable";
-        } else {
-          healthStatus = "Collateral only (no borrows)";
-        }
-      }
+      const { currentLtv, lltv, healthStatus } = computeMorphoPositionHealth({
+        collateralRaw,
+        borrowAssetsRaw,
+        oraclePrice: oraclePrice as bigint,
+        lltvRaw: BigInt(market.lltv),
+      });
 
       return {
         collateral,
@@ -737,7 +807,7 @@ export const getMorphoPosition: ToolDefinition<
         loanAssetAddress: market.loanAsset.address,
         collateralAsset: market.collateralAsset.symbol,
         collateralAssetAddress: market.collateralAsset.address,
-        lltv: `${(lltvNum * 100).toFixed(0)}%`,
+        lltv: `${(lltv * 100).toFixed(0)}%`,
         currentLtv: `${(currentLtv * 100).toFixed(1)}%`,
         healthStatus,
       };
