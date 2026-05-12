@@ -153,6 +153,58 @@ export function validateStakeInputs(params: {
   };
 }
 
+/**
+ * Validates the inputs to prepare_redeem_btcb (BTC.b -> native BTC).
+ * BTC.b has its own minimum-redeem floor today (same MIN_REDEEM_AMOUNT_BTC
+ * as LBTC); kept here so the agent can advertise it without an extra
+ * round trip.
+ */
+export function validateRedeemBtcbInputs(params: {
+  amount: unknown;
+  recipient: unknown;
+  chainId: number;
+}): ValidationResult {
+  const missing: string[] = [];
+  const errors: string[] = [];
+
+  if (!isPositiveAmount(params.amount)) {
+    errors.push("amount must be a positive numeric string (e.g. '0.001')");
+  } else if (Number(params.amount) < MIN_REDEEM_AMOUNT_BTC) {
+    errors.push(
+      `amount ${params.amount} is below the protocol minimum of ${MIN_REDEEM_AMOUNT_BTC} BTC. Network fees may push the practical minimum higher.`,
+    );
+  }
+
+  if (typeof params.recipient !== "string" || params.recipient.length === 0) {
+    missing.push("recipient");
+  } else if (!isBitcoinAddress(params.recipient, params.chainId)) {
+    errors.push(
+      "recipient is not a valid Bitcoin address for this network. Mainnet: bc1.../1.../3...; Sepolia/testnet: tb1.../m.../n.../2...",
+    );
+  }
+
+  if (missing.length === 0 && errors.length === 0) return { valid: true };
+
+  const noteParts: string[] = [];
+  if (missing.length > 0) {
+    noteParts.push(
+      `Ask the user for: ${missing.join(", ")}. Do not infer these values from prior context.`,
+    );
+  }
+  if (errors.length > 0) {
+    noteParts.push(
+      "Surface the listed errors to the user and re-prompt; do not retry the tool with the same arguments.",
+    );
+  }
+
+  return {
+    valid: false,
+    missing,
+    errors,
+    note: noteParts.join(" "),
+  };
+}
+
 /** Validates the inputs to prepare_deploy_to_vault / prepare_vault_withdrawal. */
 export function validateAmountInputs(params: {
   amount: unknown;

@@ -67,6 +67,8 @@ import {
   LbtcApyZod,
   OpportunitiesSchema,
   OpportunitiesZod,
+  RedeemBtcbSchema,
+  RedeemBtcbZod,
   StakeSchema,
   StakeZod,
   StrategiesSchema,
@@ -83,6 +85,7 @@ import {
 import {
   resolvePartnerId,
   validateAmountInputs,
+  validateRedeemBtcbInputs,
   validateStakeInputs,
   validateUnstakeInputs,
   type ValidationFailure,
@@ -931,6 +934,43 @@ export const prepareUnstake: ToolDefinition<
   },
 };
 
+export const prepareRedeemBtcb: ToolDefinition<
+  { amount: string; recipient: string; chainId: number },
+  PreparedTx | ValidationFailure
+> = {
+  name: "prepare_redeem_btcb",
+  description:
+    "Prepare a redemption of BTC.b for native BTC. Distinct from prepare_unstake (which operates on LBTC). The user MUST supply a Bitcoin destination address — do not infer or fill it from prior context. Returns either prepared transaction parameters or a validation failure listing what to ask the user for.",
+  parameters: RedeemBtcbSchema as Record<string, unknown>,
+  schema: RedeemBtcbZod,
+  execute: async (params) => {
+    const parsed = RedeemBtcbZod.safeParse(params);
+    if (!parsed.success) {
+      return {
+        valid: false,
+        missing: [],
+        errors: parsed.error.issues.map((i) => i.message),
+        note: "Surface the listed errors to the user and re-prompt with valid input.",
+      };
+    }
+    const v = validateRedeemBtcbInputs(parsed.data);
+    if (!v.valid) return v;
+    const { amount, recipient, chainId } = parsed.data;
+    const config = getChainConfig(chainId);
+    return {
+      valid: true,
+      action: "sdk_execute",
+      method: "evm.redeemBtcb",
+      params: {
+        amount,
+        recipient,
+        chainId: config.chainId,
+      },
+      description: `Redeem ${amount} BTC.b to native BTC on ${config.name}. Destination: ${recipient}.`,
+    };
+  },
+};
+
 export const prepareDeployToVault: ToolDefinition<
   { amount: string; chainId: number },
   PreparedTx | ValidationFailure
@@ -1534,6 +1574,7 @@ export const allTools: AnyToolDefinition[] = [
   prepareBtcToBtcbDeposit,
   prepareStake,
   prepareUnstake,
+  prepareRedeemBtcb,
   prepareDeployToVault,
   prepareVaultWithdrawal,
   prepareCancelWithdrawal,

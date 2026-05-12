@@ -92,6 +92,16 @@ export const ClaimDepositZod = z.object({
   chainId: chainId,
 });
 
+export const RedeemBtcbZod = z.object({
+  amount: amount.describe("Amount of BTC.b to redeem for native BTC"),
+  recipient: z
+    .string()
+    .describe(
+      "Bitcoin destination address for the redeemed BTC. MUST be a valid Bitcoin address for the network (bc1.../1.../3... mainnet; tb1.../m.../n.../2... testnet). Ask the user for this explicitly — never infer from prior context.",
+    ),
+  chainId: chainId,
+});
+
 export const TokenInfoZod = z.object({
   query: z
     .string()
@@ -219,6 +229,7 @@ export const ClaimDepositSchema = toJsonSchema(ClaimDepositZod);
 export const OpportunitiesSchema = toJsonSchema(OpportunitiesZod);
 export const TokenBalanceSchema = toJsonSchema(TokenBalanceZod);
 export const TokenInfoSchema = toJsonSchema(TokenInfoZod);
+export const RedeemBtcbSchema = toJsonSchema(RedeemBtcbZod);
 export const MorphoLbtcMarketsSchema = toJsonSchema(MorphoLbtcMarketsZod);
 export const MorphoSupplyCollateralSchema = toJsonSchema(
   MorphoSupplyCollateralZod,

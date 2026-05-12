@@ -16,6 +16,7 @@ import {
   prepareCancelWithdrawal,
   prepareClaimDeposit,
   prepareDeployToVault,
+  prepareRedeemBtcb,
   prepareStake,
   prepareUnstake,
   prepareVaultWithdrawal,
@@ -130,8 +131,8 @@ describe("prepareClaimDeposit", () => {
 });
 
 describe("allTools", () => {
-  it("has 27 entries", () => {
-    expect(allTools).toHaveLength(27);
+  it("has 28 entries", () => {
+    expect(allTools).toHaveLength(28);
   });
 
   it("contains all expected tools including new ones", () => {
@@ -498,5 +499,92 @@ describe("get_token_info", () => {
     const result = await getTokenInfo.execute({});
     expect(result.found).toBe(false);
     expect(result.note).toMatch(/Provide a `query`/);
+  });
+});
+
+// ─── prepare_redeem_btcb (BTC.b -> native BTC) ──────────────────────
+
+describe("prepare_redeem_btcb", () => {
+  const MAINNET_BECH32 = "bc1q9zpgru5xkx4ekzgdsv9zg9pe6ye2qu5jq3jukx";
+  const TESTNET_BECH32 =
+    "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3";
+
+  it("is registered with the correct name + method", async () => {
+    expect(prepareRedeemBtcb.name).toBe("prepare_redeem_btcb");
+    expect(toolsByName).toHaveProperty("prepare_redeem_btcb");
+    expect(allTools.map((t) => t.name)).toContain("prepare_redeem_btcb");
+  });
+
+  it("returns valid:true with method evm.redeemBtcb on the happy path", async () => {
+    const result = await prepareRedeemBtcb.execute({
+      amount: "0.5",
+      recipient: MAINNET_BECH32,
+      chainId: 1,
+    });
+    expect(result).toMatchObject({
+      valid: true,
+      action: "sdk_execute",
+      method: "evm.redeemBtcb",
+    });
+    if ("valid" in result && result.valid === true) {
+      expect(result.params).toMatchObject({
+        amount: "0.5",
+        recipient: MAINNET_BECH32,
+      });
+    }
+  });
+
+  it("rejects when recipient is missing", async () => {
+    const result = await prepareRedeemBtcb.execute({
+      amount: "0.5",
+      recipient: "",
+      chainId: 1,
+    });
+    expect(result).toMatchObject({ valid: false });
+    if ("valid" in result && result.valid === false) {
+      expect(result.missing).toContain("recipient");
+    }
+  });
+
+  it("rejects an EVM address in the recipient slot", async () => {
+    const result = await prepareRedeemBtcb.execute({
+      amount: "0.5",
+      recipient: "0x1234567890abcdef1234567890abcdef12345678",
+      chainId: 1,
+    });
+    expect(result).toMatchObject({ valid: false });
+    if ("valid" in result && result.valid === false) {
+      expect(result.errors.join(" ")).toMatch(/valid Bitcoin address/i);
+    }
+  });
+
+  it("rejects a mainnet recipient on a testnet chain", async () => {
+    const result = await prepareRedeemBtcb.execute({
+      amount: "0.5",
+      recipient: MAINNET_BECH32,
+      chainId: 11155111, // sepolia
+    });
+    expect(result).toMatchObject({ valid: false });
+  });
+
+  it("accepts a testnet recipient on Sepolia", async () => {
+    const result = await prepareRedeemBtcb.execute({
+      amount: "0.5",
+      recipient: TESTNET_BECH32,
+      chainId: 11155111,
+    });
+    expect(result).toMatchObject({ valid: true, method: "evm.redeemBtcb" });
+  });
+
+  it("rejects amounts below MIN_REDEEM_AMOUNT_BTC", async () => {
+    const result = await prepareRedeemBtcb.execute({
+      amount: "0.0000001",
+      recipient: MAINNET_BECH32,
+      chainId: 1,
+    });
+    expect(result).toMatchObject({ valid: false });
+    if ("valid" in result && result.valid === false) {
+      expect(result.errors.join(" ")).toMatch(/minimum/i);
+    }
   });
 });

@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { useAccount } from "wagmi";
 
 import logoCircle from "../assets/logo-green-circle.svg";
+import { classifyHex, getExplorerUrl } from "../lib/explorer";
 import { TransactionPrompt } from "./TransactionPrompt";
 
 interface TxResult {
@@ -257,6 +258,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           <MessageBubble
             key={msg.id}
             message={msg as unknown as Record<string, unknown>}
+            chainId={chain?.id}
             onTxError={(err) =>
               append({
                 role: "user",
@@ -412,10 +414,12 @@ function formatAddresses(text: string): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function MessageBubble({
   message,
+  chainId,
   onTxError,
   onTxSuccess,
 }: {
   message: Record<string, any>;
+  chainId?: number;
   onTxError?: (error: string) => void;
   onTxSuccess?: (msg: string) => void;
 }) {
@@ -499,14 +503,32 @@ function MessageBubble({
             ),
             code: ({ children }) => {
               const text = String(children);
-              // Truncate long hex addresses/hashes with tooltip
-              if (/^0x[a-fA-F0-9]{40,}$/.test(text)) {
+              // Tx hashes (64 hex) and addresses (40 hex) get rendered as
+              // truncated, clickable explorer links. Falls back to a tooltip
+              // when the connected chain has no known explorer.
+              const kind = classifyHex(text);
+              if (kind) {
+                const truncated = `${text.slice(0, 6)}...${text.slice(-4)}`;
+                const explorerUrl = getExplorerUrl(chainId, kind, text);
+                if (explorerUrl) {
+                  return (
+                    <a
+                      href={explorerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${text} (open in explorer)`}
+                      className="bg-[var(--color-border)] rounded px-1 py-0.5 text-xs font-mono text-[var(--color-teal)] underline decoration-dotted underline-offset-2"
+                    >
+                      {truncated}
+                    </a>
+                  );
+                }
                 return (
                   <code
                     className="bg-[var(--color-border)] rounded px-1 py-0.5 text-xs font-mono cursor-help"
                     title={text}
                   >
-                    {text.slice(0, 6)}...{text.slice(-4)}
+                    {truncated}
                   </code>
                 );
               }

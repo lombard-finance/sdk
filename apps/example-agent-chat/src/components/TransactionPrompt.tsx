@@ -15,6 +15,7 @@ interface TransactionPromptProps {
 const METHOD_LABELS = {
   "evm.stake": "Stake",
   "evm.unstake": "Unstake",
+  "evm.redeemBtcb": "Redeem BTC.b for BTC",
   "evm.deploy": "Deploy to Vault",
   "evm.claimDeposit": "Claim Deposit",
   "evm.withdrawFromVault": "Withdraw from Vault",
@@ -290,6 +291,21 @@ export function TransactionPrompt({
               env,
             });
           }
+          break;
+        }
+        case "evm.redeemBtcb": {
+          // Redeem BTC.b directly for native BTC. Distinct from evm.unstake
+          // (which operates on LBTC) — uses redeemToken with tokenIn=BTCb.
+          const { redeemToken, Token } = await import("@lombard.finance/sdk");
+          hash = await redeemToken({
+            amount: params.amount as string,
+            btcAddress: params.recipient as string,
+            tokenIn: Token.BTCb,
+            account: address,
+            chainId: sdkChainId,
+            provider,
+            env,
+          });
           break;
         }
         case "evm.claimDeposit": {

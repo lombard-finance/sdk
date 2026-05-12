@@ -6,6 +6,7 @@ import {
   isPositiveAmount,
   resolvePartnerId,
   validateAmountInputs,
+  validateRedeemBtcbInputs,
   validateStakeInputs,
   validateUnstakeInputs,
 } from "../validation";
@@ -230,5 +231,44 @@ describe("resolvePartnerId", () => {
     expect(
       resolvePartnerId(Env.testnet, { mainnet: "okx", testnet: "test3" }),
     ).toBe("test3");
+  });
+});
+
+describe("validateRedeemBtcbInputs", () => {
+  it("accepts a well-formed mainnet redeem", () => {
+    const result = validateRedeemBtcbInputs({
+      amount: "0.5",
+      recipient: MAINNET_BECH32,
+      chainId: MAINNET_CHAIN_ID,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it("flags missing recipient", () => {
+    const result = validateRedeemBtcbInputs({
+      amount: "0.5",
+      recipient: "",
+      chainId: MAINNET_CHAIN_ID,
+    });
+    expect(result.valid).toBe(false);
+    if (!result.valid) expect(result.missing).toContain("recipient");
+  });
+
+  it("rejects below-minimum amounts", () => {
+    const result = validateRedeemBtcbInputs({
+      amount: "0.0000001",
+      recipient: MAINNET_BECH32,
+      chainId: MAINNET_CHAIN_ID,
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it("rejects mainnet recipient on testnet chain", () => {
+    const result = validateRedeemBtcbInputs({
+      amount: "0.5",
+      recipient: MAINNET_BECH32,
+      chainId: SEPOLIA_CHAIN_ID,
+    });
+    expect(result.valid).toBe(false);
   });
 });
