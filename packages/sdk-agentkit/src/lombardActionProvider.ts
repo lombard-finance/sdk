@@ -10,7 +10,7 @@ import {
   approveToken,
   type ChainId,
   claimLBTC,
-  deposit as vaultDeposit,
+  depositEarn,
   depositToken,
   fromSatoshi,
   getAssetRouterAddress,
@@ -28,17 +28,12 @@ import {
   storeNetworkFeeSignature,
   Token,
   unstakeLBTC,
-  Vault,
 } from "@lombard.finance/sdk";
 import type { Env } from "@lombard.finance/sdk-common";
 import type { Address, EIP1193Provider } from "viem";
 import { z } from "zod";
 
 import { isLombardSupportedNetwork, resolveNetwork } from "./networks";
-
-const PROTOCOL_TO_VAULT: Record<string, (typeof Vault)[keyof typeof Vault]> = {
-  veda: Vault.Veda,
-};
 import {
   ClaimDepositSchema,
   DeployToDefiSchema,
@@ -332,19 +327,10 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const account = walletProvider.getAddress() as Address;
       const provider = toEIP1193Provider(walletProvider, chainId);
 
-      const vaultKey = PROTOCOL_TO_VAULT[args.protocol];
-      if (!vaultKey) {
-        return formatError(
-          "deploy_to_defi",
-          `Unsupported protocol: ${args.protocol}`,
-        );
-      }
-
-      const txHash = await vaultDeposit({
+      const txHash = await depositEarn({
         amount: args.amount,
         approve: true,
         token: Token.LBTC,
-        vaultKey,
         account,
         chainId,
         provider,
@@ -355,7 +341,6 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       return formatSuccess("deploy_to_defi", {
         txHash,
         amount: args.amount,
-        protocol: args.protocol,
         asset: "LBTC",
       });
     } catch (error) {

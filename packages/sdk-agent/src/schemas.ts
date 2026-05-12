@@ -70,7 +70,6 @@ export const DepositBtcZod = AddressAndChainZod;
 
 export const DeployToVaultZod = z.object({
   amount: amount.describe("Amount of LBTC to deploy"),
-  protocol: z.enum(["veda"]).describe("Vault protocol"),
   chainId: chainId,
 });
 

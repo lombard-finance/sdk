@@ -1,4 +1,4 @@
-import type { ChainId } from "@lombard.finance/sdk";
+import { ChainId } from "@lombard.finance/sdk";
 import { useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 
@@ -10,7 +10,7 @@ interface TransactionPromptProps {
   onSuccess?: (message: string) => void;
 }
 
-const METHOD_LABELS: Record<string, string> = {
+const METHOD_LABELS = {
   "evm.stake": "Stake",
   "evm.unstake": "Unstake",
   "evm.deploy": "Deploy to Vault",
@@ -20,12 +20,14 @@ const METHOD_LABELS: Record<string, string> = {
   "morpho.supplyCollateral": "Supply Collateral to Morpho",
   "morpho.borrow": "Borrow from Morpho",
   "morpho.repay": "Repay on Morpho",
-};
+} as const satisfies Record<string, string>;
+
+type MethodName = keyof typeof METHOD_LABELS;
 
 /** Chain IDs that map to Env.testnet in the SDK. */
-const TESTNET_CHAIN_IDS = new Set([
-  11155111, // sepolia
-  84532, // baseSepoliaTestnet
+const TESTNET_CHAIN_IDS = new Set<number>([
+  ChainId.sepolia,
+  ChainId.baseSepoliaTestnet,
 ]);
 
 function getEnvForChainId(chainId: number): "prod" | "testnet" {
@@ -50,7 +52,7 @@ export function TransactionPrompt({
   );
   const [error, setError] = useState<string | null>(null);
 
-  const label = METHOD_LABELS[method] || method;
+  const label = METHOD_LABELS[method as MethodName] ?? method;
 
   const handleExecute = async () => {
     if (!address) return;
@@ -153,15 +155,13 @@ export function TransactionPrompt({
 
       let hash: string;
 
-      switch (method) {
+      switch (method as MethodName) {
         case "evm.deploy": {
-          const { deposit, Token, Vault } =
-            await import("@lombard.finance/sdk");
-          hash = await deposit({
+          const { depositEarn, Token } = await import("@lombard.finance/sdk");
+          hash = await depositEarn({
             amount: params.amount as string,
             approve: true,
             token: Token.LBTC,
-            vaultKey: Vault.Veda,
             account: address,
             chainId: sdkChainId,
             provider,
@@ -221,15 +221,15 @@ export function TransactionPrompt({
           break;
         }
         case "evm.withdrawFromVault": {
-          const { queueWithdraw, Vault } = await import("@lombard.finance/sdk");
-          hash = await queueWithdraw({
+          const { withdrawEarn } = await import("@lombard.finance/sdk");
+          const result = await withdrawEarn({
             amount: params.amount as string,
             account: address,
             chainId: sdkChainId,
             provider,
-            vaultKey: Vault.Veda,
             env,
           });
+          hash = result.queueTxHash;
           break;
         }
         case "morpho.repay":

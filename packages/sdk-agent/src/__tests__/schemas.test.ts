@@ -146,16 +146,14 @@ describe("DeployToVaultZod", () => {
   it("accepts valid deploy params", () => {
     const result = DeployToVaultZod.safeParse({
       amount: "1.5",
-      protocol: "veda",
       chainId: 1,
     });
     expect(result.success).toBe(true);
   });
 
-  it("rejects invalid protocol", () => {
+  it("rejects negative amount", () => {
     const result = DeployToVaultZod.safeParse({
-      amount: "1.5",
-      protocol: "unknown",
+      amount: "-1",
       chainId: 1,
     });
     expect(result.success).toBe(false);
@@ -221,9 +219,8 @@ describe("UnstakeSchema (JSON Schema)", () => {
 });
 
 describe("DeployToVaultSchema (JSON Schema)", () => {
-  it("requires amount, protocol, and chainId", () => {
+  it("requires amount and chainId", () => {
     expect(DeployToVaultSchema.required).toContain("amount");
-    expect(DeployToVaultSchema.required).toContain("protocol");
     expect(DeployToVaultSchema.required).toContain("chainId");
   });
 });

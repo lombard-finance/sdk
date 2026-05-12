@@ -56,9 +56,6 @@ export const DeployToDefiSchema = z.object({
     .refine((v) => /^\d+(\.\d+)?$/.test(v), "Amount must be a numeric string")
     .refine((v) => parseFloat(v) > 0, "Amount must be positive")
     .refine((v) => parseFloat(v) < 1000, "Amount must be under 1000 BTC"),
-  protocol: z
-    .enum(["veda"])
-    .describe("DeFi protocol to deploy to. 'veda' is the Veda LBTC vault."),
 });
 
 export const ClaimDepositSchema = z.object({

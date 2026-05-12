@@ -14,11 +14,11 @@ describe("formatSuccess", () => {
   it("includes all detail fields", () => {
     const result = formatSuccess("deploy", {
       amount: "0.1",
-      protocol: "veda",
+      asset: "LBTC",
     });
     const parsed = JSON.parse(result);
     expect(parsed.amount).toBe("0.1");
-    expect(parsed.protocol).toBe("veda");
+    expect(parsed.asset).toBe("LBTC");
   });
 });
 

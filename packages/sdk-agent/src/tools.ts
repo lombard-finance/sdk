@@ -12,6 +12,8 @@
  * OpenAI function calling, MCP, etc.)
  */
 import {
+  type EarnWithdrawal,
+  type EarnWithdrawals,
   Env,
   fromSatoshi,
   getApy,
@@ -19,22 +21,20 @@ import {
   getDepositsByAddress,
   getDepositStatus,
   getDepositStatusDisplay,
+  getEarnApy,
+  getEarnPosition,
+  getEarnTVL,
+  getEarnWithdrawals,
   getExchangeRatio,
   getLBTCExchangeRate,
   getNetworkFeeSignature,
   getPointsByAddress,
   getPositionsSummary,
-  getSharesByAddress,
-  getShareValue,
   getTokenContractInfo,
   getUnstakesByAddress,
-  getVaultApy,
-  getVaultTVL,
-  getVaultWithdrawals,
   makePublicClient,
   requiresAutoMintFee,
   Token,
-  Vault,
 } from "@lombard.finance/sdk";
 import { type Address, formatUnits } from "viem";
 import type { z } from "zod";
@@ -444,8 +444,8 @@ export const getStrategies: ToolDefinition<
     const env = Env.prod;
     try {
       const [apyData, tvlData] = await Promise.all([
-        getVaultApy({ env, vaultKey: Vault.Veda }),
-        getVaultTVL({ env, vaultKey: Vault.Veda }),
+        getEarnApy({ env }),
+        getEarnTVL({ env }),
       ]);
 
       const latestApy = apyData.length > 0 ? apyData[apyData.length - 1] : null;
@@ -726,7 +726,6 @@ export const prepareUnstake: ToolDefinition<{
 
 export const prepareDeployToVault: ToolDefinition<{
   amount: string;
-  protocol: string;
   chainId: number;
 }> = {
   name: "prepare_deploy_to_vault",
@@ -735,14 +734,13 @@ export const prepareDeployToVault: ToolDefinition<{
   parameters: DeployToVaultSchema as Record<string, unknown>,
   schema: DeployToVaultZod,
   execute: async (params) => {
-    const { amount, protocol, chainId } = DeployToVaultZod.parse(params);
+    const { amount, chainId } = DeployToVaultZod.parse(params);
     const config = getChainConfig(chainId);
     return {
       action: "sdk_execute",
       method: "evm.deploy",
       params: {
         amount,
-        protocol,
         chainId: config.chainId,
         token: "LBTC",
       },
@@ -769,7 +767,6 @@ export const prepareVaultWithdrawal: ToolDefinition<{
       params: {
         amount,
         chainId: config.chainId,
-        vault: "veda",
       },
       description: `Withdraw ${amount} shares from Bitcoin Earn on ${config.name}. Withdrawals are queued and may take time to process.`,
     };
@@ -834,29 +831,15 @@ export const getVaultPositions: ToolDefinition<
     const { address, chainId } = AddressAndChainZod.parse(params);
     const config = getChainConfig(chainId);
     try {
-      const [sharesData, shareVal] = await Promise.all([
-        withTimeout(
-          getSharesByAddress({
-            address,
-            chainId: config.chainId,
-            vaultKey: Vault.Veda,
-          }),
-          10_000,
-          "getSharesByAddress",
-        ),
-        withTimeout(
-          getShareValue({
-            chainId: config.chainId,
-            vaultKey: Vault.Veda,
-          }),
-          10_000,
-          "getShareValue",
-        ),
-      ]);
+      const position = await withTimeout(
+        getEarnPosition({ address, chainId: config.chainId }),
+        10_000,
+        "getEarnPosition",
+      );
       return {
-        shares: sharesData.balance.toString(),
-        shareValue: shareVal.toString(),
-        estimatedLbtcValue: sharesData.balanceLbtc.toString(),
+        shares: position.totalShares.toString(),
+        shareValue: position.exchangeRate.toString(),
+        estimatedLbtcValue: position.position.toString(),
         vault: "Bitcoin Earn",
         chain: config.name,
       };
@@ -1030,41 +1013,35 @@ export const getVaultWithdrawalsTool: ToolDefinition<
     const { address, chainId } = AddressAndChainZod.parse(params);
     const config = getChainConfig(chainId);
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data: any = await withTimeout(
-        getVaultWithdrawals({
+      const data = (await withTimeout(
+        getEarnWithdrawals({
           account: address as Address,
           chainId: config.chainId,
-          vaultKey: Vault.Veda,
           env: config.env,
         }),
         15_000,
-        "getVaultWithdrawals",
-      );
+        "getEarnWithdrawals",
+      )) as EarnWithdrawals;
       return {
         withdrawals: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          open: data.open.map((w: any) => ({
+          open: data.open.map((w: EarnWithdrawal) => ({
             txHash: w.txHash,
             shareAmount: w.shareAmount.toString(),
             deadline: w.deadline,
             timestamp: w.timestamp,
           })),
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          fulfilled: data.fulfilled.map((w: any) => ({
+          fulfilled: data.fulfilled.map((w: EarnWithdrawal) => ({
             txHash: w.txHash,
             shareAmount: w.shareAmount.toString(),
             amount: w.amount?.toString() ?? "unknown",
             fulfilledTxHash: w.fulfilledTxHash ?? null,
           })),
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          cancelled: data.cancelled.map((w: any) => ({
+          cancelled: data.cancelled.map((w: EarnWithdrawal) => ({
             txHash: w.txHash,
             shareAmount: w.shareAmount.toString(),
             timestamp: w.timestamp,
           })),
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          expired: data.expired.map((w: any) => ({
+          expired: data.expired.map((w: EarnWithdrawal) => ({
             txHash: w.txHash,
             shareAmount: w.shareAmount.toString(),
             timestamp: w.timestamp,

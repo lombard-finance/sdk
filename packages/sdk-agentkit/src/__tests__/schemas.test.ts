@@ -132,18 +132,16 @@ describe("RedeemLbtcToBtcbSchema", () => {
 });
 
 describe("DeployToDefiSchema", () => {
-  it("accepts valid veda deployment", () => {
+  it("accepts valid deployment", () => {
     const result = DeployToDefiSchema.safeParse({
       amount: "0.5",
-      protocol: "veda",
     });
     expect(result.success).toBe(true);
   });
 
-  it("rejects unsupported protocol", () => {
+  it("rejects negative amount", () => {
     const result = DeployToDefiSchema.safeParse({
-      amount: "0.5",
-      protocol: "aave",
+      amount: "-1",
     });
     expect(result.success).toBe(false);
   });

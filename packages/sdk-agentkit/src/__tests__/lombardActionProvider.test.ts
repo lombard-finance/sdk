@@ -100,7 +100,6 @@ describe("LombardActionProvider", () => {
     it("returns error for unsupported network on deploy", async () => {
       const result = await provider.deployToDefi(mockWalletProvider, {
         amount: "0.1",
-        protocol: "veda",
       });
       const parsed = JSON.parse(result);
       expect(parsed.success).toBe(false);
