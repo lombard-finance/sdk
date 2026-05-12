@@ -79,6 +79,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     isLoading,
     append,
     setMessages,
+    stop,
   } = useChat({
     api: "/api/chat",
     id: address ? `chat-${address.toLowerCase()}` : "chat-anonymous",
@@ -108,28 +109,36 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     }
   }, [address, setMessages]);
 
-  // Track wallet changes: save outgoing session, restore incoming session
+  // Track wallet changes: save outgoing session, restore incoming session.
+  // We only ever show the MOST RECENT change event so stale "Wallet
+  // disconnected / Switched to ..." markers from prior sessions don't pile
+  // up. On a fresh connect after a disconnect, also stop any in-flight
+  // agent turn — the in-flight request belongs to the previous wallet.
   useEffect(() => {
     if (prevAddressRef.current === undefined) {
       prevAddressRef.current = address;
       return;
     }
     if (address !== prevAddressRef.current) {
+      const wasDisconnected = !prevAddressRef.current;
       prevAddressRef.current = address;
-      // Restore the new wallet's session (useChat already has initialMessages,
-      // but on re-render we need to explicitly set them)
+      if (isLoading) stop();
       setMessages(loadMessages(address));
-      setWalletEvents((prev) => [
-        ...prev,
-        {
-          type: "wallet_change",
-          id: `wallet-${Date.now()}`,
-          address: address ?? null,
-          chainName: chain?.name,
-        },
-      ]);
+      if (address && wasDisconnected) {
+        // Fresh connection - drop any stale events from previous wallets.
+        setWalletEvents([]);
+      } else {
+        setWalletEvents([
+          {
+            type: "wallet_change",
+            id: `wallet-${Date.now()}`,
+            address: address ?? null,
+            chainName: chain?.name,
+          },
+        ]);
+      }
     }
-  }, [address, chain?.name, setMessages]);
+  }, [address, chain?.name, isLoading, setMessages, stop]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -347,22 +356,44 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
             }
             className="flex-1 rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-bg)] px-3 py-2.5 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none focus:border-[var(--color-teal)] transition-colors"
           />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="rounded-[60px] bg-[var(--color-primary)] p-2.5 text-[var(--color-black)] disabled:opacity-40 hover:bg-[var(--color-primary-dark)] transition-colors"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
+          {isLoading ? (
+            <button
+              type="button"
+              onClick={stop}
+              aria-label="Stop generating"
+              title="Stop generating"
+              className="rounded-[60px] bg-[var(--color-primary)] p-2.5 text-[var(--color-black)] hover:bg-[var(--color-primary-dark)] transition-colors"
             >
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-            </svg>
-          </button>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="6" y="6" width="12" height="12" rx="1" />
+              </svg>
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={!input.trim()}
+              aria-label="Send message"
+              className="rounded-[60px] bg-[var(--color-primary)] p-2.5 text-[var(--color-black)] disabled:opacity-40 hover:bg-[var(--color-primary-dark)] transition-colors"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+              </svg>
+            </button>
+          )}
         </div>
       </form>
     </div>
