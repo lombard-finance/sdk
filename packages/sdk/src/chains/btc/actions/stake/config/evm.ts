@@ -13,6 +13,7 @@ import type { EvmService } from '@lombard.finance/sdk-common';
 import { Env } from '@lombard.finance/sdk-common';
 import type { EIP1193Provider } from 'viem';
 
+import { FeeSignatureAlreadyExistsError } from '../../../../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
 import type { ChainId } from '../../../../../common/chains';
 import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
 import { LombardError } from '../../../../../shared/errors';
@@ -113,13 +114,38 @@ const feeAuthConfig: FeeAuthConfig = {
       token: Token.LBTC,
     });
 
-    // Store the signature with token address to distinguish from BTC.b signatures
-    await ctx.api.storeFeeSignature({
-      address: recipient,
-      signature: result.signature,
-      typedData: result.typedData,
-      tokenAddress: tokenInfo.address,
-    });
+    // Store the signature with token address to distinguish from BTC.b signatures.
+    // If the BFF reports a signature already exists (code 6), fall back to the
+    // one it already has. This recovers from cases where restoreFeeSignature
+    // missed the existing record (race, token-address mismatch, etc.) — the
+    // user's wallet signature is consumed but the workflow continues with the
+    // server-known signature instead of surfacing a confusing "already exists"
+    // error to the end user.
+    try {
+      await ctx.api.storeFeeSignature({
+        address: recipient,
+        signature: result.signature,
+        typedData: result.typedData,
+        tokenAddress: tokenInfo.address,
+      });
+    } catch (err) {
+      if (!(err instanceof FeeSignatureAlreadyExistsError)) throw err;
+      const stored = await ctx.api.getFeeSignature({
+        address: recipient,
+        chainId: chainId as ChainId,
+        tokenAddress: tokenInfo.address,
+      });
+      if (stored?.hasSignature) {
+        return {
+          signature: stored.signature ?? result.signature,
+          typedData: stored.typedData ?? result.typedData,
+        };
+      }
+      // BFF says one exists but won't return it. Surface a clearer message.
+      throw new Error(
+        'A fee authorization signature already exists for this account but cannot be retrieved. Refresh the page and try again, or contact support if this persists.',
+      );
+    }
 
     return {
       signature: result.signature,

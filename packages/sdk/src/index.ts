@@ -499,6 +499,7 @@ export {
   setReferral,
 } from './api-functions/setReferral/setReferral';
 export {
+  FeeSignatureAlreadyExistsError,
   type IStoreNetworkFeeSignatureParams,
   type IStoreNetworkFeeSignatureStatus,
   storeNetworkFeeSignature,
