@@ -1,3 +1,11 @@
+# 5.0.1
+
+### Fixed
+
+- `withdrawEarn()` and `previewWithdrawEarn()` now order the orchestrator steps as **unwrap → approve → queue** (previously approve → unwrap → queue). Wallets that cap the displayed approval amount at the user's current token balance (e.g. OKX) would otherwise show the pre-unwrap LBTCv balance and grant an allowance smaller than the withdraw amount, causing the final queue tx to revert. With the new order, the post-unwrap balance is in place by the time the approve prompt is shown. The pre-flight `maxWithdraw` check is unchanged.
+
+---
+
 # 5.0.0
 
 ## 🚨 BREAKING CHANGES

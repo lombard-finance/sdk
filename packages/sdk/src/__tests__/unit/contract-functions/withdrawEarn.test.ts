@@ -150,7 +150,7 @@ describe('withdrawEarn', () => {
   });
 
   describe('case: pure BTCe holder, no allowance, fresh', () => {
-    it('approves, unwraps, queues (3 sigs)', async () => {
+    it('unwraps, approves, queues (3 sigs)', async () => {
       setupReads({
         underlyingBalance: 0n,
         btceBalance: 100_000_000n,
@@ -169,15 +169,17 @@ describe('withdrawEarn', () => {
       expect(result.unwrapTxHash).toMatch(/withdraw_/);
       expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
 
+      // Unwrap MUST happen before approve so wallets that cap approve at
+      // current balance see the post-unwrap LBTCv balance.
       const fnNames = mockSimulateContract.mock.calls.map(
         (c) => c[0].functionName,
       );
       expect(fnNames).toEqual([
-        'approve',
         'withdraw',
+        'approve',
         'safeUpdateAtomicRequest',
       ]);
-      // 2 receipts: approval + unwrap
+      // 2 receipts: unwrap + approval
       expect(mockWaitForReceipt).toHaveBeenCalledTimes(2);
     });
   });
@@ -226,6 +228,41 @@ describe('withdrawEarn', () => {
       )?.[0];
       // assets arg: 0.2 LBTCv = 20_000_000 base units
       expect(unwrapCall.args[0]).toBe(20_000_000n);
+    });
+  });
+
+  // Regression: when a wallet caps approve at current LBTCv balance (e.g. OKX),
+  // approving before unwrap leaves allowance < amount and the queue tx fails.
+  // Doing unwrap first ensures the post-unwrap balance is visible to the
+  // wallet at approve time.
+  describe('case: mixed holder, no allowance — unwrap before approve', () => {
+    it('orders unwrap, approve, queue (3 sigs)', async () => {
+      setupReads({
+        underlyingBalance: 13_000n, // 0.00013 LBTCv
+        btceBalance: 19_762n, // ~0.000198 BTCe
+        allowance: 0n,
+        maxWithdraw: 19_762n,
+      });
+
+      const result = await withdrawEarn({
+        amount: '0.00015', // > current LBTCv balance, requires unwrap
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+      });
+
+      expect(result.unwrapTxHash).toMatch(/withdraw_/);
+      expect(result.approveTxHash).toMatch(/approve/);
+      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
+
+      const fnNames = mockSimulateContract.mock.calls.map(
+        (c) => c[0].functionName,
+      );
+      expect(fnNames).toEqual([
+        'withdraw',
+        'approve',
+        'safeUpdateAtomicRequest',
+      ]);
     });
   });
 

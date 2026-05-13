@@ -41,13 +41,17 @@ export interface WithdrawEarnResult {
  *
  * Reads the user's combined position (direct underlying-share balance + BTCe),
  * checks LBTCv allowance to the withdraw queue, pre-flight checks the BTCe
- * wrapper's `maxWithdraw` so a doomed unwrap never wastes approval gas, then
- * sends 1-3 transactions in order:
+ * wrapper's `maxWithdraw` to fail loudly when a doomed unwrap would mid-flow,
+ * then sends 1-3 transactions in order:
  *
- *   1. (conditional) Approve underlying-share token to the withdraw queue with MaxUint256.
- *   2. (conditional) Unwrap just enough BTCe to cover the gap between `amount`
+ *   1. (conditional) Unwrap just enough BTCe to cover the gap between `amount`
  *      and the user's direct underlying-share balance.
+ *   2. (conditional) Approve underlying-share token to the withdraw queue with MaxUint256.
  *   3. (always) File an atomic withdrawal request against the underlying vault.
+ *
+ * Unwrap runs before approve so that wallets which cap the displayed approval
+ * amount at the user's current token balance (e.g. OKX) see the full
+ * post-unwrap balance and don't grant an allowance smaller than `amount`.
  *
  * Failure semantics:
  *   - Throws `InsufficientPositionError` BEFORE any tx if the requested amount
@@ -166,29 +170,10 @@ export async function withdrawEarn({
     queueTxHash: '0x' as Hash, // overwritten below
   };
 
-  // --- Step 1: approve (conditional) ---
-  if (allowance < amountBase) {
-    try {
-      const { request } = await publicClient.simulateContract({
-        account,
-        chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
-        address: vaultAddress,
-        abi: erc20Abi,
-        functionName: 'approve',
-        args: [queueAddress, maxUint256],
-      });
-      result.approveTxHash = await walletClient.writeContract(request);
-      await publicClient.waitForTransactionReceipt({
-        hash: result.approveTxHash,
-      });
-    } catch (err) {
-      throw new Error(
-        `Approval of underlying share for withdraw queue failed: ${getErrorMessage(err)}`,
-      );
-    }
-  }
-
-  // --- Step 2: unwrap (conditional) ---
+  // --- Step 1: unwrap (conditional) ---
+  // Runs BEFORE approve so that wallets which cap the displayed approval
+  // amount at the user's current token balance see the full post-unwrap
+  // balance and grant an allowance large enough to cover `amount`.
   if (unwrapAmount > 0n && btceSupported) {
     try {
       const { request } = await publicClient.simulateContract({
@@ -205,7 +190,29 @@ export async function withdrawEarn({
       });
     } catch (err) {
       throw new Error(
-        `Unwrap from BTCe to underlying share failed: ${getErrorMessage(err)}. Approval${result.approveTxHash ? ` (${result.approveTxHash})` : ''} may already be in place.`,
+        `Unwrap from BTCe to underlying share failed: ${getErrorMessage(err)}.`,
+      );
+    }
+  }
+
+  // --- Step 2: approve (conditional) ---
+  if (allowance < amountBase) {
+    try {
+      const { request } = await publicClient.simulateContract({
+        account,
+        chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+        address: vaultAddress,
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [queueAddress, maxUint256],
+      });
+      result.approveTxHash = await walletClient.writeContract(request);
+      await publicClient.waitForTransactionReceipt({
+        hash: result.approveTxHash,
+      });
+    } catch (err) {
+      throw new Error(
+        `Approval of underlying share for withdraw queue failed: ${getErrorMessage(err)}. Prior steps may have completed: unwrap=${result.unwrapTxHash ?? 'n/a'}.`,
       );
     }
   }
