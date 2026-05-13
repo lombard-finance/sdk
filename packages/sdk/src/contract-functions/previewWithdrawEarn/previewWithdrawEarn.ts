@@ -119,9 +119,12 @@ export async function previewWithdrawEarn({
     isUnwrappable = maxWithdrawRaw >= unwrapAmount;
   }
 
+  // Step order mirrors `withdrawEarn`: unwrap runs before approve so wallets
+  // that cap the displayed approval amount at the user's current token
+  // balance see the post-unwrap balance.
   const steps: Array<'approve' | 'unwrap' | 'queue'> = [];
-  if (allowanceRaw < amountBase) steps.push('approve');
   if (unwrapAmount > 0n) steps.push('unwrap');
+  if (allowanceRaw < amountBase) steps.push('approve');
   steps.push('queue');
 
   return {
