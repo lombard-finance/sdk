@@ -130,9 +130,11 @@ const result = await withdrawEarn({
 
 `withdrawEarn` is a single call but may issue 1–3 transactions depending on user state:
 
-1. **Approve** underlying-share token to the withdraw queue (skipped if allowance covers).
-2. **Unwrap** just enough BTCe to cover the requested amount (skipped if the user's direct underlying balance covers, or on chains where BTCe is not deployed).
+1. **Unwrap** just enough BTCe to cover the requested amount (skipped if the user's direct underlying balance covers, or on chains where BTCe is not deployed).
+2. **Approve** underlying-share token to the withdraw queue (skipped if allowance covers).
 3. **Queue** the withdrawal (always).
+
+Unwrap runs before approve so that wallets which cap the displayed approval amount at the user's current token balance (e.g. OKX) see the post-unwrap balance and grant a sufficient allowance.
 
 The return value reports which steps ran. To predict the steps before signing, call `previewWithdrawEarn`:
 
@@ -144,7 +146,7 @@ const preview = await previewWithdrawEarn({
   account: userAddress,
   chainId: 1,
 });
-// { steps: ['approve', 'unwrap', 'queue'], expectedPopups: 3, isCovered, isUnwrappable, ... }
+// { steps: ['unwrap', 'approve', 'queue'], expectedPopups: 3, isCovered, isUnwrappable, ... }
 ```
 
 ### `cancelWithdraw` → `cancelEarnWithdrawal`
