@@ -1,3 +1,7 @@
+# 5.0.3
+
+- Fixed Earn BFF helpers to honor `env` end-to-end so non-prod deployments stop hitting `bff.prod.lombard-fi.com`.
+
 # 5.0.0
 
 ## 🚨 BREAKING CHANGES
