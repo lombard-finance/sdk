@@ -6,10 +6,19 @@
  * Protocol availability:
  * - Veda: Ethereum, Base, BSC, Corn (prod only)
  *
+ * Step ordering on BTCe chains (ETH/Base/BSC) when the user's direct LBTCv
+ * balance does not cover the requested amount:
+ * 1. `approve()` first unwraps just enough BTCe to cover the shortfall, then
+ *    approves the withdraw queue. Unwrapping before approving prevents wallets
+ *    that cap the displayed approval amount at the user's current token
+ *    balance (e.g. OKX) from granting an allowance smaller than the requested
+ *    amount.
+ * 2. `execute()` delegates to `withdrawEarn`, which sees `allowance ≥ amount`
+ *    (set in step 1) and direct LBTCv ≥ amount (after step 1's unwrap), so
+ *    it skips its own approve + unwrap and just queues.
+ *
  * Protocol routing in execute():
- * - Veda on ETH/Base/BSC (BTCe chains): calls `withdrawEarn`, which handles
- *   the BTCe → LBTCv unwrap automatically when the user's direct LBTCv
- *   balance is insufficient to cover the requested amount.
+ * - Veda on ETH/Base/BSC (BTCe chains): calls `withdrawEarn`.
  * - Veda on Corn (no BTCe): calls `queueWithdrawInternal` directly.
  *
  * @module chains/evm/actions/withdraw/EvmWithdraw
@@ -202,6 +211,21 @@ export class EvmWithdraw
     });
   }
 
+  /**
+   * Approves the withdraw queue to pull vault shares.
+   *
+   * On BTCe-supported chains, when the user's direct LBTCv balance is below
+   * the requested amount, unwraps the missing portion of BTCe BEFORE issuing
+   * the approval. This is required because some wallets (e.g. OKX) display
+   * the proposed approval amount as the user's current token balance with an
+   * opt-in "set to unlimited" toggle. Approving first would let the wallet
+   * silently cap the allowance at the pre-unwrap LBTCv balance, and the
+   * subsequent queue tx in `execute()` would revert on insufficient allowance.
+   *
+   * Trade-off: on BTCe chains with insufficient LBTCv, this single step may
+   * produce 2 wallet popups (unwrap + approve). On Corn (no BTCe) or when
+   * direct LBTCv already covers the amount, only the approve popup is shown.
+   */
   async approve(): Promise<void> {
     this.assertStatus(EvmOperationStatus.NEEDS_APPROVAL, 'approve');
 
@@ -227,6 +251,56 @@ export class EvmWithdraw
 
       // Chain is validated as EarnChain in prepare()
       const vedaChainId = this._chainId as EarnChain;
+
+      // Pre-approve unwrap on BTCe chains so the wallet sees the post-unwrap
+      // LBTCv balance when displaying the approval amount.
+      if (isBtceVaultChain(this._chainId)) {
+        const lbtcvRaw = (await publicClient.readContract({
+          address: vault.lensContract.address,
+          abi: vault.lensContract.abi,
+          functionName: 'balanceOf',
+          args: [this._account, vault.vaultContract.address],
+        })) as bigint;
+
+        if (lbtcvRaw < amountBase) {
+          const need = amountBase - lbtcvRaw;
+
+          const maxWithdrawRaw = (await publicClient.readContract({
+            address: BTCE_VAULT.contracts[this._chainId],
+            abi: BTCE_VAULT.abi,
+            functionName: 'maxWithdraw',
+            args: [this._account],
+          })) as bigint;
+
+          if (maxWithdrawRaw < need) {
+            throw new LombardError(
+              WithdrawErrorCode.INSUFFICIENT_SHARES,
+              `BTCe wrapper cannot cover the required unwrap. needed=${need.toString()}, maxWithdraw=${maxWithdrawRaw.toString()}.`,
+              {
+                needed: need.toString(),
+                maxWithdraw: maxWithdrawRaw.toString(),
+              },
+            );
+          }
+
+          const { request: unwrapRequest } =
+            await publicClient.simulateContract({
+              account: this._account,
+              chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[this._chainId],
+              address: BTCE_VAULT.contracts[this._chainId],
+              abi: BTCE_VAULT.abi,
+              functionName: 'withdraw',
+              args: [need, this._account, this._account],
+            });
+
+          const unwrapTxHash = await walletClient.writeContract(unwrapRequest);
+          await waitForTransactionReceipt(
+            publicClient,
+            unwrapTxHash,
+            'BTCe unwrap',
+          );
+        }
+      }
 
       const { request } = await publicClient.simulateContract({
         account: this._account,
