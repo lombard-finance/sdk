@@ -35,10 +35,13 @@ export async function POST(request: Request) {
 
     if (addr) {
       system += `\n\n# Wallet context (this turn)\n`;
-      system += `Use these values when a tool needs the user's address or chain. Do not ask the user for them.\n`;
+      system += `These values are the CURRENT, ACTIVE state of the user's wallet. The chainId below is the network the user has selected in the UI header RIGHT NOW. When a tool needs the user's address or chainId, use these values verbatim — do not pick a different chain, do not fall back to a default like Sepolia or Ethereum mainnet, and do not ask the user for them.\n`;
       system += `- address: ${addr}\n`;
-      if (chainId) system += `- chainId: ${chainId}\n`;
+      if (chainId !== null) system += `- chainId: ${chainId}\n`;
       if (chainName) system += `- chainName: ${chainName}\n`;
+      if (chainId !== null) {
+        system += `\nIf the user asks for "my balance" or any operation without naming a network, run it on chainId ${chainId} (${chainName ?? "the connected chain"}) and state which network you used in your reply. Only switch chains if the user explicitly names a different one.`;
+      }
     }
   } else {
     // No wallet connected — make this explicit so the LLM tells the user.

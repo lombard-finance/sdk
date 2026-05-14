@@ -224,18 +224,24 @@ export function validateAmountInputs(params: {
  * Resolves the partner ID used for BTC deposit address generation.
  *
  * Testnet and mainnet have separate partner registries on the BFF, so the
- * same partner string is rarely registered on both. On testnet we always
- * use a testnet-specific partner ID (default `test1`, overridable via
- * LOMBARD_TESTNET_PARTNER_ID) regardless of what's configured for prod —
- * otherwise a mainnet partner like "okx" leaks into testnet calls and the
- * BFF returns "partner not found". On prod we use LOMBARD_PARTNER_ID and
- * fall back to undefined, which forces the SDK into the captcha path.
+ * same partner string is rarely registered on both — `okx` on testnet
+ * returns "partner not found", `test1` on prod returns the same.
+ *
+ * Defaults are non-revenue test partners so accidental traffic from the
+ * chatbot example never routes through a real partner (which would incur
+ * fee payouts):
+ *   - testnet: `test1`   (overridable via LOMBARD_TESTNET_PARTNER_ID)
+ *   - mainnet: `lombardtest1` (overridable via LOMBARD_PARTNER_ID)
+ *
+ * To actually run through a real partner like `okx` or `lombard`, set
+ * LOMBARD_PARTNER_ID explicitly.
  */
 export function resolvePartnerId(
   env: Env,
   configured?: { mainnet?: string; testnet?: string },
-): string | undefined {
-  const mainnet = configured?.mainnet ?? process.env.LOMBARD_PARTNER_ID;
+): string {
+  const mainnet =
+    configured?.mainnet ?? process.env.LOMBARD_PARTNER_ID ?? "lombardtest1";
   const testnet =
     configured?.testnet ?? process.env.LOMBARD_TESTNET_PARTNER_ID ?? "test1";
   return env === Env.testnet ? testnet : mainnet;

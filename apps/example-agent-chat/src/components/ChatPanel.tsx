@@ -72,6 +72,19 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const prevAddressRef = useRef<string | undefined>(undefined);
   const [walletEvents, setWalletEvents] = useState<WalletEvent[]>([]);
 
+  // Keep the latest wallet context in a ref so the request-body builder
+  // always reads the current chain at send time, not at hook-init time.
+  // Without this, switching chains mid-conversation could leak a stale
+  // chainId into the next bot turn.
+  const walletContextRef = useRef<{
+    address: string;
+    chainId?: number;
+    chainName?: string;
+  } | null>(null);
+  walletContextRef.current = address
+    ? { address, chainId: chain?.id, chainName: chain?.name }
+    : null;
+
   const {
     messages,
     input,
@@ -85,11 +98,10 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     api: "/api/chat",
     id: address ? `chat-${address.toLowerCase()}` : "chat-anonymous",
     initialMessages: loadMessages(address),
-    body: {
-      walletContext: address
-        ? { address, chainId: chain?.id, chainName: chain?.name }
-        : null,
-    },
+    experimental_prepareRequestBody: ({ messages: msgs }) => ({
+      messages: msgs,
+      walletContext: walletContextRef.current,
+    }),
   });
 
   // Persist messages to localStorage on change
@@ -141,11 +153,34 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     }
   }, [address, chain?.name, isLoading, setMessages, stop]);
 
+  // Stick-to-bottom: auto-scroll on new content ONLY if the user is
+  // already near the bottom. If they've scrolled up to read history, we
+  // leave their viewport alone. We also use rAF so the scroll fires after
+  // layout has finished — without this, long conversations could end up
+  // with the container's scrollHeight stale until the next reflow, which
+  // is exactly the "scroll breaks on long history" bug.
+  const SCROLL_STICK_THRESHOLD = 80; // px from bottom considered "at bottom"
+  const stickToBottomRef = useRef(true);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distanceFromBottom =
+      el.scrollHeight - el.scrollTop - el.clientHeight;
+    stickToBottomRef.current = distanceFromBottom < SCROLL_STICK_THRESHOLD;
+  }, []);
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, walletEvents]);
+    const el = scrollRef.current;
+    if (!el) return;
+    if (!stickToBottomRef.current) return;
+    const id = requestAnimationFrame(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, [messages, walletEvents, isLoading]);
 
   if (!open) return null;
 
@@ -231,7 +266,8 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
       {/* Messages */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[var(--color-bg)]"
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[var(--color-bg)] min-h-0"
       >
         {/* Wallet change notifications */}
         {walletEvents.map((evt) => (

@@ -28,7 +28,11 @@ export const TESTNET_PARTNERS = [
   "test10",
 ] as const;
 
-export const MAINNET_PARTNERS = ["okx", "lombard"] as const;
+// `lombardtest1` is intentionally first so it is the default selection.
+// It is a non-revenue partner ID specifically for chatbot testing on
+// mainnet — `okx` and `lombard` are real partner IDs that incur fee
+// payouts on every deposit and must not be used for testing.
+export const MAINNET_PARTNERS = ["lombardtest1", "okx", "lombard"] as const;
 
 export type PartnerEnv = "testnet" | "mainnet";
 
@@ -63,7 +67,11 @@ function defaultPartnerId(env: PartnerEnv): string {
   if (env === "testnet") {
     return import.meta.env.VITE_LOMBARD_TESTNET_PARTNER_ID || "test1";
   }
-  return import.meta.env.VITE_LOMBARD_PARTNER_ID || "okx";
+  // Default to lombardtest1 on mainnet so the chatbot example never
+  // routes through a revenue-generating partner ID (okx / lombard) by
+  // accident. Override via VITE_LOMBARD_PARTNER_ID if you actually want
+  // a production partner.
+  return import.meta.env.VITE_LOMBARD_PARTNER_ID || "lombardtest1";
 }
 
 /** Reads the current partner ID synchronously. Use in non-React contexts. */

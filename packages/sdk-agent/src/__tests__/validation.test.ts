@@ -206,8 +206,8 @@ describe("resolvePartnerId", () => {
     expect(resolvePartnerId(Env.testnet, {})).toBe("test1");
   });
 
-  it("returns undefined on prod when nothing is configured", () => {
-    expect(resolvePartnerId(Env.prod, {})).toBeUndefined();
+  it("returns 'lombardtest1' on prod when nothing is configured (no accidental partner fees)", () => {
+    expect(resolvePartnerId(Env.prod, {})).toBe("lombardtest1");
   });
 
   it("honors an explicitly configured mainnet partner ID on prod", () => {
