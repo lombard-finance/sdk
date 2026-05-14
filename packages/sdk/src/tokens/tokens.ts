@@ -212,7 +212,7 @@ export async function getTokenInfo(
   const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
   if (!tokenContractInfo) return;
 
-  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const publicClient = makePublicClient({ chainId, rpcUrl, env });
   return retrieveTokenProperties(publicClient, tokenContractInfo);
 }
 
@@ -220,8 +220,9 @@ export async function getAssetInfo(
   address: Address,
   chainId: ChainId,
   rpcUrl?: string,
+  env?: Env,
 ) {
-  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const publicClient = makePublicClient({ chainId, rpcUrl, env });
   return retrieveTokenProperties(publicClient, {
     abi: erc20Abi,
     address,

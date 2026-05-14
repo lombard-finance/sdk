@@ -356,6 +356,7 @@ export class ApiNamespace {
     return getEarnWithdrawalsAllChains({
       account,
       rpcUrl: options?.rpcUrl,
+      env: this.env,
     });
   }
 

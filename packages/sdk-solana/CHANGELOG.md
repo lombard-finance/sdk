@@ -5,6 +5,10 @@ All notable changes to `@lombard.finance/sdk-solana` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2]
+
+- Fixed Solana RPC/WS URLs to route through `bff.stage.lombard-fi.com` for non-prod envs instead of always hitting `bff.prod`.
+
 ## [2.0.1] - 2026-05-02
 
 ### Changed

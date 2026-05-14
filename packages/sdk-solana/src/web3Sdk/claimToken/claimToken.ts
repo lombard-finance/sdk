@@ -57,7 +57,7 @@ export async function claimToken(
       throw new Error(`Consortium not configured for network: ${network}`);
     }
 
-    const connection = getConnection(network, rpcUrl);
+    const connection = getConnection(network, rpcUrl, env);
     const wallet = {
       publicKey: new PublicKey(provider.publicKey),
       signTransaction: provider.signTransaction,

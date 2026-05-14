@@ -174,7 +174,7 @@ export async function getEarnWithdrawals({
   const withdrawAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> =
     {};
   for (const asset of withdrawAssetsAddresses) {
-    const assetInfo = await getAssetInfo(asset, chainId, rpcUrl);
+    const assetInfo = await getAssetInfo(asset, chainId, rpcUrl, env);
     if (assetInfo) {
       withdrawAssets[asset] = {
         address: assetInfo.address,
@@ -272,7 +272,7 @@ export async function getEarnWithdrawals({
   return wihdrawals;
 }
 
-export type GetEarnWithdrawalsAllChainsParameters = {
+export type GetEarnWithdrawalsAllChainsParameters = IEnvParam & {
   account: Address;
   rpcUrl?: string;
 };
@@ -284,25 +284,32 @@ export type GetEarnWithdrawalsAllChainsParameters = {
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
  * @param parameters.rpcUrl - The optional RPC url.
+ * @param parameters.env - The optional environment identifier.
  *
  * @returns {Promise<EarnWithdrawals>} All withdrawals across all supported chains, categorized and sorted
  */
 export async function getEarnWithdrawalsAllChains({
   account,
   rpcUrl,
+  env,
 }: GetEarnWithdrawalsAllChainsParameters): Promise<EarnWithdrawals> {
   const vault = EARN_VAULT;
   // Fetch withdrawals from all supported chains in parallel
   const withdrawalsPromises = vault.chains.map((chainId: EarnChain) =>
-    getEarnWithdrawals({ account, chainId, rpcUrl }).catch((error: unknown) => {
-      console.error(`Failed to fetch withdrawals for chain ${chainId}:`, error);
-      return {
-        cancelled: [],
-        expired: [],
-        fulfilled: [],
-        open: [],
-      }; // Return empty withdrawals on error to not break the entire query
-    }),
+    getEarnWithdrawals({ account, chainId, rpcUrl, env }).catch(
+      (error: unknown) => {
+        console.error(
+          `Failed to fetch withdrawals for chain ${chainId}:`,
+          error,
+        );
+        return {
+          cancelled: [],
+          expired: [],
+          fulfilled: [],
+          open: [],
+        }; // Return empty withdrawals on error to not break the entire query
+      },
+    ),
   );
 
   const withdrawalsArrays = await Promise.all(withdrawalsPromises);
