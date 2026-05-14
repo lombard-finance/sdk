@@ -73,7 +73,7 @@ export async function redeemForBtc(
 
     validateAmount(amount);
 
-    const connection = getConnection(network, rpcUrl);
+    const connection = getConnection(network, rpcUrl, env);
     const payer = new PublicKey(provider.publicKey);
     const mint = new PublicKey(mintAddress);
     const assetRouterProgramId = new PublicKey(config.assetRouter);

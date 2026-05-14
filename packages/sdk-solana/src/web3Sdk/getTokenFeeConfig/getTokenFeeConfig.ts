@@ -66,7 +66,7 @@ export async function getTokenFeeConfig(
   const mint = new PublicKey(mintAddress);
   const assetRouterProgramId = new PublicKey(config.assetRouter);
 
-  const connection = getConnection(network, rpcUrl);
+  const connection = getConnection(network, rpcUrl, env);
 
   const [tokenConfigPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from('token_config'), mint.toBuffer()],
