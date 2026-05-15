@@ -116,7 +116,7 @@ export async function redeem(
 
     validateAmount(amount);
 
-    const connection = getConnection(network, rpcUrl);
+    const connection = getConnection(network, rpcUrl, env);
     const payer = new PublicKey(provider.publicKey);
     const mint = new PublicKey(mintAddress);
     const recipientPubkey = new PublicKey(recipient);

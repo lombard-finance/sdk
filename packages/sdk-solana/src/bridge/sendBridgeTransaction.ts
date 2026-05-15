@@ -77,9 +77,9 @@ export async function sendBridgeTransaction({
   }
 
   const network = envToNetwork[env];
-  const rpcUrl = getRpcEndpoint(network);
+  const rpcUrl = getRpcEndpoint(env);
   const umi = getMinimalUmiInstance(rpcUrl);
-  const connection = getConnection(network, rpcUrl);
+  const connection = getConnection(network, rpcUrl, env);
   const config = getConfig(env);
   const lbtcMintAddress = getLBTCAddress(network);
   const lbtcMintPublicKey = new Web3PublicKey(lbtcMintAddress);

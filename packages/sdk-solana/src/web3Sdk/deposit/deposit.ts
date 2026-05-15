@@ -107,7 +107,7 @@ export async function deposit(
 
     validateAmount(amount);
 
-    const connection = getConnection(network, rpcUrl);
+    const connection = getConnection(network, rpcUrl, env);
     const payer = new PublicKey(provider.publicKey);
     const mint = new PublicKey(sourceMintAddress);
     const recipientPubkey = new PublicKey(recipient);

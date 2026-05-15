@@ -1,3 +1,27 @@
+# 5.0.3
+
+### Fixed
+
+- Fixed Earn BFF helpers to honor `env` end-to-end so non-prod deployments stop hitting `bff.prod.lombard-fi.com`.
+
+---
+
+# 5.0.2
+
+### Fixed
+
+- `sdk.chain.evm.withdraw().approve()` now unwraps just enough BTCe BEFORE issuing the share approval on BTCe-supported chains. Without this, wallets that cap the displayed approval amount at the user's current token balance (e.g. OKX) granted an allowance smaller than the requested withdraw amount when the user's direct LBTCv balance was below the requested amount, causing the subsequent queue tx in `execute()` to revert on `allowance < amount`. The 5.0.1 reorder inside `withdrawEarn` masked this in `execute()` but produced an extra approve popup; with this fix `withdrawEarn` skips both approve and unwrap in `execute()` (single popup), and on BTCe chains with insufficient direct LBTCv the `approve()` step issues 2 popups (unwrap + approve). Behavior on Corn (no BTCe) and when direct LBTCv already covers the amount is unchanged: a single approve popup.
+
+---
+
+# 5.0.1
+
+### Fixed
+
+- `withdrawEarn()` and `previewWithdrawEarn()` now order the orchestrator steps as **unwrap → approve → queue** (previously approve → unwrap → queue). Wallets that cap the displayed approval amount at the user's current token balance (e.g. OKX) would otherwise show the pre-unwrap LBTCv balance and grant an allowance smaller than the withdraw amount, causing the final queue tx to revert. With the new order, the post-unwrap balance is in place by the time the approve prompt is shown. The pre-flight `maxWithdraw` check is unchanged.
+
+---
+
 # 5.0.0
 
 ## 🚨 BREAKING CHANGES

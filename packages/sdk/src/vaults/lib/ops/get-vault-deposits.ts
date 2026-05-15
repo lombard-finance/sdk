@@ -125,7 +125,7 @@ export async function getEarnDeposits({
 
   const depositAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> = {};
   for (const asset of depositAssetsAddresses) {
-    const assetInfo = await getAssetInfo(asset, chainId, rpcUrl);
+    const assetInfo = await getAssetInfo(asset, chainId, rpcUrl, env);
     if (assetInfo) {
       depositAssets[asset] = {
         address: assetInfo.address,
@@ -158,7 +158,7 @@ export async function getEarnDeposits({
   return orderBy(deposits, (d) => d.blockNumber, 'desc');
 }
 
-export type GetEarnDepositsAllChainsParameters = {
+export type GetEarnDepositsAllChainsParameters = IEnvParam & {
   account: Address;
   rpcUrl?: string;
 };
@@ -170,20 +170,24 @@ export type GetEarnDepositsAllChainsParameters = {
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
  * @param parameters.rpcUrl - The optional RPC url.
+ * @param parameters.env - The optional environment identifier.
  *
  * @returns {Promise<EarnDeposit[]>} All deposits across all supported chains, sorted by block number (newest first)
  */
 export async function getEarnDepositsAllChains({
   account,
   rpcUrl,
+  env,
 }: GetEarnDepositsAllChainsParameters): Promise<EarnDeposit[]> {
   const vault = EARN_VAULT;
   // Fetch deposits from all supported chains in parallel
   const depositsPromises = vault.chains.map((chainId: EarnChain) =>
-    getEarnDeposits({ account, chainId, rpcUrl }).catch((error: unknown) => {
-      console.error(`Failed to fetch deposits for chain ${chainId}:`, error);
-      return []; // Return empty array on error to not break the entire query
-    }),
+    getEarnDeposits({ account, chainId, rpcUrl, env }).catch(
+      (error: unknown) => {
+        console.error(`Failed to fetch deposits for chain ${chainId}:`, error);
+        return []; // Return empty array on error to not break the entire query
+      },
+    ),
   );
 
   const depositsArrays = await Promise.all(depositsPromises);

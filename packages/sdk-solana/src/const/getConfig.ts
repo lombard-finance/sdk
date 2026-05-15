@@ -1,7 +1,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 
 import { SolanaNetwork } from '../types';
-import { RPC_URLS } from './rpcUrls';
+import { getRpcUrl, RPC_URLS } from './rpcUrls';
 
 /**
  * Default environment
@@ -268,9 +268,11 @@ export function getConfig(env: Env = DEFAULT_ENV): IConfig {
 }
 
 /**
- * Get the RPC endpoint for a specific environment or network
- * @param envOrNetwork Environment or SolanaNetwork
- * @returns RPC endpoint
+ * Get the RPC endpoint for a specific environment or network.
+ *
+ * When called with an `Env`, both the BFF host (prod vs stage) and the
+ * Solana network segment are derived from the env, so a stage app never
+ * hits the prod BFF.
  */
 export function getRpcEndpoint(env: Env): string;
 export function getRpcEndpoint(network: SolanaNetwork): string;
@@ -282,8 +284,12 @@ export function getRpcEndpoint(envOrNetwork: Env | SolanaNetwork): string {
     envOrNetwork === 'dev' ||
     envOrNetwork === 'ibc';
 
-  const network = isEnv ? envToNetwork[envOrNetwork] : envOrNetwork;
-  return RPC_URLS[network];
+  if (isEnv) {
+    const env = envOrNetwork;
+    return getRpcUrl(envToNetwork[env], env);
+  }
+
+  return RPC_URLS[envOrNetwork];
 }
 
 /**
