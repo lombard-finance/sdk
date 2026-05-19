@@ -15,6 +15,7 @@ import { Token } from '../tokens/token-addresses';
 import { SILO_VAULT_SPENDER_ABI } from '../vaults/abi';
 import {
   EARN_STAKE_AND_BAKE_CHAINS,
+  EARN_VAULT_BTCB_SPENDER_CONTRACTS,
   EARN_VAULT_SPENDER_CONTRACTS,
   EarnStakeAndBakeChain,
 } from '../vaults/lib/config';
@@ -90,6 +91,18 @@ function getVedaSpenderContract(chainId: EarnStakeAndBakeChain): ContractInfo {
   return contract;
 }
 
+function getVedaBtcbSpenderContract(
+  chainId: EarnStakeAndBakeChain,
+): ContractInfo {
+  const contract = EARN_VAULT_BTCB_SPENDER_CONTRACTS[chainId];
+  if (!contract) {
+    throw new Error(
+      `Missing Veda BTC.b spender contract for chain ${chainId}`,
+    );
+  }
+  return contract;
+}
+
 const _DefiRegistryTokens = {
   LBTC: Token.LBTC,
   BTCb: Token.BTCb,
@@ -140,6 +153,19 @@ const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
 };
 
 /**
+ * BTC.b -> Veda uses EIP-2612 permit. The NativeLBTC ERC20 on Ethereum
+ * exposes `eip712Domain()` with name "Bitcoin" and version "1" (verified
+ * via on-chain call at plan authoring time).
+ */
+const VEDA_BTCB_PERMIT_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
+  mode: 'permit',
+  domainName: 'Bitcoin',
+  domainVersion: '1',
+  deadlineStrategy: 'expiry',
+  nonceStrategy: 'chain',
+};
+
+/**
  * DeFi Registry: Token approval configurations by vault, token, env, and chain.
  *
  * TODO: Update the format of this registry to match asset catalog and chain catalog
@@ -159,6 +185,18 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
         spenderContract: getVedaSpenderContract(chain),
       })),
+    ),
+    [Token.BTCb]: mapEnvs(ALL_ENVS, () =>
+      mapChains(
+        EARN_STAKE_AND_BAKE_CHAINS.filter(
+          (c) => EARN_VAULT_BTCB_SPENDER_CONTRACTS[c] !== undefined,
+        ) as readonly EarnStakeAndBakeChain[],
+        (chain) => ({
+          amountStrategy: 'identity',
+          approval: { ...VEDA_BTCB_PERMIT_APPROVAL },
+          spenderContract: getVedaBtcbSpenderContract(chain),
+        }),
+      ),
     ),
   },
   [DefiProtocol.Silo]: {
