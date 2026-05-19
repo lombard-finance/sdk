@@ -43,15 +43,18 @@ export const StakeZod = z.object({
   chainId: chainId,
 });
 
-export const UnstakeZod = z.object({
-  amount: amount.describe("Amount of LBTC to unstake"),
-  outputAsset: z
-    .enum(["BTC", "BTCb"])
-    .describe("Output: BTC (cross-chain) or BTCb (same chain)"),
+export const LbtcToBtcZod = z.object({
+  amount: amount.describe("Amount of LBTC to convert to native BTC"),
   recipient: z
     .string()
-    .optional()
-    .describe("Destination address (required for BTC output)"),
+    .describe(
+      "Bitcoin destination address. MUST be a valid Bitcoin address for the network (bc1.../1.../3... mainnet; tb1.../m.../n.../2... testnet). Ask the user for this explicitly, never infer from prior context.",
+    ),
+  chainId: chainId,
+});
+
+export const LbtcToBtcbZod = z.object({
+  amount: amount.describe("Amount of LBTC to convert to BTC.b on the same chain"),
   chainId: chainId,
 });
 
@@ -218,7 +221,8 @@ export const AddressOnlySchema = toJsonSchema(AddressOnlyZod);
 export const AddressAndChainSchema = toJsonSchema(AddressAndChainZod);
 export const ExchangeRateSchema = toJsonSchema(ExchangeRateZod);
 export const StakeSchema = toJsonSchema(StakeZod);
-export const UnstakeSchema = toJsonSchema(UnstakeZod);
+export const LbtcToBtcSchema = toJsonSchema(LbtcToBtcZod);
+export const LbtcToBtcbSchema = toJsonSchema(LbtcToBtcbZod);
 export const BalanceSchema = toJsonSchema(BalanceZod);
 export const StrategiesSchema = toJsonSchema(StrategiesZod);
 export const DepositBtcSchema = toJsonSchema(DepositBtcZod);

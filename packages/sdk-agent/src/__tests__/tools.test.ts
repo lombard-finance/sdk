@@ -6,20 +6,21 @@ import {
   checkFeeAuthorization,
   getBalance,
   getDepositBtcAddress,
+  getEarnPositions,
+  getEarnStrategiesTool,
   getExchangeRate,
   getLbtcApy,
-  getStrategies,
   getTokenInfo,
-  getVaultPositions,
-  prepareBtcDeposit,
+  prepareBtcbToLbtcStake,
   prepareBtcToBtcbDeposit,
-  prepareCancelWithdrawal,
-  prepareClaimDeposit,
-  prepareDeployToVault,
+  prepareBtcToLbtcDeposit,
+  prepareCancelEarnWithdrawal,
+  prepareClaimLbtcDeposit,
+  prepareEarnDeposit,
+  prepareEarnWithdrawal,
+  prepareLbtcToBtc,
+  prepareLbtcToBtcb,
   prepareRedeemBtcb,
-  prepareStake,
-  prepareUnstake,
-  prepareVaultWithdrawal,
   toolsByName,
 } from "../tools";
 
@@ -65,10 +66,10 @@ describe("getBalance", () => {
   });
 });
 
-describe("getStrategies", () => {
+describe("getEarnStrategiesTool", () => {
   it("has correct name and schema", () => {
-    expect(getStrategies.name).toBe("get_strategies");
-    expect(typeof getStrategies.execute).toBe("function");
+    expect(getEarnStrategiesTool.name).toBe("get_earn_strategies");
+    expect(typeof getEarnStrategiesTool.execute).toBe("function");
   });
 });
 
@@ -87,20 +88,20 @@ describe("checkFeeAuthorization", () => {
   });
 });
 
-describe("prepareBtcDeposit", () => {
+describe("prepareBtcToLbtcDeposit", () => {
   it("has correct name and schema", () => {
-    expect(prepareBtcDeposit.name).toBe("prepare_btc_deposit");
-    expect(prepareBtcDeposit.parameters).toHaveProperty("properties");
-    expect(typeof prepareBtcDeposit.execute).toBe("function");
+    expect(prepareBtcToLbtcDeposit.name).toBe("prepare_btc_to_lbtc_deposit");
+    expect(prepareBtcToLbtcDeposit.parameters).toHaveProperty("properties");
+    expect(typeof prepareBtcToLbtcDeposit.execute).toBe("function");
   });
 
   it("returns sdk_execute action with btc.generateDepositAddress method", async () => {
-    const result = await prepareBtcDeposit.execute({
+    const result = await prepareBtcToLbtcDeposit.execute({
       address: "0x1234567890abcdef1234567890abcdef12345678",
       chainId: 1,
     });
     expect(result).toHaveProperty("action", "sdk_execute");
-    expect(result).toHaveProperty("method", "btc.generateDepositAddress");
+    expect(result).toHaveProperty("method", "btc.generateLbtcDepositAddress");
     expect(result.params).toHaveProperty("address");
     expect(result.params).toHaveProperty("chainId");
     expect(result).toHaveProperty("description");
@@ -114,45 +115,55 @@ describe("getLbtcApy", () => {
   });
 });
 
-describe("getVaultPositions", () => {
+describe("getEarnPositions", () => {
   it("has correct name and schema", () => {
-    expect(getVaultPositions.name).toBe("get_vault_positions");
-    expect(getVaultPositions.parameters).toHaveProperty("properties");
-    expect(typeof getVaultPositions.execute).toBe("function");
+    expect(getEarnPositions.name).toBe("get_earn_positions");
+    expect(getEarnPositions.parameters).toHaveProperty("properties");
+    expect(typeof getEarnPositions.execute).toBe("function");
   });
 });
 
-describe("prepareClaimDeposit", () => {
+describe("prepareClaimLbtcDeposit", () => {
   it("has correct name and schema", () => {
-    expect(prepareClaimDeposit.name).toBe("prepare_claim_deposit");
-    expect(prepareClaimDeposit.parameters).toHaveProperty("properties");
-    expect(typeof prepareClaimDeposit.execute).toBe("function");
+    expect(prepareClaimLbtcDeposit.name).toBe("prepare_claim_lbtc_deposit");
+    expect(prepareClaimLbtcDeposit.parameters).toHaveProperty("properties");
+    expect(typeof prepareClaimLbtcDeposit.execute).toBe("function");
   });
 });
 
 describe("allTools", () => {
-  it("has 28 entries", () => {
-    expect(allTools).toHaveLength(28);
+  it("has 32 entries", () => {
+    expect(allTools).toHaveLength(32);
   });
 
   it("contains all expected tools including new ones", () => {
     const names = allTools.map((t) => t.name);
     expect(names).toContain("get_balance");
-    expect(names).toContain("get_strategies");
+    expect(names).toContain("get_earn_strategies");
     expect(names).toContain("get_deposit_btc_address");
     expect(names).toContain("check_fee_authorization");
-    expect(names).toContain("prepare_btc_deposit");
+    expect(names).toContain("prepare_btc_to_lbtc_deposit");
+    expect(names).toContain("prepare_btc_to_btcb_deposit");
     expect(names).toContain("get_lbtc_apy");
-    expect(names).toContain("get_vault_positions");
-    expect(names).toContain("prepare_claim_deposit");
-    expect(names).toContain("prepare_vault_withdrawal");
+    expect(names).toContain("get_earn_positions");
+    expect(names).toContain("prepare_claim_lbtc_deposit");
+    expect(names).toContain("prepare_earn_withdrawal");
+    expect(names).toContain("prepare_cancel_earn_withdrawal");
     expect(names).toContain("get_morpho_lbtc_markets");
     expect(names).toContain("prepare_morpho_supply_collateral");
     expect(names).toContain("prepare_morpho_borrow");
     expect(names).toContain("get_morpho_position");
     expect(names).toContain("get_token_balance");
     expect(names).toContain("prepare_morpho_repay");
-    expect(names).toContain("get_opportunities");
+    expect(names).toContain("get_lbtc_defi_opportunities");
+    expect(names).toContain("prepare_btcb_to_lbtc_stake");
+    expect(names).toContain("prepare_lbtc_to_btc");
+    expect(names).toContain("prepare_lbtc_to_btcb");
+    expect(names).toContain("prepare_redeem_btcb");
+    expect(names).toContain("get_redemption_status");
+    expect(names).toContain("get_earn_withdrawals");
+    expect(names).toContain("get_lux_points");
+    expect(names).toContain("get_positions_summary");
   });
 
   it("each tool has name, description, parameters, schema, and execute", () => {
@@ -184,13 +195,13 @@ describe("toolsByName", () => {
 
   it("contains new tools", () => {
     expect(toolsByName).toHaveProperty("get_balance");
-    expect(toolsByName).toHaveProperty("get_strategies");
+    expect(toolsByName).toHaveProperty("get_earn_strategies");
     expect(toolsByName).toHaveProperty("get_deposit_btc_address");
     expect(toolsByName).toHaveProperty("check_fee_authorization");
-    expect(toolsByName).toHaveProperty("prepare_btc_deposit");
+    expect(toolsByName).toHaveProperty("prepare_btc_to_lbtc_deposit");
     expect(toolsByName).toHaveProperty("get_lbtc_apy");
-    expect(toolsByName).toHaveProperty("get_vault_positions");
-    expect(toolsByName).toHaveProperty("prepare_claim_deposit");
+    expect(toolsByName).toHaveProperty("get_earn_positions");
+    expect(toolsByName).toHaveProperty("prepare_claim_lbtc_deposit");
     expect(toolsByName).toHaveProperty("get_morpho_lbtc_markets");
     expect(toolsByName).toHaveProperty("prepare_morpho_supply_collateral");
     expect(toolsByName).toHaveProperty("prepare_morpho_borrow");
@@ -217,31 +228,27 @@ describe("getExchangeRate.execute", () => {
 describe("prepare_* tools: validate-first contract", () => {
   const MAINNET_BECH32 = "bc1q9zpgru5xkx4ekzgdsv9zg9pe6ye2qu5jq3jukx";
 
-  describe("prepareUnstake", () => {
-    it("returns valid:false when outputAsset='BTC' and recipient is missing", async () => {
-      const result = await prepareUnstake.execute({
+  describe("prepareLbtcToBtc", () => {
+    it("returns valid:false when recipient is missing", async () => {
+      const result = await prepareLbtcToBtc.execute({
         amount: "0.5",
-        outputAsset: "BTC",
         chainId: 1,
-      });
+      } as unknown as { amount: string; recipient: string; chainId: number });
       expect(result).toMatchObject({ valid: false });
-      if (!("valid" in result) || result.valid === true) throw new Error("expected validation failure");
-      expect(result.missing).toContain("recipient");
     });
 
     it("returns valid:false when amount is below minimum", async () => {
-      const result = await prepareUnstake.execute({
+      const result = await prepareLbtcToBtc.execute({
         amount: "0.0000001",
-        outputAsset: "BTCb",
-        chainId: 11155111,
+        recipient: MAINNET_BECH32,
+        chainId: 1,
       });
       expect(result).toMatchObject({ valid: false });
     });
 
-    it("returns valid:false when recipient looks like an EVM address on BTC output", async () => {
-      const result = await prepareUnstake.execute({
+    it("returns valid:false when recipient looks like an EVM address", async () => {
+      const result = await prepareLbtcToBtc.execute({
         amount: "0.5",
-        outputAsset: "BTC",
         recipient: "0x1234567890abcdef1234567890abcdef12345678",
         chainId: 1,
       });
@@ -249,45 +256,66 @@ describe("prepare_* tools: validate-first contract", () => {
     });
 
     it("returns a prepared tx (valid:true) when all inputs check out", async () => {
-      const result = await prepareUnstake.execute({
+      const result = await prepareLbtcToBtc.execute({
         amount: "0.5",
-        outputAsset: "BTC",
         recipient: MAINNET_BECH32,
         chainId: 1,
       });
       expect(result).toMatchObject({
         valid: true,
         action: "sdk_execute",
-        method: "evm.unstake",
+        method: "evm.lbtcToBtc",
       });
     });
   });
 
-  describe("prepareStake", () => {
+  describe("prepareLbtcToBtcb", () => {
+    it("returns valid:false when amount is below minimum", async () => {
+      const result = await prepareLbtcToBtcb.execute({
+        amount: "0.0000001",
+        chainId: 11155111,
+      });
+      expect(result).toMatchObject({ valid: false });
+    });
+
+    it("returns a prepared tx (valid:true) for a valid same-chain redemption", async () => {
+      const result = await prepareLbtcToBtcb.execute({
+        amount: "0.5",
+        chainId: 1,
+      });
+      expect(result).toMatchObject({
+        valid: true,
+        action: "sdk_execute",
+        method: "evm.lbtcToBtcb",
+      });
+    });
+  });
+
+  describe("prepareBtcbToLbtcStake", () => {
     it("returns valid:false when amount is below MIN_STAKE_AMOUNT_BTC", async () => {
-      const result = await prepareStake.execute({ amount: "0.00001", chainId: 1 });
+      const result = await prepareBtcbToLbtcStake.execute({ amount: "0.00001", chainId: 1 });
       expect(result).toMatchObject({ valid: false });
     });
 
     it("returns a prepared tx (valid:true) for a valid stake", async () => {
-      const result = await prepareStake.execute({ amount: "0.5", chainId: 1 });
-      expect(result).toMatchObject({ valid: true, method: "evm.stake" });
+      const result = await prepareBtcbToLbtcStake.execute({ amount: "0.5", chainId: 1 });
+      expect(result).toMatchObject({ valid: true, method: "evm.btcbToLbtc" });
     });
   });
 
-  describe("prepareDeployToVault / prepareVaultWithdrawal", () => {
+  describe("prepareEarnDeposit / prepareEarnWithdrawal", () => {
     it("deploy returns valid:false on zero amount", async () => {
-      const result = await prepareDeployToVault.execute({ amount: "0", chainId: 1 });
+      const result = await prepareEarnDeposit.execute({ amount: "0", chainId: 1 });
       expect(result).toMatchObject({ valid: false });
     });
 
     it("deploy returns valid:true on positive amount", async () => {
-      const result = await prepareDeployToVault.execute({ amount: "0.1", chainId: 1 });
-      expect(result).toMatchObject({ valid: true, method: "evm.deploy" });
+      const result = await prepareEarnDeposit.execute({ amount: "0.1", chainId: 1 });
+      expect(result).toMatchObject({ valid: true, method: "evm.earnDeposit" });
     });
 
     it("withdrawal returns valid:false on negative-looking amount", async () => {
-      const result = await prepareVaultWithdrawal.execute({
+      const result = await prepareEarnWithdrawal.execute({
         amount: "-0.5",
         address: "0x1234567890abcdef1234567890abcdef12345678",
         chainId: 1,
@@ -297,12 +325,12 @@ describe("prepare_* tools: validate-first contract", () => {
   });
 });
 
-// ─── Truncation guard: prepare_btc_deposit emits the full address ───
+// ─── Truncation guard: prepare_btc_to_lbtc_deposit emits the full address ───
 
-describe("prepare_btc_deposit does not truncate the wallet address", () => {
+describe("prepare_btc_to_lbtc_deposit does not truncate the wallet address", () => {
   it("emits the full 0x-prefixed 40-char address in the description", async () => {
     const fullAddr = "0x1234567890abcdef1234567890abcdef12345678";
-    const result = await prepareBtcDeposit.execute({
+    const result = await prepareBtcToLbtcDeposit.execute({
       address: fullAddr,
       chainId: 1,
     });
@@ -347,7 +375,7 @@ describe("prepareBtcToBtcbDeposit", () => {
 
 const TEST_ADDR = "0x1234567890abcdef1234567890abcdef12345678";
 
-describe("prepare_vault_withdrawal active-withdrawal pre-flight", () => {
+describe("prepare_earn_withdrawal active-withdrawal pre-flight", () => {
   beforeEach(() => {
     mockGetEarnWithdrawals.mockReset();
   });
@@ -355,7 +383,7 @@ describe("prepare_vault_withdrawal active-withdrawal pre-flight", () => {
   it("returns valid:true when there is no active withdrawal", async () => {
     mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(0));
 
-    const result = await prepareVaultWithdrawal.execute({
+    const result = await prepareEarnWithdrawal.execute({
       amount: "0.5",
       address: TEST_ADDR,
       chainId: 1,
@@ -363,7 +391,7 @@ describe("prepare_vault_withdrawal active-withdrawal pre-flight", () => {
 
     expect(result).toMatchObject({
       valid: true,
-      method: "evm.withdrawFromVault",
+      method: "evm.earnWithdrawal",
     });
     expect(mockGetEarnWithdrawals).toHaveBeenCalledOnce();
   });
@@ -371,7 +399,7 @@ describe("prepare_vault_withdrawal active-withdrawal pre-flight", () => {
   it("refuses with valid:false and surfaces existing withdrawal details when one is already queued", async () => {
     mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(1));
 
-    const result = await prepareVaultWithdrawal.execute({
+    const result = await prepareEarnWithdrawal.execute({
       amount: "0.5",
       address: TEST_ADDR,
       chainId: 1,
@@ -380,7 +408,7 @@ describe("prepare_vault_withdrawal active-withdrawal pre-flight", () => {
     expect(result).toMatchObject({ valid: false });
     if ("valid" in result && result.valid === false) {
       expect(result.errors.join(" ")).toMatch(/active withdrawal already exists/i);
-      expect(result.note).toMatch(/prepare_cancel_withdrawal/);
+      expect(result.note).toMatch(/prepare_cancel_earn_withdrawal/);
       // Existing withdrawal details surfaced verbatim
       expect(result.errors.join(" ")).toContain("100"); // shareAmount
       expect(result.note).toMatch(/0xaaaaaaaa/); // txHash prefix
@@ -390,7 +418,7 @@ describe("prepare_vault_withdrawal active-withdrawal pre-flight", () => {
   it("surfaces the error when the pre-flight check itself fails (does not silently queue)", async () => {
     mockGetEarnWithdrawals.mockRejectedValue(new Error("BFF timeout"));
 
-    const result = await prepareVaultWithdrawal.execute({
+    const result = await prepareEarnWithdrawal.execute({
       amount: "0.5",
       address: TEST_ADDR,
       chainId: 1,
@@ -403,9 +431,9 @@ describe("prepare_vault_withdrawal active-withdrawal pre-flight", () => {
   });
 });
 
-// ─── prepare_cancel_withdrawal ─────────────────────────────────────
+// ─── prepare_cancel_earn_withdrawal ─────────────────────────────────────
 
-describe("prepare_cancel_withdrawal", () => {
+describe("prepare_cancel_earn_withdrawal", () => {
   beforeEach(() => {
     mockGetEarnWithdrawals.mockReset();
   });
@@ -413,7 +441,7 @@ describe("prepare_cancel_withdrawal", () => {
   it("refuses with valid:false when there is no active withdrawal to cancel", async () => {
     mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(0));
 
-    const result = await prepareCancelWithdrawal.execute({
+    const result = await prepareCancelEarnWithdrawal.execute({
       address: TEST_ADDR,
       chainId: 1,
     });
@@ -427,7 +455,7 @@ describe("prepare_cancel_withdrawal", () => {
   it("returns the cancel tx with active withdrawal details in the description", async () => {
     mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(1));
 
-    const result = await prepareCancelWithdrawal.execute({
+    const result = await prepareCancelEarnWithdrawal.execute({
       address: TEST_ADDR,
       chainId: 1,
     });
@@ -435,7 +463,7 @@ describe("prepare_cancel_withdrawal", () => {
     expect(result).toMatchObject({
       valid: true,
       action: "sdk_execute",
-      method: "evm.cancelWithdrawal",
+      method: "evm.cancelEarnWithdrawal",
     });
     if ("valid" in result && result.valid === true) {
       expect(result.description).toContain("100"); // shareAmount
@@ -447,7 +475,7 @@ describe("prepare_cancel_withdrawal", () => {
   it("surfaces the error if the lookup itself fails", async () => {
     mockGetEarnWithdrawals.mockRejectedValue(new Error("BFF timeout"));
 
-    const result = await prepareCancelWithdrawal.execute({
+    const result = await prepareCancelEarnWithdrawal.execute({
       address: TEST_ADDR,
       chainId: 1,
     });
@@ -524,7 +552,7 @@ describe("prepare_redeem_btcb", () => {
     expect(result).toMatchObject({
       valid: true,
       action: "sdk_execute",
-      method: "evm.redeemBtcb",
+      method: "evm.btcbToBtc",
     });
     if ("valid" in result && result.valid === true) {
       expect(result.params).toMatchObject({
@@ -573,7 +601,7 @@ describe("prepare_redeem_btcb", () => {
       recipient: TESTNET_BECH32,
       chainId: 11155111,
     });
-    expect(result).toMatchObject({ valid: true, method: "evm.redeemBtcb" });
+    expect(result).toMatchObject({ valid: true, method: "evm.btcbToBtc" });
   });
 
   it("rejects amounts below MIN_REDEEM_AMOUNT_BTC", async () => {
