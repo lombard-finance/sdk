@@ -21,10 +21,11 @@ import { evmAddressSchema } from '../../../../../shared/validation';
 import { getSupportedProtocols } from '../../stakeAndDeploy/config';
 import type { DepositAndDeployChainConfig } from './types';
 
-// DepositAndDeploy requires BTC.b + Silo vault support
-// Currently only Avalanche is supported
+// DepositAndDeploy with BTC.b is supported on:
+// - Avalanche / Avalanche Fuji  -> Silo vault
+// - Ethereum                    -> Veda vault (StakeAndBakeNativeToken)
 const DEPOSIT_AND_DEPLOY_CHAINS = {
-  mainnet: [Chain.AVALANCHE],
+  mainnet: [Chain.AVALANCHE, Chain.ETHEREUM],
   testnet: [Chain.AVALANCHE_FUJI],
 };
 
@@ -32,7 +33,9 @@ const DEPOSIT_AND_DEPLOY_CHAINS = {
  * EVM deposit and deploy configuration
  *
  * DepositAndDeploy produces BTC.b then deploys to a vault.
- * Currently limited to Silo on Avalanche.
+ * Two routes are supported:
+ *   - Silo on Avalanche (approve mode)
+ *   - Veda on Ethereum (permit mode, StakeAndBakeNativeToken contract)
  */
 export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
   chainType: 'evm',
