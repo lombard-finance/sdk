@@ -25,8 +25,8 @@ jobs:
 
     env:
       # Publish order respects the dependency graph:
-      #   sdk-common (no deps) → sdk (sdk-common) → solana/sui/starknet (sdk-common) → devtools (sdk)
-      PUBLISH_ORDER: "sdk-common sdk sdk-solana sdk-sui sdk-starknet sdk-devtools"
+      #   sdk-common (no deps) → sdk (sdk-common) → solana/sui/starknet (sdk-common) → devtools (sdk) → agent/agentkit (sdk, sdk-common)
+      PUBLISH_ORDER: "sdk-common sdk sdk-solana sdk-sui sdk-starknet sdk-devtools sdk-agent sdk-agentkit"
 
     steps:
       # ── Checkout & tooling ──────────────────────────────────────────
