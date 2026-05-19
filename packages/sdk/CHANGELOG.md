@@ -1,3 +1,11 @@
+# 5.1.0
+
+### Added
+
+- `BtcDepositAndDeploy` now supports `protocol: DeployProtocol.Veda` with `destChain: Chain.ETHEREUM`, enabling a BTC → BTC.b → Veda BoringVault flow on Ethereum mainnet alongside the existing Silo on Avalanche route. Registered as `DEFI_REGISTRY[Veda][BTCb][prod][ethereum]`; spender contract is `StakeAndBakeNativeToken` at `0xe6Cca4C07bF9F7778BfdEC839C1bbA1f3D4BDBa8`. Uses EIP-2612 permit mode with the on-chain EIP-712 domain (`Bitcoin` v `1`). The signature flow is unchanged for existing LBTC/BTC callers.
+
+---
+
 # 5.0.3
 
 ### Fixed
