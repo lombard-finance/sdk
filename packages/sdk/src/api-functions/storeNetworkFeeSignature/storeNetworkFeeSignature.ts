@@ -10,6 +10,23 @@ interface IStoreNetworkFeeSignatureResponse {
   status: IStoreNetworkFeeSignatureStatus;
 }
 
+/**
+ * Thrown when the Lombard API refuses to store a new fee signature because
+ * an active one already exists for the user. The caller should re-fetch the
+ * existing signature (see `getNetworkFeeSignature`) and proceed with it
+ * instead of treating this as a fatal authorization failure.
+ *
+ * The Lombard API returns this as `{ code: 6, message: "Active signature
+ * already exists for this user" }`.
+ */
+export class FeeSignatureAlreadyExistsError extends Error {
+  readonly code = 6;
+  constructor(message = 'Active signature already exists for this user') {
+    super(message);
+    this.name = 'FeeSignatureAlreadyExistsError';
+  }
+}
+
 export interface IStoreNetworkFeeSignatureParams extends IEnvParam {
   /**
    * signature
@@ -69,6 +86,15 @@ export async function storeNetworkFeeSignature({
 
     return data.status;
   } catch (error) {
+    if (
+      axios.isAxiosError(error) &&
+      (error.response?.data as { code?: number } | undefined)?.code === 6
+    ) {
+      const message =
+        (error.response?.data as { message?: string } | undefined)?.message ??
+        'Active signature already exists for this user';
+      throw new FeeSignatureAlreadyExistsError(message);
+    }
     const errorMsg = getErrorMessage(error);
     throw new Error(errorMsg);
   }

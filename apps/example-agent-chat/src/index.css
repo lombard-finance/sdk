@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Lombard brand palette */
+  --color-primary: #00E676;
+  --color-primary-dark: #00C853;
+  --color-teal: #249090;
+  --color-teal-light: #9FE5DA;
+
+  /* Backgrounds */
+  --color-bg: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F1F7F7;
+
+  /* Text */
+  --color-text: #20212F;
+  --color-text-secondary: #3D3D3D;
+  --color-text-muted: #7C7C78;
+
+  /* Borders */
+  --color-border: rgba(18, 21, 20, 0.08);
+  --color-border-strong: rgba(18, 21, 20, 0.15);
+
+  /* Common */
+  --color-black: #121514;
+  --color-white: #FFFFFF;
+  --color-error: #E24A38;
+  --color-success: #3FAE5A;
+
+  /* Chat-specific */
+  --color-chat-user-bg: #121514;
+  --color-chat-user-text: #FFFFFF;
+  --color-chat-assistant-bg: #F1F7F7;
+  --color-chat-assistant-text: #20212F;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Archivo', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}

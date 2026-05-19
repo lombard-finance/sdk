@@ -1,0 +1,74 @@
+{
+  "name": "@lombard.finance/sdk-agentkit",
+  "version": "0.1.0",
+  "description": "Lombard Action Provider for Coinbase AgentKit - stake BTC, mint LBTC, and interact with DeFi via AI agents",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "license": "MIT",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">= 18.0.0"
+  },
+  "scripts": {
+    "types": "tsc --noEmit",
+    "build": "yarn types && vite build && tsc -p tsconfig.build.json",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:unit": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lombard-finance/sdk.git",
+    "directory": "packages/sdk-agentkit"
+  },
+  "homepage": "https://docs.lombard.finance",
+  "bugs": {
+    "url": "https://github.com/lombard-finance/sdk/issues"
+  },
+  "keywords": [
+    "lombard",
+    "sdk",
+    "agentkit",
+    "coinbase",
+    "bitcoin",
+    "lbtc",
+    "ai",
+    "agent"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@coinbase/agentkit": ">=0.2.0",
+    "viem": "^2.21.0",
+    "zod": "^3.22.0"
+  },
+  "dependencies": {
+    "@lombard.finance/sdk": "workspace:*",
+    "@lombard.finance/sdk-common": "workspace:*",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@coinbase/agentkit": "^0.2.0",
+    "@swc/core": "^1.15.18",
+    "typescript": "^5.4.5",
+    "unplugin-swc": "^1.5.9",
+    "viem": "^2.21.0",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4",
+    "zod": "^3.22.0"
+  }
+}
