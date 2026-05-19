@@ -1,3 +1,15 @@
+# 5.0.4
+
+### Fixed
+
+- BTC stake fee-auth flow now recovers when the BFF reports that a fee signature already exists for the account (`FeeSignatureAlreadyExistsError`, code 6). Previously this surfaced as a confusing error after the user had already signed. The SDK now refetches the stored signature and continues the workflow. If the BFF reports a duplicate but will not return the existing record, a clearer error message is surfaced instead.
+
+### Added
+
+- Exported `FeeSignatureAlreadyExistsError` from the package root so consumers can branch on this specific failure mode when calling the underlying fee-auth APIs directly.
+
+---
+
 # 5.0.3
 
 ### Fixed
