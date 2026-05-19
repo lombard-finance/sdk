@@ -65,12 +65,21 @@ interface AuthState {
  *
  * Combines deposit (BTC → BTC.b) and vault deployment in a single atomic operation.
  *
- * @example
+ * @example Silo on Avalanche
  * ```typescript
  * const depositAndDeploy = new BtcDepositAndDeploy(ctx, {
  *   assetOut: AssetId.BTCb,
  *   destChain: Chain.AVALANCHE,
  *   protocol: DeployProtocol.Silo,
+ * });
+ * ```
+ *
+ * @example Veda on Ethereum
+ * ```typescript
+ * const depositAndDeploy = new BtcDepositAndDeploy(ctx, {
+ *   assetOut: AssetId.BTCb,
+ *   destChain: Chain.ETHEREUM,
+ *   protocol: DeployProtocol.Veda,
  * });
  *
  * await depositAndDeploy.prepare({ amount: '0.1', recipient: '0x...' });
@@ -97,7 +106,7 @@ export class BtcDepositAndDeploy
       throw new LombardError(
         ValidationErrorCode.INVALID_ASSET,
         `Asset ${params.assetOut} is not supported for deposit and deploy. ` +
-          `DepositAndDeploy produces BTC.b which is then deployed to a vault like Silo.`,
+          `DepositAndDeploy produces BTC.b which is then deployed to a vault (Silo on Avalanche, Veda on Ethereum).`,
       );
     }
 
@@ -105,15 +114,14 @@ export class BtcDepositAndDeploy
       throw new LombardError(
         ValidationErrorCode.INVALID_CHAIN,
         `Destination chain ${params.destChain} is not supported for deposit and deploy. ` +
-          `Supported chains: Avalanche, Avalanche Fuji`,
+          `Supported chains: ${depositAndDeployConfig.destChains.join(', ')}`,
       );
     }
 
     if (!isProtocolSupported(params.protocol)) {
       throw new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
-        `Protocol ${params.protocol} is not supported for deposit and deploy. ` +
-          `DepositAndDeploy with BTC.b only supports Silo protocol.`,
+        `Protocol ${params.protocol} is not supported for deposit and deploy.`,
       );
     }
 

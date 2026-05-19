@@ -91,6 +91,29 @@ create → prepare → execute → complete
 | Sui      | `sdk.chain.sui.unstake()`      | Burn LBTC on Sui                 |
 | Starknet | `sdk.chain.starknet.unstake()` | Burn LBTC on Starknet            |
 
+### BTC → BTC.b → Veda on Ethereum (deposit-and-deploy)
+
+Stake native BTC and have it deployed straight into the Veda BoringVault on Ethereum mainnet as BTC.b. The signature uses EIP-2612 permit on the BTC.b ERC20.
+
+```typescript
+import {
+  AssetId,
+  Chain,
+  DeployProtocol,
+  createBtcDepositAndDeploy,
+} from '@lombard.finance/sdk';
+
+const action = createBtcDepositAndDeploy(ctx, {
+  assetOut: AssetId.BTCb,
+  destChain: Chain.ETHEREUM,
+  protocol: DeployProtocol.Veda,
+});
+
+await action.prepare({ amount: '0.1', recipient: '0xYourAddress' });
+await action.authorizeDeposit();
+const btcDepositAddress = await action.generateDepositAddress();
+```
+
 ### Data API
 
 Query deposits, unstakes, points, and exchange rates:

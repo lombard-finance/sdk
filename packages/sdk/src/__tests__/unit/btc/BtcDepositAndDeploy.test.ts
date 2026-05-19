@@ -11,6 +11,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 
+import { isDestChainSupported } from '../../../chains/btc/actions/depositAndDeploy/config';
 import { AssetId, Chain } from '../../../core';
 import { LombardError, ValidationErrorCode } from '../../../shared/errors';
 
@@ -38,18 +39,15 @@ describe('BtcDepositAndDeploy Interface', () => {
       expect(params.protocol).toBe('silo');
     });
 
-    it('should support Avalanche chains only', () => {
-      const validChains = [Chain.AVALANCHE, Chain.AVALANCHE_FUJI];
+    it.each([Chain.AVALANCHE, Chain.AVALANCHE_FUJI, Chain.ETHEREUM])(
+      'supports %s as a destChain',
+      (chain) => {
+        expect(isDestChainSupported(chain)).toBe(true);
+      },
+    );
 
-      // Chains are CAIP-2 format (e.g., eip155:43114)
-      validChains.forEach((chain) => {
-        expect(chain).toBeDefined();
-        expect(typeof chain).toBe('string');
-      });
-
-      // Verify they are the correct Avalanche chain IDs
-      expect(validChains).toContain(Chain.AVALANCHE);
-      expect(validChains).toContain(Chain.AVALANCHE_FUJI);
+    it('rejects an unsupported destChain (Base)', () => {
+      expect(isDestChainSupported(Chain.BASE)).toBe(false);
     });
   });
 
@@ -113,10 +111,10 @@ describe('BtcDepositAndDeploy Interface', () => {
       expect(error.code).toBe(ValidationErrorCode.INVALID_ASSET);
     });
 
-    it('should reject non-Avalanche chains', () => {
+    it('should reject unsupported destination chains', () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_CHAIN,
-        `Destination chain ethereum is not supported for deposit and deploy.`,
+        `Destination chain base is not supported for deposit and deploy.`,
       );
 
       expect(error.code).toBe(ValidationErrorCode.INVALID_CHAIN);

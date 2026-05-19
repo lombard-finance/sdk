@@ -103,6 +103,26 @@ export const EARN_VAULT_SPENDER_CONTRACTS: Record<
   },
 } as const;
 
+/**
+ * Veda spender contracts for the BTC.b (NativeLBTC) deposit-and-deploy route.
+ * Source: smart-contracts/mainnet.json → stakeAndBake.StakeAndBakeNativeToken.
+ *
+ * The ABI matches VEDA_VAULT_SPENDER_ABI for permit-mode flows (the SDK only
+ * needs the spender address to construct the EIP-2612 permit signature; the
+ * spender's own ABI is unused on the signing path).
+ *
+ * Sepolia entry pending a deployed testnet twin.
+ */
+export const EARN_VAULT_BTCB_SPENDER_CONTRACTS: Partial<
+  Record<EarnStakeAndBakeChain, ContractInfo>
+> = {
+  [ChainId.ethereum]: {
+    abi: VEDA_VAULT_SPENDER_ABI as Abi,
+    address: '0xe6Cca4C07bF9F7778BfdEC839C1bbA1f3D4BDBa8',
+    chainId: ChainId.ethereum,
+  },
+} as const;
+
 export const EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS: Record<
   EarnChain,
   ContractInfo
@@ -186,6 +206,7 @@ export const EARN_VAULT = {
   chains: EARN_CHAINS,
   tokens: {
     [Token.LBTC]: EARN_CHAINS,
+    [Token.BTCb]: [ChainId.ethereum],
     [Token.BTCBinance]: [ChainId.binanceSmartChain],
     [Token.cbBTC]: [ChainId.ethereum, ChainId.base],
     [Token.eBTC]: [ChainId.ethereum],

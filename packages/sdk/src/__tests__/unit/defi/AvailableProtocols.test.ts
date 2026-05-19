@@ -46,6 +46,14 @@ describe('getAvailableProtocols', () => {
       expect(protocols).not.toContain(DefiProtocol.Silo);
     });
 
+    it('should return Veda for BTCb in prod (Ethereum)', () => {
+      const protocols = getAvailableProtocols(AssetId.BTCb, Env.prod);
+
+      // Veda + BTC.b deposit-and-deploy on Ethereum mainnet was added
+      // alongside the StakeAndBakeNativeToken contract.
+      expect(protocols).toContain(DefiProtocol.Veda);
+    });
+
     it('should return Silo for BTCb in testnet (Avalanche Fuji enabled)', () => {
       const protocols = getAvailableProtocols(AssetId.BTCb, Env.testnet);
 
@@ -97,9 +105,21 @@ describe('getAvailableProtocolsWithMetadata', () => {
     expect(silo?.url).toBe('https://silo.finance');
   });
 
-  it('should return empty array when no protocols available', () => {
-    // BTCb in prod has no protocols (Silo only on Avalanche, not in prod config)
+  it('should return Veda metadata for BTCb in prod', () => {
+    // Veda BTC.b deposit-and-deploy is now configured on Ethereum prod.
     const protocols = getAvailableProtocolsWithMetadata(AssetId.BTCb, Env.prod);
+
+    const veda = protocols.find((p) => p.value === DefiProtocol.Veda);
+    expect(veda).toBeDefined();
+    expect(veda?.label).toBe('Lombard DeFi Vault');
+    expect(veda?.url).toBe('https://lombard.finance');
+  });
+
+  it('should return empty array for an unconfigured asset+env', () => {
+    const protocols = getAvailableProtocolsWithMetadata(
+      'unsupported' as AssetId,
+      Env.prod,
+    );
 
     expect(protocols).toEqual([]);
   });

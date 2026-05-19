@@ -25,7 +25,10 @@ import { DefiProtocol } from '../../../defi/defi-registry';
 import { Token } from '../../../tokens/token-addresses';
 import { signStakeAndBake } from '../signStakeAndBake';
 import { calculateStakeAndBakeLBTCAmount } from '../utils';
-import { StakeAndBakeValidationError } from '../validation';
+import {
+  getStakeAndBakeConfig,
+  StakeAndBakeValidationError,
+} from '../validation';
 
 // Mock dependencies
 vi.mock('../../../clients/wallet-client', () => ({
@@ -879,6 +882,33 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
           deadline: '0',
         }),
       });
+    });
+  });
+
+  describe('Veda BTC.b strategy resolution (Ethereum prod)', () => {
+    it('resolves to the StakeAndBakeNativeToken spender', () => {
+      const cfg = getStakeAndBakeConfig(
+        DefiProtocol.Veda,
+        Token.BTCb,
+        ChainId.ethereum,
+        Env.prod,
+      );
+      expect(cfg.spenderContract.address).toBe(
+        '0xe6Cca4C07bF9F7778BfdEC839C1bbA1f3D4BDBa8',
+      );
+      expect(cfg.amountStrategy).toBe('identity');
+    });
+
+    it('uses permit mode with the on-chain EIP-712 domain (Bitcoin v1)', () => {
+      const cfg = getStakeAndBakeConfig(
+        DefiProtocol.Veda,
+        Token.BTCb,
+        ChainId.ethereum,
+        Env.prod,
+      );
+      expect(cfg.approval.mode).toBe('permit');
+      expect(cfg.approval.domainName).toBe('Bitcoin');
+      expect(cfg.approval.domainVersion).toBe('1');
     });
   });
 });
