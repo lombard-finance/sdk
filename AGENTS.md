@@ -145,6 +145,21 @@ Per-chain test wallets configured via `.env` (see `.env.example`).
 4. Tests: `cd packages/sdk && npx vitest run`
 5. Stage specific files, commit with conventional format, push
 
+## Canary Builds
+
+Every PR push triggers `.github/workflows/publish-dev.yaml`, which publishes a per-PR canary of every workspace package to **GitHub Packages** under the `@lombard-finance` scope (note the dash, not the dot used on public npm). Version format: `0.0.0-<branch-slug>.<short-sha>`. Dist-tag: `dev`.
+
+Do **not** dispatch `Publish All Canary` manually for normal PR work — the auto-publish on push covers it, and a manual dispatch from a feature branch is blocked by the `production` environment protection rules.
+
+Consumers fetch the canary via a yarn `npm:` alias so existing source imports keep working:
+
+```jsonc
+// In the consumer's package.json
+"@lombard.finance/sdk": "npm:@lombard-finance/sdk@0.0.0-<branch-slug>.<sha>"
+```
+
+If the consumer has a root `resolutions` block that pins the SDK, **also update the `resolutions` entry** — yarn dedupe will silently override the per-app pin otherwise, and `node_modules` will keep resolving to the old version.
+
 ## License Policy
 
 Allowed: MIT, Apache-2.0, ISC, BSD variants. Denied: GPL, AGPL, SSPL. Run `yarn licenses:check` to validate.
