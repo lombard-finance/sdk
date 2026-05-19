@@ -169,7 +169,8 @@ import {
 
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
-| `LOMBARD_PARTNER_ID` | none | Partner ID for BTC deposit address generation |
+| `LOMBARD_PARTNER_ID` | `lombardtest1` | Mainnet Partner ID for BTC deposit address generation. The default is a non-revenue test partner, set this explicitly for production traffic. |
+| `LOMBARD_TESTNET_PARTNER_ID` | `test1` | Testnet Partner ID. Mainnet and testnet partner registries are separate. |
 | `LOMBARD_BFF_URL` | `https://bff.prod.lombard-fi.com` | Backend API URL |
 
 ## Requirements

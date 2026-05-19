@@ -1586,6 +1586,9 @@ export const allTools: AnyToolDefinition[] = [
   prepareMorphoBorrow,
   prepareMorphoRepay,
   getMorphoPosition,
+  getVaultWithdrawalsTool,
+  getLuxPoints,
+  getPositionsSummaryTool,
 ];
 
 /**
