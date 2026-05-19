@@ -29,6 +29,8 @@ const ALLOWED_PACKAGES = [
   'sdk-sui',
   'sdk-starknet',
   'sdk-devtools',
+  'sdk-agent',
+  'sdk-agentkit',
 ];
 
 /**

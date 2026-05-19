@@ -58,7 +58,7 @@ jobs:
       packages: write
 
     env:
-      PUBLISH_ORDER: "sdk-common sdk sdk-solana sdk-sui sdk-starknet sdk-devtools"
+      PUBLISH_ORDER: "sdk-common sdk sdk-solana sdk-sui sdk-starknet sdk-devtools sdk-agent sdk-agentkit"
 
     steps:
       - uses: actions/checkout@v4
