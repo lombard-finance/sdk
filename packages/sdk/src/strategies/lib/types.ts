@@ -125,15 +125,26 @@ export interface IStrategyPosition {
 
 /**
  * One in-flight redemption request.
+ *
+ * Cannot be cancelled by the depositor; the shares stay locked until the
+ * operator settles. The payout always lands on `owner` — the contract has
+ * no separate `receiver` parameter.
  */
 export interface IStrategyPendingRedeem {
   /** Numeric request id returned by `requestRedeem` and emitted in `RedeemRequested`. */
   requestId: bigint;
   /** Shares awaiting fulfillment. */
   pendingShares: bigint;
-  /** Base-asset units the operator promised at request time. */
+  /**
+   * Base-asset units quoted at request time (`shares * NAVAtRedeemRequest`).
+   * This is an UPPER BOUND on the actual payout, not a guarantee: the
+   * Strategy may settle at the lower of this snapshot and the live
+   * `pricePerShare` at payout time, so the realized amount can be smaller
+   * if NAV drops while the request sits in the queue. See module README
+   * for the exact formula.
+   */
   pendingAssets: bigint;
-  /** Owner who can be paid. */
+  /** Owner who will receive the payout (no separate receiver argument). */
   owner: Address;
 }
 

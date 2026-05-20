@@ -26,6 +26,11 @@ export type RequestStrategyRedeemParameters = {
    * Owner of the shares whose redemption is being requested. Defaults to
    * `account`. Pre-approval of the share token to the Strategy is required
    * if `owner !== account` (i.e. a third party submitting the request).
+   *
+   * NOTE: payout always goes to this `owner` address. There is no separate
+   * `receiver` argument on the Strategy contract — if you need to redirect
+   * the payout, transfer the shares to the target address first and submit
+   * `requestRedeem` from there.
    */
   owner?: Address;
   /**
@@ -43,9 +48,18 @@ export type RequestStrategyRedeemParameters = {
  *
  * Calls `requestRedeem(shares, owner)`. The request is stored on-chain and
  * fulfilled later off-chain by an operator with `PAY_REDEMPTIONS_ROLE`.
- * There is no synchronous on-chain redeem path; UI should display
- * "settlement target" from the Strategy config and poll
+ * There is no synchronous on-chain redeem path; UI should display the
+ * settlement target from the Strategy config and poll
  * `getStrategyPendingRedeem(requestId)` for progress.
+ *
+ * Two depositor-facing constraints worth surfacing in UI:
+ *
+ *   1. Pending requests CANNOT be cancelled. Once submitted, the shares
+ *      stay locked until the operator settles. There is no `cancelRedeem`
+ *      function on the contract.
+ *   2. Payout always goes to `owner`. The contract takes no separate
+ *      `receiver` argument; redirect via share transfer + new request,
+ *      not via an SDK parameter.
  *
  * Returns `{ txHash, requestId }`. The `requestId` is parsed from the
  * `RedeemRequested` event in the tx receipt; if the receipt is not yet
