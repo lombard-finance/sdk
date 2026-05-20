@@ -70,12 +70,11 @@ export interface ValidationSuccess {
 export type ValidationResult = ValidationFailure | ValidationSuccess;
 
 /**
- * Validates the inputs to prepare_unstake. Asks for a Bitcoin recipient
- * when outputAsset is "BTC" and checks the format against the network.
+ * Validates the inputs to prepare_lbtc_to_btc. Requires a Bitcoin recipient
+ * and checks the format against the network.
  */
-export function validateUnstakeInputs(params: {
+export function validateLbtcToBtcInputs(params: {
   amount: unknown;
-  outputAsset: unknown;
   recipient?: unknown;
   chainId: number;
 }): ValidationResult {
@@ -83,27 +82,19 @@ export function validateUnstakeInputs(params: {
   const errors: string[] = [];
 
   if (!isPositiveAmount(params.amount)) {
-    errors.push(
-      "amount must be a positive numeric string (e.g. '0.5')",
-    );
+    errors.push("amount must be a positive numeric string (e.g. '0.5')");
   } else if (Number(params.amount) < MIN_REDEEM_AMOUNT_BTC) {
     errors.push(
       `amount ${params.amount} is below the protocol minimum of ${MIN_REDEEM_AMOUNT_BTC} LBTC. Network fees may push the practical minimum higher; ask the user to confirm a value at or above ${MIN_REDEEM_AMOUNT_BTC}.`,
     );
   }
 
-  if (params.outputAsset !== "BTC" && params.outputAsset !== "BTCb") {
-    errors.push("outputAsset must be either 'BTC' or 'BTCb'");
-  }
-
-  if (params.outputAsset === "BTC") {
-    if (typeof params.recipient !== "string" || params.recipient.length === 0) {
-      missing.push("recipient");
-    } else if (!isBitcoinAddress(params.recipient, params.chainId)) {
-      errors.push(
-        "recipient is not a valid Bitcoin address for this network. Mainnet: bc1.../1.../3...; Sepolia/testnet: tb1.../m.../n.../2...",
-      );
-    }
+  if (typeof params.recipient !== "string" || params.recipient.length === 0) {
+    missing.push("recipient");
+  } else if (!isBitcoinAddress(params.recipient, params.chainId)) {
+    errors.push(
+      "recipient is not a valid Bitcoin address for this network. Mainnet: bc1.../1.../3...; Sepolia/testnet: tb1.../m.../n.../2...",
+    );
   }
 
   if (missing.length === 0 && errors.length === 0) {
@@ -130,7 +121,33 @@ export function validateUnstakeInputs(params: {
   };
 }
 
-/** Validates the inputs to prepare_stake (BTC.b → LBTC). */
+/**
+ * Validates the inputs to prepare_lbtc_to_btcb (same-chain LBTC → BTC.b).
+ * No recipient needed, the redemption credits the caller's wallet.
+ */
+export function validateLbtcToBtcbInputs(params: {
+  amount: unknown;
+}): ValidationResult {
+  const errors: string[] = [];
+
+  if (!isPositiveAmount(params.amount)) {
+    errors.push("amount must be a positive numeric string (e.g. '0.5')");
+  } else if (Number(params.amount) < MIN_REDEEM_AMOUNT_BTC) {
+    errors.push(
+      `amount ${params.amount} is below the protocol minimum of ${MIN_REDEEM_AMOUNT_BTC} LBTC.`,
+    );
+  }
+
+  if (errors.length === 0) return { valid: true };
+  return {
+    valid: false,
+    missing: [],
+    errors,
+    note: "Surface the listed errors to the user and re-prompt; do not retry the tool with the same arguments.",
+  };
+}
+
+/** Validates the inputs to prepare_btcb_to_lbtc_stake (BTC.b → LBTC). */
 export function validateStakeInputs(params: {
   amount: unknown;
 }): ValidationResult {
@@ -205,7 +222,7 @@ export function validateRedeemBtcbInputs(params: {
   };
 }
 
-/** Validates the inputs to prepare_deploy_to_vault / prepare_vault_withdrawal. */
+/** Validates the inputs to prepare_earn_deposit / prepare_earn_withdrawal. */
 export function validateAmountInputs(params: {
   amount: unknown;
 }): ValidationResult {

@@ -90,27 +90,38 @@ import { allTools, toolsByName } from "@lombard.finance/sdk-agent";
 | ---- | ----------- |
 | `get_deposit_btc_address` | Get a BTC deposit address for staking, or instructions to generate one |
 | `check_fee_authorization` | Check fee authorization status before address generation |
-| `prepare_btc_deposit` | Generate a new BTC deposit address (triggers wallet signing) |
+| `prepare_btc_to_lbtc_deposit` | Generate a new BTC deposit address (triggers wallet signing) |
 | `get_deposit_status` | Track deposit confirmations and claimability |
-| `prepare_claim_deposit` | Claim a notarized deposit to mint LBTC |
+| `prepare_claim_lbtc_deposit` | Claim a notarized deposit to mint LBTC |
 
-### Stake and Unstake (EVM)
-
-| Tool | Description |
-| ---- | ----------- |
-| `prepare_stake` | Prepare a BTC.b to LBTC stake transaction |
-| `prepare_unstake` | Prepare an LBTC unstake transaction (to BTC or BTC.b) |
-| `get_unstake_status` | Track unstake and redemption status |
-
-### Bitcoin Earn (Vaults)
+### Asset conversions (EVM)
 
 | Tool | Description |
 | ---- | ----------- |
-| `get_strategies` | List available yield strategies with APY and TVL |
-| `get_opportunities` | Browse LBTC DeFi opportunities across protocols |
-| `get_vault_positions` | Check Bitcoin Earn positions (shares and LBTC value) |
-| `prepare_deploy_to_vault` | Deploy LBTC into Bitcoin Earn for additional yield |
-| `prepare_vault_withdrawal` | Withdraw from Bitcoin Earn |
+| `prepare_btcb_to_lbtc_stake` | Stake BTC.b to receive LBTC on the same chain |
+| `prepare_lbtc_to_btc` | Cross-chain LBTC redemption to native Bitcoin (requires Bitcoin recipient) |
+| `prepare_lbtc_to_btcb` | Same-chain LBTC redemption to BTC.b (no Bitcoin recipient needed) |
+| `prepare_redeem_btcb` | BTC.b to native Bitcoin redemption (requires Bitcoin recipient) |
+| `get_redemption_status` | Track in-flight LBTC unstakes and BTC.b redemptions |
+
+### Bitcoin Earn
+
+| Tool | Description |
+| ---- | ----------- |
+| `get_earn_strategies` | List available yield strategies with APY and TVL |
+| `get_lbtc_defi_opportunities` | Browse LBTC DeFi opportunities across protocols |
+| `get_earn_positions` | Check Bitcoin Earn positions (shares and LBTC value) |
+| `get_earn_withdrawals` | All Bitcoin Earn withdrawals (open, fulfilled, cancelled, expired) |
+| `prepare_earn_deposit` | Deposit LBTC into Bitcoin Earn for additional yield |
+| `prepare_earn_withdrawal` | Request a Bitcoin Earn withdrawal (one active per user per vault) |
+| `prepare_cancel_earn_withdrawal` | Cancel an active Bitcoin Earn withdrawal |
+
+### Portfolio and rewards
+
+| Tool | Description |
+| ---- | ----------- |
+| `get_lux_points` | Current-season Lux reward points (holding, protocol, referral, badge) |
+| `get_positions_summary` | Aggregated portfolio summary (total BTC value, PnL, holdings and DeFi breakdown) |
 
 ### Morpho Blue (Lending and Borrowing)
 
@@ -169,7 +180,8 @@ import {
 
 | Variable | Default | Description |
 | -------- | ------- | ----------- |
-| `LOMBARD_PARTNER_ID` | none | Partner ID for BTC deposit address generation |
+| `LOMBARD_PARTNER_ID` | `lombardtest1` | Mainnet Partner ID for BTC deposit address generation. The default is a non-revenue test partner, set this explicitly for production traffic. |
+| `LOMBARD_TESTNET_PARTNER_ID` | `test1` | Testnet Partner ID. Mainnet and testnet partner registries are separate. |
 | `LOMBARD_BFF_URL` | `https://bff.prod.lombard-fi.com` | Backend API URL |
 
 ## Requirements

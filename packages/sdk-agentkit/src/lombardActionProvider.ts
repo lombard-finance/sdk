@@ -165,7 +165,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
   }
 
   @CreateAction({
-    name: "unstake_lbtc",
+    name: "unstake_lbtc_to_btc",
     description:
       "Unstake LBTC (Lombard Staked Bitcoin). " +
       "Output can be native BTC (cross-chain, requires a Bitcoin address) or BTC.b (same EVM chain). " +
@@ -180,7 +180,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const resolved = resolveNetwork(walletProvider.getNetwork());
       if (!resolved) {
         return formatError(
-          "unstake_lbtc",
+          "unstake_lbtc_to_btc",
           "Current network is not supported by Lombard",
         );
       }
@@ -209,7 +209,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
           env,
         });
 
-        return formatSuccess("unstake_lbtc", {
+        return formatSuccess("unstake_lbtc_to_btc", {
           txHash,
           amount: args.amount,
           to: "BTC",
@@ -243,9 +243,9 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
           "BTC.b redemption always sends to the connected wallet. The recipient address was ignored.";
       }
 
-      return formatSuccess("unstake_lbtc", result);
+      return formatSuccess("unstake_lbtc_to_btc", result);
     } catch (error) {
-      return formatError("unstake_lbtc", error);
+      return formatError("unstake_lbtc_to_btc", error);
     }
   }
 
@@ -253,7 +253,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
     name: "redeem_lbtc_to_btcb",
     description:
       "Use this for simple same-chain LBTC to BTC.b conversion. " +
-      "For cross-chain unstaking to native BTC, use unstake_lbtc instead.",
+      "For cross-chain unstaking to native BTC, use unstake_lbtc_to_btc instead.",
     schema: RedeemLbtcToBtcbSchema,
   })
   async redeemLbtcToBtcb(
@@ -303,7 +303,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
   }
 
   @CreateAction({
-    name: "deploy_to_defi",
+    name: "deploy_to_earn",
     description:
       "Deploy LBTC into a DeFi vault to earn additional yield. " +
       "Currently supports the Veda vault. " +
@@ -318,7 +318,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const resolved = resolveNetwork(walletProvider.getNetwork());
       if (!resolved) {
         return formatError(
-          "deploy_to_defi",
+          "deploy_to_earn",
           "Current network is not supported by Lombard",
         );
       }
@@ -338,18 +338,18 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
         env: resolved.env,
       });
 
-      return formatSuccess("deploy_to_defi", {
+      return formatSuccess("deploy_to_earn", {
         txHash,
         amount: args.amount,
         asset: "LBTC",
       });
     } catch (error) {
-      return formatError("deploy_to_defi", error);
+      return formatError("deploy_to_earn", error);
     }
   }
 
   @CreateAction({
-    name: "claim_deposit",
+    name: "claim_lbtc_deposit",
     description:
       "Claim a notarized deposit to mint LBTC. " +
       "Use get_deposit_status first to check if a deposit is claimable. " +
@@ -364,7 +364,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const resolved = resolveNetwork(walletProvider.getNetwork());
       if (!resolved) {
         return formatError(
-          "claim_deposit",
+          "claim_lbtc_deposit",
           "Current network is not supported by Lombard",
         );
       }
@@ -379,7 +379,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
 
       if (!deposit) {
         return formatError(
-          "claim_deposit",
+          "claim_lbtc_deposit",
           `No deposit found with txHash: ${args.depositTxHash}`,
         );
       }
@@ -388,14 +388,14 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       if (status !== "claimable") {
         const display = getDepositStatusDisplay(status);
         return formatError(
-          "claim_deposit",
+          "claim_lbtc_deposit",
           `Deposit is not claimable. Current status: ${display.label} - ${display.description}`,
         );
       }
 
       if (!deposit.rawPayload || !deposit.proof) {
         return formatError(
-          "claim_deposit",
+          "claim_lbtc_deposit",
           "Deposit proof data is not yet available",
         );
       }
@@ -409,12 +409,12 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
         env,
       });
 
-      return formatSuccess("claim_deposit", {
+      return formatSuccess("claim_lbtc_deposit", {
         txHash,
         depositTxHash: args.depositTxHash,
       });
     } catch (error) {
-      return formatError("claim_deposit", error);
+      return formatError("claim_lbtc_deposit", error);
     }
   }
 
@@ -539,7 +539,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
     description:
       "Check the status of all deposits for an address. " +
       "Shows pending, claimable, claimed, and failed deposits. " +
-      "Use this to find claimable deposits before calling claim_deposit.",
+      "Use this to find claimable deposits before calling claim_lbtc_deposit.",
     schema: GetDepositStatusSchema,
   })
   async getDepositStatusAction(
@@ -594,7 +594,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
   }
 
   @CreateAction({
-    name: "get_unstake_status",
+    name: "get_redemption_status",
     description:
       "Check the status of all unstake/redeem operations for an address. " +
       "Shows pending and completed unstakes with payout transaction details.",
@@ -608,7 +608,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const resolved = resolveNetwork(walletProvider.getNetwork());
       if (!resolved) {
         return formatError(
-          "get_unstake_status",
+          "get_redemption_status",
           "Current network is not supported by Lombard",
         );
       }
@@ -619,7 +619,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const unstakes = await getUnstakesByAddress({ address, env });
 
       if (unstakes.length === 0) {
-        return formatSuccess("get_unstake_status", {
+        return formatSuccess("get_redemption_status", {
           address,
           unstakes: [],
           message: "No unstakes found for this address",
@@ -634,13 +634,13 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
         toAddress: u.toAddress || null,
       }));
 
-      return formatSuccess("get_unstake_status", {
+      return formatSuccess("get_redemption_status", {
         address,
         totalUnstakes: unstakes.length,
         unstakes: summaries,
       });
     } catch (error) {
-      return formatError("get_unstake_status", error);
+      return formatError("get_redemption_status", error);
     }
   }
 

@@ -15,12 +15,14 @@ import {
   ExchangeRateZod,
   LbtcApySchema,
   LbtcApyZod,
+  LbtcToBtcbSchema,
+  LbtcToBtcbZod,
+  LbtcToBtcSchema,
+  LbtcToBtcZod,
   StakeSchema,
   StakeZod,
   StrategiesSchema,
   StrategiesZod,
-  UnstakeSchema,
-  UnstakeZod,
 } from "../schemas";
 
 // ─── Zod schema validation tests ─────────────────────────────────────
@@ -103,40 +105,38 @@ describe("StakeZod", () => {
   });
 });
 
-describe("UnstakeZod", () => {
-  it("accepts valid unstake params", () => {
-    const result = UnstakeZod.safeParse({
+describe("LbtcToBtcZod", () => {
+  it("accepts valid LBTC → BTC params", () => {
+    const result = LbtcToBtcZod.safeParse({
       amount: "0.5",
-      outputAsset: "BTC",
+      recipient: "bc1qsome...",
       chainId: 1,
     });
     expect(result.success).toBe(true);
   });
 
-  it("accepts BTCb outputAsset", () => {
-    const result = UnstakeZod.safeParse({
+  it("rejects when recipient is missing", () => {
+    const result = LbtcToBtcZod.safeParse({
       amount: "0.5",
-      outputAsset: "BTCb",
-      chainId: 1,
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it("rejects invalid outputAsset", () => {
-    const result = UnstakeZod.safeParse({
-      amount: "0.5",
-      outputAsset: "ETH",
       chainId: 1,
     });
     expect(result.success).toBe(false);
   });
+});
 
-  it("accepts optional recipient", () => {
-    const result = UnstakeZod.safeParse({
+describe("LbtcToBtcbZod", () => {
+  it("accepts valid same-chain LBTC → BTC.b params", () => {
+    const result = LbtcToBtcbZod.safeParse({
       amount: "0.5",
-      outputAsset: "BTC",
-      recipient: "bc1qsome...",
       chainId: 1,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("does not require a recipient", () => {
+    const result = LbtcToBtcbZod.safeParse({
+      amount: "0.5",
+      chainId: 8453,
     });
     expect(result.success).toBe(true);
   });
@@ -206,15 +206,19 @@ describe("StakeSchema (JSON Schema)", () => {
   });
 });
 
-describe("UnstakeSchema (JSON Schema)", () => {
-  it("requires amount, outputAsset, and chainId", () => {
-    expect(UnstakeSchema.required).toContain("amount");
-    expect(UnstakeSchema.required).toContain("outputAsset");
-    expect(UnstakeSchema.required).toContain("chainId");
+describe("LbtcToBtcSchema (JSON Schema)", () => {
+  it("requires amount, recipient, and chainId", () => {
+    expect(LbtcToBtcSchema.required).toContain("amount");
+    expect(LbtcToBtcSchema.required).toContain("recipient");
+    expect(LbtcToBtcSchema.required).toContain("chainId");
   });
+});
 
-  it("has a recipient property", () => {
-    expect(UnstakeSchema.properties).toHaveProperty("recipient");
+describe("LbtcToBtcbSchema (JSON Schema)", () => {
+  it("requires amount and chainId, no recipient", () => {
+    expect(LbtcToBtcbSchema.required).toContain("amount");
+    expect(LbtcToBtcbSchema.required).toContain("chainId");
+    expect(LbtcToBtcbSchema.required).not.toContain("recipient");
   });
 });
 
