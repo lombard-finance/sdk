@@ -1,3 +1,16 @@
+# 5.1.0-next.0
+
+### Added
+
+- New `@lombard.finance/sdk/strategies` entry point for the Lombard DeFi Vault Strategy contract (codename "Bitcoin Stretch"). Distinct from the Veda Teller-based Bitcoin Earn vault exposed under `@lombard.finance/sdk/vaults` — do not conflate the two. v1 is Base Sepolia only; mainnet entry will be added when the contract ships.
+  - Reads / metrics: `getStrategyConfig` (vault-manager API), `getStrategyState` (on-chain snapshot: pause flags, TVL, totals, fee bps).
+  - Per-user / op reads: `getStrategyPosition`, `getStrategyDepositAssets`, `getStrategyPendingRedeem`, `getStrategyShards`, `previewStrategyDeposit`.
+  - Writes: `depositStrategy` (4-arg `deposit(asset, amount, receiver, minSharesOut)`, approves the Strategy contract on insufficient allowance), `requestStrategyRedeem` (async redeem; parses `requestId` from the `RedeemRequested` event, supports `waitForReceipt: false` for Safe multisig flows).
+  - Types: `IStrategyState`, `IStrategyPosition`, `IStrategyConfigResponse`, `IStrategyDepositAsset`, `IStrategyDepositAssetStatic`, `IStrategyShards`, `IStrategyPendingRedeem`, `IRequestStrategyRedeemResult`, plus function-parameter types (`GetStrategy*Parameters`, `DepositStrategyParameters`, `RequestStrategyRedeemParameters`).
+  - Config: `LOMBARD_STRATEGY` bundle, `LOMBARD_STRATEGY_DEPOSIT_ASSETS` static catalog (LBTC / BTC.b / USDT / wETH / BTCt on Base Sepolia), `assertLombardStrategyChain` type-narrowing helper.
+
+---
+
 # 5.0.4
 
 ### Fixed

@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "5.0.4",
+  "version": "5.1.0-next.0",
   "description": "TypeScript SDK for the Lombard protocol - stake BTC, mint LBTC, and interact with DeFi",
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
@@ -77,6 +77,11 @@
       "types": "./dist/entries/vaults.d.ts",
       "import": "./dist/vaults.js",
       "require": "./dist/vaults.cjs"
+    },
+    "./strategies": {
+      "types": "./dist/entries/strategies.d.ts",
+      "import": "./dist/strategies.js",
+      "require": "./dist/strategies.cjs"
     },
     "./defi": {
       "types": "./dist/entries/defi.d.ts",
@@ -177,6 +182,9 @@
       ],
       "vaults": [
         "./dist/entries/vaults.d.ts"
+      ],
+      "strategies": [
+        "./dist/entries/strategies.d.ts"
       ],
       "defi": [
         "./dist/entries/defi.d.ts"

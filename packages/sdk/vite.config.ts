@@ -31,6 +31,7 @@ export default defineConfig({
       tokens: path.resolve(__dirname, 'src/tokens'),
       utils: path.resolve(__dirname, 'src/utils'),
       vaults: path.resolve(__dirname, 'src/vaults'),
+      strategies: path.resolve(__dirname, 'src/strategies'),
     },
   },
   build: {
@@ -47,6 +48,7 @@ export default defineConfig({
         metrics: path.resolve(__dirname, 'src/entries/metrics.ts'),
         utils: path.resolve(__dirname, 'src/entries/utils.ts'),
         vaults: path.resolve(__dirname, 'src/entries/vaults.ts'),
+        strategies: path.resolve(__dirname, 'src/entries/strategies.ts'),
         defi: path.resolve(__dirname, 'src/entries/defi.ts'),
         bridge: path.resolve(__dirname, 'src/entries/bridge.ts'),
         debug: path.resolve(__dirname, 'src/entries/debug.ts'),
