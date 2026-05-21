@@ -19,6 +19,38 @@ Thank you for your interest in contributing to the Lombard SDK!
 4. Run linting: `yarn lint`
 5. Commit your changes
 
+### Testing changes in a downstream consumer
+
+Before publishing a release, you usually want to validate SDK changes in a
+real consumer app (a Vite/Next/whatever workspace that depends on
+`@lombard.finance/sdk`).
+
+The consumer must be a Yarn 4 workspace (Yarn's `link:` protocol is the
+mechanism used). From the SDK repo:
+
+```bash
+yarn build      # build all packages first; consumers import from dist/
+```
+
+From the consumer repo, point its root `resolutions` at your local SDK
+checkout:
+
+```json
+// consumer-app/package.json
+"resolutions": {
+  "@lombard.finance/sdk": "link:../sdk/packages/sdk",
+  "@lombard.finance/sdk-common": "link:../sdk/packages/sdk-common"
+}
+```
+
+Then `yarn install` in the consumer. The `link:` protocol resolves to the
+SDK's built `dist/`, so rerun `yarn build` in the SDK after every change.
+Do not commit these `resolutions` overrides to the consumer repo.
+
+Pre-release npm channels (`-next.X`) let consumers opt in without
+disrupting the stable line — bump to `next.0` for the first prerelease,
+then `next.1`, `next.2`, etc.
+
 ### Pull Request Process
 
 1. Open an issue first to discuss significant changes

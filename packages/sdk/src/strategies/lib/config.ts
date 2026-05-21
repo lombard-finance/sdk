@@ -43,10 +43,10 @@ export const isLombardStrategyChain = (
  * to any SDK function to target a different deployment of the same template.
  */
 export const LOMBARD_STRATEGY_CONTRACTS: Record<LombardStrategyChain, Address> =
-  {
-    // Bitcoin Stretch, Base Sepolia.
-    [ChainId.baseSepoliaTestnet]: '0x85EE901Ea45Cd9864a58A74A44EbE389F085cE7d',
-  };
+{
+  // Bitcoin Stretch, Base Sepolia.
+  [ChainId.baseSepoliaTestnet]: '0x14Cd5e82A31A48e0831821FD5FEFdd7f82573348',
+};
 
 /**
  * Share-token decimals. The Strategy exposes a `decimals()` view; this
