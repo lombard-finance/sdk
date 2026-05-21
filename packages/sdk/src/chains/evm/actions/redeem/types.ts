@@ -87,7 +87,8 @@ export interface IEvmRedeem extends MonitorableAction {
   /**
    * @deprecated EVM Redeem no longer requires fee authorization. The status
    * machine never reaches `NEEDS_FEE_AUTHORIZATION`; this method is kept for
-   * backwards compatibility and will throw if called.
+   * backwards compatibility and is a safe no-op that resolves immediately
+   * regardless of the current status.
    */
   authorizeFee(): Promise<void>;
   approve(): Promise<void>;

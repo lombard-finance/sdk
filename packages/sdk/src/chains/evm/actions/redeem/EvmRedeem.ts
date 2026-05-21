@@ -17,7 +17,7 @@
  * IDLE → READY → COMPLETED
  *
  * `authorizeFee()` is kept on the action only to preserve the existing public
- * interface; it is a no-op and the status will never reach
+ * interface; it is a safe no-op and the status will never reach
  * `NEEDS_FEE_AUTHORIZATION`.
  *
  * @module chains/evm/actions/redeem/EvmRedeem
@@ -113,16 +113,16 @@ export class EvmRedeem
    * Authorize the network fee
    *
    * @deprecated EVM Redeem no longer requires fee authorization. The status
-   * machine will never reach `NEEDS_FEE_AUTHORIZATION`, so this method is a
-   * no-op kept only for backwards compatibility with the existing public
-   * interface. Calling it will throw a `LombardError` because the action is
-   * not in the expected status.
+   * machine never reaches `NEEDS_FEE_AUTHORIZATION`, so this method is a
+   * safe no-op kept only for backwards compatibility with the existing
+   * public interface. Calling it on a `READY` (or any other) status will
+   * resolve immediately without touching the wallet, the API, or the action
+   * state.
    */
   async authorizeFee(): Promise<void> {
-    this.assertStatus(
-      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-      'authorizeFee',
-    );
+    // Intentionally a no-op: fee authorization is not part of the EVM Redeem
+    // flow anymore. Legacy callers can keep invoking this method without
+    // hitting a status-assertion error.
   }
 
   async approve(): Promise<void> {

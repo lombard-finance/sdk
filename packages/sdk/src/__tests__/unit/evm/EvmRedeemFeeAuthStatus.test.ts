@@ -126,3 +126,38 @@ describe('EvmRedeem prepare()', () => {
     expect(statusChanges).toContain(EvmOperationStatus.READY);
   });
 });
+
+describe('EvmRedeem.authorizeFee() (deprecated no-op)', () => {
+  it('resolves without changing status when called before prepare()', async () => {
+    const ctx = createContext();
+    const redeem = new EvmRedeem(ctx, {
+      assetIn: AssetId.BTCb,
+      assetOut: AssetId.BTC,
+      sourceChain: Chain.ETHEREUM,
+      destChain: Chain.BITCOIN_MAINNET,
+    });
+
+    await expect(redeem.authorizeFee()).resolves.toBeUndefined();
+    expect(redeem.status).toBe(EvmOperationStatus.IDLE);
+  });
+
+  it('resolves without changing status when called after prepare() in READY', async () => {
+    const ctx = createContext();
+    const redeem = new EvmRedeem(ctx, {
+      assetIn: AssetId.BTCb,
+      assetOut: AssetId.BTC,
+      sourceChain: Chain.ETHEREUM,
+      destChain: Chain.BITCOIN_MAINNET,
+    });
+
+    await redeem.prepare({
+      amount: '10000',
+      recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+    });
+
+    expect(redeem.status).toBe(EvmOperationStatus.READY);
+
+    await expect(redeem.authorizeFee()).resolves.toBeUndefined();
+    expect(redeem.status).toBe(EvmOperationStatus.READY);
+  });
+});

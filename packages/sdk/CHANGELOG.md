@@ -6,7 +6,7 @@
 
 ### Deprecated
 
-- `IEvmRedeem.authorizeFee()` is now a deprecated no-op kept for backwards compatibility with consumers that subscribed to the previous status machine. The status will never reach `NEEDS_FEE_AUTHORIZATION`, and calling `authorizeFee()` will throw a status-assertion error.
+- `IEvmRedeem.authorizeFee()` is now a deprecated **safe no-op** kept for backwards compatibility with consumers that subscribed to the previous status machine. The status never reaches `NEEDS_FEE_AUTHORIZATION`, and calling `authorizeFee()` resolves immediately without touching the wallet, the API, or the action state — so legacy code paths that still invoke it will no longer fail.
 
 ### Docs
 
