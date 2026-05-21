@@ -5,7 +5,10 @@ import { ChainId } from '../common/chains';
 
 export type TRpcUrlConfig = Record<number, string>;
 
-export const RPC_URL = 'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
+// Migrated to the narrow /multi-rpc/v2/:chain endpoint (APP-2272) — EVM only.
+// The server enforces a JSON-RPC method allowlist on this route; Solana RPC
+// continues to flow through `/multi-rpc/proxy/solana` via `sdk-solana`.
+export const RPC_URL = 'https://bff.prod.lombard-fi.com/multi-rpc/v2';
 
 export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.ethereum]: `${RPC_URL}/eth`,
@@ -33,7 +36,9 @@ export const rpcUrlConfig: TRpcUrlConfig = {
 export function getRpcUrlConfig(env: Env) {
   const { bffApiUrl: baseUrl } = getApiConfig(env);
 
-  const proxy = `${baseUrl}/multi-rpc/proxy`;
+  // EVM RPC uses the narrow /multi-rpc/v2/:chain endpoint (APP-2272). Solana
+  // RPC stays on /multi-rpc/proxy/solana via sdk-solana.
+  const proxy = `${baseUrl}/multi-rpc/v2`;
 
   return {
     [ChainId.ethereum]: `${proxy}/eth`,
