@@ -8,14 +8,17 @@
  *
  * ## Fee Authorization
  *
- * On Ethereum/Sepolia, fee authorization is required before redemption.
- * This covers the gas cost of the auto-mint operation on the destination.
+ * EVM Redeem does NOT require network fee authorization on any source chain.
+ * The destination is the Bitcoin network — there is no auto-mint operation on
+ * an EVM destination, so the auto-mint fee model (used by BTC Deposit and
+ * EVM Unstake to BTC.b on Ethereum/Sepolia) does not apply here.
  *
- * **Flow with fee auth (Ethereum/Sepolia):**
- * IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED
- *
- * **Flow without fee auth (Base, BSC - subsidized):**
+ * **Flow (all source chains):**
  * IDLE → READY → COMPLETED
+ *
+ * `authorizeFee()` is kept on the action only to preserve the existing public
+ * interface; it is a no-op and the status will never reach
+ * `NEEDS_FEE_AUTHORIZATION`.
  *
  * @module chains/evm/actions/redeem/EvmRedeem
  */
@@ -37,8 +40,6 @@ import {
 } from '../../../../shared/validation';
 import { Token } from '../../../../tokens/token-addresses';
 import {
-  authorizeFee as authorizeFeeShared,
-  checkFeeAuthorization,
   createInitialFeeAuthState,
   type FeeAuthState,
 } from '../../shared/feeAuth';
@@ -97,104 +98,31 @@ export class EvmRedeem
       this._amount = validated.amount as string;
       this._recipient = validated.recipient as string;
 
-      const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
-
-      // Get EVM account for fee auth check
-      const provider = await this.ctx.getProvider('evm');
-      if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
-      }
-      const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
-      });
-      const account = accounts[0] as `0x${string}`;
-
-      // Check fee authorization status (BTC.b redeem uses Token.BTCb)
-      const feeAuthResult = await checkFeeAuthorization(
-        chainId,
-        account,
-        this.ctx.env,
-        Token.BTCb,
-      );
-
-      // Update fee auth state
-      this._feeAuth = {
-        requiresAuth: feeAuthResult.requiresAuth,
-        isAuthorized: feeAuthResult.hasValidSignature,
-        feeInSatoshis: feeAuthResult.feeInSatoshis,
-        feeFormatted: feeAuthResult.feeFormatted,
-        expirationDate: feeAuthResult.expirationDate,
-      };
-
-      // Determine next status based on fee auth
-      // Note: Status is set here (not via act's successStatus) because the
-      // fee auth state is only known after the async check completes.
-      if (feeAuthResult.requiresAuth && !feeAuthResult.hasValidSignature) {
-        this.updateStatus(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
-        this.emitProgress({
-          status: EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
-          steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
-        });
-        return;
-      }
-
-      // No fee auth required or already authorized
+      // EVM Redeem releases native BTC on the Bitcoin network. There is no
+      // EVM auto-mint on the destination, so the network-fee authorization
+      // model used by BTC Deposit / EVM Unstake-to-BTC.b does not apply.
       this._needsApproval = false;
-      this.updateStatus(EvmOperationStatus.READY);
       this.emitProgress({
         status: EvmOperationStatus.READY,
         steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
       });
-    });
+    }, EvmOperationStatus.READY);
   }
 
   /**
    * Authorize the network fee
    *
-   * Must be called when status is NEEDS_FEE_AUTHORIZATION.
-   * Signs the fee authorization and stores it on the server.
+   * @deprecated EVM Redeem no longer requires fee authorization. The status
+   * machine will never reach `NEEDS_FEE_AUTHORIZATION`, so this method is a
+   * no-op kept only for backwards compatibility with the existing public
+   * interface. Calling it will throw a `LombardError` because the action is
+   * not in the expected status.
    */
   async authorizeFee(): Promise<void> {
     this.assertStatus(
       EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
       'authorizeFee',
     );
-
-    if (!this._feeAuth.feeInSatoshis) {
-      throw LombardError.missingParameter('feeInSatoshis');
-    }
-
-    return this.act(async () => {
-      const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
-
-      const provider = await this.ctx.getProvider('evm');
-      if (!provider) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
-      }
-
-      const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
-      });
-      const account = accounts[0] as `0x${string}`;
-
-      // Sign and store fee authorization
-      await authorizeFeeShared({
-        chainId,
-        account,
-        feeInSatoshis: this._feeAuth.feeInSatoshis!,
-        provider: provider as EIP1193Provider,
-        env: this.ctx.env,
-        token: Token.BTCb,
-      });
-
-      // Update state
-      this._feeAuth.isAuthorized = true;
-
-      this.emitProgress({
-        status: EvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
-      });
-    }, EvmOperationStatus.READY);
   }
 
   async approve(): Promise<void> {

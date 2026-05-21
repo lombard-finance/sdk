@@ -1,13 +1,14 @@
 /**
- * EVM Redeem Fee Authorization Status Tests
+ * EVM Redeem prepare() status transition tests
  *
- * Verifies that prepare() correctly transitions to NEEDS_FEE_AUTHORIZATION
- * when checkFeeAuthorization returns requiresAuth: true, hasValidSignature: false.
+ * EVM Redeem releases native BTC on the Bitcoin network. There is no EVM
+ * auto-mint on the destination, so the action never requires network-fee
+ * authorization — `prepare()` must transition straight to READY regardless of
+ * the source chain (including Ethereum / Sepolia, which DO require fee auth
+ * for BTC Deposit and EVM Unstake to BTC.b).
  *
- * Regression test for bug: act()'s successStatus was eagerly evaluated before
- * the callback ran, using initial feeAuth state (requiresAuth: false). This
- * always resolved to READY, overwriting NEEDS_FEE_AUTHORIZATION set inside
- * the callback.
+ * This file used to assert the opposite behavior; the assertions are inverted
+ * here to lock in the new contract and act as a regression guard.
  */
 
 import { Env } from '@lombard.finance/sdk-common';
@@ -19,15 +20,6 @@ import { AssetId, Chain } from '../../../core';
 import { EvmOperationStatus } from '../../../shared/constants/statusConstants';
 import type { EvmCoreContext } from '../../../shared/context/types';
 
-vi.mock('../../../chains/evm/shared/feeAuth', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../../chains/evm/shared/feeAuth')>();
-  return {
-    ...actual,
-    checkFeeAuthorization: vi.fn(),
-  };
-});
-
 const mockProvider = {
   request: vi.fn(async ({ method }: { method: string }) => {
     if (method === 'eth_accounts') {
@@ -37,32 +29,21 @@ const mockProvider = {
   }),
 };
 
-function createContext(): EvmCoreContext {
+function createContext(env: Env = Env.prod): EvmCoreContext {
   return {
-    env: Env.prod,
+    env,
     partner: new PartnerConfiguration(undefined),
     getProvider: async () => mockProvider,
     evm: {} as EvmCoreContext['evm'],
   };
 }
 
-describe('EvmRedeem fee authorization status', () => {
+describe('EvmRedeem prepare()', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('transitions to NEEDS_FEE_AUTHORIZATION when fee auth required and no valid signature', async () => {
-    const { checkFeeAuthorization } =
-      await import('../../../chains/evm/shared/feeAuth');
-
-    vi.mocked(checkFeeAuthorization).mockResolvedValue({
-      requiresAuth: true,
-      hasValidSignature: false,
-      feeInSatoshis: BigInt(1992),
-      feeFormatted: '0.00001992',
-      expirationDate: null,
-    });
-
+  it('transitions IDLE → READY on Ethereum (no fee auth for BTC destination)', async () => {
     const ctx = createContext();
     const redeem = new EvmRedeem(ctx, {
       assetIn: AssetId.BTCb,
@@ -78,24 +59,31 @@ describe('EvmRedeem fee authorization status', () => {
       recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
     });
 
-    expect(redeem.status).toBe(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
-    expect(redeem.feeAuth.requiresAuth).toBe(true);
+    expect(redeem.status).toBe(EvmOperationStatus.READY);
+    expect(redeem.feeAuth.requiresAuth).toBe(false);
     expect(redeem.feeAuth.isAuthorized).toBe(false);
-    expect(redeem.feeAuth.feeInSatoshis).toBe(BigInt(1992));
+    expect(redeem.feeAuth.feeInSatoshis).toBeNull();
   });
 
-  it('transitions to READY when fee auth not required (subsidized chain)', async () => {
-    const { checkFeeAuthorization } =
-      await import('../../../chains/evm/shared/feeAuth');
-
-    vi.mocked(checkFeeAuthorization).mockResolvedValue({
-      requiresAuth: false,
-      hasValidSignature: false,
-      feeInSatoshis: null,
-      feeFormatted: null,
-      expirationDate: null,
+  it('transitions IDLE → READY on Sepolia (testnet of an unsubsidized chain)', async () => {
+    const ctx = createContext(Env.testnet);
+    const redeem = new EvmRedeem(ctx, {
+      assetIn: AssetId.BTCb,
+      assetOut: AssetId.BTC,
+      sourceChain: Chain.SEPOLIA,
+      destChain: Chain.BITCOIN_SIGNET,
     });
 
+    await redeem.prepare({
+      amount: '10000',
+      recipient: 'tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx',
+    });
+
+    expect(redeem.status).toBe(EvmOperationStatus.READY);
+    expect(redeem.feeAuth.requiresAuth).toBe(false);
+  });
+
+  it('transitions IDLE → READY on subsidized source chain (Base)', async () => {
     const ctx = createContext();
     const redeem = new EvmRedeem(ctx, {
       assetIn: AssetId.BTCb,
@@ -113,18 +101,7 @@ describe('EvmRedeem fee authorization status', () => {
     expect(redeem.feeAuth.requiresAuth).toBe(false);
   });
 
-  it('emits status-change event with NEEDS_FEE_AUTHORIZATION', async () => {
-    const { checkFeeAuthorization } =
-      await import('../../../chains/evm/shared/feeAuth');
-
-    vi.mocked(checkFeeAuthorization).mockResolvedValue({
-      requiresAuth: true,
-      hasValidSignature: false,
-      feeInSatoshis: BigInt(1992),
-      feeFormatted: '0.00001992',
-      expirationDate: null,
-    });
-
+  it('never emits NEEDS_FEE_AUTHORIZATION status-change', async () => {
     const ctx = createContext();
     const redeem = new EvmRedeem(ctx, {
       assetIn: AssetId.BTCb,
@@ -143,7 +120,9 @@ describe('EvmRedeem fee authorization status', () => {
       recipient: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
     });
 
-    expect(statusChanges).toContain(EvmOperationStatus.NEEDS_FEE_AUTHORIZATION);
-    expect(statusChanges).not.toContain(EvmOperationStatus.READY);
+    expect(statusChanges).not.toContain(
+      EvmOperationStatus.NEEDS_FEE_AUTHORIZATION,
+    );
+    expect(statusChanges).toContain(EvmOperationStatus.READY);
   });
 });

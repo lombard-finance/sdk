@@ -1,3 +1,19 @@
+# 5.0.5
+
+### Fixed
+
+- `sdk.chain.evm.redeem()` (BTC.b → native BTC) no longer triggers a network-fee authorization step. The action burns BTC.b on the EVM source chain and releases native BTC on the Bitcoin network — there is no auto-mint on an EVM destination, so the auto-mint fee model (used by BTC Deposit and EVM Unstake → BTC.b on Ethereum/Sepolia) does not apply. `prepare()` now transitions `IDLE → READY` directly on every source chain, including Ethereum and Sepolia, eliminating the unexpected EIP-712 signing prompt and the `GET /api/v1/claimer/get-user-signature` call that previously fired on those chains.
+
+### Deprecated
+
+- `IEvmRedeem.authorizeFee()` is now a deprecated no-op kept for backwards compatibility with consumers that subscribed to the previous status machine. The status will never reach `NEEDS_FEE_AUTHORIZATION`, and calling `authorizeFee()` will throw a status-assertion error.
+
+### Docs
+
+- Removed stale JSDoc on `EvmActions.redeem()`, `EvmRedeem` types, and the redeem factory that described a non-existent `LBTC → BTC.b` same-chain unwrap. The actual `LBTC → BTC.b` flow lives in `sdk.chain.evm.unstake()` with `assetOut: AssetId.BTCb`.
+
+---
+
 # 5.0.4
 
 ### Fixed

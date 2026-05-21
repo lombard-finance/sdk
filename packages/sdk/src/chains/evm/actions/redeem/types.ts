@@ -8,12 +8,11 @@
  *
  * ## Fee Authorization
  *
- * On Ethereum/Sepolia, fee authorization is required before redemption.
+ * EVM Redeem does not require network-fee authorization on any source chain.
+ * There is no auto-mint on the Bitcoin destination, so the model used by BTC
+ * Deposit and EVM Unstake-to-BTC.b on Ethereum/Sepolia does not apply here.
  *
- * **Flow with fee auth (Ethereum/Sepolia):**
- * IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED
- *
- * **Flow without fee auth (Base, BSC - subsidized):**
+ * **Flow (all source chains):**
  * IDLE → READY → COMPLETED
  *
  * @module chains/evm/actions/redeem/types
@@ -85,7 +84,11 @@ export interface IEvmRedeem extends MonitorableAction {
   readonly feeAuth: FeeAuthState;
 
   prepare(params: EvmRedeemPrepareParams): Promise<void>;
-  /** Authorize the network fee (when status is NEEDS_FEE_AUTHORIZATION) */
+  /**
+   * @deprecated EVM Redeem no longer requires fee authorization. The status
+   * machine never reaches `NEEDS_FEE_AUTHORIZATION`; this method is kept for
+   * backwards compatibility and will throw if called.
+   */
   authorizeFee(): Promise<void>;
   approve(): Promise<void>;
   execute(): Promise<{ txHash: string }>;
