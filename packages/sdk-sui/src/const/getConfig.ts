@@ -19,13 +19,13 @@ const stageConfig: IConfig = {
   mint: {
     target:
       // lbtc_v2_current
-      '0x2721ad6e939baca77b36f415ab91edb1c91b256cbc8614f8f6c84bf06faf74af::treasury::mint_v2',
+      '0x1269ce3b46b5647d0e46024185dd24bdb7492ec7840ebc40fdd209150b89a33d::treasury::mint_v2',
     denyList: '0x403',
   },
   redeem: {
     // lbtc_v2_current
     target:
-      '0x2721ad6e939baca77b36f415ab91edb1c91b256cbc8614f8f6c84bf06faf74af::treasury::redeem',
+      '0x1269ce3b46b5647d0e46024185dd24bdb7492ec7840ebc40fdd209150b89a33d::treasury::redeem',
   },
   // lbtc_v1_deprecated - This is intentional
   LBTC: '0x2d66430a27565b912f21be970e5ae1e8c0359f0b518c3235b751c75976791ce0::lbtc::LBTC',
