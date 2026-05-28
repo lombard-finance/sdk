@@ -41,6 +41,10 @@ export function validateAndApplyDefaults(
     normalized.partner = options.partner;
   }
 
+  if (options.rpcUrls) {
+    normalized.rpcUrls = options.rpcUrls;
+  }
+
   return normalized;
 }
 

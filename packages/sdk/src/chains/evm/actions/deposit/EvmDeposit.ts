@@ -131,6 +131,7 @@ export class EvmDeposit
         proofSignature: this._claimData!.proofSignature,
         chainId,
         env: this.ctx.env,
+        rpcUrl: this.ctx.rpcUrls?.[chainId],
       });
 
       this._txHash = txHash;

@@ -172,6 +172,7 @@ export class EvmRedeem
         env: this.ctx.env,
         tokenIn: Token.BTCb,
         tokenOut: undefined, // Native BTC output
+        rpcUrl: this.ctx.rpcUrls?.[chainId],
       });
 
       this._txHash = txHash;

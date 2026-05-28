@@ -115,6 +115,7 @@ export class EvmUnstake
           account,
           this.ctx.env,
           Token.BTCb,
+          this.ctx.rpcUrls?.[chainId],
         );
 
         // Update fee auth state
@@ -185,6 +186,7 @@ export class EvmUnstake
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
         token: Token.BTCb,
+        rpcUrl: this.ctx.rpcUrls?.[chainId],
       });
 
       // Update state
@@ -236,6 +238,7 @@ export class EvmUnstake
         env: this.ctx.env,
         tokenIn: Token.LBTC,
         tokenOut: isBtcbOutput ? Token.BTCb : undefined,
+        rpcUrl: this.ctx.rpcUrls?.[chainId],
       });
 
       this._txHash = txHash;

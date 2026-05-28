@@ -70,6 +70,7 @@ export interface AuthorizeFeeParams {
   provider: EIP1193Provider;
   env: Env;
   token: Token;
+  rpcUrl?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -93,6 +94,7 @@ export async function checkFeeAuthorization(
   account: `0x${string}`,
   env: Env,
   token: Token,
+  rpcUrl?: string,
 ): Promise<FeeAuthCheckResult> {
   // Check if this chain requires fee authorization
   if (!requiresAutoMintFee(chainId)) {
@@ -132,6 +134,7 @@ export async function checkFeeAuthorization(
       token,
       chainId,
       env,
+      rpcUrl,
     });
     feeInSatoshis = BigInt(feeInBtc.times(1e8).toFixed(0));
     feeFormatted = feeInBtc.toFixed(8);
@@ -157,7 +160,8 @@ export async function checkFeeAuthorization(
 export async function authorizeFee(
   params: AuthorizeFeeParams,
 ): Promise<{ signature: `0x${string}`; typedData: string }> {
-  const { chainId, account, feeInSatoshis, provider, env, token } = params;
+  const { chainId, account, feeInSatoshis, provider, env, token, rpcUrl } =
+    params;
 
   // Get token address for storing signature
   const tokenInfo = await getTokenContractInfo(token, chainId, env);
@@ -170,6 +174,7 @@ export async function authorizeFee(
     provider,
     env,
     token,
+    rpcUrl,
   });
 
   // Store the signature on the server

@@ -1,3 +1,30 @@
+# 6.0.0
+
+## 🚨 BREAKING CHANGES
+
+- **Removed the `RPC_URL` constant export.** The package no longer exports the BFF multi-RPC proxy base URL (`https://bff.prod.lombard-fi.com/multi-rpc/proxy`). Consumers that imported `RPC_URL` from `@lombard.finance/sdk` must remove that import; if you need an opinionated default, read the per-chain `rpcUrlConfig` map instead, or supply your own via the new `rpcUrls` config option (see Added).
+- **Default RPC endpoints switched from the Lombard BFF proxy to public RPCs.** `rpcUrlConfig` and `getRpcUrlConfig()` now return public providers per chain (e.g. `https://cloudflare-eth.com`, `https://mainnet.base.org`, `https://bsc-dataseed.bnbchain.org`, `https://maizenet-rpc.usecorn.com`, `https://rpc.katana.network`, `https://rpc.monad.xyz`, `https://rpc.soniclabs.com`, `https://rpc.tac.build`, `https://rpc.ankr.com/swell`, `https://ethereum-sepolia-rpc.publicnode.com`, `https://sepolia.base.org`, etc.). The Lombard BFF proxy is no longer a default in the published SDK. Integrators that relied on the proxy implicitly (rate limits, trace headers, traffic routed through Lombard infra) should pass their own endpoints via `createLombardSDK({ rpcUrls })`.
+- **Dropped `[ChainId.sonicBlazeTestnet]` from `rpcUrlConfig`.** Sonic Blaze testnet (chain 57054) has been deprecated upstream — its canonical RPC `rpc.blaze.soniclabs.com` returns NXDOMAIN globally, Chainlink CCIP for the chain is decommissioned, and the Sonic docs page for it now returns 404. The successor is Sonic Testnet (chain 14601). The `ChainId.sonicBlazeTestnet` enum value still exists but no longer has a default RPC; consumers that targeted it must supply their own `rpcUrl`.
+
+### Added
+
+- **`rpcUrls` option on `createLombardSDK()` / `createConfig()`.** Partial per-chain RPC URL map keyed by `ChainId`; any chain not listed falls back to the public default. The SDK threads this through `CoreContext` so EVM actions (`stake`, `deploy`, `withdraw`, `deposit`, `unstake`, `redeem`) and the fee-auth helpers (`checkFeeAuthorization`, `authorizeFee` → `getMintingFee`, `signNetworkFee`) read the configured RPC for the active chain. Example:
+
+  ```ts
+  const sdk = await createLombardSDK({
+    env: Env.prod,
+    providers: { evm: () => window.ethereum },
+    rpcUrls: {
+      [ChainId.ethereum]: 'https://eth.mycompany.com',
+      [ChainId.base]: 'https://base.mycompany.com',
+    },
+  });
+  ```
+
+- Online integration test (`src/__tests__/integration/rpc-urls.integration.test.ts`, gated by `ENABLE_ONLINE_INTEGRATION=true`) that pings every default RPC via `eth_chainId` and asserts the reply matches the map key — keeps the public defaults honest.
+
+---
+
 # 5.0.5
 
 ### Fixed

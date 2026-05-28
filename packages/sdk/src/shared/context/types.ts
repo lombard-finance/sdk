@@ -22,6 +22,7 @@ import type {
 import type { EIP1193Provider } from 'viem';
 
 import type { PartnerConfiguration } from '../../client/PartnerConfiguration';
+import type { TRpcUrlConfig } from '../../clients/rpc-url-config';
 import type { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 
 // ============ Logger ============
@@ -67,6 +68,8 @@ export interface CoreContext {
   readonly partner: PartnerConfiguration;
   readonly getProvider: ProviderResolver;
   readonly logger?: Logger;
+  /** Per-chain RPC URL overrides supplied via SDK config. */
+  readonly rpcUrls?: Partial<TRpcUrlConfig>;
   // TODO (v4.1): readonly catalog: AssetCatalog;
 }
 
