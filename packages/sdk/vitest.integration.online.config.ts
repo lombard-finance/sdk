@@ -10,6 +10,7 @@ export default defineConfig({
       'src/__tests__/integration/automint-fee.integration.test.ts',
       'src/__tests__/integration/getLBTCMintingFee.integration.test.ts',
       'src/__tests__/integration/faq-patterns.integration.test.ts',
+      'src/__tests__/integration/rpc-urls.integration.test.ts',
     ],
     testTimeout: 90000,
   },
