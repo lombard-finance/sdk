@@ -34,7 +34,21 @@ import { Token } from '../tokens/token-addresses';
  * Provides EVM contract interactions and fee authorization.
  */
 export class EvmService implements IEvmService {
-  constructor(private readonly env: Env) {}
+  /**
+   * @param env - Active environment.
+   * @param rpcUrls - Optional per-chain RPC overrides from the SDK config.
+   *   Forwarded to read clients so reads honor configured endpoints instead of
+   *   falling back to public defaults.
+   */
+  constructor(
+    private readonly env: Env,
+    private readonly rpcUrls?: Partial<Record<number, string>>,
+  ) {}
+
+  /** Resolve the configured RPC override for a chain, if any. */
+  private getRpcUrl(chainId: EvmChainId): string | undefined {
+    return this.rpcUrls?.[chainId as number];
+  }
 
   /**
    * Get minting fee for a chain
@@ -46,6 +60,7 @@ export class EvmService implements IEvmService {
       token: (token as Token) || Token.LBTC,
       chainId: chainId as ChainId,
       env: this.env,
+      rpcUrl: this.getRpcUrl(chainId),
     });
     return fee.toString();
   }
@@ -64,6 +79,7 @@ export class EvmService implements IEvmService {
       env: this.env,
       // Pass token for signing - defaults to LBTC for backwards compatibility
       token: (params.token as Token) ?? Token.LBTC,
+      rpcUrl: this.getRpcUrl(params.chainId),
     });
 
     return {
@@ -82,6 +98,7 @@ export class EvmService implements IEvmService {
     const fee = await getStakeAndBakeFee({
       chainId: chainId as ChainId,
       protocol,
+      rpcUrl: this.getRpcUrl(chainId),
     });
     return fee.toString();
   }
@@ -100,6 +117,7 @@ export class EvmService implements IEvmService {
       env: this.env,
       vaultKey: params.vaultKey as DefiProtocol,
       token: params.token as StakeAndBakeToken,
+      rpcUrl: this.getRpcUrl(params.chainId),
     });
 
     return {
