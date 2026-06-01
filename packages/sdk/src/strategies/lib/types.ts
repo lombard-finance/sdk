@@ -182,3 +182,123 @@ export interface IStrategyShards {
   shards: Address[];
   defaultShard: Address;
 }
+
+// =====================================================================
+// Per-user vault-manager API (/v2/vault/strategies/{address}/users/{owner}/*)
+// =====================================================================
+
+/**
+ * One entry in the user's strategy activity timeline. Backed by an indexed
+ * on-chain event (`Deposit`, `RedeemRequested`, `RedeemRequestsFulfilled`).
+ *
+ * A redeem lifecycle produces two rows that share the same `requestId`:
+ * a `redeem_requested` row whose `status` reflects the latest state, and a
+ * `redeem_fulfilled` row when the operator settles the request. Consumers
+ * that render a tx history typically de-dupe by `requestId` and show only
+ * the `redeem_requested` row with `status` updated.
+ */
+export interface IStrategyUserActivityEntry {
+  activityType: 'deposit' | 'redeem_requested' | 'redeem_fulfilled';
+  blockTime: Date;
+  txHash: Hash;
+  blockHeight: bigint;
+  logIndex: number;
+  /** ERC-20 address. Deposit asset for `deposit`; base asset for redeem rows. */
+  asset: Address;
+  assetSymbol: string;
+  /**
+   * Raw token amount (asset's native decimals). For `deposit`: NET amount
+   * post deposit-fee that backed the share mint. For redeem rows: NET
+   * pending/payable amount.
+   */
+  amount: BigNumber;
+  /**
+   * `'pending'` / `'fulfilled'` for `redeem_requested` (reflects current
+   * lifecycle state). `'fulfilled'` for `redeem_fulfilled`. Empty for
+   * `deposit`.
+   */
+  status: 'pending' | 'fulfilled' | '';
+  /** Set for redeem rows. Links `redeem_requested` and `redeem_fulfilled`. */
+  requestId?: bigint;
+}
+
+/**
+ * One redeem request belonging to a specific user, in any lifecycle state.
+ * Pending-only by default; pass `includeFulfilled: true` to also receive
+ * settled requests.
+ */
+export interface IStrategyUserWithdrawalRequest {
+  requestId: bigint;
+  owner: Address;
+  /** NET base-asset amount due on fulfillment. */
+  assets: BigNumber;
+  /** NET shares burned for this request. */
+  shares: BigNumber;
+  requestedAt: Date;
+  requestTx: Hash;
+  /** PPS at-or-before `requestedAt`. Absent if no PPS snapshot existed yet. */
+  ppsAtRequest?: BigNumber;
+  /** `requestedAt + withdrawalTargetSeconds`. Absent if SLA not configured. */
+  expiresAt?: Date;
+  status: 'pending' | 'fulfilled';
+  /** Set when `status === 'fulfilled'`. */
+  fulfilledAt?: Date;
+  /** Set when `status === 'fulfilled'`. */
+  fulfillTx?: Hash;
+}
+
+/**
+ * Live per-user position snapshot, with derived principal / accrued yield.
+ *
+ * `shares` and `baseAssetValue` are live (`shares × pps`). `principalBtc`
+ * and `accruedYieldBtc` are derived server-side from indexed deposit and
+ * fulfilled-redeem events: P2P share-token transfers are NOT tracked, so
+ * accounts that have ever sent or received shares from another wallet may
+ * see drift here.
+ */
+export interface IStrategyUserPosition {
+  shares: BigNumber;
+  baseAssetValue: BigNumber;
+  /** Σ assets across the user's open (unfulfilled) redeem requests. */
+  pendingBaseAsset: BigNumber;
+  /** Block time of the user's first deposit on this strategy. */
+  firstDepositedAt?: Date;
+  /** Net deposits − fulfilled redeems, in base-asset units. */
+  principalBtc: BigNumber;
+  /** Signed: `baseAssetValue − principalBtc`. Negative when PPS dropped. */
+  accruedYieldBtc: BigNumber;
+  depositsCount: number;
+}
+
+/** One point on the user's position-value-over-time chart. */
+export interface IStrategyUserPositionSnapshot {
+  timestamp: Date;
+  shares: BigNumber;
+  baseAssetValue: BigNumber;
+}
+
+/**
+ * One point on the Strategy NAV / price-per-share time series. Backed by
+ * `GET /v1/vault/strategies/{address}/nav-history`.
+ */
+export interface IStrategyNavSnapshot {
+  timestamp: Date;
+  /** NAV in base-asset units (human-readable, decimals already applied). */
+  nav: BigNumber;
+  /** Price per share in human-readable units. */
+  pricePerShare: BigNumber;
+}
+
+/**
+ * One sample on the Strategy aggregate-rates time series. Backed by
+ * `GET /v1/vault/strategies/{address}/rates-history`. Rates are returned in
+ * basis points by the API and converted to fractions (1.0 = 100%) here so
+ * the consumer never has to remember the unit.
+ */
+export interface IStrategyRatesSnapshot {
+  timestamp: Date;
+  /** Net carry, fraction (supply APY − borrow APY, signed). */
+  netCarry: BigNumber;
+  /** STRC yield, fraction. */
+  strcYield: BigNumber;
+}

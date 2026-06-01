@@ -15,11 +15,6 @@ import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
 export interface GetStrategyConfigParameters extends IEnvParam {
   chainId: ChainId;
   strategy?: Address;
-  /**
-   * Optional override for the vault-manager API base URL.
-   * Defaults to the env-specific `baseApiUrl` from `getApiConfig(env)`.
-   */
-  apiBaseUrl?: string;
 }
 
 /**
@@ -75,20 +70,13 @@ interface IRawStrategyConfig {
 export async function getStrategyConfig({
   chainId,
   strategy,
-  apiBaseUrl,
   env,
 }: GetStrategyConfigParameters): Promise<IStrategyConfigResponse> {
   assertLombardStrategyChain(chainId);
   const address = resolveStrategyAddress(chainId, strategy);
 
-  const { baseApiUrl } = getApiConfig(env);
-  const root = apiBaseUrl ?? baseApiUrl;
-  if (!root) {
-    throw new Error(
-      `Could not determine vault-manager API endpoint for environment: ${env}`,
-    );
-  }
-  const url = `${root.replace(/\/$/, '')}/api/v1/strategies/${address}/config`;
+  const { baseApiV2Url } = getApiConfig(env);
+  const url = `${baseApiV2Url.replace(/\/$/, '')}/api/v1/strategies/${address}/config`;
 
   const { data } = await axios.get<IRawStrategyConfig>(url);
   return normalizeStrategyConfig(data);

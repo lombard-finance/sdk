@@ -21,10 +21,16 @@ export type {
   IStrategyDepositAsset,
   IStrategyDepositAssetStatic,
   IStrategyFeeConfig,
+  IStrategyNavSnapshot,
   IStrategyPendingRedeem,
   IStrategyPosition,
+  IStrategyRatesSnapshot,
   IStrategyShards,
   IStrategyState,
+  IStrategyUserActivityEntry,
+  IStrategyUserPosition,
+  IStrategyUserPositionSnapshot,
+  IStrategyUserWithdrawalRequest,
 } from './lib/types';
 
 // Metrics: dashboard-style reads (on-chain snapshot + backend config).
@@ -35,9 +41,34 @@ export {
   normalizeStrategyConfig,
 } from './lib/metrics/getStrategyConfig';
 export {
+  getStrategyNavHistory,
+  type GetStrategyNavHistoryParameters,
+} from './lib/metrics/getStrategyNavHistory';
+export {
+  getStrategyRatesHistory,
+  type GetStrategyRatesHistoryParameters,
+} from './lib/metrics/getStrategyRatesHistory';
+export {
   getStrategyState,
   type GetStrategyStateParameters,
 } from './lib/metrics/getStrategyState';
+export {
+  getUserActivityFeed,
+  type GetUserActivityFeedParameters,
+} from './lib/metrics/getUserActivityFeed';
+export {
+  getUserPosition,
+  type GetUserPositionParameters,
+} from './lib/metrics/getUserPosition';
+export {
+  getUserPositionHistory,
+  type GetUserPositionHistoryParameters,
+} from './lib/metrics/getUserPositionHistory';
+export {
+  getUserWithdrawals,
+  type GetUserWithdrawalsParameters,
+} from './lib/metrics/getUserWithdrawals';
+export { UnauthorizedWalletJwtError } from './lib/metrics/userEndpoints';
 
 // Ops: actions and per-user reads.
 

@@ -9,3 +9,4 @@ export * from './getUserStakeAndBakeSignature';
 export * from './setReferral';
 export * from './storeNetworkFeeSignature';
 export * from './storeStakeAndBakeSignature';
+export * from './walletAuth';

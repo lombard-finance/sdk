@@ -18,6 +18,7 @@
 export { ApiService } from './ApiService';
 export { BtcService } from './BtcService';
 export { EvmService } from './EvmService';
+export { WalletAuthService } from './WalletAuthService';
 
 // Re-export service interfaces from sdk-common for convenience
 // Use these for typing, use the classes above for instantiation
@@ -34,6 +35,13 @@ export type {
   ApiService as IApiService,
   BtcService as IBtcService,
   EvmService as IEvmService,
+  RevokeWalletTokenRequest,
+  WalletAuthChain,
+  WalletAuthService as IWalletAuthService,
+  WalletChallengeRequest,
+  WalletChallengeResponse,
+  WalletVerifyRequest,
+  WalletVerifyResponse,
   SignNetworkFeeParams,
   SignNetworkFeeResult,
   SignStakeAndBakeParams,
