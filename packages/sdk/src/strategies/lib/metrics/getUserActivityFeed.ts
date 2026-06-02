@@ -33,7 +33,7 @@ interface IRawUserActivityEntry {
 }
 
 interface IRawUserActivityFeedResponse {
-  activities?: ReadonlyArray<IRawUserActivityEntry>;
+  entries?: ReadonlyArray<IRawUserActivityEntry>;
   total?: number;
 }
 
@@ -62,7 +62,7 @@ export async function getUserActivityFeed(
     url,
     params.walletJwt,
   );
-  return (raw?.activities ?? []).map(normalizeActivityEntry);
+  return (raw?.entries ?? []).map(normalizeActivityEntry);
 }
 
 function normalizeActivityEntry(
