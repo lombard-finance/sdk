@@ -36,11 +36,6 @@ export type {
 // Metrics: dashboard-style reads (on-chain snapshot + backend config).
 
 export {
-  getStrategyConfig,
-  type GetStrategyConfigParameters,
-  normalizeStrategyConfig,
-} from './lib/metrics/getStrategyConfig';
-export {
   getStrategyNavHistory,
   type GetStrategyNavHistoryParameters,
 } from './lib/metrics/getStrategyNavHistory';
