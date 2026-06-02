@@ -1,14 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
 
-/**
- * Shape of the response from `GET /api/v1/strategies/{strategy}/config` on
- * the vault-manager API.
- *
- * gRPC-Gateway omits zero/false fields on the wire; consumers must normalize
- * before reading. `getStrategyConfig` performs that normalization so callers
- * receive a fully-populated object.
- */
 export interface IStrategyConfigResponse {
   name: string;
   symbol: string;
