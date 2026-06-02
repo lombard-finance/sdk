@@ -50,6 +50,7 @@ export {
   type IStrategyShards,
   type IStrategyState,
   type IStrategyUserActivityEntry,
+  type IStrategyUserActivityFeed,
   type IStrategyUserPosition,
   type IStrategyUserPositionSnapshot,
   type IStrategyUserWithdrawalRequest,

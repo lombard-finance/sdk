@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
 
-import { IStrategyUserActivityEntry } from '../types';
+import { IStrategyUserActivityEntry, IStrategyUserActivityFeed } from '../types';
 import {
   BaseUserStrategyParams,
   resolveUserStrategyEndpoint,
@@ -35,6 +35,7 @@ interface IRawUserActivityEntry {
 interface IRawUserActivityFeedResponse {
   entries?: ReadonlyArray<IRawUserActivityEntry>;
   total?: number;
+  has_more?: boolean;
 }
 
 /**
@@ -47,7 +48,7 @@ interface IRawUserActivityFeedResponse {
  */
 export async function getUserActivityFeed(
   params: GetUserActivityFeedParameters,
-): Promise<IStrategyUserActivityEntry[]> {
+): Promise<IStrategyUserActivityFeed> {
   const { root, blockchain } = resolveUserStrategyEndpoint(params);
 
   const query = new URLSearchParams({ blockchain });
@@ -62,7 +63,11 @@ export async function getUserActivityFeed(
     url,
     params.walletJwt,
   );
-  return (raw?.entries ?? []).map(normalizeActivityEntry);
+  return {
+    entries: (raw?.entries ?? []).map(normalizeActivityEntry),
+    total: raw?.total ?? 0,
+    hasMore: raw?.has_more ?? false,
+  };
 }
 
 function normalizeActivityEntry(

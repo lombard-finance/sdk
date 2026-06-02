@@ -28,6 +28,7 @@ export type {
   IStrategyShards,
   IStrategyState,
   IStrategyUserActivityEntry,
+  IStrategyUserActivityFeed,
   IStrategyUserPosition,
   IStrategyUserPositionSnapshot,
   IStrategyUserWithdrawalRequest,

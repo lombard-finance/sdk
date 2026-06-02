@@ -214,6 +214,15 @@ export interface IStrategyUserActivityEntry {
   requestId?: bigint;
 }
 
+/** Paginated activity feed: entries plus backend pagination metadata. */
+export interface IStrategyUserActivityFeed {
+  entries: IStrategyUserActivityEntry[];
+  /** Total number of entries matching the query across all pages. */
+  total: number;
+  /** True when more entries are available beyond the current page. */
+  hasMore: boolean;
+}
+
 /**
  * One redeem request belonging to a specific user, in any lifecycle state.
  * Pending-only by default; pass `includeFulfilled: true` to also receive
