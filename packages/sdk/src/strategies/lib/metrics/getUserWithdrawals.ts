@@ -34,7 +34,7 @@ interface IRawUserWithdrawalsResponse {
 /**
  * Fetches the user's redeem requests (pending by default; pass
  * `includeFulfilled` to see settled history too) from the vault-manager
- * (`GET /v2/vault/strategies/{address}/users/{owner}/withdrawals`).
+ * (`GET /v2/vaults/strategies/{address}/users/{owner}/withdrawals`).
  */
 export async function getUserWithdrawals(
   params: GetUserWithdrawalsParameters,

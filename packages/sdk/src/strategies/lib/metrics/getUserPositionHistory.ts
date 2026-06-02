@@ -27,7 +27,7 @@ interface IRawUserPositionHistory {
 
 /**
  * Fetches a time-series of the user's position value (shares × pps) from
- * the vault-manager (`GET /v2/vault/strategies/{address}/users/{owner}/position-history`).
+ * the vault-manager (`GET /v2/vaults/strategies/{address}/users/{owner}/position-history`).
  *
  * Snapshot cadence is backend-defined (typically once per PPS update or
  * once per UTC day, whichever is sparser). The series is suitable for a

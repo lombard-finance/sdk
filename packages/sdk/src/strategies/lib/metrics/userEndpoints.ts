@@ -22,7 +22,7 @@ export interface BaseUserStrategyParams extends IEnvParam {
 
 /**
  * Maps a Lombard Strategy chain id to the legacy `BLOCKCHAIN_*` string that
- * the vault-manager `/v2/vault/...` endpoints expect as the `blockchain`
+ * the vault-manager `/v2/vaults/...` endpoints expect as the `blockchain`
  * query parameter. Kept local to avoid accidentally exporting it from the
  * shared common module (the new APIs only accept the legacy form).
  */
@@ -46,7 +46,7 @@ export function getVaultBlockchainParam(chainId: ChainId): string {
 }
 
 /**
- * Resolves the per-user endpoint root: `${baseApiV2Url}/v2/vault/strategies/{address}/users/{owner}`.
+ * Resolves the per-user endpoint root: `${baseApiV2Url}/v2/vaults/strategies/{address}/users/{owner}`.
  */
 export function resolveUserStrategyEndpoint(
   params: BaseUserStrategyParams,
@@ -56,7 +56,7 @@ export function resolveUserStrategyEndpoint(
   const address = resolveStrategyAddress(chainId, strategy);
 
   const { baseApiV2Url } = getApiConfig(env);
-  const root = `${baseApiV2Url.replace(/\/$/, '')}/v2/vault/strategies/${address}/users/${owner}`;
+  const root = `${baseApiV2Url.replace(/\/$/, '')}/v2/vaults/strategies/${address}/users/${owner}`;
   return { root, address, blockchain: getVaultBlockchainParam(chainId) };
 }
 

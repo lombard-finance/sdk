@@ -184,7 +184,7 @@ export interface IStrategyShards {
 }
 
 // =====================================================================
-// Per-user vault-manager API (/v2/vault/strategies/{address}/users/{owner}/*)
+// Per-user vault-manager API (/v2/vaults/strategies/{address}/users/{owner}/*)
 // =====================================================================
 
 /**
@@ -279,7 +279,7 @@ export interface IStrategyUserPositionSnapshot {
 
 /**
  * One point on the Strategy NAV / price-per-share time series. Backed by
- * `GET /v1/vault/strategies/{address}/nav-history`.
+ * `GET /v2/vaults/strategies/{address}/nav-history`.
  */
 export interface IStrategyNavSnapshot {
   timestamp: Date;
@@ -291,7 +291,7 @@ export interface IStrategyNavSnapshot {
 
 /**
  * One sample on the Strategy aggregate-rates time series. Backed by
- * `GET /v1/vault/strategies/{address}/rates-history`. Rates are returned in
+ * `GET /v2/vaults/strategies/{address}/rates-history`. Rates are returned in
  * basis points by the API and converted to fractions (1.0 = 100%) here so
  * the consumer never has to remember the unit.
  */

@@ -21,7 +21,7 @@ interface IRawUserPosition {
 
 /**
  * Fetches a derived per-user position snapshot from the vault-manager
- * (`GET /v2/vault/strategies/{address}/users/{owner}/position`).
+ * (`GET /v2/vaults/strategies/{address}/users/{owner}/position`).
  *
  * `shares` / `baseAssetValue` are live; `principalBtc` / `accruedYieldBtc`
  * are reconstructed from indexed events server-side. P2P share transfers

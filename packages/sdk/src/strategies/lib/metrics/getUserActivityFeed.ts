@@ -39,7 +39,7 @@ interface IRawUserActivityFeedResponse {
 
 /**
  * Fetches the user's deposit / redeem activity timeline for a strategy from
- * the vault-manager API (`GET /v2/vault/strategies/{address}/users/{owner}/activity`).
+ * the vault-manager API (`GET /v2/vaults/strategies/{address}/users/{owner}/activity`).
  *
  * Entries are returned in the backend's documented order (newest-first).
  * gRPC-Gateway zero/false elision is normalized so callers never need to

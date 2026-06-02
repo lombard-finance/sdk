@@ -33,7 +33,7 @@ interface IRawNavHistoryResponse {
 
 /**
  * Fetches a NAV + price-per-share time series for the Strategy from the
- * vault-manager API (`GET /v1/vault/strategies/{address}/nav-history`).
+ * vault-manager API (`GET /v2/vaults/strategies/{address}/nav-history`).
  *
  * Both `nav` and `pricePerShare` are returned in base-units (1e8 on Lombard
  * Strategies) by the API and converted to human-readable `BigNumber`s here
@@ -54,7 +54,7 @@ export async function getStrategyNavHistory(
   if (startTime) query.set('start_time', startTime.toISOString());
   if (endTime) query.set('end_time', endTime.toISOString());
 
-  const url = `${baseApiV2Url.replace(/\/$/, '')}/v1/vault/strategies/${address}/nav-history?${query.toString()}`;
+  const url = `${baseApiV2Url.replace(/\/$/, '')}/v2/vaults/strategies/${address}/nav-history?${query.toString()}`;
   const raw = await userAuthorizedGet<IRawNavHistoryResponse>(url, walletJwt);
 
   const divisor = new BigNumber(10).pow(LOMBARD_STRATEGY_DECIMALS);

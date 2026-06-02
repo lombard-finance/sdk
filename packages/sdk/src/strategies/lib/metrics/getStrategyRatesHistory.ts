@@ -31,7 +31,7 @@ const BPS_DIVISOR = new BigNumber(10_000);
 /**
  * Fetches the Strategy aggregate-rates time series (net carry, STRC yield)
  * from the vault-manager API
- * (`GET /v1/vault/strategies/{address}/rates-history`).
+ * (`GET /v2/vaults/strategies/{address}/rates-history`).
  *
  * API returns rates in basis points; this function converts them to
  * fractions (1.0 = 100%) so consumers can render directly with a percent
@@ -51,7 +51,7 @@ export async function getStrategyRatesHistory(
   if (startTime) query.set('start_time', startTime.toISOString());
   if (endTime) query.set('end_time', endTime.toISOString());
 
-  const url = `${baseApiV2Url.replace(/\/$/, '')}/v1/vault/strategies/${address}/rates-history?${query.toString()}`;
+  const url = `${baseApiV2Url.replace(/\/$/, '')}/v2/vaults/strategies/${address}/rates-history?${query.toString()}`;
   const raw = await userAuthorizedGet<IRawRatesHistoryResponse>(url, walletJwt);
 
   return (raw?.samples ?? []).map((s) => ({
