@@ -9,7 +9,7 @@ import {
 
 export type GetUserPositionParameters = BaseUserStrategyParams;
 
-interface IRawUserPosition {
+interface IRawUserPositionData {
   shares?: string;
   base_asset_value?: string;
   pending_base_asset?: string;
@@ -17,6 +17,10 @@ interface IRawUserPosition {
   principal_btc?: string;
   accrued_yield_btc?: string;
   deposits_count?: number;
+}
+
+interface IRawUserPosition {
+  position?: IRawUserPositionData;
 }
 
 /**
@@ -35,16 +39,17 @@ export async function getUserPosition(
 
   const url = `${root}/position?blockchain=${blockchain}`;
   const raw = await userAuthorizedGet<IRawUserPosition>(url, params.walletJwt);
+  const position = raw?.position;
 
   return {
-    shares: new BigNumber(raw?.shares ?? '0'),
-    baseAssetValue: new BigNumber(raw?.base_asset_value ?? '0'),
-    pendingBaseAsset: new BigNumber(raw?.pending_base_asset ?? '0'),
-    firstDepositedAt: raw?.first_deposited_at
-      ? new Date(raw.first_deposited_at)
+    shares: new BigNumber(position?.shares ?? '0'),
+    baseAssetValue: new BigNumber(position?.base_asset_value ?? '0'),
+    pendingBaseAsset: new BigNumber(position?.pending_base_asset ?? '0'),
+    firstDepositedAt: position?.first_deposited_at
+      ? new Date(position.first_deposited_at)
       : undefined,
-    principalBtc: new BigNumber(raw?.principal_btc ?? '0'),
-    accruedYieldBtc: new BigNumber(raw?.accrued_yield_btc ?? '0'),
-    depositsCount: raw?.deposits_count ?? 0,
+    principalBtc: new BigNumber(position?.principal_btc ?? '0'),
+    accruedYieldBtc: new BigNumber(position?.accrued_yield_btc ?? '0'),
+    depositsCount: position?.deposits_count ?? 0,
   };
 }
