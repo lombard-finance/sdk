@@ -29,13 +29,13 @@ export async function requestWalletChallenge({
   chain,
   env,
 }: RequestWalletChallengeParams): Promise<WalletChallengeResponse> {
-  const { baseApiV2Url } = getApiConfig(env);
+  const { baseApiUrl } = getApiConfig(env);
 
   try {
     const { data } = await axios.post<WalletChallengeApiResponse>(
       'v2/auth/wallet/challenge',
       { address, chain },
-      { baseURL: baseApiV2Url },
+      { baseURL: baseApiUrl },
     );
 
     return {

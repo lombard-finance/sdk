@@ -35,7 +35,7 @@ export async function verifyWalletSignature({
   publicKey,
   env,
 }: VerifyWalletSignatureParams): Promise<WalletVerifyResponse> {
-  const { baseApiV2Url } = getApiConfig(env);
+  const { baseApiUrl } = getApiConfig(env);
 
   try {
     const { data } = await axios.post<WalletVerifyApiResponse>(
@@ -47,7 +47,7 @@ export async function verifyWalletSignature({
         chain,
         ...(publicKey ? { public_key: publicKey } : {}),
       },
-      { baseURL: baseApiV2Url },
+      { baseURL: baseApiUrl },
     );
 
     return {

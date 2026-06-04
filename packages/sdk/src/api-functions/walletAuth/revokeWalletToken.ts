@@ -22,14 +22,14 @@ export async function revokeWalletToken({
 }: RevokeWalletTokenParams): Promise<void> {
   if (!jwt) return;
 
-  const { baseApiV2Url } = getApiConfig(env);
+  const { baseApiUrl } = getApiConfig(env);
 
   try {
     await axios.post(
       'v2/auth/token/revoke',
       {},
       {
-        baseURL: baseApiV2Url,
+        baseURL: baseApiUrl,
         headers: { Authorization: `Bearer ${jwt}` },
       },
     );
