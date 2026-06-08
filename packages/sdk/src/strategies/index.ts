@@ -53,7 +53,7 @@ export {
   type GetUserActivityFeedParameters,
 } from './lib/metrics/getUserActivityFeed';
 export {
-  getUserPosition,
+  getStrategyUserPosition,
   type GetUserPositionParameters,
 } from './lib/metrics/getUserPosition';
 export {

@@ -29,7 +29,7 @@ export {
   type GetStrategyStateParameters,
   getUserActivityFeed,
   type GetUserActivityFeedParameters,
-  getUserPosition,
+  getStrategyUserPosition,
   type GetUserPositionParameters,
   getUserPositionHistory,
   type GetUserPositionHistoryParameters,

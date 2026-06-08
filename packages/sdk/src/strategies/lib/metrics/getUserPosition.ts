@@ -32,7 +32,7 @@ interface IRawUserPosition {
  * are NOT tracked — accounts that moved shares between wallets will see
  * drift in the principal / yield fields.
  */
-export async function getUserPosition(
+export async function getStrategyUserPosition(
   params: GetUserPositionParameters,
 ): Promise<IStrategyUserPosition> {
   const { root, blockchain } = resolveUserStrategyEndpoint(params);
