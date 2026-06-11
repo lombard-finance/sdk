@@ -1,23 +1,22 @@
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { Address } from 'viem';
 
 import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
+import { getHttpClient } from '../../../common/http-client';
 import { IEnvParam } from '../../../common/parameters';
 import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
 
 /**
- * Per-user endpoints live behind a wallet-JWT gate. Each parameter object
- * extends this base shape; callers pass a `walletJwt` they obtained via the
- * `/api/v2/auth/wallet/*` challenge → verify flow.
+ * Per-user endpoints live behind a wallet-JWT gate. The SDK attaches the JWT
+ * from the configured auth-token provider (`registerAuthTokenProvider` /
+ * `getAuthToken`) — register one before calling these.
  */
 export interface BaseUserStrategyParams extends IEnvParam {
   chainId: ChainId;
   owner: Address;
   /** Override the canonical Strategy contract address for this chain. */
   strategy?: Address;
-  /** JWT from the wallet-auth flow. Sent as `Authorization: Bearer …`. */
-  walletJwt: string;
 }
 
 /**
@@ -61,21 +60,18 @@ export function resolveUserStrategyEndpoint(
 }
 
 /**
- * Thin axios.get wrapper that injects the wallet JWT as
- * `Authorization: Bearer …` (the v2 API standard) and surfaces 401s as a
- * tagged `UnauthorizedWalletJwtError` so consumers can trigger a re-login
- * without inspecting raw axios error shapes.
+ * Authenticated GET against the vault-manager. Routes through the SDK's authed
+ * HTTP client, which attaches the wallet JWT from the registered auth-token
+ * provider. Surfaces 401s as a tagged `UnauthorizedWalletJwtError` so consumers
+ * can trigger a re-login.
  */
 export async function userAuthorizedGet<T>(
   url: string,
-  walletJwt: string,
+  env: IEnvParam['env'],
 ): Promise<T> {
   try {
-    const { data } = await axios.get<T>(url, {
-      headers: {
-        Authorization: `Bearer ${walletJwt}`,
-        Accept: 'application/json',
-      },
+    const { data } = await getHttpClient(env).get<T>(url, {
+      headers: { Accept: 'application/json' },
     });
     return data;
   } catch (err) {

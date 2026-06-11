@@ -83,6 +83,14 @@ export {
   WalletAuthService,
 } from './modules/walletAuthModule';
 
+// Auth-token provider registry (Variant A — attach the wallet JWT to SDK
+// requests without an SDK instance; useful for standalone api-function calls).
+export {
+  type AuthTokenProvider,
+  clearAuthTokenProvider,
+  registerAuthTokenProvider,
+} from './common/auth-token';
+
 // Low-level wallet-auth API functions
 export {
   isWalletAuthTokenValid,
