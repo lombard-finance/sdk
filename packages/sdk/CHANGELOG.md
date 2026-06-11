@@ -1,3 +1,28 @@
+# 6.0.0
+
+The SDK moves onto authenticated v2 backend endpoints and begins retiring the legacy v1 API. This release line is **breaking** — see below.
+
+### Breaking
+
+- **Wallet authentication is becoming required.** As v1 endpoints are retired and reads move to auth-required v2 endpoints, callers must supply a wallet JWT (via `getAuthToken` or `verifySignature({ persist: true })`). Requests without a token will be rejected by the backend once an endpoint requires auth. Apps that previously called the SDK anonymously must add the wallet-auth login flow.
+
+### Added
+
+- Automatic JWT propagation for backend requests. The SDK attaches the wallet JWT as `Authorization: Bearer <token>` to its API calls, with the **app owning the token lifecycle**:
+  - New `getAuthToken` config option on `createLombardSDK` / `createConfig` — a `(env) => string | undefined` callback (sync or async) returning the current token, or `undefined` to send a request unauthenticated. Registered into the HTTP layer when the SDK is created.
+  - Alternatively, pass `persist: true` to `verifySignature` to let the SDK hold the JWT in memory and attach it automatically — zero token wiring for single-session, client-side apps. `revokeToken` clears it. (Use `getAuthToken` for SSR / multi-account / persistence across reloads.)
+- Internal shared HTTP client (`getHttpClient(env)`) — a per-environment axios instance carrying the auth interceptor. It never overrides an explicitly-set `Authorization` header (e.g. token revocation). Note: backend calls run on this dedicated instance rather than the global `axios` default, so global `axios.defaults` / `axios.interceptors` no longer leak into SDK requests (this was never a supported configuration path).
+- `getDepositAddressByBtc({ btcAddress, destinationAddress?, env })` → `GET /v2/addresses/deposit/{btc_address}`. Returns a single `IDepositAddress` (same shape as the list) or `undefined` when not found. For wallet-authenticated callers `destinationAddress` is required (the gateway returns "not found" for a btc address whose destination isn't the caller's own — IDOR-safe).
+
+### Changed
+
+- `getDepositBtcAddress` / `getDepositBtcAddresses` now call `GET /v2/addresses/deposit` (was `GET /api/v1/address/destination/{chain}/{address}`). The v2 response is mapped internally to the existing `IDepositAddress` shape, so the **public type is unchanged** — no consumer changes required. Server-side filtering by `destination_address` / `destination_chain` / `partner_id`; client-side token filtering is unchanged.
+- Wallet-scoped and address API functions route through the authed HTTP client, so they carry the JWT when one is available: wallet-auth (challenge / verify / revoke), deposit addresses (list / generate), deposit-address referrer lookup, deposits, unstakes, and points. The pagination helper (`fetchAllPaginated`) accepts an optional `env` to opt into the authed client. 
+
+> Requires `@lombard.finance/sdk-common@^4.2.0` for the `persist` field on `WalletVerifyRequest`.
+
+---
+
 # 5.1.0-next.1
 
 ### Added

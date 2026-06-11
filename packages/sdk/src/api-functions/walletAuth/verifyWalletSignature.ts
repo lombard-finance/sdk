@@ -2,9 +2,10 @@ import type {
   WalletAuthChain,
   WalletVerifyResponse,
 } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 
 import { getApiConfig } from '../../common/api-config';
+import { setStoredAuthToken } from '../../common/auth-token';
+import { getHttpClient } from '../../common/http-client';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 
@@ -20,6 +21,8 @@ export interface VerifyWalletSignatureParams extends IEnvParam {
   chain: WalletAuthChain;
   /** Required for chains that don't expose pubkey in the signature (Starknet, Cosmos). */
   publicKey?: string;
+  /** When true, store the issued JWT in the SDK so it is attached to later requests. */
+  persist?: boolean;
 }
 
 /**
@@ -33,12 +36,13 @@ export async function verifyWalletSignature({
   signature,
   chain,
   publicKey,
+  persist,
   env,
 }: VerifyWalletSignatureParams): Promise<WalletVerifyResponse> {
   const { baseApiUrl } = getApiConfig(env);
 
   try {
-    const { data } = await axios.post<WalletVerifyApiResponse>(
+    const { data } = await getHttpClient(env).post<WalletVerifyApiResponse>(
       'v2/auth/wallet/verify',
       {
         address,
@@ -49,6 +53,10 @@ export async function verifyWalletSignature({
       },
       { baseURL: baseApiUrl },
     );
+
+    if (persist) {
+      setStoredAuthToken(env, data.jwt);
+    }
 
     return {
       jwt: data.jwt,

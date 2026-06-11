@@ -99,12 +99,21 @@ export async function getDepositBtcAddress({
     address = pad(address as Address, { size: 32 }).toLowerCase();
   }
 
+  // The v2 API returns the chain in short form ("ethereum"), while
+  // getChainNameById yields the long enum form ("DESTINATION_BLOCKCHAIN_…").
+  // Normalize both to a bare token before comparing so either form matches.
+  const normalizeChain = (value: string) =>
+    value
+      .toLowerCase()
+      .replace('destination_blockchain_', '')
+      .replace('blockchain_', '');
+  const expectedChain = normalizeChain(getChainNameById(chainId));
+
   const addresses = (_addresses || [])
     .filter(
       (a) =>
         // filter by chain id
-        a.deposit_metadata.to_blockchain.toLowerCase() ===
-          getChainNameById(chainId).toLowerCase() &&
+        normalizeChain(a.deposit_metadata.to_blockchain) === expectedChain &&
         // filter by address
         a.deposit_metadata.to_address.toLowerCase() === address.toLowerCase(),
     )

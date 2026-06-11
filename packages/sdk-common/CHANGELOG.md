@@ -5,6 +5,12 @@ All notable changes to `@lombard.finance/sdk-common` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-06-10
+
+### Added
+
+- Optional `persist` flag on `WalletVerifyRequest`. When `true`, the SDK stores the issued JWT in memory and attaches it to subsequent backend requests automatically, so the simple (single-session, client-side) case needs no token wiring. Backward compatible — unset behaves exactly as before. The implementation, and the app-owned `getAuthToken` alternative, live in `@lombard.finance/sdk`.
+
 ## [4.1.0] - 2026-06-01
 
 ### Added

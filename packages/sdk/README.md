@@ -65,6 +65,63 @@ const sdk = await createLombardSDK({
 });
 ```
 
+## Authentication
+
+The SDK speaks the v2 wallet-auth flow (challenge → verify → revoke) and
+automatically attaches the resulting JWT as `Authorization: Bearer <token>` to
+backend requests.
+
+The **app owns the token lifecycle** (when to log in, where to persist it, when
+to refresh) — the SDK only attaches it. Wire your token store via `getAuthToken`:
+
+```typescript
+import { createLombardSDK, walletAuthModule } from '@lombard.finance/sdk';
+
+const sdk = await createLombardSDK({
+  env: 'prod',
+  providers: { evm: () => window.ethereum },
+  modules: [walletAuthModule()],
+  // Return the current JWT, or undefined to send requests unauthenticated.
+  // Called per request; may be sync or async.
+  getAuthToken: () => tokenStore.get(),
+});
+
+const auth = sdk.capabilities.require('walletAuth');
+
+// Log in: sign the challenge with the wallet, then exchange it for a JWT.
+const { payload } = await auth.requestChallenge({ address, chain });
+const signature = await signWithWallet(payload);
+const { jwt } = await auth.verifySignature({
+  address,
+  chain,
+  payload,
+  signature,
+});
+tokenStore.set(jwt); // your storage; getAuthToken reads it back
+
+// On disconnect:
+await auth.revokeToken({ jwt });
+tokenStore.clear();
+```
+
+For simple client-side, single-session apps you can skip `getAuthToken` and let
+the SDK hold the token in memory by passing `persist: true` to verify:
+
+```typescript
+await auth.verifySignature({
+  address,
+  chain,
+  payload,
+  signature,
+  persist: true,
+});
+// subsequent sdk.api.* calls now carry the JWT automatically
+```
+
+> Use `getAuthToken` (not `persist`) when you need SSR, multiple accounts, or
+> token persistence across reloads — the in-memory store does not survive a page
+> reload.
+
 ## Architecture
 
 The SDK uses an **action-based architecture** where each operation (stake, unstake, deploy, etc.) is represented as an action object with a consistent lifecycle:

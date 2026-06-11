@@ -7,6 +7,7 @@
 
 import type { AnyModule, Env } from '@lombard.finance/sdk-common';
 
+import type { AuthTokenProvider } from '../common/auth-token';
 import type { AssetId, Chain } from '../core';
 import type { Logger } from '../shared/context/types';
 import type {
@@ -109,6 +110,25 @@ export interface CreateConfigOptions {
   partner?: PartnerConfig;
 
   /**
+   * Auth token provider (Variant A)
+   *
+   * Supplies the wallet JWT the SDK attaches as `Authorization: Bearer` on
+   * backend requests. The app owns the token lifecycle (login, storage,
+   * refresh) and returns the current token here, or `undefined` to send
+   * requests unauthenticated.
+   *
+   * Obtain the JWT from `sdk.auth.verifySignature(...)` (or pass
+   * `{ persist: true }` there to let the SDK hold it in memory and skip this
+   * callback for the simple case).
+   *
+   * @example
+   * ```typescript
+   * getAuthToken: () => tokenStore.get(), // sync or async, may return undefined
+   * ```
+   */
+  getAuthToken?: AuthTokenProvider;
+
+  /**
    * Optional logger for SDK operations
    *
    * Provide your own logger to integrate with your logging infrastructure
@@ -154,6 +174,7 @@ export interface LombardConfig {
   modules: readonly AnyModule[];
   partner?: PartnerConfig;
   logger?: Logger;
+  getAuthToken?: AuthTokenProvider;
 }
 
 /**

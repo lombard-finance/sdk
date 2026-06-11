@@ -50,6 +50,17 @@ export interface WalletVerifyRequest {
    * signature (Starknet, Cosmos). Ignored elsewhere.
    */
   publicKey?: string;
+  /**
+   * When true, the SDK stores the issued JWT in memory and attaches it to
+   * subsequent backend requests automatically — no `getAuthToken` config
+   * needed for the simple (single-session, client-side) case.
+   *
+   * Leave unset and supply `getAuthToken` instead when the app owns token
+   * storage (SSR, multi-account, persistence across reloads).
+   *
+   * @default false
+   */
+  persist?: boolean;
 }
 
 export interface WalletVerifyResponse {

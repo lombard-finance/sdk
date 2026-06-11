@@ -13,6 +13,7 @@ import { EvmActions } from '../chains/evm/EvmActions';
 import { SolanaActions } from '../chains/solana/SolanaActions';
 import { StarknetActions } from '../chains/starknet/StarknetActions';
 import { SuiActions } from '../chains/sui/SuiActions';
+import { registerAuthTokenProvider } from '../common/auth-token';
 import type {
   AnyProvider,
   BtcProvider,
@@ -109,6 +110,13 @@ export class LombardSDK<E extends Env = Env> {
   constructor(config: ResolvedLombardConfig) {
     this.config = config;
     this.env = config.env as E;
+
+    // Wire the app-supplied auth token provider into the HTTP layer so backend
+    // requests carry the wallet JWT (Variant A). The app owns the token; the
+    // SDK only attaches it.
+    if (config.getAuthToken) {
+      registerAuthTokenProvider(config.env, config.getAuthToken);
+    }
 
     // Initialize partner configuration
     this.partnerConfig = new PartnerConfiguration(config.partner);

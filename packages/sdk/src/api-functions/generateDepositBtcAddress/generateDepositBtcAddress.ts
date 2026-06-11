@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { Address, pad } from 'viem';
 
 import { getApiConfig } from '../../common/api-config';
@@ -13,6 +12,7 @@ import type {
   SuiChain,
 } from '../../common/chains';
 import { isSolanaChain } from '../../common/chains';
+import { getHttpClient } from '../../common/http-client';
 import type { IEnvParam } from '../../common/parameters';
 import {
   AddressKind,
@@ -224,7 +224,7 @@ export async function generateDepositBtcAddress({
   };
 
   try {
-    const { data } = await axios.post<IGenerateNewAddressResponse>(
+    const { data } = await getHttpClient(env).post<IGenerateNewAddressResponse>(
       ADDRESS_URL,
       requestParams,
       { baseURL: baseApiUrl },

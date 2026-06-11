@@ -463,6 +463,10 @@ export {
   SANCTIONED_ADDRESS,
 } from './api-functions/generateDepositBtcAddress/generateDepositBtcAddress';
 export {
+  getDepositAddressByBtc,
+  type IGetDepositAddressByBtcParameters,
+} from './api-functions/getDepositBtcAddress/getDepositAddressByBtc';
+export {
   getDepositBtcAddress,
   getDepositBtcAddresses,
 } from './api-functions/getDepositBtcAddress/getDepositBtcAddress';
