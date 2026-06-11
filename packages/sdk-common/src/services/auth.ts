@@ -75,6 +75,52 @@ export interface RevokeWalletTokenRequest {
   jwt: string;
 }
 
+/** Result of a chain-specific signature over the challenge payload. */
+export interface WalletSignResult {
+  signature: string;
+  /**
+   * Required for chains where the public key can't be recovered from the
+   * signature (e.g. Starknet). Ignored elsewhere.
+   */
+  publicKey?: string;
+}
+
+export interface WalletSignInParams {
+  /**
+   * Wallet address. Optional for EVM — read from the configured provider via
+   * `eth_requestAccounts` when omitted.
+   */
+  address?: string;
+  /**
+   * Chain name expected by the auth API (as enumerated under `/v2/chains`,
+   * e.g. `ethereum_sepolia`). Optional for EVM — derived from the env.
+   */
+  chain?: WalletAuthChain;
+  /**
+   * Chain-specific signer: receives the challenge payload, returns the
+   * signature (and `publicKey` where required). Optional for EVM — the SDK
+   * signs with the configured EVM provider (`personal_sign`).
+   */
+  sign?: (payload: string) => Promise<WalletSignResult>;
+  /**
+   * When true, the SDK also stores the issued JWT in memory and attaches it to
+   * subsequent requests automatically (no `getAuthToken` wiring needed). The
+   * JWT is returned regardless, so the app can store it itself.
+   *
+   * @default false
+   */
+  persist?: boolean;
+}
+
+export interface WalletSignInResult {
+  /** JWT bound to the verified wallet address. */
+  jwt: string;
+  /** ISO-8601 timestamp when the JWT expires. */
+  expiresAt: string;
+  /** The address the JWT is bound to. */
+  address: string;
+}
+
 /**
  * Wallet auth service contract. Implementations live in `@lombard.finance/sdk`.
  */
@@ -86,6 +132,16 @@ export interface WalletAuthService {
 
   /** Submit a signed challenge and receive a JWT. */
   verifySignature(params: WalletVerifyRequest): Promise<WalletVerifyResponse>;
+
+  /**
+   * Run the full sign-in flow in one call: request a challenge, sign it, and
+   * verify it for a JWT. Hides the challenge/verify ceremony from callers.
+   *
+   * EVM signs automatically via the configured provider; other chains supply a
+   * `sign` callback (with `address`/`chain`). Returns the JWT so the app can
+   * store it (or pass `persist: true` to let the SDK hold it).
+   */
+  signIn(params?: WalletSignInParams): Promise<WalletSignInResult>;
 
   /**
    * Invalidate a JWT server-side. Best-effort: implementations may swallow

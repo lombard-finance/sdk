@@ -85,6 +85,8 @@ export {
 
 // Low-level wallet-auth API functions
 export {
+  isWalletAuthTokenValid,
+  type IsWalletAuthTokenValidOptions,
   requestWalletChallenge,
   type RequestWalletChallengeParams,
   revokeWalletToken,

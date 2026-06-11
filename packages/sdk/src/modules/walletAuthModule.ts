@@ -10,8 +10,8 @@
  */
 
 import type {
-  WalletAuthService as IWalletAuthService,
   SdkModule,
+  WalletAuthService as IWalletAuthService,
 } from '@lombard.finance/sdk-common';
 
 import { WalletAuthService } from '../services/WalletAuthService';
@@ -35,7 +35,8 @@ export function walletAuthModule(): SdkModule<'walletAuth', IWalletAuthService> 
   return {
     id: 'walletAuth',
     register(ctx) {
-      return new WalletAuthService(ctx.env);
+      // Pass getProvider so signIn() can auto-sign with the EVM provider.
+      return new WalletAuthService(ctx.env, ctx.getProvider);
     },
   };
 }
