@@ -20,7 +20,8 @@
 import { DEFAULT_ENV, type Env } from '@lombard.finance/sdk-common';
 import axios, { type AxiosInstance } from 'axios';
 
-import { resolveAuthToken } from './auth-token';
+import { UnauthorizedError } from './auth-errors';
+import { notifyAuthError, resolveAuthToken, setStoredAuthToken } from './auth-token';
 
 const clients = new Map<Env, AxiosInstance>();
 
@@ -52,6 +53,18 @@ export function getHttpClient(env: Env | undefined): AxiosInstance {
       }
     }
     return config;
+  });
+
+  // On 401: drop any SDK-held token, notify the app's handler, and surface a
+  // typed UnauthorizedError. The SDK never auto-refreshes/retries — re-auth is
+  // a deliberate user action the app triggers.
+  client.interceptors.response.use(undefined, (error: unknown) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      setStoredAuthToken(key, undefined);
+      notifyAuthError(key);
+      return Promise.reject(new UnauthorizedError(error.config?.url, error));
+    }
+    return Promise.reject(error);
   });
 
   clients.set(key, client);

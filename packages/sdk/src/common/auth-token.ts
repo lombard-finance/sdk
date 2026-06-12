@@ -41,6 +41,15 @@ const providers = new Map<Env, AuthTokenProvider>();
 // Fallback store written by the wallet-verify `persist` flag.
 const internalStore = new Map<Env, string>();
 
+// App-supplied handlers invoked when a request is rejected with 401.
+const errorHandlers = new Map<Env, AuthErrorHandler>();
+
+/**
+ * Called when a backend request returns 401. The app typically clears its
+ * stored token here and (optionally) flags that a re-login is needed.
+ */
+export type AuthErrorHandler = (env: Env) => void;
+
 /**
  * Register the app's token provider for an environment. Replaces any existing
  * provider for that env. Called by the SDK when `getAuthToken` is configured.
@@ -55,6 +64,28 @@ export function registerAuthTokenProvider(
 /** Remove the registered provider for an environment. */
 export function clearAuthTokenProvider(env: Env | undefined): void {
   providers.delete(env ?? DEFAULT_ENV);
+}
+
+/**
+ * Register a handler invoked when a backend request for this env returns 401.
+ * Replaces any existing handler for that env.
+ */
+export function registerAuthErrorHandler(
+  env: Env | undefined,
+  handler: AuthErrorHandler,
+): void {
+  errorHandlers.set(env ?? DEFAULT_ENV, handler);
+}
+
+/** Remove the registered 401 handler for an environment. */
+export function clearAuthErrorHandler(env: Env | undefined): void {
+  errorHandlers.delete(env ?? DEFAULT_ENV);
+}
+
+/** Invoke the registered 401 handler for an environment, if any. @internal */
+export function notifyAuthError(env: Env | undefined): void {
+  const key = env ?? DEFAULT_ENV;
+  errorHandlers.get(key)?.(key);
 }
 
 /**

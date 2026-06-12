@@ -1,13 +1,18 @@
 import { Env } from '@lombard.finance/sdk-common';
-import type {
-  AxiosAdapter,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-} from 'axios';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-
 import {
+  type AxiosAdapter,
+  AxiosError,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { UnauthorizedError } from '../../../common/auth-errors';
+import {
+  clearAuthErrorHandler,
   clearAuthTokenProvider,
+  getStoredAuthToken,
+  registerAuthErrorHandler,
   registerAuthTokenProvider,
   setStoredAuthToken,
 } from '../../../common/auth-token';
@@ -47,6 +52,23 @@ function capture(): {
 const authHeader = (c: InternalAxiosRequestConfig): unknown =>
   c.headers.get('Authorization');
 
+/**
+ * Adapter that rejects with an AxiosError carrying the given status — a custom
+ * adapter must reject itself (axios only applies validateStatus in its own
+ * adapters), so this mimics a real error response.
+ */
+function failWithStatus(status: number): AxiosAdapter {
+  return async (config) => {
+    throw new AxiosError('Request failed', 'ERR_BAD_RESPONSE', config, null, {
+      data: {},
+      status,
+      statusText: '',
+      headers: {},
+      config,
+    } as AxiosResponse);
+  };
+}
+
 describe('authed http client (Variant A)', () => {
   beforeEach(() => {
     resetHttpClients();
@@ -56,7 +78,29 @@ describe('authed http client (Variant A)', () => {
 
   afterEach(() => {
     clearAuthTokenProvider(ENV);
+    clearAuthErrorHandler(ENV);
     setStoredAuthToken(ENV, undefined);
+  });
+
+  it('on 401: rejects with UnauthorizedError, clears the stored token, and calls the handler', async () => {
+    setStoredAuthToken(ENV, 'stored-jwt');
+    const onAuthError = vi.fn();
+    registerAuthErrorHandler(ENV, onAuthError);
+
+    const adapter = failWithStatus(401);
+
+    await expect(
+      getHttpClient(ENV).get('/protected', { adapter }),
+    ).rejects.toBeInstanceOf(UnauthorizedError);
+
+    expect(onAuthError).toHaveBeenCalledWith(ENV);
+    expect(getStoredAuthToken(ENV)).toBeUndefined();
+  });
+
+  it('does not transform non-401 errors', async () => {
+    await expect(
+      getHttpClient(ENV).get('/x', { adapter: failWithStatus(500) }),
+    ).rejects.not.toBeInstanceOf(UnauthorizedError);
   });
 
   it('sends no Authorization header when no token is available', async () => {

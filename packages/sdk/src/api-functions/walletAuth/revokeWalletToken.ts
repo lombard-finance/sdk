@@ -25,7 +25,7 @@ export async function revokeWalletToken({
 }: RevokeWalletTokenParams): Promise<void> {
   if (!jwt) return;
 
-  const { baseApiUrl } = getApiConfig(env);
+  const { v2ApiUrl } = getApiConfig(env);
 
   // Drop any SDK-held copy of this token so later requests stop sending it.
   if (getStoredAuthToken(env) === jwt) {
@@ -37,7 +37,7 @@ export async function revokeWalletToken({
       'v2/auth/token/revoke',
       {},
       {
-        baseURL: baseApiUrl,
+        baseURL: v2ApiUrl,
         // Explicit header revokes this specific JWT regardless of what the
         // interceptor would otherwise attach.
         headers: { Authorization: `Bearer ${jwt}` },

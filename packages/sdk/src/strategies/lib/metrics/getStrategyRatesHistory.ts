@@ -43,14 +43,14 @@ export async function getStrategyRatesHistory(
   assertLombardStrategyChain(chainId);
   const address = resolveStrategyAddress(chainId, strategy);
 
-  const { baseApiUrl } = getApiConfig(env);
+  const { v2ApiUrl } = getApiConfig(env);
   const blockchain = getVaultBlockchainParam(chainId);
 
   const query = new URLSearchParams({ blockchain });
   if (startTime) query.set('start_time', startTime.toISOString());
   if (endTime) query.set('end_time', endTime.toISOString());
 
-  const url = `${baseApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/rates-history?${query.toString()}`;
+  const url = `${v2ApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/rates-history?${query.toString()}`;
   const raw = await userAuthorizedGet<IRawRatesHistoryResponse>(url, env);
 
   return (raw?.samples ?? []).map((s) => ({

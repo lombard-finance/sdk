@@ -39,7 +39,7 @@ export async function verifyWalletSignature({
   persist,
   env,
 }: VerifyWalletSignatureParams): Promise<WalletVerifyResponse> {
-  const { baseApiUrl } = getApiConfig(env);
+  const { v2ApiUrl } = getApiConfig(env);
 
   try {
     const { data } = await getHttpClient(env).post<WalletVerifyApiResponse>(
@@ -51,7 +51,7 @@ export async function verifyWalletSignature({
         chain,
         ...(publicKey ? { public_key: publicKey } : {}),
       },
-      { baseURL: baseApiUrl },
+      { baseURL: v2ApiUrl },
     );
 
     if (persist) {

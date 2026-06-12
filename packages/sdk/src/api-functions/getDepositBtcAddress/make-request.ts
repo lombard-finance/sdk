@@ -22,7 +22,7 @@ export async function makeRequest({
   offset,
   partnerId,
 }: IGetDepositBtcAddressesParameters) {
-  const { baseApiUrl } = getApiConfig(env);
+  const { v2ApiUrl } = getApiConfig(env);
 
   // throws an error if `chainId` is unknown
   const destinationBlockchain = getChainNameById(chainId);
@@ -59,7 +59,7 @@ export async function makeRequest({
   try {
     const { data } =
       await getHttpClient(env).get<IV2ListDepositAddressesResponse>(url, {
-        baseURL: baseApiUrl,
+        baseURL: v2ApiUrl,
         params,
       });
 

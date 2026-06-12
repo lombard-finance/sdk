@@ -39,7 +39,7 @@ export async function getDepositAddressByBtc({
   destinationAddress,
   env,
 }: IGetDepositAddressByBtcParameters): Promise<IDepositAddress | undefined> {
-  const { baseApiUrl } = getApiConfig(env);
+  const { v2ApiUrl } = getApiConfig(env);
 
   const params: { destination_address?: string } = {};
   if (destinationAddress) {
@@ -50,7 +50,7 @@ export async function getDepositAddressByBtc({
   try {
     const { data } =
       await getHttpClient(env).get<IV2GetDepositAddressResponse>(url, {
-        baseURL: baseApiUrl,
+        baseURL: v2ApiUrl,
         params,
       });
 

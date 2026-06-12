@@ -86,10 +86,15 @@ export {
 // Auth-token provider registry (Variant A — attach the wallet JWT to SDK
 // requests without an SDK instance; useful for standalone api-function calls).
 export {
+  type AuthErrorHandler,
   type AuthTokenProvider,
+  clearAuthErrorHandler,
   clearAuthTokenProvider,
+  registerAuthErrorHandler,
   registerAuthTokenProvider,
 } from './common/auth-token';
+// Thrown on HTTP 401 from any authed SDK request.
+export { UnauthorizedError } from './common/auth-errors';
 
 // Low-level wallet-auth API functions
 export {
