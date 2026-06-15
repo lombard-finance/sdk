@@ -32,9 +32,10 @@ type GetProvider = <TKey extends ProviderKey>(
   key: TKey,
 ) => Promise<ProviderFor<TKey>>;
 
-/** Default EVM chain name for the auth API, derived from the environment. */
+// Default EVM chain name for the auth API — the short `Blockchain` name from
+// `/v2/chains`. Prod uses `ethereum`; non-prod uses the testnet variant.
 function defaultEvmChain(env: Env): string {
-  return env === Env.prod ? 'ethereum_mainnet' : 'ethereum_sepolia';
+  return env === Env.prod ? 'ethereum' : 'ethereum_sepolia';
 }
 
 export class WalletAuthService implements IWalletAuthService {
