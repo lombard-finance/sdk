@@ -49,7 +49,7 @@ export async function getUserWithdrawals(
   const url = `${root}/withdrawals?${query.toString()}`;
   const raw = await userAuthorizedGet<IRawUserWithdrawalsResponse>(
     url,
-    params.walletJwt,
+    params.env,
   );
   return (raw?.requests ?? []).map(normalizeWithdrawal);
 }

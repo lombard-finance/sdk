@@ -38,7 +38,7 @@ export async function getStrategyUserPosition(
   const { root, blockchain } = resolveUserStrategyEndpoint(params);
 
   const url = `${root}/position?blockchain=${blockchain}`;
-  const raw = await userAuthorizedGet<IRawUserPosition>(url, params.walletJwt);
+  const raw = await userAuthorizedGet<IRawUserPosition>(url, params.env);
   const position = raw?.position;
 
   return {

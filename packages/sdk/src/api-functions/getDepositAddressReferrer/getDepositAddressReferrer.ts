@@ -1,6 +1,5 @@
-import axios from 'axios';
-
 import { getApiConfig } from '../../common/api-config';
+import { getHttpClient } from '../../common/http-client';
 import type { IEnvParam } from '../../common/parameters';
 
 interface ApiResponse {
@@ -27,7 +26,7 @@ export async function getDepositAddressReferrer({
   env,
 }: GetDepositAddressReferrerParams): Promise<DepositAddressReferrerResult> {
   const { baseApiUrl } = getApiConfig(env);
-  const { data } = await axios.get<ApiResponse>(
+  const { data } = await getHttpClient(env).get<ApiResponse>(
     `${baseApiUrl}/api/v1/address/exists/${address}`,
   );
 

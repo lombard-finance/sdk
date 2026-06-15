@@ -61,7 +61,7 @@ export async function getUserActivityFeed(
   const url = `${root}/activity?${query.toString()}`;
   const raw = await userAuthorizedGet<IRawUserActivityFeedResponse>(
     url,
-    params.walletJwt,
+    params.env,
   );
   return {
     entries: (raw?.entries ?? []).map(normalizeActivityEntry),

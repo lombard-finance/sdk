@@ -41,6 +41,11 @@ export function validateAndApplyDefaults(
     normalized.partner = options.partner;
   }
 
+  // Pass through the auth token provider (app owns the token lifecycle)
+  if (options.getAuthToken) {
+    normalized.getAuthToken = options.getAuthToken;
+  }
+
   return normalized;
 }
 

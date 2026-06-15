@@ -10,7 +10,6 @@ import { getVaultBlockchainParam, userAuthorizedGet } from './userEndpoints';
 
 export interface GetStrategyRatesHistoryParameters extends IEnvParam {
   chainId: ChainId;
-  walletJwt: string;
   strategy?: Address;
   startTime?: Date;
   endTime?: Date;
@@ -40,19 +39,19 @@ const BPS_DIVISOR = new BigNumber(10_000);
 export async function getStrategyRatesHistory(
   params: GetStrategyRatesHistoryParameters,
 ): Promise<IStrategyRatesSnapshot[]> {
-  const { chainId, strategy, walletJwt, startTime, endTime, env } = params;
+  const { chainId, strategy, startTime, endTime, env } = params;
   assertLombardStrategyChain(chainId);
   const address = resolveStrategyAddress(chainId, strategy);
 
-  const { baseApiUrl } = getApiConfig(env);
+  const { v2ApiUrl } = getApiConfig(env);
   const blockchain = getVaultBlockchainParam(chainId);
 
   const query = new URLSearchParams({ blockchain });
   if (startTime) query.set('start_time', startTime.toISOString());
   if (endTime) query.set('end_time', endTime.toISOString());
 
-  const url = `${baseApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/rates-history?${query.toString()}`;
-  const raw = await userAuthorizedGet<IRawRatesHistoryResponse>(url, walletJwt);
+  const url = `${v2ApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/rates-history?${query.toString()}`;
+  const raw = await userAuthorizedGet<IRawRatesHistoryResponse>(url, env);
 
   return (raw?.samples ?? []).map((s) => ({
     timestamp: s.captured_at ? new Date(s.captured_at) : new Date(0),

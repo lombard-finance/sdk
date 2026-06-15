@@ -1,8 +1,8 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 
 import { getApiConfig } from '../../common/api-config';
+import { getHttpClient } from '../../common/http-client';
 import { IEnvParam } from '../../common/parameters';
 
 const CURRENT_SEASON = 2;
@@ -183,7 +183,7 @@ async function fetchPointsSeason1({
   IGetPointsByAddressParameters,
   'season'
 >): Promise<IPointsByAddressSeason1> {
-  const { data } = await axios.get<IPointsResponseSeason1>(
+  const { data } = await getHttpClient(env).get<IPointsResponseSeason1>(
     getLombardPointsUrl(1, address, env),
   );
 
@@ -218,7 +218,7 @@ async function fetchPointsSeason2({
   IGetPointsByAddressParameters,
   'season'
 >): Promise<IPointsByAddressSeason2> {
-  const { data } = await axios.get<IPointsResponseSeason2>(
+  const { data } = await getHttpClient(env).get<IPointsResponseSeason2>(
     getLombardPointsUrl(2, address, env),
   );
 

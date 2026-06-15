@@ -1,4 +1,7 @@
+import type { Env } from '@lombard.finance/sdk-common';
 import axios from 'axios';
+
+import { getHttpClient } from '../common/http-client';
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -15,6 +18,11 @@ type FetchAllPaginatedParameters<T> = {
   pageSize?: number;
   /** The maximum amount of expected records. */
   maxRecords?: number;
+  /**
+   * Environment. When provided, requests go through the SDK's authed HTTP
+   * client so the wallet JWT is attached; omit to use the bare client.
+   */
+  env?: Env;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -38,7 +46,9 @@ export async function fetchAllPaginated<T>({
   query = {},
   pageSize = 1_000,
   maxRecords,
+  env,
 }: FetchAllPaginatedParameters<T>): Promise<T[]> {
+  const client = env !== undefined ? getHttpClient(env) : axios;
   let allItems: T[] = [];
   let offset = 0;
   let hasMore = true;
@@ -52,7 +62,7 @@ export async function fetchAllPaginated<T>({
       if (value !== undefined) url.searchParams.set(key, String(value));
     }
 
-    const { data } = await axios.get(url.toString());
+    const { data } = await client.get(url.toString());
     const items = extractItems(data);
 
     allItems = allItems.concat(items);

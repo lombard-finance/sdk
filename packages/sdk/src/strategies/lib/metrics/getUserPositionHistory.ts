@@ -45,7 +45,7 @@ export async function getUserPositionHistory(
   const url = `${root}/position-history?${query.toString()}`;
   const raw = await userAuthorizedGet<IRawUserPositionHistory>(
     url,
-    params.walletJwt,
+    params.env,
   );
 
   return (raw?.snapshots ?? []).map((s) => ({

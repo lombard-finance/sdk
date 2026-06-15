@@ -1,6 +1,9 @@
-import axios from 'axios';
-
 import { getApiConfig } from '../../common/api-config';
+import {
+  getStoredAuthToken,
+  setStoredAuthToken,
+} from '../../common/auth-token';
+import { getHttpClient } from '../../common/http-client';
 import { IEnvParam } from '../../common/parameters';
 
 export interface RevokeWalletTokenParams extends IEnvParam {
@@ -22,20 +25,26 @@ export async function revokeWalletToken({
 }: RevokeWalletTokenParams): Promise<void> {
   if (!jwt) return;
 
-  const { baseApiUrl } = getApiConfig(env);
+  const { v2ApiUrl } = getApiConfig(env);
+
+  // Drop any SDK-held copy of this token so later requests stop sending it.
+  if (getStoredAuthToken(env) === jwt) {
+    setStoredAuthToken(env, undefined);
+  }
 
   try {
-    await axios.post(
+    await getHttpClient(env).post(
       'v2/auth/token/revoke',
       {},
       {
-        baseURL: baseApiUrl,
+        baseURL: v2ApiUrl,
+        // Explicit header revokes this specific JWT regardless of what the
+        // interceptor would otherwise attach.
         headers: { Authorization: `Bearer ${jwt}` },
       },
     );
   } catch (error) {
     // Best-effort revoke; do not surface to callers.
-    // eslint-disable-next-line no-console
     console.error('Failed to revoke wallet JWT:', error);
   }
 }

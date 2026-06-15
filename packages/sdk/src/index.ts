@@ -83,8 +83,23 @@ export {
   WalletAuthService,
 } from './modules/walletAuthModule';
 
+// Auth-token provider registry (Variant A — attach the wallet JWT to SDK
+// requests without an SDK instance; useful for standalone api-function calls).
+export {
+  type AuthErrorHandler,
+  type AuthTokenProvider,
+  clearAuthErrorHandler,
+  clearAuthTokenProvider,
+  registerAuthErrorHandler,
+  registerAuthTokenProvider,
+} from './common/auth-token';
+// Thrown on HTTP 401 from any authed SDK request.
+export { UnauthorizedError } from './common/auth-errors';
+
 // Low-level wallet-auth API functions
 export {
+  isWalletAuthTokenValid,
+  type IsWalletAuthTokenValidOptions,
   requestWalletChallenge,
   type RequestWalletChallengeParams,
   revokeWalletToken,
@@ -462,6 +477,10 @@ export {
   type IGenerateDepositBtcAddressParams,
   SANCTIONED_ADDRESS,
 } from './api-functions/generateDepositBtcAddress/generateDepositBtcAddress';
+export {
+  getDepositAddressByBtc,
+  type IGetDepositAddressByBtcParameters,
+} from './api-functions/getDepositBtcAddress/getDepositAddressByBtc';
 export {
   getDepositBtcAddress,
   getDepositBtcAddresses,

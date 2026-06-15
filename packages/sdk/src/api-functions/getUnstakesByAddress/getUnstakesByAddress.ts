@@ -245,6 +245,7 @@ export async function fetchUnstakesByAddress({
       show_unstakes: options?.show_unstakes ? 'true' : undefined,
       to_native: options?.to_native ? 'true' : undefined,
     },
+    env,
   });
 
   return unstakes.map((d) => mapUnstakeEntry(d, env));

@@ -6,10 +6,12 @@ import {
   BlockchainIdentifier,
   getChainNameById,
 } from '../../common/blockchain-identifier';
+import { getHttpClient } from '../../common/http-client';
 import {
   IApiError,
-  IDepositAddressesResponse,
   IGetDepositBtcAddressesParameters,
+  IV2ListDepositAddressesResponse,
+  mapV2DepositAddress,
 } from './types';
 
 export async function makeRequest({
@@ -20,7 +22,7 @@ export async function makeRequest({
   offset,
   partnerId,
 }: IGetDepositBtcAddressesParameters) {
-  const { baseApiUrl } = getApiConfig(env);
+  const { v2ApiUrl } = getApiConfig(env);
 
   // throws an error if `chainId` is unknown
   const destinationBlockchain = getChainNameById(chainId);
@@ -28,11 +30,22 @@ export async function makeRequest({
     address = pad(address as Address, { size: 32 });
   }
 
+  // v2 `destination_chain` is the `Blockchain` enum (e.g. BLOCKCHAIN_ETHEREUM),
+  // not the `DestinationBlockchain` enum that getChainNameById returns
+  // (DESTINATION_BLOCKCHAIN_*). Drop the DESTINATION_ prefix to get the value
+  // the gateway accepts.
+  const destinationChain = destinationBlockchain.replace('DESTINATION_', '');
+
+  // v2 ListDepositAddresses query params. `destination_address` is required for
+  // wallet-authenticated callers; we always scope by it (mirrors the v1
+  // /destination/{chain}/{address} path filter). The gateway accepts a single
+  // value for the repeated `destination_chain` / `partner_id` fields.
   const params = {
-    asc: false,
+    destination_address: address,
+    destination_chain: destinationChain,
+    partner_id: partnerId || 'lombard',
     limit,
     offset,
-    referralId: partnerId || 'lombard',
   };
 
   // remove undefined fields, undefined limit and offset params cause error
@@ -42,14 +55,17 @@ export async function makeRequest({
     }
   }
 
-  const url = `api/v1/address/destination/${destinationBlockchain}/${address}`;
+  const url = 'v2/addresses/deposit';
   try {
-    const { data } = await axios.get<IDepositAddressesResponse>(url, {
-      baseURL: baseApiUrl,
-      params,
-    });
+    const { data } =
+      await getHttpClient(env).get<IV2ListDepositAddressesResponse>(url, {
+        baseURL: v2ApiUrl,
+        params,
+      });
 
-    return data.addresses || [];
+    // Map the v2 wire shape into the stable public IDepositAddress shape so
+    // consumers are insulated from the backend field renames.
+    return (data.deposit_addresses ?? []).map(mapV2DepositAddress);
   } catch (err) {
     if (axios.isAxiosError<IApiError>(err)) {
       const message = err.response?.data.message;

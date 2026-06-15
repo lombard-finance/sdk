@@ -11,8 +11,6 @@ import { getVaultBlockchainParam, userAuthorizedGet } from './userEndpoints';
 
 export interface GetStrategyNavHistoryParameters extends IEnvParam {
   chainId: ChainId;
-  /** JWT from the wallet-auth flow. Sent as `Authorization: Bearer …`. */
-  walletJwt: string;
   /** Override the canonical Strategy contract address for this chain. */
   strategy?: Address;
   /** Inclusive lower bound. Backend defaults to "since inception". */
@@ -43,19 +41,19 @@ interface IRawNavHistoryResponse {
 export async function getStrategyNavHistory(
   params: GetStrategyNavHistoryParameters,
 ): Promise<IStrategyNavSnapshot[]> {
-  const { chainId, strategy, walletJwt, startTime, endTime, env } = params;
+  const { chainId, strategy, startTime, endTime, env } = params;
   assertLombardStrategyChain(chainId);
   const address = resolveStrategyAddress(chainId, strategy);
 
-  const { baseApiUrl } = getApiConfig(env);
+  const { v2ApiUrl } = getApiConfig(env);
   const blockchain = getVaultBlockchainParam(chainId);
 
   const query = new URLSearchParams({ blockchain });
   if (startTime) query.set('start_time', startTime.toISOString());
   if (endTime) query.set('end_time', endTime.toISOString());
 
-  const url = `${baseApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/nav-history?${query.toString()}`;
-  const raw = await userAuthorizedGet<IRawNavHistoryResponse>(url, walletJwt);
+  const url = `${v2ApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/nav-history?${query.toString()}`;
+  const raw = await userAuthorizedGet<IRawNavHistoryResponse>(url, env);
 
   const divisor = new BigNumber(10).pow(LOMBARD_STRATEGY_DECIMALS);
   return (raw?.snapshots ?? []).map((s) => ({
