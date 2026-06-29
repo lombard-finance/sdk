@@ -67,15 +67,15 @@ const testnetConfig: IConfig = {
 // https://github.com/lombard-finance/sui-contracts/blob/main/mainnet.json
 const prodConfig: IConfig = {
   mint: {
-    // lbtc_v2_current
+    // lbtc_v5_current
     target:
-      '0x818430a456ff977f7320f78650d19801f90758d200a01dd3c2c679472c521357::treasury::mint_v2',
+      '0x124477c9cffb667be781e867fd29579d3498a47e6b69d06155841ca85bcb02d0::treasury::mint_v2',
     denyList: '0x403',
   },
   redeem: {
-    // lbtc_v2_current
+    // lbtc_v5_current
     target:
-      '0x818430a456ff977f7320f78650d19801f90758d200a01dd3c2c679472c521357::treasury::redeem',
+      '0x124477c9cffb667be781e867fd29579d3498a47e6b69d06155841ca85bcb02d0::treasury::redeem',
   },
   // lbtc_v1_deprecated - This is intentional
   LBTC: '0x3e8e9423d80e1774a7ca128fccd8bf5f1f7753be658c5e645929037f7c819040::lbtc::LBTC',
