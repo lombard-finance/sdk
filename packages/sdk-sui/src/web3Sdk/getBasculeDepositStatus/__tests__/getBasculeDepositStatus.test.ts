@@ -33,6 +33,14 @@ describe('deriveDepositId', () => {
   it('rejects a payload of the wrong length', () => {
     expect(() => deriveDepositId('ce25e7c2')).toThrow(/length/);
   });
+
+  it('rejects a payload with non-hex characters', () => {
+    // Correct length, but the final byte 'ag' has a non-hex low nibble.
+    // Number.parseInt used to accept this as 0x0a; strict validation rejects it.
+    expect(() => deriveDepositId(`${PAYLOAD.slice(0, -2)}ag`)).toThrow(
+      /non-hex/,
+    );
+  });
 });
 
 describe('getBasculeDepositStatus', () => {

@@ -216,13 +216,15 @@ function hexToBytes(hex: string): Uint8Array {
   if (clean.length % 2 !== 0) {
     throw new Error('Invalid payload hex: odd length');
   }
+  // Reject any non-hex character outright, matching Go's strict
+  // hex.DecodeString. A per-byte Number.parseInt would silently accept a
+  // malformed low nibble (e.g. 'ag' -> 0x0a), yielding a wrong deposit id.
+  if (!/^[0-9a-fA-F]*$/.test(clean)) {
+    throw new Error('Invalid payload hex: non-hex characters');
+  }
   const out = new Uint8Array(clean.length / 2);
   for (let i = 0; i < out.length; i++) {
-    const byte = Number.parseInt(clean.slice(i * 2, i * 2 + 2), 16);
-    if (Number.isNaN(byte)) {
-      throw new Error('Invalid payload hex: non-hex characters');
-    }
-    out[i] = byte;
+    out[i] = Number.parseInt(clean.slice(i * 2, i * 2 + 2), 16);
   }
   return out;
 }
