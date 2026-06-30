@@ -2997,6 +2997,7 @@ __metadata:
     "@lombard.finance/sdk-common": "workspace:*"
     "@mysten/sui": "npm:^1.21.1"
     "@mysten/wallet-standard": "npm:^0.13.7"
+    "@noble/hashes": "npm:^1.8.0"
     "@storybook/addon-essentials": "npm:^8.2.9"
     "@storybook/addon-interactions": "npm:^8.2.9"
     "@storybook/addon-links": "npm:^8.2.9"
