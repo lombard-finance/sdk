@@ -120,7 +120,7 @@ describe('depositStrategy', () => {
     await expect(
       depositStrategy({
         account: ACCOUNT,
-        chainId: ChainId.ethereum,
+        chainId: ChainId.sepolia,
         env: Env.prod,
         provider: {} as never,
         asset: LBTC,

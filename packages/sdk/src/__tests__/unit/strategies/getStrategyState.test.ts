@@ -59,7 +59,7 @@ describe('getStrategyState', () => {
 
   it('rejects unsupported chain ids before issuing any RPC', async () => {
     await expect(
-      getStrategyState({ chainId: ChainId.ethereum, env: Env.prod }),
+      getStrategyState({ chainId: ChainId.sepolia, env: Env.prod }),
     ).rejects.toThrow(/Unsupported chain id/);
     expect(multicall).not.toHaveBeenCalled();
   });

@@ -1,4 +1,4 @@
-import { Abi, Address } from 'viem';
+import { Abi, Address, zeroAddress } from 'viem';
 
 import { ChainId } from '../../common/chains';
 import LOMBARD_STRATEGY_ABI from '../abi/LOMBARD_STRATEGY_ABI.json';
@@ -18,13 +18,15 @@ import { IStrategyDepositAssetStatic } from './types';
  * because the deposit/mint surface takes a `depositAsset` argument and there
  * is no synchronous on-chain redeem path.
  *
- * Currently deployed on Base Sepolia only (staging). Mainnet entry is not
- * yet registered; the SDK must refuse unknown chain ids until the address
- * is added to `LOMBARD_STRATEGY_CONTRACTS` rather than silently accepting
- * a mainnet chain id without a target contract.
+ * Deployed on Ethereum mainnet (BTCoc) and Base Sepolia (staging). The SDK
+ * must refuse unknown chain ids rather than silently accepting a chain id
+ * without a target contract in `LOMBARD_STRATEGY_CONTRACTS`.
  */
 
-export const LOMBARD_STRATEGY_CHAINS = [ChainId.baseSepoliaTestnet] as const;
+export const LOMBARD_STRATEGY_CHAINS = [
+  ChainId.ethereum,
+  ChainId.baseSepoliaTestnet,
+] as const;
 
 export type LombardStrategyChain = (typeof LOMBARD_STRATEGY_CHAINS)[number];
 
@@ -44,6 +46,8 @@ export const isLombardStrategyChain = (
  */
 export const LOMBARD_STRATEGY_CONTRACTS: Record<LombardStrategyChain, Address> =
 {
+  // BTCoc (MAWARS-0.0.1), Ethereum mainnet.
+  [ChainId.ethereum]: '0xf14F678d9c05798ba61652a950a05D74aD2E0A6C',
   // Bitcoin Stretch, Base Sepolia.
   [ChainId.baseSepoliaTestnet]: '0x14Cd5e82A31A48e0831821FD5FEFdd7f82573348',
 };
@@ -65,6 +69,24 @@ export const LOMBARD_STRATEGY_DEPOSIT_ASSETS: Record<
   LombardStrategyChain,
   ReadonlyArray<IStrategyDepositAssetStatic>
 > = {
+  // BTCoc, Ethereum mainnet. `converter` is resolved on-chain via
+  // `converterOf` in getStrategyDepositAssets and is unused by depositStrategy
+  // (approval target is the Strategy itself), so it is seeded as the zero
+  // address rather than hardcoding a per-asset converter here.
+  [ChainId.ethereum]: [
+    {
+      token: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
+      converter: zeroAddress,
+      symbol: 'BTC.b',
+      decimals: 8,
+    },
+    {
+      token: '0x8236a87084f8b84306f72007f36f2618a5634494',
+      converter: zeroAddress,
+      symbol: 'LBTC',
+      decimals: 8,
+    },
+  ],
   [ChainId.baseSepoliaTestnet]: [
     {
       token: '0xd0b479AD08733fd6C63ffdEf3F9c203394699125',

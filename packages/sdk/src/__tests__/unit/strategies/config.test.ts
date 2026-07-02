@@ -13,14 +13,22 @@ import {
 } from '../../../strategies/lib/config';
 
 describe('strategies/config', () => {
-  it('only Base Sepolia is supported in v1', () => {
-    expect([...LOMBARD_STRATEGY_CHAINS]).toEqual([ChainId.baseSepoliaTestnet]);
+  it('supports Ethereum mainnet (BTCoc) and Base Sepolia', () => {
+    expect([...LOMBARD_STRATEGY_CHAINS]).toEqual([
+      ChainId.ethereum,
+      ChainId.baseSepoliaTestnet,
+    ]);
   });
 
   it('isLombardStrategyChain narrows correctly', () => {
     expect(isLombardStrategyChain(ChainId.baseSepoliaTestnet)).toBe(true);
-    expect(isLombardStrategyChain(ChainId.ethereum)).toBe(false);
+    expect(isLombardStrategyChain(ChainId.ethereum)).toBe(true);
     expect(isLombardStrategyChain(0)).toBe(false);
+  });
+
+  it('mainnet BTCoc strategy address is registered', () => {
+    const addr = getDefaultStrategyAddress(ChainId.ethereum);
+    expect(addr).toBe('0xf14F678d9c05798ba61652a950a05D74aD2E0A6C');
   });
 
   it('getDefaultStrategyAddress matches the canonical contract map', () => {

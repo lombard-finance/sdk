@@ -114,7 +114,7 @@ describe('requestStrategyRedeem', () => {
     await expect(
       requestStrategyRedeem({
         account: ACCOUNT,
-        chainId: ChainId.ethereum,
+        chainId: ChainId.sepolia,
         env: Env.prod,
         provider: {} as never,
         shares: 1n,

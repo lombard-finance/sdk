@@ -51,7 +51,7 @@ describe('getStrategyPosition', () => {
   it('rejects unsupported chain ids before issuing any RPC', async () => {
     await expect(
       getStrategyPosition({
-        chainId: ChainId.ethereum,
+        chainId: ChainId.sepolia,
         env: Env.prod,
         account: ACCOUNT,
       }),
