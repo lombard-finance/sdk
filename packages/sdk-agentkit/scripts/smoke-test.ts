@@ -56,15 +56,15 @@ async function main() {
   // 4. Verify our 10 actions are all present
   const lombardActions = [
     "stake_btcb_to_lbtc",
-    "unstake_lbtc",
+    "unstake_lbtc_to_btc",
     "redeem_lbtc_to_btcb",
-    "deploy_to_defi",
-    "claim_deposit",
+    "deploy_to_earn",
+    "claim_lbtc_deposit",
     "get_lbtc_balance",
     "get_btcb_balance",
     "get_lbtc_exchange_rate",
     "get_deposit_status",
-    "get_unstake_status",
+    "get_redemption_status",
   ];
 
   // AgentKit prefixes action names with the provider class name
@@ -129,8 +129,8 @@ async function main() {
     console.log("  PASS\n");
   }
 
-  console.log("--- Testing get_unstake_status ---");
-  const unstakeAction = findAction("get_unstake_status");
+  console.log("--- Testing get_redemption_status ---");
+  const unstakeAction = findAction("get_redemption_status");
   const unstakeResult = await unstakeAction.invoke({});
   const unstakeParsed = JSON.parse(unstakeResult);
   console.log(`  Result: ${JSON.stringify(unstakeParsed, null, 2)}`);

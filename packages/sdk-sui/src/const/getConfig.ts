@@ -19,13 +19,13 @@ const stageConfig: IConfig = {
   mint: {
     target:
       // lbtc_v2_current
-      '0x2721ad6e939baca77b36f415ab91edb1c91b256cbc8614f8f6c84bf06faf74af::treasury::mint_v2',
+      '0x1269ce3b46b5647d0e46024185dd24bdb7492ec7840ebc40fdd209150b89a33d::treasury::mint_v2',
     denyList: '0x403',
   },
   redeem: {
     // lbtc_v2_current
     target:
-      '0x2721ad6e939baca77b36f415ab91edb1c91b256cbc8614f8f6c84bf06faf74af::treasury::redeem',
+      '0x1269ce3b46b5647d0e46024185dd24bdb7492ec7840ebc40fdd209150b89a33d::treasury::redeem',
   },
   // lbtc_v1_deprecated - This is intentional
   LBTC: '0x2d66430a27565b912f21be970e5ae1e8c0359f0b518c3235b751c75976791ce0::lbtc::LBTC',
@@ -67,15 +67,15 @@ const testnetConfig: IConfig = {
 // https://github.com/lombard-finance/sui-contracts/blob/main/mainnet.json
 const prodConfig: IConfig = {
   mint: {
-    // lbtc_v2_current
+    // lbtc_v5_current
     target:
-      '0x818430a456ff977f7320f78650d19801f90758d200a01dd3c2c679472c521357::treasury::mint_v2',
+      '0x124477c9cffb667be781e867fd29579d3498a47e6b69d06155841ca85bcb02d0::treasury::mint_v2',
     denyList: '0x403',
   },
   redeem: {
-    // lbtc_v2_current
+    // lbtc_v5_current
     target:
-      '0x818430a456ff977f7320f78650d19801f90758d200a01dd3c2c679472c521357::treasury::redeem',
+      '0x124477c9cffb667be781e867fd29579d3498a47e6b69d06155841ca85bcb02d0::treasury::redeem',
   },
   // lbtc_v1_deprecated - This is intentional
   LBTC: '0x3e8e9423d80e1774a7ca128fccd8bf5f1f7753be658c5e645929037f7c819040::lbtc::LBTC',

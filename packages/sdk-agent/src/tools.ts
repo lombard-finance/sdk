@@ -65,6 +65,10 @@ import {
   ExchangeRateZod,
   LbtcApySchema,
   LbtcApyZod,
+  LbtcToBtcbSchema,
+  LbtcToBtcbZod,
+  LbtcToBtcSchema,
+  LbtcToBtcZod,
   OpportunitiesSchema,
   OpportunitiesZod,
   RedeemBtcbSchema,
@@ -77,17 +81,16 @@ import {
   TokenBalanceZod,
   TokenInfoSchema,
   TokenInfoZod,
-  UnstakeSchema,
-  UnstakeZod,
   VaultWithdrawalSchema,
   VaultWithdrawalZod,
 } from "./schemas";
 import {
   resolvePartnerId,
   validateAmountInputs,
+  validateLbtcToBtcbInputs,
+  validateLbtcToBtcInputs,
   validateRedeemBtcbInputs,
   validateStakeInputs,
-  validateUnstakeInputs,
   type ValidationFailure,
 } from "./validation";
 
@@ -340,11 +343,11 @@ export const getDepositStatusTool: ToolDefinition<{
   },
 };
 
-export const getUnstakeStatusTool: ToolDefinition<{
+export const getRedemptionStatusTool: ToolDefinition<{
   address: string;
   chainId: number;
 }> = {
-  name: "get_unstake_status",
+  name: "get_redemption_status",
   description:
     "Check the status of all unstake/redeem operations for an address.",
   parameters: AddressAndChainSchema as Record<string, unknown>,
@@ -582,7 +585,7 @@ export const getTokenBalance: ToolDefinition<
   },
 };
 
-export const getStrategies: ToolDefinition<
+export const getEarnStrategiesTool: ToolDefinition<
   { chainId?: number },
   {
     strategies: Array<{
@@ -594,7 +597,7 @@ export const getStrategies: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_strategies",
+  name: "get_earn_strategies",
   description:
     "List available yield strategies where LBTC can be deployed for additional yield. " +
     "Currently includes Bitcoin Earn (passive vault yield). Returns name, chain, APY, and TVL.",
@@ -636,7 +639,7 @@ export const getStrategies: ToolDefinition<
 const BFF_BASE_URL =
   process.env.LOMBARD_BFF_URL || "https://bff.prod.lombard-fi.com";
 
-export const getOpportunities: ToolDefinition<
+export const getLbtcDefiOpportunitiesTool: ToolDefinition<
   { category?: string; chain?: string; protocol?: string },
   {
     opportunities: Array<{
@@ -654,7 +657,7 @@ export const getOpportunities: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_opportunities",
+  name: "get_lbtc_defi_opportunities",
   description:
     "List LBTC and BTC.b DeFi opportunities across protocols and chains. " +
     "Includes borrow-stables, looping, DEX LP, automated strategies, and more. " +
@@ -799,7 +802,7 @@ export const checkFeeAuthorization: ToolDefinition<
   },
 };
 
-export const prepareBtcDeposit: ToolDefinition<
+export const prepareBtcToLbtcDeposit: ToolDefinition<
   { address: string; chainId: number },
   {
     action: string;
@@ -808,7 +811,7 @@ export const prepareBtcDeposit: ToolDefinition<
     description: string;
   }
 > = {
-  name: "prepare_btc_deposit",
+  name: "prepare_btc_to_lbtc_deposit",
   description:
     "Prepare a native BTC -> LBTC deposit address. Use this when the user wants LBTC (yield-bearing). The wallet will prompt for fee authorization (Ethereum/Sepolia) or an address confirmation (other chains), then a unique BTC deposit address is generated.",
   parameters: AddressAndChainSchema as Record<string, unknown>,
@@ -818,7 +821,7 @@ export const prepareBtcDeposit: ToolDefinition<
     const config = getChainConfig(chainId);
     return {
       action: "sdk_execute",
-      method: "btc.generateDepositAddress",
+      method: "btc.generateLbtcDepositAddress",
       params: { address, chainId: config.chainId },
       description: `Generate a BTC deposit address for ${address} on ${config.name}. The deposit will mint LBTC. Your wallet will prompt you to sign an authorization.`,
     };
@@ -836,7 +839,7 @@ export const prepareBtcToBtcbDeposit: ToolDefinition<
 > = {
   name: "prepare_btc_to_btcb_deposit",
   description:
-    "Prepare a native BTC -> BTC.b deposit address. Use this when the user wants BTC.b (cross-chain wrapped Bitcoin, NOT yield-bearing). Distinct flow from prepare_btc_deposit (which produces LBTC). The wallet will prompt for the required authorization, then a unique BTC deposit address is generated that mints BTC.b on the destination EVM chain.",
+    "Prepare a native BTC -> BTC.b deposit address. Use this when the user wants BTC.b (cross-chain wrapped Bitcoin, NOT yield-bearing). Distinct flow from prepare_btc_to_lbtc_deposit (which produces LBTC). The wallet will prompt for the required authorization, then a unique BTC deposit address is generated that mints BTC.b on the destination EVM chain.",
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
@@ -853,11 +856,11 @@ export const prepareBtcToBtcbDeposit: ToolDefinition<
 
 // ─── Write Tools (return tx params, don't execute) ────────────────────
 
-export const prepareStake: ToolDefinition<
+export const prepareBtcbToLbtcStake: ToolDefinition<
   { amount: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_stake",
+  name: "prepare_btcb_to_lbtc_stake",
   description:
     "Prepare a BTC.b → LBTC stake. Returns transaction parameters for the user's wallet to sign, or a validation failure listing what to ask the user for.",
   parameters: StakeSchema as Record<string, unknown>,
@@ -879,7 +882,7 @@ export const prepareStake: ToolDefinition<
     return {
       valid: true,
       action: "sdk_execute",
-      method: "evm.stake",
+      method: "evm.btcbToLbtc",
       params: {
         amount,
         chainId: config.chainId,
@@ -891,22 +894,17 @@ export const prepareStake: ToolDefinition<
   },
 };
 
-export const prepareUnstake: ToolDefinition<
-  {
-    amount: string;
-    outputAsset: string;
-    recipient?: string;
-    chainId: number;
-  },
+export const prepareLbtcToBtc: ToolDefinition<
+  { amount: string; recipient: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_unstake",
+  name: "prepare_lbtc_to_btc",
   description:
-    "Prepare an LBTC unstake. When outputAsset is 'BTC', the user MUST supply a Bitcoin destination address — do not infer or fill it from prior context. Returns either prepared transaction parameters or a validation failure listing what to ask the user for.",
-  parameters: UnstakeSchema as Record<string, unknown>,
-  schema: UnstakeZod,
+    "Prepare a cross-chain LBTC redemption to native Bitcoin. The user MUST supply a Bitcoin destination address — do not infer or fill it from prior context. Returns either prepared transaction parameters or a validation failure listing what to ask the user for. For LBTC → BTC.b on the same EVM chain, use prepare_lbtc_to_btcb instead.",
+  parameters: LbtcToBtcSchema as Record<string, unknown>,
+  schema: LbtcToBtcZod,
   execute: async (params) => {
-    const parsed = UnstakeZod.safeParse(params);
+    const parsed = LbtcToBtcZod.safeParse(params);
     if (!parsed.success) {
       return {
         valid: false,
@@ -915,21 +913,56 @@ export const prepareUnstake: ToolDefinition<
         note: "Surface the listed errors to the user and re-prompt with valid input.",
       };
     }
-    const v = validateUnstakeInputs(parsed.data);
+    const v = validateLbtcToBtcInputs(parsed.data);
     if (!v.valid) return v;
-    const { amount, outputAsset, recipient, chainId } = parsed.data;
+    const { amount, recipient, chainId } = parsed.data;
     const config = getChainConfig(chainId);
     return {
       valid: true,
       action: "sdk_execute",
-      method: "evm.unstake",
+      method: "evm.lbtcToBtc",
       params: {
         amount,
-        outputAsset,
         recipient,
         chainId: config.chainId,
       },
-      description: `Unstake ${amount} LBTC to ${outputAsset} on ${config.name}`,
+      description: `Redeem ${amount} LBTC to native BTC on ${config.name}. Destination: ${recipient}.`,
+    };
+  },
+};
+
+export const prepareLbtcToBtcb: ToolDefinition<
+  { amount: string; chainId: number },
+  PreparedTx | ValidationFailure
+> = {
+  name: "prepare_lbtc_to_btcb",
+  description:
+    "Prepare a same-chain LBTC → BTC.b redemption. No Bitcoin recipient address is needed; the BTC.b is credited to the caller's wallet on the same EVM chain. For LBTC → native BTC, use prepare_lbtc_to_btc.",
+  parameters: LbtcToBtcbSchema as Record<string, unknown>,
+  schema: LbtcToBtcbZod,
+  execute: async (params) => {
+    const parsed = LbtcToBtcbZod.safeParse(params);
+    if (!parsed.success) {
+      return {
+        valid: false,
+        missing: [],
+        errors: parsed.error.issues.map((i) => i.message),
+        note: "Surface the listed errors to the user and re-prompt with valid input.",
+      };
+    }
+    const v = validateLbtcToBtcbInputs(parsed.data);
+    if (!v.valid) return v;
+    const { amount, chainId } = parsed.data;
+    const config = getChainConfig(chainId);
+    return {
+      valid: true,
+      action: "sdk_execute",
+      method: "evm.lbtcToBtcb",
+      params: {
+        amount,
+        chainId: config.chainId,
+      },
+      description: `Redeem ${amount} LBTC to BTC.b on ${config.name} (same chain).`,
     };
   },
 };
@@ -960,7 +993,7 @@ export const prepareRedeemBtcb: ToolDefinition<
     return {
       valid: true,
       action: "sdk_execute",
-      method: "evm.redeemBtcb",
+      method: "evm.btcbToBtc",
       params: {
         amount,
         recipient,
@@ -971,11 +1004,11 @@ export const prepareRedeemBtcb: ToolDefinition<
   },
 };
 
-export const prepareDeployToVault: ToolDefinition<
+export const prepareEarnDeposit: ToolDefinition<
   { amount: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_deploy_to_vault",
+  name: "prepare_earn_deposit",
   description:
     "Prepare a transaction to deploy LBTC into Bitcoin Earn. Returns prepared transaction parameters or a validation failure.",
   parameters: DeployToVaultSchema as Record<string, unknown>,
@@ -997,20 +1030,20 @@ export const prepareDeployToVault: ToolDefinition<
     return {
       valid: true,
       action: "sdk_execute",
-      method: "evm.deploy",
+      method: "evm.earnDeposit",
       params: { amount, chainId: config.chainId, token: "LBTC" },
       description: `Deploy ${amount} LBTC to Bitcoin Earn on ${config.name}`,
     };
   },
 };
 
-export const prepareVaultWithdrawal: ToolDefinition<
+export const prepareEarnWithdrawal: ToolDefinition<
   { amount: string; address: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_vault_withdrawal",
+  name: "prepare_earn_withdrawal",
   description:
-    "Prepare a withdrawal from Bitcoin Earn. Only one active withdrawal is allowed per user per vault — this tool checks first and refuses if one is already queued, returning its details so you can offer the user prepare_cancel_withdrawal. On success, returns prepared transaction parameters.",
+    "Prepare a withdrawal from Bitcoin Earn. Only one active withdrawal is allowed per user per vault — this tool checks first and refuses if one is already queued, returning its details so you can offer the user prepare_cancel_earn_withdrawal. On success, returns prepared transaction parameters.",
   parameters: VaultWithdrawalSchema as Record<string, unknown>,
   schema: VaultWithdrawalZod,
   execute: async (params) => {
@@ -1030,7 +1063,7 @@ export const prepareVaultWithdrawal: ToolDefinition<
 
     // Pre-flight: only one active withdrawal allowed per user per vault.
     // If one already exists, refuse with its details so the LLM can offer
-    // prepare_cancel_withdrawal instead of stacking a second request.
+    // prepare_cancel_earn_withdrawal instead of stacking a second request.
     try {
       const data = (await withTimeout(
         getEarnWithdrawals({
@@ -1049,7 +1082,7 @@ export const prepareVaultWithdrawal: ToolDefinition<
           errors: [
             `An active withdrawal already exists for ${address} on ${config.name}: ${active.shareAmount.toString()} shares queued (request tx ${active.txHash}). Only one active withdrawal is allowed per vault.`,
           ],
-          note: `Tell the user about the existing withdrawal (shareAmount=${active.shareAmount.toString()}, txHash=${active.txHash}, deadline=${active.deadline}) and ask whether they want to cancel it via prepare_cancel_withdrawal before queuing a new one. Do not retry prepare_vault_withdrawal until they confirm.`,
+          note: `Tell the user about the existing withdrawal (shareAmount=${active.shareAmount.toString()}, txHash=${active.txHash}, deadline=${active.deadline}) and ask whether they want to cancel it via prepare_cancel_earn_withdrawal before queuing a new one. Do not retry prepare_earn_withdrawal until they confirm.`,
         };
       }
     } catch (err) {
@@ -1064,14 +1097,14 @@ export const prepareVaultWithdrawal: ToolDefinition<
             ? `Could not verify active withdrawals: ${err.message}`
             : "Could not verify active withdrawals.",
         ],
-        note: "The active-withdrawal check failed. Tell the user this is a backend issue, suggest they run get_vault_withdrawals manually to confirm no active withdrawal exists, and only proceed with prepare_vault_withdrawal after they confirm.",
+        note: "The active-withdrawal check failed. Tell the user this is a backend issue, suggest they run get_earn_withdrawals manually to confirm no active withdrawal exists, and only proceed with prepare_earn_withdrawal after they confirm.",
       };
     }
 
     return {
       valid: true,
       action: "sdk_execute",
-      method: "evm.withdrawFromVault",
+      method: "evm.earnWithdrawal",
       params: { amount, chainId: config.chainId },
       description: `Withdraw ${amount} shares from Bitcoin Earn on ${config.name}. Withdrawals are queued and may take time to process.`,
     };
@@ -1115,7 +1148,7 @@ export const getLbtcApy: ToolDefinition<
   },
 };
 
-export const getVaultPositions: ToolDefinition<
+export const getEarnPositions: ToolDefinition<
   { address: string; chainId: number },
   {
     shares: string;
@@ -1126,7 +1159,7 @@ export const getVaultPositions: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_vault_positions",
+  name: "get_earn_positions",
   description:
     "Get a user's Bitcoin Earn positions including shares held and their estimated LBTC value. " +
     "Currently supports Bitcoin Earn on Ethereum mainnet.",
@@ -1166,7 +1199,7 @@ export const getVaultPositions: ToolDefinition<
 
 // ─── Claim Deposit Tool ─────────────────────────────────────────────
 
-export const prepareClaimDeposit: ToolDefinition<
+export const prepareClaimLbtcDeposit: ToolDefinition<
   { depositTxHash: string; address: string; chainId: number },
   {
     action: string;
@@ -1181,7 +1214,7 @@ export const prepareClaimDeposit: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "prepare_claim_deposit",
+  name: "prepare_claim_lbtc_deposit",
   description:
     "Prepare a transaction to claim (mint) LBTC from a notarized BTC deposit. " +
     "Checks if the deposit is claimable and returns the transaction parameters for wallet signing.",
@@ -1233,7 +1266,7 @@ export const prepareClaimDeposit: ToolDefinition<
 
     return {
       action: "sdk_execute",
-      method: "evm.claimDeposit",
+      method: "evm.claimLbtcDeposit",
       params: {
         depositTxHash,
         rawPayload: deposit.rawPayload!,
@@ -1247,11 +1280,11 @@ export const prepareClaimDeposit: ToolDefinition<
 
 // ─── Cancel Withdrawal Tool ────────────────────────────────────────
 
-export const prepareCancelWithdrawal: ToolDefinition<
+export const prepareCancelEarnWithdrawal: ToolDefinition<
   { address: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_cancel_withdrawal",
+  name: "prepare_cancel_earn_withdrawal",
   description:
     "Cancel an active Bitcoin Earn withdrawal that has not yet been processed. Looks up the user's active withdrawal first; refuses if none exists, includes its details in the description if one does, then returns the cancel transaction parameters.",
   parameters: CancelWithdrawalSchema as Record<string, unknown>,
@@ -1288,7 +1321,7 @@ export const prepareCancelWithdrawal: ToolDefinition<
           errors: [
             `No active withdrawal found for ${address} on ${config.name}. There is nothing to cancel.`,
           ],
-          note: "Tell the user there is no active withdrawal to cancel. If they think there should be, suggest get_vault_withdrawals to inspect their full withdrawal history.",
+          note: "Tell the user there is no active withdrawal to cancel. If they think there should be, suggest get_earn_withdrawals to inspect their full withdrawal history.",
         };
       }
       activeDetails = ` Active withdrawal: ${active.shareAmount.toString()} shares (request tx ${active.txHash}, deadline ${active.deadline}).`;
@@ -1301,14 +1334,14 @@ export const prepareCancelWithdrawal: ToolDefinition<
             ? `Could not verify active withdrawals before cancelling: ${err.message}`
             : "Could not verify active withdrawals before cancelling.",
         ],
-        note: "Backend issue. Ask the user to retry in a moment, or to verify via get_vault_withdrawals first.",
+        note: "Backend issue. Ask the user to retry in a moment, or to verify via get_earn_withdrawals first.",
       };
     }
 
     return {
       valid: true,
       action: "sdk_execute",
-      method: "evm.cancelWithdrawal",
+      method: "evm.cancelEarnWithdrawal",
       params: { chainId: config.chainId },
       description: `Cancel pending Bitcoin Earn withdrawal on ${config.name}.${activeDetails} Your wallet will prompt you to sign the cancellation transaction.`,
     };
@@ -1317,7 +1350,7 @@ export const prepareCancelWithdrawal: ToolDefinition<
 
 // ─── Vault Withdrawals Tool ────────────────────────────────────────
 
-export const getVaultWithdrawalsTool: ToolDefinition<
+export const getEarnWithdrawalsTool: ToolDefinition<
   { address: string; chainId: number },
   {
     withdrawals: {
@@ -1348,7 +1381,7 @@ export const getVaultWithdrawalsTool: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_vault_withdrawals",
+  name: "get_earn_withdrawals",
   description:
     "Get all vault withdrawals for an address, including open (pending), fulfilled, cancelled, and expired withdrawals.",
   parameters: AddressAndChainSchema as Record<string, unknown>,
@@ -1565,27 +1598,31 @@ export const allTools: AnyToolDefinition[] = [
   getTokenInfo,
   getExchangeRate,
   getDepositStatusTool,
-  getUnstakeStatusTool,
-  getStrategies,
-  getOpportunities,
+  getRedemptionStatusTool,
+  getEarnStrategiesTool,
+  getLbtcDefiOpportunitiesTool,
   getDepositBtcAddress,
   checkFeeAuthorization,
-  prepareBtcDeposit,
+  prepareBtcToLbtcDeposit,
   prepareBtcToBtcbDeposit,
-  prepareStake,
-  prepareUnstake,
+  prepareBtcbToLbtcStake,
+  prepareLbtcToBtc,
+  prepareLbtcToBtcb,
   prepareRedeemBtcb,
-  prepareDeployToVault,
-  prepareVaultWithdrawal,
-  prepareCancelWithdrawal,
+  prepareEarnDeposit,
+  prepareEarnWithdrawal,
+  prepareCancelEarnWithdrawal,
   getLbtcApy,
-  getVaultPositions,
-  prepareClaimDeposit,
+  getEarnPositions,
+  prepareClaimLbtcDeposit,
   getMorphoLbtcMarkets,
   prepareMorphoSupplyCollateral,
   prepareMorphoBorrow,
   prepareMorphoRepay,
   getMorphoPosition,
+  getEarnWithdrawalsTool,
+  getLuxPoints,
+  getPositionsSummaryTool,
 ];
 
 /**

@@ -14,6 +14,19 @@
   - Writes: `depositStrategy` (4-arg `deposit(asset, amount, receiver, minSharesOut)`, approves the Strategy contract on insufficient allowance), `requestStrategyRedeem` (async redeem; parses `requestId` from the `RedeemRequested` event, supports `waitForReceipt: false` for Safe multisig flows).
   - Types: `IStrategyState`, `IStrategyPosition`, `IStrategyConfigResponse`, `IStrategyDepositAsset`, `IStrategyDepositAssetStatic`, `IStrategyShards`, `IStrategyPendingRedeem`, `IRequestStrategyRedeemResult`, plus function-parameter types (`GetStrategy*Parameters`, `DepositStrategyParameters`, `RequestStrategyRedeemParameters`).
   - Config: `LOMBARD_STRATEGY` bundle, `LOMBARD_STRATEGY_DEPOSIT_ASSETS` static catalog (LBTC / BTC.b / USDT / wETH / BTCt on Base Sepolia), `assertLombardStrategyChain` type-narrowing helper.
+# 5.0.5
+
+### Fixed
+
+- `sdk.chain.evm.redeem()` (BTC.b → native BTC) no longer triggers a network-fee authorization step. The action burns BTC.b on the EVM source chain and releases native BTC on the Bitcoin network — there is no auto-mint on an EVM destination, so the auto-mint fee model (used by BTC Deposit and EVM Unstake → BTC.b on Ethereum/Sepolia) does not apply. `prepare()` now transitions `IDLE → READY` directly on every source chain, including Ethereum and Sepolia, eliminating the unexpected EIP-712 signing prompt and the `GET /api/v1/claimer/get-user-signature` call that previously fired on those chains.
+
+### Deprecated
+
+- `IEvmRedeem.authorizeFee()` is now a deprecated **safe no-op** kept for backwards compatibility with consumers that subscribed to the previous status machine. The status never reaches `NEEDS_FEE_AUTHORIZATION`, and calling `authorizeFee()` resolves immediately without touching the wallet, the API, or the action state — so legacy code paths that still invoke it will no longer fail.
+
+### Docs
+
+- Removed stale JSDoc on `EvmActions.redeem()`, `EvmRedeem` types, and the redeem factory that described a non-existent `LBTC → BTC.b` same-chain unwrap. The actual `LBTC → BTC.b` flow lives in `sdk.chain.evm.unstake()` with `assetOut: AssetId.BTCb`.
 
 ---
 

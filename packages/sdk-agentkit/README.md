@@ -55,10 +55,10 @@ const agent = createReactAgent({ llm: yourModel, tools });
 | Action | Description |
 | ------ | ----------- |
 | `stake_btcb_to_lbtc` | Stake BTC.b to receive LBTC. Handles approval and fee authorization automatically |
-| `unstake_lbtc` | Unstake LBTC to native BTC (cross-chain) or BTC.b (same-chain) |
+| `unstake_lbtc_to_btc` | Unstake LBTC to native BTC (cross-chain) or BTC.b (same-chain) |
 | `redeem_lbtc_to_btcb` | Simple same-chain LBTC to BTC.b conversion |
-| `deploy_to_defi` | Deploy LBTC into a DeFi vault (Bitcoin Earn) for additional yield |
-| `claim_deposit` | Claim a notarized BTC deposit to mint LBTC |
+| `deploy_to_earn` | Deploy LBTC into a DeFi vault (Bitcoin Earn) for additional yield |
+| `claim_lbtc_deposit` | Claim a notarized BTC deposit to mint LBTC |
 
 ### Read Actions
 
@@ -68,7 +68,7 @@ const agent = createReactAgent({ llm: yourModel, tools });
 | `get_btcb_balance` | Check BTC.b balance for any address on the current chain |
 | `get_lbtc_exchange_rate` | Current LBTC/BTC exchange rate and minimum stake amount |
 | `get_deposit_status` | Track all deposits (pending, claimable, claimed, failed) |
-| `get_unstake_status` | Track all unstake and redemption operations |
+| `get_redemption_status` | Track all unstake and redemption operations |
 
 ## Supported Networks
 

@@ -6,9 +6,10 @@ import {
   isPositiveAmount,
   resolvePartnerId,
   validateAmountInputs,
+  validateLbtcToBtcbInputs,
+  validateLbtcToBtcInputs,
   validateRedeemBtcbInputs,
   validateStakeInputs,
-  validateUnstakeInputs,
 } from "../validation";
 
 const MAINNET_CHAIN_ID = 1;
@@ -79,31 +80,19 @@ describe("isPositiveAmount", () => {
   });
 });
 
-describe("validateUnstakeInputs", () => {
-  it("returns valid for a well-formed LBTC → BTC unstake", () => {
-    const result = validateUnstakeInputs({
+describe("validateLbtcToBtcInputs", () => {
+  it("returns valid for a well-formed LBTC → BTC redemption", () => {
+    const result = validateLbtcToBtcInputs({
       amount: "0.5",
-      outputAsset: "BTC",
       recipient: MAINNET_BECH32,
       chainId: MAINNET_CHAIN_ID,
     });
     expect(result.valid).toBe(true);
   });
 
-  it("returns valid for a well-formed LBTC → BTC.b unstake (no recipient needed)", () => {
-    const result = validateUnstakeInputs({
+  it("flags missing recipient", () => {
+    const result = validateLbtcToBtcInputs({
       amount: "0.5",
-      outputAsset: "BTCb",
-      recipient: undefined,
-      chainId: MAINNET_CHAIN_ID,
-    });
-    expect(result.valid).toBe(true);
-  });
-
-  it("flags missing recipient on BTC output", () => {
-    const result = validateUnstakeInputs({
-      amount: "0.5",
-      outputAsset: "BTC",
       recipient: undefined,
       chainId: MAINNET_CHAIN_ID,
     });
@@ -114,10 +103,9 @@ describe("validateUnstakeInputs", () => {
     }
   });
 
-  it("flags invalid recipient (numeric string) on BTC output", () => {
-    const result = validateUnstakeInputs({
+  it("flags invalid recipient (numeric string)", () => {
+    const result = validateLbtcToBtcInputs({
       amount: "0.5",
-      outputAsset: "BTC",
       recipient: "0.0000001",
       chainId: MAINNET_CHAIN_ID,
     });
@@ -128,50 +116,44 @@ describe("validateUnstakeInputs", () => {
   });
 
   it("flags testnet recipient on mainnet chain", () => {
-    const result = validateUnstakeInputs({
+    const result = validateLbtcToBtcInputs({
       amount: "0.5",
-      outputAsset: "BTC",
       recipient: TESTNET_BECH32,
       chainId: MAINNET_CHAIN_ID,
     });
     expect(result.valid).toBe(false);
   });
 
-  it("flags below-minimum amount", () => {
-    const result = validateUnstakeInputs({
+  it("collects multiple failures in one pass", () => {
+    const result = validateLbtcToBtcInputs({
       amount: "0.0000001",
-      outputAsset: "BTCb",
-      recipient: undefined,
-      chainId: SEPOLIA_CHAIN_ID,
+      recipient: "not-an-address",
+      chainId: MAINNET_CHAIN_ID,
     });
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.length).toBeGreaterThanOrEqual(2);
+    }
+  });
+});
+
+describe("validateLbtcToBtcbInputs", () => {
+  it("returns valid for a well-formed LBTC → BTC.b same-chain redemption", () => {
+    const result = validateLbtcToBtcbInputs({ amount: "0.5" });
+    expect(result.valid).toBe(true);
+  });
+
+  it("flags below-minimum amount", () => {
+    const result = validateLbtcToBtcbInputs({ amount: "0.0000001" });
     expect(result.valid).toBe(false);
     if (!result.valid) {
       expect(result.errors.join(" ")).toMatch(/minimum/i);
     }
   });
 
-  it("flags invalid outputAsset", () => {
-    const result = validateUnstakeInputs({
-      amount: "0.5",
-      outputAsset: "ETH",
-      recipient: undefined,
-      chainId: MAINNET_CHAIN_ID,
-    });
+  it("flags non-numeric amount", () => {
+    const result = validateLbtcToBtcbInputs({ amount: "abc" });
     expect(result.valid).toBe(false);
-  });
-
-  it("collects multiple failures in one pass", () => {
-    const result = validateUnstakeInputs({
-      amount: "0.0000001",
-      outputAsset: "BTC",
-      recipient: "not-an-address",
-      chainId: MAINNET_CHAIN_ID,
-    });
-    expect(result.valid).toBe(false);
-    if (!result.valid) {
-      // both the amount-below-minimum error and the invalid-recipient error
-      expect(result.errors.length).toBeGreaterThanOrEqual(2);
-    }
   });
 });
 

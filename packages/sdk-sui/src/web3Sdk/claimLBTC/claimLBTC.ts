@@ -7,6 +7,10 @@ import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 
 import { getConfig } from '../../const';
+import {
+  getBasculeDepositStatus,
+  SuiBasculeDepositStatus,
+} from '../getBasculeDepositStatus';
 
 type Not0xPrefixedHex = string;
 
@@ -34,6 +38,31 @@ export async function claimLBTC({
   client,
   env = DEFAULT_ENV,
 }: IClaimLBTCParams): Promise<SuiTransactionBlockResponse> {
+  // Pre-flight the Bascule status so we surface a clear error instead of an
+  // opaque on-chain abort from bascule::validate_withdrawal (mirrors the EVM
+  // SDK's claimLBTC). The mint targets the same Bascule object this checks.
+  const basculeStatus = await getBasculeDepositStatus({ client, payload, env });
+  if (basculeStatus !== SuiBasculeDepositStatus.REPORTED) {
+    switch (basculeStatus) {
+      case SuiBasculeDepositStatus.UNREPORTED:
+        throw new Error(
+          'The deposit cannot be claimed because it is unreported or potentially still pending, please try again later.',
+        );
+      case SuiBasculeDepositStatus.WITHDRAWN:
+        throw new Error(
+          'The deposit cannot be claimed because it is withdrawn already.',
+        );
+      case SuiBasculeDepositStatus.PAUSED:
+        throw new Error(
+          'The deposit cannot be claimed because the bridge is paused, please try again later.',
+        );
+      default:
+        throw new Error(
+          'The deposit cannot be claimed because it is blocked by bridge security.',
+        );
+    }
+  }
+
   const transaction = new Transaction();
 
   const {

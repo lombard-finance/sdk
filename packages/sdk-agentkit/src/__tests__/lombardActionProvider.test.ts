@@ -132,7 +132,7 @@ describe("LombardActionProvider", () => {
       expect(parsed.error).toContain("not supported");
     });
 
-    it("returns error for unsupported network on get_unstake_status", async () => {
+    it("returns error for unsupported network on get_redemption_status", async () => {
       const result = await provider.getUnstakeStatus(mockWalletProvider, {});
       const parsed = JSON.parse(result);
       expect(parsed.success).toBe(false);
