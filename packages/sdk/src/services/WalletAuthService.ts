@@ -9,12 +9,12 @@
 
 import type { Env } from '@lombard.finance/sdk-common';
 import type {
+  RevokeWalletTokenRequest,
   WalletAuthService as IWalletAuthService,
   WalletChallengeRequest,
   WalletChallengeResponse,
   WalletVerifyRequest,
   WalletVerifyResponse,
-  RevokeWalletTokenRequest,
 } from '@lombard.finance/sdk-common';
 
 import { requestWalletChallenge } from '../api-functions/walletAuth/requestWalletChallenge';

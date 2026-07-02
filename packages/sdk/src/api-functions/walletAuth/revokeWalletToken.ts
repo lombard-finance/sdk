@@ -35,7 +35,7 @@ export async function revokeWalletToken({
     );
   } catch (error) {
     // Best-effort revoke; do not surface to callers.
-    // eslint-disable-next-line no-console
+     
     console.error('Failed to revoke wallet JWT:', error);
   }
 }

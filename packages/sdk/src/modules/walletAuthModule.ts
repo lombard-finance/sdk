@@ -10,8 +10,8 @@
  */
 
 import type {
-  WalletAuthService as IWalletAuthService,
   SdkModule,
+  WalletAuthService as IWalletAuthService,
 } from '@lombard.finance/sdk-common';
 
 import { WalletAuthService } from '../services/WalletAuthService';
