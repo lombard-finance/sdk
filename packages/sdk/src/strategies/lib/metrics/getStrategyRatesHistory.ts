@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
 
 import { getApiConfig } from '../../../common/api-config';
+import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
 import { resolveStrategy, StrategyId } from '../config';
 import { IStrategyRatesSnapshot } from '../types';
@@ -9,6 +10,8 @@ import { getVaultBlockchainParam, userAuthorizedGet } from './userEndpoints';
 
 export interface GetStrategyRatesHistoryParameters extends IEnvParam {
   walletJwt: string;
+  /** Chain to target when the env spans multiple chains; defaults to primary. */
+  chainId?: ChainId;
   /** Strategy to target. Defaults to the canonical strategy (BTCoc). */
   strategyId?: StrategyId;
   /** Override the resolved Strategy contract address. */
@@ -41,8 +44,21 @@ const BPS_DIVISOR = new BigNumber(10_000);
 export async function getStrategyRatesHistory(
   params: GetStrategyRatesHistoryParameters,
 ): Promise<IStrategyRatesSnapshot[]> {
-  const { strategy, strategyId, walletJwt, startTime, endTime, env } = params;
-  const { chainId, address } = resolveStrategy({ env, strategyId, strategy });
+  const {
+    strategy,
+    strategyId,
+    walletJwt,
+    startTime,
+    endTime,
+    env,
+    chainId: requestedChainId,
+  } = params;
+  const { chainId, address } = resolveStrategy({
+    env,
+    strategyId,
+    strategy,
+    chainId: requestedChainId,
+  });
 
   const { baseApiUrl } = getApiConfig(env);
   const blockchain = getVaultBlockchainParam(chainId);

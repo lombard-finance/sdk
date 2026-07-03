@@ -63,6 +63,7 @@ export async function depositStrategy({
   provider,
   rpcUrl,
   env,
+  chainId: requestedChainId,
 }: DepositStrategyParameters): Promise<Hash> {
   if (!isAddress(asset)) {
     throw new Error(`Invalid deposit asset address: ${asset}`);
@@ -80,7 +81,7 @@ export async function depositStrategy({
     address: strategyAddress,
     abi,
     depositAssets,
-  } = resolveStrategy({ env, strategyId, strategy });
+  } = resolveStrategy({ env, strategyId, strategy, chainId: requestedChainId });
 
   const decimals =
     assetDecimals ?? findStaticDepositAsset(depositAssets, asset)?.decimals;

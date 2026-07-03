@@ -24,6 +24,7 @@ export async function getStrategyPosition({
   strategy,
   strategyId,
   env,
+  chainId: requestedChainId,
 }: GetStrategyPositionParameters): Promise<IStrategyPosition> {
   if (!isAddress(account)) {
     throw new Error(`Invalid account address: ${account}`);
@@ -33,7 +34,7 @@ export async function getStrategyPosition({
     address,
     abi,
     decimals: defaultDecimals,
-  } = resolveStrategy({ env, strategyId, strategy });
+  } = resolveStrategy({ env, strategyId, strategy, chainId: requestedChainId });
 
   const client = makePublicClient({ chainId, rpcUrl, env });
 

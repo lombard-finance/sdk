@@ -30,11 +30,13 @@ export async function getStrategyDepositAssets({
   strategyId,
   candidates,
   env,
+  chainId: requestedChainId,
 }: GetStrategyDepositAssetsParameters): Promise<IStrategyDepositAsset[]> {
   const { chainId, address, abi, depositAssets } = resolveStrategy({
     env,
     strategyId,
     strategy,
+    chainId: requestedChainId,
   });
 
   const tokens = candidates ?? depositAssets.map((a) => a.token);

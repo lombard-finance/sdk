@@ -16,6 +16,8 @@ import { resolveStrategy, StrategyId } from '../config';
  */
 export interface BaseUserStrategyParams extends IEnvParam {
   owner: Address;
+  /** Chain to target when the env spans multiple chains; defaults to primary. */
+  chainId?: ChainId;
   /** Strategy to target. Defaults to the canonical strategy (BTCoc). */
   strategyId?: StrategyId;
   /** Override the resolved Strategy contract address. */
@@ -55,8 +57,14 @@ export function getVaultBlockchainParam(chainId: ChainId): string {
 export function resolveUserStrategyEndpoint(
   params: BaseUserStrategyParams,
 ): { root: string; address: Address; blockchain: string } {
-  const { owner, strategy, strategyId, env } = params;
-  const { chainId, address } = resolveStrategy({ env, strategyId, strategy });
+  const { owner, strategy, strategyId, env, chainId: requestedChainId } =
+    params;
+  const { chainId, address } = resolveStrategy({
+    env,
+    strategyId,
+    strategy,
+    chainId: requestedChainId,
+  });
 
   const { baseApiUrl } = getApiConfig(env);
   const root = `${baseApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/users/${owner}`;

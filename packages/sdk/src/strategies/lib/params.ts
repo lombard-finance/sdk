@@ -1,6 +1,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { Address, EIP1193Provider } from 'viem';
 
+import { ChainId } from '../../common/chains';
 import { StrategyId } from './config';
 
 /**
@@ -9,11 +10,17 @@ import { StrategyId } from './config';
  */
 export interface StrategyBaseParameters {
   /**
-   * Deployment environment. Selects which chain the strategy resolves to
-   * (e.g. `prod` → Ethereum, `testnet` → Base Sepolia).
+   * Deployment environment. Selects which chain(s) the strategy resolves to
+   * (e.g. `prod` → Ethereum, `stage` → Base Sepolia).
    * @default Env.prod
    */
   env?: Env;
+  /**
+   * Chain to target when the environment spans multiple chains. Must be one of
+   * the strategy's deployed chains for that env; defaults to the primary
+   * (first) chain.
+   */
+  chainId?: ChainId;
   /**
    * Strategy to target. Defaults to the canonical strategy (BTCoc).
    */

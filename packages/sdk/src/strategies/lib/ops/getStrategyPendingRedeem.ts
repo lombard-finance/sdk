@@ -24,11 +24,13 @@ export async function getStrategyPendingRedeem({
   strategyId,
   requestId,
   env,
+  chainId: requestedChainId,
 }: GetStrategyPendingRedeemParameters): Promise<IStrategyPendingRedeem> {
   const { chainId, address, abi } = resolveStrategy({
     env,
     strategyId,
     strategy,
+    chainId: requestedChainId,
   });
 
   const client = makePublicClient({ chainId, rpcUrl, env });

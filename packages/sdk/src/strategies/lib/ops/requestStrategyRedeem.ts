@@ -71,6 +71,7 @@ export async function requestStrategyRedeem({
   provider,
   rpcUrl,
   env,
+  chainId: requestedChainId,
 }: RequestStrategyRedeemParameters): Promise<IRequestStrategyRedeemResult> {
   if (shares <= 0n) {
     throw new Error(
@@ -86,7 +87,7 @@ export async function requestStrategyRedeem({
     chainId,
     address: strategyAddress,
     abi,
-  } = resolveStrategy({ env, strategyId, strategy });
+  } = resolveStrategy({ env, strategyId, strategy, chainId: requestedChainId });
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
   const walletClient = makeWalletClient({ provider, chainId });

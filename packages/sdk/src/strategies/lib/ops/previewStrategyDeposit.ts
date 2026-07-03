@@ -44,6 +44,7 @@ export async function previewStrategyDeposit({
   amount: amountRaw,
   assetDecimals,
   env,
+  chainId: requestedChainId,
 }: PreviewStrategyDepositParameters): Promise<BigNumber> {
   if (!isAddress(asset)) {
     throw new Error(`Invalid deposit asset address: ${asset}`);
@@ -61,7 +62,7 @@ export async function previewStrategyDeposit({
     abi,
     decimals: shareDecimals,
     depositAssets,
-  } = resolveStrategy({ env, strategyId, strategy });
+  } = resolveStrategy({ env, strategyId, strategy, chainId: requestedChainId });
 
   const decimals =
     assetDecimals ?? findStaticDepositAsset(depositAssets, asset)?.decimals;

@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
 
 import { getApiConfig } from '../../../common/api-config';
+import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
 import { resolveStrategy, StrategyId } from '../config';
 import { IStrategyNavSnapshot } from '../types';
@@ -10,6 +11,8 @@ import { getVaultBlockchainParam, userAuthorizedGet } from './userEndpoints';
 export interface GetStrategyNavHistoryParameters extends IEnvParam {
   /** JWT from the wallet-auth flow. Sent as `Authorization: Bearer …`. */
   walletJwt: string;
+  /** Chain to target when the env spans multiple chains; defaults to primary. */
+  chainId?: ChainId;
   /** Strategy to target. Defaults to the canonical strategy (BTCoc). */
   strategyId?: StrategyId;
   /** Override the resolved Strategy contract address. */
@@ -42,11 +45,20 @@ interface IRawNavHistoryResponse {
 export async function getStrategyNavHistory(
   params: GetStrategyNavHistoryParameters,
 ): Promise<IStrategyNavSnapshot[]> {
-  const { strategy, strategyId, walletJwt, startTime, endTime, env } = params;
+  const {
+    strategy,
+    strategyId,
+    walletJwt,
+    startTime,
+    endTime,
+    env,
+    chainId: requestedChainId,
+  } = params;
   const { chainId, address, decimals } = resolveStrategy({
     env,
     strategyId,
     strategy,
+    chainId: requestedChainId,
   });
 
   const { baseApiUrl } = getApiConfig(env);

@@ -38,13 +38,14 @@ export async function getStrategyState({
   strategy,
   strategyId,
   env,
+  chainId: requestedChainId,
 }: GetStrategyStateParameters): Promise<IStrategyState> {
   const {
     chainId,
     address,
     abi,
     decimals: defaultDecimals,
-  } = resolveStrategy({ env, strategyId, strategy });
+  } = resolveStrategy({ env, strategyId, strategy, chainId: requestedChainId });
 
   const client = makePublicClient({ chainId, rpcUrl, env });
 

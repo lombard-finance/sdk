@@ -18,11 +18,13 @@ export async function getStrategyShards({
   strategy,
   strategyId,
   env,
+  chainId: requestedChainId,
 }: GetStrategyShardsParameters): Promise<IStrategyShards> {
   const { chainId, address, abi } = resolveStrategy({
     env,
     strategyId,
     strategy,
+    chainId: requestedChainId,
   });
 
   const client = makePublicClient({ chainId, rpcUrl, env });
