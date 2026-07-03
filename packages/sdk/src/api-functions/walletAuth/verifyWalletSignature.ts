@@ -4,7 +4,10 @@ import type {
 } from '@lombard.finance/sdk-common';
 import axios from 'axios';
 
-import { getApiConfig } from '../../common/api-config';
+import {
+  getApiConfig,
+  WALLET_AUTH_REQUEST_TIMEOUT_MS,
+} from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 
@@ -35,7 +38,7 @@ export async function verifyWalletSignature({
   publicKey,
   env,
 }: VerifyWalletSignatureParams): Promise<WalletVerifyResponse> {
-  const { baseApiUrl } = getApiConfig(env);
+  const { baseApiV2Url } = getApiConfig(env);
 
   try {
     const { data } = await axios.post<WalletVerifyApiResponse>(
@@ -47,7 +50,10 @@ export async function verifyWalletSignature({
         chain,
         ...(publicKey ? { public_key: publicKey } : {}),
       },
-      { baseURL: baseApiUrl },
+      {
+        baseURL: baseApiV2Url,
+        timeout: WALLET_AUTH_REQUEST_TIMEOUT_MS,
+      },
     );
 
     return {

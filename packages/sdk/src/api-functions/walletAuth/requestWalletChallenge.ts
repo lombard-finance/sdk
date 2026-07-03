@@ -4,7 +4,10 @@ import type {
 } from '@lombard.finance/sdk-common';
 import axios from 'axios';
 
-import { getApiConfig } from '../../common/api-config';
+import {
+  getApiConfig,
+  WALLET_AUTH_REQUEST_TIMEOUT_MS,
+} from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
 
@@ -29,13 +32,16 @@ export async function requestWalletChallenge({
   chain,
   env,
 }: RequestWalletChallengeParams): Promise<WalletChallengeResponse> {
-  const { baseApiUrl } = getApiConfig(env);
+  const { baseApiV2Url } = getApiConfig(env);
 
   try {
     const { data } = await axios.post<WalletChallengeApiResponse>(
       'v2/auth/wallet/challenge',
       { address, chain },
-      { baseURL: baseApiUrl },
+      {
+        baseURL: baseApiV2Url,
+        timeout: WALLET_AUTH_REQUEST_TIMEOUT_MS,
+      },
     );
 
     return {

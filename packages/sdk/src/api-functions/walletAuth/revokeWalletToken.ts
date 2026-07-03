@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-import { getApiConfig } from '../../common/api-config';
+import {
+  getApiConfig,
+  WALLET_AUTH_REQUEST_TIMEOUT_MS,
+} from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 
 export interface RevokeWalletTokenParams extends IEnvParam {
@@ -22,15 +25,16 @@ export async function revokeWalletToken({
 }: RevokeWalletTokenParams): Promise<void> {
   if (!jwt) return;
 
-  const { baseApiUrl } = getApiConfig(env);
+  const { baseApiV2Url } = getApiConfig(env);
 
   try {
     await axios.post(
       'v2/auth/token/revoke',
       {},
       {
-        baseURL: baseApiUrl,
+        baseURL: baseApiV2Url,
         headers: { Authorization: `Bearer ${jwt}` },
+        timeout: WALLET_AUTH_REQUEST_TIMEOUT_MS,
       },
     );
   } catch (error) {
