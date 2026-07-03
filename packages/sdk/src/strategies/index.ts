@@ -1,16 +1,22 @@
 // Config
 
 export {
+  DEFAULT_STRATEGY_ID,
   findStaticDepositAsset,
-  getDefaultStrategyAddress,
-  isLombardStrategyChain,
-  LOMBARD_STRATEGY,
-  LOMBARD_STRATEGY_CHAINS,
-  LOMBARD_STRATEGY_CONTRACTS,
-  LOMBARD_STRATEGY_DECIMALS,
-  LOMBARD_STRATEGY_DEPOSIT_ASSETS,
-  type LombardStrategyChain,
+  getStrategyDefinition,
+  getStrategyDeployment,
+  type ResolvedStrategy,
+  resolveStrategy,
+  STRATEGIES,
+  type StrategyChainDeployment,
+  type StrategyDefinition,
+  type StrategyId,
 } from './lib/config';
+export type {
+  StrategyBaseParameters,
+  StrategyReadParameters,
+  StrategyWriteParameters,
+} from './lib/params';
 // Types
 
 export type {

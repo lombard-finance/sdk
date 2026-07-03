@@ -1,5 +1,5 @@
 /**
- * Strategy module - Lombard DeFi Vault Strategy (Bitcoin Stretch).
+ * Strategy module - Lombard DeFi Vault Strategy (BTCoc).
  *
  * Multi-asset, async-redeem vault contract that issues ERC-20 shares.
  * Distinct from the Veda Teller-based BTCe vault exposed under
@@ -9,10 +9,12 @@
  */
 
 export {
+  DEFAULT_STRATEGY_ID,
   depositStrategy,
   type DepositStrategyParameters,
   findStaticDepositAsset,
-  getDefaultStrategyAddress,
+  getStrategyDefinition,
+  getStrategyDeployment,
   getStrategyDepositAssets,
   type GetStrategyDepositAssetsParameters,
   getStrategyNavHistory,
@@ -36,7 +38,6 @@ export {
   getUserWithdrawals,
   type GetUserWithdrawalsParameters,
   type IRequestStrategyRedeemResult,
-  isLombardStrategyChain,
   type IStrategyAllocationRow,
   type IStrategyBaseAsset,
   type IStrategyConfigResponse,
@@ -54,15 +55,18 @@ export {
   type IStrategyUserPosition,
   type IStrategyUserPositionSnapshot,
   type IStrategyUserWithdrawalRequest,
-  LOMBARD_STRATEGY,
-  LOMBARD_STRATEGY_CHAINS,
-  LOMBARD_STRATEGY_CONTRACTS,
-  LOMBARD_STRATEGY_DECIMALS,
-  LOMBARD_STRATEGY_DEPOSIT_ASSETS,
-  type LombardStrategyChain,
   previewStrategyDeposit,
   type PreviewStrategyDepositParameters,
   requestStrategyRedeem,
   type RequestStrategyRedeemParameters,
+  type ResolvedStrategy,
+  resolveStrategy,
+  STRATEGIES,
+  type StrategyBaseParameters,
+  type StrategyChainDeployment,
+  type StrategyDefinition,
+  type StrategyId,
+  type StrategyReadParameters,
+  type StrategyWriteParameters,
   UnauthorizedWalletJwtError,
 } from '../strategies';

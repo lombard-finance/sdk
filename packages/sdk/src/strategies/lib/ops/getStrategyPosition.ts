@@ -1,27 +1,13 @@
 import BigNumber from 'bignumber.js';
-import { Address, isAddress } from 'viem';
+import { isAddress } from 'viem';
 
 import { makePublicClient } from '../../../clients/public-client';
-import { ChainId } from '../../../common/chains';
-import { IEnvParam } from '../../../common/parameters';
 import { fromBaseDenomination } from '../../../tokens/tokens';
-import { LOMBARD_STRATEGY, LOMBARD_STRATEGY_DECIMALS } from '../config';
+import { resolveStrategy } from '../config';
+import { StrategyReadParameters } from '../params';
 import { IStrategyPosition } from '../types';
-import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
 
-export interface GetStrategyPositionParameters extends IEnvParam {
-  chainId: ChainId;
-  rpcUrl?: string;
-  /**
-   * The account whose position should be read.
-   */
-  account: Address;
-  /**
-   * Strategy contract address. Defaults to the canonical address for the
-   * chain.
-   */
-  strategy?: Address;
-}
+export type GetStrategyPositionParameters = StrategyReadParameters;
 
 /**
  * Reads a user's position on a Strategy: ERC-20 share balance, implied
@@ -33,17 +19,21 @@ export interface GetStrategyPositionParameters extends IEnvParam {
  * accrued fees the headline price does not reflect.
  */
 export async function getStrategyPosition({
-  chainId,
   rpcUrl,
   account,
   strategy,
+  strategyId,
   env,
 }: GetStrategyPositionParameters): Promise<IStrategyPosition> {
-  assertLombardStrategyChain(chainId);
   if (!isAddress(account)) {
     throw new Error(`Invalid account address: ${account}`);
   }
-  const address = resolveStrategyAddress(chainId, strategy);
+  const {
+    chainId,
+    address,
+    abi,
+    decimals: defaultDecimals,
+  } = resolveStrategy({ env, strategyId, strategy });
 
   const client = makePublicClient({ chainId, rpcUrl, env });
 
@@ -53,30 +43,30 @@ export async function getStrategyPosition({
       contracts: [
         {
           address,
-          abi: LOMBARD_STRATEGY.abi,
+          abi,
           functionName: 'balanceOf',
           args: [account],
         },
         {
           address,
-          abi: LOMBARD_STRATEGY.abi,
+          abi,
           functionName: 'pendingAssetsOf',
           args: [account],
         },
         {
           address,
-          abi: LOMBARD_STRATEGY.abi,
+          abi,
           functionName: 'pricePerShare',
         },
         {
           address,
-          abi: LOMBARD_STRATEGY.abi,
+          abi,
           functionName: 'decimals',
         },
       ],
     })) as readonly [bigint, bigint, bigint, number];
 
-  const decimals = Number(decimalsRaw) || LOMBARD_STRATEGY_DECIMALS;
+  const decimals = Number(decimalsRaw) || defaultDecimals;
 
   const shares = fromBaseDenomination(sharesRaw.toString(), decimals);
   const pricePerShare = fromBaseDenomination(

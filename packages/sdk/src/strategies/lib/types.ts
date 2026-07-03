@@ -29,13 +29,12 @@ export interface IStrategyBaseAsset {
 /**
  * Static metadata for a deposit asset: token + per-asset Converter address
  * the curator wired into the Strategy, plus the display symbol/decimals that
- * the contract does not store. Used by the bundled catalog
- * (`LOMBARD_STRATEGY_DEPOSIT_ASSETS`) so the UI can render an asset list
+ * the contract does not store. Seeded per deployment in
+ * `StrategyChainDeployment.depositAssets` so the UI can render an asset list
  * without an RPC roundtrip.
  */
 export interface IStrategyDepositAssetStatic {
   token: Address;
-  converter: Address;
   symbol: string;
   decimals: number;
 }

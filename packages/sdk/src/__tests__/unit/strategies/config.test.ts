@@ -1,55 +1,66 @@
+import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
 import {
+  DEFAULT_STRATEGY_ID,
   findStaticDepositAsset,
-  getDefaultStrategyAddress,
-  isLombardStrategyChain,
-  LOMBARD_STRATEGY,
-  LOMBARD_STRATEGY_CHAINS,
-  LOMBARD_STRATEGY_CONTRACTS,
-  LOMBARD_STRATEGY_DECIMALS,
-  LOMBARD_STRATEGY_DEPOSIT_ASSETS,
+  getStrategyDefinition,
+  getStrategyDeployment,
+  resolveStrategy,
+  STRATEGIES,
 } from '../../../strategies/lib/config';
 
 describe('strategies/config', () => {
-  it('supports Ethereum mainnet (BTCoc) and Base Sepolia', () => {
-    expect([...LOMBARD_STRATEGY_CHAINS]).toEqual([
-      ChainId.ethereum,
-      ChainId.baseSepoliaTestnet,
-    ]);
+  it('registers BTCoc as the default strategy', () => {
+    expect(DEFAULT_STRATEGY_ID).toBe('btcoc');
+    expect(STRATEGIES[DEFAULT_STRATEGY_ID]).toBeDefined();
+    expect(getStrategyDefinition().name).toBe('BTCoc');
   });
 
-  it('isLombardStrategyChain narrows correctly', () => {
-    expect(isLombardStrategyChain(ChainId.baseSepoliaTestnet)).toBe(true);
-    expect(isLombardStrategyChain(ChainId.ethereum)).toBe(true);
-    expect(isLombardStrategyChain(0)).toBe(false);
+  it('resolves prod → Ethereum mainnet (BTCoc)', () => {
+    const dep = getStrategyDeployment(Env.prod);
+    expect(dep.chainId).toBe(ChainId.ethereum);
+    expect(dep.contract).toBe('0xf14F678d9c05798ba61652a950a05D74aD2E0A6C');
   });
 
-  it('mainnet BTCoc strategy address is registered', () => {
-    const addr = getDefaultStrategyAddress(ChainId.ethereum);
-    expect(addr).toBe('0xf14F678d9c05798ba61652a950a05D74aD2E0A6C');
+  it('resolves stage → Base Sepolia', () => {
+    const dep = getStrategyDeployment(Env.stage);
+    expect(dep.chainId).toBe(ChainId.baseSepoliaTestnet);
+    expect(dep.contract).toMatch(/^0x[a-fA-F0-9]{40}$/);
   });
 
-  it('getDefaultStrategyAddress matches the canonical contract map', () => {
-    const addr = getDefaultStrategyAddress(ChainId.baseSepoliaTestnet);
-    expect(addr).toBe(LOMBARD_STRATEGY_CONTRACTS[ChainId.baseSepoliaTestnet]);
-    expect(addr).toMatch(/^0x[a-fA-F0-9]{40}$/);
+  it('throws for an environment with no deployment', () => {
+    expect(() => getStrategyDeployment(Env.testnet)).toThrow(
+      /not deployed in env/,
+    );
   });
 
-  it('share decimals constant is 8 (BTC-denominated shares)', () => {
-    expect(LOMBARD_STRATEGY_DECIMALS).toBe(8);
-    expect(LOMBARD_STRATEGY.decimals).toBe(8);
+  it('throws for an unknown strategy id', () => {
+    expect(() => getStrategyDefinition('does-not-exist')).toThrow(
+      /Unknown strategy id/,
+    );
+  });
+
+  it('share decimals is 8 (BTC-denominated shares)', () => {
+    expect(getStrategyDefinition().decimals).toBe(8);
+    expect(resolveStrategy({ env: Env.stage }).decimals).toBe(8);
+  });
+
+  it('resolveStrategy honors an explicit address override on the resolved chain', () => {
+    const override = '0x0000000000000000000000000000000000009999' as const;
+    const resolved = resolveStrategy({ env: Env.stage, strategy: override });
+    expect(resolved.address).toBe(override);
+    expect(resolved.chainId).toBe(ChainId.baseSepoliaTestnet);
   });
 
   it('findStaticDepositAsset resolves catalog entries case-insensitively', () => {
-    const lbtc = LOMBARD_STRATEGY_DEPOSIT_ASSETS[
-      ChainId.baseSepoliaTestnet
-    ].find((a) => a.symbol === 'LBTC');
+    const { depositAssets } = getStrategyDeployment(Env.stage);
+    const lbtc = depositAssets.find((a) => a.symbol === 'LBTC');
     expect(lbtc).toBeDefined();
 
     const found = findStaticDepositAsset(
-      ChainId.baseSepoliaTestnet,
+      depositAssets,
       lbtc!.token.toUpperCase() as `0x${string}`,
     );
     expect(found?.symbol).toBe('LBTC');
@@ -57,17 +68,18 @@ describe('strategies/config', () => {
   });
 
   it('findStaticDepositAsset returns undefined for unknown asset', () => {
+    const { depositAssets } = getStrategyDeployment(Env.stage);
     const res = findStaticDepositAsset(
-      ChainId.baseSepoliaTestnet,
+      depositAssets,
       '0x0000000000000000000000000000000000000001',
     );
     expect(res).toBeUndefined();
   });
 
-  it('catalog contains v1 assets: LBTC, BTC.b, USDT, wETH', () => {
-    const symbols = LOMBARD_STRATEGY_DEPOSIT_ASSETS[
-      ChainId.baseSepoliaTestnet
-    ].map((a) => a.symbol);
+  it('Base Sepolia (stage) catalog contains v1 assets: LBTC, BTC.b, USDT, wETH', () => {
+    const symbols = getStrategyDeployment(Env.stage).depositAssets.map(
+      (a) => a.symbol,
+    );
     for (const s of ['LBTC', 'BTC.b', 'USDT', 'wETH']) {
       expect(symbols).toContain(s);
     }

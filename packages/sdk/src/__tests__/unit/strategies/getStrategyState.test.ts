@@ -1,7 +1,6 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ChainId } from '../../../common/chains';
 import { getStrategyState } from '../../../strategies/lib/metrics/getStrategyState';
 
 const multicall = vi.fn();
@@ -20,7 +19,7 @@ describe('getStrategyState', () => {
       false, // paused
       false, // depositPaused
       false, // redeemPaused
-      'Bitcoin Stretch', // name
+      'BTCoc', // name
       'BTCstrc', // symbol
       8, // decimals
       '0xd0b479AD08733fd6C63ffdEf3F9c203394699125', // asset
@@ -34,14 +33,13 @@ describe('getStrategyState', () => {
     ]);
 
     const state = await getStrategyState({
-      chainId: ChainId.baseSepoliaTestnet,
-      env: Env.testnet,
+      env: Env.stage,
     });
 
     expect(state.paused).toBe(false);
     expect(state.depositPaused).toBe(false);
     expect(state.redeemPaused).toBe(false);
-    expect(state.name).toBe('Bitcoin Stretch');
+    expect(state.name).toBe('BTCoc');
     expect(state.symbol).toBe('BTCstrc');
     expect(state.decimals).toBe(8);
     expect(state.baseAssetAddress).toBe(
@@ -57,10 +55,10 @@ describe('getStrategyState', () => {
     expect(state.redeemFeeBps).toBe(30);
   });
 
-  it('rejects unsupported chain ids before issuing any RPC', async () => {
-    await expect(
-      getStrategyState({ chainId: ChainId.sepolia, env: Env.prod }),
-    ).rejects.toThrow(/Unsupported chain id/);
+  it('rejects an environment the strategy is not deployed in', async () => {
+    await expect(getStrategyState({ env: Env.testnet })).rejects.toThrow(
+      /not deployed in env/,
+    );
     expect(multicall).not.toHaveBeenCalled();
   });
 });

@@ -1,23 +1,17 @@
-import { Address, decodeEventLog, isAddress, Log } from 'viem';
+import { Abi, Address, decodeEventLog, isAddress, Log } from 'viem';
 
 import { makePublicClient } from '../../../clients/public-client';
 import { makeWalletClient } from '../../../clients/wallet-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../../common/chains';
-import { CommonWriteParameters } from '../../../common/parameters';
 import { getErrorMessage } from '../../../utils/err';
-import { LOMBARD_STRATEGY } from '../config';
+import { resolveStrategy } from '../config';
+import { StrategyWriteParameters } from '../params';
 import { IRequestStrategyRedeemResult } from '../types';
-import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
 
 export type RequestStrategyRedeemParameters = {
   /**
-   * Strategy contract address. Defaults to the canonical address for the
-   * chain (Bitcoin Stretch on Base Sepolia).
-   */
-  strategy?: Address;
-  /**
    * Number of shares to redeem, in Strategy share base units (1e8 for
-   * Bitcoin Stretch). Caller is responsible for the human-readable
+   * BTCoc). Caller is responsible for the human-readable
    * conversion; pass `toBigInt(toBaseDenomination(human, decimals))` if
    * starting from a UI value.
    */
@@ -41,7 +35,7 @@ export type RequestStrategyRedeemParameters = {
    * @default true
    */
   waitForReceipt?: boolean;
-} & CommonWriteParameters;
+} & StrategyWriteParameters;
 
 /**
  * Submits an async redemption request to the Strategy.
@@ -69,16 +63,15 @@ export type RequestStrategyRedeemParameters = {
  */
 export async function requestStrategyRedeem({
   strategy,
+  strategyId,
   shares,
   owner,
   waitForReceipt = true,
   account,
-  chainId,
   provider,
   rpcUrl,
   env,
 }: RequestStrategyRedeemParameters): Promise<IRequestStrategyRedeemResult> {
-  assertLombardStrategyChain(chainId);
   if (shares <= 0n) {
     throw new Error(
       `Redeem shares must be greater than zero. Received: ${shares.toString()}.`,
@@ -89,7 +82,11 @@ export async function requestStrategyRedeem({
     throw new Error(`Invalid owner address: ${ownerAddress}`);
   }
 
-  const strategyAddress = resolveStrategyAddress(chainId, strategy);
+  const {
+    chainId,
+    address: strategyAddress,
+    abi,
+  } = resolveStrategy({ env, strategyId, strategy });
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env });
   const walletClient = makeWalletClient({ provider, chainId });
@@ -100,7 +97,7 @@ export async function requestStrategyRedeem({
       account,
       chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
       address: strategyAddress,
-      abi: LOMBARD_STRATEGY.abi,
+      abi,
       functionName: 'requestRedeem',
       args: [shares, ownerAddress],
     });
@@ -116,7 +113,7 @@ export async function requestStrategyRedeem({
   const receipt = await publicClient.waitForTransactionReceipt({
     hash: txHash,
   });
-  const requestId = parseRequestIdFromLogs(receipt.logs, strategyAddress);
+  const requestId = parseRequestIdFromLogs(receipt.logs, strategyAddress, abi);
 
   return { txHash, requestId };
 }
@@ -130,13 +127,14 @@ export async function requestStrategyRedeem({
 function parseRequestIdFromLogs(
   logs: ReadonlyArray<Log>,
   strategyAddress: Address,
+  abi: Abi,
 ): bigint | undefined {
   const target = strategyAddress.toLowerCase();
   for (const log of logs) {
     if (log.address.toLowerCase() !== target) continue;
     try {
       const decoded = decodeEventLog({
-        abi: LOMBARD_STRATEGY.abi,
+        abi,
         data: log.data,
         topics: log.topics,
       });

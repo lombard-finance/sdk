@@ -1,17 +1,11 @@
 import { Address } from 'viem';
 
 import { makePublicClient } from '../../../clients/public-client';
-import { ChainId } from '../../../common/chains';
-import { IEnvParam } from '../../../common/parameters';
-import { LOMBARD_STRATEGY } from '../config';
+import { resolveStrategy } from '../config';
+import { StrategyBaseParameters } from '../params';
 import { IStrategyShards } from '../types';
-import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
 
-export interface GetStrategyShardsParameters extends IEnvParam {
-  chainId: ChainId;
-  rpcUrl?: string;
-  strategy?: Address;
-}
+export type GetStrategyShardsParameters = StrategyBaseParameters;
 
 /**
  * Reads the Strategy's shard inventory: the full `shards()` array and the
@@ -20,20 +14,23 @@ export interface GetStrategyShardsParameters extends IEnvParam {
  * view.
  */
 export async function getStrategyShards({
-  chainId,
   rpcUrl,
   strategy,
+  strategyId,
   env,
 }: GetStrategyShardsParameters): Promise<IStrategyShards> {
-  assertLombardStrategyChain(chainId);
-  const address = resolveStrategyAddress(chainId, strategy);
+  const { chainId, address, abi } = resolveStrategy({
+    env,
+    strategyId,
+    strategy,
+  });
 
   const client = makePublicClient({ chainId, rpcUrl, env });
   const [shards, defaultShard] = (await client.multicall({
     allowFailure: false,
     contracts: [
-      { address, abi: LOMBARD_STRATEGY.abi, functionName: 'shards' },
-      { address, abi: LOMBARD_STRATEGY.abi, functionName: 'defaultShard' },
+      { address, abi, functionName: 'shards' },
+      { address, abi, functionName: 'defaultShard' },
     ],
   })) as readonly [readonly Address[], Address];
 

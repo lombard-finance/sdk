@@ -1,11 +1,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ChainId } from '../../../common/chains';
-import {
-  LOMBARD_STRATEGY_CONTRACTS,
-  LOMBARD_STRATEGY_DEPOSIT_ASSETS,
-} from '../../../strategies/lib/config';
+import { getStrategyDeployment } from '../../../strategies/lib/config';
 import { depositStrategy } from '../../../strategies/lib/ops/depositStrategy';
 
 const readContract = vi.fn();
@@ -26,10 +22,9 @@ vi.mock('../../../clients/wallet-client', () => ({
 }));
 
 const ACCOUNT = '0x000000000000000000000000000000000000dEaD' as const;
-const LBTC = LOMBARD_STRATEGY_DEPOSIT_ASSETS[ChainId.baseSepoliaTestnet].find(
-  (a) => a.symbol === 'LBTC',
-)!.token;
-const STRATEGY = LOMBARD_STRATEGY_CONTRACTS[ChainId.baseSepoliaTestnet];
+const STAGE = getStrategyDeployment(Env.stage);
+const LBTC = STAGE.depositAssets.find((a) => a.symbol === 'LBTC')!.token;
+const STRATEGY = STAGE.contract;
 
 afterEach(() => {
   readContract.mockReset();
@@ -48,8 +43,7 @@ describe('depositStrategy', () => {
 
     const hash = await depositStrategy({
       account: ACCOUNT,
-      chainId: ChainId.baseSepoliaTestnet,
-      env: Env.testnet,
+      env: Env.stage,
       provider: {} as never,
       asset: LBTC,
       amount: '0.001',
@@ -76,8 +70,7 @@ describe('depositStrategy', () => {
 
     const hash = await depositStrategy({
       account: ACCOUNT,
-      chainId: ChainId.baseSepoliaTestnet,
-      env: Env.testnet,
+      env: Env.stage,
       provider: {} as never,
       asset: LBTC,
       amount: '0.5',
@@ -104,8 +97,7 @@ describe('depositStrategy', () => {
     await expect(
       depositStrategy({
         account: ACCOUNT,
-        chainId: ChainId.baseSepoliaTestnet,
-        env: Env.testnet,
+        env: Env.stage,
         provider: {} as never,
         asset: LBTC,
         amount: '0.001',
@@ -116,17 +108,16 @@ describe('depositStrategy', () => {
     expect(writeContract).not.toHaveBeenCalled();
   });
 
-  it('rejects unsupported chain ids early', async () => {
+  it('rejects an environment the strategy is not deployed in', async () => {
     await expect(
       depositStrategy({
         account: ACCOUNT,
-        chainId: ChainId.sepolia,
-        env: Env.prod,
+        env: Env.testnet,
         provider: {} as never,
         asset: LBTC,
         amount: '0.001',
       }),
-    ).rejects.toThrow(/Unsupported chain id/);
+    ).rejects.toThrow(/not deployed in env/);
     expect(readContract).not.toHaveBeenCalled();
   });
 
@@ -134,8 +125,7 @@ describe('depositStrategy', () => {
     await expect(
       depositStrategy({
         account: ACCOUNT,
-        chainId: ChainId.baseSepoliaTestnet,
-        env: Env.testnet,
+        env: Env.stage,
         provider: {} as never,
         asset: LBTC,
         amount: '0',
@@ -147,8 +137,7 @@ describe('depositStrategy', () => {
     await expect(
       depositStrategy({
         account: ACCOUNT,
-        chainId: ChainId.baseSepoliaTestnet,
-        env: Env.testnet,
+        env: Env.stage,
         provider: {} as never,
         asset: '0x0000000000000000000000000000000000001234',
         amount: '0.001',

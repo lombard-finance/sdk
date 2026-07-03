@@ -2,9 +2,8 @@ import { Env } from '@lombard.finance/sdk-common';
 import { encodeEventTopics } from 'viem';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ChainId } from '../../../common/chains';
 import LOMBARD_STRATEGY_ABI from '../../../strategies/abi/LOMBARD_STRATEGY_ABI.json';
-import { LOMBARD_STRATEGY_CONTRACTS } from '../../../strategies/lib/config';
+import { getStrategyDeployment } from '../../../strategies/lib/config';
 import { requestStrategyRedeem } from '../../../strategies/lib/ops/requestStrategyRedeem';
 
 const simulateContract = vi.fn();
@@ -23,7 +22,7 @@ vi.mock('../../../clients/wallet-client', () => ({
 }));
 
 const ACCOUNT = '0x000000000000000000000000000000000000dEaD' as const;
-const STRATEGY = LOMBARD_STRATEGY_CONTRACTS[ChainId.baseSepoliaTestnet];
+const STRATEGY = getStrategyDeployment(Env.stage).contract;
 
 afterEach(() => {
   simulateContract.mockReset();
@@ -64,8 +63,7 @@ describe('requestStrategyRedeem', () => {
 
     const { txHash, requestId } = await requestStrategyRedeem({
       account: ACCOUNT,
-      chainId: ChainId.baseSepoliaTestnet,
-      env: Env.testnet,
+      env: Env.stage,
       provider: {} as never,
       shares: 100000000n,
     });
@@ -84,8 +82,7 @@ describe('requestStrategyRedeem', () => {
 
     const result = await requestStrategyRedeem({
       account: ACCOUNT,
-      chainId: ChainId.baseSepoliaTestnet,
-      env: Env.testnet,
+      env: Env.stage,
       provider: {} as never,
       shares: 1n,
       waitForReceipt: false,
@@ -102,23 +99,21 @@ describe('requestStrategyRedeem', () => {
     await expect(
       requestStrategyRedeem({
         account: ACCOUNT,
-        chainId: ChainId.baseSepoliaTestnet,
-        env: Env.testnet,
+        env: Env.stage,
         provider: {} as never,
         shares: 0n,
       }),
     ).rejects.toThrow(/greater than zero/);
   });
 
-  it('rejects unsupported chain ids early', async () => {
+  it('rejects an environment the strategy is not deployed in', async () => {
     await expect(
       requestStrategyRedeem({
         account: ACCOUNT,
-        chainId: ChainId.sepolia,
-        env: Env.prod,
+        env: Env.testnet,
         provider: {} as never,
         shares: 1n,
       }),
-    ).rejects.toThrow(/Unsupported chain id/);
+    ).rejects.toThrow(/not deployed in env/);
   });
 });

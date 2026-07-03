@@ -2,15 +2,16 @@ import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
 
 import { getApiConfig } from '../../../common/api-config';
-import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
+import { resolveStrategy, StrategyId } from '../config';
 import { IStrategyRatesSnapshot } from '../types';
-import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
 import { getVaultBlockchainParam, userAuthorizedGet } from './userEndpoints';
 
 export interface GetStrategyRatesHistoryParameters extends IEnvParam {
-  chainId: ChainId;
   walletJwt: string;
+  /** Strategy to target. Defaults to the canonical strategy (BTCoc). */
+  strategyId?: StrategyId;
+  /** Override the resolved Strategy contract address. */
   strategy?: Address;
   startTime?: Date;
   endTime?: Date;
@@ -40,9 +41,8 @@ const BPS_DIVISOR = new BigNumber(10_000);
 export async function getStrategyRatesHistory(
   params: GetStrategyRatesHistoryParameters,
 ): Promise<IStrategyRatesSnapshot[]> {
-  const { chainId, strategy, walletJwt, startTime, endTime, env } = params;
-  assertLombardStrategyChain(chainId);
-  const address = resolveStrategyAddress(chainId, strategy);
+  const { strategy, strategyId, walletJwt, startTime, endTime, env } = params;
+  const { chainId, address } = resolveStrategy({ env, strategyId, strategy });
 
   const { baseApiUrl } = getApiConfig(env);
   const blockchain = getVaultBlockchainParam(chainId);

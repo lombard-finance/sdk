@@ -2,18 +2,17 @@ import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
 
 import { getApiConfig } from '../../../common/api-config';
-import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
-import { LOMBARD_STRATEGY_DECIMALS } from '../config';
+import { resolveStrategy, StrategyId } from '../config';
 import { IStrategyNavSnapshot } from '../types';
-import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
 import { getVaultBlockchainParam, userAuthorizedGet } from './userEndpoints';
 
 export interface GetStrategyNavHistoryParameters extends IEnvParam {
-  chainId: ChainId;
   /** JWT from the wallet-auth flow. Sent as `Authorization: Bearer …`. */
   walletJwt: string;
-  /** Override the canonical Strategy contract address for this chain. */
+  /** Strategy to target. Defaults to the canonical strategy (BTCoc). */
+  strategyId?: StrategyId;
+  /** Override the resolved Strategy contract address. */
   strategy?: Address;
   /** Inclusive lower bound. Backend defaults to "since inception". */
   startTime?: Date;
@@ -43,9 +42,12 @@ interface IRawNavHistoryResponse {
 export async function getStrategyNavHistory(
   params: GetStrategyNavHistoryParameters,
 ): Promise<IStrategyNavSnapshot[]> {
-  const { chainId, strategy, walletJwt, startTime, endTime, env } = params;
-  assertLombardStrategyChain(chainId);
-  const address = resolveStrategyAddress(chainId, strategy);
+  const { strategy, strategyId, walletJwt, startTime, endTime, env } = params;
+  const { chainId, address, decimals } = resolveStrategy({
+    env,
+    strategyId,
+    strategy,
+  });
 
   const { baseApiUrl } = getApiConfig(env);
   const blockchain = getVaultBlockchainParam(chainId);
@@ -57,7 +59,7 @@ export async function getStrategyNavHistory(
   const url = `${baseApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/nav-history?${query.toString()}`;
   const raw = await userAuthorizedGet<IRawNavHistoryResponse>(url, walletJwt);
 
-  const divisor = new BigNumber(10).pow(LOMBARD_STRATEGY_DECIMALS);
+  const divisor = new BigNumber(10).pow(decimals);
   return (raw?.snapshots ?? []).map((s) => ({
     timestamp: s.timestamp ? new Date(s.timestamp) : new Date(0),
     nav: new BigNumber(s.nav ?? '0').div(divisor),

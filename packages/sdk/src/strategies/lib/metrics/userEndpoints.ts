@@ -4,17 +4,21 @@ import { Address } from 'viem';
 import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
-import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
+import { resolveStrategy, StrategyId } from '../config';
 
 /**
  * Per-user endpoints live behind a wallet-JWT gate. Each parameter object
  * extends this base shape; callers pass a `walletJwt` they obtained via the
  * `/api/v2/auth/wallet/*` challenge → verify flow.
+ *
+ * Env-first: `env` (+ optional `strategyId`) selects the deployment; the chain
+ * follows from it.
  */
 export interface BaseUserStrategyParams extends IEnvParam {
-  chainId: ChainId;
   owner: Address;
-  /** Override the canonical Strategy contract address for this chain. */
+  /** Strategy to target. Defaults to the canonical strategy (BTCoc). */
+  strategyId?: StrategyId;
+  /** Override the resolved Strategy contract address. */
   strategy?: Address;
   /** JWT from the wallet-auth flow. Sent as `Authorization: Bearer …`. */
   walletJwt: string;
@@ -51,9 +55,8 @@ export function getVaultBlockchainParam(chainId: ChainId): string {
 export function resolveUserStrategyEndpoint(
   params: BaseUserStrategyParams,
 ): { root: string; address: Address; blockchain: string } {
-  const { chainId, owner, strategy, env } = params;
-  assertLombardStrategyChain(chainId);
-  const address = resolveStrategyAddress(chainId, strategy);
+  const { owner, strategy, strategyId, env } = params;
+  const { chainId, address } = resolveStrategy({ env, strategyId, strategy });
 
   const { baseApiUrl } = getApiConfig(env);
   const root = `${baseApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/users/${owner}`;

@@ -1,22 +1,12 @@
 import { Address } from 'viem';
 
 import { makePublicClient } from '../../../clients/public-client';
-import { ChainId } from '../../../common/chains';
-import { IEnvParam } from '../../../common/parameters';
 import { fromBaseDenomination } from '../../../tokens/tokens';
-import { LOMBARD_STRATEGY, LOMBARD_STRATEGY_DECIMALS } from '../config';
+import { resolveStrategy } from '../config';
+import { StrategyBaseParameters } from '../params';
 import { IStrategyState } from '../types';
-import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
 
-export interface GetStrategyStateParameters extends IEnvParam {
-  chainId: ChainId;
-  rpcUrl?: string;
-  /**
-   * Strategy contract address. Defaults to the canonical address for the
-   * chain (e.g. Bitcoin Stretch on Base Sepolia).
-   */
-  strategy?: Address;
-}
+export type GetStrategyStateParameters = StrategyBaseParameters;
 
 const NO_ARG_VIEWS = [
   'paused',
@@ -44,13 +34,17 @@ const NO_ARG_VIEWS = [
  * partial state.
  */
 export async function getStrategyState({
-  chainId,
   rpcUrl,
   strategy,
+  strategyId,
   env,
 }: GetStrategyStateParameters): Promise<IStrategyState> {
-  assertLombardStrategyChain(chainId);
-  const address = resolveStrategyAddress(chainId, strategy);
+  const {
+    chainId,
+    address,
+    abi,
+    decimals: defaultDecimals,
+  } = resolveStrategy({ env, strategyId, strategy });
 
   const client = makePublicClient({ chainId, rpcUrl, env });
 
@@ -58,7 +52,7 @@ export async function getStrategyState({
     allowFailure: false,
     contracts: NO_ARG_VIEWS.map((functionName) => ({
       address,
-      abi: LOMBARD_STRATEGY.abi,
+      abi,
       functionName,
     })),
   });
@@ -95,7 +89,7 @@ export async function getStrategyState({
     number,
   ];
 
-  const decimals = Number(decimalsRaw) || LOMBARD_STRATEGY_DECIMALS;
+  const decimals = Number(decimalsRaw) || defaultDecimals;
 
   return {
     paused,

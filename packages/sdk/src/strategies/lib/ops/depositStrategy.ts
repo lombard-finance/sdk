@@ -4,19 +4,13 @@ import { Address, erc20Abi, Hash, isAddress } from 'viem';
 import { makePublicClient } from '../../../clients/public-client';
 import { makeWalletClient } from '../../../clients/wallet-client';
 import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../../common/chains';
-import { CommonWriteParameters } from '../../../common/parameters';
 import { toBaseDenomination } from '../../../tokens/tokens';
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
-import { findStaticDepositAsset, LOMBARD_STRATEGY } from '../config';
-import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
+import { findStaticDepositAsset, resolveStrategy } from '../config';
+import { StrategyWriteParameters } from '../params';
 
 export type DepositStrategyParameters = {
-  /**
-   * Strategy contract address. Defaults to the canonical address for the
-   * chain (Bitcoin Stretch on Base Sepolia).
-   */
-  strategy?: Address;
   /** ERC-20 deposit asset address (must be `isDepositAsset` on the Strategy). */
   asset: Address;
   /** Amount to deposit in human-readable units (e.g. "0.001"). */
@@ -31,7 +25,7 @@ export type DepositStrategyParameters = {
   receiver?: Address;
   /**
    * Minimum shares to mint, slippage protection. Specified in Strategy
-   * share base units (1e8 for Bitcoin Stretch). Default `0n` is parity
+   * share base units (1e8 for BTCoc). Default `0n` is parity
    * with the 3-arg `deposit` overload.
    */
   minSharesOut?: bigint;
@@ -41,7 +35,7 @@ export type DepositStrategyParameters = {
    * @default true
    */
   approve?: boolean;
-} & CommonWriteParameters;
+} & StrategyWriteParameters;
 
 /**
  * Deposits a supported ERC-20 asset into the Lombard DeFi Vault Strategy.
@@ -57,7 +51,6 @@ export type DepositStrategyParameters = {
  * allowance.
  */
 export async function depositStrategy({
-  strategy,
   asset,
   amount: amountRaw,
   assetDecimals,
@@ -65,12 +58,12 @@ export async function depositStrategy({
   minSharesOut = 0n,
   approve = true,
   account,
-  chainId,
+  strategy,
+  strategyId,
   provider,
   rpcUrl,
   env,
 }: DepositStrategyParameters): Promise<Hash> {
-  assertLombardStrategyChain(chainId);
   if (!isAddress(asset)) {
     throw new Error(`Invalid deposit asset address: ${asset}`);
   }
@@ -82,10 +75,15 @@ export async function depositStrategy({
     );
   }
 
-  const strategyAddress = resolveStrategyAddress(chainId, strategy);
+  const {
+    chainId,
+    address: strategyAddress,
+    abi,
+    depositAssets,
+  } = resolveStrategy({ env, strategyId, strategy });
 
   const decimals =
-    assetDecimals ?? findStaticDepositAsset(chainId, asset)?.decimals;
+    assetDecimals ?? findStaticDepositAsset(depositAssets, asset)?.decimals;
   if (decimals === undefined) {
     throw new Error(
       `Could not resolve decimals for asset ${asset}. Pass \`assetDecimals\` explicitly.`,
@@ -134,7 +132,7 @@ export async function depositStrategy({
       account,
       chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
       address: strategyAddress,
-      abi: LOMBARD_STRATEGY.abi,
+      abi,
       functionName: 'deposit',
       args: [asset, amountBase, receiver ?? account, minSharesOut],
     });

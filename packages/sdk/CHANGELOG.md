@@ -1,4 +1,4 @@
-# 5.1.0-next.1
+# 5.1.0
 
 ### Added
 
@@ -9,11 +9,14 @@
 - Low-level functional exports for the same endpoints — `requestWalletChallenge`, `verifyWalletSignature`, `revokeWalletToken` — for consumers that don't want the module/DI layer.
 - `WalletAuthService` class implementing the `WalletAuthService` interface from `@lombard.finance/sdk-common`.
 - Signing the challenge with the user's wallet is intentionally NOT included — signing is chain-specific and belongs in the corresponding chain SDK package (or the consuming app).
-- New `@lombard.finance/sdk/strategies` entry point for the Lombard DeFi Vault Strategy contract (codename "Bitcoin Stretch"). Distinct from the Veda Teller-based Bitcoin Earn vault exposed under `@lombard.finance/sdk/vaults` — do not conflate the two. v1 is Base Sepolia only; mainnet entry will be added when the contract ships.
+- New `@lombard.finance/sdk/strategies` entry point for the Lombard DeFi Vault Strategy contract (codename "BTCoc"). Distinct from the Bitcoin Earn vault exposed under `@lombard.finance/sdk/vaults` — do not conflate the two. Env-first: a call picks a strategy (`strategyId`, default BTCoc) and an environment (`env`), and the chain follows from that pair — `prod` → Ethereum mainnet, `stage` → Base Sepolia. No `chainId` parameter.
   - Per-user / op reads: `getStrategyPosition`, `getStrategyDepositAssets`, `getStrategyPendingRedeem`, `getStrategyShards`, `previewStrategyDeposit`.
   - Writes: `depositStrategy` (4-arg `deposit(asset, amount, receiver, minSharesOut)`, approves the Strategy contract on insufficient allowance), `requestStrategyRedeem` (async redeem; parses `requestId` from the `RedeemRequested` event, supports `waitForReceipt: false` for Safe multisig flows).
   - Types: `IStrategyState`, `IStrategyPosition`, `IStrategyConfigResponse`, `IStrategyDepositAsset`, `IStrategyDepositAssetStatic`, `IStrategyShards`, `IStrategyPendingRedeem`, `IRequestStrategyRedeemResult`, plus function-parameter types (`GetStrategy*Parameters`, `DepositStrategyParameters`, `RequestStrategyRedeemParameters`).
-  - Config: `LOMBARD_STRATEGY` bundle, `LOMBARD_STRATEGY_DEPOSIT_ASSETS` static catalog (LBTC / BTC.b / USDT / wETH / BTCt on Base Sepolia), `assertLombardStrategyChain` type-narrowing helper.
+  - Config: `STRATEGIES` registry + `DEFAULT_STRATEGY_ID`, resolvers `resolveStrategy` / `getStrategyDeployment` / `getStrategyDefinition`, and `findStaticDepositAsset`. Each strategy carries per-env deployments (contract address + static deposit-asset catalog: LBTC / BTC.b on Ethereum, LBTC / BTC.b / USDT / wETH / BTCt on Base Sepolia).
+
+---
+
 # 5.0.5
 
 ### Fixed

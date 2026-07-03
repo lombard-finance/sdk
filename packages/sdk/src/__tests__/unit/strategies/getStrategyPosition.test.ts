@@ -1,7 +1,6 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ChainId } from '../../../common/chains';
 import { getStrategyPosition } from '../../../strategies/lib/ops/getStrategyPosition';
 
 const multicall = vi.fn();
@@ -26,8 +25,7 @@ describe('getStrategyPosition', () => {
     ]);
 
     const pos = await getStrategyPosition({
-      chainId: ChainId.baseSepoliaTestnet,
-      env: Env.testnet,
+      env: Env.stage,
       account: ACCOUNT,
     });
 
@@ -40,22 +38,20 @@ describe('getStrategyPosition', () => {
   it('rejects invalid account address', async () => {
     await expect(
       getStrategyPosition({
-        chainId: ChainId.baseSepoliaTestnet,
-        env: Env.testnet,
+        env: Env.stage,
         account: 'not-an-address' as never,
       }),
     ).rejects.toThrow(/Invalid account address/);
     expect(multicall).not.toHaveBeenCalled();
   });
 
-  it('rejects unsupported chain ids before issuing any RPC', async () => {
+  it('rejects an environment the strategy is not deployed in', async () => {
     await expect(
       getStrategyPosition({
-        chainId: ChainId.sepolia,
-        env: Env.prod,
+        env: Env.testnet,
         account: ACCOUNT,
       }),
-    ).rejects.toThrow(/Unsupported chain id/);
+    ).rejects.toThrow(/not deployed in env/);
     expect(multicall).not.toHaveBeenCalled();
   });
 });

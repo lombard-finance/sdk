@@ -2,12 +2,8 @@ import { Env } from '@lombard.finance/sdk-common';
 import { encodeEventTopics } from 'viem';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ChainId } from '../../common/chains';
 import LOMBARD_STRATEGY_ABI from '../../strategies/abi/LOMBARD_STRATEGY_ABI.json';
-import {
-  LOMBARD_STRATEGY_CONTRACTS,
-  LOMBARD_STRATEGY_DEPOSIT_ASSETS,
-} from '../../strategies/lib/config';
+import { getStrategyDeployment } from '../../strategies/lib/config';
 import { depositStrategy } from '../../strategies/lib/ops/depositStrategy';
 import { requestStrategyRedeem } from '../../strategies/lib/ops/requestStrategyRedeem';
 
@@ -29,10 +25,9 @@ vi.mock('../../clients/wallet-client', () => ({
 }));
 
 const ACCOUNT = '0x000000000000000000000000000000000000dEaD' as const;
-const STRATEGY = LOMBARD_STRATEGY_CONTRACTS[ChainId.baseSepoliaTestnet];
-const LBTC = LOMBARD_STRATEGY_DEPOSIT_ASSETS[ChainId.baseSepoliaTestnet].find(
-  (a) => a.symbol === 'LBTC',
-)!.token;
+const STAGE = getStrategyDeployment(Env.stage);
+const STRATEGY = STAGE.contract;
+const LBTC = STAGE.depositAssets.find((a) => a.symbol === 'LBTC')!.token;
 
 afterEach(() => {
   readContract.mockReset();
@@ -55,8 +50,7 @@ describe('strategies: end-to-end deposit + requestRedeem (mocked)', () => {
 
     const depositHash = await depositStrategy({
       account: ACCOUNT,
-      chainId: ChainId.baseSepoliaTestnet,
-      env: Env.testnet,
+      env: Env.stage,
       provider: {} as never,
       asset: LBTC,
       amount: '0.01',
@@ -98,8 +92,7 @@ describe('strategies: end-to-end deposit + requestRedeem (mocked)', () => {
 
     const { txHash, requestId } = await requestStrategyRedeem({
       account: ACCOUNT,
-      chainId: ChainId.baseSepoliaTestnet,
-      env: Env.testnet,
+      env: Env.stage,
       provider: {} as never,
       shares: 100000n,
     });
@@ -117,8 +110,7 @@ describe('strategies: end-to-end deposit + requestRedeem (mocked)', () => {
 
     const hash = await depositStrategy({
       account: ACCOUNT,
-      chainId: ChainId.baseSepoliaTestnet,
-      env: Env.testnet,
+      env: Env.stage,
       provider: {} as never,
       asset: LBTC,
       amount: '0.005',

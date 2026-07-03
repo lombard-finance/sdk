@@ -2,24 +2,16 @@ import BigNumber from 'bignumber.js';
 import { Address, isAddress } from 'viem';
 
 import { makePublicClient } from '../../../clients/public-client';
-import { ChainId } from '../../../common/chains';
-import { IEnvParam } from '../../../common/parameters';
 import {
   fromBaseDenomination,
   toBaseDenomination,
 } from '../../../tokens/tokens';
 import toBigInt from '../../../utils/numbers';
-import {
-  findStaticDepositAsset,
-  LOMBARD_STRATEGY,
-  LOMBARD_STRATEGY_DECIMALS,
-} from '../config';
-import { assertLombardStrategyChain, resolveStrategyAddress } from '../utils';
+import { findStaticDepositAsset, resolveStrategy } from '../config';
+import { StrategyBaseParameters } from '../params';
 
-export interface PreviewStrategyDepositParameters extends IEnvParam {
-  chainId: ChainId;
-  rpcUrl?: string;
-  strategy?: Address;
+export interface PreviewStrategyDepositParameters
+  extends StrategyBaseParameters {
   /** ERC-20 address of the deposit asset. */
   asset: Address;
   /**
@@ -45,15 +37,14 @@ export interface PreviewStrategyDepositParameters extends IEnvParam {
  * or zero/negative amounts.
  */
 export async function previewStrategyDeposit({
-  chainId,
   rpcUrl,
   strategy,
+  strategyId,
   asset,
   amount: amountRaw,
   assetDecimals,
   env,
 }: PreviewStrategyDepositParameters): Promise<BigNumber> {
-  assertLombardStrategyChain(chainId);
   if (!isAddress(asset)) {
     throw new Error(`Invalid deposit asset address: ${asset}`);
   }
@@ -64,10 +55,16 @@ export async function previewStrategyDeposit({
     );
   }
 
-  const address = resolveStrategyAddress(chainId, strategy);
+  const {
+    chainId,
+    address,
+    abi,
+    decimals: shareDecimals,
+    depositAssets,
+  } = resolveStrategy({ env, strategyId, strategy });
 
   const decimals =
-    assetDecimals ?? findStaticDepositAsset(chainId, asset)?.decimals;
+    assetDecimals ?? findStaticDepositAsset(depositAssets, asset)?.decimals;
   if (decimals === undefined) {
     throw new Error(
       `Could not resolve decimals for asset ${asset}. Pass \`assetDecimals\` explicitly.`,
@@ -79,10 +76,10 @@ export async function previewStrategyDeposit({
   const client = makePublicClient({ chainId, rpcUrl, env });
   const sharesRaw = (await client.readContract({
     address,
-    abi: LOMBARD_STRATEGY.abi,
+    abi,
     functionName: 'previewDeposit',
     args: [asset, amountBase],
   })) as bigint;
 
-  return fromBaseDenomination(sharesRaw.toString(), LOMBARD_STRATEGY_DECIMALS);
+  return fromBaseDenomination(sharesRaw.toString(), shareDecimals);
 }
