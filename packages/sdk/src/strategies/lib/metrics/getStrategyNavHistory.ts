@@ -61,14 +61,14 @@ export async function getStrategyNavHistory(
     chainId: requestedChainId,
   });
 
-  const { baseApiUrl } = getApiConfig(env);
+  const { baseApiV2Url } = getApiConfig(env);
   const blockchain = getVaultBlockchainParam(chainId);
 
   const query = new URLSearchParams({ blockchain });
   if (startTime) query.set('start_time', startTime.toISOString());
   if (endTime) query.set('end_time', endTime.toISOString());
 
-  const url = `${baseApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/nav-history?${query.toString()}`;
+  const url = `${baseApiV2Url.replace(/\/$/, '')}/v2/vaults/strategies/${address}/nav-history?${query.toString()}`;
   const raw = await userAuthorizedGet<IRawNavHistoryResponse>(url, walletJwt);
 
   const divisor = new BigNumber(10).pow(decimals);

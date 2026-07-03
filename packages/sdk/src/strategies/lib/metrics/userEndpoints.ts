@@ -52,7 +52,7 @@ export function getVaultBlockchainParam(chainId: ChainId): string {
 }
 
 /**
- * Resolves the per-user endpoint root: `${baseApiUrl}/v2/vaults/strategies/{address}/users/{owner}`.
+ * Resolves the per-user endpoint root: `${baseApiV2Url}/v2/vaults/strategies/{address}/users/{owner}`.
  */
 export function resolveUserStrategyEndpoint(
   params: BaseUserStrategyParams,
@@ -66,8 +66,8 @@ export function resolveUserStrategyEndpoint(
     chainId: requestedChainId,
   });
 
-  const { baseApiUrl } = getApiConfig(env);
-  const root = `${baseApiUrl.replace(/\/$/, '')}/v2/vaults/strategies/${address}/users/${owner}`;
+  const { baseApiV2Url } = getApiConfig(env);
+  const root = `${baseApiV2Url.replace(/\/$/, '')}/v2/vaults/strategies/${address}/users/${owner}`;
   return { root, address, blockchain: getVaultBlockchainParam(chainId) };
 }
 
