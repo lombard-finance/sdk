@@ -7,14 +7,14 @@ import { IStrategyDepositAssetStatic } from '../types';
 export type StrategyId = string;
 
 /**
- * A single on-chain deployment of a Strategy template, resolved from a
- * strategy + environment. The environment (`prod`, `testnet`, …) is the
- * selector; the chain is a consequence of it, so a deployment carries the
- * chain it lives on rather than being keyed by chain.
+ * A single on-chain deployment of a Strategy template on one chain. Each
+ * deployment is self-describing (carries its own `chainId`) and has its own
+ * contract address + deposit-asset catalog, so a single environment can span
+ * multiple chains with different addresses.
  */
 export interface StrategyChainDeployment {
   chainId: ChainId;
-  /** Canonical Strategy contract address for this deployment. */
+  /** Canonical Strategy contract address for this deployment's chain. */
   contract: Address;
   /**
    * Static catalog of deposit assets for this deployment. The Strategy is the
@@ -32,7 +32,8 @@ export interface StrategyChainDeployment {
  * `config/strategies/` and is registered in the registry.
  *
  * `deployments` is keyed by environment and is partial: a strategy need not be
- * deployed in every environment.
+ * deployed in every environment. Each environment maps to a list of per-chain
+ * deployments (usually one); the first entry is the primary/default chain.
  */
 export interface StrategyDefinition {
   /** Stable machine id, e.g. `'btcoc'`. */
@@ -46,6 +47,6 @@ export interface StrategyDefinition {
    * the bootstrap default used before the first read and as a sanity check.
    */
   decimals: number;
-  /** Deployments keyed by environment. */
-  deployments: Partial<Record<Env, StrategyChainDeployment>>;
+  /** Per-chain deployments, keyed by environment. */
+  deployments: Partial<Record<Env, readonly StrategyChainDeployment[]>>;
 }

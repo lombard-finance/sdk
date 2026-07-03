@@ -14,8 +14,10 @@
 export {
   DEFAULT_STRATEGY_ID,
   findStaticDepositAsset,
+  getStrategyChainIds,
   getStrategyDefinition,
   getStrategyDeployment,
+  getStrategyDeployments,
   type ResolvedStrategy,
   resolveStrategy,
   STRATEGIES,

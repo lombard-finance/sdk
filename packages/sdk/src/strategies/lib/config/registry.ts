@@ -39,20 +39,49 @@ export function getStrategyDefinition(
 }
 
 /**
- * Resolves the deployment for a strategy in a given environment. The
- * environment is the selector; the chain follows from it. Throws when the
- * strategy is not deployed in that environment rather than silently falling
- * back to another chain.
+ * All per-chain deployments for a strategy in a given environment (usually
+ * one). Throws when the strategy is not deployed in that environment.
+ */
+export function getStrategyDeployments(
+  env: Env = DEFAULT_ENV,
+  strategyId: StrategyId = DEFAULT_STRATEGY_ID,
+): readonly StrategyChainDeployment[] {
+  const def = getStrategyDefinition(strategyId);
+  const deployments = def.deployments[env];
+  if (!deployments || deployments.length === 0) {
+    throw new Error(
+      `Strategy "${def.id}" is not deployed in env "${env}". Available envs: ${Object.keys(def.deployments).join(', ')}.`,
+    );
+  }
+  return deployments;
+}
+
+/** The chains a strategy is deployed on in a given environment. */
+export function getStrategyChainIds(
+  env: Env = DEFAULT_ENV,
+  strategyId: StrategyId = DEFAULT_STRATEGY_ID,
+): ChainId[] {
+  return getStrategyDeployments(env, strategyId).map((d) => d.chainId);
+}
+
+/**
+ * Resolves a single deployment for a strategy in a given environment. The
+ * environment is the primary selector; `chainId` disambiguates when the env
+ * spans multiple chains and defaults to the first (primary) deployment.
  */
 export function getStrategyDeployment(
   env: Env = DEFAULT_ENV,
   strategyId: StrategyId = DEFAULT_STRATEGY_ID,
+  chainId?: ChainId,
 ): StrategyChainDeployment {
-  const def = getStrategyDefinition(strategyId);
-  const deployment = def.deployments[env];
+  const deployments = getStrategyDeployments(env, strategyId);
+  if (chainId === undefined) {
+    return deployments[0];
+  }
+  const deployment = deployments.find((d) => d.chainId === chainId);
   if (!deployment) {
     throw new Error(
-      `Strategy "${def.id}" is not deployed in env "${env}". Available envs: ${Object.keys(def.deployments).join(', ')}.`,
+      `Strategy "${strategyId}" is not deployed on chain ${chainId} in env "${env}". Available chains: ${deployments.map((d) => d.chainId).join(', ')}.`,
     );
   }
   return deployment;
@@ -66,7 +95,10 @@ export function getStrategyDeployment(
 export interface ResolvedStrategy {
   strategyId: StrategyId;
   env: Env;
+  /** The resolved (active) chain. */
   chainId: ChainId;
+  /** All chains the strategy is deployed on in this environment. */
+  chainIds: ChainId[];
   /** Contract address to target (explicit override wins over the default). */
   address: Address;
   abi: Abi;
@@ -75,23 +107,26 @@ export interface ResolvedStrategy {
 }
 
 /**
- * Resolves a strategy + environment (+ optional explicit address override)
- * into the concrete deployment context used by the ops and metrics helpers.
+ * Resolves a strategy + environment (+ optional chain selector + explicit
+ * address override) into the concrete deployment context used by the ops and
+ * metrics helpers. `chainId` defaults to the environment's primary chain.
  */
 export function resolveStrategy(params: {
   env?: Env;
   strategyId?: StrategyId;
   strategy?: Address;
+  chainId?: ChainId;
 }): ResolvedStrategy {
   const env = params.env ?? DEFAULT_ENV;
   const strategyId = params.strategyId ?? DEFAULT_STRATEGY_ID;
   const def = getStrategyDefinition(strategyId);
-  const deployment = getStrategyDeployment(env, strategyId);
+  const deployment = getStrategyDeployment(env, strategyId, params.chainId);
 
   return {
     strategyId,
     env,
     chainId: deployment.chainId,
+    chainIds: getStrategyChainIds(env, strategyId),
     address: params.strategy ?? deployment.contract,
     abi: def.abi,
     decimals: def.decimals,

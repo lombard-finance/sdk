@@ -5,6 +5,7 @@ import { ChainId } from '../../../common/chains';
 import {
   DEFAULT_STRATEGY_ID,
   findStaticDepositAsset,
+  getStrategyChainIds,
   getStrategyDefinition,
   getStrategyDeployment,
   resolveStrategy,
@@ -28,6 +29,19 @@ describe('strategies/config', () => {
     const dep = getStrategyDeployment(Env.stage);
     expect(dep.chainId).toBe(ChainId.baseSepoliaTestnet);
     expect(dep.contract).toMatch(/^0x[a-fA-F0-9]{40}$/);
+  });
+
+  it('getStrategyChainIds lists the env chains', () => {
+    expect(getStrategyChainIds(Env.prod)).toEqual([ChainId.ethereum]);
+    expect(getStrategyChainIds(Env.stage)).toEqual([
+      ChainId.baseSepoliaTestnet,
+    ]);
+  });
+
+  it('resolveStrategy exposes all env chains', () => {
+    expect(resolveStrategy({ env: Env.prod }).chainIds).toEqual([
+      ChainId.ethereum,
+    ]);
   });
 
   it('throws for an environment with no deployment', () => {
