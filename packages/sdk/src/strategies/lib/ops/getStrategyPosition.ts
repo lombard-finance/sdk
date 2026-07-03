@@ -67,7 +67,12 @@ export async function getStrategyPosition({
       ],
     })) as readonly [bigint, bigint, bigint, number];
 
-  const decimals = Number(decimalsRaw) || defaultDecimals;
+  // Fall back only when the on-chain value is missing/unparsable — a valid 0
+  // must NOT be coerced to the default (would mis-scale the amounts below).
+  const parsedDecimals = Number(decimalsRaw);
+  const decimals = Number.isFinite(parsedDecimals)
+    ? parsedDecimals
+    : defaultDecimals;
 
   const shares = fromBaseDenomination(sharesRaw.toString(), decimals);
   const pricePerShare = fromBaseDenomination(

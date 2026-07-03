@@ -120,7 +120,12 @@ export async function depositStrategy({
         args: [strategyAddress, amountBase],
       });
       const approveHash = await walletClient.writeContract(request);
-      await publicClient.waitForTransactionReceipt({ hash: approveHash });
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: approveHash,
+      });
+      if (receipt.status !== 'success') {
+        throw new Error(`approval transaction reverted (${approveHash})`);
+      }
     } catch (err) {
       throw new Error(
         `Approval of ${asset} for Strategy failed: ${getErrorMessage(err)}`,

@@ -54,6 +54,20 @@ export async function getUserWithdrawals(
   return (raw?.requests ?? []).map(normalizeWithdrawal);
 }
 
+/**
+ * Parses a backend request id into a `bigint`, returning `0n` when missing or
+ * malformed. `BigInt('abc')` throws, so guard it so one bad record can't fail
+ * the whole withdrawals batch.
+ */
+function parseRequestId(value: string | undefined): bigint {
+  if (!value) return 0n;
+  try {
+    return BigInt(value);
+  } catch {
+    return 0n;
+  }
+}
+
 function normalizeWithdrawal(
   raw: IRawUserWithdrawal,
 ): IStrategyUserWithdrawalRequest {
@@ -61,7 +75,7 @@ function normalizeWithdrawal(
     | 'pending'
     | 'fulfilled';
   return {
-    requestId: raw.request_id ? BigInt(raw.request_id) : 0n,
+    requestId: parseRequestId(raw.request_id),
     owner: (raw.owner ?? '0x') as Address,
     assets: new BigNumber(raw.assets ?? '0'),
     shares: new BigNumber(raw.shares ?? '0'),

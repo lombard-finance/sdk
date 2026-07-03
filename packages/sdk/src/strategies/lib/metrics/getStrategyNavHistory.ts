@@ -72,9 +72,17 @@ export async function getStrategyNavHistory(
   const raw = await userAuthorizedGet<IRawNavHistoryResponse>(url, walletJwt);
 
   const divisor = new BigNumber(10).pow(decimals);
-  return (raw?.snapshots ?? []).map((s) => ({
-    timestamp: s.timestamp ? new Date(s.timestamp) : new Date(0),
-    nav: new BigNumber(s.nav ?? '0').div(divisor),
-    pricePerShare: new BigNumber(s.pps ?? '0').div(divisor),
-  }));
+  // Skip snapshots with a missing/unparsable timestamp so a bad backend
+  // record can't inject a bogus epoch-0 (or Invalid Date) point into the chart.
+  return (raw?.snapshots ?? []).flatMap((s) => {
+    const timestamp = s.timestamp ? new Date(s.timestamp) : null;
+    if (!timestamp || Number.isNaN(timestamp.getTime())) return [];
+    return [
+      {
+        timestamp,
+        nav: new BigNumber(s.nav ?? '0').div(divisor),
+        pricePerShare: new BigNumber(s.pps ?? '0').div(divisor),
+      },
+    ];
+  });
 }

@@ -90,7 +90,12 @@ export async function getStrategyState({
     number,
   ];
 
-  const decimals = Number(decimalsRaw) || defaultDecimals;
+  // Fall back only when the on-chain value is missing/unparsable — a valid 0
+  // must NOT be coerced to the default (would mis-scale every amount below).
+  const parsedDecimals = Number(decimalsRaw);
+  const decimals = Number.isFinite(parsedDecimals)
+    ? parsedDecimals
+    : defaultDecimals;
 
   return {
     paused,

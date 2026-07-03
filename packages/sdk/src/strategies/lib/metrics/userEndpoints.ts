@@ -71,6 +71,9 @@ export function resolveUserStrategyEndpoint(
   return { root, address, blockchain: getVaultBlockchainParam(chainId) };
 }
 
+/** Cap vault-manager reads so a stalled backend can't hang the request. */
+const USER_STRATEGY_REQUEST_TIMEOUT_MS = 20_000;
+
 /**
  * Thin axios.get wrapper that injects the wallet JWT as
  * `Authorization: Bearer …` (the v2 API standard) and surfaces 401s as a
@@ -87,6 +90,7 @@ export async function userAuthorizedGet<T>(
         Authorization: `Bearer ${walletJwt}`,
         Accept: 'application/json',
       },
+      timeout: USER_STRATEGY_REQUEST_TIMEOUT_MS,
     });
     return data;
   } catch (err) {

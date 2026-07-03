@@ -70,6 +70,20 @@ export async function getUserActivityFeed(
   };
 }
 
+/**
+ * Parses a backend numeric string into a `bigint`, returning `fallback` when
+ * the value is missing or malformed. `BigInt('abc')` throws, so guard it so a
+ * single bad record can't fail the whole feed transform.
+ */
+function toBigIntOr<T>(value: string | undefined, fallback: T): bigint | T {
+  if (value == null || value === '') return fallback;
+  try {
+    return BigInt(value);
+  } catch {
+    return fallback;
+  }
+}
+
 function normalizeActivityEntry(
   raw: IRawUserActivityEntry,
 ): IStrategyUserActivityEntry {
@@ -82,12 +96,12 @@ function normalizeActivityEntry(
     activityType,
     blockTime: raw.block_time ? new Date(raw.block_time) : new Date(0),
     txHash: (raw.tx_hash ?? '0x') as Hash,
-    blockHeight: raw.block_height ? BigInt(raw.block_height) : 0n,
+    blockHeight: toBigIntOr(raw.block_height, 0n),
     logIndex: raw.log_index ?? 0,
     asset: (raw.asset ?? '0x') as Address,
     assetSymbol: raw.asset_symbol ?? '',
     amount: new BigNumber(raw.amount ?? '0'),
     status,
-    requestId: raw.request_id ? BigInt(raw.request_id) : undefined,
+    requestId: toBigIntOr(raw.request_id, undefined),
   };
 }
