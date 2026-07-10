@@ -14,7 +14,7 @@ export interface IApiConfig {
 
 const stageConfig: IApiConfig = {
   baseApiUrl: 'https://staging.prod.lombard.finance',
-  baseApiV2Url: 'https://staging.prod.lombard.finance',
+  baseApiV2Url: 'https://api.devnet-stage.lombard-fi.com',
   bffApiUrl: 'https://bff.stage.lombard-fi.com',
 };
 
