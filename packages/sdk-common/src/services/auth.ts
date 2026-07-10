@@ -52,16 +52,46 @@ export interface WalletVerifyRequest {
   publicKey?: string;
 }
 
-export interface WalletVerifyResponse {
+/**
+ * Verification status returned by `/v2/auth/wallet/verify` and its polling
+ * endpoint. EVM EOAs / Sui / Solana verify synchronously and get a JWT
+ * immediately; EVM smart-contract wallets and Starknet verify asynchronously
+ * (the signature is checked on-chain), so the caller must poll for the JWT.
+ */
+export const VERIFICATION_STATUS = {
+  /** Synchronous verification finished — JWT is in this same response. */
+  syncComplete: 'VERIFICATION_STATUS_SYNC_COMPLETE',
+  /** Async verification started — poll with the returned `verification_id`. */
+  pending: 'VERIFICATION_STATUS_PENDING',
+  /** Async verification succeeded — JWT is in the poll response. */
+  completeValid: 'VERIFICATION_STATUS_COMPLETE_VALID',
+} as const;
+
+/** Token pair issued once verification succeeds (sync or async). */
+export interface WalletVerifyResult {
   /** JWT bound to the verified wallet address. */
   jwt: string;
   /** ISO-8601 timestamp when the JWT expires. */
   expiresAt: string;
 }
 
+/**
+ * Outcome of `POST /v2/auth/wallet/verify`: either an immediate token
+ * (`complete`, sync path) or a `verificationId` to poll while the signature is
+ * verified on-chain (`pending`, async path).
+ */
+export type WalletVerifyResponse =
+  | ({ kind: 'complete' } & WalletVerifyResult)
+  | { kind: 'pending'; verificationId: string };
+
 export interface RevokeWalletTokenRequest {
   /** JWT to invalidate server-side. */
   jwt: string;
+}
+
+export interface PollWalletVerificationRequest {
+  /** Id returned by `verifySignature` when the result is `pending`. */
+  verificationId: string;
 }
 
 /**
@@ -73,8 +103,21 @@ export interface WalletAuthService {
     params: WalletChallengeRequest,
   ): Promise<WalletChallengeResponse>;
 
-  /** Submit a signed challenge and receive a JWT. */
+  /**
+   * Submit a signed challenge. Resolves with a JWT (`complete`) on the sync
+   * path, or a `verificationId` (`pending`) that must be polled via
+   * `pollVerification` on the async path.
+   */
   verifySignature(params: WalletVerifyRequest): Promise<WalletVerifyResponse>;
+
+  /**
+   * Poll the async verification endpoint until the on-chain signature check
+   * settles, resolving with the JWT. Only needed when `verifySignature`
+   * returns a `pending` result.
+   */
+  pollVerification(
+    params: PollWalletVerificationRequest,
+  ): Promise<WalletVerifyResult>;
 
   /**
    * Invalidate a JWT server-side. Best-effort: implementations may swallow

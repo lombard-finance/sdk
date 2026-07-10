@@ -42,11 +42,14 @@ export function walletAuthModule(): SdkModule<'walletAuth', IWalletAuthService> 
 
 export { WalletAuthService };
 export type { IWalletAuthService as WalletAuthServiceInterface };
+export { VERIFICATION_STATUS } from '@lombard.finance/sdk-common';
 export type {
+  PollWalletVerificationRequest,
   RevokeWalletTokenRequest,
   WalletAuthChain,
   WalletChallengeRequest,
   WalletChallengeResponse,
   WalletVerifyRequest,
   WalletVerifyResponse,
+  WalletVerifyResult,
 } from '@lombard.finance/sdk-common';
