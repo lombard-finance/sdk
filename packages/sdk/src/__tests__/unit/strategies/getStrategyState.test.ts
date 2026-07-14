@@ -56,7 +56,7 @@ describe('getStrategyState', () => {
   });
 
   it('rejects an environment the strategy is not deployed in', async () => {
-    await expect(getStrategyState({ env: Env.testnet })).rejects.toThrow(
+    await expect(getStrategyState({ env: Env.dev })).rejects.toThrow(
       /not deployed in env/,
     );
     expect(multicall).not.toHaveBeenCalled();

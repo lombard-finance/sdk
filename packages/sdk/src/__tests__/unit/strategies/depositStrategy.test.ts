@@ -112,7 +112,7 @@ describe('depositStrategy', () => {
     await expect(
       depositStrategy({
         account: ACCOUNT,
-        env: Env.testnet,
+        env: Env.dev,
         provider: {} as never,
         asset: LBTC,
         amount: '0.001',

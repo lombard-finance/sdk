@@ -110,7 +110,7 @@ describe('requestStrategyRedeem', () => {
     await expect(
       requestStrategyRedeem({
         account: ACCOUNT,
-        env: Env.testnet,
+        env: Env.dev,
         provider: {} as never,
         shares: 1n,
       }),
