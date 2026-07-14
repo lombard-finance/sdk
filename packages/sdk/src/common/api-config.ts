@@ -20,7 +20,7 @@ const stageConfig: IApiConfig = {
 
 const testnetConfig: IApiConfig = {
   baseApiUrl: 'https://gastald-testnet.prod.lombard-fi.com',
-  baseApiV2Url: 'https://gastald-testnet.prod.lombard-fi.com',
+  baseApiV2Url: 'https://api.testnet.lombard-fi.com',
   bffApiUrl: 'https://bff.stage.lombard-fi.com',
 };
 
