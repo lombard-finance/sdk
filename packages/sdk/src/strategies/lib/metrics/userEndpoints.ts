@@ -39,11 +39,10 @@ export function getVaultBlockchainParam(chainId: ChainId): string {
   if (chainId === ChainId.baseSepoliaTestnet) {
     return 'BLOCKCHAIN_BASE_SEPOLIA';
   }
-  if (
-    chainId === ChainId.ethereum ||
-    chainId === ChainId.holesky ||
-    chainId === ChainId.sepolia
-  ) {
+  if (chainId === ChainId.sepolia) {
+    return 'BLOCKCHAIN_ETHEREUM_SEPOLIA';
+  }
+  if (chainId === ChainId.ethereum || chainId === ChainId.holesky) {
     return 'BLOCKCHAIN_ETHEREUM';
   }
   throw new Error(
