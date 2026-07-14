@@ -1,4 +1,4 @@
-import { RpcProvider, WalletAccount } from 'starknet';
+import { BlockTag, RpcProvider, WalletAccount } from 'starknet';
 
 import { StarknetChainId } from './chains';
 
@@ -13,7 +13,12 @@ export const getRpcProvider = (
 ) => {
   let provider = providers.get(chainId);
   if (!provider) {
-    provider = new RpcProvider({ nodeUrl: RPC_PROVIDERS[chainId] });
+    // Default reads to the `latest` block: starknet.js defaults calls to the
+    // `pending` tag, which some RPC nodes reject with "unknown block tag".
+    provider = new RpcProvider({
+      nodeUrl: RPC_PROVIDERS[chainId],
+      blockIdentifier: BlockTag.LATEST,
+    });
     providers.set(chainId, provider);
   }
 
