@@ -17,8 +17,8 @@ import { StrategyDefinition } from '../types';
  * Not ERC-4626: the deposit/mint surface takes a `depositAsset` argument and
  * there is no synchronous on-chain redeem path.
  *
- * Deployed in `prod` on Ethereum mainnet (BTCoc) and in `testnet` on Base
- * Sepolia (staging).
+ * Deployed in `prod` on Ethereum mainnet (BTCoc), in `stage` on Base Sepolia,
+ * and in `testnet` on Ethereum Sepolia.
  */
 export const BTCOC: StrategyDefinition = {
   id: 'btcoc',
@@ -78,6 +78,26 @@ export const BTCOC: StrategyDefinition = {
             token: '0x4200000000000000000000000000000000000006',
             symbol: 'wETH',
             decimals: 18,
+          },
+        ],
+      },
+    ],
+    // Ethereum Sepolia testnet. Deposit-asset addresses mirror the testnet
+    // token registry (EVM_BTCB_ADDRESSES / EVM_LBTC_ADDRESSES on ChainId.sepolia).
+    [Env.testnet]: [
+      {
+        chainId: ChainId.sepolia,
+        contract: '0x22bB7F9FBa8Ca935E3d94732aFbF3bD38B3C2980',
+        depositAssets: [
+          {
+            token: '0x20eA7b8ABb4B583788F1DFC738C709a2d9675681',
+            symbol: 'BTC.b',
+            decimals: 8,
+          },
+          {
+            token: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
+            symbol: 'LBTC',
+            decimals: 8,
           },
         ],
       },

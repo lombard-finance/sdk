@@ -44,10 +44,16 @@ describe('strategies/config', () => {
     ]);
   });
 
+  it('resolves testnet → Ethereum Sepolia', () => {
+    const dep = getStrategyDeployment(Env.testnet);
+    expect(dep.chainId).toBe(ChainId.sepolia);
+    expect(dep.contract).toBe('0x22bB7F9FBa8Ca935E3d94732aFbF3bD38B3C2980');
+    const symbols = dep.depositAssets.map((a) => a.symbol);
+    expect(symbols).toEqual(['BTC.b', 'LBTC']);
+  });
+
   it('throws for an environment with no deployment', () => {
-    expect(() => getStrategyDeployment(Env.testnet)).toThrow(
-      /not deployed in env/,
-    );
+    expect(() => getStrategyDeployment(Env.dev)).toThrow(/not deployed in env/);
   });
 
   it('throws for an unknown strategy id', () => {
