@@ -1,3 +1,22 @@
+# 5.1.0
+
+### Added
+
+- Wallet authentication module (`walletAuthModule`) implementing the v2 wallet-auth flow. Three endpoints are wrapped:
+  - `requestChallenge` → `POST /v2/auth/wallet/challenge` — returns a chain-specific payload to be signed by the user's wallet.
+  - `verifySignature` → `POST /v2/auth/wallet/verify` — exchanges a signed payload for a JWT. Accepts an optional `publicKey` for chains where pubkey is not recoverable from the signature (Starknet, Cosmos).
+  - `revokeToken` → `POST /v2/auth/token/revoke` — invalidates a JWT server-side; best-effort (swallows network errors so callers can always clear local state).
+- Low-level functional exports for the same endpoints — `requestWalletChallenge`, `verifyWalletSignature`, `revokeWalletToken` — for consumers that don't want the module/DI layer.
+- `WalletAuthService` class implementing the `WalletAuthService` interface from `@lombard.finance/sdk-common`.
+- Signing the challenge with the user's wallet is intentionally NOT included — signing is chain-specific and belongs in the corresponding chain SDK package (or the consuming app).
+- New `@lombard.finance/sdk/strategies` entry point for the Lombard DeFi Vault Strategy contract (codename "BTCoc"). Distinct from the Bitcoin Earn vault exposed under `@lombard.finance/sdk/vaults` — do not conflate the two. Env-first: a call picks a strategy (`strategyId`, default BTCoc) and an environment (`env`), and the chain follows from that pair — `prod` → Ethereum mainnet, `stage` → Base Sepolia. An env may host several per-chain deployments (each with its own contract address); an optional `chainId` selects among them and defaults to the primary (first) chain.
+  - Per-user / op reads: `getStrategyPosition`, `getStrategyDepositAssets`, `getStrategyPendingRedeem`, `getStrategyShards`, `previewStrategyDeposit`.
+  - Writes: `depositStrategy` (4-arg `deposit(asset, amount, receiver, minSharesOut)`, approves the Strategy contract on insufficient allowance), `requestStrategyRedeem` (async redeem; parses `requestId` from the `RedeemRequested` event, supports `waitForReceipt: false` for Safe multisig flows).
+  - Types: `IStrategyState`, `IStrategyPosition`, `IStrategyConfigResponse`, `IStrategyDepositAsset`, `IStrategyDepositAssetStatic`, `IStrategyShards`, `IStrategyPendingRedeem`, `IRequestStrategyRedeemResult`, plus function-parameter types (`GetStrategy*Parameters`, `DepositStrategyParameters`, `RequestStrategyRedeemParameters`).
+  - Config: `STRATEGIES` registry + `DEFAULT_STRATEGY_ID`, resolvers `resolveStrategy` / `getStrategyDeployment` / `getStrategyDeployments` / `getStrategyChainIds` / `getStrategyDefinition`, and `findStaticDepositAsset`. Each strategy maps every environment to a list of per-chain deployments — each deployment carries its own `chainId`, contract address, and static deposit-asset catalog (LBTC / BTC.b on Ethereum, LBTC / BTC.b / USDT / wETH / BTCt on Base Sepolia).
+
+---
+
 # 5.0.5
 
 ### Fixed

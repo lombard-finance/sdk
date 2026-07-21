@@ -70,6 +70,33 @@ export type {
   StoredFeeSignature,
 } from './modules/evmModule';
 export { evmModule, type EvmService } from './modules/evmModule';
+export type {
+  PollWalletVerificationRequest,
+  RevokeWalletTokenRequest,
+  WalletAuthChain,
+  WalletChallengeRequest,
+  WalletChallengeResponse,
+  WalletVerifyRequest,
+  WalletVerifyResponse,
+  WalletVerifyResult,
+} from './modules/walletAuthModule';
+export {
+  VERIFICATION_STATUS,
+  walletAuthModule,
+  WalletAuthService,
+} from './modules/walletAuthModule';
+
+// Low-level wallet-auth API functions
+export {
+  pollWalletVerification,
+  type PollWalletVerificationParams,
+  requestWalletChallenge,
+  type RequestWalletChallengeParams,
+  revokeWalletToken,
+  type RevokeWalletTokenParams,
+  verifyWalletSignature,
+  type VerifyWalletSignatureParams,
+} from './api-functions/walletAuth';
 
 // Context types
 export type {
