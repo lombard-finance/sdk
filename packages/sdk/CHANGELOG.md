@@ -1,3 +1,11 @@
+# 5.1.1
+
+### Fixed
+
+- `ASSET_CATALOG` now lists Ethereum mainnet as a production deployment chain for BTC.b (`0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072`). The address was already present in the legacy `EVM_BTCB_ADDRESSES` registry, so catalog-driven helpers (`getAssetChains`, `getAssetDeployment`, and the rest of `core/assets/utils`) disagreed with the token registry and reported BTC.b as unavailable on prod Ethereum.
+
+---
+
 # 5.1.0
 
 ### Added
