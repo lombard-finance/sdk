@@ -142,7 +142,7 @@ describe('getBasculeDepositStatus', () => {
     expect(depositLookups(client)).toHaveLength(0);
   });
 
-  it('returns REPORTED without reading the bascule when the treasury has the check disabled', async () => {
+  it('returns NOT_ENFORCED without reading the bascule when the treasury has the check disabled', async () => {
     // mint_v2 skips validate_withdrawal entirely, so an unreported deposit
     // still mints and must not be gated here.
     const client = makeClient({
@@ -151,7 +151,7 @@ describe('getBasculeDepositStatus', () => {
       variant: null,
     });
     const status = await getBasculeDepositStatus({ client, payload: PAYLOAD });
-    expect(status).toBe(SuiBasculeDepositStatus.REPORTED);
+    expect(status).toBe(SuiBasculeDepositStatus.NOT_ENFORCED);
     expect(client.getObject).not.toHaveBeenCalled();
   });
 

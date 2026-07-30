@@ -41,8 +41,15 @@ const DEFAULT_RPC_URLS: Partial<Record<SuiNetwork, string[]>> = {
   ],
 };
 
-/** Statuses that mean "this node is unhealthy", worth retrying elsewhere. */
-const RETRYABLE_STATUSES = [408, 425, 429, 500, 502, 503, 504];
+/**
+ * Statuses that mean "this node is unhealthy", worth retrying elsewhere.
+ *
+ * 403 is in here for the proxies the public nodes sit behind: Cloudflare answers
+ * `403` with `error code: 1010` for clients it dislikes, and a whole datacenter
+ * range can fall into that at any time. Without it the caller gets an opaque
+ * status error instead of the next node.
+ */
+const RETRYABLE_STATUSES = [403, 408, 425, 429, 500, 502, 503, 504];
 
 /**
  * Per-endpoint budget. Without it a node that accepts the connection and then
@@ -133,15 +140,24 @@ export function getDefaultSuiRpcUrls(network: SuiNetwork): string[] {
 }
 
 /**
- * JSON-RPC error codes that mean the node cannot serve the request at all,
- * rather than the request being wrong.
+ * The one JSON-RPC error code that always means the node cannot serve the
+ * request at all, rather than the request being wrong.
  *
  * This is how the outage that motivated this module actually presents: a
  * deprecated fullnode answers HTTP 200 with `-32601 Method not found`. Judging
  * a node by its status code alone would treat that as a success, and the same
  * shape is expected again once JSON-RPC leaves the node binary.
  */
-const UNHEALTHY_RPC_CODES = [-32601, -32603];
+const METHOD_NOT_FOUND = -32601;
+
+/**
+ * `-32603 Internal error` is ambiguous: Sui returns it both when a node is
+ * broken and when one specific request failed inside it. Retrying a read costs
+ * little and can find a node that answers, whereas a request that fails
+ * everywhere would take three times as long to report it, so this only counts
+ * for reads.
+ */
+const INTERNAL_ERROR = -32603;
 
 /**
  * Reads the JSON-RPC envelope to decide whether the node served the request,
@@ -152,18 +168,29 @@ const UNHEALTHY_RPC_CODES = [-32601, -32603];
  * size — an owned-object page, transaction effects — would otherwise be parsed
  * once here and once by the transport, on every single call.
  */
-function isUnhealthyRpcResponse(body: string): boolean {
+function isUnhealthyRpcResponse(body: string, codes: number[]): boolean {
   if (!body.includes('"error"')) {
     return false;
   }
 
-  try {
-    const payload = JSON.parse(body) as { error?: { code?: number } };
+  interface Envelope {
+    error?: { code?: number };
+  }
 
-    return (
-      typeof payload?.error?.code === 'number' &&
-      UNHEALTHY_RPC_CODES.includes(payload.error.code)
-    );
+  const carriesUnhealthyCode = ({ error }: Envelope) =>
+    typeof error?.code === 'number' && codes.includes(error.code);
+
+  try {
+    const payload = JSON.parse(body) as Envelope | Envelope[];
+
+    // The transport sends one request at a time today. A batch would answer with
+    // an array, and only a node that failed every entry of it is unhealthy — one
+    // failed entry among answers is the node working.
+    if (Array.isArray(payload)) {
+      return payload.length > 0 && payload.every(carriesUnhealthyCode);
+    }
+
+    return carriesUnhealthyCode(payload);
   } catch {
     return false;
   }
@@ -228,12 +255,57 @@ function getUnhealthyReason({ status, body }: RpcAttempt): string | null {
     return `responded with ${status}`;
   }
 
-  if (isUnhealthyRpcResponse(body)) {
+  if (isUnhealthyRpcResponse(body, [METHOD_NOT_FOUND, INTERNAL_ERROR])) {
     return 'cannot serve this method';
   }
 
   return null;
 }
+
+/**
+ * Whether a transaction submit may be handed to another node. Only `-32601`
+ * qualifies: the node did not know the method, so nothing was executed. A 5xx or
+ * a timeout leaves it open whether the transaction was taken.
+ */
+function canRetrySubmit({ body }: RpcAttempt): boolean {
+  return isUnhealthyRpcResponse(body, [METHOD_NOT_FOUND]);
+}
+
+/** Header the Sui transport names the JSON-RPC method in. */
+const METHOD_HEADER = 'client-request-method';
+
+/**
+ * Which method the transport is calling, read off the request it built. `null`
+ * when it cannot be told, which is treated as the cautious case.
+ */
+function getRequestMethod(init: RequestInit | undefined): string | null {
+  const { headers } = init ?? {};
+
+  if (!headers) {
+    return null;
+  }
+
+  if (headers instanceof Headers) {
+    return headers.get(METHOD_HEADER);
+  }
+
+  const entries = Array.isArray(headers) ? headers : Object.entries(headers);
+
+  return (
+    entries.find(([key]) => key.toLowerCase() === METHOD_HEADER)?.[1] ?? null
+  );
+}
+
+/**
+ * Methods that change state, and so must not be re-sent to another node.
+ *
+ * Sui dedupes by transaction digest, so a resend is usually harmless, but the
+ * harmful case is real: a node that took the transaction and then failed to
+ * answer in time would have the next node's rejection reported for a
+ * transaction that actually landed. A submit is not retried at all, and by then
+ * the reads a claim performs have already pinned a healthy endpoint.
+ */
+const NON_IDEMPOTENT_METHODS = ['sui_executeTransactionBlock'];
 
 /**
  * The transport bakes a single url into the request, so failover happens here:
@@ -242,6 +314,12 @@ function getUnhealthyReason({ status, body }: RpcAttempt): string | null {
  * Attempts start from the last endpoint that worked rather than always from the
  * head of the list, so one unhealthy node costs its timeout once instead of on
  * every request.
+ *
+ * Only reads walk the list freely. A transaction submit moves on solely when the
+ * node answered `-32601`, which says it never knew the method and so cannot have
+ * executed anything. A timeout or a 5xx is not that: the node may have taken the
+ * transaction, and the next node's answer would then be reported for one that
+ * already landed.
  */
 function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
   let preferred = 0;
@@ -255,6 +333,9 @@ function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
     if (init?.signal?.aborted) {
       throw new DOMException('The operation was aborted.', 'AbortError');
     }
+
+    const method = getRequestMethod(init);
+    const isRead = !method || !NON_IDEMPOTENT_METHODS.includes(method);
 
     for (let attempt = 0; attempt < urls.length; attempt += 1) {
       const index = (preferred + attempt) % urls.length;
@@ -270,10 +351,23 @@ function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
           return rpcAttempt.toResponse();
         }
 
+        // A submit is handed back unless the node never knew the method, so the
+        // transport raises the node's own error rather than this one retrying.
+        // The endpoint is left unpinned: it just failed to serve the request.
+        if (!isRead && !canRetrySubmit(rpcAttempt)) {
+          return rpcAttempt.toResponse();
+        }
+
         lastError = new Error(`Sui RPC ${url} ${reason}`);
       } catch (error) {
         // The caller gave up, trying the next node would ignore that.
         if (init?.signal?.aborted) {
+          throw error;
+        }
+
+        // A submit that failed at the transport — a timeout, a dropped
+        // connection — may still have been executed by that node.
+        if (!isRead) {
           throw error;
         }
 

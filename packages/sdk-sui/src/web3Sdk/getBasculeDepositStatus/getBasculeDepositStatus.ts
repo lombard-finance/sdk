@@ -16,15 +16,18 @@ type Not0xPrefixedHex = string;
 export enum SuiBasculeDepositStatus {
   /** Deposit is not reported yet (or unknown) — minting would abort. */
   UNREPORTED = 'UNREPORTED',
-  /**
-   * Minting is not gated by the Bascule: either the deposit is reported, or the
-   * treasury does not enforce the Bascule at all.
-   */
+  /** Deposit is reported and may be minted. */
   REPORTED = 'REPORTED',
   /** Deposit has already been withdrawn (already minted). */
   WITHDRAWN = 'WITHDRAWN',
   /** The Bascule is paused — no deposit can be minted right now. */
   PAUSED = 'PAUSED',
+  /**
+   * The mint is not gated by the Bascule at all, so the deposit status says
+   * nothing about it and was not looked up: the treasury has its bascule check
+   * disabled, or the env has no Bascule configured. Mintable, like `REPORTED`.
+   */
+  NOT_ENFORCED = 'NOT_ENFORCED',
 }
 
 // On-chain DepositState enum variant names (see bascule::bascule::DepositState).
@@ -56,8 +59,10 @@ export interface IGetSuiBasculeDepositStatusParameters {
  * pre-flighted before submitting the transaction (the on-chain
  * `bascule::validate_withdrawal` would otherwise abort the mint).
  *
- * Returns `REPORTED` when the mint is not gated by the Bascule at all, i.e. the
- * env has no Bascule configured or the treasury has its bascule check disabled.
+ * Returns `NOT_ENFORCED` when the mint is not gated by the Bascule at all, i.e.
+ * the env has no Bascule configured or the treasury has its bascule check
+ * disabled. That status is mintable, so a caller gating a claim has to allow it
+ * alongside `REPORTED`.
  *
  * The deposit id is derived exactly as `bascule::bascule::to_deposit_id` does
  * on-chain (and as `sui-claimer` derives it server-side):
@@ -73,10 +78,10 @@ export async function getBasculeDepositStatus({
 }: IGetSuiBasculeDepositStatusParameters): Promise<SuiBasculeDepositStatus> {
   const { bascule } = getConfig(env);
 
-  // No Bascule configured for this env — treat as reported (parity with the EVM
-  // SDK, which returns REPORTED when the bascule address is the zero address).
+  // No Bascule configured for this env, the counterpart of the EVM SDK's zero
+  // bascule address: nothing gates the mint.
   if (!bascule) {
-    return SuiBasculeDepositStatus.REPORTED;
+    return SuiBasculeDepositStatus.NOT_ENFORCED;
   }
 
   // Derived before the flag is read so a malformed payload is rejected on every
@@ -89,7 +94,7 @@ export async function getBasculeDepositStatus({
   // reaches validate_withdrawal: the deposit mints without ever being reported,
   // so its bascule status says nothing about whether the claim can go through.
   if (!(await isBasculeCheckEnabled({ client, env }))) {
-    return SuiBasculeDepositStatus.REPORTED;
+    return SuiBasculeDepositStatus.NOT_ENFORCED;
   }
 
   const { paused, depositTableId } = await getBasculeState(client, bascule);

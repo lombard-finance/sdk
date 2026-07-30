@@ -43,11 +43,18 @@ function jsonRpcErrorResponse(code: number): Response {
   );
 }
 
-/** Any JSON-RPC method works here, the transport is what is under test. */
+/** Any JSON-RPC read works here, the transport is what is under test. */
 const callChainIdentifier = (rpcUrls = RPC_URLS, timeoutMs?: number) =>
   createSuiClient('mainnet', { rpcUrls, timeoutMs }).call<string>(
     'sui_getChainIdentifier',
     [],
+  );
+
+/** A submit, which must not be re-sent to a second node. */
+const submitTransaction = (rpcUrls = RPC_URLS, timeoutMs?: number) =>
+  createSuiClient('mainnet', { rpcUrls, timeoutMs }).call(
+    'sui_executeTransactionBlock',
+    ['dGVzdA==', ['c2ln'], null, null],
   );
 
 afterEach(() => {
@@ -348,6 +355,105 @@ describe('createSuiClient', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(callChainIdentifier()).rejects.toThrow();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('falls back on -32603 for a read', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonRpcErrorResponse(-32603))
+      .mockResolvedValueOnce(jsonRpcResponse(CHAIN_IDENTIFIER));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(callChainIdentifier()).resolves.toBe(CHAIN_IDENTIFIER);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not re-send a submit that a node answered with -32603', async () => {
+    // Sui returns it for a request that failed inside an otherwise healthy node,
+    // and re-sending would risk reporting the second node's answer for a
+    // transaction the first one already executed.
+    const fetchMock = vi.fn().mockResolvedValue(jsonRpcErrorResponse(-32603));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(submitTransaction()).rejects.toThrow();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([503, 429])(
+    'does not re-send a submit after HTTP %i',
+    async (status) => {
+      const fetchMock = vi.fn().mockResolvedValue(unhealthyResponse(status));
+      vi.stubGlobal('fetch', fetchMock);
+
+      await expect(submitTransaction()).rejects.toThrow();
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('does not re-send a submit that timed out', async () => {
+    // The node may have taken the transaction before it stopped answering.
+    const fetchMock = vi.fn().mockImplementation(
+      (_url: string, init: RequestInit) =>
+        new Promise((_resolve, reject) => {
+          init.signal?.addEventListener('abort', () =>
+            reject(new Error('aborted')),
+          );
+        }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(submitTransaction(RPC_URLS, 20)).rejects.toThrow();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('moves a submit to the next node when the first does not serve it', async () => {
+    // -32601 says the method is unknown there, so nothing was executed.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonRpcErrorResponse(-32601))
+      .mockResolvedValueOnce(jsonRpcResponse({ digest: '0xdigest' }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(submitTransaction()).resolves.toEqual({ digest: '0xdigest' });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('falls back on a 403 from the proxy in front of a node', async () => {
+    // Cloudflare answers 403 with "error code: 1010" for clients it dislikes.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(unhealthyResponse(403))
+      .mockResolvedValueOnce(jsonRpcResponse(CHAIN_IDENTIFIER));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(callChainIdentifier()).resolves.toBe(CHAIN_IDENTIFIER);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps serving a batch in which only one entry failed', async () => {
+    // A single failed entry among answers is the node working, so the whole
+    // batch must not be re-sent.
+    const batch = new Response(
+      JSON.stringify([
+        { jsonrpc: '2.0', id: 1, result: CHAIN_IDENTIFIER },
+        { jsonrpc: '2.0', id: 2, error: { code: -32601, message: 'nope' } },
+      ]),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
+    const fetchMock = vi.fn().mockResolvedValue(batch);
+    vi.stubGlobal('fetch', fetchMock);
+
+    // The transport reads a single envelope and makes nothing of an array; what
+    // matters here is that the answer was accepted rather than re-sent.
+    await callChainIdentifier();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
