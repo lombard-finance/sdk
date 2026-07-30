@@ -176,6 +176,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.prod,
           chains: [
+            Chain.ETHEREUM,
             Chain.KATANA,
             Chain.MEGAETH,
             ...(featureConfig.isMonadEnabled ? [Chain.MONAD] : []),
