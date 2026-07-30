@@ -6,10 +6,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
-    coverage: {
-      reporter: ['text', 'json', 'html'],
-    },
+    // Hits third-party RPC nodes, kept out of the unit run.
+    include: ['src/**/*.live.{test,spec}.{ts,tsx}'],
     alias: {
       '@': path.resolve(__dirname, './src'),
     },

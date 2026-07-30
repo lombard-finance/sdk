@@ -16,8 +16,8 @@ import type { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
-import type { ISuiRpcOptions } from '../utils/createSuiClient';
-import { createSuiClient } from '../utils/createSuiClient';
+import type { ISuiNetworkRpcOptions } from '../utils/createSuiClient';
+import { createSuiClient, resolveSuiRpcOptions } from '../utils/createSuiClient';
 import { signLbtcDestinationAddrSui } from '../web3Sdk/signLbtcDestionationAddrSui';
 import { unstakeLBTC } from '../web3Sdk/unstakeLBTC/unstakeLBTC';
 
@@ -60,7 +60,7 @@ function getSuiNetworkFromChainId(
 export class SuiServiceImpl implements SuiService {
   constructor(
     private readonly getProvider: ProviderResolver,
-    private readonly options: ISuiRpcOptions = {},
+    private readonly options: ISuiNetworkRpcOptions = {},
   ) {}
 
   /**
@@ -97,7 +97,10 @@ export class SuiServiceImpl implements SuiService {
 
     // Create Sui client
     const network = getSuiNetworkFromChainId(args.chainId);
-    const client = createSuiClient(network, this.options);
+    const client = createSuiClient(
+      network,
+      resolveSuiRpcOptions(network, this.options),
+    );
 
     // Execute unstake
     const result = await unstakeLBTC({

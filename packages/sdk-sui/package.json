@@ -29,7 +29,8 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "storybook": "storybook dev -p 6006",
     "types": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --config vitest.unit.config.ts",
+    "test:live": "vitest run --config vitest.live.config.ts"
   },
   "repository": {
     "type": "git",

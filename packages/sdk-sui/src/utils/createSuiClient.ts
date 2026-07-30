@@ -40,12 +40,43 @@ const DEFAULT_RPC_URLS: Partial<Record<SuiNetwork, string[]>> = {
 /** Statuses that mean "this node is unhealthy", worth retrying elsewhere. */
 const RETRYABLE_STATUSES = [408, 425, 429, 500, 502, 503, 504];
 
+/**
+ * Per-endpoint budget. Without it a node that accepts the connection and then
+ * hangs would stall the whole call, since failover only advances once an
+ * attempt settles. Worst case for a request is this times the endpoint count.
+ */
+const DEFAULT_TIMEOUT_MS = 20_000;
+
 export interface ISuiRpcOptions {
   /**
    * JSON-RPC endpoints to use instead of the defaults, tried in the order
    * given. Supply your own nodes to avoid the rate limits of public ones.
    */
   rpcUrls?: string[];
+  /** Per-endpoint timeout in milliseconds. */
+  timeoutMs?: number;
+}
+
+/**
+ * Endpoint overrides for callers that do not pick the network themselves, such
+ * as {@link suiModule}, where the network is resolved per call from the chain
+ * id. Networks left out fall back to {@link getDefaultSuiRpcUrls}.
+ */
+export interface ISuiNetworkRpcOptions {
+  /** Endpoints per network, each tried in the order given. */
+  rpcUrls?: Partial<Record<SuiNetwork, string[]>>;
+  /** Per-endpoint timeout in milliseconds. */
+  timeoutMs?: number;
+}
+
+/**
+ * Narrows network-scoped options down to the one network being called.
+ */
+export function resolveSuiRpcOptions(
+  network: SuiNetwork,
+  { rpcUrls, timeoutMs }: ISuiNetworkRpcOptions = {},
+): ISuiRpcOptions {
+  return { rpcUrls: rpcUrls?.[network], timeoutMs };
 }
 
 /**
@@ -61,14 +92,22 @@ export function getDefaultSuiRpcUrls(network: SuiNetwork): string[] {
 /**
  * The transport bakes a single url into the request, so failover happens here:
  * every attempt re-sends the same body to the next candidate node.
+ *
+ * Each attempt gets its own timeout, combined with the caller's signal so an
+ * upstream abort cancels the whole chain rather than just the current node.
  */
-function createFailoverFetch(urls: string[]): typeof fetch {
+function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
   return async (_input, init) => {
     let lastError: unknown;
 
     for (const url of urls) {
+      const timeout = AbortSignal.timeout(timeoutMs);
+      const signal = init?.signal
+        ? AbortSignal.any([init.signal, timeout])
+        : timeout;
+
       try {
-        const response = await fetch(url, init);
+        const response = await fetch(url, { ...init, signal });
 
         if (!RETRYABLE_STATUSES.includes(response.status)) {
           return response;
@@ -78,6 +117,11 @@ function createFailoverFetch(urls: string[]): typeof fetch {
           `Sui RPC ${url} responded with ${response.status}`,
         );
       } catch (error) {
+        // The caller gave up, trying the next node would ignore that.
+        if (init?.signal?.aborted) {
+          throw error;
+        }
+
         lastError = error;
       }
     }
@@ -88,18 +132,18 @@ function createFailoverFetch(urls: string[]): typeof fetch {
 
 /**
  * Creates a {@link SuiClient} that falls back to the next endpoint when a node
- * is unreachable or rate limited.
+ * is unreachable, hanging or rate limited.
  */
 export function createSuiClient(
   network: SuiNetwork,
-  { rpcUrls }: ISuiRpcOptions = {},
+  { rpcUrls, timeoutMs = DEFAULT_TIMEOUT_MS }: ISuiRpcOptions = {},
 ): SuiClient {
   const urls = rpcUrls?.length ? rpcUrls : getDefaultSuiRpcUrls(network);
 
   return new SuiClient({
     transport: new SuiHTTPTransport({
       url: urls[0],
-      fetch: createFailoverFetch(urls),
+      fetch: createFailoverFetch(urls, timeoutMs),
     }),
   });
 }

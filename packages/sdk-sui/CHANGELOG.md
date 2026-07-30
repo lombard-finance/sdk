@@ -14,8 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `createSuiClient(network, options)` and `getDefaultSuiRpcUrls(network)`, exported so callers can build the same failover client for the low-level functions that take a `client` argument. The client walks an ordered list of endpoints, retrying on transport errors and on unhealthy responses (408, 425, 429, 500, 502, 503, 504), and does not retry a request a node actually answered
-- `suiModule({ rpcUrls })` to override the endpoints, for example to point at your own nodes and avoid the rate limits of public ones
-- Test setup for the package, so its unit tests run in CI
+- Each attempt carries its own timeout (`timeoutMs`, 20s by default), combined with the caller's signal. Without it a node that accepts the connection and then hangs would stall the call, since failover only advances once an attempt settles. An abort from the caller ends the chain instead of falling through to the next node
+- `suiModule({ rpcUrls })` to override the endpoints, for example to point at your own nodes and avoid the rate limits of public ones. Keyed by network (`{ mainnet: [...], testnet: [...] }`), because the service resolves the network per call from the chain id, so one instance can serve several networks
+- Test setup for the package, split per the repository convention: `test` runs the offline unit suite (`vitest.unit.config.ts`), `test:live` probes the real endpoints (`vitest.live.config.ts`). The unit suite is wired into `test:required`, so it runs in CI
 
 ### Notes
 
