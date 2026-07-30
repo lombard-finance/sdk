@@ -3015,6 +3015,7 @@ __metadata:
     typedoc: "npm:^0.26.6"
     typescript: "npm:^5.4.5"
     vite: "npm:^6.3.5"
+    vitest: "npm:^3.2.4"
   peerDependencies:
     "@bitcoin-js/tiny-secp256k1-asmjs": 2.2.3
     axios: ^1

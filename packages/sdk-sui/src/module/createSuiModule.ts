@@ -10,6 +10,7 @@
 import type { ChainModule, SuiService } from '@lombard.finance/sdk-common';
 
 import { SuiServiceImpl } from '../services/SuiServiceImpl';
+import type { ISuiRpcOptions } from '../utils/createSuiClient';
 
 /**
  * Create Sui module
@@ -25,14 +26,18 @@ import { SuiServiceImpl } from '../services/SuiServiceImpl';
  *   providers: { sui: () => suiWallet },
  * });
  * ```
+ *
+ * @param options - Optional JSON-RPC endpoints to use instead of the defaults
  */
-export function suiModule(): ChainModule<'sui', SuiService> {
+export function suiModule(
+  options: ISuiRpcOptions = {},
+): ChainModule<'sui', SuiService> {
   return {
     id: 'sui',
     chain: 'sui',
     requiresProviders: ['sui'],
     register(ctx) {
-      return new SuiServiceImpl(() => ctx.getProvider('sui'));
+      return new SuiServiceImpl(() => ctx.getProvider('sui'), options);
     },
   };
 }

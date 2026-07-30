@@ -1,7 +1,7 @@
 import { createPublicClient, http, parseEther } from 'viem';
 import { sepolia, avalancheFuji } from 'viem/chains';
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
+import { SuiClient } from '@mysten/sui/client';
 import { RpcProvider } from 'starknet';
 import dotenv from 'dotenv';
 
@@ -16,6 +16,10 @@ const RPC_URLS = {
   starknetSepolia:
     'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/demo',
 };
+
+// Sui Foundation disabled JSON-RPC on its public fullnodes, so `getFullnodeUrl()`
+// no longer works. This node still serves it.
+const SUI_TESTNET_RPC_URL = 'https://sui-testnet-endpoint.blockvision.org';
 
 interface WalletBalances {
   chain: string;
@@ -116,7 +120,7 @@ async function checkBalances(): Promise<WalletBalances[]> {
   // Sui Testnet
   if (process.env.TEST_SUI_ADDRESS) {
     try {
-      const suiClient = new SuiClient({ url: getFullnodeUrl('testnet') });
+      const suiClient = new SuiClient({ url: SUI_TESTNET_RPC_URL });
       const suiBalance = await suiClient.getBalance({
         owner: process.env.TEST_SUI_ADDRESS,
       });

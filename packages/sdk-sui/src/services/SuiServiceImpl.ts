@@ -7,7 +7,6 @@
  */
 
 import type { Env, SuiService } from '@lombard.finance/sdk-common';
-import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import type {
   SuiChain,
   SuiSignPersonalMessageFeature,
@@ -17,6 +16,8 @@ import type { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
+import type { ISuiRpcOptions } from '../utils/createSuiClient';
+import { createSuiClient } from '../utils/createSuiClient';
 import { signLbtcDestinationAddrSui } from '../web3Sdk/signLbtcDestionationAddrSui';
 import { unstakeLBTC } from '../web3Sdk/unstakeLBTC/unstakeLBTC';
 
@@ -57,7 +58,10 @@ function getSuiNetworkFromChainId(
  * Instantiated by suiModule().
  */
 export class SuiServiceImpl implements SuiService {
-  constructor(private readonly getProvider: ProviderResolver) {}
+  constructor(
+    private readonly getProvider: ProviderResolver,
+    private readonly options: ISuiRpcOptions = {},
+  ) {}
 
   /**
    * Sign LBTC destination address for Sui minting
@@ -93,7 +97,7 @@ export class SuiServiceImpl implements SuiService {
 
     // Create Sui client
     const network = getSuiNetworkFromChainId(args.chainId);
-    const client = new SuiClient({ url: getFullnodeUrl(network) });
+    const client = createSuiClient(network, this.options);
 
     // Execute unstake
     const result = await unstakeLBTC({

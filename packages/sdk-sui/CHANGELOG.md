@@ -5,6 +5,23 @@ All notable changes to `@lombard.finance/sdk-sui` will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-07-30
+
+### Fixed
+
+- Sui Foundation disabled JSON-RPC on its public fullnodes, so `getFullnodeUrl()` now resolves to an endpoint that answers every method with `-32601 Method not found`. `suiModule()` was pinned to it, which broke every operation the module performs. It now talks to nodes that still serve JSON-RPC
+
+### Added
+
+- `createSuiClient(network, options)` and `getDefaultSuiRpcUrls(network)`, exported so callers can build the same failover client for the low-level functions that take a `client` argument. The client walks an ordered list of endpoints, retrying on transport errors and on unhealthy responses (408, 425, 429, 500, 502, 503, 504), and does not retry a request a node actually answered
+- `suiModule({ rpcUrls })` to override the endpoints, for example to point at your own nodes and avoid the rate limits of public ones
+- Test setup for the package, so its unit tests run in CI
+
+### Notes
+
+- This is a stopgap. JSON-RPC is scheduled for removal from the Sui node binary in mid-October 2026, after which these nodes stop working too and the package has to move to gRPC
+- On testnet the default order puts Blockvision first, because the other public nodes answer `suix_getCoinMetadata` with `null` there, which makes `getBalance` and `prepareCoinsTransaction` fall back to hardcoded decimals
+
 ## [1.2.0] - 2026-06-30
 
 ### Added
