@@ -96,6 +96,29 @@ describe('resolveSuiRpcOptions', () => {
   });
 });
 
+describe('createSuiClient endpoint validation', () => {
+  it.each([
+    ['http://insecure.example/rpc', 'must be https'],
+    ['not-a-url', 'not a valid url'],
+    ['', 'not a valid url'],
+  ])('rejects %s', (rpcUrl, reason) => {
+    expect(() => createSuiClient('mainnet', { rpcUrls: [rpcUrl] })).toThrow(
+      reason,
+    );
+  });
+
+  it('keeps the query string of a valid endpoint', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonRpcResponse(CHAIN_IDENTIFIER));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await callChainIdentifier(['https://node.example/rpc?key=abc']);
+
+    expect(fetchMock.mock.calls[0][0]).toBe('https://node.example/rpc?key=abc');
+  });
+});
+
 describe('createSuiClient', () => {
   it('sends the request to the first endpoint', async () => {
     const fetchMock = vi

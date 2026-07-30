@@ -80,6 +80,32 @@ export function resolveSuiRpcOptions(
 }
 
 /**
+ * Endpoints reach the network, and `rpcUrls` is supplied by whoever embeds this
+ * package. Parse each one and rebuild it from its parts, so a malformed entry,
+ * or one that would downgrade RPC traffic to plaintext, fails loudly when the
+ * client is built instead of being requested.
+ */
+function toRpcEndpoint(value: string): string {
+  let url: URL;
+
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error(`Sui RPC endpoint is not a valid url: ${value}`);
+  }
+
+  if (url.protocol !== 'https:') {
+    throw new Error(`Sui RPC endpoint must be https: ${value}`);
+  }
+
+  // A bare "/" is what URL fills in for a host-only endpoint, keep it off so the
+  // request target stays byte-identical to the configured value.
+  const path = url.pathname === '/' ? '' : url.pathname;
+
+  return `${url.origin}${path}${url.search}`;
+}
+
+/**
  * Endpoints used for a network when the caller does not supply its own.
  *
  * No public node serves JSON-RPC on devnet or localnet, so those keep the Sui
@@ -138,7 +164,9 @@ export function createSuiClient(
   network: SuiNetwork,
   { rpcUrls, timeoutMs = DEFAULT_TIMEOUT_MS }: ISuiRpcOptions = {},
 ): SuiClient {
-  const urls = rpcUrls?.length ? rpcUrls : getDefaultSuiRpcUrls(network);
+  const urls = (
+    rpcUrls?.length ? rpcUrls : getDefaultSuiRpcUrls(network)
+  ).map(toRpcEndpoint);
 
   return new SuiClient({
     transport: new SuiHTTPTransport({
