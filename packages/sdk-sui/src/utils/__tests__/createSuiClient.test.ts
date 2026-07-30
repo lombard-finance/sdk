@@ -58,12 +58,12 @@ afterEach(() => {
 describe('getDefaultSuiRpcUrls', () => {
   it.each(NETWORKS)(
     'returns endpoints that still serve JSON-RPC on %s',
-    network => {
+    (network) => {
       const urls = getDefaultSuiRpcUrls(network);
 
       expect(urls.length).toBeGreaterThan(1);
 
-      urls.forEach(url => {
+      urls.forEach((url) => {
         expect(url).toMatch(/^https:\/\//);
         // Sui Foundation fullnodes answer every JSON-RPC method with -32601.
         expect(url).not.toContain('fullnode.mainnet.sui.io');
@@ -117,7 +117,7 @@ describe('createSuiClient endpoint validation', () => {
 
   it.each(['http://localhost:9000', 'http://127.0.0.1:9000'])(
     'allows %s so a local fullnode can be used',
-    rpcUrl => {
+    (rpcUrl) => {
       expect(() =>
         createSuiClient('mainnet', { rpcUrls: [rpcUrl] }),
       ).not.toThrow();
@@ -133,6 +133,21 @@ describe('createSuiClient endpoint validation', () => {
     await callChainIdentifier(['https://node.example/rpc?key=abc']);
 
     expect(fetchMock.mock.calls[0][0]).toBe('https://node.example/rpc?key=abc');
+  });
+
+  it('keeps the credentials of an authenticated endpoint', async () => {
+    // Private providers hand out endpoints with basic auth in them, and an
+    // anonymous request is answered with a 401 that does not fail over.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonRpcResponse(CHAIN_IDENTIFIER));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await callChainIdentifier(['https://user:key@node.example/rpc']);
+
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      'https://user:key@node.example/rpc',
+    );
   });
 });
 
@@ -175,7 +190,7 @@ describe('createSuiClient', () => {
 
   it.each([429, 500, 502, 503])(
     'falls back to the next endpoint on HTTP %i',
-    async status => {
+    async (status) => {
       const fetchMock = vi
         .fn()
         .mockResolvedValueOnce(unhealthyResponse(status))
@@ -208,6 +223,58 @@ describe('createSuiClient', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[1][0]).toBe(RPC_URLS[1]);
+  });
+
+  it('gives up on an endpoint that stalls mid-body', async () => {
+    // fetch resolves on headers, so a body that never arrives has to be caught
+    // by the same deadline, or the attempt hangs with the timer already cleared.
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(
+        (_url: string, init: RequestInit) =>
+          new Promise((resolve) =>
+            resolve(
+              new Response(
+                new ReadableStream({
+                  start(controller) {
+                    init.signal?.addEventListener('abort', () =>
+                      controller.error(new Error('aborted')),
+                    );
+                  },
+                }),
+                { status: 200 },
+              ),
+            ),
+          ),
+      )
+      .mockResolvedValueOnce(jsonRpcResponse(CHAIN_IDENTIFIER));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(callChainIdentifier(RPC_URLS, 20)).resolves.toBe(
+      CHAIN_IDENTIFIER,
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not send the request when the caller already aborted', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonRpcResponse(CHAIN_IDENTIFIER));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(
+      createSuiClient('mainnet', { rpcUrls: RPC_URLS }).call(
+        'sui_getChainIdentifier',
+        [],
+        { signal: controller.signal },
+      ),
+    ).rejects.toThrow();
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('stops trying endpoints once the caller aborts', async () => {
@@ -269,7 +336,7 @@ describe('createSuiClient', () => {
 
     // First call: dead head, then the second endpoint. Second call must start
     // from that one rather than paying for the dead head again.
-    expect(fetchMock.mock.calls.map(call => call[0])).toEqual([
+    expect(fetchMock.mock.calls.map((call) => call[0])).toEqual([
       RPC_URLS[0],
       RPC_URLS[1],
       RPC_URLS[1],

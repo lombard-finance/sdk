@@ -7,7 +7,11 @@
  * @module utils/createSuiClient
  */
 
-import { getFullnodeUrl, SuiClient, SuiHTTPTransport } from '@mysten/sui/client';
+import {
+  getFullnodeUrl,
+  SuiClient,
+  SuiHTTPTransport,
+} from '@mysten/sui/client';
 
 /** Sui networks a client can be created for. */
 export type SuiNetwork = 'mainnet' | 'testnet' | 'devnet' | 'localnet';
@@ -108,7 +112,14 @@ function toRpcEndpoint(value: string): string {
   // request target stays byte-identical to the configured value.
   const path = url.pathname === '/' ? '' : url.pathname;
 
-  return `${url.origin}${path}${url.search}`;
+  // `origin` drops userinfo, and private providers hand out endpoints with
+  // credentials in them. Rebuilding from it would send an anonymous request that
+  // the node answers with 401, which is not retryable and gives no hint why.
+  const credentials = url.username
+    ? `${url.username}${url.password ? `:${url.password}` : ''}@`
+    : '';
+
+  return `${url.protocol}//${credentials}${url.host}${path}${url.search}`;
 }
 
 /**
@@ -133,15 +144,21 @@ export function getDefaultSuiRpcUrls(network: SuiNetwork): string[] {
 const UNHEALTHY_RPC_CODES = [-32601, -32603];
 
 /**
- * Reads the JSON-RPC envelope to decide whether the node served the request.
- * Uses a clone so the response body stays intact for the transport, and treats
- * anything unparseable as served, since only the codes above are actionable.
+ * Reads the JSON-RPC envelope to decide whether the node served the request,
+ * and treats anything unparseable as served, since only the codes above are
+ * actionable.
+ *
+ * The `"error"` prefilter keeps the parse off the success path: a result of any
+ * size — an owned-object page, transaction effects — would otherwise be parsed
+ * once here and once by the transport, on every single call.
  */
-async function isUnhealthyRpcResponse(response: Response): Promise<boolean> {
+function isUnhealthyRpcResponse(body: string): boolean {
+  if (!body.includes('"error"')) {
+    return false;
+  }
+
   try {
-    const payload = (await response.clone().json()) as {
-      error?: { code?: number };
-    };
+    const payload = JSON.parse(body) as { error?: { code?: number } };
 
     return (
       typeof payload?.error?.code === 'number' &&
@@ -152,16 +169,29 @@ async function isUnhealthyRpcResponse(response: Response): Promise<boolean> {
   }
 }
 
+/** A node's answer, with its body already off the wire. */
+interface RpcAttempt {
+  status: number;
+  body: string;
+  /** Rebuilt for the transport, which reads the body itself. */
+  toResponse: () => Response;
+}
+
 /**
  * Gives one attempt its own deadline while still honouring an abort from the
  * caller. Composed by hand rather than with `AbortSignal.any`, which Safari
  * only gained in 17.4 and which would throw on every request there.
+ *
+ * The body is drained here rather than left to the transport, so the deadline
+ * covers it: `fetch` resolves on headers, and a node that answers and then
+ * stalls mid-body would otherwise hang with the timer already cleared. Draining
+ * also releases the connection of an answer we are about to discard.
  */
 async function fetchWithTimeout(
   url: string,
   init: RequestInit | undefined,
   timeoutMs: number,
-): Promise<Response> {
+): Promise<RpcAttempt> {
   const controller = new AbortController();
   const abort = () => controller.abort();
   const timer = setTimeout(abort, timeoutMs);
@@ -169,7 +199,20 @@ async function fetchWithTimeout(
   init?.signal?.addEventListener('abort', abort);
 
   try {
-    return await fetch(url, { ...init, signal: controller.signal });
+    const response = await fetch(url, { ...init, signal: controller.signal });
+    const body = await response.text();
+
+    return {
+      status: response.status,
+      body,
+      // A body is disallowed on 204/205/304, and those carry none anyway.
+      toResponse: () =>
+        new Response(body || null, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+        }),
+    };
   } finally {
     clearTimeout(timer);
     init?.signal?.removeEventListener('abort', abort);
@@ -180,12 +223,12 @@ async function fetchWithTimeout(
  * Why this node should not be used for the response it just gave, or `null`
  * when it served the request.
  */
-async function getUnhealthyReason(response: Response): Promise<string | null> {
-  if (RETRYABLE_STATUSES.includes(response.status)) {
-    return `responded with ${response.status}`;
+function getUnhealthyReason({ status, body }: RpcAttempt): string | null {
+  if (RETRYABLE_STATUSES.includes(status)) {
+    return `responded with ${status}`;
   }
 
-  if (await isUnhealthyRpcResponse(response)) {
+  if (isUnhealthyRpcResponse(body)) {
     return 'cannot serve this method';
   }
 
@@ -206,18 +249,25 @@ function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
   return async (_input, init) => {
     let lastError: unknown;
 
+    // A signal that aborted before the call would never fire its listener, and
+    // the request would go out as if nothing had happened. Thrown by hand rather
+    // than with `throwIfAborted`, which Safari only gained in 16.4.
+    if (init?.signal?.aborted) {
+      throw new DOMException('The operation was aborted.', 'AbortError');
+    }
+
     for (let attempt = 0; attempt < urls.length; attempt += 1) {
       const index = (preferred + attempt) % urls.length;
       const url = urls[index];
 
       try {
-        const response = await fetchWithTimeout(url, init, timeoutMs);
-        const reason = await getUnhealthyReason(response);
+        const rpcAttempt = await fetchWithTimeout(url, init, timeoutMs);
+        const reason = getUnhealthyReason(rpcAttempt);
 
         if (!reason) {
           preferred = index;
 
-          return response;
+          return rpcAttempt.toResponse();
         }
 
         lastError = new Error(`Sui RPC ${url} ${reason}`);
@@ -243,9 +293,9 @@ export function createSuiClient(
   network: SuiNetwork,
   { rpcUrls, timeoutMs = DEFAULT_TIMEOUT_MS }: ISuiRpcOptions = {},
 ): SuiClient {
-  const urls = (
-    rpcUrls?.length ? rpcUrls : getDefaultSuiRpcUrls(network)
-  ).map(toRpcEndpoint);
+  const urls = (rpcUrls?.length ? rpcUrls : getDefaultSuiRpcUrls(network)).map(
+    toRpcEndpoint,
+  );
 
   return new SuiClient({
     transport: new SuiHTTPTransport({

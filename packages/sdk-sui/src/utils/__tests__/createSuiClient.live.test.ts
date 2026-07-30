@@ -56,24 +56,23 @@ async function probe(url: string): Promise<EndpointProbe> {
 describe('Sui JSON-RPC endpoints', () => {
   it.each(NETWORKS)(
     'serves JSON-RPC on at least one %s endpoint',
-    async network => {
-      const results = await Promise.all(getDefaultSuiRpcUrls(network).map(probe));
+    async (network) => {
+      const results = await Promise.all(
+        getDefaultSuiRpcUrls(network).map(probe),
+      );
 
-      const dead = results.filter(result => !result.alive);
+      const dead = results.filter((result) => !result.alive);
       const report = dead
-        .map(result => `  ${result.url}: ${result.reason}`)
+        .map((result) => `  ${result.url}: ${result.reason}`)
         .join('\n');
 
+      // A single flaky node must not fail the run, and the message carries which
+      // ones are down, so nothing is logged here: `no-console` is an error in
+      // this repository.
       expect(
-        results.some(result => result.alive),
+        results.some((result) => result.alive),
         `No Sui ${network} JSON-RPC endpoint is reachable:\n${report}`,
       ).toBe(true);
-
-      if (dead.length) {
-        console.warn(
-          `Sui ${network} JSON-RPC endpoints not responding:\n${report}`,
-        );
-      }
     },
     30_000,
   );
