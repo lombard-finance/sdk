@@ -44,12 +44,48 @@ describe('deriveDepositId', () => {
 });
 
 describe('getBasculeDepositStatus', () => {
+  const NOT_FOUND = { data: null, error: { code: 'dynamicFieldNotFound' } };
+
+  /** The deposit-table lookups a client received, keyed apart by the u256 key. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const depositLookups = (client: any) =>
+    client.getDynamicFieldObject.mock.calls.filter(
+      ([{ name }]: [{ name: { type: string } }]) => name.type === 'u256',
+    );
+
   const makeClient = (overrides: {
     paused?: boolean;
     tableId?: string;
     variant?: string | null;
-  }) =>
-    ({
+    basculeCheck?: boolean | null;
+  }) => {
+    const deposit = overrides.variant
+      ? {
+          data: {
+            content: {
+              dataType: 'moveObject',
+              fields: { value: { variant: overrides.variant } },
+            },
+          },
+        }
+      : NOT_FOUND;
+
+    // `null` means the treasury has no such field at all.
+    const basculeCheck =
+      overrides.basculeCheck === undefined ? true : overrides.basculeCheck;
+    const flag =
+      basculeCheck === null
+        ? NOT_FOUND
+        : {
+            data: {
+              content: {
+                dataType: 'moveObject',
+                fields: { value: basculeCheck },
+              },
+            },
+          };
+
+    return {
       getObject: vi.fn().mockResolvedValue({
         data: {
           content: {
@@ -63,20 +99,17 @@ describe('getBasculeDepositStatus', () => {
           },
         },
       }),
-      getDynamicFieldObject: vi.fn().mockResolvedValue(
-        overrides.variant
-          ? {
-              data: {
-                content: {
-                  dataType: 'moveObject',
-                  fields: { value: { variant: overrides.variant } },
-                },
-              },
-            }
-          : { data: null, error: { code: 'dynamicFieldNotFound' } },
-      ),
+      // The treasury bascule_check flag and the deposit entry are both dynamic
+      // fields, told apart by the key type: vector<u8> for the flag, u256 for
+      // the deposit id.
+      getDynamicFieldObject: vi
+        .fn()
+        .mockImplementation(({ name }: { name: { type: string } }) =>
+          Promise.resolve(name.type === 'vector<u8>' ? flag : deposit),
+        ),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }) as any;
+    } as any;
+  };
 
   it('returns REPORTED for a reported deposit', async () => {
     const status = await getBasculeDepositStatus({
@@ -106,6 +139,33 @@ describe('getBasculeDepositStatus', () => {
     const client = makeClient({ paused: true, variant: 'Reported' });
     const status = await getBasculeDepositStatus({ client, payload: PAYLOAD });
     expect(status).toBe(SuiBasculeDepositStatus.PAUSED);
-    expect(client.getDynamicFieldObject).not.toHaveBeenCalled();
+    expect(depositLookups(client)).toHaveLength(0);
+  });
+
+  it('returns NOT_ENFORCED without reading the bascule when the treasury has the check disabled', async () => {
+    // mint_v2 skips validate_withdrawal entirely, so an unreported deposit
+    // still mints and must not be gated here.
+    const client = makeClient({
+      basculeCheck: false,
+      paused: true,
+      variant: null,
+    });
+    const status = await getBasculeDepositStatus({ client, payload: PAYLOAD });
+    expect(status).toBe(SuiBasculeDepositStatus.NOT_ENFORCED);
+    expect(client.getObject).not.toHaveBeenCalled();
+  });
+
+  it('rejects a malformed payload even when the check is disabled', async () => {
+    const client = makeClient({ basculeCheck: false, variant: 'Reported' });
+    await expect(
+      getBasculeDepositStatus({ client, payload: 'ce25e7c2' }),
+    ).rejects.toThrow(/length/);
+  });
+
+  it('throws when the treasury has no bascule check flag', async () => {
+    const client = makeClient({ basculeCheck: null, variant: 'Reported' });
+    await expect(
+      getBasculeDepositStatus({ client, payload: PAYLOAD }),
+    ).rejects.toThrow(/no bascule_check flag/);
   });
 });
