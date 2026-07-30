@@ -35,6 +35,14 @@ function unhealthyResponse(status: number): Response {
   return new Response('nope', { status });
 }
 
+/** How a node that cannot serve a method answers: HTTP 200, JSON-RPC error. */
+function jsonRpcErrorResponse(code: number): Response {
+  return new Response(
+    JSON.stringify({ jsonrpc: '2.0', id: 1, error: { code, message: 'nope' } }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
 /** Any JSON-RPC method works here, the transport is what is under test. */
 const callChainIdentifier = (rpcUrls = RPC_URLS, timeoutMs?: number) =>
   createSuiClient('mainnet', { rpcUrls, timeoutMs }).call<string>(
@@ -106,6 +114,15 @@ describe('createSuiClient endpoint validation', () => {
       reason,
     );
   });
+
+  it.each(['http://localhost:9000', 'http://127.0.0.1:9000'])(
+    'allows %s so a local fullnode can be used',
+    rpcUrl => {
+      expect(() =>
+        createSuiClient('mainnet', { rpcUrls: [rpcUrl] }),
+      ).not.toThrow();
+    },
+  );
 
   it('keeps the query string of a valid endpoint', async () => {
     const fetchMock = vi
@@ -210,6 +227,53 @@ describe('createSuiClient', () => {
     ).rejects.toThrow();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('falls back when a node answers -32601 with HTTP 200', async () => {
+    // The deprecated fullnodes answer exactly like this, so a status-only
+    // health check would have treated the outage as a success.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonRpcErrorResponse(-32601))
+      .mockResolvedValueOnce(jsonRpcResponse(CHAIN_IDENTIFIER));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(callChainIdentifier()).resolves.toBe(CHAIN_IDENTIFIER);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][0]).toBe(RPC_URLS[1]);
+  });
+
+  it('surfaces a request-level JSON-RPC error without failing over', async () => {
+    // -32602 is the node telling us our params are wrong, not that it is down.
+    const fetchMock = vi.fn().mockResolvedValue(jsonRpcErrorResponse(-32602));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(callChainIdentifier()).rejects.toThrow();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps using the endpoint that last worked', async () => {
+    // A fresh Response per call, a shared one would already be consumed.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(unhealthyResponse(503))
+      .mockImplementation(async () => jsonRpcResponse(CHAIN_IDENTIFIER));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const client = createSuiClient('mainnet', { rpcUrls: RPC_URLS });
+
+    await client.call('sui_getChainIdentifier', []);
+    await client.call('sui_getChainIdentifier', []);
+
+    // First call: dead head, then the second endpoint. Second call must start
+    // from that one rather than paying for the dead head again.
+    expect(fetchMock.mock.calls.map(call => call[0])).toEqual([
+      RPC_URLS[0],
+      RPC_URLS[1],
+      RPC_URLS[1],
+    ]);
   });
 
   it('does not retry a request the node answered', async () => {

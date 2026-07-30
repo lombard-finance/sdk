@@ -94,7 +94,13 @@ function toRpcEndpoint(value: string): string {
     throw new Error(`Sui RPC endpoint is not a valid url: ${value}`);
   }
 
-  if (url.protocol !== 'https:') {
+  // Loopback is exempt so a consumer can point the SDK at a local fullnode.
+  const isLoopback =
+    url.hostname === 'localhost' ||
+    url.hostname === '127.0.0.1' ||
+    url.hostname === '[::1]';
+
+  if (url.protocol !== 'https:' && !(url.protocol === 'http:' && isLoopback)) {
     throw new Error(`Sui RPC endpoint must be https: ${value}`);
   }
 
@@ -116,32 +122,96 @@ export function getDefaultSuiRpcUrls(network: SuiNetwork): string[] {
 }
 
 /**
+ * JSON-RPC error codes that mean the node cannot serve the request at all,
+ * rather than the request being wrong.
+ *
+ * This is how the outage that motivated this module actually presents: a
+ * deprecated fullnode answers HTTP 200 with `-32601 Method not found`. Judging
+ * a node by its status code alone would treat that as a success, and the same
+ * shape is expected again once JSON-RPC leaves the node binary.
+ */
+const UNHEALTHY_RPC_CODES = [-32601, -32603];
+
+/**
+ * Reads the JSON-RPC envelope to decide whether the node served the request.
+ * Uses a clone so the response body stays intact for the transport, and treats
+ * anything unparseable as served, since only the codes above are actionable.
+ */
+async function isUnhealthyRpcResponse(response: Response): Promise<boolean> {
+  try {
+    const payload = (await response.clone().json()) as {
+      error?: { code?: number };
+    };
+
+    return (
+      typeof payload?.error?.code === 'number' &&
+      UNHEALTHY_RPC_CODES.includes(payload.error.code)
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Gives one attempt its own deadline while still honouring an abort from the
+ * caller. Composed by hand rather than with `AbortSignal.any`, which Safari
+ * only gained in 17.4 and which would throw on every request there.
+ */
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit | undefined,
+  timeoutMs: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  const timer = setTimeout(abort, timeoutMs);
+
+  init?.signal?.addEventListener('abort', abort);
+
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+    init?.signal?.removeEventListener('abort', abort);
+  }
+}
+
+/**
  * The transport bakes a single url into the request, so failover happens here:
  * every attempt re-sends the same body to the next candidate node.
  *
- * Each attempt gets its own timeout, combined with the caller's signal so an
- * upstream abort cancels the whole chain rather than just the current node.
+ * Attempts start from the last endpoint that worked rather than always from the
+ * head of the list, so one unhealthy node costs its timeout once instead of on
+ * every request.
  */
 function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
+  let preferred = 0;
+
   return async (_input, init) => {
     let lastError: unknown;
 
-    for (const url of urls) {
-      const timeout = AbortSignal.timeout(timeoutMs);
-      const signal = init?.signal
-        ? AbortSignal.any([init.signal, timeout])
-        : timeout;
+    for (let attempt = 0; attempt < urls.length; attempt += 1) {
+      const index = (preferred + attempt) % urls.length;
+      const url = urls[index];
 
       try {
-        const response = await fetch(url, { ...init, signal });
+        const response = await fetchWithTimeout(url, init, timeoutMs);
 
-        if (!RETRYABLE_STATUSES.includes(response.status)) {
-          return response;
+        if (RETRYABLE_STATUSES.includes(response.status)) {
+          lastError = new Error(
+            `Sui RPC ${url} responded with ${response.status}`,
+          );
+          continue;
         }
 
-        lastError = new Error(
-          `Sui RPC ${url} responded with ${response.status}`,
-        );
+        if (await isUnhealthyRpcResponse(response)) {
+          lastError = new Error(`Sui RPC ${url} cannot serve this method`);
+          continue;
+        }
+
+        preferred = index;
+
+        return response;
       } catch (error) {
         // The caller gave up, trying the next node would ignore that.
         if (init?.signal?.aborted) {
