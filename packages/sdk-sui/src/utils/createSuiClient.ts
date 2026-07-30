@@ -177,6 +177,22 @@ async function fetchWithTimeout(
 }
 
 /**
+ * Why this node should not be used for the response it just gave, or `null`
+ * when it served the request.
+ */
+async function getUnhealthyReason(response: Response): Promise<string | null> {
+  if (RETRYABLE_STATUSES.includes(response.status)) {
+    return `responded with ${response.status}`;
+  }
+
+  if (await isUnhealthyRpcResponse(response)) {
+    return 'cannot serve this method';
+  }
+
+  return null;
+}
+
+/**
  * The transport bakes a single url into the request, so failover happens here:
  * every attempt re-sends the same body to the next candidate node.
  *
@@ -196,22 +212,15 @@ function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
 
       try {
         const response = await fetchWithTimeout(url, init, timeoutMs);
+        const reason = await getUnhealthyReason(response);
 
-        if (RETRYABLE_STATUSES.includes(response.status)) {
-          lastError = new Error(
-            `Sui RPC ${url} responded with ${response.status}`,
-          );
-          continue;
+        if (!reason) {
+          preferred = index;
+
+          return response;
         }
 
-        if (await isUnhealthyRpcResponse(response)) {
-          lastError = new Error(`Sui RPC ${url} cannot serve this method`);
-          continue;
-        }
-
-        preferred = index;
-
-        return response;
+        lastError = new Error(`Sui RPC ${url} ${reason}`);
       } catch (error) {
         // The caller gave up, trying the next node would ignore that.
         if (init?.signal?.aborted) {
