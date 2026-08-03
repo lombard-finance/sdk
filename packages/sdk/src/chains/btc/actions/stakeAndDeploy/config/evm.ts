@@ -66,7 +66,7 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
 
   async authorizeStakeAndBake(
     ctx,
-    { chainId, recipient, amount, vaultKey, token },
+    { chainId, recipient, amount, vaultKey, token, expiry },
   ) {
     const evm = ctx.capabilities.require('evm') as EvmService;
     const provider = await ctx.getProvider('evm');
@@ -84,6 +84,7 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
       provider: provider as EIP1193Provider,
       vaultKey,
       token,
+      expiry,
     });
 
     // Store signature via API

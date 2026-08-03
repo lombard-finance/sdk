@@ -9,6 +9,7 @@ export { BtcActions, btcActions } from '../chains/btc/BtcActions';
 
 // BTC types and direct actions
 export type {
+  AuthorizeDepositOptions,
   BtcDepositAndDeployParams,
   BtcDepositAndDeployPrepareParams,
   BtcDepositAndDeployProgress,

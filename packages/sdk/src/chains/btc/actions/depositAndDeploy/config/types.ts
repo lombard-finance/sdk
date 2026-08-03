@@ -63,6 +63,14 @@ export interface DepositAndDeployChainConfig {
       amount: string;
       vaultKey: string;
       token: string;
+      /**
+       * Signature expiration as an absolute UNIX timestamp in seconds.
+       * Defaults to 24 hours from the time of signing when omitted.
+       *
+       * Silo BTC.b signs with a zero deadline, so this is accepted for
+       * interface parity but has no effect on the current BTC.b route.
+       */
+      expiry?: number;
     },
   ) => Promise<DepositAndDeployAuthResult>;
 }

@@ -1,3 +1,33 @@
+# 5.2.0
+
+### Added
+
+- The stake-and-bake signature expiry is now configurable from the BTC action layer. `BtcStakeAndDeploy.authorizeDeposit()` and `BtcDepositAndDeploy.authorizeDeposit()` accept an optional `AuthorizeDepositOptions` argument whose `expiry` field sets the signature expiration as an absolute UNIX timestamp in seconds. Omitting it keeps the existing 24-hour default.
+
+  ```typescript
+  const action = sdk.chain.btc.stakeAndDeploy({
+    assetOut: AssetId.LBTC,
+    destChain: Chain.ETHEREUM,
+    protocol: DeployProtocol.Veda,
+  });
+
+  await action.prepare({ amount: '0.1', recipient: '0x...' });
+
+  // Expire in 7 days instead of 24 hours
+  await action.authorizeDeposit({
+    expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+  });
+  ```
+
+- `expiry` on `SignStakeAndBakeParams`, so `EvmService.signStakeAndBake()` forwards the override to the underlying `signStakeAndBake()` contract function. Previously only the low-level `signStakeAndBake()` export accepted `expiry`; every caller that went through an action or the EVM service was pinned to 24 hours with no way to change it.
+- `AuthorizeDepositOptions` is exported from the package root and from the `@lombard.finance/sdk/btc` entry point.
+
+### Notes
+
+- `expiry` has no effect on protocols whose approval config uses a zero deadline. Silo BTC.b (`deadlineStrategy: 'zero'`) signs with `deadline: 0` and ignores the value; it is accepted on `BtcDepositAndDeploy` for interface parity with `BtcStakeAndDeploy`. Veda LBTC/BTC (`deadlineStrategy: 'expiry'`) honours it.
+
+---
+
 # 5.1.1
 
 ### Fixed

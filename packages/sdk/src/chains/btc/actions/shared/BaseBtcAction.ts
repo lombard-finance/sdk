@@ -70,6 +70,28 @@ export interface BasePrepareParams {
 }
 
 /**
+ * Options accepted by the deploy actions' `authorizeDeposit()`.
+ *
+ * Shared by BtcStakeAndDeploy and BtcDepositAndDeploy so the two signing
+ * flows cannot drift apart.
+ */
+export interface AuthorizeDepositOptions {
+  /**
+   * Signature expiration as an absolute UNIX timestamp in seconds.
+   * Defaults to 24 hours from the time of signing when omitted.
+   *
+   * @example
+   * ```typescript
+   * // Expire in 7 days instead of 24 hours
+   * await action.authorizeDeposit({
+   *   expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+   * });
+   * ```
+   */
+  expiry?: number;
+}
+
+/**
  * Progress step definitions
  */
 export type StepDefinition = Record<string, StepStatus>;

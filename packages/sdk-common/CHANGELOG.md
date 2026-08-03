@@ -5,6 +5,12 @@ All notable changes to `@lombard.finance/sdk-common` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-08-03
+
+### Added
+
+- Optional `expiry` field on `SignStakeAndBakeParams`, the stake-and-bake signature expiration as an absolute UNIX timestamp in seconds. Omitting it preserves the previous behaviour (the implementation defaults to 24 hours from signing). Ignored by protocols whose approval config uses a zero deadline.
+
 ## [4.1.0] - 2026-06-01
 
 ### Added
