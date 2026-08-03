@@ -16,6 +16,10 @@ export { BtcActions, btcActions } from './BtcActions';
 // Single export to avoid duplicate identifiers
 export { BtcActionStatus } from '../../shared/constants/statusConstants';
 
+// Shared by both deploy actions' authorizeDeposit(), exported once here for
+// the same reason as BtcActionStatus above
+export type { AuthorizeDepositOptions } from './actions/shared';
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Stake Action
 // ═══════════════════════════════════════════════════════════════════════════

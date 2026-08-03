@@ -25,6 +25,7 @@ import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctione
 import { toSatoshi } from '../../../../utils/satoshi';
 import {
   assetIdToToken,
+  type AuthorizeDepositOptions,
   BaseBtcAction,
   type StatusConfig,
   type StepDefinition,
@@ -232,7 +233,7 @@ export class BtcDepositAndDeploy
     }, BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
   }
 
-  async authorizeDeposit(): Promise<void> {
+  async authorizeDeposit(options?: AuthorizeDepositOptions): Promise<void> {
     this.assertStatus(
       [BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION, BtcActionStatus.READY],
       'authorizeDeposit',
@@ -260,6 +261,8 @@ export class BtcDepositAndDeploy
           amount: amountSats.toString(),
           vaultKey: getVaultKey(this.params.protocol),
           token: outputToken,
+          // undefined lets signStakeAndBake apply its own 24h default
+          expiry: options?.expiry,
         },
       );
 
