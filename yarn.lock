@@ -2995,9 +2995,10 @@ __metadata:
   dependencies:
     "@chromatic-com/storybook": "npm:1.6.1"
     "@lombard.finance/sdk-common": "workspace:*"
-    "@mysten/sui": "npm:^1.21.1"
+    "@mysten/sui": "npm:^1.45.2"
     "@mysten/wallet-standard": "npm:^0.13.7"
     "@noble/hashes": "npm:^1.8.0"
+    "@protobuf-ts/grpcweb-transport": "npm:^2.11.1"
     "@storybook/addon-essentials": "npm:^8.2.9"
     "@storybook/addon-interactions": "npm:^8.2.9"
     "@storybook/addon-links": "npm:^8.2.9"
@@ -3812,7 +3813,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mysten/sui@npm:^1.21.1, @mysten/sui@npm:^1.33.0":
+"@mysten/sui@npm:^1.33.0, @mysten/sui@npm:^1.45.2":
   version: 1.45.2
   resolution: "@mysten/sui@npm:1.45.2"
   dependencies:

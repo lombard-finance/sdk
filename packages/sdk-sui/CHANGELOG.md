@@ -5,6 +5,30 @@ All notable changes to `@lombard.finance/sdk-sui` will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-08-06
+
+The package now talks gRPC-Web instead of JSON-RPC. Sui is removing JSON-RPC from the node binary in mid-October 2026, and the official fullnodes already answer every JSON-RPC method with `-32601 Method not found`; gRPC is what they kept serving. The third-party JSON-RPC nodes the 1.3.0 failover leaned on are on the same clock.
+
+### Breaking
+
+- Every exported function that took a `client: SuiClient` (`claimLBTC`, `unstakeLBTC`, `getBalance`, `isBasculeCheckEnabled`, `getBasculeDepositStatus`) now takes a `client: SuiGrpcClient` from `@mysten/sui/grpc`. Build one with `createSuiGrpcClient(network, options)`
+- `createSuiClient`, `getDefaultSuiRpcUrls`, `resolveSuiRpcOptions`, `ISuiRpcOptions` and `ISuiNetworkRpcOptions` are gone, replaced by `createSuiGrpcClient`, `getDefaultSuiGrpcUrls`, `resolveSuiGrpcOptions`, `ISuiGrpcOptions` and `ISuiNetworkGrpcOptions`. The endpoint override key is `grpcUrls` (the old `rpcUrls` values would not work: JSON-RPC nodes do not serve gRPC-Web, so reusing the key would break silently)
+- `suiModule({ rpcUrls })` is now `suiModule({ grpcUrls })`, same reasoning
+- `claimLBTC` and `unstakeLBTC` return the executed transaction in the gRPC core shape (`ISuiExecutedTransaction`: `digest`, `effects`, ...) instead of `SuiTransactionBlockResponse`. The `digest` field survives unchanged
+- Endpoints with credentials in the url are rejected at construction: WHATWG `fetch` refuses userinfo urls, so such an endpoint would fail on every request with an unexplained `TypeError`. Private gRPC providers key by path instead. Query strings are rejected for the same fail-loudly reason, since the transport appends `/package.Service/Method` to the base
+- The `@mysten/sui` dependency floor moved to `^1.45.2`, the first 1.x with the gRPC client this package builds on
+
+### Added
+
+- `createSuiGrpcClient(network, { grpcUrls, timeoutMs })`: the same failover policy the JSON-RPC client had, translated to gRPC-Web. Reads walk the endpoint list on transport errors, retryable statuses (403, 404, 405, 408, 425, 429, 500, 502, 503, 504), a 200 that is not a gRPC-Web answer (a node that dropped the protocol), and trailers-only `UNIMPLEMENTED`/`INTERNAL`/`UNAVAILABLE`/`RESOURCE_EXHAUSTED`. A transaction submit is re-sent only on `UNIMPLEMENTED`, which proves nothing was executed. The endpoint that last worked is remembered
+- Default endpoints per network: the official fullnodes first (`fullnode.<network>.sui.io`), then suiscan, the one public third-party node that answered a gRPC-Web probe. The publicnode and blockvision nodes from the JSON-RPC list do not speak gRPC-Web and are gone
+- `executeSignedTransaction(client, { bytes, signature })` and the `ISuiExecutedTransaction` type, exported for consumers that submit wallet-signed bytes themselves
+
+### Changed
+
+- Dynamic-field reads (the treasury `bascule_check` flag, the Bascule deposit table) derive the field object id locally, exactly as the chain does, and read the object's node-rendered JSON; JSON-RPC's `suix_getDynamicFieldObject` has no gRPC counterpart. The rendering differences are absorbed inside: Move structs arrive flattened (no `fields` nesting), a `u64` as a string, an enum as `{ "@variant": "Name" }`
+- Coin decimals come from `StateService.GetCoinInfo` instead of `suix_getCoinMetadata`. Unpublished metadata (testnet) still falls back to the LBTC decimals; a node failure still throws rather than silently degrading into wrong decimals
+
 ## [1.3.0] - 2026-07-30
 
 ### Fixed

@@ -1,16 +1,16 @@
-import type { CoinStruct } from '@mysten/sui/client';
-import { SuiClient } from '@mysten/sui/client';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { Transaction } from '@mysten/sui/transactions';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
 import { LBTC_DECIMALS } from '../../const';
 import { ERROR_NOT_ENOUGH_BALANCE } from '../../const';
-import { getAllCoinsOfType } from '../getAllCoinsOfType';
+import { getSuiCoinDecimals } from '../../utils/getSuiCoinDecimals';
+import { getAllCoinsOfType, type ICoinOfType } from '../getAllCoinsOfType';
 
-interface IUnstakeLBTCParams {
+interface IPrepareCoinsTransactionParams {
   walletAccount: WalletAccount;
-  client: SuiClient;
+  client: SuiGrpcClient;
   amount: BigNumber;
   coinType: string;
 }
@@ -20,24 +20,21 @@ export async function prepareCoinsTransaction({
   client,
   amount,
   coinType,
-}: IUnstakeLBTCParams) {
+}: IPrepareCoinsTransactionParams) {
   const coins = await getAllCoinsOfType({ walletAccount, client, coinType });
 
   const transaction = new Transaction();
 
   const preparedCoins = await (async () => {
-    const coinMetadata = await client.getCoinMetadata({
-      coinType,
-    });
-
     // Fallback to LBTC decimals when CoinMetadata is not published (e.g. testnet)
-    const decimals = coinMetadata?.decimals ?? LBTC_DECIMALS;
+    const decimals =
+      (await getSuiCoinDecimals(client, coinType)) ?? LBTC_DECIMALS;
 
     const unstakeAmount = BigInt(
       amount.multipliedBy(new BigNumber(10).pow(decimals)).toString(10),
     );
 
-    const selectedCoins = [] as CoinStruct[];
+    const selectedCoins = [] as ICoinOfType[];
     let selectedAmount = BigInt(0);
 
     for (const coin of coins) {

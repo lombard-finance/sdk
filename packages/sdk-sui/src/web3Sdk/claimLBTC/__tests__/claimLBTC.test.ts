@@ -26,9 +26,9 @@ const signTransaction = vi
   .fn()
   .mockResolvedValue({ bytes: 'dHg=', signature: 'c2ln' });
 
-const executeTransactionBlock = vi
+const executeTransaction = vi
   .fn()
-  .mockResolvedValue({ digest: '0xdigest' });
+  .mockResolvedValue({ transaction: { digest: '0xdigest' } });
 
 const claim = () =>
   claimLBTC({
@@ -42,7 +42,7 @@ const claim = () =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     walletAccount: { address: '0xaccount' } as any,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    client: { executeTransactionBlock } as any,
+    client: { core: { executeTransaction } } as any,
   });
 
 describe('claimLBTC', () => {
@@ -58,6 +58,10 @@ describe('claimLBTC', () => {
     vi.mocked(getBasculeDepositStatus).mockResolvedValue(status);
 
     await expect(claim()).resolves.toEqual({ digest: '0xdigest' });
+    expect(executeTransaction).toHaveBeenCalledWith({
+      transaction: expect.any(Uint8Array),
+      signatures: ['c2ln'],
+    });
 
     expect(signTransaction).toHaveBeenCalledTimes(1);
   });
@@ -101,7 +105,7 @@ describe('claimLBTC', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         walletAccount: { address: '0xaccount' } as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        client: { executeTransactionBlock } as any,
+        client: { core: { executeTransaction } } as any,
       }),
     ).rejects.toThrow(/Invalid mint payload length/);
   });
