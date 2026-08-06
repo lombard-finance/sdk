@@ -335,10 +335,14 @@ function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
     const requested = input instanceof Request ? input.url : String(input);
 
     // The transport was built with `urls[0]` as its base, so everything after
-    // it is the `/package.Service/Method` part every endpoint shares.
-    const path = requested.startsWith(urls[0])
-      ? requested.slice(urls[0].length)
-      : requested;
+    // it is the `/package.Service/Method` part every endpoint shares. Nothing
+    // sends other targets through this fetch today; failing loudly beats
+    // rebasing a full url onto another endpoint.
+    if (!requested.startsWith(urls[0])) {
+      throw new Error(`Unexpected Sui gRPC request target: ${requested}`);
+    }
+
+    const path = requested.slice(urls[0].length);
 
     if (path.includes(STREAMING_PATH)) {
       return fetch(`${urls[preferred]}${path}`, init);

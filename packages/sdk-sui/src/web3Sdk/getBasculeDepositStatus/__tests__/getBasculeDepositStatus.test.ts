@@ -8,6 +8,7 @@ import {
   notFoundError,
   toProtoValue,
 } from '../../../utils/__tests__/protoValueFixture';
+import { basculeCheckFieldNameBcs } from '../../isBasculeCheckEnabled';
 import {
   deriveDepositId,
   getBasculeDepositStatus,
@@ -60,10 +61,7 @@ describe('getBasculeDepositStatus', () => {
   const FLAG_FIELD_ID = deriveDynamicFieldID(
     treasuryAddress,
     'vector<u8>',
-    bcs
-      .vector(bcs.u8())
-      .serialize(Array.from(new TextEncoder().encode('bascule_check')))
-      .toBytes(),
+    basculeCheckFieldNameBcs(),
   );
 
   const DEPOSIT_FIELD_ID = deriveDynamicFieldID(

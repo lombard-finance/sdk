@@ -148,6 +148,22 @@ describe('createSuiGrpcClient endpoint validation', () => {
       `https://node.example/sui-grpc${READ_PATH}`,
     );
   });
+
+  it('treats an empty grpcUrls array as not supplied', async () => {
+    // A consumer spreading its own config can end up with `grpcUrls: []`; the
+    // client must fall back to the defaults rather than build with zero
+    // endpoints and fail only at request time.
+    const fetchMock = vi.fn().mockResolvedValue(grpcWebResponse());
+    vi.stubGlobal('fetch', fetchMock);
+
+    await callServiceInfo([]);
+
+    // The endpoint is rebuilt from its parsed parts, which drops the default
+    // https port, so compare against the origin rather than the raw config.
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      `${new URL(getDefaultSuiGrpcUrls('mainnet')[0]).origin}${READ_PATH}`,
+    );
+  });
 });
 
 describe('createSuiGrpcClient', () => {

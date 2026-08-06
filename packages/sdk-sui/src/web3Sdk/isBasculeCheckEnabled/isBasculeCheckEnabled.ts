@@ -11,6 +11,18 @@ import { readSuiDynamicFieldValue } from '../../utils/readSuiDynamicFieldValue';
  */
 const BASCULE_CHECK_FIELD = 'bascule_check';
 
+/**
+ * BCS bytes of the `vector<u8>` dynamic-field key holding the flag. Exported
+ * so tests derive the field id from the exact same bytes the implementation
+ * sends, instead of re-encoding the key by hand.
+ */
+export function basculeCheckFieldNameBcs(): Uint8Array {
+  return bcs
+    .vector(bcs.u8())
+    .serialize(Array.from(new TextEncoder().encode(BASCULE_CHECK_FIELD)))
+    .toBytes();
+}
+
 export interface IIsBasculeCheckEnabledParameters {
   /** Sui gRPC client. */
   client: SuiGrpcClient;
@@ -40,10 +52,7 @@ export async function isBasculeCheckEnabled({
     client,
     parentId: treasuryAddress,
     nameType: 'vector<u8>',
-    nameBcs: bcs
-      .vector(bcs.u8())
-      .serialize(Array.from(new TextEncoder().encode(BASCULE_CHECK_FIELD)))
-      .toBytes(),
+    nameBcs: basculeCheckFieldNameBcs(),
   });
 
   if (value === undefined) {

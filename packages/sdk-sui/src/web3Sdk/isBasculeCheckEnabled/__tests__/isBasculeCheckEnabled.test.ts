@@ -1,5 +1,4 @@
 import { Env } from '@lombard.finance/sdk-common';
-import { bcs } from '@mysten/sui/bcs';
 import { deriveDynamicFieldID } from '@mysten/sui/utils';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -8,20 +7,19 @@ import {
   notFoundError,
   toProtoValue,
 } from '../../../utils/__tests__/protoValueFixture';
-import { isBasculeCheckEnabled } from '../isBasculeCheckEnabled';
+import {
+  basculeCheckFieldNameBcs,
+  isBasculeCheckEnabled,
+} from '../isBasculeCheckEnabled';
 
 /**
- * The id of the dynamic field object the flag lives in, derived the same way
- * the implementation (and the chain) derives it: parent treasury, `vector<u8>`
- * key, ASCII bytes of "bascule_check".
+ * The id of the dynamic field object the flag lives in, derived from the same
+ * key bytes the implementation sends.
  */
 const FLAG_FIELD_ID = deriveDynamicFieldID(
   getConfig(Env.prod).treasuryAddress,
   'vector<u8>',
-  bcs
-    .vector(bcs.u8())
-    .serialize(Array.from(new TextEncoder().encode('bascule_check')))
-    .toBytes(),
+  basculeCheckFieldNameBcs(),
 );
 
 const makeClient = (getObject: ReturnType<typeof vi.fn>) =>

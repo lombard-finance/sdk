@@ -3,8 +3,7 @@ import { Transaction } from '@mysten/sui/transactions';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
-import { LBTC_DECIMALS } from '../../const';
-import { ERROR_NOT_ENOUGH_BALANCE } from '../../const';
+import { ERROR_NOT_ENOUGH_BALANCE, LBTC_DECIMALS } from '../../const';
 import { getSuiCoinDecimals } from '../../utils/getSuiCoinDecimals';
 import { getAllCoinsOfType, type ICoinOfType } from '../getAllCoinsOfType';
 
