@@ -1,0 +1,22 @@
+# Gitleaks configuration for the Lombard SDK.
+# Used by the husky pre-commit hook and the CI secret scan.
+# https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Public on-chain identifiers and retired fixtures"
+regexTarget = "line"
+regexes = [
+  # Public blockchain addresses assigned to token/mint/pool/address config
+  # keys. The value must be exactly address-shaped (40-hex EVM or 32-44 char
+  # base58), so longer strings such as private keys still get flagged even on
+  # these lines.
+  '''(?i)\b\w*(token|mint|pool|address)\w*\s*[:=]\s*["'](0x[0-9a-fA-F]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})["']''',
+]
+commits = [
+  # Contained a throwaway Sepolia test key in a smoke-test script, since
+  # removed in favor of an env var. The key is considered burned.
+  "4201d285f79f2ed459b599efd93be797ee4925b5",
+]
