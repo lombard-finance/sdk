@@ -1,3 +1,11 @@
+# 5.1.2
+
+### Changed
+
+- Stable mainnet (chain 988) now uses the public RPC endpoint `https://rpc.stable.xyz` in both `chains.ts` and `rpc-url-config.ts`, replacing the partner-scoped endpoint that was hardcoded while the network was still coming up. The public endpoint is rate limited to 1000 requests per 10 seconds per IP; consumers needing more throughput should pass their own transport.
+
+---
+
 # 5.1.1
 
 ### Fixed
