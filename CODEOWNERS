@@ -11,3 +11,7 @@
 
 # Review-bot instructions guard the public-repo disclosure policy.
 /.coderabbit.yaml @megatron757 @fruit37 @le0n229
+
+# Agent instructions guard the public-repo disclosure policy.
+/AGENTS.md @megatron757 @fruit37 @le0n229
+/CLAUDE.md @megatron757 @fruit37 @le0n229
