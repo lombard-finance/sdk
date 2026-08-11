@@ -8,3 +8,6 @@
 /.gitleaks.toml @megatron757 @fruit37 @le0n229
 /.gitleaksignore @megatron757 @fruit37 @le0n229
 /.husky/ @megatron757 @fruit37 @le0n229
+
+# Review-bot instructions guard the public-repo disclosure policy.
+/.coderabbit.yaml @megatron757 @fruit37 @le0n229

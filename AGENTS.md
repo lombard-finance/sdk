@@ -97,6 +97,16 @@ chore: description
 
 This is a public repository. Never include references to internal tools, URLs, or ticket systems (Jira, Confluence, Slack, etc.) in code, commits, PRs, or comments visible in the repo.
 
+Code comments, commit messages, and PR descriptions are published the moment they are pushed. They may only contain technical context that is evident from the code itself:
+
+- State the technical constraint that requires a change ("the node rejects query strings"), never the business reason behind it.
+- Never mention partners, customers, vendors, or counterparties, by name or by hint.
+- Never reference internal discussions, decisions, meetings, incidents, or outages.
+- Never include ticket IDs, internal document links, or names of internal systems.
+- If a change needs internal context to be understood, record that context internally and keep the public comment purely technical.
+
+When in doubt, leave the comment out. The public repo is the wrong place for "why we decided this."
+
 ## Development Rules
 
 ### Code Changes
