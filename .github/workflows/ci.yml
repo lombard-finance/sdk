@@ -25,6 +25,10 @@ jobs:
 
       # On pull requests, read the gitleaks config and ignore list from the
       # base commit so a PR cannot loosen them to suppress its own findings.
+      # The working-tree fallback applies only while the base branch lacks
+      # these files (bootstrap of the PR that introduces them); once they are
+      # on the default branch every PR scan uses the base copy, which a PR
+      # cannot modify or remove.
       - name: Resolve trusted gitleaks config
         id: config
         env:

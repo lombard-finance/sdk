@@ -11,7 +11,9 @@ useDefault = true
 
 [allowlist]
 description = "Public on-chain identifiers"
-regexTarget = "line"
+# "match" scopes suppression to the individual finding, so an approved
+# identifier cannot mask a different secret on the same line.
+regexTarget = "match"
 regexes = [
   # EVM contract/token addresses assigned to token/mint/pool/address config
   # keys. The value must be exactly 0x + 40 hex and quote-bounded, so a
