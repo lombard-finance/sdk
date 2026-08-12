@@ -1,0 +1,22 @@
+# CodeRabbit configuration
+# https://docs.coderabbit.ai/reference/configuration
+language: en-US
+reviews:
+  path_instructions:
+    - path: '**/*'
+      instructions: |
+        This is a public repository for an open-source SDK. In addition to
+        the normal review, flag as a blocking issue any added or modified
+        code comment or documentation that reveals internal company
+        context, including:
+        - business rationale for a change (anything of the form "because
+          <partner/customer/company decision> requires this")
+        - names of, or hints at, partners, customers, vendors, or
+          counterparties
+        - references to internal discussions, decisions, meetings,
+          incidents, or outages
+        - internal ticket IDs (e.g. ABC-123) or links to internal tools
+          (Jira, Confluence, Slack, Notion, Linear, Google Docs)
+        - employee names in a decision-making context
+        Public code comments must only contain technical context that is
+        evident from the code itself.

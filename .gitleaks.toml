@@ -1,0 +1,26 @@
+# Gitleaks configuration for the Lombard SDK.
+# Used by the husky pre-commit hook and the CI secret scan.
+# https://github.com/gitleaks/gitleaks#configuration
+#
+# In CI this file is read from the PR's base commit, so a pull request cannot
+# loosen the allowlist to suppress its own findings. Historical one-off
+# findings are suppressed by fingerprint in .gitleaksignore instead of here.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Public on-chain identifiers"
+# "match" scopes suppression to the individual finding, so an approved
+# identifier cannot mask a different secret on the same line.
+regexTarget = "match"
+regexes = [
+  # EVM contract/token addresses assigned to token/mint/pool/address config
+  # keys. The value must be exactly 0x + 40 hex and quote-bounded, so a
+  # 64-hex private key on the same kind of line still gets flagged.
+  '''(?i)\b\w*(token|mint|pool|address)\w*\s*[:=]\s*["']0x[0-9a-fA-F]{40}["']''',
+  # Solana identifiers are enumerated exactly: base58 pubkeys overlap the
+  # length of base58-encoded 32-byte private seeds, so a shape-based rule
+  # could mask a real key. Add new public deployments to this list.
+  '''["'](1BTCPX3qyFtBvhQvJaHntfzZfB8qcJmJXfoRnD3vAgh|1btcyoWK7d99iosES4eXQGhhooCscKGigV5wHfvzueX|BTCB1BeSVzjtde2pqpNFCPbwQXpZd1ERwtToDreTdqr1|BTCB3ripBAut19jM8kDPVbJHb2ZdR2GcZvGZkCmFPtV8|BTCGPAHQSsS9RYcL2Z4B5z6YyAXLatNcnaEwYdczsMZw|BTCb1Xy55DzwPMog9d3ztPau4nqXp6BhUrdGHjTrMYCn|BTCbKVgfW4xMqTWEmxVwc6pzg2c5YtQWxSpBuQDhUrpu|EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v|LBTCgU4b3wsFKsPwBn1rRZDx5DoFutM6RPiEt1TPDsY|Lomb8TTCwJKEhZrJ1J8UbsCRjNSf7NNQUEr4qo3dkSk|LomdWAg9hHyz3VrvK5wXTap7o348Ku2QJ2j2H8Etj3C|Lomi5fKsXdGrrW2M3JRbJx5DnT3zgmSEfYWMUPeNaAB|LomtioA14cDhme8bCCw5oc5a9FUDyT91z8ujtGnY5g9)["']''',
+]

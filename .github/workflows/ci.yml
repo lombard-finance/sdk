@@ -7,6 +7,61 @@ on:
     branches: [main]
 
 jobs:
+  secrets-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-secrets
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref || github.sha }}
+          persist-credentials: false
+
+      # On pull requests, read the gitleaks config and ignore list from the
+      # base commit so a PR cannot loosen them to suppress its own findings.
+      # The working-tree fallback applies only while the base branch lacks
+      # these files (bootstrap of the PR that introduces them); once they are
+      # on the default branch every PR scan uses the base copy, which a PR
+      # cannot modify or remove.
+      - name: Resolve trusted gitleaks config
+        id: config
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+        run: |
+          CONFIG_PATH=.gitleaks.toml
+          IGNORE_PATH=.gitleaksignore
+          if [ -n "$BASE_SHA" ]; then
+            if git cat-file -e "$BASE_SHA:.gitleaks.toml" 2>/dev/null; then
+              git show "$BASE_SHA:.gitleaks.toml" > "$RUNNER_TEMP/gitleaks-base.toml"
+              CONFIG_PATH="$RUNNER_TEMP/gitleaks-base.toml"
+            fi
+            if git cat-file -e "$BASE_SHA:.gitleaksignore" 2>/dev/null; then
+              git show "$BASE_SHA:.gitleaksignore" > "$RUNNER_TEMP/gitleaksignore-base"
+              IGNORE_PATH="$RUNNER_TEMP/gitleaksignore-base"
+            fi
+          fi
+          echo "config=$CONFIG_PATH" >> "$GITHUB_OUTPUT"
+          echo "ignore=$IGNORE_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Run gitleaks over full history
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          curl -sSfL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+          ./gitleaks git --no-banner --redact --verbose \
+            --config "${{ steps.config.outputs.config }}" \
+            --gitleaks-ignore-path "${{ steps.config.outputs.ignore }}"
+
   build-and-test:
     runs-on: ubuntu-latest
     container:
