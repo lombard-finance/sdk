@@ -150,13 +150,13 @@ describe('depositEarn', () => {
       ).resolves.toBe('0xtxhash');
     });
 
-    it('throws on unsupported chain (Corn)', async () => {
+    it('throws on unsupported chain (non-BTCe chain)', async () => {
       await expect(
         depositEarn({
           token: Token.LBTC,
           amount: '0.1',
           account: ACCOUNT,
-          chainId: ChainId.corn,
+          chainId: ChainId.katana,
           provider: PROVIDER,
         }),
       ).rejects.toThrow(/BTCe is not supported on chain/);

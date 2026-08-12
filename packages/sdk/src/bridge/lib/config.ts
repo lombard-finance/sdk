@@ -45,7 +45,6 @@ export const OFT_BRIDGE_CHAINS = [
   // Mainnets:
   ChainId.ethereum,
   ChainId.berachain,
-  ChainId.corn,
   ChainId.etherlink,
   ChainId.swell,
   ChainId.tac,
@@ -68,7 +67,6 @@ export const OFT_HI_GAS_LIMIT_CHAINS = [
   ChainId.etherlink,
   ChainId.morph,
   ChainId.sonic,
-  ChainId.corn,
   ChainId.tac,
   // Testnets:
   ChainId.berachainBartioTestnet,
@@ -223,17 +221,6 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
     },
   ],
   [
-    bridgeIdentifier([ChainId.ethereum, ChainId.corn]),
-    {
-      type: BridgeType.OFT,
-      contract: {
-        address: '0x6bc15d7930839ec18a57f6f7df72ae1b439d077f',
-        abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum,
-      },
-    },
-  ],
-  [
     bridgeIdentifier([ChainId.ethereum, ChainId.etherlink]),
     {
       type: BridgeType.OFT,
@@ -275,18 +262,6 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
         address: '0x630e12D53D4E041b8C5451aD035Ea841E08391d7',
         abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
         chainId: ChainId.berachain,
-      },
-    },
-  ],
-
-  [
-    bridgeIdentifier([ChainId.corn, ChainId.ethereum]),
-    {
-      type: BridgeType.OFT,
-      contract: {
-        address: '0xfc7B20D9B59A8A466f4fC3d34aA69a7D98e71d7A',
-        abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.corn,
       },
     },
   ],

@@ -65,7 +65,6 @@ interface StoryViewProps {
  * - Berachain
  * - Binance Smart Chain
  * - BOB
- * - Corn
  * - Etherlink
  * - Katana
  * - Morph

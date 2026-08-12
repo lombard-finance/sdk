@@ -31,7 +31,6 @@ export const AssetId = {
   BTCK: 'BTCK',
   cbBTC: 'cbBTC',
   WBTC: 'WBTC',
-  WBTCN: 'wBTCN',
   eBTC: 'eBTC',
   BTCBinance: 'BTCB',
 

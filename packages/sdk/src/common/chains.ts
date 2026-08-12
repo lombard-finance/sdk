@@ -14,7 +14,6 @@ const {
   berachainTestnetbArtio,
   bsc,
   bscTestnet,
-  corn,
   etherlink,
   holesky,
   mainnet,
@@ -264,7 +263,6 @@ export const ChainId = {
   base: 8453,
   berachain: 80094,
   binanceSmartChain: 56,
-  corn: 21000000,
   etherlink: 42793,
   katana: 747474,
   megaeth: 4326,
@@ -300,7 +298,6 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
     ? { [ChainId.berachain]: berachain }
     : {}),
   [ChainId.binanceSmartChain]: bsc,
-  ...(featureConfig.isCornEnabled ? { [ChainId.corn]: corn } : {}),
   ...(featureConfig.isEtherlinkEnabled
     ? { [ChainId.etherlink]: etherlink }
     : {}),
@@ -364,7 +361,6 @@ export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.base]: 'base',
   [ChainId.berachain]: 'berachain',
   [ChainId.binanceSmartChain]: 'bsc',
-  [ChainId.corn]: 'corn',
   [ChainId.etherlink]: 'etherlink',
   [ChainId.morph]: 'morph',
   [ChainId.sonic]: 'sonic',

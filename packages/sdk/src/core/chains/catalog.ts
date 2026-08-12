@@ -100,14 +100,6 @@ export const CHAIN_CATALOG: Record<Chain, ChainMetadata> = {
     nativeCurrency: 'ETH',
     badgeVariant: 'info',
   },
-  [Chain.CORN]: {
-    name: 'Corn',
-    type: 'evm',
-    isTestnet: false,
-    explorerUrl: 'https://cornscan.io',
-    nativeCurrency: 'BTCN',
-    badgeVariant: 'info',
-  },
   [Chain.ETHERLINK]: {
     name: 'Etherlink',
     type: 'evm',

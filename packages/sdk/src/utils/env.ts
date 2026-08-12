@@ -7,7 +7,6 @@ const PROD_NATIVE_MINT_CHAINS = [
   ChainId.base,
   ChainId.berachain,
   ChainId.binanceSmartChain,
-  ChainId.corn,
   ChainId.etherlink,
   ChainId.katana,
   ChainId.morph,

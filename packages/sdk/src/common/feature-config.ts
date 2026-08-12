@@ -24,12 +24,6 @@ export interface FeatureConfig {
   isBerachainEnabled: boolean;
 
   /**
-   * Enable/disable Corn chain support
-   * @default false - Not yet fully supported
-   */
-  isCornEnabled: boolean;
-
-  /**
    * Enable/disable Morph chain support
    * @default false - Not yet fully supported
    */
@@ -65,7 +59,6 @@ export const featureConfig: FeatureConfig = {
   isAvalancheMainnetEnabled: true,
   isAvalancheFujiEnabled: true,
 
-  isCornEnabled: true,
   // Chains in asset catalog but not yet fully supported
   // These are hidden from UI until fully tested and released
   isBerachainEnabled: false,

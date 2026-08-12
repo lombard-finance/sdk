@@ -1,5 +1,5 @@
 import { Address } from 'viem';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
 import { withdrawEarn } from '../../../contract-functions/withdrawEarn/withdrawEarn';
@@ -23,6 +23,23 @@ vi.mock('../../../clients/wallet-client', () => ({
     writeContract: (...args: unknown[]) => mockWriteContract(...args),
   })),
 }));
+
+// Every Earn chain currently has a BTCe deployment, so the "no BTCe" branch is
+// unreachable through the public API. Force it here so the branch keeps its
+// coverage for any future Earn chain that ships without the wrapper.
+const btceGate = vi.hoisted(() => ({ forceUnsupported: false }));
+
+vi.mock('../../../vaults/lib/config', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  const realIsBtceVaultChain = actual.isBtceVaultChain as (
+    chainId: number,
+  ) => boolean;
+  return {
+    ...actual,
+    isBtceVaultChain: (chainId: number) =>
+      !btceGate.forceUnsupported && realIsBtceVaultChain(chainId),
+  };
+});
 
 vi.mock('../../../tokens/tokens', async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
@@ -312,7 +329,15 @@ describe('withdrawEarn', () => {
     });
   });
 
-  describe('case: Corn chain (no BTCe)', () => {
+  describe('case: Earn chain without a BTCe deployment', () => {
+    beforeEach(() => {
+      btceGate.forceUnsupported = true;
+    });
+
+    afterEach(() => {
+      btceGate.forceUnsupported = false;
+    });
+
     it('skips BTCe reads and unwrap entirely', async () => {
       setupReads({
         underlyingBalance: 100_000_000n,
@@ -322,7 +347,7 @@ describe('withdrawEarn', () => {
       const result = await withdrawEarn({
         amount: '0.5',
         account: ACCOUNT,
-        chainId: ChainId.corn,
+        chainId: ChainId.ethereum,
         provider: PROVIDER,
       });
 

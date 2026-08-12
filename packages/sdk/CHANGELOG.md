@@ -1,3 +1,25 @@
+# 5.2.0
+
+### Removed
+
+Corn (chain id `21000000`) is retired and has been removed from the SDK. It is gone from the chain registry, the Earn vault, the bridge, and every config that referenced it, so no code path can reach Corn any more.
+
+The most user-visible effect: `EARN_VAULT.chains` no longer lists Corn, so `getEarnDepositsAllChains` and `getEarnWithdrawalsAllChains` stop fanning out to it. That Corn leg had been returning HTTP 500 from the Seven Seas endpoint on every call (`Failed to fetch deposits for chain 21000000`), so the fan-out now issues 3 requests instead of 4 and no longer logs a per-call error.
+
+Removed identifiers:
+
+- `ChainId.corn` and `Chain.CORN`
+- `AssetId.WBTCN` and its asset-catalog entry (Corn was its only deployment)
+- `featureConfig.isCornEnabled`
+
+`Token.wBTCN` is intentionally **kept** so existing clients can still label historical Veda vault transactions; only its Corn address entry was dropped.
+
+Also removed: the Corn chain-catalog entry (name/explorer/native currency), its RPC endpoint, its LBTC and OFT adapter addresses, the `ethereum <-> corn` OFT bridge routes and LayerZero endpoint id, its Veda deploy/stake/withdraw routes, and its Earn network mappings.
+
+Consumers referencing `ChainId.corn`, `Chain.CORN` or `AssetId.WBTCN` must drop those references. No other public API changed.
+
+---
+
 # 5.1.1
 
 ### Fixed
