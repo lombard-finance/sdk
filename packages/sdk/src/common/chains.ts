@@ -146,10 +146,8 @@ export const stable = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf',
-      ],
-    }, // TODO: Update with the correct RPC URL once the stable network is live
+      http: ['https://rpc.stable.xyz'],
+    },
   },
   blockExplorers: {
     default: {
