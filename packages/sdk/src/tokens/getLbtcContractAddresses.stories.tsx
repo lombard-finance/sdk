@@ -69,7 +69,6 @@ interface StoryViewProps {
  * - Katana
  * - Morph
  * - Sonic
- * - Swell
  * - TAC
  * - And their testnets
  *

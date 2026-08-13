@@ -132,14 +132,6 @@ export const CHAIN_CATALOG: Record<Chain, ChainMetadata> = {
     nativeCurrency: 'S',
     badgeVariant: 'info',
   },
-  [Chain.SWELL]: {
-    name: 'Swell',
-    type: 'evm',
-    isTestnet: false,
-    explorerUrl: 'https://explorer.swellnetwork.io',
-    nativeCurrency: 'ETH',
-    badgeVariant: 'info',
-  },
   [Chain.TAC]: {
     name: 'TAC',
     type: 'evm',

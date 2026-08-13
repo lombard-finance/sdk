@@ -22,7 +22,6 @@ const {
   sepolia,
   sonic,
   sonicBlazeTestnet,
-  swellchain,
 } = viem_chains;
 
 // FIXME: Remove this custom chain definition once katana is supported by viem
@@ -268,7 +267,6 @@ export const ChainId = {
   morph: 2818,
   sonic: 146,
   stable: 988,
-  swell: 1923,
   tac: 239,
   bob: 60808,
   // Testnets:
@@ -305,7 +303,6 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   ...(featureConfig.isMorphEnabled ? { [ChainId.morph]: morph } : {}),
   [ChainId.sonic]: sonic,
   [ChainId.stable]: stable,
-  ...(featureConfig.isSwellchainEnabled ? { [ChainId.swell]: swellchain } : {}),
   ...(featureConfig.isTacEnabled ? { [ChainId.tac]: tac } : {}),
   ...(featureConfig.isBobEnabled ? { [ChainId.bob]: bob } : {}),
   // Testnets:
@@ -362,7 +359,6 @@ export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.etherlink]: 'etherlink',
   [ChainId.morph]: 'morph',
   [ChainId.sonic]: 'sonic',
-  [ChainId.swell]: 'swellchain',
   [ChainId.megaeth]: 'megaeth',
   [ChainId.monad]: 'monad',
   [ChainId.katana]: 'katana',

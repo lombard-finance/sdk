@@ -30,12 +30,6 @@ export interface FeatureConfig {
   isMorphEnabled: boolean;
 
   /**
-   * Enable/disable Swellchain support
-   * @default false - Not yet fully supported
-   */
-  isSwellchainEnabled: boolean;
-
-  /**
    * Enable/disable TAC chain support
    * @default false - Not yet fully supported
    */
@@ -63,7 +57,6 @@ export const featureConfig: FeatureConfig = {
   // These are hidden from UI until fully tested and released
   isBerachainEnabled: false,
   isMorphEnabled: false,
-  isSwellchainEnabled: false,
   isTacEnabled: false,
   isBobEnabled: false,
   isEtherlinkEnabled: false,

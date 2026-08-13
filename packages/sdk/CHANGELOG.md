@@ -16,7 +16,18 @@ Removed identifiers:
 
 Also removed: the Corn chain-catalog entry (name/explorer/native currency), its RPC endpoint, its LBTC and OFT adapter addresses, the `ethereum <-> corn` OFT bridge routes and LayerZero endpoint id, its Veda deploy/stake/withdraw routes, and its Earn network mappings.
 
-Consumers referencing `ChainId.corn`, `Chain.CORN` or `AssetId.WBTCN` must drop those references. No other public API changed.
+Consumers referencing `ChainId.corn`, `Chain.CORN` or `AssetId.WBTCN` must drop those references.
+
+Swellchain (chain id `1923`) is likewise removed. Swell Network shut the chain down permanently (the sequencer stopped at the end of June 2026 and the chain no longer produces blocks), so any transaction routed there is accepted into the mempool but can never be mined.
+
+Removed identifiers:
+
+- `ChainId.swell` and `Chain.SWELL`
+- `featureConfig.isSwellchainEnabled`
+
+Also removed: the Swellchain chain-catalog entry (name/explorer/native currency), its viem chain mapping, its LBTC token address and asset-catalog deployment, the `ethereum <-> swell` OFT bridge routes and LayerZero endpoint id (`30335`), its DefiLlama chain-name mapping, and its prod-env classification entry.
+
+Consumers referencing `ChainId.swell` or `Chain.SWELL` must drop those references. No other public API changed.
 
 ### Changed
 

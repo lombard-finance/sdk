@@ -46,7 +46,6 @@ export const OFT_BRIDGE_CHAINS = [
   ChainId.ethereum,
   ChainId.berachain,
   ChainId.etherlink,
-  ChainId.swell,
   ChainId.tac,
   // Testnets:
   ChainId.berachainBartioTestnet,
@@ -232,17 +231,6 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
     },
   ],
   [
-    bridgeIdentifier([ChainId.ethereum, ChainId.swell]),
-    {
-      type: BridgeType.OFT,
-      contract: {
-        address: '0x37E92d760a15231e652a2C502182a6b44c7510c0',
-        abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.ethereum,
-      },
-    },
-  ],
-  [
     bridgeIdentifier([ChainId.ethereum, ChainId.tac]),
     {
       type: BridgeType.OFT,
@@ -278,17 +266,6 @@ const OFT_BRIDGES: OFTBridgeConfig[] = [
     },
   ],
 
-  [
-    bridgeIdentifier([ChainId.swell, ChainId.ethereum]),
-    {
-      type: BridgeType.OFT,
-      contract: {
-        address: '0x7B3784AD646C10A8Ddf42b47a4f4bd9aFD351E54',
-        abi: OFT_BRIDGE_ADAPTER_ABI as Abi,
-        chainId: ChainId.swell,
-      },
-    },
-  ],
   [
     bridgeIdentifier([ChainId.tac, ChainId.ethereum]),
     {

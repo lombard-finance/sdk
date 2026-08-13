@@ -16,7 +16,6 @@ import {
   sepolia,
   sonic,
   sonicBlazeTestnet,
-  swellchain,
 } from 'wagmi/chains';
 
 import { rpcUrlConfig } from '../../../clients/rpc-url-config';
@@ -31,7 +30,6 @@ const config = createConfig({
     katana,
     morph,
     sonic,
-    swellchain,
     tac,
     avalanche,
     // Testnets:
@@ -52,7 +50,6 @@ const config = createConfig({
     [katana.id]: http(rpcUrlConfig[katana.id]),
     [morph.id]: http(rpcUrlConfig[morph.id]),
     [sonic.id]: http(rpcUrlConfig[sonic.id]),
-    [swellchain.id]: http(rpcUrlConfig[swellchain.id]),
     [tac.id]: http(rpcUrlConfig[tac.id]),
     [avalanche.id]: http(rpcUrlConfig[avalanche.id]),
     // Testnets:

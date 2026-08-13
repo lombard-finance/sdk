@@ -31,7 +31,6 @@ const DESTINATION_ENDPOINT_ID_MAP: Record<OFTBridgeChain, number> = {
   [ChainId.ethereum]: 30101,
   [ChainId.berachain]: 30362,
   [ChainId.etherlink]: 30292,
-  [ChainId.swell]: 30335,
   [ChainId.tac]: 30377,
   // Testnets:
   [ChainId.sepolia]: 40161,

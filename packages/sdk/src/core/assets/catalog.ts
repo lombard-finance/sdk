@@ -41,7 +41,6 @@ export const ASSET_CATALOG: AssetCatalog = {
             Chain.KATANA,
             Chain.MORPH,
             Chain.SONIC,
-            Chain.SWELL,
             Chain.TAC,
             ...(featureConfig.isMonadEnabled ? [Chain.MONAD] : []),
             Chain.STABLE,
