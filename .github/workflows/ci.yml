@@ -4,7 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    # `sdk-release/**` is the base branch that create-sdk-release-branch.yml
+    # opens its version-bump PR into. Without it here that PR — the last change
+    # before an npm publish — runs no CI at all.
+    branches:
+      - main
+      - 'sdk-release/**'
 
 jobs:
   secrets-scan:
