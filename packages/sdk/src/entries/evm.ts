@@ -27,11 +27,19 @@ export type {
   EvmUnstakeParams,
   EvmUnstakePrepareParams,
   EvmUnstakeProgress,
+  // Withdraw and cancel-withdraw were exported from the root entry but never
+  // from here, so `@lombard.finance/sdk/evm` could not reach any of them even
+  // though `evm.withdraw()` is public. Found by the export-name snapshot.
+  EvmWithdrawParams,
+  EvmWithdrawPrepareParams,
+  EvmWithdrawProgress,
+  IEvmCancelWithdraw,
   IEvmDeploy,
   IEvmDeposit,
   IEvmRedeem,
   IEvmStake,
   IEvmUnstake,
+  IEvmWithdraw,
 } from '../chains/evm';
 export {
   EvmDeployStatus,
@@ -39,6 +47,7 @@ export {
   EvmRedeemStatus,
   EvmStakeStatus,
   EvmUnstakeStatus,
+  EvmWithdrawStatus,
 } from '../chains/evm';
 
 // EVM status
