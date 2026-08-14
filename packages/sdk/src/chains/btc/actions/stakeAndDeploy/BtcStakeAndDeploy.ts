@@ -113,6 +113,21 @@ export class BtcStakeAndDeploy
       );
     }
 
+    // `assetIn` selects the DEFI_REGISTRY entry, and therefore the amount
+    // strategy. The only correct value here is native BTC, which maps to
+    // `btcToLbtc` and applies the BTC/LBTC ratio. Passing anything else — most
+    // plausibly AssetId.LBTC, since AssetId.LBTC and Token.LBTC are the same
+    // string — silently selects `identity` and authorises the raw satoshi
+    // amount instead of the ratio-adjusted one. Reject it rather than sign it.
+    if (params.assetIn !== undefined && params.assetIn !== AssetId.BTC) {
+      throw new LombardError(
+        ValidationErrorCode.INVALID_ASSET,
+        `assetIn must be ${AssetId.BTC} for stake and deploy (received ${params.assetIn}). ` +
+          `The source asset determines the amount conversion; any other value would ` +
+          `authorize an incorrect amount.`,
+      );
+    }
+
     if (!isRouteAvailable(params.sourceChain, ctx.env)) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
@@ -235,11 +250,17 @@ export class BtcStakeAndDeploy
           validated.recipient,
         );
 
-        if (stored?.hasSignature) {
-          // Valid signature exists - skip authorization step
-          if (stored.signature) {
-            this.authState.signature = stored.signature;
-          }
+        // `hasSignature` is reported true when the API returns only metadata
+        // (an expiry, an amount) without the signature string — see
+        // restoreStakeAndBakeSignature. Treating that as authorized meant
+        // generateDepositAddress later posted `signature: undefined` to the
+        // deposit-address endpoint. Require the signature itself.
+        // NOTE: the endpoint does not return typedData, so `signatureData`
+        // stays undefined on this path. That is pre-existing and accepted —
+        // the deposit-address API treats it as optional — but it is the reason
+        // the signature string itself must be present.
+        if (stored?.hasSignature && stored.signature) {
+          this.authState.signature = stored.signature;
           this.authState.authorized = true;
           this.updateStatus(BtcActionStatus.ADDRESS_READY);
           this.emitInitialProgress();
@@ -261,11 +282,11 @@ export class BtcStakeAndDeploy
           validated.recipient,
         );
 
-      if (existingSignature?.hasSignature) {
-        // Valid signature exists - skip to READY state
-        if (existingSignature.signature) {
-          this.authState.signature = existingSignature.signature;
-        }
+      // Same requirement as the resume branch above: metadata alone is not an
+      // authorization. Without the signature string we must re-authorize rather
+      // than advance to READY and post an empty signature.
+      if (existingSignature?.hasSignature && existingSignature.signature) {
+        this.authState.signature = existingSignature.signature;
         this.authState.authorized = true;
         this.updateStatus(BtcActionStatus.READY);
         this.emitInitialProgress();
@@ -279,12 +300,26 @@ export class BtcStakeAndDeploy
   }
 
   async authorizeDeposit(): Promise<void> {
+    // ADDRESS_READY is reachable straight out of prepare() when a deposit
+    // address and a valid signature already exist on the server. Rejecting it
+    // here meant the sequence in this class's own JSDoc — prepare, then
+    // authorizeDeposit — threw INVALID_STATE for every returning user.
+    // Authorization is already done in that state, so this is a no-op.
     this.assertStatus(
-      [BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION, BtcActionStatus.READY],
+      [
+        BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION,
+        BtcActionStatus.READY,
+        BtcActionStatus.ADDRESS_READY,
+      ],
       'authorizeDeposit',
     );
 
-    if (this.status === BtcActionStatus.READY) return;
+    if (
+      this.status === BtcActionStatus.READY ||
+      this.status === BtcActionStatus.ADDRESS_READY
+    ) {
+      return;
+    }
 
     const recipient = this.ensureRecipient();
     const amount = this.ensureAmount();
@@ -319,12 +354,16 @@ export class BtcStakeAndDeploy
   }
 
   async generateDepositAddress(captchaToken?: string): Promise<string> {
-    this.assertStatus(BtcActionStatus.READY, 'generateDepositAddress');
-    this.ensureAuthorized();
-
+    // Return an address we already hold before asserting status. The resume
+    // path leaves the action in ADDRESS_READY with the address in hand, so
+    // asserting READY first made this throw instead of returning it — the
+    // second half of the same defect fixed in authorizeDeposit above.
     if (this._depositAddress) {
       return this._depositAddress;
     }
+
+    this.assertStatus(BtcActionStatus.READY, 'generateDepositAddress');
+    this.ensureAuthorized();
 
     return this.act(async () => {
       const apiParams = this.getDepositAddressParams(captchaToken);

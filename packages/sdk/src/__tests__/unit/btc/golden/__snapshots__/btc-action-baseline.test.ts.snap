@@ -1,0 +1,79 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden baseline — BTC actions on 5.x > BtcDeposit (native BTC → BTC.b) > records its prepare lifecycle 1`] = `
+{
+  "calls": [
+    "api.getDepositAddress",
+  ],
+  "progress": [
+    "needs_address_confirmation [created,issuing,verifying]",
+  ],
+  "statusAfterPrepare": "needs_address_confirmation",
+  "statuses": [
+    "needs_address_confirmation",
+  ],
+}
+`;
+
+exports[`golden baseline — BTC actions on 5.x > BtcDepositAndDeploy (native BTC → BTC.b → Silo vault) > records what happens today on testnet 1`] = `
+{
+  "calls": [
+    "capabilities.require",
+    "evm.getStakeAndBakeFee",
+  ],
+  "outcome": "prepared: needs_deploy_authorization",
+}
+`;
+
+exports[`golden baseline — BTC actions on 5.x > BtcStake (native BTC → LBTC) > records its prepare lifecycle 1`] = `
+{
+  "calls": [
+    "api.getDepositAddress",
+    "api.getFeeSignature",
+    "capabilities.require",
+    "evm.getMintingFee",
+  ],
+  "progress": [
+    "needs_fee_authorization [created,issuing,verifying]",
+  ],
+  "statusAfterPrepare": "needs_fee_authorization",
+  "statuses": [
+    "needs_fee_authorization",
+  ],
+}
+`;
+
+exports[`golden baseline — BTC actions on 5.x > BtcStakeAndDeploy (native BTC → LBTC → Veda vault) > records its prepare lifecycle with no existing deposit 1`] = `
+{
+  "calls": [
+    "capabilities.require",
+    "evm.getStakeAndBakeFee",
+    "api.getDepositAddress",
+  ],
+  "progress": [
+    "needs_deploy_authorization [created,depositing,issuing,verifying]",
+  ],
+  "statusAfterPrepare": "needs_deploy_authorization",
+  "statuses": [
+    "needs_deploy_authorization",
+  ],
+}
+`;
+
+exports[`golden baseline — BTC actions on 5.x > BtcStakeAndDeploy (native BTC → LBTC → Veda vault) > records the resume path when a deposit address already exists 1`] = `
+{
+  "calls": [
+    "capabilities.require",
+    "evm.getStakeAndBakeFee",
+    "api.getDepositAddress",
+  ],
+  "depositAddress": "tb1qexistingdeposit0000000000000000000000",
+  "progress": [
+    "address_ready [created,depositing,issuing,verifying]",
+  ],
+  "statusAfterPrepare": "address_ready",
+  "statuses": [
+    "address_ready",
+  ],
+}
+`;

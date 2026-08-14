@@ -12,6 +12,7 @@
  * @module chains/btc/actions/shared/BaseBtcAction
  */
 
+import { Env } from '@lombard.finance/sdk-common';
 import { z } from 'zod';
 
 import {
@@ -200,10 +201,28 @@ export abstract class BaseBtcAction<
     return this._referralCode;
   }
 
+  /**
+   * The Bitcoin chain this action reads from, resolved from the environment
+   * when the caller omitted it.
+   *
+   * `sourceChain` is optional, and reading `this.params.sourceChain` raw meant a
+   * caller who omitted it on `prod` monitored the Bitcoin **testnet** — waiting
+   * for confirmations that could never arrive. Route validation also passed
+   * vacuously in that case. Resolving once, here, keeps every consumer
+   * (validation, monitoring, deposit lookup) on the same answer.
+   */
+  protected get resolvedSourceChain(): Chain {
+    return (
+      this.params.sourceChain ??
+      (this.ctx.env === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET)
+    );
+  }
+
   /** Bitcoin network mode for monitoring */
   protected get bitcoinNetwork(): NetworkMode {
-    const source = this.params.sourceChain;
-    return source === Chain.BITCOIN_MAINNET ? 'mainnet' : 'testnet';
+    return this.resolvedSourceChain === Chain.BITCOIN_MAINNET
+      ? 'mainnet'
+      : 'testnet';
   }
 
   // ─────────────────────────────────────────────────────────────────────────
