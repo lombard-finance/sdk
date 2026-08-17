@@ -27,9 +27,10 @@ const signTransaction = vi
   .fn()
   .mockResolvedValue({ bytes: 'dHg=', signature: 'c2ln' });
 
-const executeTransaction = vi
-  .fn()
-  .mockResolvedValue({ transaction: { digest: '0xdigest' } });
+const executeTransaction = vi.fn().mockResolvedValue({
+  $kind: 'Transaction',
+  Transaction: { digest: '0xdigest' },
+});
 
 const claim = () =>
   claimLBTC({
@@ -63,6 +64,7 @@ describe('claimLBTC', () => {
     expect(executeTransaction).toHaveBeenCalledWith({
       transaction: new Uint8Array([0x74, 0x78]),
       signatures: ['c2ln'],
+      include: { effects: true },
     });
 
     expect(signTransaction).toHaveBeenCalledTimes(1);

@@ -22,17 +22,15 @@ export async function getAllCoinsOfType({
   const coins: ICoinOfType[] = [];
 
   do {
-    // No page size is passed: the gRPC core client does not forward one to the
-    // node today, so the server default governs and the loop follows the
-    // cursor to the end regardless.
-    const response = await client.core.getCoins({
-      address: walletAccount.address,
+    const response = await client.core.listCoins({
+      owner: walletAccount.address,
       coinType,
       cursor,
+      limit: 50,
     });
 
     for (const coin of response.objects) {
-      coins.push({ coinObjectId: coin.id, balance: coin.balance });
+      coins.push({ coinObjectId: coin.objectId, balance: coin.balance });
     }
 
     cursor = response.hasNextPage ? response.cursor : null;

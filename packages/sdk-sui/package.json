@@ -61,8 +61,8 @@
   },
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
-    "@mysten/sui": "^1.45.2",
-    "@mysten/wallet-standard": "^0.13.7",
+    "@mysten/sui": "^2.26.1",
+    "@mysten/wallet-standard": "^0.21.17",
     "@noble/hashes": "^1.8.0",
     "@protobuf-ts/grpcweb-transport": "^2.11.1",
     "@wallet-standard/base": "^1.1.0",

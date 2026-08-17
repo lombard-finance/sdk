@@ -4,13 +4,14 @@
  * @module utils/executeSignedTransaction
  */
 
-import type { Experimental_SuiClientTypes } from '@mysten/sui/experimental';
+import type { SuiClientTypes } from '@mysten/sui/client';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { fromBase64 } from '@mysten/sui/utils';
 
-/** The executed transaction, digest and effects included. */
-export type ISuiExecutedTransaction =
-  Experimental_SuiClientTypes.TransactionResponse;
+/** The executed transaction: digest, top-level status, parsed effects. */
+export type ISuiExecutedTransaction = SuiClientTypes.Transaction<{
+  effects: true;
+}>;
 
 /**
  * Executes a wallet-signed transaction. The wallet hands the transaction bytes
@@ -20,10 +21,17 @@ export async function executeSignedTransaction(
   client: SuiGrpcClient,
   signed: { bytes: string; signature: string },
 ): Promise<ISuiExecutedTransaction> {
-  const { transaction } = await client.core.executeTransaction({
+  const result = await client.core.executeTransaction({
     transaction: fromBase64(signed.bytes),
     signatures: [signed.signature],
+    include: { effects: true },
   });
 
-  return transaction;
+  // Both arms carry the executed transaction. `FailedTransaction` is a Move
+  // level failure that still landed on chain; the JSON-RPC client used to hand
+  // that back as a response too, with the failure in its status, rather than
+  // throw.
+  return result.$kind === 'Transaction'
+    ? result.Transaction
+    : result.FailedTransaction;
 }

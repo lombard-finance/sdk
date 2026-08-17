@@ -16,7 +16,7 @@ The package now talks gRPC-Web instead of JSON-RPC. Sui is removing JSON-RPC fro
 - `suiModule({ rpcUrls })` is now `suiModule({ grpcUrls })`, same reasoning
 - `claimLBTC` and `unstakeLBTC` return the executed transaction in the gRPC core shape (`ISuiExecutedTransaction`: `digest`, `effects`, ...) instead of `SuiTransactionBlockResponse`. The `digest` field survives unchanged
 - Endpoints with credentials in the url are rejected at construction: WHATWG `fetch` refuses userinfo urls, so such an endpoint would fail on every request with an unexplained `TypeError`. Private gRPC providers key by path instead. Query strings are rejected for the same fail-loudly reason, since the transport appends `/package.Service/Method` to the base
-- The `@mysten/sui` dependency floor moved to `^1.45.2`, the first 1.x with the gRPC client this package builds on
+- The `@mysten/sui` dependency moved to `^2.26.1` (and `@mysten/wallet-standard` to `^0.21.17` with it). The 1.x gRPC client has a defect that rejects every transaction submission: its `executeTransaction` sends a `transaction.`-prefixed read mask, which the node answers with `invalid read_mask path: transaction.transaction` before executing anything. The 2.x line fixes the mask and reworks the core read API (`getBalance`/`listCoins` take `owner`, results are keyed by `$kind`), which this package absorbs internally
 
 ### Added
 

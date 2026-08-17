@@ -23,7 +23,7 @@ export async function getBalance({
   coinType,
 }: IGetBalanceParams): Promise<IGetBalanceResult> {
   const { balance } = await client.core.getBalance({
-    address: walletAccount.address,
+    owner: walletAccount.address,
     coinType,
   });
 
