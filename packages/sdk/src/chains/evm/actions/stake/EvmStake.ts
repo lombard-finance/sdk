@@ -147,6 +147,7 @@ export class EvmStake
           spender: adapterInfo.address,
           chainId,
           env: this.ctx.env,
+          rpcUrl: this.ctx.rpcUrls?.[chainId],
         });
 
         const requiredAmount = new BigNumber(validated.amount);
@@ -168,6 +169,7 @@ export class EvmStake
         account,
         this.ctx.env,
         Token.LBTC,
+        this.ctx.rpcUrls?.[chainId],
       );
 
       // Update fee auth state
@@ -230,10 +232,15 @@ export class EvmStake
         chainId,
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
+        rpcUrl: this.ctx.rpcUrls?.[chainId],
       });
 
       // Wait for approval to be confirmed on-chain
-      const publicClient = makePublicClient({ chainId, env: this.ctx.env });
+      const publicClient = makePublicClient({
+        chainId,
+        env: this.ctx.env,
+        rpcUrl: this.ctx.rpcUrls?.[chainId],
+      });
       await waitForTransactionReceipt(publicClient, txHash, 'BTC.b approval');
 
       // Mark approval as done
@@ -272,6 +279,7 @@ export class EvmStake
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
         token: Token.LBTC, // BTC.b → LBTC uses LBTC token for fee signature
+        rpcUrl: this.ctx.rpcUrls?.[chainId],
       });
 
       // Update fee auth state
@@ -322,6 +330,7 @@ export class EvmStake
         chainId,
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
+        rpcUrl: this.ctx.rpcUrls?.[chainId],
       });
 
       this._txHash = txHash;

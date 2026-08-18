@@ -104,6 +104,7 @@ export class EvmCancelWithdraw
         chainId: this._chainId,
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
+        rpcUrl: this.ctx.rpcUrls?.[this._chainId],
       });
 
       this._txHash = txHash;

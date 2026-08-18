@@ -124,6 +124,7 @@ export async function getTokenContractInfo<
   chainId: chain,
   env?: Env,
   _addressKind?: TAddressKind,
+  rpcUrl?: string,
 ): Promise<TokenContractInfo<TToken, chain, TAddressKind>> {
   const environment = env || DEFAULT_ENV;
   const addressKind = _addressKind || AddressKind.Token;
@@ -132,14 +133,14 @@ export async function getTokenContractInfo<
 
   // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_crypto_rule-node-timing-attack -- comparing Token enum values, not secrets
   if (token === Token.LBTC) {
-    if (await isUpgradedContract(Token.LBTC, chainId, environment)) {
+    if (await isUpgradedContract(Token.LBTC, chainId, environment, rpcUrl)) {
       abi = STLBTC_ABI as AbiFor<TToken, chain, TAddressKind>;
     } else {
       abi = LBTC_ABI as AbiFor<TToken, chain, TAddressKind>;
     }
   } else if (token === Token.BTCK) {
     abi = BTCK_ABI as AbiFor<TToken, chain, TAddressKind>;
-    if (await isUpgradedContract(Token.BTCK, chainId, environment)) {
+    if (await isUpgradedContract(Token.BTCK, chainId, environment, rpcUrl)) {
       abi = NATIVE_LBTC_ABI as AbiFor<TToken, chain, TAddressKind>;
     }
   } else if (token === Token.BTCb) {
@@ -209,7 +210,13 @@ export async function getTokenInfo(
   env?: Env,
   rpcUrl?: string,
 ) {
-  const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
+  const tokenContractInfo = await getTokenContractInfo(
+    token,
+    chainId,
+    env,
+    undefined,
+    rpcUrl,
+  );
   if (!tokenContractInfo) return;
 
   const publicClient = makePublicClient({ chainId, rpcUrl, env });

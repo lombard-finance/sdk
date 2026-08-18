@@ -1,3 +1,41 @@
+# 6.0.0
+
+## 🚨 BREAKING CHANGES
+
+- **Removed the `RPC_URL` constant export.** The package no longer exports the base URL of an internal RPC proxy. Consumers that imported `RPC_URL` from `@lombard.finance/sdk` must remove that import; if you need an opinionated default, read the per-chain `rpcUrlConfig` map instead, or supply your own via the new `rpcUrls` config option (see Added).
+- **Default RPC endpoints switched from an internal proxy to public RPCs.** `rpcUrlConfig` and `getRpcUrlConfig()` now return public providers per chain (`https://cloudflare-eth.com`, `https://mainnet.base.org`, `https://bsc-dataseed.bnbchain.org`, `https://rpc.katana.network`, `https://mainnet.megaeth.com/rpc`, `https://rpc.monad.xyz`, `https://rpc.soniclabs.com`, `https://rpc.stable.xyz`, `https://rpc.tac.build`, plus `https://sepolia.base.org`, `https://bsc-testnet-dataseed.bnbchain.org`, `https://holesky.drpc.org` and `https://ethereum-sepolia-rpc.publicnode.com` for testnets). Public endpoints are rate limited and offer no delivery guarantees, so integrators that were implicitly relying on the proxy should pass their own endpoints via `createLombardSDK({ rpcUrls })`.
+- **`getRpcUrlConfig(env)` no longer varies by environment.** The public endpoints are the same for every environment, so the `env` parameter is accepted for backwards compatibility but ignored, and it is now optional. Code that called `getRpcUrlConfig(Env.stage)` expecting stage-specific proxy URLs gets the public defaults instead.
+- **Dropped `[ChainId.sonicBlazeTestnet]` from `rpcUrlConfig`.** Sonic Blaze testnet (chain 57054) has been deprecated upstream — its canonical RPC `rpc.blaze.soniclabs.com` returns NXDOMAIN globally, Chainlink CCIP for the chain is decommissioned, and the Sonic docs page for it now returns 404. The successor is Sonic Testnet (chain 14601). The `ChainId.sonicBlazeTestnet` enum value still exists but no longer has a default RPC; consumers that targeted it must supply their own `rpcUrl`.
+
+### Added
+
+- **`rpcUrls` option on `createLombardSDK()` / `createConfig()`.** Partial per-chain RPC URL map keyed by `ChainId`; any chain not listed falls back to the public default. The SDK threads this through `CoreContext` so EVM actions (`stake`, `deploy`, `withdraw`, `cancelWithdraw`, `deposit`, `unstake`, `redeem`) and the fee-auth helpers (`checkFeeAuthorization`, `authorizeFee` → `getMintingFee`, `signNetworkFee`) read the configured RPC for the active chain. Example:
+
+  ```ts
+  const sdk = await createLombardSDK({
+    env: Env.prod,
+    providers: { evm: () => window.ethereum },
+    rpcUrls: {
+      [ChainId.ethereum]: 'https://eth.mycompany.com',
+      [ChainId.base]: 'https://base.mycompany.com',
+    },
+  });
+  ```
+
+- `rpcUrl` parameter on `getTokenContractInfo()`. The helper resolves the LBTC and BTCK ABI by probing the contract on-chain (`isUpgradedContract`), which previously always used the default endpoint. `getTokenInfo()` now forwards the `rpcUrl` it already accepted.
+- Online integration test (`src/__tests__/integration/rpc-urls.integration.test.ts`, gated by `ENABLE_ONLINE_INTEGRATION=true`) that pings every default RPC via `eth_chainId` and asserts the reply matches the map key — keeps the public defaults honest.
+- `rpcUrls` parameter on `previewEarnDeposit()` and `getEarnMinimumDeposit()`. The Earn vault's Lens and Accountant contracts are Ethereum-only, so both helpers always read Ethereum even when the deposit originates elsewhere. Their existing `rpcUrl` belongs to the active chain and is therefore only usable for that read when the active chain is Ethereum; the per-chain map is not, so its Ethereum entry is honored in both directions and takes precedence over `rpcUrl`.
+- Unit coverage for the `rpcUrls` chain (`src/__tests__/unit/config/RpcUrls.test.ts`, `src/__tests__/unit/evm/EvmRpcUrls.test.ts`, `src/__tests__/unit/vaults/VaultRpcUrls.test.ts`): config normalization, both core contexts, the module register context, `EvmService` reads, `makePublicClient` precedence, the action call sites that forward the URL by hand, and the Ethereum-only vault reads.
+
+### Fixed
+
+- Reads that reach a public client through a helper rather than through `makePublicClient` directly no longer ignore the configured `rpcUrls`. Every one of these took an optional `rpcUrl` that was never supplied, so the read silently fell back to the public default:
+  - `EvmStake.prepare()` — the BTC.b allowance read on Avalanche (`getTokenAllowance`).
+  - `EvmCancelWithdraw.execute()` — the vault cancel (`cancelWithdrawInternal`).
+  - `checkFeeAuthorization()` and `authorizeFee()` — the token/ABI lookup (`getTokenContractInfo`).
+
+---
+
 # 5.2.0
 
 ### Deprecated

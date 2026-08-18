@@ -171,10 +171,13 @@ describe('previewEarnDeposit', () => {
         chainId: ChainId.base,
       });
 
-      // Should resolve Ethereum address for Lens query
+      // Should resolve Ethereum address for Lens query. The trailing argument
+      // is the resolved Ethereum RPC URL, undefined here because neither
+      // `rpcUrls` nor an Ethereum active chain supplied one.
       expect(getTokenInfo).toHaveBeenCalledWith(
         Token.LBTC,
         ChainId.ethereum,
+        undefined,
         undefined,
       );
     });

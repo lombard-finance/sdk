@@ -7,6 +7,7 @@
 
 import type { AnyModule, Env } from '@lombard.finance/sdk-common';
 
+import type { TRpcUrlConfig } from '../clients/rpc-url-config';
 import type { AssetId, Chain } from '../core';
 import type { Logger } from '../shared/context/types';
 import type {
@@ -137,6 +138,23 @@ export interface CreateConfigOptions {
    * @default false
    */
   debug?: boolean;
+
+  /**
+   * Optional per-chain RPC URL overrides.
+   *
+   * Partial map keyed by chain ID. Any chain not listed falls back to the
+   * SDK's public defaults (`rpcUrlConfig`). Useful for routing reads through
+   * a dedicated/paid provider while still using defaults elsewhere.
+   *
+   * @example
+   * ```typescript
+   * rpcUrls: {
+   *   [ChainId.ethereum]: 'https://eth.mycompany.com',
+   *   [ChainId.base]: 'https://base.mycompany.com',
+   * }
+   * ```
+   */
+  rpcUrls?: Partial<TRpcUrlConfig>;
 }
 
 /**
@@ -154,6 +172,8 @@ export interface LombardConfig {
   modules: readonly AnyModule[];
   partner?: PartnerConfig;
   logger?: Logger;
+  /** Per-chain RPC URL overrides; see {@link CreateConfigOptions.rpcUrls}. */
+  rpcUrls?: Partial<TRpcUrlConfig>;
 }
 
 /**

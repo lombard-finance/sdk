@@ -33,7 +33,9 @@ export function evmModule(): ChainModule<'evm', IEvmService> {
     id: 'evm',
     chain: 'evm',
     register(ctx) {
-      return new EvmService(ctx.env);
+      // Forward configured RPC overrides so read methods (e.g. getMintingFee)
+      // hit the configured endpoints instead of public defaults.
+      return new EvmService(ctx.env, ctx.rpcUrls);
     },
   };
 }

@@ -1,5 +1,6 @@
 import type { Env } from './env';
 import type { ProviderFor, ProviderKey } from './providers';
+import type { TRpcUrlConfig } from './rpc';
 
 /**
  * Shared token for cross-module state
@@ -11,6 +12,13 @@ export type SharedToken<T> = symbol & { __sharedToken?: T };
  */
 export interface RegisterContext {
   env: Env;
+  /**
+   * Optional per-chain RPC URL overrides from the SDK config, keyed by chain ID.
+   *
+   * Modules/services should forward these to read clients so reads honor the
+   * configured RPC endpoints instead of falling back to public defaults.
+   */
+  rpcUrls?: Partial<TRpcUrlConfig>;
   getProvider<TKey extends ProviderKey>(key: TKey): Promise<ProviderFor<TKey>>;
   getShared<T>(token: SharedToken<T>): T | undefined;
   setShared<T>(token: SharedToken<T>, value: T): void;

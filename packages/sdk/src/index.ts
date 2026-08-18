@@ -691,7 +691,6 @@ export {
 // RPC URL configuration (for wagmi/viem setup):
 export {
   getRpcUrlConfig,
-  RPC_URL,
   rpcUrlConfig,
   type TRpcUrlConfig,
 } from './clients/rpc-url-config';

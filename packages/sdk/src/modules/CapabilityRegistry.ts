@@ -108,6 +108,8 @@ export class CapabilityRegistry<
   private createContext(): RegisterContext {
     return {
       env: this.config.env,
+      // Forward configured RPC overrides so services can route reads through them.
+      rpcUrls: this.config.rpcUrls,
       getProvider: async <TKey extends ProviderKey>(key: TKey) => {
         const getter = getProviderGetter(this.config.providers, key);
         if (!getter) {

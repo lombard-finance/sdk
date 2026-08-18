@@ -119,7 +119,6 @@ export {
 // RPC URL configuration
 export {
   getRpcUrlConfig,
-  RPC_URL,
   rpcUrlConfig,
   type TRpcUrlConfig,
 } from '../clients/rpc-url-config';

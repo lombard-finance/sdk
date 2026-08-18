@@ -138,7 +138,11 @@ export class EvmWithdraw
       }
 
       const vault = EARN_VAULT;
-      const publicClient = makePublicClient({ chainId: this._chainId });
+      const publicClient = makePublicClient({
+        chainId: this._chainId,
+        env: this.ctx.env,
+        rpcUrl: this.ctx.rpcUrls?.[this._chainId],
+      });
       const amount = new BigNumber(validated.amount);
 
       // Read direct LBTCv balance via the lens contract
@@ -243,7 +247,11 @@ export class EvmWithdraw
       const amount = new BigNumber(this._amount);
       const amountBase = toBigInt(toBaseDenomination(amount, vault.decimals));
 
-      const publicClient = makePublicClient({ chainId: this._chainId });
+      const publicClient = makePublicClient({
+        chainId: this._chainId,
+        env: this.ctx.env,
+        rpcUrl: this.ctx.rpcUrls?.[this._chainId],
+      });
       const walletClient = makeWalletClient({
         provider: provider as EIP1193Provider,
         chainId: this._chainId,
@@ -358,6 +366,7 @@ export class EvmWithdraw
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
           env: this.ctx.env,
+          rpcUrl: this.ctx.rpcUrls?.[this._chainId],
         });
 
         txHash = result.queueTxHash;
@@ -371,6 +380,7 @@ export class EvmWithdraw
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
           env: this.ctx.env,
+          rpcUrl: this.ctx.rpcUrls?.[this._chainId],
         });
       }
 

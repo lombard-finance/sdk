@@ -155,7 +155,11 @@ export class EvmDeploy
       }
 
       const spender = this.getSpenderAddress();
-      const publicClient = makePublicClient({ chainId: this._chainId });
+      const publicClient = makePublicClient({
+        chainId: this._chainId,
+        env: this.ctx.env,
+        rpcUrl: this.ctx.rpcUrls?.[this._chainId],
+      });
       const allowanceRaw = await publicClient.readContract({
         address: depositToken.address,
         abi: erc20Abi,
@@ -219,7 +223,11 @@ export class EvmDeploy
       );
       const spender = this.getSpenderAddress();
 
-      const publicClient = makePublicClient({ chainId: this._chainId });
+      const publicClient = makePublicClient({
+        chainId: this._chainId,
+        env: this.ctx.env,
+        rpcUrl: this.ctx.rpcUrls?.[this._chainId],
+      });
       const walletClient = makeWalletClient({
         provider: provider as EIP1193Provider,
         chainId: this._chainId,
@@ -281,6 +289,7 @@ export class EvmDeploy
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
           env: this.ctx.env,
+          rpcUrl: this.ctx.rpcUrls?.[this._chainId],
         });
       } else {
         // Veda on a chain without the BTCe wrapper, or other protocols:
@@ -294,6 +303,7 @@ export class EvmDeploy
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
           env: this.ctx.env,
+          rpcUrl: this.ctx.rpcUrls?.[this._chainId],
         });
       }
 
