@@ -1,0 +1,7 @@
+# Fingerprints of accepted historical findings (commit:file:rule:line).
+# In CI this file is read from the PR's base commit, so a pull request cannot
+# add fingerprints to suppress its own findings.
+
+# Throwaway Sepolia test key in a smoke-test script, since replaced with an
+# env var. The key is considered burned.
+4201d285f79f2ed459b599efd93be797ee4925b5:packages/sdk-agentkit/scripts/smoke-test.ts:generic-api-key:21
