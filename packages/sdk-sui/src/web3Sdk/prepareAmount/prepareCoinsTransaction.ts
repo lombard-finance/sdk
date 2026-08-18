@@ -3,8 +3,8 @@ import { Transaction } from '@mysten/sui/transactions';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
-import { ERROR_NOT_ENOUGH_BALANCE, LBTC_DECIMALS } from '../../const';
-import { getSuiCoinDecimals } from '../../utils/getSuiCoinDecimals';
+import { ERROR_NOT_ENOUGH_BALANCE } from '../../const';
+import { resolveSuiCoinDecimals } from '../../utils/getSuiCoinDecimals';
 import { getAllCoinsOfType, type ICoinOfType } from '../getAllCoinsOfType';
 
 interface IPrepareCoinsTransactionParams {
@@ -25,9 +25,7 @@ export async function prepareCoinsTransaction({
   const transaction = new Transaction();
 
   const preparedCoins = await (async () => {
-    // Fallback to LBTC decimals when CoinMetadata is not published (e.g. testnet)
-    const decimals =
-      (await getSuiCoinDecimals(client, coinType)) ?? LBTC_DECIMALS;
+    const decimals = await resolveSuiCoinDecimals(client, coinType);
 
     const unstakeAmount = BigInt(
       amount.multipliedBy(new BigNumber(10).pow(decimals)).toString(10),

@@ -3,8 +3,7 @@ import { SuiGrpcClient } from '@mysten/sui/grpc';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
-import { LBTC_DECIMALS } from '../../const';
-import { getSuiCoinDecimals } from '../../utils/getSuiCoinDecimals';
+import { resolveSuiCoinDecimals } from '../../utils/getSuiCoinDecimals';
 
 interface IGetBalanceParams {
   walletAccount: WalletAccount;
@@ -27,8 +26,7 @@ export async function getBalance({
     coinType,
   });
 
-  // Fallback to LBTC decimals when CoinMetadata is not published (e.g. testnet)
-  const decimals = (await getSuiCoinDecimals(client, coinType)) ?? LBTC_DECIMALS;
+  const decimals = await resolveSuiCoinDecimals(client, coinType);
 
   const total = new BigNumber(balance.balance).div(
     new BigNumber(10).pow(decimals),
