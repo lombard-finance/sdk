@@ -47,7 +47,7 @@ describe('EvmDeploy Interface', () => {
     });
 
     it('should support multiple protocols', () => {
-      const protocols = ['corn-silo', 'euler-lbtc', 'aave', 'morpho', 'pendle'];
+      const protocols = ['silo', 'euler-lbtc', 'aave', 'morpho', 'pendle'];
 
       protocols.forEach((protocol) => {
         expect(typeof protocol).toBe('string');
@@ -122,7 +122,7 @@ describe('EvmDeploy Interface', () => {
     });
 
     it('should validate vault exists for protocol', () => {
-      const protocol = 'corn-silo';
+      const protocol = 'silo';
       const vault = 'LBTC';
 
       expect(protocol).toBeDefined();
@@ -155,7 +155,7 @@ describe('EvmDeploy Interface', () => {
     it('should reject unsupported vaults', () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
-        `Vault invalid-vault is not available for protocol corn-silo.`,
+        `Vault invalid-vault is not available for protocol silo.`,
       );
 
       expect(error.code).toBe(ValidationErrorCode.INVALID_PARAMETER);
@@ -164,7 +164,7 @@ describe('EvmDeploy Interface', () => {
     it('should reject chains without protocol support', () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_CHAIN,
-        `Protocol corn-silo is not available on avalanche.`,
+        `Protocol silo is not available on avalanche.`,
       );
 
       expect(error.code).toBe(ValidationErrorCode.INVALID_CHAIN);
@@ -194,8 +194,8 @@ describe('EvmDeploy Interface', () => {
   describe('Public Properties', () => {
     it('should expose protocol property', () => {
       type HasProtocol = { readonly protocol: string };
-      const obj: HasProtocol = { protocol: 'corn-silo' };
-      expect(obj.protocol).toBe('corn-silo');
+      const obj: HasProtocol = { protocol: 'silo' };
+      expect(obj.protocol).toBe('silo');
     });
 
     it('should expose vault property', () => {

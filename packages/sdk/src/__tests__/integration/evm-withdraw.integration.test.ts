@@ -243,20 +243,6 @@ describe('EVM Withdraw Integration', () => {
       expect(withdraw).toBeDefined();
     });
 
-    it('should support Corn', () => {
-      const config = createConfig({
-        env: Env.prod,
-        providers: { evm: () => createMockProvider({ chainId: '0x1406f40' }) },
-      });
-
-      const withdraw = evmWithdraw(config, {
-        sourceChain: Chain.CORN,
-        protocol: 'veda',
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
-
-      expect(withdraw).toBeDefined();
-    });
   });
 
   describe('Event Subscriptions', () => {
@@ -362,7 +348,7 @@ describe('EVM CancelWithdraw Integration', () => {
 
   describe('Chain Support', () => {
     it('should support all Veda vault chains', () => {
-      const chains = [Chain.ETHEREUM, Chain.BASE, Chain.BSC, Chain.CORN];
+      const chains = [Chain.ETHEREUM, Chain.BASE, Chain.BSC];
 
       for (const chain of chains) {
         const config = createConfig({

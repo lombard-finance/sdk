@@ -24,22 +24,10 @@ export interface FeatureConfig {
   isBerachainEnabled: boolean;
 
   /**
-   * Enable/disable Corn chain support
-   * @default false - Not yet fully supported
-   */
-  isCornEnabled: boolean;
-
-  /**
    * Enable/disable Morph chain support
    * @default false - Not yet fully supported
    */
   isMorphEnabled: boolean;
-
-  /**
-   * Enable/disable Swellchain support
-   * @default false - Not yet fully supported
-   */
-  isSwellchainEnabled: boolean;
 
   /**
    * Enable/disable TAC chain support
@@ -58,6 +46,18 @@ export interface FeatureConfig {
    * @default false - Not yet fully supported
    */
   isEtherlinkEnabled: boolean;
+
+  /**
+   * @deprecated No-op. Corn is retired, so the flag gates nothing and setting
+   * it to true has no effect. Removed in the next major.
+   */
+  isCornEnabled: boolean;
+
+  /**
+   * @deprecated No-op. Swellchain is retired, so the flag gates nothing and
+   * setting it to true has no effect. Removed in the next major.
+   */
+  isSwellchainEnabled: boolean;
 }
 
 export const featureConfig: FeatureConfig = {
@@ -65,13 +65,15 @@ export const featureConfig: FeatureConfig = {
   isAvalancheMainnetEnabled: true,
   isAvalancheFujiEnabled: true,
 
-  isCornEnabled: true,
   // Chains in asset catalog but not yet fully supported
   // These are hidden from UI until fully tested and released
   isBerachainEnabled: false,
   isMorphEnabled: false,
-  isSwellchainEnabled: false,
   isTacEnabled: false,
   isBobEnabled: false,
   isEtherlinkEnabled: false,
+
+  // Retired chains: these flags gate nothing and are removed in the next major
+  isCornEnabled: false,
+  isSwellchainEnabled: false,
 };

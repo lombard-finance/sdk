@@ -48,6 +48,8 @@ export {
   katana,
   megaeth,
   monad,
+  RETIRED_CHAIN_IDS,
+  type RetiredChainId,
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
   SOLANA_TESTNET_CHAIN,

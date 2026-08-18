@@ -50,7 +50,7 @@ describe('BtcStakeAndDeploy Interface', () => {
     });
 
     it('should support different protocols', () => {
-      const protocols = ['corn-silo', 'euler-lbtc', 'aave'];
+      const protocols = ['silo', 'euler-lbtc', 'aave'];
 
       protocols.forEach((protocol) => {
         expect(typeof protocol).toBe('string');
@@ -185,8 +185,8 @@ describe('BtcStakeAndDeploy Interface', () => {
   describe('Public Properties', () => {
     it('should expose protocol property', () => {
       type HasProtocol = { readonly protocol: string };
-      const obj: HasProtocol = { protocol: 'corn-silo' };
-      expect(obj.protocol).toBe('corn-silo');
+      const obj: HasProtocol = { protocol: 'silo' };
+      expect(obj.protocol).toBe('silo');
     });
 
     it('should expose vault property', () => {

@@ -7,7 +7,8 @@
  * - Veda on ETH/Base/BSC → deposits through the BTCe ERC-4626 wrapper
  *   (`depositEarn`), giving the user BTCe shares. The `recipient` param
  *   is forwarded as the BTCe share receiver.
- * - Veda on Corn → deposits directly into the LBTCv BoringVault teller
+ * - Veda on a chain without a BTCe deployment → deposits directly into the
+ *   LBTCv BoringVault teller
  *   (BTCe wrapper is not deployed there).
  * - Silo → separate stake-and-bake mechanism; not handled by this class.
  *
@@ -282,7 +283,7 @@ export class EvmDeploy
           env: this.ctx.env,
         });
       } else {
-        // Veda on Corn (no BTCe wrapper) or other protocols:
+        // Veda on a chain without the BTCe wrapper, or other protocols:
         // deposit directly into the LBTCv BoringVault teller.
         // Approval was already done in approve(), so pass approve: false.
         txHash = await depositInternal({

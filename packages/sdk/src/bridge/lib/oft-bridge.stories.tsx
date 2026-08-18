@@ -30,7 +30,7 @@ type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
   args: {
-    to: ChainId.corn,
+    to: ChainId.berachain,
     amount: '0.0001',
     approve: true,
     env: 'prod',

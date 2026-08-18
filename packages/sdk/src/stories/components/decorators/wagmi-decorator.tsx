@@ -9,7 +9,6 @@ import {
   berachainTestnetbArtio,
   bsc,
   bscTestnet,
-  corn,
   holesky,
   mainnet,
   morph,
@@ -17,7 +16,6 @@ import {
   sepolia,
   sonic,
   sonicBlazeTestnet,
-  swellchain,
 } from 'wagmi/chains';
 
 import { rpcUrlConfig } from '../../../clients/rpc-url-config';
@@ -29,11 +27,9 @@ const config = createConfig({
     base,
     berachain,
     bsc,
-    corn,
     katana,
     morph,
     sonic,
-    swellchain,
     tac,
     avalanche,
     // Testnets:
@@ -51,11 +47,9 @@ const config = createConfig({
     [base.id]: http(rpcUrlConfig[base.id]),
     [berachain.id]: http(rpcUrlConfig[berachain.id]),
     [bsc.id]: http(rpcUrlConfig[bsc.id]),
-    [corn.id]: http(rpcUrlConfig[corn.id]),
     [katana.id]: http(rpcUrlConfig[katana.id]),
     [morph.id]: http(rpcUrlConfig[morph.id]),
     [sonic.id]: http(rpcUrlConfig[sonic.id]),
-    [swellchain.id]: http(rpcUrlConfig[swellchain.id]),
     [tac.id]: http(rpcUrlConfig[tac.id]),
     [avalanche.id]: http(rpcUrlConfig[avalanche.id]),
     // Testnets:

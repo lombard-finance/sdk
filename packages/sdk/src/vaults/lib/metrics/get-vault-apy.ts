@@ -116,14 +116,12 @@ const CHAIN_ID_TO_NETWORK_MAP: Record<EarnChain, string> = {
   // to return the aggregated data for all vault chains.
   [ChainId.base]: 'base',
   [ChainId.binanceSmartChain]: 'bnb',
-  [ChainId.corn]: 'corn',
 };
 
 const NETWORK_TO_CHAIN_ID_MAP: Record<string, EarnChain> = {
   ethereum: ChainId.ethereum,
   base: ChainId.base,
   bnb: ChainId.binanceSmartChain,
-  corn: ChainId.corn,
 };
 
 /**

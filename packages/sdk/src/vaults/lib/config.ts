@@ -21,7 +21,6 @@ export const EARN_CHAINS = [
   ChainId.ethereum,
   ChainId.base,
   ChainId.binanceSmartChain,
-  ChainId.corn,
 ] as const;
 
 export type EarnChain = (typeof EARN_CHAINS)[number];
@@ -31,14 +30,12 @@ export const isEarnChain = (chainId: number): chainId is EarnChain =>
 export const EARN_CHAIN_TO_NETWORK_MAP: Record<EarnChain, string> = {
   [ChainId.ethereum]: 'ethereum',
   [ChainId.base]: 'base',
-  [ChainId.corn]: 'corn',
   [ChainId.binanceSmartChain]: 'bnb',
 };
 
 export const NETWORK_TO_EARN_CHAIN_MAP: Record<string, EarnChain> = {
   ethereum: ChainId.ethereum,
   base: ChainId.base,
-  corn: ChainId.corn,
   bnb: ChainId.binanceSmartChain,
 };
 
@@ -78,11 +75,6 @@ export const EARN_VAULT_TELLER_CONTRACTS: Record<EarnChain, ContractInfo> = {
     address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
     chainId: ChainId.binanceSmartChain,
   },
-  [ChainId.corn]: {
-    abi: VEDA_VAULT_TELLER_ABI as Abi,
-    address: '0x2eA43384F1A98765257bc6Cb26c7131dEbdEB9B3',
-    chainId: ChainId.corn,
-  },
 } as const;
 
 /** Stake and bake contracts */
@@ -118,11 +110,6 @@ export const EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS: Record<
     chainId: ChainId.ethereum,
   },
   [ChainId.binanceSmartChain]: {
-    abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
-    address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
-    chainId: ChainId.ethereum,
-  },
-  [ChainId.corn]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
     address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
     chainId: ChainId.ethereum,
@@ -190,7 +177,6 @@ export const EARN_VAULT = {
     [Token.cbBTC]: [ChainId.ethereum, ChainId.base],
     [Token.eBTC]: [ChainId.ethereum],
     [Token.wBTC]: [ChainId.ethereum],
-    [Token.wBTCN]: [ChainId.corn],
   },
   stakeAndBakeChains: EARN_STAKE_AND_BAKE_CHAINS,
   decimals: 8,

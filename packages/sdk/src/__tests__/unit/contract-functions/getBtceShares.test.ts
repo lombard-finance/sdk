@@ -74,11 +74,11 @@ describe('getBtceShares', () => {
       ).resolves.toBeInstanceOf(BigNumber);
     });
 
-    it('throws for an unsupported chain (Corn)', async () => {
+    it('throws for an unsupported chain (non-BTCe chain)', async () => {
       await expect(
         getBtceShares({
           address: TEST_ADDRESS,
-          chainId: ChainId.corn,
+          chainId: ChainId.katana,
         }),
       ).rejects.toThrow(/BTCe is not supported on chain/);
     });
