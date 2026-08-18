@@ -1,18 +1,31 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
-import type { SuiClient } from '@mysten/sui/client';
+import { bcs } from '@mysten/sui/bcs';
+import type { SuiGrpcClient } from '@mysten/sui/grpc';
 
 import { getConfig } from '../../const';
+import { readSuiDynamicFieldValue } from '../../utils/readSuiDynamicFieldValue';
 
 /**
  * The dynamic-field key under which `lbtc::treasury` stores the bascule check
- * flag. The key is a Move `vector<u8>`, so the JSON-RPC field name is the
- * ASCII bytes of this string.
+ * flag. The key is a Move `vector<u8>` holding the ASCII bytes of this string.
  */
 const BASCULE_CHECK_FIELD = 'bascule_check';
 
+/**
+ * BCS bytes of the `vector<u8>` dynamic-field key holding the flag. Exported
+ * so tests derive the field id from the exact same bytes the implementation
+ * sends, instead of re-encoding the key by hand.
+ */
+export function basculeCheckFieldNameBcs(): Uint8Array {
+  return bcs
+    .vector(bcs.u8())
+    .serialize(Array.from(new TextEncoder().encode(BASCULE_CHECK_FIELD)))
+    .toBytes();
+}
+
 export interface IIsBasculeCheckEnabledParameters {
-  /** Sui RPC client. */
-  client: SuiClient;
+  /** Sui gRPC client. */
+  client: SuiGrpcClient;
   /** The optional environment identifier (defaults to the SDK default). */
   env?: Env;
 }
@@ -35,22 +48,19 @@ export async function isBasculeCheckEnabled({
 }: IIsBasculeCheckEnabledParameters): Promise<boolean> {
   const { treasuryAddress } = getConfig(env);
 
-  const resp = await client.getDynamicFieldObject({
+  const value = await readSuiDynamicFieldValue({
+    client,
     parentId: treasuryAddress,
-    name: {
-      type: 'vector<u8>',
-      value: Array.from(new TextEncoder().encode(BASCULE_CHECK_FIELD)),
-    },
+    nameType: 'vector<u8>',
+    nameBcs: basculeCheckFieldNameBcs(),
   });
 
-  const content = resp.data?.content;
-  if (!content || content.dataType !== 'moveObject') {
+  if (value === undefined) {
     throw new Error(
       `Treasury ${treasuryAddress} has no ${BASCULE_CHECK_FIELD} flag`,
     );
   }
 
-  const value = (content.fields as Record<string, unknown>).value;
   if (typeof value !== 'boolean') {
     throw new Error(
       `Treasury ${treasuryAddress} has an invalid ${BASCULE_CHECK_FIELD} flag`,

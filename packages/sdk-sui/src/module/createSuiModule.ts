@@ -10,7 +10,7 @@
 import type { ChainModule, SuiService } from '@lombard.finance/sdk-common';
 
 import { SuiServiceImpl } from '../services/SuiServiceImpl';
-import type { ISuiNetworkRpcOptions } from '../utils/createSuiClient';
+import type { ISuiNetworkGrpcOptions } from '../utils/createSuiGrpcClient';
 
 /**
  * Create Sui module
@@ -29,16 +29,16 @@ import type { ISuiNetworkRpcOptions } from '../utils/createSuiClient';
  *
  * @example Pinning your own endpoints
  * ```ts
- * suiModule({ rpcUrls: { mainnet: ['https://your-node.example/rpc'] } });
+ * suiModule({ grpcUrls: { mainnet: ['https://your-node.example'] } });
  * ```
  *
  * The override is keyed by network because the service resolves the network
  * per call from the chain id, so one instance can serve mainnet and testnet.
  *
- * @param options - Optional JSON-RPC endpoints to use instead of the defaults
+ * @param options - Optional gRPC-Web endpoints to use instead of the defaults
  */
 export function suiModule(
-  options: ISuiNetworkRpcOptions = {},
+  options: ISuiNetworkGrpcOptions = {},
 ): ChainModule<'sui', SuiService> {
   return {
     id: 'sui',

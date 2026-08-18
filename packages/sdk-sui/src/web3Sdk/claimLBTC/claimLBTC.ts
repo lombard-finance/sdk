@@ -1,12 +1,15 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
-import type { SuiTransactionBlockResponse } from '@mysten/sui/client';
-import { SuiClient } from '@mysten/sui/client';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { Transaction } from '@mysten/sui/transactions';
 import { SuiChain, SuiSignTransactionFeature } from '@mysten/wallet-standard';
 import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 
 import { getConfig } from '../../const';
+import {
+  executeSignedTransaction,
+  type ISuiExecutedTransaction,
+} from '../../utils/executeSignedTransaction';
 import {
   deriveDepositId,
   getBasculeDepositStatus,
@@ -22,7 +25,7 @@ interface IClaimLBTCParams {
   payload: Not0xPrefixedHex;
   proof: Not0xPrefixedHex;
   walletAccount: WalletAccount;
-  client: SuiClient;
+  client: SuiGrpcClient;
   env?: Env;
 }
 
@@ -64,7 +67,7 @@ export async function claimLBTC({
   walletAccount,
   client,
   env = DEFAULT_ENV,
-}: IClaimLBTCParams): Promise<SuiTransactionBlockResponse> {
+}: IClaimLBTCParams): Promise<ISuiExecutedTransaction> {
   // Checked here so a malformed payload is reported as itself rather than as the
   // "could not be read" refusal below, which covers the RPC reads.
   deriveDepositId(payload);
@@ -130,10 +133,7 @@ export async function claimLBTC({
       account: walletAccount,
     });
 
-    return client.executeTransactionBlock({
-      transactionBlock: signedTransaction.bytes,
-      signature: signedTransaction.signature,
-    });
+    return executeSignedTransaction(client, signedTransaction);
   }
 
   transaction.setSender(walletAccount.address);
@@ -147,8 +147,8 @@ export async function claimLBTC({
     account: walletAccount,
   });
 
-  return client.executeTransactionBlock({
-    transactionBlock: signedTransaction.transactionBlockBytes,
+  return executeSignedTransaction(client, {
+    bytes: signedTransaction.transactionBlockBytes,
     signature: signedTransaction.signature,
   });
 }
