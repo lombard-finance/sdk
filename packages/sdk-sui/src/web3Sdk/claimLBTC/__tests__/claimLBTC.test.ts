@@ -1,3 +1,4 @@
+import type { SuiGrpcClient } from '@mysten/sui/grpc';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -26,23 +27,23 @@ const signTransaction = vi
   .fn()
   .mockResolvedValue({ bytes: 'dHg=', signature: 'c2ln' });
 
-const executeTransactionBlock = vi
-  .fn()
-  .mockResolvedValue({ digest: '0xdigest' });
+const executeTransaction = vi.fn().mockResolvedValue({
+  $kind: 'Transaction',
+  Transaction: { digest: '0xdigest' },
+});
 
 const claim = () =>
   claimLBTC({
     chainId: 'sui:mainnet',
     wallet: {
       features: { 'sui:signTransaction': { signTransaction } },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any,
+    } as unknown as Parameters<typeof claimLBTC>[0]['wallet'],
     payload: PAYLOAD,
     proof: 'aabb',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    walletAccount: { address: '0xaccount' } as any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    client: { executeTransactionBlock } as any,
+    walletAccount: { address: '0xaccount' } as unknown as Parameters<
+      typeof claimLBTC
+    >[0]['walletAccount'],
+    client: { core: { executeTransaction } } as unknown as SuiGrpcClient,
   });
 
 describe('claimLBTC', () => {
@@ -58,6 +59,13 @@ describe('claimLBTC', () => {
     vi.mocked(getBasculeDepositStatus).mockResolvedValue(status);
 
     await expect(claim()).resolves.toEqual({ digest: '0xdigest' });
+    // 'dHg=' is base64 for the bytes of "tx"; pinning them catches a broken
+    // base64 conversion, which expect.any(Uint8Array) would let through.
+    expect(executeTransaction).toHaveBeenCalledWith({
+      transaction: new Uint8Array([0x74, 0x78]),
+      signatures: ['c2ln'],
+      include: { effects: true },
+    });
 
     expect(signTransaction).toHaveBeenCalledTimes(1);
   });
@@ -94,14 +102,15 @@ describe('claimLBTC', () => {
     await expect(
       claimLBTC({
         chainId: 'sui:mainnet',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        wallet: { features: {} } as any,
+        wallet: { features: {} } as unknown as Parameters<
+          typeof claimLBTC
+        >[0]['wallet'],
         payload: 'ce25e7c2',
         proof: 'aabb',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        walletAccount: { address: '0xaccount' } as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        client: { executeTransactionBlock } as any,
+        walletAccount: { address: '0xaccount' } as unknown as Parameters<
+          typeof claimLBTC
+        >[0]['walletAccount'],
+        client: { core: { executeTransaction } } as unknown as SuiGrpcClient,
       }),
     ).rejects.toThrow(/Invalid mint payload length/);
   });

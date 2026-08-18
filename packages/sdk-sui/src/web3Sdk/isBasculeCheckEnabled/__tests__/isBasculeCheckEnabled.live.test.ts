@@ -1,7 +1,7 @@
 /**
  * Live probe of the treasury `bascule_check` flag.
  *
- * Talks to third-party RPC nodes, so it is excluded from the unit run and lives
+ * Talks to public gRPC nodes, so it is excluded from the unit run and lives
  * behind `yarn workspace @lombard.finance/sdk-sui test:live`.
  *
  * It guards the assumption `isBasculeCheckEnabled` throws on: every deployed
@@ -13,9 +13,9 @@ import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it } from 'vitest';
 
 import {
-  createSuiClient,
+  createSuiGrpcClient,
   type SuiNetwork,
-} from '../../../utils/createSuiClient';
+} from '../../../utils/createSuiGrpcClient';
 import { isBasculeCheckEnabled } from '../isBasculeCheckEnabled';
 
 // Stage runs on testnet, same as the testnet env, with its own treasury object.
@@ -27,7 +27,7 @@ const ENVS: [Env, SuiNetwork][] = [
 
 describe.each(ENVS)('isBasculeCheckEnabled (%s)', (env, network) => {
   it('reads a boolean flag off the deployed treasury', async () => {
-    const client = createSuiClient(network);
+    const client = createSuiGrpcClient(network);
 
     await expect(isBasculeCheckEnabled({ client, env })).resolves.toEqual(
       expect.any(Boolean),
