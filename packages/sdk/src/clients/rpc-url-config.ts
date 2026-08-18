@@ -1,8 +1,9 @@
-import { Env } from '@lombard.finance/sdk-common';
+import { Env, TRpcUrlConfig } from '@lombard.finance/sdk-common';
 
 import { ChainId } from '../common/chains';
 
-export type TRpcUrlConfig = Record<number, string>;
+// Re-exported so the public API keeps its existing import path.
+export type { TRpcUrlConfig };
 
 /**
  * Public, per-chain RPC defaults. Consumers may override individual entries

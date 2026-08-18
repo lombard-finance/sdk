@@ -14,6 +14,7 @@ import type {
   SignNetworkFeeParams,
   SignNetworkFeeResult,
   SignStakeAndBakeParams,
+  TRpcUrlConfig,
 } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import type { EIP1193Provider } from 'viem';
@@ -42,7 +43,7 @@ export class EvmService implements IEvmService {
    */
   constructor(
     private readonly env: Env,
-    private readonly rpcUrls?: Partial<Record<number, string>>,
+    private readonly rpcUrls?: Partial<TRpcUrlConfig>,
   ) {}
 
   /** Resolve the configured RPC override for a chain, if any. */

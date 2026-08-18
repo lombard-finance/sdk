@@ -1,6 +1,7 @@
 export * from './env';
 export * from './modules';
 export * from './providers';
+export * from './rpc';
 export * from './utils/get-output-script';
 
 // Chain services (what modules provide)

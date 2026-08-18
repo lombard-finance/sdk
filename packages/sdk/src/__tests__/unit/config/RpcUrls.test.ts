@@ -29,12 +29,34 @@ vi.mock(
   }),
 );
 
+vi.mock('../../../contract-functions/signNetworkFee/signNetworkFee', () => ({
+  signNetworkFee: vi.fn(),
+}));
+
+vi.mock(
+  '../../../contract-functions/getStakeAndBakeFee/getStakeAndBakeFee',
+  () => ({
+    getStakeAndBakeFee: vi.fn(),
+  }),
+);
+
+vi.mock(
+  '../../../contract-functions/signStakeAndBake/signStakeAndBake',
+  () => ({
+    signStakeAndBake: vi.fn(),
+  }),
+);
+
 import { makePublicClient } from '../../../clients/public-client';
 import { rpcUrlConfig } from '../../../clients/rpc-url-config';
 import { getMintingFee } from '../../../contract-functions/getLBTCMintingFee/getLBTCMintingFee';
+import { getStakeAndBakeFee } from '../../../contract-functions/getStakeAndBakeFee/getStakeAndBakeFee';
+import { signNetworkFee } from '../../../contract-functions/signNetworkFee/signNetworkFee';
+import { signStakeAndBake } from '../../../contract-functions/signStakeAndBake/signStakeAndBake';
 
 const CUSTOM_ETH_RPC = 'https://eth.example-partner.invalid';
 const CUSTOM_BASE_RPC = 'https://base.example-partner.invalid';
+const ACCOUNT = '0x0000000000000000000000000000000000000002';
 
 const rpcUrls = {
   [ChainId.ethereum]: CUSTOM_ETH_RPC,
@@ -108,9 +130,7 @@ describe('rpcUrls config option', () => {
   });
 
   describe('EvmService reads', () => {
-    it('uses the configured RPC for the requested chain', async () => {
-      vi.mocked(getMintingFee).mockResolvedValue(new BigNumber('0.00001992'));
-
+    function makeService(): EvmService {
       const registry = new CapabilityRegistry([evmModule()], {
         env: Env.prod,
         providers: {},
@@ -118,37 +138,95 @@ describe('rpcUrls config option', () => {
         rpcUrls,
       });
 
-      const evm = registry.require('evm') as EvmService;
-      await evm.getMintingFee(ChainId.ethereum);
+      return registry.require('evm') as EvmService;
+    }
 
-      expect(getMintingFee).toHaveBeenCalledWith(
-        expect.objectContaining({
-          chainId: ChainId.ethereum,
-          rpcUrl: CUSTOM_ETH_RPC,
-        }),
-      );
-    });
+    const SIGNATURE = {
+      signature: '0xabc123' as `0x${string}`,
+      typedData: '{}',
+    };
 
-    it('falls back to the public default for a chain that is not configured', async () => {
-      vi.mocked(getMintingFee).mockResolvedValue(new BigNumber('0.00001992'));
+    // Every public method resolves its endpoint through the same private
+    // helper, but each one has to pass the result along by hand, so they are
+    // exercised individually rather than through the helper.
+    const methods = [
+      {
+        name: 'getMintingFee',
+        mock: getMintingFee,
+        arrange: () =>
+          vi.mocked(getMintingFee).mockResolvedValue(new BigNumber('0.0001')),
+        call: (evm: EvmService, chainId: number) =>
+          evm.getMintingFee(chainId as never),
+      },
+      {
+        name: 'signNetworkFee',
+        mock: signNetworkFee,
+        arrange: () => vi.mocked(signNetworkFee).mockResolvedValue(SIGNATURE),
+        call: (evm: EvmService, chainId: number) =>
+          evm.signNetworkFee({
+            fee: '32',
+            account: ACCOUNT,
+            chainId: chainId as never,
+            provider: {} as never,
+          }),
+      },
+      {
+        name: 'getStakeAndBakeFee',
+        mock: getStakeAndBakeFee,
+        arrange: () =>
+          vi
+            .mocked(getStakeAndBakeFee)
+            .mockResolvedValue(new BigNumber('0.0001')),
+        call: (evm: EvmService, chainId: number) =>
+          evm.getStakeAndBakeFee(chainId as never, 'veda' as never),
+      },
+      {
+        name: 'signStakeAndBake',
+        mock: signStakeAndBake,
+        arrange: () =>
+          vi
+            .mocked(signStakeAndBake)
+            .mockResolvedValue({ ...SIGNATURE, mode: 'permit' as never }),
+        call: (evm: EvmService, chainId: number) =>
+          evm.signStakeAndBake({
+            value: '1',
+            account: ACCOUNT,
+            chainId: chainId as never,
+            provider: {} as never,
+            vaultKey: 'veda' as never,
+            token: 'LBTC' as never,
+          }),
+      },
+    ];
 
-      const registry = new CapabilityRegistry([evmModule()], {
-        env: Env.prod,
-        providers: {},
-        modules: [],
-        rpcUrls,
+    for (const { name, mock, arrange, call } of methods) {
+      it(`${name} forwards the configured RPC for the requested chain`, async () => {
+        arrange();
+
+        await call(makeService(), ChainId.ethereum);
+
+        const [args] = vi.mocked(mock).mock.calls[0] as [
+          { chainId: number; rpcUrl?: string },
+        ];
+        expect(args.chainId).toBe(ChainId.ethereum);
+        expect(args.rpcUrl).toBe(CUSTOM_ETH_RPC);
       });
 
-      const evm = registry.require('evm') as EvmService;
-      await evm.getMintingFee(ChainId.sonic);
+      it(`${name} leaves rpcUrl unset for a chain that is not configured`, async () => {
+        arrange();
 
-      // Asserted positionally rather than with objectContaining: a missing
-      // `rpcUrl` key and an explicit `undefined` are indistinguishable there,
-      // so the assertion would survive the threading being removed entirely.
-      const [args] = vi.mocked(getMintingFee).mock.calls[0];
-      expect(args.chainId).toBe(ChainId.sonic);
-      expect(args.rpcUrl).toBeUndefined();
-    });
+        await call(makeService(), ChainId.sonic);
+
+        // Asserted positionally rather than with objectContaining: a missing
+        // `rpcUrl` key and an explicit `undefined` are indistinguishable
+        // there, so the assertion would survive the threading being removed.
+        const [args] = vi.mocked(mock).mock.calls[0] as [
+          { chainId: number; rpcUrl?: string },
+        ];
+        expect(args.chainId).toBe(ChainId.sonic);
+        expect(args.rpcUrl).toBeUndefined();
+      });
+    }
   });
 
   describe('makePublicClient', () => {
