@@ -7,7 +7,8 @@ Thank you for your interest in contributing to the Lombard SDK!
 1. Fork the repository
 2. Clone your fork
 3. Install dependencies: `yarn install`
-4. Create a branch: `git checkout -b my-feature`
+4. Install [gitleaks](https://github.com/gitleaks/gitleaks#installing) (e.g. `brew install gitleaks`) — the pre-commit hook uses it to scan staged changes for secrets. If it is not installed the hook is skipped and CI performs the scan instead.
+5. Create a branch: `git checkout -b my-feature`
 
 ## Development Workflow
 

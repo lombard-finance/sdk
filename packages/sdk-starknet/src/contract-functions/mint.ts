@@ -76,9 +76,9 @@ export async function mint({
   );
 
   if (status.activeVariant() !== 'Reported') {
-    const msg = `The deposit cannot be claimed. Bascule status: ${status.activeVariant()}`;
-    console.warn(msg); // TODO: Remove when Bascule configured
-    // throw new Error(msg); // TODO: Re-enable once configured
+    throw new Error(
+      `The deposit cannot be claimed. Bascule status: ${status.activeVariant()}`,
+    );
   }
 
   const to_chain = BigInt(makeDestinationChainId(chainId));
