@@ -263,10 +263,13 @@ describe('getEarnMinimumDeposit', () => {
         chainId: ChainId.base,
       });
 
-      // Should call getTokenInfo with Ethereum chainId (for Lens query)
+      // Should call getTokenInfo with Ethereum chainId (for Lens query).
+      // The trailing argument is the resolved Ethereum RPC URL, undefined here
+      // because neither `rpcUrls` nor an Ethereum active chain supplied one.
       expect(getTokenInfo).toHaveBeenCalledWith(
         Token.LBTC,
         ChainId.ethereum,
+        undefined,
         undefined,
       );
     });

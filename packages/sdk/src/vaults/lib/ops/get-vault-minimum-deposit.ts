@@ -1,4 +1,4 @@
-import { Env } from '@lombard.finance/sdk-common';
+import { Env, TRpcUrlConfig } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import { Abi, Address } from 'viem';
 
@@ -14,8 +14,19 @@ export type GetEarnMinimumDepositParameters = {
   token?: Token;
   /** The chain where the deposit will be made. Defaults to Ethereum. */
   chainId?: ChainId;
-  /** Optional RPC URL for Ethereum (used for Lens/Accountant queries). */
+  /**
+   * Optional RPC URL for the active `chainId`. The Lens/Accountant reads are
+   * Ethereum-only, so this is used for them only when `chainId` is Ethereum.
+   * To supply an Ethereum endpoint while depositing from another chain, use
+   * `rpcUrls`.
+   */
   rpcUrl?: string;
+  /**
+   * Optional per-chain RPC URL map, keyed by chain ID. The Ethereum entry is
+   * used for the Lens/Accountant reads regardless of which chain the deposit
+   * comes from, and takes precedence over `rpcUrl`.
+   */
+  rpcUrls?: Partial<TRpcUrlConfig>;
   /** Optional environment. */
   env?: Env;
 };
@@ -37,6 +48,7 @@ export async function getEarnMinimumDeposit({
   token = Token.LBTC,
   chainId = ChainId.ethereum,
   rpcUrl,
+  rpcUrls,
   env,
 }: GetEarnMinimumDepositParameters = {}): Promise<BigNumber> {
   const vault = EARN_VAULT;
@@ -55,13 +67,26 @@ export async function getEarnMinimumDeposit({
     );
   }
 
-  // Lens and Accountant are Ethereum-only contracts.
+  // Lens and Accountant are Ethereum-only contracts, so every read below goes
+  // to Ethereum no matter which chain the deposit comes from. The single
+  // `rpcUrl` belongs to the active chain and would be the wrong endpoint unless
+  // that chain is Ethereum; the `rpcUrls` map is keyed per chain, so its
+  // Ethereum entry always applies.
+  const ethRpcUrl =
+    rpcUrls?.[ChainId.ethereum] ??
+    (chainId === ChainId.ethereum ? rpcUrl : undefined);
+
   // Resolve the token's Ethereum address for the query.
   let ethTokenAddress: Address;
   let tokenDecimals: number;
 
   if (chainId === ChainId.ethereum) {
-    const tokenInfo = await getTokenInfo(token, ChainId.ethereum, env, rpcUrl);
+    const tokenInfo = await getTokenInfo(
+      token,
+      ChainId.ethereum,
+      env,
+      ethRpcUrl,
+    );
     if (!tokenInfo) {
       throw new Error(`Could not resolve token info for ${token} on Ethereum`);
     }
@@ -70,7 +95,12 @@ export async function getEarnMinimumDeposit({
   } else {
     // For cross-chain deposits, we still need the Ethereum token address
     // because the Lens/Accountant are on Ethereum.
-    const ethTokenInfo = await getTokenInfo(token, ChainId.ethereum, env);
+    const ethTokenInfo = await getTokenInfo(
+      token,
+      ChainId.ethereum,
+      env,
+      ethRpcUrl,
+    );
     if (!ethTokenInfo) {
       throw new Error(
         `Cannot determine minimum deposit for ${token}: token not available on Ethereum. ` +
@@ -83,7 +113,7 @@ export async function getEarnMinimumDeposit({
 
   const ethPublicClient = makePublicClient({
     chainId: ChainId.ethereum,
-    rpcUrl: chainId === ChainId.ethereum ? rpcUrl : undefined,
+    rpcUrl: ethRpcUrl,
     env,
   });
 

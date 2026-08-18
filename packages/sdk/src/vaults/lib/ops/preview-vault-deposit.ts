@@ -1,4 +1,4 @@
-import { Env } from '@lombard.finance/sdk-common';
+import { Env, TRpcUrlConfig } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import { Abi, Address } from 'viem';
 
@@ -20,8 +20,18 @@ export type PreviewEarnDepositParameters = {
   token?: Token;
   /** The chain where the deposit will be made. Defaults to Ethereum. */
   chainId?: ChainId;
-  /** Optional RPC URL for Ethereum (used for Lens queries). */
+  /**
+   * Optional RPC URL for the active `chainId`. The Lens read is Ethereum-only,
+   * so this is used for it only when `chainId` is Ethereum. To supply an
+   * Ethereum endpoint while depositing from another chain, use `rpcUrls`.
+   */
   rpcUrl?: string;
+  /**
+   * Optional per-chain RPC URL map, keyed by chain ID. The Ethereum entry is
+   * used for the Lens read regardless of which chain the deposit comes from,
+   * and takes precedence over `rpcUrl`.
+   */
+  rpcUrls?: Partial<TRpcUrlConfig>;
   /** Optional environment. */
   env?: Env;
 };
@@ -47,6 +57,7 @@ export async function previewEarnDeposit({
   token = Token.LBTC,
   chainId = ChainId.ethereum,
   rpcUrl,
+  rpcUrls,
   env,
 }: PreviewEarnDepositParameters): Promise<BigNumber> {
   const vault = EARN_VAULT;
@@ -70,19 +81,37 @@ export async function previewEarnDeposit({
     throw new Error('Deposit amount must be greater than zero');
   }
 
-  // Lens is Ethereum-only. Resolve the token's Ethereum address.
+  // Lens is Ethereum-only, so every read below goes to Ethereum no matter which
+  // chain the deposit comes from. The single `rpcUrl` belongs to the active
+  // chain and would be the wrong endpoint unless that chain is Ethereum; the
+  // `rpcUrls` map is keyed per chain, so its Ethereum entry always applies.
+  const ethRpcUrl =
+    rpcUrls?.[ChainId.ethereum] ??
+    (chainId === ChainId.ethereum ? rpcUrl : undefined);
+
+  // Resolve the token's Ethereum address.
   let ethTokenAddress: Address;
   let tokenDecimals: number;
 
   if (chainId === ChainId.ethereum) {
-    const tokenInfo = await getTokenInfo(token, ChainId.ethereum, env, rpcUrl);
+    const tokenInfo = await getTokenInfo(
+      token,
+      ChainId.ethereum,
+      env,
+      ethRpcUrl,
+    );
     if (!tokenInfo) {
       throw new Error(`Could not resolve token info for ${token} on Ethereum`);
     }
     ethTokenAddress = tokenInfo.address;
     tokenDecimals = tokenInfo.decimals;
   } else {
-    const ethTokenInfo = await getTokenInfo(token, ChainId.ethereum, env);
+    const ethTokenInfo = await getTokenInfo(
+      token,
+      ChainId.ethereum,
+      env,
+      ethRpcUrl,
+    );
     if (!ethTokenInfo) {
       throw new Error(
         `Cannot preview deposit for ${token}: token not available on Ethereum. ` +
@@ -97,7 +126,7 @@ export async function previewEarnDeposit({
 
   const ethPublicClient = makePublicClient({
     chainId: ChainId.ethereum,
-    rpcUrl: chainId === ChainId.ethereum ? rpcUrl : undefined,
+    rpcUrl: ethRpcUrl,
     env,
   });
 

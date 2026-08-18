@@ -24,7 +24,8 @@
 
 - `rpcUrl` parameter on `getTokenContractInfo()`. The helper resolves the LBTC and BTCK ABI by probing the contract on-chain (`isUpgradedContract`), which previously always used the default endpoint. `getTokenInfo()` now forwards the `rpcUrl` it already accepted.
 - Online integration test (`src/__tests__/integration/rpc-urls.integration.test.ts`, gated by `ENABLE_ONLINE_INTEGRATION=true`) that pings every default RPC via `eth_chainId` and asserts the reply matches the map key — keeps the public defaults honest.
-- Unit coverage for the `rpcUrls` chain (`src/__tests__/unit/config/RpcUrls.test.ts`, `src/__tests__/unit/evm/EvmRpcUrls.test.ts`): config normalization, both core contexts, the module register context, `EvmService` reads, `makePublicClient` precedence, and the action call sites that forward the URL by hand.
+- `rpcUrls` parameter on `previewEarnDeposit()` and `getEarnMinimumDeposit()`. The Earn vault's Lens and Accountant contracts are Ethereum-only, so both helpers always read Ethereum even when the deposit originates elsewhere. Their existing `rpcUrl` belongs to the active chain and is therefore only usable for that read when the active chain is Ethereum; the per-chain map is not, so its Ethereum entry is honored in both directions and takes precedence over `rpcUrl`.
+- Unit coverage for the `rpcUrls` chain (`src/__tests__/unit/config/RpcUrls.test.ts`, `src/__tests__/unit/evm/EvmRpcUrls.test.ts`, `src/__tests__/unit/vaults/VaultRpcUrls.test.ts`): config normalization, both core contexts, the module register context, `EvmService` reads, `makePublicClient` precedence, the action call sites that forward the URL by hand, and the Ethereum-only vault reads.
 
 ### Fixed
 
