@@ -31,6 +31,12 @@ export const AssetId = {
   BTCK: 'BTCK',
   cbBTC: 'cbBTC',
   WBTC: 'WBTC',
+  /**
+   * @deprecated Corn was its only deployment and Corn is retired, so this
+   * asset has no catalog entry and no address. Kept only so existing code
+   * keeps compiling; removed in the next major.
+   */
+  WBTCN: 'wBTCN',
   eBTC: 'eBTC',
   BTCBinance: 'BTCB',
 

@@ -9,6 +9,23 @@
 import { Chain, ChainMetadata } from './types';
 
 /**
+ * Chains that no longer produce blocks.
+ *
+ * They keep a catalog entry so historical activity can still be labelled, but
+ * they are excluded from every chain listing and no code path routes to them.
+ * The identifiers themselves are deprecated and go away in the next major.
+ */
+export const RETIRED_CHAINS: ReadonlySet<Chain> = new Set([
+  Chain.CORN,
+  Chain.SWELL,
+]);
+
+/** Whether a chain is retired and cannot be transacted on */
+export function isRetiredChain(chain: Chain): boolean {
+  return RETIRED_CHAINS.has(chain);
+}
+
+/**
  * Chain catalog with metadata for all chains.
  * TypeScript will error if any Chain is missing.
  */
@@ -100,6 +117,15 @@ export const CHAIN_CATALOG: Record<Chain, ChainMetadata> = {
     nativeCurrency: 'ETH',
     badgeVariant: 'info',
   },
+  // Retired: metadata only, so historical activity can still be labelled.
+  // No explorerUrl — the explorer is offline, a link would 404.
+  [Chain.CORN]: {
+    name: 'Corn',
+    type: 'evm',
+    isTestnet: false,
+    nativeCurrency: 'BTCN',
+    badgeVariant: 'info',
+  },
   [Chain.ETHERLINK]: {
     name: 'Etherlink',
     type: 'evm',
@@ -130,6 +156,14 @@ export const CHAIN_CATALOG: Record<Chain, ChainMetadata> = {
     isTestnet: false,
     explorerUrl: 'https://sonicscan.org',
     nativeCurrency: 'S',
+    badgeVariant: 'info',
+  },
+  // Retired: metadata only. No explorerUrl — the explorer is offline.
+  [Chain.SWELL]: {
+    name: 'Swell',
+    type: 'evm',
+    isTestnet: false,
+    nativeCurrency: 'ETH',
     badgeVariant: 'info',
   },
   [Chain.TAC]: {

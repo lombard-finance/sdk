@@ -1,33 +1,27 @@
 # 5.2.0
 
-### Removed
+### Deprecated
 
-Corn (chain id `21000000`) is retired and has been removed from the SDK. It is gone from the chain registry, the Earn vault, the bridge, and every config that referenced it, so no code path can reach Corn any more.
+Corn (chain id `21000000`) and Swellchain (chain id `1923`) are retired. Neither network produces blocks any more — Swell Network shut its sequencer down at the end of June 2026 — so a transaction routed to either is accepted into the mempool and can never be mined.
 
-The most user-visible effect: `EARN_VAULT.chains` no longer lists Corn, so `getEarnDepositsAllChains` and `getEarnWithdrawalsAllChains` stop fanning out to it. That Corn leg had been returning HTTP 500 from the Seven Seas endpoint on every call (`Failed to fetch deposits for chain 21000000`), so the fan-out now issues 3 requests instead of 4 and no longer logs a per-call error.
+Both are gone from the chain registry, the Earn vault, the bridge, the deploy/stake/withdraw routes and every config that referenced them, so no code path can reach them. Their **identifiers are kept as deprecated aliases** for this release and are removed in the next major:
 
-Removed identifiers:
+- `ChainId.corn`, `ChainId.swell`
+- `Chain.CORN`, `Chain.SWELL`
+- `AssetId.WBTCN` (Corn was its only deployment)
+- `featureConfig.isCornEnabled`, `featureConfig.isSwellchainEnabled` — now no-ops that gate nothing
 
-- `ChainId.corn` and `Chain.CORN`
-- `AssetId.WBTCN` and its asset-catalog entry (Corn was its only deployment)
-- `featureConfig.isCornEnabled`
+Referencing these identifiers still compiles, so upgrading from 5.1.x does not break a build. Using one as a live chain does not: the retired ids are excluded from the `ChainId` type (via the new `RetiredChainId` type), so passing `ChainId.corn` to an SDK function is a type error instead of a runtime failure against a dead network.
+
+What was actually removed for both chains: the RPC endpoints, the viem chain mappings, the LBTC and OFT adapter addresses, the asset-catalog deployments, the `ethereum <-> corn` and `ethereum <-> swell` OFT bridge routes and their LayerZero endpoint ids (`30335` for Swellchain), Corn's Veda deploy/stake/withdraw routes and Earn network mappings, the DefiLlama chain-name mappings and the prod-env classification.
+
+The most user-visible behavioural effect: `EARN_VAULT.chains` no longer lists Corn, so `getEarnDepositsAllChains` and `getEarnWithdrawalsAllChains` stop fanning out to it. That Corn leg had been returning HTTP 500 from the Seven Seas endpoint on every call (`Failed to fetch deposits for chain 21000000`), so the fan-out now issues 3 requests instead of 4 and no longer logs a per-call error. Historical Corn positions are no longer reachable through these aggregates.
 
 `Token.wBTCN` is intentionally **kept** so existing clients can still label historical Veda vault transactions; only its Corn address entry was dropped.
 
-Also removed: the Corn chain-catalog entry (name/explorer/native currency), its RPC endpoint, its LBTC and OFT adapter addresses, the `ethereum <-> corn` OFT bridge routes and LayerZero endpoint id, its Veda deploy/stake/withdraw routes, and its Earn network mappings.
+### Added
 
-Consumers referencing `ChainId.corn`, `Chain.CORN` or `AssetId.WBTCN` must drop those references.
-
-Swellchain (chain id `1923`) is likewise removed. Swell Network shut the chain down permanently (the sequencer stopped at the end of June 2026 and the chain no longer produces blocks), so any transaction routed there is accepted into the mempool but can never be mined.
-
-Removed identifiers:
-
-- `ChainId.swell` and `Chain.SWELL`
-- `featureConfig.isSwellchainEnabled`
-
-Also removed: the Swellchain chain-catalog entry (name/explorer/native currency), its viem chain mapping, its LBTC token address and asset-catalog deployment, the `ethereum <-> swell` OFT bridge routes and LayerZero endpoint id (`30335`), its DefiLlama chain-name mapping, and its prod-env classification entry.
-
-Consumers referencing `ChainId.swell` or `Chain.SWELL` must drop those references. No other public API changed.
+- `RETIRED_CHAINS` and `isRetiredChain(chain)` identify chains that no longer produce blocks. Retired chains keep their `CHAIN_CATALOG` entry so historical activity can still be labelled, but carry no `explorerUrl` (both explorers are offline) and are excluded from `getMainnetChains`, `getTestnetChains` and `getChainsByType`.
 
 ### Changed
 

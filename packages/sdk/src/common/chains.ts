@@ -260,6 +260,12 @@ export const ChainId = {
   base: 8453,
   berachain: 80094,
   binanceSmartChain: 56,
+  /**
+   * @deprecated Corn is retired and produces no blocks. Nothing in the SDK
+   * routes to it: no RPC, no viem chain, no token addresses, no bridge lanes.
+   * Kept only so existing code keeps compiling; removed in the next major.
+   */
+  corn: 21000000,
   etherlink: 42793,
   katana: 747474,
   megaeth: 4326,
@@ -267,6 +273,13 @@ export const ChainId = {
   morph: 2818,
   sonic: 146,
   stable: 988,
+  /**
+   * @deprecated Swellchain is retired and produces no blocks. Nothing in the
+   * SDK routes to it: no RPC, no viem chain, no token addresses, no bridge
+   * lanes. Kept only so existing code keeps compiling; removed in the next
+   * major.
+   */
+  swell: 1923,
   tac: 239,
   bob: 60808,
   // Testnets:
@@ -280,7 +293,22 @@ export const ChainId = {
   sonicBlazeTestnet: 57054,
 } as const;
 
-export type ChainId = (typeof ChainId)[keyof typeof ChainId];
+/**
+ * Chain ids of retired networks.
+ *
+ * The constants stay on {@link ChainId} so existing references keep compiling,
+ * but they are excluded from the `ChainId` type: nothing in the SDK can route
+ * to a chain that produces no blocks, so passing one where a live chain is
+ * expected is a type error rather than a runtime failure.
+ *
+ * @deprecated Removed together with the constants in the next major.
+ */
+export type RetiredChainId = typeof ChainId.corn | typeof ChainId.swell;
+
+export type ChainId = Exclude<
+  (typeof ChainId)[keyof typeof ChainId],
+  RetiredChainId
+>;
 
 export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.ethereum]: mainnet,
