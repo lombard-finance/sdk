@@ -7,7 +7,7 @@
  */
 
 import type { Env, SuiService } from '@lombard.finance/sdk-common';
-import type { SuiClient } from '@mysten/sui/client';
+import type { SuiGrpcClient } from '@mysten/sui/grpc';
 import type {
   SuiChain,
   SuiSignPersonalMessageFeature,
@@ -18,13 +18,13 @@ import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
 import type {
-  ISuiNetworkRpcOptions,
+  ISuiNetworkGrpcOptions,
   SuiNetwork,
-} from '../utils/createSuiClient';
+} from '../utils/createSuiGrpcClient';
 import {
-  createSuiClient,
-  resolveSuiRpcOptions,
-} from '../utils/createSuiClient';
+  createSuiGrpcClient,
+  resolveSuiGrpcOptions,
+} from '../utils/createSuiGrpcClient';
 import { signLbtcDestinationAddrSui } from '../web3Sdk/signLbtcDestionationAddrSui';
 import { unstakeLBTC } from '../web3Sdk/unstakeLBTC/unstakeLBTC';
 
@@ -71,22 +71,22 @@ export class SuiServiceImpl implements SuiService {
    * call would throw that away, paying the full timeout of a dead head endpoint
    * on every operation.
    */
-  private readonly clients = new Map<SuiNetwork, SuiClient>();
+  private readonly clients = new Map<SuiNetwork, SuiGrpcClient>();
 
   constructor(
     private readonly getProvider: ProviderResolver,
-    private readonly options: ISuiNetworkRpcOptions = {},
+    private readonly options: ISuiNetworkGrpcOptions = {},
   ) {}
 
-  private getClient(network: SuiNetwork): SuiClient {
+  private getClient(network: SuiNetwork): SuiGrpcClient {
     const existing = this.clients.get(network);
     if (existing) {
       return existing;
     }
 
-    const client = createSuiClient(
+    const client = createSuiGrpcClient(
       network,
-      resolveSuiRpcOptions(network, this.options),
+      resolveSuiGrpcOptions(network, this.options),
     );
     this.clients.set(network, client);
 

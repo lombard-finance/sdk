@@ -1,19 +1,22 @@
 import { DEFAULT_ENV, Env, getOutputScript } from '@lombard.finance/sdk-common';
-import type { SuiTransactionBlockResponse } from '@mysten/sui/client';
-import { SuiClient } from '@mysten/sui/client';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { SuiChain, SuiSignTransactionFeature } from '@mysten/wallet-standard';
 import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
 import { getConfig } from '../../const';
+import {
+  executeSignedTransaction,
+  type ISuiExecutedTransaction,
+} from '../../utils/executeSignedTransaction';
 import { prepareCoinsTransaction } from '../prepareAmount';
 
 interface IUnstakeLBTCParams {
   chainId: SuiChain;
   wallet: WalletWithFeatures<SuiSignTransactionFeature>;
   walletAccount: WalletAccount;
-  client: SuiClient;
+  client: SuiGrpcClient;
   btcAddress: string;
   amount: BigNumber;
   env?: Env;
@@ -54,7 +57,7 @@ export async function unstakeLBTC({
   btcAddress,
   amount,
   env = DEFAULT_ENV,
-}: IUnstakeLBTCParams): Promise<SuiTransactionBlockResponse> {
+}: IUnstakeLBTCParams): Promise<ISuiExecutedTransaction> {
   const config = getConfig(env);
 
   // Cast to any to access both V1 and V2 features
@@ -103,10 +106,7 @@ export async function unstakeLBTC({
       account: walletAccount,
     });
 
-    return client.executeTransactionBlock({
-      transactionBlock: signedTransaction.bytes,
-      signature: signedTransaction.signature,
-    });
+    return executeSignedTransaction(client, signedTransaction);
   }
 
   // Check if V1 is available
@@ -127,8 +127,8 @@ export async function unstakeLBTC({
     account: walletAccount,
   });
 
-  return client.executeTransactionBlock({
-    transactionBlock: signedTransaction.transactionBlockBytes,
+  return executeSignedTransaction(client, {
+    bytes: signedTransaction.transactionBlockBytes,
     signature: signedTransaction.signature,
   });
 }

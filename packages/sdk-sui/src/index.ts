@@ -1,5 +1,6 @@
 export * from './const';
-export * from './utils/createSuiClient';
+export * from './utils/createSuiGrpcClient';
+export * from './utils/executeSignedTransaction';
 export * from './web3Sdk/claimLBTC';
 export * from './web3Sdk/getBalance';
 export * from './web3Sdk/getBasculeDepositStatus';
