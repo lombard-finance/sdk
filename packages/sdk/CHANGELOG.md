@@ -1,3 +1,29 @@
+# 6.0.0
+
+Everything in the BTC action consolidation and the action-vocabulary unification
+ships in this one major. There is no intermediate 5.x or 6.x release — consumers
+migrate once.
+
+### Breaking
+
+- The nine per-operation event vocabularies are now one. `shared/events.ts` declared the same five events nine times over — `StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`, `WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent`, `DepositAndDeployEvent` — as nine const objects and nine handler-map interfaces with byte-identical members. They collapse to a single `ActionEvent` / `ActionEventMap`.
+
+  **Wire values are unchanged**, so `action.on('progress', ...)`, `'status-change'`, `'completed'`, `'failed'` and `'error'` behave exactly as before. All nine old names remain as deprecated aliases pointing at the same object, so `StakeEvent === ActionEvent` holds and `StakeEvent.Progress` still resolves. `StrategyEventMap` and `StrategyEvent` were nine-member unions of structurally identical types — which made each equivalent to any single member — and are now that single type. Dropping the aliases is deferred to the next major.
+
+### Added
+
+- `ActionEvent` and `ActionEventMap` are exported from the package root and from `@lombard.finance/sdk/core`, alongside `StrategyEventHandlerMap` — which `ActionEventMap` must extend and which consumers extending the map need to reference. `WithdrawEvent` and `WithdrawEventMap` are exported for the first time; they were declared but reachable from no entry point, even though `evm.withdraw()` is public.
+- `sdk.chain.btc.stakeAndDeploy()` now rejects an `assetIn` other than `AssetId.BTC` at construction. `assetIn` selects the `DEFI_REGISTRY` entry and therefore the amount-conversion strategy; because `AssetId.LBTC` and `Token.LBTC` are the same string, passing `AssetId.LBTC` silently selected `identity` and authorized the **raw satoshi amount** instead of the ratio-adjusted LBTC amount. Only native BTC is a valid source for this action, so any other value is now an `INVALID_ASSET` error rather than a signature over the wrong figure.
+- `@lombard.finance/sdk/evm` now exports the withdraw and cancel-withdraw types — `IEvmWithdraw`, `IEvmCancelWithdraw`, `EvmWithdrawParams`, `EvmWithdrawPrepareParams`, `EvmWithdrawProgress`, `EvmWithdrawStatus`. They were exported from the package root but never from the `./evm` subpath, so a consumer importing from `@lombard.finance/sdk/evm` could not reach any of them even though `evm.withdraw()` is public.
+
+### Fixed
+
+- `sdk.chain.btc.stakeAndDeploy()` no longer throws `INVALID_STATE` on the documented call sequence when a deposit is resumed. `prepare()` can legitimately finish in `ADDRESS_READY` — a returning user whose deposit address and vault signature already exist server-side — but `authorizeDeposit()` rejected that status, and `generateDepositAddress()` asserted `READY` *before* checking whether it already held an address. Both now accept the resumed state: `authorizeDeposit()` is a no-op (authorization is already complete) and `generateDepositAddress()` returns the held address without a further API call. Callers that guarded on `depositAddress` and returned early were unaffected; callers following the sequence in the SDK's own documentation were not.
+- The same resume path no longer marks itself authorized when the server returns signature *metadata* without the signature itself. `restoreStakeAndBakeSignature()` intentionally reports `hasSignature: true` when only an expiry is available, which meant `generateDepositAddress()` could post `signature: undefined` to the deposit-address endpoint. A stored signature now requires the signature string to be present; otherwise the action falls through to re-authorization. Note the endpoint does not return `typedData`, so `signatureData` remains absent on this path — unchanged, and accepted by the API.
+- BTC actions that omit the optional `sourceChain` now monitor the Bitcoin network matching their environment. `bitcoinNetwork` read the raw parameter, so a production caller who left `sourceChain` unset monitored the Bitcoin **testnet** and waited for confirmations that could never arrive. Source chain is now resolved once (prod → mainnet, every other environment → signet) and validation, monitoring and deposit lookup all read that single value.
+
+---
+
 # 5.2.0
 
 ### Deprecated
@@ -22,17 +48,6 @@ The most user-visible behavioural effect: `EARN_VAULT.chains` no longer lists Co
 ### Added
 
 - `RETIRED_CHAINS` and `isRetiredChain(chain)` identify chains that no longer produce blocks. Retired chains keep their `CHAIN_CATALOG` entry so historical activity can still be labelled, but carry no `explorerUrl` (both explorers are offline) and are excluded from `getMainnetChains`, `getTestnetChains` and `getChainsByType`.
-
-### Fixed
-
-- `sdk.chain.btc.stakeAndDeploy()` no longer throws `INVALID_STATE` on the documented call sequence when a deposit is resumed. `prepare()` can legitimately finish in `ADDRESS_READY` — a returning user whose deposit address and vault signature already exist server-side — but `authorizeDeposit()` rejected that status, and `generateDepositAddress()` asserted `READY` *before* checking whether it already held an address. Both now accept the resumed state: `authorizeDeposit()` is a no-op (authorization is already complete) and `generateDepositAddress()` returns the held address without a further API call. Callers that guarded on `depositAddress` and returned early were unaffected; callers following the sequence in the SDK's own documentation were not.
-- The same resume path no longer marks itself authorized when the server returns signature *metadata* without the signature itself. `restoreStakeAndBakeSignature()` intentionally reports `hasSignature: true` when only an expiry is available, which meant `generateDepositAddress()` could post `signature: undefined` to the deposit-address endpoint. A stored signature now requires the signature string to be present; otherwise the action falls through to re-authorization. Note the endpoint does not return `typedData`, so `signatureData` remains absent on this path — unchanged, and accepted by the API.
-- BTC actions that omit the optional `sourceChain` now monitor the Bitcoin network matching their environment. `bitcoinNetwork` read the raw parameter, so a production caller who left `sourceChain` unset monitored the Bitcoin **testnet** and waited for confirmations that could never arrive. Source chain is now resolved once (prod → mainnet, every other environment → signet) and validation, monitoring and deposit lookup all read that single value.
-
-### Added
-
-- `sdk.chain.btc.stakeAndDeploy()` now rejects an `assetIn` other than `AssetId.BTC` at construction. `assetIn` selects the `DEFI_REGISTRY` entry and therefore the amount-conversion strategy; because `AssetId.LBTC` and `Token.LBTC` are the same string, passing `AssetId.LBTC` silently selected `identity` and authorized the **raw satoshi amount** instead of the ratio-adjusted LBTC amount. Only native BTC is a valid source for this action, so any other value is now an `INVALID_ASSET` error rather than a signature over the wrong figure.
-- `@lombard.finance/sdk/evm` now exports the withdraw and cancel-withdraw types — `IEvmWithdraw`, `IEvmCancelWithdraw`, `EvmWithdrawParams`, `EvmWithdrawPrepareParams`, `EvmWithdrawProgress`, `EvmWithdrawStatus`. They were exported from the package root but never from the `./evm` subpath, so a consumer importing from `@lombard.finance/sdk/evm` could not reach any of them even though `evm.withdraw()` is public.
 
 ### Changed
 

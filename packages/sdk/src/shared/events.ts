@@ -1,26 +1,39 @@
 /**
- * Event definitions for all strategy types
+ * Event definitions for all actions
  *
- * This module defines strongly-typed events that strategies emit
- * during their execution lifecycle.
+ * Every action emits the same five events with the same wire values. This module
+ * used to declare that set nine times — once per operation — as nine const
+ * objects and nine handler-map interfaces with byte-identical members. They are
+ * now one `ActionEvent` / `ActionEventMap`, with the nine former names kept as
+ * deprecated aliases.
+ *
+ * The collapse is wire-compatible by construction: the string values are
+ * unchanged, so `action.on('progress', ...)` behaves exactly as before.
  */
 
 import type { StrategyProgress } from '../core/types';
 import type { LombardError } from './errors';
 
+/**
+ * Base constraint for event handler maps.
+ *
+ * Exported because `ActionEventMap` must satisfy it and consumers extending the
+ * map need to reference it.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Event emitter requires bivariant `any` for type-safe event handler signatures
-type StrategyEventHandlerMap = Record<string, (...args: any[]) => void>;
+export type StrategyEventHandlerMap = Record<string, (...args: any[]) => void>;
 
 /**
- * Stake operation events
+ * The events every action emits.
  *
- * Emitted by all stake strategies (BTC → LBTC, etc.)
+ * Wire values are frozen. Changing one is a breaking change for every consumer
+ * that subscribes by string.
  */
-export const StakeEvent = {
+export const ActionEvent = {
   /** Progress update with detailed step information */
   Progress: 'progress',
 
-  /** Status change (e.g., 'idle' → 'preparing' → 'ready') */
+  /** Status change (e.g., 'idle' → 'ready' → 'completed') */
   StatusChange: 'status-change',
 
   /** Operation completed successfully */
@@ -33,256 +46,102 @@ export const StakeEvent = {
   Error: 'error',
 } as const;
 
-export type StakeEvent = (typeof StakeEvent)[keyof typeof StakeEvent];
+export type ActionEvent = (typeof ActionEvent)[keyof typeof ActionEvent];
 
 /**
- * Deposit operation events
+ * Handler signatures for {@link ActionEvent}.
  *
- * Emitted by all deposit strategies (EVM, etc.)
+ * Must keep `extends StrategyEventHandlerMap`: that index signature is the only
+ * reason the map satisfies `BaseAction`'s generic constraint, and dropping it
+ * breaks every action class at once.
  */
-export const DepositEvent = {
-  Progress: 'progress',
-  StatusChange: 'status-change',
-  Completed: 'completed',
-  Failed: 'failed',
-  Error: 'error',
-} as const;
+export interface ActionEventMap extends StrategyEventHandlerMap {
+  [ActionEvent.Progress]: (progress: StrategyProgress<string>) => void;
+  [ActionEvent.StatusChange]: (status: string) => void;
+  [ActionEvent.Completed]: () => void;
+  [ActionEvent.Failed]: () => void;
+  [ActionEvent.Error]: (error: LombardError) => void;
+}
 
-export type DepositEvent = (typeof DepositEvent)[keyof typeof DepositEvent];
+// ═══════════════════════════════════════════════════════════════════════════
+// Deprecated per-operation aliases
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// These were nine separate declarations with identical members. They are value
+// re-exports rather than `export type`, because each name was both a const and a
+// type; a type-only alias would delete the runtime object.
+
+/** @deprecated Use {@link ActionEvent}. */
+export const StakeEvent = ActionEvent;
+/** @deprecated Use {@link ActionEvent}. */
+export type StakeEvent = ActionEvent;
+
+/** @deprecated Use {@link ActionEvent}. */
+export const DepositEvent = ActionEvent;
+/** @deprecated Use {@link ActionEvent}. */
+export type DepositEvent = ActionEvent;
+
+/** @deprecated Use {@link ActionEvent}. */
+export const RedeemEvent = ActionEvent;
+/** @deprecated Use {@link ActionEvent}. */
+export type RedeemEvent = ActionEvent;
+
+/** @deprecated Use {@link ActionEvent}. */
+export const UnstakeEvent = ActionEvent;
+/** @deprecated Use {@link ActionEvent}. */
+export type UnstakeEvent = ActionEvent;
+
+/** @deprecated Use {@link ActionEvent}. */
+export const DeployEvent = ActionEvent;
+/** @deprecated Use {@link ActionEvent}. */
+export type DeployEvent = ActionEvent;
+
+/** @deprecated Use {@link ActionEvent}. */
+export const WithdrawEvent = ActionEvent;
+/** @deprecated Use {@link ActionEvent}. */
+export type WithdrawEvent = ActionEvent;
+
+/** @deprecated Use {@link ActionEvent}. */
+export const BridgeEvent = ActionEvent;
+/** @deprecated Use {@link ActionEvent}. */
+export type BridgeEvent = ActionEvent;
+
+/** @deprecated Use {@link ActionEvent}. */
+export const StakeAndDeployEvent = ActionEvent;
+/** @deprecated Use {@link ActionEvent}. */
+export type StakeAndDeployEvent = ActionEvent;
+
+/** @deprecated Use {@link ActionEvent}. */
+export const DepositAndDeployEvent = ActionEvent;
+/** @deprecated Use {@link ActionEvent}. */
+export type DepositAndDeployEvent = ActionEvent;
+
+/** @deprecated Use {@link ActionEventMap}. */
+export type StakeEventMap = ActionEventMap;
+/** @deprecated Use {@link ActionEventMap}. */
+export type DepositEventMap = ActionEventMap;
+/** @deprecated Use {@link ActionEventMap}. */
+export type RedeemEventMap = ActionEventMap;
+/** @deprecated Use {@link ActionEventMap}. */
+export type UnstakeEventMap = ActionEventMap;
+/** @deprecated Use {@link ActionEventMap}. */
+export type DeployEventMap = ActionEventMap;
+/** @deprecated Use {@link ActionEventMap}. */
+export type WithdrawEventMap = ActionEventMap;
+/** @deprecated Use {@link ActionEventMap}. */
+export type BridgeEventMap = ActionEventMap;
+/** @deprecated Use {@link ActionEventMap}. */
+export type StakeAndDeployEventMap = ActionEventMap;
+/** @deprecated Use {@link ActionEventMap}. */
+export type DepositAndDeployEventMap = ActionEventMap;
 
 /**
- * Redeem operation events
+ * Generic event map for any action.
  *
- * Emitted by all redeem strategies (cross-chain asset redemptions)
+ * Formerly a nine-member union of structurally identical interfaces, which made
+ * it equivalent to any one of them. Now the single map.
  */
-export const RedeemEvent = {
-  Progress: 'progress',
-  StatusChange: 'status-change',
-  Completed: 'completed',
-  Failed: 'failed',
-  Error: 'error',
-} as const;
+export type StrategyEventMap = ActionEventMap;
 
-export type RedeemEvent = (typeof RedeemEvent)[keyof typeof RedeemEvent];
-
-/**
- * Unstake operation events
- *
- * Emitted by all unstake strategies (LBTC → BTC or BTC.b)
- */
-export const UnstakeEvent = {
-  Progress: 'progress',
-  StatusChange: 'status-change',
-  Completed: 'completed',
-  Failed: 'failed',
-  Error: 'error',
-} as const;
-
-export type UnstakeEvent = (typeof UnstakeEvent)[keyof typeof UnstakeEvent];
-
-/**
- * Deploy operation events
- *
- * Emitted by deploy strategies (deploying L-Assets to DeFi protocols)
- */
-export const DeployEvent = {
-  Progress: 'progress',
-  StatusChange: 'status-change',
-  Completed: 'completed',
-  Failed: 'failed',
-  Error: 'error',
-} as const;
-
-export type DeployEvent = (typeof DeployEvent)[keyof typeof DeployEvent];
-
-/**
- * Withdraw operation events
- *
- * Emitted by withdraw strategies (withdrawing vault shares from DeFi protocols)
- */
-export const WithdrawEvent = {
-  Progress: 'progress',
-  StatusChange: 'status-change',
-  Completed: 'completed',
-  Failed: 'failed',
-  Error: 'error',
-} as const;
-
-export type WithdrawEvent = (typeof WithdrawEvent)[keyof typeof WithdrawEvent];
-
-/**
- * Bridge operation events
- *
- * Emitted by bridge strategies (cross-chain L-Asset transfers)
- */
-export const BridgeEvent = {
-  Progress: 'progress',
-  StatusChange: 'status-change',
-  Completed: 'completed',
-  Failed: 'failed',
-  Error: 'error',
-} as const;
-
-export type BridgeEvent = (typeof BridgeEvent)[keyof typeof BridgeEvent];
-
-/**
- * StakeAndDeploy operation events ("Stake and Bake")
- *
- * Emitted by stake-and-deploy strategies (BTC → LBTC → Vault in one operation)
- */
-export const StakeAndDeployEvent = {
-  Progress: 'progress',
-  StatusChange: 'status-change',
-  Completed: 'completed',
-  Failed: 'failed',
-  Error: 'error',
-} as const;
-
-export type StakeAndDeployEvent =
-  (typeof StakeAndDeployEvent)[keyof typeof StakeAndDeployEvent];
-
-/**
- * DepositAndDeploy operation events
- *
- * Emitted by deposit-and-deploy strategies (BTC → BTC.b → Vault in one operation)
- * Similar to StakeAndDeploy but produces BTC.b instead of LBTC.
- */
-export const DepositAndDeployEvent = {
-  Progress: 'progress',
-  StatusChange: 'status-change',
-  Completed: 'completed',
-  Failed: 'failed',
-  Error: 'error',
-} as const;
-
-export type DepositAndDeployEvent =
-  (typeof DepositAndDeployEvent)[keyof typeof DepositAndDeployEvent];
-
-/**
- * Event handler type mapping for stake operations
- */
-export interface StakeEventMap extends StrategyEventHandlerMap {
-  [StakeEvent.Progress]: (progress: StrategyProgress<string>) => void;
-  [StakeEvent.StatusChange]: (status: string) => void;
-  [StakeEvent.Completed]: () => void;
-  [StakeEvent.Failed]: () => void;
-  [StakeEvent.Error]: (error: LombardError) => void;
-}
-
-/**
- * Event handler type mapping for deposit operations
- */
-export interface DepositEventMap extends StrategyEventHandlerMap {
-  [DepositEvent.Progress]: (progress: StrategyProgress<string>) => void;
-  [DepositEvent.StatusChange]: (status: string) => void;
-  [DepositEvent.Completed]: () => void;
-  [DepositEvent.Failed]: () => void;
-  [DepositEvent.Error]: (error: LombardError) => void;
-}
-
-/**
- * Event handler type mapping for redeem operations
- */
-export interface RedeemEventMap extends StrategyEventHandlerMap {
-  [RedeemEvent.Progress]: (progress: StrategyProgress<string>) => void;
-  [RedeemEvent.StatusChange]: (status: string) => void;
-  [RedeemEvent.Completed]: () => void;
-  [RedeemEvent.Failed]: () => void;
-  [RedeemEvent.Error]: (error: LombardError) => void;
-}
-
-/**
- * Event handler type mapping for unstake operations
- */
-export interface UnstakeEventMap extends StrategyEventHandlerMap {
-  [UnstakeEvent.Progress]: (progress: StrategyProgress<string>) => void;
-  [UnstakeEvent.StatusChange]: (status: string) => void;
-  [UnstakeEvent.Completed]: () => void;
-  [UnstakeEvent.Failed]: () => void;
-  [UnstakeEvent.Error]: (error: LombardError) => void;
-}
-
-/**
- * Event handler type mapping for deploy operations
- */
-export interface DeployEventMap extends StrategyEventHandlerMap {
-  [DeployEvent.Progress]: (progress: StrategyProgress<string>) => void;
-  [DeployEvent.StatusChange]: (status: string) => void;
-  [DeployEvent.Completed]: () => void;
-  [DeployEvent.Failed]: () => void;
-  [DeployEvent.Error]: (error: LombardError) => void;
-}
-
-/**
- * Event handler type mapping for withdraw operations
- */
-export interface WithdrawEventMap extends StrategyEventHandlerMap {
-  [WithdrawEvent.Progress]: (progress: StrategyProgress<string>) => void;
-  [WithdrawEvent.StatusChange]: (status: string) => void;
-  [WithdrawEvent.Completed]: () => void;
-  [WithdrawEvent.Failed]: () => void;
-  [WithdrawEvent.Error]: (error: LombardError) => void;
-}
-
-/**
- * Event handler type mapping for bridge operations
- */
-export interface BridgeEventMap extends StrategyEventHandlerMap {
-  [BridgeEvent.Progress]: (progress: StrategyProgress<string>) => void;
-  [BridgeEvent.StatusChange]: (status: string) => void;
-  [BridgeEvent.Completed]: () => void;
-  [BridgeEvent.Failed]: () => void;
-  [BridgeEvent.Error]: (error: LombardError) => void;
-}
-
-/**
- * Event handler type mapping for stake-and-deploy operations
- */
-export interface StakeAndDeployEventMap extends StrategyEventHandlerMap {
-  [StakeAndDeployEvent.Progress]: (progress: StrategyProgress<string>) => void;
-  [StakeAndDeployEvent.StatusChange]: (status: string) => void;
-  [StakeAndDeployEvent.Completed]: () => void;
-  [StakeAndDeployEvent.Failed]: () => void;
-  [StakeAndDeployEvent.Error]: (error: LombardError) => void;
-}
-
-/**
- * Event handler type mapping for deposit-and-deploy operations
- */
-export interface DepositAndDeployEventMap extends StrategyEventHandlerMap {
-  [DepositAndDeployEvent.Progress]: (
-    progress: StrategyProgress<string>,
-  ) => void;
-  [DepositAndDeployEvent.StatusChange]: (status: string) => void;
-  [DepositAndDeployEvent.Completed]: () => void;
-  [DepositAndDeployEvent.Failed]: () => void;
-  [DepositAndDeployEvent.Error]: (error: LombardError) => void;
-}
-
-/**
- * Generic event map type for any strategy
- */
-export type StrategyEventMap =
-  | StakeEventMap
-  | DepositEventMap
-  | RedeemEventMap
-  | UnstakeEventMap
-  | DeployEventMap
-  | WithdrawEventMap
-  | BridgeEventMap
-  | StakeAndDeployEventMap
-  | DepositAndDeployEventMap;
-
-/**
- * Generic event type for any strategy
- */
-export type StrategyEvent =
-  | StakeEvent
-  | DepositEvent
-  | RedeemEvent
-  | UnstakeEvent
-  | DeployEvent
-  | WithdrawEvent
-  | BridgeEvent
-  | StakeAndDeployEvent
-  | DepositAndDeployEvent;
+/** Generic event type for any action. Formerly a nine-member union. */
+export type StrategyEvent = ActionEvent;

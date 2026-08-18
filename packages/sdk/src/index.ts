@@ -178,22 +178,27 @@ export {
 
 // Event types
 export type {
+  ActionEventMap,
   BridgeEventMap,
   DeployEventMap,
   DepositEventMap,
   RedeemEventMap,
   StakeEventMap,
   StrategyEvent,
+  StrategyEventHandlerMap,
   StrategyEventMap,
   UnstakeEventMap,
+  WithdrawEventMap,
 } from './shared/events';
 export {
+  ActionEvent,
   BridgeEvent,
   DeployEvent,
   DepositEvent,
   RedeemEvent,
   StakeEvent,
   UnstakeEvent,
+  WithdrawEvent,
 } from './shared/events';
 
 // Error handling
