@@ -12,6 +12,8 @@
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 
+import { isSuiGrpcReadPath } from './isSuiGrpcReadPath';
+
 /** Sui networks a client can be created for. */
 export type SuiNetwork = 'mainnet' | 'testnet' | 'devnet' | 'localnet';
 
@@ -42,11 +44,13 @@ const DEFAULT_GRPC_URLS: Record<SuiNetwork, string[]> = {
  * answers `403` with `error code: 1010` for clients it dislikes, and a whole
  * datacenter range can fall into that at any time.
  *
- * 404 and 405 are how a node that dropped gRPC-Web answers: the HTTP server is
- * up but nothing serves the `/package.Service/Method` route. That is this
- * transport's version of the JSON-RPC `-32601` outage.
+ * 404, 405 and 501 are how a node that dropped gRPC-Web answers: the HTTP
+ * server is up but nothing serves the `/package.Service/Method` route. That is
+ * this transport's version of the JSON-RPC `-32601` outage.
  */
-const RETRYABLE_STATUSES = [403, 404, 405, 408, 425, 429, 500, 502, 503, 504];
+const RETRYABLE_STATUSES = [
+  403, 404, 405, 408, 425, 429, 500, 501, 502, 503, 504,
+];
 
 /**
  * Per-endpoint budget. Without it a node that accepts the connection and then
@@ -274,26 +278,30 @@ function getUnhealthyReason({ status, headers }: GrpcAttempt): string | null {
 }
 
 /**
- * Whether a transaction submit may be handed to another node. Only
- * `UNIMPLEMENTED` qualifies: the node did not know the method, so nothing was
- * executed. A 5xx or a timeout leaves it open whether the transaction was
- * taken.
+ * HTTP statuses that prove the node never routed the request to a handler, so
+ * nothing can have been executed: the path is not served (404), the verb is not
+ * accepted on it (405), or the server says outright that it does not implement
+ * it (501). Those are the same guarantee `UNIMPLEMENTED` gives.
+ *
+ * A node that stopped serving gRPC-Web answers exactly this way and carries no
+ * `grpc-status` header at all, so it is the shape the failover exists for. 403
+ * is deliberately absent: a proxy answers it for a request it did forward
+ * often enough that it is not proof of anything.
  */
-function canRetrySubmit({ headers }: GrpcAttempt): boolean {
-  return getGrpcStatus(headers) === GRPC_UNIMPLEMENTED;
-}
+const NOT_SERVED_STATUSES = [404, 405, 501];
 
 /**
- * The method that changes state, and so must not be re-sent to another node.
- * gRPC puts the method in the request path, `/<package>.<Service>/<Method>`,
- * so unlike JSON-RPC there is no header to consult.
- *
- * Sui dedupes by transaction digest, so a resend is usually harmless, but the
- * harmful case is real: a node that took the transaction and then failed to
- * answer in time would have the next node's rejection reported for a
- * transaction that actually landed.
+ * Whether a transaction submit may be handed to another node. Only an answer
+ * that proves the request was never routed qualifies: `UNIMPLEMENTED`, or an
+ * HTTP status saying the route does not exist. A 5xx, a 403 or a timeout leaves
+ * it open whether the transaction was taken.
  */
-const EXECUTE_PATH = '/ExecuteTransaction';
+function canRetrySubmit({ status, headers }: GrpcAttempt): boolean {
+  return (
+    NOT_SERVED_STATUSES.includes(status) ||
+    getGrpcStatus(headers) === GRPC_UNIMPLEMENTED
+  );
+}
 
 /**
  * Server-streaming subscriptions cannot be drained up front the way unary
@@ -313,11 +321,13 @@ const STREAMING_PATH = '.SubscriptionService/';
  * the head of the list, so one unhealthy node costs its timeout once instead
  * of on every request.
  *
- * Only reads walk the list freely. A transaction submit moves on solely when
- * the node answered `UNIMPLEMENTED`, which says it never knew the method and
- * so cannot have executed anything. A timeout or a 5xx is not that: the node
- * may have taken the transaction, and the next node's answer would then be
- * reported for one that already landed.
+ * Only reads walk the list freely, and what counts as a read is an allowlist
+ * of paths (see {@link isSuiGrpcReadPath}). A transaction submit moves on
+ * solely when the node proved it never routed the request — `UNIMPLEMENTED`, or
+ * an HTTP status saying the route is not served — and so cannot have executed
+ * anything. A timeout or a 5xx is not that: the node may have taken the
+ * transaction, and the next node's answer would then be reported for one that
+ * already landed.
  */
 function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
   let preferred = 0;
@@ -348,7 +358,7 @@ function createFailoverFetch(urls: string[], timeoutMs: number): typeof fetch {
       return fetch(`${urls[preferred]}${path}`, init);
     }
 
-    const isRead = !path.endsWith(EXECUTE_PATH);
+    const isRead = isSuiGrpcReadPath(path);
     let lastError: unknown;
 
     for (let attempt = 0; attempt < urls.length; attempt += 1) {

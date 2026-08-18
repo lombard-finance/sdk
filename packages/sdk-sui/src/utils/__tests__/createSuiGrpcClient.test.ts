@@ -190,7 +190,7 @@ describe('createSuiGrpcClient', () => {
     expect(fetchMock.mock.calls[1][0]).toBe(`${GRPC_URLS[1]}${READ_PATH}`);
   });
 
-  it.each([403, 404, 429, 500, 502, 503])(
+  it.each([403, 404, 405, 429, 500, 501, 502, 503])(
     'falls back to the next endpoint on HTTP %i',
     async (status) => {
       const fetchMock = vi
@@ -297,8 +297,9 @@ describe('createSuiGrpcClient', () => {
     controller.abort();
 
     await expect(
-      createSuiGrpcClient('mainnet', { grpcUrls: GRPC_URLS })
-        .ledgerService.getServiceInfo({}, { abort: controller.signal })
+      createSuiGrpcClient('mainnet', {
+        grpcUrls: GRPC_URLS,
+      }).ledgerService.getServiceInfo({}, { abort: controller.signal })
         .response,
     ).rejects.toThrow();
 
@@ -314,8 +315,9 @@ describe('createSuiGrpcClient', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(
-      createSuiGrpcClient('mainnet', { grpcUrls: GRPC_URLS })
-        .ledgerService.getServiceInfo({}, { abort: controller.signal })
+      createSuiGrpcClient('mainnet', {
+        grpcUrls: GRPC_URLS,
+      }).ledgerService.getServiceInfo({}, { abort: controller.signal })
         .response,
     ).rejects.toThrow();
 
@@ -420,6 +422,86 @@ describe('createSuiGrpcClient', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[1][0]).toBe(`${GRPC_URLS[1]}${SUBMIT_PATH}`);
+  });
+
+  it.each([404, 405, 501])(
+    'moves a submit to the next node when the route is not served (HTTP %i)',
+    async (status) => {
+      // How a node that dropped gRPC-Web answers: the HTTP server is up and
+      // nothing serves the method path, so nothing was executed. It carries no
+      // grpc-status at all, which is why the status has to count on its own.
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce(unhealthyResponse(status))
+        .mockResolvedValueOnce(grpcWebResponse());
+      vi.stubGlobal('fetch', fetchMock);
+
+      await submitTransaction();
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(fetchMock.mock.calls[1][0]).toBe(`${GRPC_URLS[1]}${SUBMIT_PATH}`);
+    },
+  );
+
+  it('does not re-send a submit a proxy answered with 403', async () => {
+    // A read moves on from a 403, but it is not proof the request was never
+    // routed the way a 404 is: a proxy answers it for requests it did forward.
+    const fetchMock = vi.fn().mockResolvedValue(unhealthyResponse(403));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(submitTransaction()).rejects.toThrow();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('fails over a simulate, which executes nothing', async () => {
+    // SimulateTransaction shares the service with the submit but is a dry run,
+    // so it is retryable like any other read.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(unhealthyResponse(503))
+      .mockResolvedValueOnce(grpcWebResponse());
+    vi.stubGlobal('fetch', fetchMock);
+
+    await createSuiGrpcClient('mainnet', {
+      grpcUrls: GRPC_URLS,
+    }).transactionExecutionService.simulateTransaction({}).response;
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      `${GRPC_URLS[1]}/sui.rpc.v2.TransactionExecutionService/SimulateTransaction`,
+    );
+  });
+
+  it('fails over a state read', async () => {
+    // The coin metadata read the decimals fallback hangs off, on a service of
+    // its own; the allowlist has to cover it or a balance would fail on the
+    // first unhealthy node.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(unhealthyResponse(503))
+      .mockResolvedValueOnce(grpcWebResponse());
+    vi.stubGlobal('fetch', fetchMock);
+
+    await createSuiGrpcClient('mainnet', {
+      grpcUrls: GRPC_URLS,
+    }).stateService.getCoinInfo({ coinType: '0x2::sui::SUI' }).response;
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      `${GRPC_URLS[1]}/sui.rpc.v2.StateService/GetCoinInfo`,
+    );
+  });
+
+  it('submits on the path the read/write split is pinned to', async () => {
+    // The split is by path, so the name in `isSuiGrpcReadPath` and the one the
+    // transport actually uses have to stay the same string.
+    const fetchMock = vi.fn().mockResolvedValue(grpcWebResponse());
+    vi.stubGlobal('fetch', fetchMock);
+
+    await submitTransaction();
+
+    expect(fetchMock.mock.calls[0][0]).toBe(`${GRPC_URLS[0]}${SUBMIT_PATH}`);
   });
 
   it('passes a subscription straight through without failover', async () => {
