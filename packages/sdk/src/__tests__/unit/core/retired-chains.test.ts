@@ -20,6 +20,8 @@ import {
   CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP,
   CHAIN_ID_TO_VIEM_CHAIN_MAP,
   ChainId,
+  isValidChain,
+  RETIRED_CHAIN_IDS,
 } from '../../../common/chains';
 import { featureConfig } from '../../../common/feature-config';
 import { AssetId } from '../../../core/assets/types';
@@ -34,6 +36,7 @@ import {
   getExplorerTxUrl,
   getMainnetChains,
   getTestnetChains,
+  parseChainIdentifier,
 } from '../../../core/chains/utils';
 
 describe('retired chains', () => {
@@ -65,6 +68,36 @@ describe('retired chains', () => {
     it('does not mark a live chain as retired', () => {
       expect(isRetiredChain(Chain.ETHEREUM)).toBe(false);
       expect(isRetiredChain(Chain.BASE)).toBe(false);
+    });
+
+    it('tracks the same two chains by numeric id', () => {
+      expect([...RETIRED_CHAIN_IDS].sort()).toEqual(
+        [ChainId.corn, ChainId.swell].sort(),
+      );
+    });
+  });
+
+  describe('runtime validation', () => {
+    // The retired ids are still in Object.values(ChainId), so the guard has to
+    // exclude them explicitly — otherwise it narrows a dead chain to ChainId.
+    it('rejects retired ids', () => {
+      expect(isValidChain(ChainId.corn)).toBe(false);
+      expect(isValidChain(ChainId.swell)).toBe(false);
+    });
+
+    it('still accepts live ids', () => {
+      expect(isValidChain(ChainId.ethereum)).toBe(true);
+      expect(isValidChain(ChainId.base)).toBe(true);
+    });
+
+    it('refuses to parse a retired chain into a chain id', () => {
+      expect(() => parseChainIdentifier(Chain.CORN)).toThrow(
+        /Invalid EVM chain/,
+      );
+      expect(() => parseChainIdentifier(Chain.SWELL)).toThrow(
+        /Invalid EVM chain/,
+      );
+      expect(parseChainIdentifier(Chain.BASE)).toBe(ChainId.base);
     });
   });
 

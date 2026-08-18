@@ -15,7 +15,7 @@ Referencing these identifiers still compiles, so upgrading from 5.1.x does not b
 
 What was actually removed for both chains: the RPC endpoints, the viem chain mappings, the LBTC and OFT adapter addresses, the asset-catalog deployments, the `ethereum <-> corn` and `ethereum <-> swell` OFT bridge routes and their LayerZero endpoint ids (`30335` for Swellchain), Corn's Veda deploy/stake/withdraw routes and Earn network mappings, the DefiLlama chain-name mappings and the prod-env classification.
 
-The most user-visible behavioural effect: `EARN_VAULT.chains` no longer lists Corn, so `getEarnDepositsAllChains` and `getEarnWithdrawalsAllChains` stop fanning out to it. That Corn leg had been returning HTTP 500 from the Seven Seas endpoint on every call (`Failed to fetch deposits for chain 21000000`), so the fan-out now issues 3 requests instead of 4 and no longer logs a per-call error. Historical Corn positions are no longer reachable through these aggregates.
+The most user-visible behavioural effect: `EARN_VAULT.chains` no longer lists Corn, so `getEarnDepositsAllChains` and `getEarnWithdrawalsAllChains` stop fanning out to it. That Corn leg had been failing with HTTP 500 on every call (`Failed to fetch deposits for chain 21000000`), so the fan-out now issues 3 requests instead of 4 and no longer logs a per-call error. Historical Corn positions are no longer reachable through these aggregates.
 
 `Token.wBTCN` is intentionally **kept** so existing clients can still label historical Veda vault transactions; only its Corn address entry was dropped.
 
@@ -25,7 +25,7 @@ The most user-visible behavioural effect: `EARN_VAULT.chains` no longer lists Co
 
 ### Changed
 
-- Stable mainnet (chain 988) now uses the public RPC endpoint `https://rpc.stable.xyz` in both `chains.ts` and `rpc-url-config.ts`, replacing the partner-scoped endpoint that was hardcoded while the network was still coming up. The public endpoint is rate limited to 1000 requests per 10 seconds per IP; consumers needing more throughput should pass their own transport.
+- Stable mainnet (chain 988) now uses the public RPC endpoint `https://rpc.stable.xyz` in both `chains.ts` and `rpc-url-config.ts`, replacing the endpoint that was hardcoded while the network was still coming up. The public endpoint is rate limited to 1000 requests per 10 seconds per IP; consumers needing more throughput should pass their own transport.
 
 ---
 

@@ -362,7 +362,7 @@ export class EvmWithdraw
 
         txHash = result.queueTxHash;
       } else {
-        // Without the BTCe wrapper, deposit directly into the LBTCv queue.
+        // Without the BTCe wrapper, queue the withdrawal directly from LBTCv.
         // Approval was already done in approve(), so pass approve: false.
         txHash = await queueWithdrawInternal({
           amount: this._amount,

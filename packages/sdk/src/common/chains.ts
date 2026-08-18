@@ -310,6 +310,20 @@ export type ChainId = Exclude<
   RetiredChainId
 >;
 
+/**
+ * Runtime counterpart of {@link RetiredChainId}.
+ *
+ * `Object.values(ChainId)` still contains the retired ids, so every runtime
+ * check has to exclude them explicitly or it would hand a dead chain to code
+ * that expects a live one.
+ *
+ * @deprecated Removed together with the retired constants in the next major.
+ */
+export const RETIRED_CHAIN_IDS: ReadonlySet<number> = new Set<number>([
+  ChainId.corn,
+  ChainId.swell,
+]);
+
 export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.ethereum]: mainnet,
   // Avalanche mainnet - BTC.b not released yet
@@ -396,7 +410,10 @@ type LlamaChain =
   (typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP)[keyof typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP];
 
 export function isValidChain(chainId: unknown): chainId is ChainId {
-  return Object.values(ChainId).includes(chainId as ChainId);
+  return (
+    Object.values(ChainId).some((id) => id === chainId) &&
+    !RETIRED_CHAIN_IDS.has(chainId as number)
+  );
 }
 
 export type AddChainParameters = {
