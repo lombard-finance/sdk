@@ -147,6 +147,7 @@ export class EvmStake
           spender: adapterInfo.address,
           chainId,
           env: this.ctx.env,
+          rpcUrl: this.ctx.rpcUrls?.[chainId],
         });
 
         const requiredAmount = new BigNumber(validated.amount);

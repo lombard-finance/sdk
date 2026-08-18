@@ -9,7 +9,7 @@
 
 ### Added
 
-- **`rpcUrls` option on `createLombardSDK()` / `createConfig()`.** Partial per-chain RPC URL map keyed by `ChainId`; any chain not listed falls back to the public default. The SDK threads this through `CoreContext` so EVM actions (`stake`, `deploy`, `withdraw`, `deposit`, `unstake`, `redeem`) and the fee-auth helpers (`checkFeeAuthorization`, `authorizeFee` → `getMintingFee`, `signNetworkFee`) read the configured RPC for the active chain. Example:
+- **`rpcUrls` option on `createLombardSDK()` / `createConfig()`.** Partial per-chain RPC URL map keyed by `ChainId`; any chain not listed falls back to the public default. The SDK threads this through `CoreContext` so EVM actions (`stake`, `deploy`, `withdraw`, `cancelWithdraw`, `deposit`, `unstake`, `redeem`) and the fee-auth helpers (`checkFeeAuthorization`, `authorizeFee` → `getMintingFee`, `signNetworkFee`) read the configured RPC for the active chain. Example:
 
   ```ts
   const sdk = await createLombardSDK({
@@ -22,7 +22,16 @@
   });
   ```
 
+- `rpcUrl` parameter on `getTokenContractInfo()`. The helper resolves the LBTC and BTCK ABI by probing the contract on-chain (`isUpgradedContract`), which previously always used the default endpoint. `getTokenInfo()` now forwards the `rpcUrl` it already accepted.
 - Online integration test (`src/__tests__/integration/rpc-urls.integration.test.ts`, gated by `ENABLE_ONLINE_INTEGRATION=true`) that pings every default RPC via `eth_chainId` and asserts the reply matches the map key — keeps the public defaults honest.
+- Unit coverage for the `rpcUrls` chain (`src/__tests__/unit/config/RpcUrls.test.ts`, `src/__tests__/unit/evm/EvmRpcUrls.test.ts`): config normalization, both core contexts, the module register context, `EvmService` reads, `makePublicClient` precedence, and the action call sites that forward the URL by hand.
+
+### Fixed
+
+- Reads that reach a public client through a helper rather than through `makePublicClient` directly no longer ignore the configured `rpcUrls`. Every one of these took an optional `rpcUrl` that was never supplied, so the read silently fell back to the public default:
+  - `EvmStake.prepare()` — the BTC.b allowance read on Avalanche (`getTokenAllowance`).
+  - `EvmCancelWithdraw.execute()` — the vault cancel (`cancelWithdrawInternal`).
+  - `checkFeeAuthorization()` and `authorizeFee()` — the token/ABI lookup (`getTokenContractInfo`).
 
 ---
 

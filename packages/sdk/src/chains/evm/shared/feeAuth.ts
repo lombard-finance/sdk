@@ -108,7 +108,13 @@ export async function checkFeeAuthorization(
   }
 
   // Get token address for signature lookup
-  const tokenInfo = await getTokenContractInfo(token, chainId, env);
+  const tokenInfo = await getTokenContractInfo(
+    token,
+    chainId,
+    env,
+    undefined,
+    rpcUrl,
+  );
 
   // Check for existing valid signature on server
   const existingSignature = await getNetworkFeeSignature({
@@ -164,7 +170,13 @@ export async function authorizeFee(
     params;
 
   // Get token address for storing signature
-  const tokenInfo = await getTokenContractInfo(token, chainId, env);
+  const tokenInfo = await getTokenContractInfo(
+    token,
+    chainId,
+    env,
+    undefined,
+    rpcUrl,
+  );
 
   // Sign the network fee
   const signResult = await signNetworkFee({
