@@ -5,11 +5,17 @@ All notable changes to `@lombard.finance/sdk-common` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.1.0] - 2026-05-29
+## [4.2.0] - 2026-08-18
 
 ### Added
 
 - Optional `rpcUrls` field on `RegisterContext` — forwards per-chain RPC URL overrides from the SDK config to modules/services so reads honor configured endpoints instead of falling back to public defaults
+
+## [4.1.0] - 2026-06-01
+
+### Added
+
+- `WalletAuthService` interface and supporting types (`WalletAuthChain`, `WalletChallengeRequest`, `WalletChallengeResponse`, `WalletVerifyRequest`, `WalletVerifyResponse`, `RevokeWalletTokenRequest`) — contract for the v2 wallet-based authentication flow (challenge → verify → revoke). Implementation lives in `@lombard.finance/sdk`.
 
 ## [4.0.0] - 2026-03-19
 

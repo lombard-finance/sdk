@@ -83,6 +83,8 @@ export {
   katana,
   megaeth,
   monad,
+  RETIRED_CHAIN_IDS,
+  type RetiredChainId,
   stable,
   tac,
 } from '../common/chains';

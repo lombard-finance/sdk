@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
 import { getEarnPosition } from '../../../contract-functions/getEarnPosition/getEarnPosition';
@@ -12,6 +12,23 @@ vi.mock('../../../clients/public-client', () => ({
     readContract: (...args: unknown[]) => mockReadContract(...args),
   }),
 }));
+
+// Every Earn chain currently has a BTCe deployment, so the "no BTCe" branch is
+// unreachable through the public API. Force it here so the branch keeps its
+// coverage for any future Earn chain that ships without the wrapper.
+const btceGate = vi.hoisted(() => ({ forceUnsupported: false }));
+
+vi.mock('../../../vaults/lib/config', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  const realIsBtceVaultChain = actual.isBtceVaultChain as (
+    chainId: number,
+  ) => boolean;
+  return {
+    ...actual,
+    isBtceVaultChain: (chainId: number) =>
+      !btceGate.forceUnsupported && realIsBtceVaultChain(chainId),
+  };
+});
 
 const TEST_ADDRESS = '0x000000000000000000000000000000000000dEaD';
 const LENS_ADDRESS = '0x5232bc0F5999f8dA604c42E1748A13a170F94A1B';
@@ -173,7 +190,15 @@ describe('getEarnPosition', () => {
   });
 
   describe('chains without BTCe support', () => {
-    it('returns zero BTCe and only the LBTCv leg on Corn', async () => {
+    beforeEach(() => {
+      btceGate.forceUnsupported = true;
+    });
+
+    afterEach(() => {
+      btceGate.forceUnsupported = false;
+    });
+
+    it('returns zero BTCe and only the LBTCv leg', async () => {
       setupContract({
         lbtcvBalance: 40_000_000n,
         rate: 100_000_000n,
@@ -181,7 +206,7 @@ describe('getEarnPosition', () => {
 
       const result = await getEarnPosition({
         address: TEST_ADDRESS,
-        chainId: ChainId.corn,
+        chainId: ChainId.ethereum,
       });
 
       expect(result.btceShares).toEqual(BigNumber(0));
@@ -278,19 +303,5 @@ describe('getEarnPosition', () => {
       expect(result.btceSharesInUnderlying).toEqual(BigNumber('1'));
     });
 
-    it('supports Corn (LBTCv only, no BTCe)', async () => {
-      setupContract({
-        lbtcvBalance: 100_000_000n,
-        rate: 100_000_000n,
-      });
-
-      const result = await getEarnPosition({
-        address: TEST_ADDRESS,
-        chainId: ChainId.corn,
-      });
-
-      expect(result.underlyingShares).toEqual(BigNumber('1'));
-      expect(result.position).toEqual(BigNumber('1'));
-    });
   });
 });

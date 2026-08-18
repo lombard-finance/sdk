@@ -10,7 +10,7 @@
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "test:required": "yarn workspace @lombard.finance/sdk test:unit && yarn workspace @lombard.finance/sdk test:integration:mocked && yarn workspace @lombard.finance/sdk-react test && yarn workspace @lombard.finance/sdk-devtools test && yarn workspace @lombard.finance/sdk-solana test && yarn workspace @lombard.finance/example-evm test && yarn workspace @lombard.finance/example-solana test && yarn workspace @lombard.finance/example-starknet test && yarn workspace @lombard.finance/example-sui test",
+    "test:required": "yarn workspace @lombard.finance/sdk test:unit && yarn workspace @lombard.finance/sdk test:integration:mocked && yarn workspace @lombard.finance/sdk-react test && yarn workspace @lombard.finance/sdk-devtools test && yarn workspace @lombard.finance/sdk-solana test && yarn workspace @lombard.finance/sdk-sui test && yarn workspace @lombard.finance/example-evm test && yarn workspace @lombard.finance/example-solana test && yarn workspace @lombard.finance/example-starknet test && yarn workspace @lombard.finance/example-sui test",
     "test:online": "ENABLE_ONLINE_INTEGRATION=true yarn workspace @lombard.finance/sdk test:integration:online",
     "test:e2e:local": "echo 'No local e2e workspace configured yet (planned: apps/e2e)'",
     "test:unit": "turbo run test:unit",
@@ -18,7 +18,8 @@
     "lint": "turbo run lint",
     "licenses:check": "node scripts/check-licenses.mjs",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\""
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "postinstall": "husky || echo 'warning: husky setup failed; git hooks are inactive'"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",
@@ -29,6 +30,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^12.1.0",
     "eslint-plugin-unused-imports": "^3.1.0",
+    "husky": "^9.1.7",
     "prettier": "^3.2.5",
     "turbo": "^2.7.3",
     "typescript": "^5.4.5",

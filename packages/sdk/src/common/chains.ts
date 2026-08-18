@@ -14,7 +14,6 @@ const {
   berachainTestnetbArtio,
   bsc,
   bscTestnet,
-  corn,
   etherlink,
   holesky,
   mainnet,
@@ -23,7 +22,6 @@ const {
   sepolia,
   sonic,
   sonicBlazeTestnet,
-  swellchain,
 } = viem_chains;
 
 // FIXME: Remove this custom chain definition once katana is supported by viem
@@ -262,6 +260,11 @@ export const ChainId = {
   base: 8453,
   berachain: 80094,
   binanceSmartChain: 56,
+  /**
+   * @deprecated Corn is retired and produces no blocks. Nothing in the SDK
+   * routes to it: no RPC, no viem chain, no token addresses, no bridge lanes.
+   * Kept only so existing code keeps compiling; removed in the next major.
+   */
   corn: 21000000,
   etherlink: 42793,
   katana: 747474,
@@ -270,6 +273,12 @@ export const ChainId = {
   morph: 2818,
   sonic: 146,
   stable: 988,
+  /**
+   * @deprecated Swellchain is retired and produces no blocks. Nothing in the
+   * SDK routes to it: no RPC, no viem chain, no token addresses, no bridge
+   * lanes. Kept only so existing code keeps compiling; removed in the next
+   * major.
+   */
   swell: 1923,
   tac: 239,
   bob: 60808,
@@ -284,7 +293,36 @@ export const ChainId = {
   sonicBlazeTestnet: 57054,
 } as const;
 
-export type ChainId = (typeof ChainId)[keyof typeof ChainId];
+/**
+ * Chain ids of retired networks.
+ *
+ * The constants stay on {@link ChainId} so existing references keep compiling,
+ * but they are excluded from the `ChainId` type: nothing in the SDK can route
+ * to a chain that produces no blocks, so passing one where a live chain is
+ * expected is a type error rather than a runtime failure.
+ *
+ * @deprecated Removed together with the constants in the next major.
+ */
+export type RetiredChainId = typeof ChainId.corn | typeof ChainId.swell;
+
+export type ChainId = Exclude<
+  (typeof ChainId)[keyof typeof ChainId],
+  RetiredChainId
+>;
+
+/**
+ * Runtime counterpart of {@link RetiredChainId}.
+ *
+ * `Object.values(ChainId)` still contains the retired ids, so every runtime
+ * check has to exclude them explicitly or it would hand a dead chain to code
+ * that expects a live one.
+ *
+ * @deprecated Removed together with the retired constants in the next major.
+ */
+export const RETIRED_CHAIN_IDS: ReadonlySet<number> = new Set<number>([
+  ChainId.corn,
+  ChainId.swell,
+]);
 
 export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   [ChainId.ethereum]: mainnet,
@@ -298,7 +336,6 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
     ? { [ChainId.berachain]: berachain }
     : {}),
   [ChainId.binanceSmartChain]: bsc,
-  ...(featureConfig.isCornEnabled ? { [ChainId.corn]: corn } : {}),
   ...(featureConfig.isEtherlinkEnabled
     ? { [ChainId.etherlink]: etherlink }
     : {}),
@@ -308,7 +345,6 @@ export const CHAIN_ID_TO_VIEM_CHAIN_MAP = {
   ...(featureConfig.isMorphEnabled ? { [ChainId.morph]: morph } : {}),
   [ChainId.sonic]: sonic,
   [ChainId.stable]: stable,
-  ...(featureConfig.isSwellchainEnabled ? { [ChainId.swell]: swellchain } : {}),
   ...(featureConfig.isTacEnabled ? { [ChainId.tac]: tac } : {}),
   ...(featureConfig.isBobEnabled ? { [ChainId.bob]: bob } : {}),
   // Testnets:
@@ -362,11 +398,9 @@ export const CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP = {
   [ChainId.base]: 'base',
   [ChainId.berachain]: 'berachain',
   [ChainId.binanceSmartChain]: 'bsc',
-  [ChainId.corn]: 'corn',
   [ChainId.etherlink]: 'etherlink',
   [ChainId.morph]: 'morph',
   [ChainId.sonic]: 'sonic',
-  [ChainId.swell]: 'swellchain',
   [ChainId.megaeth]: 'megaeth',
   [ChainId.monad]: 'monad',
   [ChainId.katana]: 'katana',
@@ -376,7 +410,10 @@ type LlamaChain =
   (typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP)[keyof typeof CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP];
 
 export function isValidChain(chainId: unknown): chainId is ChainId {
-  return Object.values(ChainId).includes(chainId as ChainId);
+  return (
+    Object.values(ChainId).some((id) => id === chainId) &&
+    !RETIRED_CHAIN_IDS.has(chainId as number)
+  );
 }
 
 export type AddChainParameters = {

@@ -13,6 +13,7 @@
 
 // Core services (provided by sdk)
 export * from './api';
+export * from './auth';
 export * from './btc';
 export * from './evm';
 

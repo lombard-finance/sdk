@@ -3,7 +3,8 @@
 ## 🚨 BREAKING CHANGES
 
 - **Removed the `RPC_URL` constant export.** The package no longer exports the BFF multi-RPC proxy base URL (`https://bff.prod.lombard-fi.com/multi-rpc/proxy`). Consumers that imported `RPC_URL` from `@lombard.finance/sdk` must remove that import; if you need an opinionated default, read the per-chain `rpcUrlConfig` map instead, or supply your own via the new `rpcUrls` config option (see Added).
-- **Default RPC endpoints switched from the Lombard BFF proxy to public RPCs.** `rpcUrlConfig` and `getRpcUrlConfig()` now return public providers per chain (e.g. `https://cloudflare-eth.com`, `https://mainnet.base.org`, `https://bsc-dataseed.bnbchain.org`, `https://maizenet-rpc.usecorn.com`, `https://rpc.katana.network`, `https://rpc.monad.xyz`, `https://rpc.soniclabs.com`, `https://rpc.tac.build`, `https://rpc.ankr.com/swell`, `https://ethereum-sepolia-rpc.publicnode.com`, `https://sepolia.base.org`, etc.). The Lombard BFF proxy is no longer a default in the published SDK. Integrators that relied on the proxy implicitly (rate limits, trace headers, traffic routed through Lombard infra) should pass their own endpoints via `createLombardSDK({ rpcUrls })`.
+- **Default RPC endpoints switched from the Lombard BFF proxy to public RPCs.** `rpcUrlConfig` and `getRpcUrlConfig()` now return public providers per chain (`https://cloudflare-eth.com`, `https://mainnet.base.org`, `https://bsc-dataseed.bnbchain.org`, `https://rpc.katana.network`, `https://mainnet.megaeth.com/rpc`, `https://rpc.monad.xyz`, `https://rpc.soniclabs.com`, `https://rpc.stable.xyz`, `https://rpc.tac.build`, plus `https://sepolia.base.org`, `https://bsc-testnet-dataseed.bnbchain.org`, `https://holesky.drpc.org` and `https://ethereum-sepolia-rpc.publicnode.com` for testnets). The Lombard BFF proxy is no longer a default in the published SDK. Public endpoints are rate limited and offer no delivery guarantees, so integrators that relied on the proxy implicitly (rate limits, trace headers, traffic routed through Lombard infra) should pass their own endpoints via `createLombardSDK({ rpcUrls })`.
+- **`getRpcUrlConfig(env)` no longer varies by environment.** The public endpoints are the same for every environment, so the `env` parameter is accepted for backwards compatibility but ignored, and it is now optional. Code that called `getRpcUrlConfig(Env.stage)` expecting stage-specific proxy URLs gets the public defaults instead.
 - **Dropped `[ChainId.sonicBlazeTestnet]` from `rpcUrlConfig`.** Sonic Blaze testnet (chain 57054) has been deprecated upstream — its canonical RPC `rpc.blaze.soniclabs.com` returns NXDOMAIN globally, Chainlink CCIP for the chain is decommissioned, and the Sonic docs page for it now returns 404. The successor is Sonic Testnet (chain 14601). The `ChainId.sonicBlazeTestnet` enum value still exists but no longer has a default RPC; consumers that targeted it must supply their own `rpcUrl`.
 
 ### Added
@@ -22,6 +23,64 @@
   ```
 
 - Online integration test (`src/__tests__/integration/rpc-urls.integration.test.ts`, gated by `ENABLE_ONLINE_INTEGRATION=true`) that pings every default RPC via `eth_chainId` and asserts the reply matches the map key — keeps the public defaults honest.
+
+---
+
+# 5.2.0
+
+### Deprecated
+
+Corn (chain id `21000000`) and Swellchain (chain id `1923`) are retired. Neither network produces blocks any more — Swell Network shut its sequencer down at the end of June 2026 — so a transaction routed to either is accepted into the mempool and can never be mined.
+
+Both are gone from the chain registry, the Earn vault, the bridge, the deploy/stake/withdraw routes and every config that referenced them, so no code path can reach them. Their **identifiers are kept as deprecated aliases** for this release and are removed in the next major:
+
+- `ChainId.corn`, `ChainId.swell`
+- `Chain.CORN`, `Chain.SWELL`
+- `AssetId.WBTCN` (Corn was its only deployment)
+- `featureConfig.isCornEnabled`, `featureConfig.isSwellchainEnabled` — now no-ops that gate nothing
+
+Referencing these identifiers still compiles, so upgrading from 5.1.x does not break a build. Using one as a live chain does not: the retired ids are excluded from the `ChainId` type (via the new `RetiredChainId` type), so passing `ChainId.corn` to an SDK function is a type error instead of a runtime failure against a dead network.
+
+What was actually removed for both chains: the RPC endpoints, the viem chain mappings, the LBTC and OFT adapter addresses, the asset-catalog deployments, the `ethereum <-> corn` and `ethereum <-> swell` OFT bridge routes and their LayerZero endpoint ids (`30335` for Swellchain), Corn's Veda deploy/stake/withdraw routes and Earn network mappings, the DefiLlama chain-name mappings and the prod-env classification.
+
+The most user-visible behavioural effect: `EARN_VAULT.chains` no longer lists Corn, so `getEarnDepositsAllChains` and `getEarnWithdrawalsAllChains` stop fanning out to it. That Corn leg had been failing with HTTP 500 on every call (`Failed to fetch deposits for chain 21000000`), so the fan-out now issues 3 requests instead of 4 and no longer logs a per-call error. Historical Corn positions are no longer reachable through these aggregates.
+
+`Token.wBTCN` is intentionally **kept** so existing clients can still label historical Veda vault transactions; only its Corn address entry was dropped.
+
+### Added
+
+- `RETIRED_CHAINS` and `isRetiredChain(chain)` identify chains that no longer produce blocks. Retired chains keep their `CHAIN_CATALOG` entry so historical activity can still be labelled, but carry no `explorerUrl` (both explorers are offline) and are excluded from `getMainnetChains`, `getTestnetChains` and `getChainsByType`.
+
+### Changed
+
+- Stable mainnet (chain 988) now uses the public RPC endpoint `https://rpc.stable.xyz` in both `chains.ts` and `rpc-url-config.ts`, replacing the endpoint that was hardcoded while the network was still coming up. The public endpoint is rate limited to 1000 requests per 10 seconds per IP; consumers needing more throughput should pass their own transport.
+
+---
+
+# 5.1.1
+
+### Fixed
+
+- `ASSET_CATALOG` now lists Ethereum mainnet as a production deployment chain for BTC.b (`0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072`). The address was already present in the legacy `EVM_BTCB_ADDRESSES` registry, so catalog-driven helpers (`getAssetChains`, `getAssetDeployment`, and the rest of `core/assets/utils`) disagreed with the token registry and reported BTC.b as unavailable on prod Ethereum.
+
+---
+
+# 5.1.0
+
+### Added
+
+- Wallet authentication module (`walletAuthModule`) implementing the v2 wallet-auth flow. Three endpoints are wrapped:
+  - `requestChallenge` → `POST /v2/auth/wallet/challenge` — returns a chain-specific payload to be signed by the user's wallet.
+  - `verifySignature` → `POST /v2/auth/wallet/verify` — exchanges a signed payload for a JWT. Accepts an optional `publicKey` for chains where pubkey is not recoverable from the signature (Starknet, Cosmos).
+  - `revokeToken` → `POST /v2/auth/token/revoke` — invalidates a JWT server-side; best-effort (swallows network errors so callers can always clear local state).
+- Low-level functional exports for the same endpoints — `requestWalletChallenge`, `verifyWalletSignature`, `revokeWalletToken` — for consumers that don't want the module/DI layer.
+- `WalletAuthService` class implementing the `WalletAuthService` interface from `@lombard.finance/sdk-common`.
+- Signing the challenge with the user's wallet is intentionally NOT included — signing is chain-specific and belongs in the corresponding chain SDK package (or the consuming app).
+- New `@lombard.finance/sdk/strategies` entry point for the Lombard DeFi Vault Strategy contract (codename "BTCoc"). Distinct from the Bitcoin Earn vault exposed under `@lombard.finance/sdk/vaults` — do not conflate the two. Env-first: a call picks a strategy (`strategyId`, default BTCoc) and an environment (`env`), and the chain follows from that pair — `prod` → Ethereum mainnet, `stage` → Base Sepolia. An env may host several per-chain deployments (each with its own contract address); an optional `chainId` selects among them and defaults to the primary (first) chain.
+  - Per-user / op reads: `getStrategyPosition`, `getStrategyDepositAssets`, `getStrategyPendingRedeem`, `getStrategyShards`, `previewStrategyDeposit`.
+  - Writes: `depositStrategy` (4-arg `deposit(asset, amount, receiver, minSharesOut)`, approves the Strategy contract on insufficient allowance), `requestStrategyRedeem` (async redeem; parses `requestId` from the `RedeemRequested` event, supports `waitForReceipt: false` for Safe multisig flows).
+  - Types: `IStrategyState`, `IStrategyPosition`, `IStrategyConfigResponse`, `IStrategyDepositAsset`, `IStrategyDepositAssetStatic`, `IStrategyShards`, `IStrategyPendingRedeem`, `IRequestStrategyRedeemResult`, plus function-parameter types (`GetStrategy*Parameters`, `DepositStrategyParameters`, `RequestStrategyRedeemParameters`).
+  - Config: `STRATEGIES` registry + `DEFAULT_STRATEGY_ID`, resolvers `resolveStrategy` / `getStrategyDeployment` / `getStrategyDeployments` / `getStrategyChainIds` / `getStrategyDefinition`, and `findStaticDepositAsset`. Each strategy maps every environment to a list of per-chain deployments — each deployment carries its own `chainId`, contract address, and static deposit-asset catalog (LBTC / BTC.b on Ethereum, LBTC / BTC.b / USDT / wETH / BTCt on Base Sepolia).
 
 ---
 

@@ -7,7 +7,7 @@
  */
 
 import type { Env, SuiService } from '@lombard.finance/sdk-common';
-import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
+import type { SuiGrpcClient } from '@mysten/sui/grpc';
 import type {
   SuiChain,
   SuiSignPersonalMessageFeature,
@@ -17,6 +17,14 @@ import type { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
+import type {
+  ISuiNetworkGrpcOptions,
+  SuiNetwork,
+} from '../utils/createSuiGrpcClient';
+import {
+  createSuiGrpcClient,
+  resolveSuiGrpcOptions,
+} from '../utils/createSuiGrpcClient';
 import { signLbtcDestinationAddrSui } from '../web3Sdk/signLbtcDestionationAddrSui';
 import { unstakeLBTC } from '../web3Sdk/unstakeLBTC/unstakeLBTC';
 
@@ -57,7 +65,33 @@ function getSuiNetworkFromChainId(
  * Instantiated by suiModule().
  */
 export class SuiServiceImpl implements SuiService {
-  constructor(private readonly getProvider: ProviderResolver) {}
+  /**
+   * One client per network, kept for the life of the service. The failover
+   * transport remembers the endpoint that last worked, and a client built per
+   * call would throw that away, paying the full timeout of a dead head endpoint
+   * on every operation.
+   */
+  private readonly clients = new Map<SuiNetwork, SuiGrpcClient>();
+
+  constructor(
+    private readonly getProvider: ProviderResolver,
+    private readonly options: ISuiNetworkGrpcOptions = {},
+  ) {}
+
+  private getClient(network: SuiNetwork): SuiGrpcClient {
+    const existing = this.clients.get(network);
+    if (existing) {
+      return existing;
+    }
+
+    const client = createSuiGrpcClient(
+      network,
+      resolveSuiGrpcOptions(network, this.options),
+    );
+    this.clients.set(network, client);
+
+    return client;
+  }
 
   /**
    * Sign LBTC destination address for Sui minting
@@ -91,9 +125,7 @@ export class SuiServiceImpl implements SuiService {
     const provider = await this.getProvider();
     const walletProvider = provider as SuiWalletProvider;
 
-    // Create Sui client
-    const network = getSuiNetworkFromChainId(args.chainId);
-    const client = new SuiClient({ url: getFullnodeUrl(network) });
+    const client = this.getClient(getSuiNetworkFromChainId(args.chainId));
 
     // Execute unstake
     const result = await unstakeLBTC({

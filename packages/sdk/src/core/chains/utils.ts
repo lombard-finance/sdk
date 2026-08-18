@@ -21,7 +21,7 @@ import {
   SuiChain,
 } from '../../common/chains';
 import { LombardError, ValidationErrorCode } from '../../shared/errors';
-import { CHAIN_CATALOG } from './catalog';
+import { CHAIN_CATALOG, isRetiredChain } from './catalog';
 import {
   CAIP2_SEPARATOR,
   Chain,
@@ -125,25 +125,26 @@ export function getExplorerTxUrl(
   return `${explorerUrl}/tx/${txHash}`;
 }
 
+/** All catalogued chains that still produce blocks */
+function activeChains(): Chain[] {
+  return (Object.keys(CHAIN_CATALOG) as Chain[]).filter(
+    (chain) => !isRetiredChain(chain),
+  );
+}
+
 /** Get all mainnet chains */
 export function getMainnetChains(): Chain[] {
-  return (Object.keys(CHAIN_CATALOG) as Chain[]).filter(
-    (chain) => !CHAIN_CATALOG[chain].isTestnet,
-  );
+  return activeChains().filter((chain) => !CHAIN_CATALOG[chain].isTestnet);
 }
 
 /** Get all testnet chains */
 export function getTestnetChains(): Chain[] {
-  return (Object.keys(CHAIN_CATALOG) as Chain[]).filter(
-    (chain) => CHAIN_CATALOG[chain].isTestnet,
-  );
+  return activeChains().filter((chain) => CHAIN_CATALOG[chain].isTestnet);
 }
 
 /** Get all chains of a specific type */
 export function getChainsByType(type: ChainType): Chain[] {
-  return (Object.keys(CHAIN_CATALOG) as Chain[]).filter(
-    (chain) => CHAIN_CATALOG[chain].type === type,
-  );
+  return activeChains().filter((chain) => CHAIN_CATALOG[chain].type === type);
 }
 
 /** Helper to get prefix with separator */

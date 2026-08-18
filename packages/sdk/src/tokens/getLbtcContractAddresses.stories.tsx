@@ -65,12 +65,10 @@ interface StoryViewProps {
  * - Berachain
  * - Binance Smart Chain
  * - BOB
- * - Corn
  * - Etherlink
  * - Katana
  * - Morph
  * - Sonic
- * - Swell
  * - TAC
  * - And their testnets
  *

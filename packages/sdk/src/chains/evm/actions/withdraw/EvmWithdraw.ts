@@ -4,7 +4,7 @@
  * Queues withdrawal of vault shares from DeFi protocols (Veda).
  *
  * Protocol availability:
- * - Veda: Ethereum, Base, BSC, Corn (prod only)
+ * - Veda: Ethereum, Base, BSC (prod only)
  *
  * Step ordering on BTCe chains (ETH/Base/BSC) when the user's direct LBTCv
  * balance does not cover the requested amount:
@@ -19,7 +19,7 @@
  *
  * Protocol routing in execute():
  * - Veda on ETH/Base/BSC (BTCe chains): calls `withdrawEarn`.
- * - Veda on Corn (no BTCe): calls `queueWithdrawInternal` directly.
+ * - Veda without a BTCe deployment: calls `queueWithdrawInternal` directly.
  *
  * @module chains/evm/actions/withdraw/EvmWithdraw
  */
@@ -227,7 +227,7 @@ export class EvmWithdraw
    * subsequent queue tx in `execute()` would revert on insufficient allowance.
    *
    * Trade-off: on BTCe chains with insufficient LBTCv, this single step may
-   * produce 2 wallet popups (unwrap + approve). On Corn (no BTCe) or when
+   * produce 2 wallet popups (unwrap + approve). Without BTCe or when
    * direct LBTCv already covers the amount, only the approve popup is shown.
    */
   async approve(): Promise<void> {
@@ -371,7 +371,7 @@ export class EvmWithdraw
 
         txHash = result.queueTxHash;
       } else {
-        // On Corn (no BTCe wrapper), deposit directly into the LBTCv queue.
+        // Without the BTCe wrapper, queue the withdrawal directly from LBTCv.
         // Approval was already done in approve(), so pass approve: false.
         txHash = await queueWithdrawInternal({
           amount: this._amount,

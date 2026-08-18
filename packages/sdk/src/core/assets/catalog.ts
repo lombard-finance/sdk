@@ -37,12 +37,10 @@ export const ASSET_CATALOG: AssetCatalog = {
             Chain.BASE,
             Chain.BSC,
             Chain.BERACHAIN,
-            Chain.CORN, // Supported for EVM Deploy (Veda), not for BTC Stake
             ...(featureConfig.isEtherlinkEnabled ? [Chain.ETHERLINK] : []),
             Chain.KATANA,
             Chain.MORPH,
             Chain.SONIC,
-            Chain.SWELL,
             Chain.TAC,
             ...(featureConfig.isMonadEnabled ? [Chain.MONAD] : []),
             Chain.STABLE,
@@ -176,6 +174,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.prod,
           chains: [
+            Chain.ETHEREUM,
             Chain.KATANA,
             Chain.MEGAETH,
             ...(featureConfig.isMonadEnabled ? [Chain.MONAD] : []),
@@ -337,21 +336,6 @@ export const ASSET_CATALOG: AssetCatalog = {
           env: Env.prod,
           chain: Chain.ETHEREUM,
           address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-        },
-      ],
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // wBTCN - Wrapped BTCN on Corn
-    // ═══════════════════════════════════════════════════════════════════════
-    [AssetId.WBTCN]: {
-      decimals: 8,
-      symbol: 'wBTCN',
-      deployments: [
-        {
-          env: Env.prod,
-          chain: Chain.CORN,
-          address: '0xda5dDd7270381A7C2717aD10D1c0ecB19e3CDFb2',
         },
       ],
     },
