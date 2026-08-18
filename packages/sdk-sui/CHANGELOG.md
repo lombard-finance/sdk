@@ -20,14 +20,15 @@ The package now talks gRPC-Web instead of JSON-RPC. Sui is removing JSON-RPC fro
 
 ### Added
 
-- `createSuiGrpcClient(network, { grpcUrls, timeoutMs })`: the same failover policy the JSON-RPC client had, translated to gRPC-Web. Reads walk the endpoint list on transport errors, retryable statuses (403, 404, 405, 408, 425, 429, 500, 502, 503, 504), a 200 that is not a gRPC-Web answer (a node that dropped the protocol), and trailers-only `UNIMPLEMENTED`/`INTERNAL`/`UNAVAILABLE`/`RESOURCE_EXHAUSTED`. A transaction submit is re-sent only on `UNIMPLEMENTED`, which proves nothing was executed. The endpoint that last worked is remembered
+- `createSuiGrpcClient(network, { grpcUrls, timeoutMs })`: the same failover policy the JSON-RPC client had, translated to gRPC-Web. Reads walk the endpoint list on transport errors, retryable statuses (403, 404, 405, 408, 425, 429, 500, 501, 502, 503, 504), a 200 that is not a gRPC-Web answer (a node that dropped the protocol), and trailers-only `UNIMPLEMENTED`/`INTERNAL`/`UNAVAILABLE`/`RESOURCE_EXHAUSTED`. A transaction submit moves on only when the node proved it never routed the request: `UNIMPLEMENTED`, or a 404, 405 or 501, which is how a node that stopped serving gRPC-Web answers and carries no `grpc-status` at all. A 403, a 5xx or a timeout is surfaced as the node's own error, since the transaction may have been taken. The endpoint that last worked is remembered
 - Default endpoints per network: the official fullnodes first (`fullnode.<network>.sui.io`), then suiscan, the one public third-party node that answered a gRPC-Web probe. The publicnode and blockvision nodes from the JSON-RPC list do not speak gRPC-Web and are gone
 - `executeSignedTransaction(client, { bytes, signature })` and the `ISuiExecutedTransaction` type, exported for consumers that submit wallet-signed bytes themselves
 
 ### Changed
 
 - Dynamic-field reads (the treasury `bascule_check` flag, the Bascule deposit table) derive the field object id locally, exactly as the chain does, and read the object's node-rendered JSON; JSON-RPC's `suix_getDynamicFieldObject` has no gRPC counterpart. The rendering differences are absorbed inside: Move structs arrive flattened (no `fields` nesting), a `u64` as a string, an enum as `{ "@variant": "Name" }`
-- Coin decimals come from `StateService.GetCoinInfo` instead of `suix_getCoinMetadata`. Unpublished metadata (testnet) still falls back to the LBTC decimals; a node failure still throws rather than silently degrading into wrong decimals
+- Coin decimals come from `StateService.GetCoinInfo` instead of `suix_getCoinMetadata`. Missing metadata falls back to the LBTC decimals for an LBTC type only; any other coin throws, since the caller chooses the `coinType` and eight decimals assumed for a coin that does not have them would put an amount out by a power of ten with nothing to say so. A node failure still throws rather than silently degrading into wrong decimals. Every deployment in the config publishes metadata today, which a live test asserts per network
+- Which gRPC methods may be retried on another node is an allowlist of read paths rather than "anything but `ExecuteTransaction`". An execution method added or renamed in a later API version would have defaulted to retryable, and a retried submit can put the same transaction on chain twice
 
 ## [1.3.0] - 2026-07-30
 
