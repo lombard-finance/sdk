@@ -1,8 +1,12 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it } from 'vitest';
 
-import { ChainId } from '../../common/chains';
-import { RPC_URL, getRpcUrlConfig, rpcUrlConfig } from '../rpc-url-config';
+import { ChainId } from '../../../common/chains';
+import {
+  RPC_URL,
+  getRpcUrlConfig,
+  rpcUrlConfig,
+} from '../../../clients/rpc-url-config';
 
 // Chains the SDK routes through the BFF rather than a public endpoint. Each one
 // has to reach the gateway on a path the gateway actually serves.
