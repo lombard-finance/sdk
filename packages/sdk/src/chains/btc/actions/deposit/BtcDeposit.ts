@@ -347,6 +347,7 @@ export class BtcDeposit
         chainId: this.chainId,
         recipient,
         fee: this.authState.mintingFee!,
+        storeSignature: Boolean(this._depositAddress),
       });
 
       this.authState.signature = result.signature;

@@ -340,6 +340,7 @@ export class BtcStake
           chainId: this.chainId,
           recipient,
           fee,
+          storeSignature: Boolean(this._depositAddress),
         });
         this.authState.networkFee = {
           signature: result.signature,
