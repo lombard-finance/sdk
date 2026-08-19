@@ -1,3 +1,25 @@
+# 5.3.0
+
+### Deposit Address Over The Wallet JWT
+
+The BTC deposit address can now be obtained with a wallet JWT instead of a destination-address signature. The token already proves control of the destination address, so the request that carries it needs no signature of its own, and a network-fee approval, where one is needed, stays with the claimer on its own path rather than travelling with the address request.
+
+### Added
+
+- `resolveDepositBtcAddress({ address, chainId, token, walletJwt, partnerId, referrerCode, nonce, destinationAssetAddress, env })` posts to `POST /v2/addresses/deposit` with `Authorization: Bearer <walletJwt>` and returns the BTC deposit address. It is the signature-free counterpart of `generateDepositBtcAddress`: no destination-address signature, no captcha. The JWT comes from the existing `requestWalletChallenge` / `verifyWalletSignature` flow.
+  - The v2 host comes from `getApiConfig(env).baseApiV2Url`, so every environment (dev, stage, testnet, ibc, prod) reaches its own gateway.
+  - A 401 is raised as `UnauthorizedWalletJwtError`, so consumers already handling an expired vault-manager token handle this route the same way.
+  - A sanctioned destination resolves to `SANCTIONED_ADDRESS`, matching `generateDepositBtcAddress` rather than throwing.
+- `canResolveDepositBtcAddressWithJwt(chainId, token = Token.LBTC)` reports whether the route has an identifier for that pair. `false` is not an error: it means the caller keeps to `generateDepositBtcAddress`. Only the asset identifiers verified against a live deployment are claimed (`LBTC`, `BTCb`), so an unverified token falls back instead of guessing a wire name.
+- `getDepositAssetTypeById(token)` returns the `ASSET_TYPE_*` identifier for a token, and throws when there is none.
+- `getLegacyChainNameById(chainId)` returns the short `BLOCKCHAIN_*` identifier that the v2 address route accepts, derived from the same chain resolution as `getChainNameById`. A testnet deployment answers to its mainnet name (holesky and sepolia are both `BLOCKCHAIN_ETHEREUM`), and non-EVM chains are covered too.
+
+### Changed
+
+- `UnauthorizedWalletJwtError` moved to the shared error module so routes outside the vault-manager can raise it. It is still exported from `@lombard.finance/sdk/strategies` and its `name` is unchanged; only the message text is now route-agnostic (`Wallet JWT rejected (<url>)`).
+
+---
+
 # 5.2.0
 
 ### Deprecated
