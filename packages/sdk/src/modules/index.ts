@@ -38,6 +38,17 @@ export type {
 } from './apiModule';
 export { apiModule, ApiService } from './apiModule';
 
+// Wallet Auth Module (generic SDK module, not chain-specific)
+export type {
+  RevokeWalletTokenRequest,
+  WalletAuthChain,
+  WalletChallengeRequest,
+  WalletChallengeResponse,
+  WalletVerifyRequest,
+  WalletVerifyResponse,
+} from './walletAuthModule';
+export { walletAuthModule, WalletAuthService } from './walletAuthModule';
+
 // Module types from sdk-common
 export type {
   // Any module
@@ -57,4 +68,5 @@ export type {
   ApiService as IApiService,
   BtcService as IBtcService,
   EvmService as IEvmService,
+  WalletAuthService as IWalletAuthService,
 } from '@lombard.finance/sdk-common';

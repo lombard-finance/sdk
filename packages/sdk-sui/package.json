@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-sui",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Sui integration for the Lombard SDK - stake BTC and manage LBTC on Sui",
   "exports": {
     ".": {
@@ -28,7 +28,9 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "storybook": "storybook dev -p 6006",
-    "types": "tsc --noEmit"
+    "types": "tsc --noEmit",
+    "test": "vitest run --config vitest.unit.config.ts",
+    "test:live": "vitest run --config vitest.live.config.ts"
   },
   "repository": {
     "type": "git",
@@ -59,9 +61,10 @@
   },
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
-    "@mysten/sui": "^1.21.1",
-    "@mysten/wallet-standard": "^0.13.7",
+    "@mysten/sui": "^2.26.1",
+    "@mysten/wallet-standard": "^0.21.17",
     "@noble/hashes": "^1.8.0",
+    "@protobuf-ts/grpcweb-transport": "^2.11.1",
     "@wallet-standard/base": "^1.1.0",
     "@wallet-standard/core": "^1.1.0",
     "vite": "^6.3.5"
@@ -82,6 +85,7 @@
     "storybook": "^8.2.9",
     "typedoc": "^0.26.6",
     "typescript": "^5.4.5",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
   }
 }

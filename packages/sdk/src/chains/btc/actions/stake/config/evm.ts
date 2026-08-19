@@ -85,7 +85,7 @@ const feeAuthConfig: FeeAuthConfig = {
     };
   },
 
-  async authorizeFee(ctx, { chainId, recipient, fee }) {
+  async authorizeFee(ctx, { chainId, recipient, fee, storeSignature = true }) {
     const evm = ctx.capabilities.require('evm') as EvmService;
     const provider = await ctx.getProvider('evm');
     if (!provider) {
@@ -113,6 +113,13 @@ const feeAuthConfig: FeeAuthConfig = {
       provider: provider as EIP1193Provider,
       token: Token.LBTC,
     });
+
+    if (!storeSignature) {
+      return {
+        signature: result.signature,
+        typedData: result.typedData,
+      };
+    }
 
     // Store the signature with token address to distinguish from BTC.b signatures.
     // If the BFF reports a signature already exists (code 6), fall back to the

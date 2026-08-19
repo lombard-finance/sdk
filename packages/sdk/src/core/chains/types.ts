@@ -79,6 +79,10 @@ export const Chain = {
   BERACHAIN: caip2(CHAIN_PREFIXES.EIP155, 80094),
   BERACHAIN_BARTIO: caip2(CHAIN_PREFIXES.EIP155, 80084),
   BOB: caip2(CHAIN_PREFIXES.EIP155, 60808),
+  /**
+   * @deprecated Corn is retired. Its catalog entry is kept for labelling
+   * historical activity only; see RETIRED_CHAINS. Removed in the next major.
+   */
   CORN: caip2(CHAIN_PREFIXES.EIP155, 21000000),
   ETHERLINK: caip2(CHAIN_PREFIXES.EIP155, 42793),
   KATANA: caip2(CHAIN_PREFIXES.EIP155, 747474),
@@ -86,6 +90,10 @@ export const Chain = {
   SONIC: caip2(CHAIN_PREFIXES.EIP155, 146),
   SONIC_TESTNET: caip2(CHAIN_PREFIXES.EIP155, 57054),
   SONIC_BLAZE_TESTNET: caip2(CHAIN_PREFIXES.EIP155, 57054), // Alias
+  /**
+   * @deprecated Swellchain is retired. Its catalog entry is kept for labelling
+   * historical activity only; see RETIRED_CHAINS. Removed in the next major.
+   */
   SWELL: caip2(CHAIN_PREFIXES.EIP155, 1923),
   TAC: caip2(CHAIN_PREFIXES.EIP155, 239),
   SEPOLIA: caip2(CHAIN_PREFIXES.EIP155, 11155111),

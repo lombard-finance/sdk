@@ -64,6 +64,3 @@ export async function getAdditionalRewards({
 
   return distribution;
 }
-
-// url: https://bft-dev.stage.lombard-fi.com/api/v1/analytics/0x2513196b4fD01Ed5888d1dB49AB9a42208E9fF90/additional-rewards
-// {"btc_distributed":[{"name":"ledger", "amount":0.7691864317643695}], "btc_undistributed":[{"name":"ledger", "amount":0.5699985451505658}]}

@@ -129,7 +129,9 @@ export {
   isChain,
   isEvmChain,
   isMainnet,
+  isRetiredChain,
   isTestnet,
+  RETIRED_CHAINS,
   StepStatus,
   StrategyStatus,
 } from '../core';

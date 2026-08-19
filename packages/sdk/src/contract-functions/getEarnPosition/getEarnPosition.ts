@@ -49,7 +49,7 @@ const ZERO = new BigNumber(0);
  * summation: the wrapper is a 1:1 pass-through today, but ERC4626 vaults can
  * accrue fees or rebases that move the share-to-asset ratio over time.
  *
- * On chains where BTCe is not deployed (e.g. Corn) the BTCe leg is skipped
+ * On chains where BTCe is not deployed the BTCe leg is skipped
  * and the result reports zero BTCe shares with a position equal to the
  * underlying-share leg alone.
  *

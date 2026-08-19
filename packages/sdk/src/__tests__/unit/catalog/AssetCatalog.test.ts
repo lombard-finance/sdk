@@ -134,6 +134,11 @@ describe('Asset Catalog', () => {
       expect(chains).toContain(Chain.STABLE);
     });
 
+    it('should include Ethereum in production', () => {
+      const chains = getAssetChains(AssetId.BTCb, Env.prod);
+      expect(chains).toContain(Chain.ETHEREUM);
+    });
+
     it('should include Monad when enabled', () => {
       const chains = getAssetChains(AssetId.BTCb, Env.prod);
       if (featureConfig.isMonadEnabled) {

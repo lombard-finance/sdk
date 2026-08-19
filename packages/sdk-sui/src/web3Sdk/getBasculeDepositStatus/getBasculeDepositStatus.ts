@@ -1,8 +1,12 @@
 import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
-import type { SuiClient } from '@mysten/sui/client';
+import { bcs } from '@mysten/sui/bcs';
+import type { SuiGrpcClient } from '@mysten/sui/grpc';
 import { keccak_256 } from '@noble/hashes/sha3';
 
 import { getConfig } from '../../const';
+import { readSuiDynamicFieldValue } from '../../utils/readSuiDynamicFieldValue';
+import { unwrapSuiJsonValue } from '../../utils/unwrapSuiJsonValue';
+import { isBasculeCheckEnabled } from '../isBasculeCheckEnabled';
 
 type Not0xPrefixedHex = string;
 
@@ -21,6 +25,12 @@ export enum SuiBasculeDepositStatus {
   WITHDRAWN = 'WITHDRAWN',
   /** The Bascule is paused — no deposit can be minted right now. */
   PAUSED = 'PAUSED',
+  /**
+   * The mint is not gated by the Bascule at all, so the deposit status says
+   * nothing about it and was not looked up: the treasury has its bascule check
+   * disabled, or the env has no Bascule configured. Mintable, like `REPORTED`.
+   */
+  NOT_ENFORCED = 'NOT_ENFORCED',
 }
 
 // On-chain DepositState enum variant names (see bascule::bascule::DepositState).
@@ -36,8 +46,8 @@ const WORDS = 5;
 const PAYLOAD_LEN = SELECTOR_LEN + WORDS * WORD_LEN;
 
 export interface IGetSuiBasculeDepositStatusParameters {
-  /** Sui RPC client. */
-  client: SuiClient;
+  /** Sui gRPC client. */
+  client: SuiGrpcClient;
   /**
    * The raw mint payload (hex, with or without `0x` prefix), see
    * `Deposit.rawPayload`.
@@ -51,6 +61,11 @@ export interface IGetSuiBasculeDepositStatusParameters {
  * Returns the Bascule deposit status for a Sui mint payload, so a claim can be
  * pre-flighted before submitting the transaction (the on-chain
  * `bascule::validate_withdrawal` would otherwise abort the mint).
+ *
+ * Returns `NOT_ENFORCED` when the mint is not gated by the Bascule at all, i.e.
+ * the env has no Bascule configured or the treasury has its bascule check
+ * disabled. That status is mintable, so a caller gating a claim has to allow it
+ * alongside `REPORTED`.
  *
  * The deposit id is derived exactly as `bascule::bascule::to_deposit_id` does
  * on-chain (and as `sui-claimer` derives it server-side):
@@ -66,13 +81,25 @@ export async function getBasculeDepositStatus({
 }: IGetSuiBasculeDepositStatusParameters): Promise<SuiBasculeDepositStatus> {
   const { bascule } = getConfig(env);
 
-  // No Bascule configured for this env — treat as reported (parity with the EVM
-  // SDK, which returns REPORTED when the bascule address is the zero address).
+  // No Bascule configured for this env, the counterpart of the EVM SDK's zero
+  // bascule address: nothing gates the mint.
   if (!bascule) {
-    return SuiBasculeDepositStatus.REPORTED;
+    return SuiBasculeDepositStatus.NOT_ENFORCED;
   }
 
+  // Derived before the flag is read so a malformed payload is rejected on every
+  // path. Otherwise a treasury with the check off would let an unusable payload
+  // through to the wallet, where Buffer.from(payload, 'hex') truncates it and
+  // the mint aborts in the decoder after the user has signed and paid gas.
   const depositId = deriveDepositId(payload);
+
+  // The treasury can have the bascule check turned off, and then mint_v2 never
+  // reaches validate_withdrawal: the deposit mints without ever being reported,
+  // so its bascule status says nothing about whether the claim can go through.
+  if (!(await isBasculeCheckEnabled({ client, env }))) {
+    return SuiBasculeDepositStatus.NOT_ENFORCED;
+  }
+
   const { paused, depositTableId } = await getBasculeState(client, bascule);
 
   // While paused, validate_withdrawal aborts for every deposit, so there is no
@@ -103,20 +130,18 @@ interface BasculeState {
  * the pause flag.
  */
 async function getBasculeState(
-  client: SuiClient,
+  client: SuiGrpcClient,
   basculeAddress: string,
 ): Promise<BasculeState> {
-  const resp = await client.getObject({
-    id: basculeAddress,
-    options: { showContent: true },
+  const { response } = await client.ledgerService.getObject({
+    objectId: basculeAddress,
+    readMask: { paths: ['json'] },
   });
 
-  const content = resp.data?.content;
-  if (!content || content.dataType !== 'moveObject') {
+  const fields = unwrapSuiJsonValue(response.object?.json);
+  if (fields === null || typeof fields !== 'object' || Array.isArray(fields)) {
     throw new Error(`Bascule object ${basculeAddress} has no content`);
   }
-
-  const fields = content.fields as Record<string, unknown>;
 
   const paused = fields.mIsPaused;
   if (typeof paused !== 'boolean') {
@@ -125,12 +150,9 @@ async function getBasculeState(
     );
   }
 
-  const depositTableId = nestedString(fields, [
-    'mDepositHistory',
-    'fields',
-    'id',
-    'id',
-  ]);
+  // The gRPC json rendering is flat: the Table renders as `{ id, size }`, with
+  // no `fields` level the JSON-RPC `showContent` shape carried.
+  const depositTableId = nestedString(fields, ['mDepositHistory', 'id']);
 
   return { depositTableId, paused };
 }
@@ -138,28 +160,22 @@ async function getBasculeState(
 /**
  * Looks up a deposit id in the Bascule deposit-history table. Returns the
  * DepositState variant name (`Reported`/`Withdrawn`) or `undefined` if there is
- * no entry. A missing dynamic field is surfaced by the RPC as an error / empty
- * data rather than a thrown transport error.
+ * no entry. The node renders a Move enum as `{ "@variant": "Name" }`.
  */
 async function getDepositStatus(
-  client: SuiClient,
+  client: SuiGrpcClient,
   tableId: string,
   depositId: string,
 ): Promise<string | undefined> {
-  const resp = await client.getDynamicFieldObject({
+  const value = await readSuiDynamicFieldValue({
+    client,
     parentId: tableId,
-    name: { type: 'u256', value: depositId },
+    nameType: 'u256',
+    nameBcs: bcs.u256().serialize(depositId).toBytes(),
   });
 
-  const content = resp.data?.content;
-  if (!content || content.dataType !== 'moveObject') {
-    return undefined;
-  }
-
-  const fields = content.fields as Record<string, unknown>;
-  const value = fields.value;
-  if (value && typeof value === 'object' && 'variant' in value) {
-    const variant = (value as { variant: unknown }).variant;
+  if (value && typeof value === 'object' && '@variant' in value) {
+    const variant = (value as { '@variant': unknown })['@variant'];
     if (typeof variant === 'string') {
       return variant;
     }
@@ -279,10 +295,7 @@ function concatBytes(...parts: Uint8Array[]): Uint8Array {
   return out;
 }
 
-function nestedString(
-  fields: Record<string, unknown>,
-  keys: string[],
-): string {
+function nestedString(fields: Record<string, unknown>, keys: string[]): string {
   let cur: unknown = fields;
   for (let i = 0; i < keys.length; i++) {
     if (cur === null || typeof cur !== 'object') {

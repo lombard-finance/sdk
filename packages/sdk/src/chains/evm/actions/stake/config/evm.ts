@@ -4,7 +4,7 @@
  * Handles staking LBTC to DeFi protocols on EVM chains.
  *
  * Protocol availability:
- * - Veda: Ethereum, Base, BSC, Corn (prod only)
+ * - Veda: Ethereum, Base, BSC (prod only)
  * - Silo: Avalanche (prod only)
  *
  * @module chains/evm/actions/stake/config/evm
@@ -43,13 +43,6 @@ export const evmConfig: ChainConfig = {
     {
       sourceChains: [Chain.BSC],
       destChains: [Chain.BSC],
-      protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
-    // Veda - Corn
-    {
-      sourceChains: [Chain.CORN],
-      destChains: [Chain.CORN],
       protocols: [DeployProtocol.Veda],
       envs: [Env.prod],
     },

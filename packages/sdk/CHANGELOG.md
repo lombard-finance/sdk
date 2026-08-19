@@ -1,3 +1,73 @@
+# 5.2.1
+
+### Fixed
+
+A BTC action no longer stores its fee approval or stake-and-bake signature with the server when that same signature is about to be sent to `generateDepositAddress`.
+
+Both halves used to happen: the action signed, stored the signature itself, and then handed it to address generation, which stores it again. The server cannot tell that second write apart from the same signature being presented for a second address request, so the deposit address request looks like a reuse of an approval that is readable on chain, in the mint calldata and the event logs.
+
+The rule is now one writer per signature. Each of `BtcDeposit`, `BtcStake`, `BtcDepositAndDeploy` and `BtcStakeAndDeploy` stores it only when it is not about to carry it into address generation, which is exactly when it already holds a deposit address, resuming a flow whose address was created earlier. In that case nothing else would store it: `generateDepositAddress` returns the address it already has without a network call.
+
+No API change for callers. `authorizeFee()`, `authorizeDeposit()` and the address generation that follows are called exactly as before; the config-level `authorizeFee`, `authorizeDepositAndDeploy` and `authorizeStakeAndBake` gained an optional `storeSignature` parameter that defaults to `true`, so a custom chain config keeps its current behaviour.
+
+# 5.2.0
+
+### Deprecated
+
+Corn (chain id `21000000`) and Swellchain (chain id `1923`) are retired. Neither network produces blocks any more — Swell Network shut its sequencer down at the end of June 2026 — so a transaction routed to either is accepted into the mempool and can never be mined.
+
+Both are gone from the chain registry, the Earn vault, the bridge, the deploy/stake/withdraw routes and every config that referenced them, so no code path can reach them. Their **identifiers are kept as deprecated aliases** for this release and are removed in the next major:
+
+- `ChainId.corn`, `ChainId.swell`
+- `Chain.CORN`, `Chain.SWELL`
+- `AssetId.WBTCN` (Corn was its only deployment)
+- `featureConfig.isCornEnabled`, `featureConfig.isSwellchainEnabled` — now no-ops that gate nothing
+
+Referencing these identifiers still compiles, so upgrading from 5.1.x does not break a build. Using one as a live chain does not: the retired ids are excluded from the `ChainId` type (via the new `RetiredChainId` type), so passing `ChainId.corn` to an SDK function is a type error instead of a runtime failure against a dead network.
+
+What was actually removed for both chains: the RPC endpoints, the viem chain mappings, the LBTC and OFT adapter addresses, the asset-catalog deployments, the `ethereum <-> corn` and `ethereum <-> swell` OFT bridge routes and their LayerZero endpoint ids (`30335` for Swellchain), Corn's Veda deploy/stake/withdraw routes and Earn network mappings, the DefiLlama chain-name mappings and the prod-env classification.
+
+The most user-visible behavioural effect: `EARN_VAULT.chains` no longer lists Corn, so `getEarnDepositsAllChains` and `getEarnWithdrawalsAllChains` stop fanning out to it. That Corn leg had been failing with HTTP 500 on every call (`Failed to fetch deposits for chain 21000000`), so the fan-out now issues 3 requests instead of 4 and no longer logs a per-call error. Historical Corn positions are no longer reachable through these aggregates.
+
+`Token.wBTCN` is intentionally **kept** so existing clients can still label historical Veda vault transactions; only its Corn address entry was dropped.
+
+### Added
+
+- `RETIRED_CHAINS` and `isRetiredChain(chain)` identify chains that no longer produce blocks. Retired chains keep their `CHAIN_CATALOG` entry so historical activity can still be labelled, but carry no `explorerUrl` (both explorers are offline) and are excluded from `getMainnetChains`, `getTestnetChains` and `getChainsByType`.
+
+### Changed
+
+- Stable mainnet (chain 988) now uses the public RPC endpoint `https://rpc.stable.xyz` in both `chains.ts` and `rpc-url-config.ts`, replacing the endpoint that was hardcoded while the network was still coming up. The public endpoint is rate limited to 1000 requests per 10 seconds per IP; consumers needing more throughput should pass their own transport.
+
+---
+
+# 5.1.1
+
+### Fixed
+
+- `ASSET_CATALOG` now lists Ethereum mainnet as a production deployment chain for BTC.b (`0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072`). The address was already present in the legacy `EVM_BTCB_ADDRESSES` registry, so catalog-driven helpers (`getAssetChains`, `getAssetDeployment`, and the rest of `core/assets/utils`) disagreed with the token registry and reported BTC.b as unavailable on prod Ethereum.
+
+---
+
+# 5.1.0
+
+### Added
+
+- Wallet authentication module (`walletAuthModule`) implementing the v2 wallet-auth flow. Three endpoints are wrapped:
+  - `requestChallenge` → `POST /v2/auth/wallet/challenge` — returns a chain-specific payload to be signed by the user's wallet.
+  - `verifySignature` → `POST /v2/auth/wallet/verify` — exchanges a signed payload for a JWT. Accepts an optional `publicKey` for chains where pubkey is not recoverable from the signature (Starknet, Cosmos).
+  - `revokeToken` → `POST /v2/auth/token/revoke` — invalidates a JWT server-side; best-effort (swallows network errors so callers can always clear local state).
+- Low-level functional exports for the same endpoints — `requestWalletChallenge`, `verifyWalletSignature`, `revokeWalletToken` — for consumers that don't want the module/DI layer.
+- `WalletAuthService` class implementing the `WalletAuthService` interface from `@lombard.finance/sdk-common`.
+- Signing the challenge with the user's wallet is intentionally NOT included — signing is chain-specific and belongs in the corresponding chain SDK package (or the consuming app).
+- New `@lombard.finance/sdk/strategies` entry point for the Lombard DeFi Vault Strategy contract (codename "BTCoc"). Distinct from the Bitcoin Earn vault exposed under `@lombard.finance/sdk/vaults` — do not conflate the two. Env-first: a call picks a strategy (`strategyId`, default BTCoc) and an environment (`env`), and the chain follows from that pair — `prod` → Ethereum mainnet, `stage` → Base Sepolia. An env may host several per-chain deployments (each with its own contract address); an optional `chainId` selects among them and defaults to the primary (first) chain.
+  - Per-user / op reads: `getStrategyPosition`, `getStrategyDepositAssets`, `getStrategyPendingRedeem`, `getStrategyShards`, `previewStrategyDeposit`.
+  - Writes: `depositStrategy` (4-arg `deposit(asset, amount, receiver, minSharesOut)`, approves the Strategy contract on insufficient allowance), `requestStrategyRedeem` (async redeem; parses `requestId` from the `RedeemRequested` event, supports `waitForReceipt: false` for Safe multisig flows).
+  - Types: `IStrategyState`, `IStrategyPosition`, `IStrategyConfigResponse`, `IStrategyDepositAsset`, `IStrategyDepositAssetStatic`, `IStrategyShards`, `IStrategyPendingRedeem`, `IRequestStrategyRedeemResult`, plus function-parameter types (`GetStrategy*Parameters`, `DepositStrategyParameters`, `RequestStrategyRedeemParameters`).
+  - Config: `STRATEGIES` registry + `DEFAULT_STRATEGY_ID`, resolvers `resolveStrategy` / `getStrategyDeployment` / `getStrategyDeployments` / `getStrategyChainIds` / `getStrategyDefinition`, and `findStaticDepositAsset`. Each strategy maps every environment to a list of per-chain deployments — each deployment carries its own `chainId`, contract address, and static deposit-asset catalog (LBTC / BTC.b on Ethereum, LBTC / BTC.b / USDT / wETH / BTCt on Base Sepolia).
+
+---
+
 # 5.0.5
 
 ### Fixed

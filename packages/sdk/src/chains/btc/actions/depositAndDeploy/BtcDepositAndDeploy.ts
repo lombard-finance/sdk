@@ -260,6 +260,7 @@ export class BtcDepositAndDeploy
           amount: amountSats.toString(),
           vaultKey: getVaultKey(this.params.protocol),
           token: outputToken,
+          storeSignature: Boolean(this._depositAddress),
         },
       );
 

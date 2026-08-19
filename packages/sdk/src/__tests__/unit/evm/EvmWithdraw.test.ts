@@ -43,7 +43,7 @@ describe('EvmWithdraw Interface', () => {
     });
 
     it('should support multiple chains', () => {
-      const chains = [Chain.ETHEREUM, Chain.BASE, Chain.BSC, Chain.CORN];
+      const chains = [Chain.ETHEREUM, Chain.BASE, Chain.BSC];
 
       chains.forEach((chain) => {
         expect(typeof chain).toBe('string');

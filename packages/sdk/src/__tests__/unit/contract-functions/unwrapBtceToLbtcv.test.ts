@@ -158,12 +158,12 @@ describe('unwrapBtceToLbtcv', () => {
       ).resolves.toBe('0xtxhash');
     });
 
-    it('throws on an unsupported chain (Corn)', async () => {
+    it('throws on an unsupported chain (non-BTCe chain)', async () => {
       await expect(
         unwrapBtceToLbtcv({
           amount: '0.1',
           account: ACCOUNT,
-          chainId: ChainId.corn,
+          chainId: ChainId.katana,
           provider: PROVIDER,
         }),
       ).rejects.toThrow(/BTCe is not supported on chain/);

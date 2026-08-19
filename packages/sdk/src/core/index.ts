@@ -30,8 +30,10 @@ export {
   isChain,
   isEvmChain,
   isMainnet,
+  isRetiredChain,
   isTestnet,
   parseChainIdentifier,
+  RETIRED_CHAINS,
 } from './chains';
 
 // ═══════════════════════════════════════════════════════════════════════════
