@@ -1,0 +1,52 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden baseline — Sui and Starknet on 5.x > StarknetUnstake (LBTC → BTC) > records the full prepare → execute lifecycle 1`] = `
+{
+  "calls": [
+    "starknet.unstake",
+  ],
+  "progress": [
+    "ready [burning=idle,releasing=idle]",
+    "ready [burning=pending,releasing=idle]",
+    "completed [burning=complete,releasing=pending]",
+  ],
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+  "unstakeArgKeys": [
+    "amount",
+    "btcAddress",
+    "env",
+  ],
+}
+`;
+
+exports[`golden baseline — Sui and Starknet on 5.x > SuiUnstake (LBTC → BTC) > records the full prepare → execute lifecycle 1`] = `
+{
+  "calls": [
+    "sui.unstake",
+  ],
+  "progress": [
+    "ready [burning=idle,releasing=idle]",
+    "ready [burning=pending,releasing=idle]",
+    "completed [burning=complete,releasing=pending]",
+  ],
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+  "unstakeArgKeys": [
+    "amount",
+    "btcAddress",
+    "chainId",
+    "env",
+  ],
+}
+`;
