@@ -2,7 +2,6 @@ import {
   VERIFICATION_STATUS,
   type WalletVerifyResult,
 } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 
 import {
   getApiConfig,
@@ -10,6 +9,7 @@ import {
 } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpGet } from '../../utils/http';
 
 interface WalletVerificationStatusApiResponse {
   /** e.g. VERIFICATION_STATUS_PENDING | VERIFICATION_STATUS_COMPLETE_VALID. */
@@ -55,7 +55,7 @@ export async function pollWalletVerification({
 
   try {
     while (Date.now() < deadline) {
-      const { data } = await axios.get<WalletVerificationStatusApiResponse>(
+      const { data } = await httpGet<WalletVerificationStatusApiResponse>(
         url,
         {
           baseURL: baseApiV2Url,

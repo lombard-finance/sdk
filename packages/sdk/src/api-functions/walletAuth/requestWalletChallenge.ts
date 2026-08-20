@@ -2,7 +2,6 @@ import type {
   WalletAuthChain,
   WalletChallengeResponse,
 } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 
 import {
   getApiConfig,
@@ -10,6 +9,7 @@ import {
 } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 interface WalletChallengeApiResponse {
   nonce: string;
@@ -35,7 +35,7 @@ export async function requestWalletChallenge({
   const { baseApiV2Url } = getApiConfig(env);
 
   try {
-    const { data } = await axios.post<WalletChallengeApiResponse>(
+    const { data } = await httpPost<WalletChallengeApiResponse>(
       'v2/auth/wallet/challenge',
       { address, chain },
       {

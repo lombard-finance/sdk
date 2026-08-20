@@ -1,8 +1,7 @@
-import axios from 'axios';
-
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 export type IStoreStakeAndBakeSignatureStatus = 'success';
 
@@ -41,7 +40,7 @@ export async function storeStakeAndBakeSignature({
   const { baseApiUrl } = getApiConfig(env);
 
   try {
-    const { data } = await axios.post<IStoreStakeAndBakeSignatureResponse>(
+    const { data } = await httpPost<IStoreStakeAndBakeSignatureResponse>(
       `${baseApiUrl}/api/v1/claimer/save-stake-and-bake-signature`,
       null,
       {

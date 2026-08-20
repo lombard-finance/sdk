@@ -42,6 +42,19 @@ export interface HttpRequestOptions {
 
   /** Request timeout in milliseconds (default: 30000) */
   timeout?: number;
+
+  /**
+   * Reads the caller's current wallet-auth JWT, or `undefined`.
+   *
+   * When it yields a token, an `Authorization: Bearer <token>` header is added.
+   * When it yields `undefined`, or is itself absent, **no header is sent** —
+   * which is today's behaviour on every endpoint, none of which requires one.
+   *
+   * Read here rather than passed as a string so a token acquired between
+   * building an action and calling it is still picked up. Comes from
+   * `CoreContext.getAuthToken`, which comes from `LombardConfig`.
+   */
+  getAuthToken?: () => string | undefined;
 }
 
 /**
@@ -110,14 +123,19 @@ export async function httpRequest<T = unknown>(
     headers = {},
     logger,
     timeout = 30000,
+    getAuthToken,
   } = options;
 
   const startTime = performance.now();
 
   // Merge SDK headers with custom headers
+  // An explicitly-passed Authorization header wins, so a low-level caller that
+  // already has a token (as `revokeWalletToken` does) keeps working unchanged.
+  const authToken = getAuthToken?.();
   const mergedHeaders = {
     ...getSdkHeaders(),
     'Content-Type': 'application/json',
+    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
     ...headers,
   };
 

@@ -11,6 +11,19 @@ export interface IEnvParam {
    * @default Env.prod
    */
   env?: Env;
+  /**
+   * Reads the caller's current wallet-auth JWT, or `undefined`.
+   *
+   * When supplied and yielding a token, `utils/http` adds an
+   * `Authorization: Bearer <token>` header. When absent, or yielding
+   * `undefined`, no header is sent — which is the behaviour of every endpoint
+   * today, none of which requires one.
+   *
+   * It sits beside `env` because the two travel together: an api-function needs
+   * to know which gateway to call and, soon, who is calling. Action classes pass
+   * `ctx.getAuthToken` straight through.
+   */
+  getAuthToken?: () => string | undefined;
 }
 
 export interface CommonParameters extends IEnvParam {

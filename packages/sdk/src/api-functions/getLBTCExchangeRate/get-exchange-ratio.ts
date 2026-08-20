@@ -1,4 +1,3 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 
 import { getApiConfig } from '../../common/api-config';
@@ -8,6 +7,7 @@ import {
   RatioToken,
   Token,
 } from '../../tokens/token-addresses';
+import { httpGet } from '../../utils/http';
 
 type RatioResponse = {
   token_ratio: {
@@ -39,7 +39,7 @@ export async function getExchangeRatio({ env }: IEnvParam) {
   const { baseApiUrl } = getApiConfig(env);
   const url = `${baseApiUrl}/api/v1/ratio`;
 
-  const { data } = await axios.get<RatioResponse>(url);
+  const { data } = await httpGet<RatioResponse>(url);
 
   const ratios = data.token_ratio
     .map((r) => ({

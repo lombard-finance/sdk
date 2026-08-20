@@ -2,7 +2,6 @@ import type {
   WalletAuthChain,
   WalletVerifyResponse,
 } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 
 import {
   getApiConfig,
@@ -10,6 +9,7 @@ import {
 } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 interface WalletVerifyApiResponse {
   /** Present (non-empty) for synchronous verification. */
@@ -52,7 +52,7 @@ export async function verifyWalletSignature({
   const { baseApiV2Url } = getApiConfig(env);
 
   try {
-    const { data } = await axios.post<WalletVerifyApiResponse>(
+    const { data } = await httpPost<WalletVerifyApiResponse>(
       'v2/auth/wallet/verify',
       {
         address,

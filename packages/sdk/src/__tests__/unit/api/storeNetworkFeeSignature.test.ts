@@ -1,13 +1,19 @@
-import axios from 'axios';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+// The api-functions now reach the network through `utils/http`, which calls the
+// axios *default export* as a function rather than `axios.post`. Mocking the
+// module keeps this test asserting on the same boundary it always did — what
+// goes out, and how a BFF error code comes back — rather than on the transport.
+const { axiosFn, isAxiosErrorFn } = vi.hoisted(() => ({
+  axiosFn: vi.fn(),
+  isAxiosErrorFn: vi.fn(),
+}));
+vi.mock('axios', () => ({ default: axiosFn, isAxiosError: isAxiosErrorFn }));
 
 import {
   FeeSignatureAlreadyExistsError,
   storeNetworkFeeSignature,
 } from '../../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
-
-vi.mock('axios');
-const mockedAxios = vi.mocked(axios);
 
 describe('storeNetworkFeeSignature', () => {
   afterEach(() => {
@@ -15,8 +21,8 @@ describe('storeNetworkFeeSignature', () => {
   });
 
   it('resolves to "success" on a successful POST', async () => {
-    mockedAxios.post = vi.fn().mockResolvedValue({ data: { status: 'success' } });
-    mockedAxios.isAxiosError = vi.fn(() => false) as unknown as typeof axios.isAxiosError;
+    axiosFn.mockResolvedValue({ data: { status: 'success' }, status: 200, headers: {} });
+    isAxiosErrorFn.mockReturnValue(false);
 
     const result = await storeNetworkFeeSignature({
       signature: '0xsig',
@@ -38,8 +44,8 @@ describe('storeNetworkFeeSignature', () => {
         status: 400,
       },
     };
-    mockedAxios.post = vi.fn().mockRejectedValue(axiosErr);
-    mockedAxios.isAxiosError = vi.fn(() => true) as unknown as typeof axios.isAxiosError;
+    axiosFn.mockRejectedValue(axiosErr);
+    isAxiosErrorFn.mockReturnValue(true);
 
     await expect(
       storeNetworkFeeSignature({
@@ -60,8 +66,8 @@ describe('storeNetworkFeeSignature', () => {
         },
       },
     };
-    mockedAxios.post = vi.fn().mockRejectedValue(axiosErr);
-    mockedAxios.isAxiosError = vi.fn(() => true) as unknown as typeof axios.isAxiosError;
+    axiosFn.mockRejectedValue(axiosErr);
+    isAxiosErrorFn.mockReturnValue(true);
 
     try {
       await storeNetworkFeeSignature({
@@ -84,8 +90,8 @@ describe('storeNetworkFeeSignature', () => {
       isAxiosError: true,
       response: { data: { code: 99, message: 'something else' } },
     };
-    mockedAxios.post = vi.fn().mockRejectedValue(axiosErr);
-    mockedAxios.isAxiosError = vi.fn(() => true) as unknown as typeof axios.isAxiosError;
+    axiosFn.mockRejectedValue(axiosErr);
+    isAxiosErrorFn.mockReturnValue(true);
 
     await expect(
       storeNetworkFeeSignature({

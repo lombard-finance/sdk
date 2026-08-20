@@ -12,11 +12,15 @@ migrate once.
 
 ### Added
 
+- `LombardConfig.getAuthToken` — an optional `() => string | undefined` the SDK reads when building a request. It reaches every action context and every api-function, which now inherit it through `IEnvParam` alongside `env`. Supplying it changes nothing today: no endpoint requires a token, and when the accessor is absent or returns `undefined` no `Authorization` header is sent. It exists so that when the backend does require one, the change is one place rather than 23. The SDK stays stateless about the token — it never stores or refreshes one, and reads the accessor at call time so a token acquired after construction is still seen.
+
 - `ActionEvent` and `ActionEventMap` are exported from the package root and from `@lombard.finance/sdk/core`, alongside `StrategyEventHandlerMap` — which `ActionEventMap` must extend and which consumers extending the map need to reference. `WithdrawEvent` and `WithdrawEventMap` are exported for the first time; they were declared but reachable from no entry point, even though `evm.withdraw()` is public.
 - `sdk.chain.btc.stakeAndDeploy()` now rejects an `assetIn` other than `AssetId.BTC` at construction. `assetIn` selects the `DEFI_REGISTRY` entry and therefore the amount-conversion strategy; because `AssetId.LBTC` and `Token.LBTC` are the same string, passing `AssetId.LBTC` silently selected `identity` and authorized the **raw satoshi amount** instead of the ratio-adjusted LBTC amount. Only native BTC is a valid source for this action, so any other value is now an `INVALID_ASSET` error rather than a signature over the wrong figure.
 - `@lombard.finance/sdk/evm` now exports the withdraw and cancel-withdraw types — `IEvmWithdraw`, `IEvmCancelWithdraw`, `EvmWithdrawParams`, `EvmWithdrawPrepareParams`, `EvmWithdrawProgress`, `EvmWithdrawStatus`. They were exported from the package root but never from the `./evm` subpath, so a consumer importing from `@lombard.finance/sdk/evm` could not reach any of them even though `evm.withdraw()` is public.
 
 ### Fixed
+
+- Every api-function now reaches the network through `utils/http`. There were 16 raw `axios.get`/`axios.post` calls across 15 files, while the centralised wrapper — publicly exported from both the package root and `@lombard.finance/sdk/core` — had **zero callers inside the package it ships from**. So the SDK version headers it adds were not actually being sent by any api-function, and there was no single place to attach an auth header. Both are now true.
 
 - `sdk.chain.evm.deploy()` now deposits the asset it was given. `EvmDeployParams.asset` was accepted and never read: `params.asset` appeared zero times in the class and all four call sites hardcoded `Token.LBTC`, so `deploy({ asset: AssetId.BTCb })` resolved cleanly and then deposited **LBTC**. A caller who named one asset got another, with no error. The four literals are replaced by one private accessor deriving the token from `params.asset`, so the sites cannot drift apart again.
 
