@@ -37,6 +37,8 @@ import {
 import { withdrawEarn } from '../../../../contract-functions/withdrawEarn';
 import type { DeployProtocol } from '../../../../core';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
+import type { RouteLabel } from '../../../../core/actions';
+import { deriveRouteLabel, vaultAsset } from '../../../../core/actions';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { EvmCoreContext } from '../../../../shared/context';
@@ -99,6 +101,21 @@ export class EvmWithdraw
 
   get txHash(): string | undefined {
     return this._txHash;
+  }
+
+  /**
+   * Which journey this instance is running.
+   *
+   * Derived from the parameters rather than hardcoded, so the label cannot
+   * drift from the route it describes. `LogMeta` carries it into
+   * `toSentryContext()`, which is what lets a log line say which journey
+   * failed now that one class can cover several.
+   */
+  get route(): RouteLabel {
+    return deriveRouteLabel({
+      assetOut: vaultAsset(this.params.protocol),
+      protocol: this.params.protocol,
+    });
   }
 
   async prepare(params: EvmWithdrawPrepareParams): Promise<void> {

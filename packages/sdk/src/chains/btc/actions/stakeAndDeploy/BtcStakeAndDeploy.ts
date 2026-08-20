@@ -12,6 +12,8 @@ import type { z } from 'zod';
 import type { ChainId } from '../../../../common/chains';
 import { isValidChain } from '../../../../common/chains';
 import { AssetId, parseChainIdentifier, StepStatus } from '../../../../core';
+import type { RouteLabel } from '../../../../core/actions';
+import { deriveRouteLabel } from '../../../../core/actions';
 import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 import type { StakeAndDeployEventMap } from '../../../../shared/events';
@@ -211,6 +213,21 @@ export class BtcStakeAndDeploy
   // ─────────────────────────────────────────────────────────────────────────
   // Public Getters
   // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Which journey this instance is running.
+   *
+   * Derived from the parameters rather than hardcoded, so the label cannot
+   * drift from the route it describes. `LogMeta` carries it into
+   * `toSentryContext()`, which is what lets a log line say which journey
+   * failed now that one class can cover several.
+   */
+  get route(): RouteLabel {
+    return deriveRouteLabel({
+      assetIn: this.params.assetIn ?? AssetId.BTC,
+      protocol: this.params.protocol,
+    });
+  }
 
   /** Get stake and bake fee (available after prepare()) */
   get fee(): string | undefined {

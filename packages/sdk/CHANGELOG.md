@@ -12,6 +12,10 @@ migrate once.
 
 ### Added
 
+- Every action exposes `route`, naming which journey the instance is running. After the merges one class covers several — `BtcDeposit` covers four and `EvmWithdraw` two — so `constructor.name` no longer identifies what failed, which matters because `LogMeta` carries this into `toSentryContext()` during exactly the window partners are filing migration bugs.
+
+  The label is derived from the parameters rather than declared per class, so it cannot drift from the route it describes, and `vaultAsset()` reads a vault's denomination out of `DEFI_REGISTRY` so a protocol added there is labelled without a second edit. An unknown combination throws: a label appears in a log as fact, so guessing one is worse than failing.
+
 - Every action exposes `applicableSteps`, the ordered subset of the five progress steps its route actually uses. Progress always carries all five keys, `idle` for the inapplicable ones — filtering the payload instead would leave `steps.settling` typed `StepStatus` but valued `undefined`, and since every known reader uses named access that comparison would be false forever. `applicableSteps` is how a consumer knows which of the five to render.
 
   It is derived rather than declared: `authorizing` comes from whether the route has any authorization ceremony, and the rest from the route family, so the two cannot disagree. Bitcoin-source routes add `awaitingFunds` — the state with no chain-source equivalent, where the deposit address exists and the SDK is waiting for the user to send Bitcoin — and `settling` for the notarisation that follows.

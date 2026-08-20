@@ -29,6 +29,8 @@ import {
 import { depositEarn } from '../../../../contract-functions/depositEarn';
 import { DeployProtocol } from '../../../../core';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
+import type { RouteLabel } from '../../../../core/actions';
+import { deriveRouteLabel } from '../../../../core/actions';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { EvmCoreContext } from '../../../../shared/context';
@@ -130,6 +132,21 @@ export class EvmDeploy
     return {
       [EvmOperationStatus.NEEDS_APPROVAL]: () => this.approve(),
     };
+  }
+
+  /**
+   * Which journey this instance is running.
+   *
+   * Derived from the parameters rather than hardcoded, so the label cannot
+   * drift from the route it describes. `LogMeta` carries it into
+   * `toSentryContext()`, which is what lets a log line say which journey
+   * failed now that one class can cover several.
+   */
+  get route(): RouteLabel {
+    return deriveRouteLabel({
+      assetIn: this.params.asset,
+      protocol: this.params.protocol,
+    });
   }
 
   /**

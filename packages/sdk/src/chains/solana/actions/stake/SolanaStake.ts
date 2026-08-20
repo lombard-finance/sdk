@@ -13,6 +13,8 @@ import type { Env } from '@lombard.finance/sdk-common';
 import { z } from 'zod';
 
 import { StepStatus } from '../../../../core';
+import type { RouteLabel } from '../../../../core/actions';
+import { deriveRouteLabel } from '../../../../core/actions';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { SolanaCoreContext } from '../../../../shared/context';
@@ -68,6 +70,21 @@ export class SolanaStake
 
   get txHash(): string | undefined {
     return this._txHash;
+  }
+
+  /**
+   * Which journey this instance is running.
+   *
+   * Derived from the parameters rather than hardcoded, so the label cannot
+   * drift from the route it describes. `LogMeta` carries it into
+   * `toSentryContext()`, which is what lets a log line say which journey
+   * failed now that one class can cover several.
+   */
+  get route(): RouteLabel {
+    return deriveRouteLabel({
+      assetIn: this.params.assetIn,
+      assetOut: this.params.assetOut,
+    });
   }
 
   async prepare(params: SolanaStakePrepareParams): Promise<void> {

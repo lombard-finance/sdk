@@ -24,6 +24,8 @@ import { z } from 'zod';
 import type { ChainId } from '../../../../common/chains';
 import { redeemToken } from '../../../../contract-functions';
 import { AssetId, parseChainIdentifier, StepStatus } from '../../../../core';
+import type { RouteLabel } from '../../../../core/actions';
+import { deriveRouteLabel } from '../../../../core/actions';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { EvmCoreContext } from '../../../../shared/context';
@@ -78,6 +80,21 @@ export class EvmUnstake
   /** Fee authorization state (for UI display) */
   get feeAuth(): FeeAuthState {
     return this._feeAuth;
+  }
+
+  /**
+   * Which journey this instance is running.
+   *
+   * Derived from the parameters rather than hardcoded, so the label cannot
+   * drift from the route it describes. `LogMeta` carries it into
+   * `toSentryContext()`, which is what lets a log line say which journey
+   * failed now that one class can cover several.
+   */
+  get route(): RouteLabel {
+    return deriveRouteLabel({
+      assetIn: this.params.assetIn,
+      assetOut: this.params.assetOut,
+    });
   }
 
   /** Whether output is BTC.b (requires fee auth on unsubsidized chains) */

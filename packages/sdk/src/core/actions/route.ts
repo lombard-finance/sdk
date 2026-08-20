@@ -9,6 +9,7 @@
  */
 
 import type { DefiRegistryToken } from '../../defi/defi-registry';
+import { DEFI_REGISTRY } from '../../defi/defi-registry';
 import { Token } from '../../tokens/token-addresses';
 import { AssetId } from '../assets/types';
 
@@ -67,11 +68,14 @@ export type AuthorizationGroup =
  * `assetIdToToken(params.asset)` — produces the wrong key for the LBTC route.
  * Both spellings type-check, and only one is right.
  */
+/** The synthetic registry key that means "native BTC as an input denomination". */
+const VIRTUAL_BTC_KEY = 'BTC';
+
 const REGISTRY_TOKEN_TABLE = {
   // LBTC has a variable ratio to BTC, so the virtual key is the only one whose
   // amount strategy converts. Note the asset id here is 'LBTC', the same string
   // as Token.LBTC, which is exactly why this must not be derived.
-  'btc:LBTC': 'BTC',
+  'btc:LBTC': VIRTUAL_BTC_KEY,
   // BTC.b is 1:1 with BTC, so no conversion is wanted.
   'btc:BTC.b': Token.BTCb,
   // The input already is LBTC.
@@ -182,5 +186,36 @@ export function deriveRouteLabel(params: RouteLabelParams): RouteLabel {
     `No route label for assetIn=${String(assetIn)} assetOut=${String(assetOut)} ` +
       `protocol=${String(protocol)}. A label appears in logs as fact, so an ` +
       `unknown combination throws rather than guessing.`,
+  );
+}
+
+/**
+ * Which asset a protocol's vault is denominated in.
+ *
+ * A vault exit names no asset in its parameters — `EvmWithdrawParams` carries
+ * only a protocol and a chain — so the label has to come from the registry
+ * rather than from the call. Reading it here means a protocol added to
+ * `DEFI_REGISTRY` is labelled without a second edit.
+ *
+ * Veda holds both a real LBTC key and the virtual `'BTC'` one used for
+ * conversion; the virtual key is skipped, since it names an input denomination
+ * rather than what the vault holds.
+ *
+ * @throws {@link Error} when the protocol has no registry entry.
+ */
+export function vaultAsset(protocol: string): AssetId {
+  const entry = (DEFI_REGISTRY as Record<string, Record<string, unknown>>)[
+    protocol
+  ];
+  const key = entry
+    ? Object.keys(entry).find((token) => token !== VIRTUAL_BTC_KEY)
+    : undefined;
+
+  if (key === Token.LBTC) return AssetId.LBTC;
+  if (key === Token.BTCb) return AssetId.BTCb;
+
+  throw new Error(
+    `No vault asset for protocol '${protocol}'. A route label appears in logs ` +
+      `as fact, so an unregistered protocol throws rather than guessing.`,
   );
 }

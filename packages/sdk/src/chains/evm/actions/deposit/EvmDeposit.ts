@@ -17,6 +17,7 @@ import { z } from 'zod';
 import type { ChainId } from '../../../../common/chains';
 import { claimLBTC } from '../../../../contract-functions';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
+import type { RouteLabel } from '../../../../core/actions';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import type { EvmCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
@@ -68,6 +69,13 @@ export class EvmDeposit
 
   setClaimData(data: string, proofSignature: string): void {
     this._claimData = { data, proofSignature };
+  }
+
+  /**
+   * Which journey this instance is running. Claiming an already-notarised mint moves no asset between chains.
+   */
+  get route(): RouteLabel {
+    return 'claim';
   }
 
   async prepare(params: EvmDepositPrepareParams): Promise<void> {

@@ -11,6 +11,7 @@ import type { EIP1193Provider } from 'viem';
 import type { ChainId } from '../../../../common/chains';
 import type { DeployProtocol } from '../../../../core';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
+import type { RouteLabel } from '../../../../core/actions';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { EvmCoreContext } from '../../../../shared/context';
@@ -38,6 +39,13 @@ export class EvmCancelWithdraw
 
   get txHash(): string | undefined {
     return this._txHash;
+  }
+
+  /**
+   * Which journey this instance is running. Cancelling is not a journey between assets, so it has its own label.
+   */
+  get route(): RouteLabel {
+    return 'cancel-withdraw';
   }
 
   async prepare(): Promise<void> {

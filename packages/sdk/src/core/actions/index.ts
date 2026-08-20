@@ -32,7 +32,12 @@ export type {
   RouteLabel,
   RouteLabelParams,
 } from './route';
-export { REGISTRY_TOKEN_ROWS, resolveRegistryToken } from './route';
+export {
+  deriveRouteLabel,
+  REGISTRY_TOKEN_ROWS,
+  resolveRegistryToken,
+  vaultAsset,
+} from './route';
 export type {
   AuthorizationStatus,
   BtcDeployStatus,
