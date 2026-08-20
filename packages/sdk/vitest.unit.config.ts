@@ -50,16 +50,29 @@ export default defineConfig({
       //
       // Note on branches: adding tests can *reduce* the branch percentage,
       // because reaching new files pulls their unexercised branches into the
-      // denominator. Measured here at 52.96 / 84.37 / 59.36 / 52.96 — up from
-      // 45.16 / 88.26 / 56.50 / 45.16 before the BTC resume-path suite, with
-      // branches moving down for exactly that reason. Judge a change by the
-      // statement and function numbers; treat a branch dip as a prompt to look
-      // at what newly-reached code is untested.
+      // denominator. Judge a change by the statement and function numbers;
+      // treat a branch dip as a prompt to look at what newly-reached code is
+      // untested.
+      //
+      // History, statements / branches / functions / lines:
+      //   45.16 / 88.26 / 56.50 / 45.16  before the BTC resume-path suite
+      //   52.96 / 84.37 / 59.36 / 52.96  at the ratchet's introduction
+      //   65.10 / 83.36 / 67.80 / 65.10  after goldening all sixteen classes,
+      //                                  which dipped branches below the floor
+      //                                  because the goldens reach the non-BTC
+      //                                  chains for the first time
+      //   67.66 / 84.12 / 69.51 / 67.66  after covering the BTC route validator
+      //                                  and the EVM fee-auth path, both of
+      //                                  which went from under 20% to 100%
+      // Branches sit a point below the measured 84.09-84.12 because that
+      // figure moves slightly between runs, and a gate that fails on its own
+      // jitter teaches people to ignore it. Statements and functions are
+      // stable, so they carry the ratchet.
       thresholds: {
-        statements: 52,
-        branches: 84,
-        functions: 59,
-        lines: 52,
+        statements: 67,
+        branches: 83,
+        functions: 69,
+        lines: 67,
       },
     },
   },
