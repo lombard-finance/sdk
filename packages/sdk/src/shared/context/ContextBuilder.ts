@@ -81,6 +81,7 @@ function createCoreContext(config: LombardConfig): CoreContext {
     partner: new PartnerConfiguration(config.partner),
     getProvider: createProviderResolver(config),
     logger: undefined,
+    getAuthToken: config.getAuthToken,
   };
 }
 

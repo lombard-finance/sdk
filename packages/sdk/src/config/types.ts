@@ -154,6 +154,21 @@ export interface LombardConfig {
   modules: readonly AnyModule[];
   partner?: PartnerConfig;
   logger?: Logger;
+  /**
+   * Returns the caller's current wallet-auth JWT, or `undefined` when there is
+   * none.
+   *
+   * The SDK is **stateless** about this token: it never stores or refreshes one.
+   * Acquisition is the consumer's job, through `sdk.walletAuth` — the signing
+   * primitive is chain-specific, so it cannot live here. This accessor is only
+   * how the SDK *reads* whatever the consumer currently holds, and it is read at
+   * call time rather than captured, so a token that appears after the SDK is
+   * constructed is picked up.
+   *
+   * No endpoint requires a token today, so supplying this changes nothing. It
+   * exists so that when one does, the change is one place rather than 23.
+   */
+  getAuthToken?: () => string | undefined;
 }
 
 /**

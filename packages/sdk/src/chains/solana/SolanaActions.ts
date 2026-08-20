@@ -47,6 +47,7 @@ function createSolanaCoreContext(config: LombardConfig): SolanaCoreContext {
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
+    getAuthToken: config.getAuthToken,
     getProvider: async (key) => {
       const getter = getProviderGetter(config.providers, key);
       if (!getter) return undefined;

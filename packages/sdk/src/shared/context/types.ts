@@ -67,6 +67,13 @@ export interface CoreContext {
   readonly partner: PartnerConfiguration;
   readonly getProvider: ProviderResolver;
   readonly logger?: Logger;
+  /**
+   * Reads the consumer's current wallet-auth JWT, or `undefined`.
+   *
+   * Supplied from `LombardConfig.getAuthToken`. Every context inherits it,
+   * because the api-functions an action reaches are shared across chains.
+   */
+  readonly getAuthToken?: () => string | undefined;
   // TODO (v4.1): readonly catalog: AssetCatalog;
 }
 
