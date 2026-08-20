@@ -95,12 +95,21 @@ export interface BtcDeposit extends MonitorableAction {
    * Authorize the network fee (Ethereum mainnet only)
    * For other chains, use confirmAddress() instead.
    */
+  /**
+   * Run whichever authorization ceremony this route needs.
+   *
+   * Replaces the authorizeFee/confirmAddress pair, which split one
+   * ceremony into two methods each guarding against the wrong route.
+   */
+  authorize(): Promise<void>;
+  /** @deprecated Use {@link authorize}. */
   authorizeFee(): Promise<void>;
 
   /**
    * Confirm destination address (non-Ethereum chains)
    * For Ethereum mainnet, use authorizeFee() instead.
    */
+  /** @deprecated Use {@link authorize}. */
   confirmAddress(): Promise<void>;
 
   /**

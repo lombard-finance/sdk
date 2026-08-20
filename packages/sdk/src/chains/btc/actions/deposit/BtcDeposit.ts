@@ -317,60 +317,56 @@ export class BtcDeposit
     });
   }
 
-  async authorizeFee(): Promise<void> {
+  /**
+   * Run whichever authorization ceremony this route needs.
+   *
+   * The route decides, not the caller: a destination with a fee auth config
+   * signs a fee, one without signs its destination address. `authorizeFee()`
+   * and `confirmAddress()` were the two halves of this, each guarding against
+   * being called on the wrong route — a distinction the caller had to
+   * rediscover per destination.
+   *
+   * Idempotent: calling it at `READY` returns without re-signing, so a retry
+   * after a partial failure and a double-click both cost one signature.
+   */
+  async authorize(): Promise<void> {
     this.assertStatus(
-      [BtcActionStatus.NEEDS_FEE_AUTHORIZATION, BtcActionStatus.READY],
-      'authorizeFee',
+      [
+        BtcActionStatus.NEEDS_FEE_AUTHORIZATION,
+        BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION,
+        BtcActionStatus.READY,
+      ],
+      'authorize',
     );
 
     if (this.status === BtcActionStatus.READY) return;
 
-    if (!this.feeAuthConfig) {
-      throw new LombardError(
-        ValidationErrorCode.INVALID_PARAMETER,
-        'Fee authorization is not required for this destination chain. Use confirmAddress() instead.',
-      );
-    }
-
     const recipient = this.ensureRecipient();
+    const feeAuthConfig = this.feeAuthConfig;
 
-    // Use the minting fee that was fetched during prepare(), not the deposit amount
-    if (!this.authState.mintingFee) {
-      throw new LombardError(
-        ValidationErrorCode.INVALID_STATE,
-        'Minting fee not available. Call prepare() first.',
-      );
+    if (feeAuthConfig) {
+      // The minting fee is read during prepare(); authorizing without it would
+      // sign whatever happened to be in scope.
+      if (!this.authState.mintingFee) {
+        throw new LombardError(
+          ValidationErrorCode.INVALID_STATE,
+          'Minting fee not available. Call prepare() first.',
+        );
+      }
+      const fee = this.authState.mintingFee;
+
+      return this.act(async () => {
+        const result = await feeAuthConfig.authorizeFee(this.ctx, {
+          chainId: this.chainId,
+          recipient,
+          fee,
+        });
+
+        this.authState.signature = result.signature;
+        this.authState.typedData = result.typedData;
+        this.authState.authorized = true;
+      }, BtcActionStatus.READY);
     }
-
-    return this.act(async () => {
-      const result = await this.feeAuthConfig!.authorizeFee(this.ctx, {
-        chainId: this.chainId,
-        recipient,
-        fee: this.authState.mintingFee!,
-      });
-
-      this.authState.signature = result.signature;
-      this.authState.typedData = result.typedData;
-      this.authState.authorized = true;
-    }, BtcActionStatus.READY);
-  }
-
-  async confirmAddress(): Promise<void> {
-    this.assertStatus(
-      [BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION, BtcActionStatus.READY],
-      'confirmAddress',
-    );
-
-    if (this.status === BtcActionStatus.READY) return;
-
-    if (this.feeAuthConfig) {
-      throw new LombardError(
-        ValidationErrorCode.INVALID_PARAMETER,
-        'This destination chain requires fee authorization. Use authorizeFee() instead.',
-      );
-    }
-
-    const recipient = this.ensureRecipient();
 
     return this.act(async () => {
       const result = await this.config.signDestination(
@@ -383,6 +379,55 @@ export class BtcDeposit
       this.authState.typedData = result.typedData;
       this.authState.authorized = true;
     }, BtcActionStatus.READY);
+  }
+
+  /**
+   * @deprecated Use {@link authorize} instead, which picks the ceremony from
+   * the route. Removed in the next major.
+   *
+   * Kept behaviourally identical, including the guard: calling this on a route
+   * that needs no fee still throws rather than silently signing an address.
+   */
+  async authorizeFee(): Promise<void> {
+    if (
+      this.status === BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION ||
+      (this.status !== BtcActionStatus.READY && !this.feeAuthConfig)
+    ) {
+      throw new LombardError(
+        ValidationErrorCode.INVALID_PARAMETER,
+        'Fee authorization is not required for this destination chain. Use confirmAddress() instead.',
+      );
+    }
+
+    this.assertStatus(
+      [BtcActionStatus.NEEDS_FEE_AUTHORIZATION, BtcActionStatus.READY],
+      'authorizeFee',
+    );
+
+    return this.authorize();
+  }
+
+  /**
+   * @deprecated Use {@link authorize} instead, which picks the ceremony from
+   * the route. Removed in the next major.
+   *
+   * Kept behaviourally identical, including the guard: calling this on a route
+   * that needs a fee still throws rather than signing the wrong thing.
+   */
+  async confirmAddress(): Promise<void> {
+    if (this.feeAuthConfig && this.status !== BtcActionStatus.READY) {
+      throw new LombardError(
+        ValidationErrorCode.INVALID_PARAMETER,
+        'This destination chain requires fee authorization. Use authorizeFee() instead.',
+      );
+    }
+
+    this.assertStatus(
+      [BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION, BtcActionStatus.READY],
+      'confirmAddress',
+    );
+
+    return this.authorize();
   }
 
   async execute(): Promise<{ depositAddress: string; txHash?: string }> {

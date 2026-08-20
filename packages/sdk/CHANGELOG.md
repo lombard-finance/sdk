@@ -12,6 +12,10 @@ migrate once.
 
 ### Added
 
+- `sdk.chain.btc.deposit()` actions gain `authorize()`, which runs whichever authorization ceremony the route needs. `authorizeFee()` and `confirmAddress()` were the two halves of one ceremony, split across two methods that each threw when called on the wrong route — and which one applies is decided by the destination, not the caller, so every integrator had to rediscover the mapping per chain. `authorize()` reads it from the route.
+
+  Both old names remain as deprecated delegators with their guards intact: `authorizeFee()` on a subsidised destination still throws rather than quietly signing an address, and `confirmAddress()` on Ethereum still throws rather than skipping the fee signature. `BtcStake` already exposed exactly this method, so the two BTC deposit routes now have one shape. Dropping the old names is deferred to the next major.
+
 - `LombardConfig.getAuthToken` — an optional `() => string | undefined` the SDK reads when building a request. It reaches every action context and every api-function, which now inherit it through `IEnvParam` alongside `env`. Supplying it changes nothing today: no endpoint requires a token, and when the accessor is absent or returns `undefined` no `Authorization` header is sent. It exists so that when the backend does require one, the change is one place rather than 23. The SDK stays stateless about the token — it never stores or refreshes one, and reads the accessor at call time so a token acquired after construction is still seen.
 
 - `ActionEvent` and `ActionEventMap` are exported from the package root and from `@lombard.finance/sdk/core`, alongside `StrategyEventHandlerMap` — which `ActionEventMap` must extend and which consumers extending the map need to reference. `WithdrawEvent` and `WithdrawEventMap` are exported for the first time; they were declared but reachable from no entry point, even though `evm.withdraw()` is public.
