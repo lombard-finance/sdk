@@ -266,6 +266,73 @@ export abstract class BaseAction<
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Authorization
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * The ceremonies this action can run, keyed by the status that calls for them.
+   *
+   * Subclasses that need a signature before `execute()` override this; the
+   * default is empty, which is correct for every action whose only transaction
+   * is the one `execute()` sends.
+   *
+   * Keying on status rather than on a separate flag is deliberate: the status
+   * already *is* the record of which groups are outstanding, so there is no
+   * second piece of state to keep in step. That is also what makes
+   * `authorize()` idempotent — once a ceremony completes the status moves on,
+   * and the entry stops matching.
+   */
+  protected authorizationHandlers(): Partial<
+    Record<TStatus, () => Promise<void>>
+  > {
+    return {};
+  }
+
+  /**
+   * Run whichever authorization ceremony the current status calls for.
+   *
+   * One method replacing the four spellings that existed across the action
+   * classes — `approve()`, `authorizeFee()`, `confirmAddress()` and
+   * `authorizeDeposit()` — each of which threw when called at the wrong point.
+   * Which one applies is a property of the route and the chain, not something
+   * the caller should have to derive.
+   *
+   * A no-op when nothing is outstanding, so a retry after a partial failure and
+   * a double-click both cost one signature rather than N.
+   *
+   * @throws LombardError if called before the action is prepared.
+   */
+  async authorize(): Promise<void> {
+    const handlers = this.authorizationHandlers();
+    const handler = handlers[this._status];
+
+    if (handler) {
+      return handler();
+    }
+
+    // Nothing outstanding at this status. Distinguish "already done" from
+    // "not started": the first is a no-op, the second is a caller error.
+    const pending = Object.keys(handlers) as TStatus[];
+    if (pending.length > 0 && this.isPreAuthorizationStatus()) {
+      throw new LombardError(
+        ValidationErrorCode.INVALID_STATE,
+        `Cannot authorize while status is ${this._status}, allowed: ${pending.join(', ')}`,
+      );
+    }
+  }
+
+  /**
+   * Whether the action has not yet reached a point where authorization could
+   * have happened.
+   *
+   * Every status vocabulary starts at `idle`, so that is the one value which
+   * unambiguously means "prepare() has not run".
+   */
+  protected isPreAuthorizationStatus(): boolean {
+    return String(this._status) === 'idle';
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Error Handling
   // ─────────────────────────────────────────────────────────────────────────
 

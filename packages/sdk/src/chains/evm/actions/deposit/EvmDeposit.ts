@@ -92,6 +92,19 @@ export class EvmDeposit
     }, EvmDepositStatus.READY);
   }
 
+  /**
+   * The ceremonies this route can need, mapped from the status that calls for
+   * them. `authorize()` on the base class dispatches through this, so
+   * `approve()` keep working while callers move to the one method.
+   */
+  protected override authorizationHandlers(): Partial<
+    Record<EvmDepositStatus, () => Promise<void>>
+  > {
+    return {
+      [EvmDepositStatus.NEEDS_APPROVAL]: () => this.approve(),
+    };
+  }
+
   async approve(): Promise<void> {
     this.assertStatus(EvmDepositStatus.NEEDS_APPROVAL, 'approve');
 

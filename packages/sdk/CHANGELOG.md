@@ -12,6 +12,12 @@ migrate once.
 
 ### Added
 
+- Every action now has `authorize()`. Four spellings existed across the sixteen classes — `approve()`, `authorizeFee()`, `confirmAddress()` and `authorizeDeposit()` — and each threw when called at the wrong point. Which one applies is a property of the route and the chain, so working it out was effort every integrator had to repeat: on EVM it depends on whether the chain is subsidised and whether an allowance is outstanding, on BTC it depends on the destination, and on Solana, Sui and Starknet there is no ceremony at all.
+
+  `authorize()` dispatches on status, which is already the record of what is outstanding, so it is idempotent: calling it twice costs one signature, and a retry after a partial failure resumes rather than replaying. On the chains with no ceremony it is a documented no-op, so one flow can call it unconditionally instead of branching per chain.
+
+  Every old method still works and is deprecated. Dropping them is deferred to the next major.
+
 - The BTC deploy actions gain `authorize(options?)`, and `expiry` is reachable for the first time. `signStakeAndBake()` has always accepted a signature expiry and defaulted to 24 hours, but no caller could set one: the field was missing from `SignStakeAndBakeParams`, so neither `EvmService` nor either deploy config could forward it, and `authorizeDeposit()` took no arguments at all. Every consumer going through `btc.stakeAndDeploy()` or `btc.depositAndDeploy()` was pinned to 24 hours.
 
   ```ts

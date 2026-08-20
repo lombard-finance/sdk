@@ -212,6 +212,19 @@ export class EvmWithdraw
   }
 
   /**
+   * The ceremonies this route can need, mapped from the status that calls for
+   * them. `authorize()` on the base class dispatches through this, so
+   * `approve()` keep working while callers move to the one method.
+   */
+  protected override authorizationHandlers(): Partial<
+    Record<EvmOperationStatus, () => Promise<void>>
+  > {
+    return {
+      [EvmOperationStatus.NEEDS_APPROVAL]: () => this.approve(),
+    };
+  }
+
+  /**
    * Approves the withdraw queue to pull vault shares.
    *
    * On BTCe-supported chains, when the user's direct LBTCv balance is below
