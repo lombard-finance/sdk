@@ -64,15 +64,17 @@ export default defineConfig({
       //   67.66 / 84.12 / 69.51 / 67.66  after covering the BTC route validator
       //                                  and the EVM fee-auth path, both of
       //                                  which went from under 20% to 100%
+      //   68.04 / 84.50 / 69.75 / 68.04  after the stage B contract and the
+      //                                  BTC.b vault availability fix
       // Branches sit a point below the measured 84.09-84.12 because that
       // figure moves slightly between runs, and a gate that fails on its own
       // jitter teaches people to ignore it. Statements and functions are
       // stable, so they carry the ratchet.
       thresholds: {
-        statements: 67,
+        statements: 68,
         branches: 83,
         functions: 69,
-        lines: 67,
+        lines: 68,
       },
     },
   },
