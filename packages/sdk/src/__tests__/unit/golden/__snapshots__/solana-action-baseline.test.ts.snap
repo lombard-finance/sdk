@@ -1,0 +1,81 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden baseline — Solana actions on 5.x > SolanaRedeem (BTC.b → BTC) records prepare → execute 1`] = `
+{
+  "calls": [
+    "solana.redeemForBtc",
+  ],
+  "progress": [
+    "ready [burning=idle,releasing=idle]",
+    "ready [burning=pending,releasing=idle]",
+    "completed [burning=complete,releasing=complete]",
+  ],
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+}
+`;
+
+exports[`golden baseline — Solana actions on 5.x > SolanaStake (BTC.b → LBTC) records prepare → execute 1`] = `
+{
+  "calls": [
+    "solana.deposit",
+  ],
+  "progress": [
+    "ready [burning=idle,minting=idle]",
+    "ready [burning=pending,minting=idle]",
+    "confirming [burning=complete,minting=pending]",
+  ],
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "confirming",
+  ],
+}
+`;
+
+exports[`golden baseline — Solana actions on 5.x > SolanaUnstake (LBTC → BTC) dispatches to redeemForBtc 1`] = `
+{
+  "calls": [
+    "solana.redeemForBtc",
+  ],
+  "progress": [
+    "ready [burning=idle,releasing=idle]",
+    "ready [burning=pending,releasing=idle]",
+    "completed [burning=complete,releasing=complete]",
+  ],
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+}
+`;
+
+exports[`golden baseline — Solana actions on 5.x > SolanaUnstake (LBTC → BTC.b) dispatches to redeem — the other branch 1`] = `
+{
+  "calls": [
+    "solana.redeem",
+  ],
+  "progress": [
+    "ready [burning=idle,releasing=idle]",
+    "ready [burning=pending,releasing=idle]",
+    "completed [burning=complete,releasing=complete]",
+  ],
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+}
+`;

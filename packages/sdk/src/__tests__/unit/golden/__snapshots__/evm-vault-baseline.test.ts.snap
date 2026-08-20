@@ -1,0 +1,48 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden baseline — the EVM vault actions on 5.x > EvmDeploy: prepare when the allowance does not cover — the approval branch 1`] = `
+{
+  "needsApproval": true,
+  "outcome": "resolved",
+  "progress": [
+    "needs-approval [approval=pending,deploying=idle]",
+  ],
+  "statuses": [
+    "needs-approval",
+  ],
+}
+`;
+
+exports[`golden baseline — the EVM vault actions on 5.x > EvmDeploy: prepare with a covering allowance, and the ignored asset param 1`] = `
+{
+  "assetPassed": "BTC.b",
+  "needsApproval": false,
+  "outcome": "resolved",
+  "progress": [
+    "ready [approval=complete,deploying=pending]",
+  ],
+  "statuses": [
+    "ready",
+  ],
+}
+`;
+
+exports[`golden baseline — the EVM vault actions on 5.x > EvmWithdraw: refuses on a chain with no Veda vault 1`] = `
+{
+  "outcome": "threw: Chain eip155:43114 does not support Veda vault withdrawals",
+  "statuses": [],
+}
+`;
+
+exports[`golden baseline — the EVM vault actions on 5.x > EvmWithdraw: the vault exit whose terminal COMPLETED becomes QUEUED 1`] = `
+{
+  "needsApproval": false,
+  "outcome": "resolved",
+  "progress": [
+    "ready [approval=complete,queueing=pending]",
+  ],
+  "statuses": [
+    "ready",
+  ],
+}
+`;
