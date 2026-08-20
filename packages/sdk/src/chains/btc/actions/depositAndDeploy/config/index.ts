@@ -11,6 +11,7 @@ import type { Env } from '@lombard.finance/sdk-common';
 
 import type { AssetId, Chain } from '../../../../../core';
 import { DEFI_REGISTRY, DefiProtocol } from '../../../../../defi';
+import { Token } from '../../../../../tokens/token-addresses';
 import { evmDepositAndDeployConfig } from './evm';
 import type { DepositAndDeployChainConfig } from './types';
 
@@ -101,9 +102,10 @@ export function isProtocolChainSupported(
   const protocolRegistry = DEFI_REGISTRY[protocol as DefiProtocol];
   if (!protocolRegistry) return false;
 
-  // Check BTCb token (used by DepositAndDeploy)
+  // Token.BTCb, not the letters 'BTCb': the registry key is 'BTC.b', so the
+  // literal never matched and every BTC.b route reported unsupported.
   const btcbRegistry =
-    protocolRegistry['BTCb' as keyof typeof protocolRegistry];
+    protocolRegistry[Token.BTCb as keyof typeof protocolRegistry];
   if (!btcbRegistry) return false;
 
   const envRegistry = btcbRegistry[env];
