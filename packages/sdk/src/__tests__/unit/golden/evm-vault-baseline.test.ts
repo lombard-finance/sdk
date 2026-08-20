@@ -7,8 +7,9 @@
  * most opinionated about:
  *
  * - `EvmDeploy` keeps its name in 6.0.0, because `deploy` survives as a verb.
- *   Its `asset` param is **accepted and never read** — every call site hardcodes
- *   `Token.LBTC` — so this snapshot is the before-picture for that bug fix.
+ *   Its `asset` param was accepted and never read, every call site hardcoding
+ *   `Token.LBTC`; A2 fixed that, and this snapshot pins the action-level
+ *   behaviour the fix had to leave alone.
  * - `EvmWithdraw` becomes `EvmVaultWithdraw`, and its terminal status changes
  *   from `COMPLETED` to `QUEUED`. That is **the one break no compiler catches**,
  *   because `evm.withdraw()` keeps its name. What is recorded here is the
@@ -85,8 +86,10 @@ describe('golden baseline — the EVM vault actions on 5.x', () => {
   it('EvmDeploy: prepare with a covering allowance, and the ignored asset param', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
     const action = new EvmDeploy(h.ctx, {
-      // BTC.b is deliberate. The class accepts it and then deposits LBTC,
-      // because params.asset is read zero times in the whole class.
+      // BTC.b is deliberate. Before the A2 fix the class accepted it and then
+      // deposited LBTC, because params.asset was read zero times. The observable
+      // action behaviour is unchanged by the fix, which is why the dedicated
+      // test in unit/evm/EvmDeployAssetParam covers the token lookup instead.
       asset: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,
       protocol: DeployProtocol.Veda,

@@ -48,6 +48,7 @@ import {
   isBtceVaultChain,
 } from '../../../../vaults/lib/config';
 import { depositInternal } from '../../../../vaults/lib/ops/deposit';
+import { assetIdToToken } from '../../../btc/actions/shared/tokenUtils';
 import { evmConfig } from './config';
 import type {
   EvmDeployParams,
@@ -79,6 +80,23 @@ export class EvmDeploy
 
   get protocol(): DeployProtocol | undefined {
     return this._protocol;
+  }
+
+  /**
+   * The token this deploy actually moves.
+   *
+   * `params.asset` was accepted and never read: all four call sites below
+   * hardcoded `Token.LBTC`, so `deploy({ asset: BTCb })` silently deposited
+   * LBTC. One accessor rather than four literals, so the sites cannot drift
+   * apart again.
+   *
+   * Note this is the *input* token, which is what `DEFI_REGISTRY` keys off.
+   * `AssetId.LBTC` and `Token.LBTC` are the same string, so a BTC-source route
+   * must not reach this path expecting the virtual `'BTC'` key — that resolution
+   * belongs to the route table, not here.
+   */
+  private get depositTokenId(): Token {
+    return assetIdToToken(this.params.asset, Token.LBTC);
   }
 
   get needsApproval(): boolean {
@@ -143,7 +161,7 @@ export class EvmDeploy
       this._chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
       const depositToken = await getTokenInfo(
-        Token.LBTC,
+        this.depositTokenId,
         this._chainId,
         this.ctx.env,
       );
@@ -202,7 +220,7 @@ export class EvmDeploy
       }
 
       const depositToken = await getTokenInfo(
-        Token.LBTC,
+        this.depositTokenId,
         this._chainId,
         this.ctx.env,
       );
@@ -273,7 +291,7 @@ export class EvmDeploy
         // Route through BTCe ERC-4626 wrapper: user receives BTCe shares.
         // Approval was already done in approve(), so pass approve: false.
         txHash = await depositEarn({
-          token: Token.LBTC,
+          token: this.depositTokenId,
           amount: this._amount!,
           receiver: this.params.recipient as Address,
           approve: false,
@@ -289,7 +307,7 @@ export class EvmDeploy
         txHash = await depositInternal({
           amount: this._amount!,
           approve: false,
-          token: Token.LBTC,
+          token: this.depositTokenId,
           account: this._account,
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
