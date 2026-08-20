@@ -50,7 +50,10 @@ import { BtcStake } from '../../../../chains/btc/actions/stake/BtcStake';
 import { BtcStakeAndDeploy } from '../../../../chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy';
 import { AssetId, Chain } from '../../../../core';
 import { DefiProtocol } from '../../../../defi';
-import { createBtcActionHarness } from '../../../harness/createBtcActionHarness';
+import {
+  createBtcActionHarness,
+  MOCK_DEPOSIT_ADDRESS,
+} from '../../../harness/createBtcActionHarness';
 
 const AMOUNT = '0.001';
 const RECIPIENT = '0x1111111111111111111111111111111111111111';
@@ -199,6 +202,95 @@ describe('golden baseline — BTC actions on 5.x', () => {
       expect({
         outcome,
         calls: h.calls.sequence(),
+      }).toMatchSnapshot();
+    });
+  });
+  // ───────────────────────────────────────────────────────────────────────────
+  // The authorize → generateDepositAddress legs.
+  //
+  // `prepare()` alone proves almost nothing about parity: the ceremony is where
+  // the four classes actually differ, and it is what the merge collapses. Each
+  // class reaches READY through a differently-named method, so the sequence
+  // recorded here is the thing an alias has to reproduce exactly.
+  // ───────────────────────────────────────────────────────────────────────────
+  describe('ceremony and address legs', () => {
+    it('BtcStake: authorize() then generateDepositAddress()', async () => {
+      const h = createBtcActionHarness({ env: Env.prod });
+      const action = new BtcStake(h.ctx, {
+        assetOut: AssetId.LBTC,
+        destChain: Chain.ETHEREUM,
+      });
+      h.observe(action);
+
+      await action.prepare({ amount: AMOUNT, recipient: RECIPIENT });
+      await action.authorize();
+      const address = await action.generateDepositAddress();
+
+      expect({
+        method: 'authorize',
+        addressReturned: address === MOCK_DEPOSIT_ADDRESS,
+        statuses: h.statuses,
+        calls: h.calls.sequence(),
+        progress: progressShape(h.progress),
+      }).toMatchSnapshot();
+    });
+
+    // On Avalanche + BTC.b there is no feeAuthConfig, so `confirmAddress()` is the
+    // correct method and `authorizeFee()` is the one that would throw. Which of
+    // the two refuses depends on the destination chain, which is exactly why the
+    // merged class resolves it from config instead of asking the caller to know.
+    it('BtcDeposit: the confirmAddress path, and authorizeFee after it', async () => {
+      const h = createBtcActionHarness({ env: Env.prod });
+      const action = new BtcDeposit(h.ctx, {
+        assetOut: AssetId.BTCb,
+        destChain: Chain.AVALANCHE,
+      });
+      h.observe(action);
+
+      await action.prepare({ amount: AMOUNT, recipient: RECIPIENT });
+      // BtcDeposit splits the decision across two methods that throw at each
+      // other. Which one is correct depends on feeAuthConfig, so record both
+      // the choice and the refusal — the merged class must keep the behaviour,
+      // not the method names.
+      let refusal: string | undefined;
+      try {
+        await action.confirmAddress();
+      } catch (e) {
+        refusal = (e as Error).message;
+      }
+      await action.authorizeFee();
+      const address = await action.generateDepositAddress();
+
+      expect({
+        pathTaken: 'confirmAddress',
+        confirmAddressRefusal: refusal,
+        authorizeFeeAfterReady: 'returns early, no second signature',
+        addressReturned: address === MOCK_DEPOSIT_ADDRESS,
+        statuses: h.statuses,
+        calls: h.calls.sequence(),
+        progress: progressShape(h.progress),
+      }).toMatchSnapshot();
+    });
+
+    it('BtcStakeAndDeploy: authorizeDeposit() then generateDepositAddress()', async () => {
+      const h = createBtcActionHarness({ env: Env.prod });
+      const action = new BtcStakeAndDeploy(h.ctx, {
+        assetOut: AssetId.LBTC,
+        destChain: Chain.ETHEREUM,
+        protocol: DefiProtocol.Veda,
+      });
+      h.observe(action);
+
+      await action.prepare({ amount: AMOUNT, recipient: RECIPIENT });
+      await action.authorizeDeposit();
+      const address = await action.generateDepositAddress();
+
+      expect({
+        method: 'authorizeDeposit',
+        addressReturned: address === MOCK_DEPOSIT_ADDRESS,
+        statuses: h.statuses,
+        calls: h.calls.sequence(),
+        progress: progressShape(h.progress),
       }).toMatchSnapshot();
     });
   });
