@@ -1,0 +1,101 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`v5 to v6 interface conformance > reports the remaining gap per class 1`] = `
+{
+  "BtcDeposit": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "BtcDepositAndDeploy": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "BtcStake": [
+    "applicableSteps",
+    "route",
+    "monitor",
+  ],
+  "BtcStakeAndDeploy": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "EvmCancelWithdraw": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "EvmDeploy": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "EvmDeposit": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "EvmRedeem": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "EvmStake": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "EvmUnstake": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "EvmWithdraw": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "SolanaRedeem": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "SolanaStake": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "SolanaUnstake": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "StarknetUnstake": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+  "SuiUnstake": [
+    "applicableSteps",
+    "route",
+    "authorize",
+    "monitor",
+  ],
+}
+`;
