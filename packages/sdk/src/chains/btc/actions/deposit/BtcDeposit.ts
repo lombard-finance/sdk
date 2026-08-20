@@ -360,6 +360,10 @@ export class BtcDeposit
           chainId: this.chainId,
           recipient,
           fee,
+          // False while the signature is about to travel with
+          // generateDepositAddress, which registers it server-side.
+          // Registering it twice reads as a reuse of the same approval.
+          storeSignature: Boolean(this._depositAddress),
         });
 
         this.authState.signature = result.signature;

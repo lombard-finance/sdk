@@ -25,6 +25,18 @@
  * These are also the first tests in the repository to construct a BTC action at
  * all; the eleven sibling files under `__tests__/unit/btc/` assert on object
  * literals and never import a class.
+ *
+ * ## Recorded snapshot movements
+ *
+ * - **`api.storeFeeSignature` and `api.storeStakeAndBakeSignature` dropped from
+ *   the two ceremony legs.** Not this refactor: upstream #68 stopped the actions
+ *   registering a signature that `generateDepositAddress` is about to carry, so
+ *   a second registration no longer reads as a reuse of the same approval. The
+ *   change arrived on `main` with its own CHANGELOG entry and the sequences are
+ *   otherwise identical, line for line.
+ *
+ *   Worth noting what this proves: the goldens caught a behavioural change
+ *   coming *in* from another branch during a merge, not only changes made here.
  */
 
 import { Env } from '@lombard.finance/sdk-common';

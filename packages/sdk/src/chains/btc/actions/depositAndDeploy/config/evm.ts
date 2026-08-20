@@ -69,7 +69,15 @@ export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
 
   async authorizeDepositAndDeploy(
     ctx,
-    { chainId, recipient, amount, vaultKey, token, expiry },
+    {
+      chainId,
+      recipient,
+      amount,
+      vaultKey,
+      token,
+      expiry,
+      storeSignature = true,
+    },
   ) {
     const evm = ctx.capabilities.require('evm') as EvmService;
     const provider = await ctx.getProvider('evm');
@@ -91,11 +99,14 @@ export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
       expiry,
     });
 
-    // Store signature via API (even for approve flow, we need to track it)
-    await ctx.api.storeStakeAndBakeSignature({
-      signature: result.signature,
-      typedData: result.typedData,
-    });
+    // Kept for the resume path: generateDepositAddress returns early when an
+    // address already exists, so nothing else would register the signature.
+    if (storeSignature) {
+      await ctx.api.storeStakeAndBakeSignature({
+        signature: result.signature,
+        typedData: result.typedData,
+      });
+    }
 
     return {
       signature: result.signature,

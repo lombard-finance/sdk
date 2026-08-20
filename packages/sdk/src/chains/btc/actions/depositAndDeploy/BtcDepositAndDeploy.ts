@@ -273,6 +273,7 @@ export class BtcDepositAndDeploy
           token: outputToken,
           // undefined lets signStakeAndBake apply its own 24h default
           expiry: options?.expiry,
+          storeSignature: Boolean(this._depositAddress),
         },
       );
 

@@ -89,7 +89,7 @@ const feeAuthConfig: DepositFeeAuthConfig = {
     };
   },
 
-  async authorizeFee(ctx, { chainId, recipient, fee }) {
+  async authorizeFee(ctx, { chainId, recipient, fee, storeSignature = true }) {
     const evm = ctx.capabilities.require('evm') as EvmService;
     const provider = await ctx.getProvider('evm');
     if (!provider) {
@@ -117,6 +117,13 @@ const feeAuthConfig: DepositFeeAuthConfig = {
       provider: provider as EIP1193Provider,
       token: Token.BTCb,
     });
+
+    if (!storeSignature) {
+      return {
+        signature: result.signature,
+        typedData: result.typedData,
+      };
+    }
 
     // Store the signature with token address to distinguish from LBTC signatures
     await ctx.api.storeFeeSignature({
