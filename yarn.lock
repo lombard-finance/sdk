@@ -2975,11 +2975,13 @@ __metadata:
   resolution: "@lombard.finance/sdk-common@workspace:packages/sdk-common"
   dependencies:
     "@bitcoinerlab/secp256k1": "npm:1.2.0"
+    bignumber.js: "npm:^9.1.2"
     bitcoinjs-lib: "npm:6.1.5"
     rimraf: "npm:^5"
     typedoc: "npm:^0.26.6"
     typescript: "npm:^5.4.5"
     vite: "npm:^6.3.5"
+    vitest: "npm:^3.2.4"
   peerDependencies:
     "@bitcoinerlab/secp256k1": ^1.2.0
     bitcoinjs-lib: ^6.1.5
@@ -3100,6 +3102,7 @@ __metadata:
     typedoc: "npm:^0.26.6"
     typescript: "npm:^5.4.5"
     vite: "npm:^6.3.5"
+    vitest: "npm:^3.2.4"
   peerDependencies:
     "@noble/hashes": ^1.7.2
     axios: ^1
