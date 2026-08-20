@@ -4,9 +4,10 @@ export interface IApiConfig {
   baseApiUrl: string;
   /**
    * Base URL for the v2 API gateway (`/v2/auth/wallet/*`,
-   * `/v2/auth/token/revoke`, …). In production this is a dedicated gateway
-   * (`api.lombard.finance`) distinct from `baseApiUrl`; other environments
-   * reuse their regular API host.
+   * `/v2/auth/token/revoke`, …). Most environments run it as a dedicated
+   * gateway distinct from `baseApiUrl` (`api.lombard.finance`,
+   * `api.testnet.lombard-fi.com`, `api.devnet-bft.lombard-fi.com`); only
+   * stage and ibc reuse their regular API host.
    */
   baseApiV2Url: string;
   bffApiUrl: string | undefined;
@@ -32,7 +33,8 @@ const prodConfig: IApiConfig = {
 
 const devConfig: IApiConfig = {
   baseApiUrl: 'https://bft-dev.stage.lombard-fi.com',
-  baseApiV2Url: 'https://bft-dev.stage.lombard-fi.com',
+  // The dev v1 host does not serve `/v2/*` (404); v2 lives on its own gateway.
+  baseApiV2Url: 'https://api.devnet-bft.lombard-fi.com',
   // Note, bff on localhost works on 8001
   bffApiUrl: 'https://bff.stage.lombard-fi.com',
 };
