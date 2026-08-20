@@ -12,6 +12,12 @@ migrate once.
 
 ### Added
 
+- Every action exposes `applicableSteps`, the ordered subset of the five progress steps its route actually uses. Progress always carries all five keys, `idle` for the inapplicable ones — filtering the payload instead would leave `steps.settling` typed `StepStatus` but valued `undefined`, and since every known reader uses named access that comparison would be false forever. `applicableSteps` is how a consumer knows which of the five to render.
+
+  It is derived rather than declared: `authorizing` comes from whether the route has any authorization ceremony, and the rest from the route family, so the two cannot disagree. Bitcoin-source routes add `awaitingFunds` — the state with no chain-source equivalent, where the deposit address exists and the SDK is waiting for the user to send Bitcoin — and `settling` for the notarisation that follows.
+
+- `deriveRouteLabel()` names a journey from its assets and protocol. After the merges one class covers several journeys, so `constructor.name` no longer identifies what failed; the label is derived from the parameters rather than declared per class, so it cannot drift from what it describes. An unknown combination throws rather than inventing a label that would then appear in logs as fact.
+
 - Every action now has `authorize()`. Four spellings existed across the sixteen classes — `approve()`, `authorizeFee()`, `confirmAddress()` and `authorizeDeposit()` — and each threw when called at the wrong point. Which one applies is a property of the route and the chain, so working it out was effort every integrator had to repeat: on EVM it depends on whether the chain is subsidised and whether an allowance is outstanding, on BTC it depends on the destination, and on Solana, Sui and Starknet there is no ceremony at all.
 
   `authorize()` dispatches on status, which is already the record of what is outstanding, so it is idempotent: calling it twice costs one signature, and a retry after a partial failure resumes rather than replaying. On the chains with no ceremony it is a documented no-op, so one flow can call it unconditionally instead of branching per chain.

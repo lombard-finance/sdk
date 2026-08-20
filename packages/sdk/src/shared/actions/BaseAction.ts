@@ -27,6 +27,8 @@
  * @module shared/actions/BaseAction
  */
 
+import type { ActionStepKey } from '../../core/actions/steps';
+import { ACTION_STEP_KEYS } from '../../core/actions/steps';
 import type { StrategyProgress } from '../../core/types';
 import type { Logger } from '../context/types';
 import { LombardError, ValidationErrorCode, wrapError } from '../errors';
@@ -263,6 +265,45 @@ export abstract class BaseAction<
         `Cannot ${action} while status is ${this._status}, allowed: ${allowed.join(', ')}`,
       );
     }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Applicable steps
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * The steps this route actually uses, beyond `authorizing`.
+   *
+   * The default suits any action whose whole job is one transaction it sends
+   * itself. `BaseBtcAction` widens it: a Bitcoin-source route waits on funds the
+   * SDK cannot send, and settles off-chain afterwards.
+   */
+  protected routeSteps(): readonly ActionStepKey[] {
+    return ['submitting', 'confirming'];
+  }
+
+  /**
+   * The ordered subset of progress steps this route reports.
+   *
+   * `authorizing` is derived from {@link authorizationHandlers} rather than
+   * declared twice: if a route has a ceremony the step applies, and if it does
+   * not the step never appears. That keeps the two from disagreeing.
+   *
+   * Ordered against `ACTION_STEP_KEYS` rather than by insertion, so a subclass
+   * cannot report them out of sequence.
+   *
+   * Not static, and deliberately read after `prepare()`: a route whose
+   * authorization depends on a caller-supplied token can change answer between
+   * construction and preparation.
+   */
+  get applicableSteps(): readonly ActionStepKey[] {
+    const applicable = new Set<ActionStepKey>(this.routeSteps());
+
+    if (Object.keys(this.authorizationHandlers()).length > 0) {
+      applicable.add('authorizing');
+    }
+
+    return ACTION_STEP_KEYS.filter((key) => applicable.has(key));
   }
 
   // ─────────────────────────────────────────────────────────────────────────

@@ -30,6 +30,7 @@ export type {
   DeployAsset,
   DeployNamespace,
   RouteLabel,
+  RouteLabelParams,
 } from './route';
 export { REGISTRY_TOKEN_ROWS, resolveRegistryToken } from './route';
 export type {

@@ -22,6 +22,7 @@ import {
   SuiChain,
 } from '../../../../common/chains';
 import { Chain, StepStatus } from '../../../../core';
+import type { ActionStepKey } from '../../../../core/actions/steps';
 import { BaseAction } from '../../../../shared/actions';
 import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
@@ -136,6 +137,18 @@ export abstract class BaseBtcAction<
   // ─────────────────────────────────────────────────────────────────────────
 
   /** Get the address validation schema for this action */
+  /**
+   * A Bitcoin-source route uses every step.
+   *
+   * `awaitingFunds` is the state that has no equivalent on a chain-source
+   * route: the deposit address exists and the SDK is waiting for the user to
+   * send Bitcoin, which it cannot do for them. `settling` covers the
+   * notarisation that follows the deposit confirming.
+   */
+  protected override routeSteps(): readonly ActionStepKey[] {
+    return ['awaitingFunds', 'submitting', 'confirming', 'settling'];
+  }
+
   protected abstract getAddressSchema(): z.ZodType<string>;
 
   /** Get the status configuration for template methods */

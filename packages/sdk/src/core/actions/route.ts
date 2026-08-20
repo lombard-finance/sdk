@@ -124,3 +124,63 @@ export const REGISTRY_TOKEN_ROWS = [
   asset: DeployAsset;
   registryToken: DefiRegistryToken;
 }[];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Route labels
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** The slug each asset contributes to a route label. */
+const ASSET_SLUGS: Partial<Record<AssetId, string>> = {
+  [AssetId.BTC]: 'btc',
+  [AssetId.BTCb]: 'btcb',
+  [AssetId.LBTC]: 'lbtc',
+};
+
+/** What a route label can be derived from. */
+export interface RouteLabelParams {
+  assetIn?: AssetId;
+  assetOut?: AssetId;
+  protocol?: string;
+}
+
+/**
+ * Derives the label for a journey from its assets and protocol.
+ *
+ * Derived rather than declared per class so the label cannot drift from the
+ * parameters it describes — which matters because after the merges one class
+ * covers several journeys, and the label is what `LogMeta` and
+ * `toSentryContext()` use to say which one failed.
+ *
+ * A vault leg is named by the asset on the non-vault side, since the share
+ * token has no `AssetId` to name.
+ *
+ * @throws {@link Error} when the combination has no label, rather than
+ * inventing one that would then appear in logs as fact.
+ */
+export function deriveRouteLabel(params: RouteLabelParams): RouteLabel {
+  const { assetIn, assetOut, protocol } = params;
+
+  if (protocol) {
+    // Into a vault: the asset going in names it. Out of a vault: the asset
+    // coming out does. Exactly one of the two is present on a vault route.
+    const asset = assetIn ?? assetOut;
+    const slug = asset ? ASSET_SLUGS[asset] : undefined;
+
+    if (slug) {
+      return (assetIn ? `${slug}-to-vault` : `vault-to-${slug}`) as RouteLabel;
+    }
+  } else if (assetIn && assetOut) {
+    const from = ASSET_SLUGS[assetIn];
+    const to = ASSET_SLUGS[assetOut];
+
+    if (from && to) {
+      return `${from}-to-${to}` as RouteLabel;
+    }
+  }
+
+  throw new Error(
+    `No route label for assetIn=${String(assetIn)} assetOut=${String(assetOut)} ` +
+      `protocol=${String(protocol)}. A label appears in logs as fact, so an ` +
+      `unknown combination throws rather than guessing.`,
+  );
+}
