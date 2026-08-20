@@ -26,6 +26,7 @@ import { toSatoshi } from '../../../../utils/satoshi';
 import {
   assetIdToToken,
   BaseBtcAction,
+  type BtcAuthorizeOptions,
   type StatusConfig,
   type StepDefinition,
 } from '../shared';
@@ -232,10 +233,20 @@ export class BtcDepositAndDeploy
     }, BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
   }
 
-  async authorizeDeposit(): Promise<void> {
+  /**
+   * Run the vault-deposit authorization ceremony.
+   *
+   * Renamed from `authorizeDeposit()`, which stays as a deprecated delegator.
+   *
+   * @param options - Signing overrides. `expiry` sets the signature expiration
+   * as an absolute UNIX timestamp in seconds, defaulting to 24 hours. Silo
+   * BTC.b signs with a zero deadline, so it is accepted for interface parity
+   * and has no effect on the current BTC.b route.
+   */
+  async authorize(options?: BtcAuthorizeOptions): Promise<void> {
     this.assertStatus(
       [BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION, BtcActionStatus.READY],
-      'authorizeDeposit',
+      'authorize',
     );
 
     if (this.status === BtcActionStatus.READY) return;
@@ -260,6 +271,8 @@ export class BtcDepositAndDeploy
           amount: amountSats.toString(),
           vaultKey: getVaultKey(this.params.protocol),
           token: outputToken,
+          // undefined lets signStakeAndBake apply its own 24h default
+          expiry: options?.expiry,
         },
       );
 
@@ -267,6 +280,13 @@ export class BtcDepositAndDeploy
       this.authState.typedData = result.typedData;
       this.authState.authorized = true;
     }, BtcActionStatus.READY);
+  }
+
+  /**
+   * @deprecated Use {@link authorize} instead. Removed in the next major.
+   */
+  async authorizeDeposit(options?: BtcAuthorizeOptions): Promise<void> {
+    return this.authorize(options);
   }
 
   async generateDepositAddress(captchaToken?: string): Promise<string> {

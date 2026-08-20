@@ -10,7 +10,6 @@ exports[`v5 to v6 interface conformance > reports the remaining gap per class 1`
   "BtcDepositAndDeploy": [
     "applicableSteps",
     "route",
-    "authorize",
     "monitor",
   ],
   "BtcStake": [
@@ -21,7 +20,6 @@ exports[`v5 to v6 interface conformance > reports the remaining gap per class 1`
   "BtcStakeAndDeploy": [
     "applicableSteps",
     "route",
-    "authorize",
     "monitor",
   ],
   "EvmCancelWithdraw": [

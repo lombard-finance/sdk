@@ -25,6 +25,7 @@ import { toSatoshi } from '../../../../utils/satoshi';
 import {
   assetIdToToken,
   BaseBtcAction,
+  type BtcAuthorizeOptions,
   type StatusConfig,
   type StepDefinition,
 } from '../shared';
@@ -299,7 +300,17 @@ export class BtcStakeAndDeploy
     });
   }
 
-  async authorizeDeposit(): Promise<void> {
+  /**
+   * Run the vault-deposit authorization ceremony.
+   *
+   * Renamed from `authorizeDeposit()`, which stays as a deprecated delegator.
+   * The name matches every other action now that the four ceremony methods
+   * across the BTC classes have collapsed into one per class.
+   *
+   * @param options - Signing overrides. `expiry` sets the signature expiration
+   * as an absolute UNIX timestamp in seconds, defaulting to 24 hours.
+   */
+  async authorize(options?: BtcAuthorizeOptions): Promise<void> {
     // ADDRESS_READY is reachable straight out of prepare() when a deposit
     // address and a valid signature already exist on the server. Rejecting it
     // here meant the sequence in this class's own JSDoc — prepare, then
@@ -311,7 +322,7 @@ export class BtcStakeAndDeploy
         BtcActionStatus.READY,
         BtcActionStatus.ADDRESS_READY,
       ],
-      'authorizeDeposit',
+      'authorize',
     );
 
     if (
@@ -344,6 +355,8 @@ export class BtcStakeAndDeploy
           amount: amountSats.toString(),
           vaultKey: getVaultKey(this.params.protocol),
           token: sourceToken,
+          // undefined lets signStakeAndBake apply its own 24h default
+          expiry: options?.expiry,
         },
       );
 
@@ -351,6 +364,13 @@ export class BtcStakeAndDeploy
       this.authState.typedData = result.typedData;
       this.authState.authorized = true;
     }, BtcActionStatus.READY);
+  }
+
+  /**
+   * @deprecated Use {@link authorize} instead. Removed in the next major.
+   */
+  async authorizeDeposit(options?: BtcAuthorizeOptions): Promise<void> {
+    return this.authorize(options);
   }
 
   async generateDepositAddress(captchaToken?: string): Promise<string> {

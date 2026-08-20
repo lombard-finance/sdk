@@ -12,6 +12,17 @@ migrate once.
 
 ### Added
 
+- The BTC deploy actions gain `authorize(options?)`, and `expiry` is reachable for the first time. `signStakeAndBake()` has always accepted a signature expiry and defaulted to 24 hours, but no caller could set one: the field was missing from `SignStakeAndBakeParams`, so neither `EvmService` nor either deploy config could forward it, and `authorizeDeposit()` took no arguments at all. Every consumer going through `btc.stakeAndDeploy()` or `btc.depositAndDeploy()` was pinned to 24 hours.
+
+  ```ts
+  await action.prepare({ amount: '0.1', recipient: '0x...' });
+  await action.authorize({ expiry: Math.floor(Date.now() / 1000) + 7 * 86400 });
+  ```
+
+  `expiry` is an absolute UNIX timestamp in seconds, matching the low-level parameter it forwards to, so no second unit convention enters the SDK. Omitting it passes `undefined` all the way down rather than computing a default en route, so the 24-hour fallback stays in one place. Silo BTC.b signs with a zero deadline, so the option is accepted there for interface parity and has no effect on that route.
+
+  `authorizeDeposit()` remains as a deprecated delegator and takes the same options. Dropping it is deferred to the next major.
+
 - `sdk.chain.btc.deposit()` actions gain `authorize()`, which runs whichever authorization ceremony the route needs. `authorizeFee()` and `confirmAddress()` were the two halves of one ceremony, split across two methods that each threw when called on the wrong route — and which one applies is decided by the destination, not the caller, so every integrator had to rediscover the mapping per chain. `authorize()` reads it from the route.
 
   Both old names remain as deprecated delegators with their guards intact: `authorizeFee()` on a subsidised destination still throws rather than quietly signing an address, and `confirmAddress()` on Ethereum still throws rather than skipping the fee signature. `BtcStake` already exposed exactly this method, so the two BTC deposit routes now have one shape. Dropping the old names is deferred to the next major.

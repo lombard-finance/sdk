@@ -76,6 +76,11 @@ export interface StakeAndDeployChainConfig {
       amount: string;
       vaultKey: string;
       token: string;
+      /**
+       * Signature expiration as an absolute UNIX timestamp in seconds.
+       * Defaults to 24 hours from the time of signing when omitted.
+       */
+      expiry?: number;
     },
   ) => Promise<StakeAndBakeAuthResult>;
 
