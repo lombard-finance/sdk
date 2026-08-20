@@ -73,8 +73,21 @@ export class StarknetActions {
    *
    * @throws LombardError if starknet module is not registered
    */
-  unstake(params: StarknetUnstakeParams): IStarknetUnstake {
+  /**
+   * Withdraw LBTC to BTC.
+   *
+   * Burns LBTC on Starknet and releases BTC on Bitcoin. Named `withdraw` under the
+   * three-verb model: an L-asset in, an asset out.
+   */
+  withdraw(params: StarknetUnstakeParams): IStarknetUnstake {
     return new StarknetUnstake(this.ctx, params);
+  }
+
+  /**
+   * @deprecated Use {@link withdraw} instead. Removed in the next major.
+   */
+  unstake(params: StarknetUnstakeParams): IStarknetUnstake {
+    return this.withdraw(params);
   }
 }
 

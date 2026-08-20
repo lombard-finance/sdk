@@ -70,8 +70,21 @@ export class SuiActions {
    *
    * @throws LombardError if sui module is not registered
    */
-  unstake(params: SuiUnstakeParams): ISuiUnstake {
+  /**
+   * Withdraw LBTC to BTC.
+   *
+   * Burns LBTC on Sui and releases BTC on Bitcoin. Named `withdraw` under the
+   * three-verb model: an L-asset in, an asset out.
+   */
+  withdraw(params: SuiUnstakeParams): ISuiUnstake {
     return new SuiUnstake(this.ctx, params);
+  }
+
+  /**
+   * @deprecated Use {@link withdraw} instead. Removed in the next major.
+   */
+  unstake(params: SuiUnstakeParams): ISuiUnstake {
+    return this.withdraw(params);
   }
 }
 

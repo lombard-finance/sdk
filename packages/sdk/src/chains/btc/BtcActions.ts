@@ -27,8 +27,10 @@
  */
 
 import type { LombardConfig } from '../../config/types';
+import { AssetId } from '../../core';
 import type { BtcCoreContext } from '../../shared/context';
 import { createBtcCoreContext } from '../../shared/context';
+import { LombardError, ValidationErrorCode } from '../../shared/errors';
 import { BtcDeposit } from './actions/deposit/BtcDeposit';
 import type {
   BtcDeposit as IBtcDeposit,
@@ -111,6 +113,10 @@ export class BtcActions {
    * const address = await action.generateDepositAddress();
    * ```
    */
+  /**
+   * @deprecated Use {@link deploy} instead, which dispatches on `assetOut`.
+   * Removed in the next major.
+   */
   stakeAndDeploy(params: BtcStakeAndDeployParams): IBtcStakeAndDeploy {
     return new BtcStakeAndDeploy(this.ctx, params);
   }
@@ -165,8 +171,51 @@ export class BtcActions {
    * const address = await action.generateDepositAddress();
    * ```
    */
+  /**
+   * @deprecated Use {@link deploy} instead, which dispatches on `assetOut`.
+   * Removed in the next major.
+   */
   depositAndDeploy(params: BtcDepositAndDeployParams): IBtcDepositAndDeploy {
     return new BtcDepositAndDeploy(this.ctx, params);
+  }
+
+  /**
+   * Deposit Bitcoin straight into a vault.
+   *
+   * One method for what were two, dispatching on `assetOut` — the intermediate
+   * asset the deposit passes through on its way into the vault, and the only
+   * thing that distinguished them:
+   *
+   * - `assetOut: LBTC` routes through LBTC, whose amount is ratio-adjusted
+   * - `assetOut: BTC.b` routes through BTC.b, which is 1:1 with BTC
+   *
+   * There is no `assetOut` naming the vault shares themselves, which is why
+   * `deploy` is its own verb rather than a shape of `deposit`: no `AssetId`
+   * names them.
+   *
+   * @throws LombardError if `assetOut` is neither LBTC nor BTC.b
+   */
+  deploy(
+    params: BtcStakeAndDeployParams | BtcDepositAndDeployParams,
+  ): IBtcStakeAndDeploy | IBtcDepositAndDeploy {
+    if (params.assetOut === AssetId.LBTC) {
+      return new BtcStakeAndDeploy(this.ctx, params as BtcStakeAndDeployParams);
+    }
+
+    if (params.assetOut === AssetId.BTCb) {
+      return new BtcDepositAndDeploy(
+        this.ctx,
+        params as BtcDepositAndDeployParams,
+      );
+    }
+
+    // Picking a class arbitrarily here would fail later, inside a flow the
+    // caller has already started, and after a signature.
+    throw new LombardError(
+      ValidationErrorCode.INVALID_ASSET,
+      `Cannot deploy through ${String(params.assetOut)}. ` +
+        `Supported: ${AssetId.LBTC}, ${AssetId.BTCb}.`,
+    );
   }
 }
 

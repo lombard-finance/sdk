@@ -12,6 +12,15 @@ migrate once.
 
 ### Added
 
+- The three-verb facade methods, on the chains where the new name was free. `btc.deploy()`, `solana.deposit()`, `solana.withdraw()`, `sui.withdraw()` and `starknet.withdraw()`. Every old method still works and is deprecated.
+
+  Two of these merge a pair, and the merged method dispatches on the parameter that actually distinguished them rather than asking the caller to pick a class:
+
+  - `btc.deploy({ assetOut })` — LBTC routes through the ratio-adjusted path, BTC.b through the 1:1 one.
+  - `solana.withdraw({ assetIn })` — LBTC burns LBTC, BTC.b redeems through the Asset Router.
+
+  An asset with no route throws at the call. Dispatching to a class arbitrarily would fail later instead, inside a flow the caller has already started and possibly after a signature.
+
 - Every action exposes `route`, naming which journey the instance is running. After the merges one class covers several — `BtcDeposit` covers four and `EvmWithdraw` two — so `constructor.name` no longer identifies what failed, which matters because `LogMeta` carries this into `toSentryContext()` during exactly the window partners are filing migration bugs.
 
   The label is derived from the parameters rather than declared per class, so it cannot drift from the route it describes, and `vaultAsset()` reads a vault's denomination out of `DEFI_REGISTRY` so a protocol added there is labelled without a second edit. An unknown combination throws: a label appears in a log as fact, so guessing one is worse than failing.

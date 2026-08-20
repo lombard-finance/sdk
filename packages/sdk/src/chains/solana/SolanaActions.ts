@@ -24,8 +24,10 @@ import type { SolanaService } from '@lombard.finance/sdk-common';
 import { PartnerConfiguration } from '../../client/PartnerConfiguration';
 import type { LombardConfig } from '../../config/types';
 import { getProviderGetter } from '../../config/types';
+import { AssetId } from '../../core';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SolanaCoreContext } from '../../shared/context';
+import { LombardError, ValidationErrorCode } from '../../shared/errors';
 import { SolanaRedeem } from './actions/redeem/SolanaRedeem';
 import type { ISolanaRedeem, SolanaRedeemParams } from './actions/redeem/types';
 import { SolanaStake } from './actions/stake/SolanaStake';
@@ -83,8 +85,51 @@ export class SolanaActions {
    * @throws LombardError if solana module is not registered
    * @throws LombardError if route is not supported
    */
-  stake(params: SolanaStakeParams): ISolanaStake {
+  /**
+   * Deposit BTC.b into LBTC on Solana.
+   *
+   * Named `deposit` under the three-verb model: an asset in, an L-asset out.
+   */
+  deposit(params: SolanaStakeParams): ISolanaStake {
     return new SolanaStake(this.ctx, params);
+  }
+
+  /**
+   * @deprecated Use {@link deposit} instead. Removed in the next major.
+   */
+  stake(params: SolanaStakeParams): ISolanaStake {
+    return this.deposit(params);
+  }
+
+  /**
+   * Withdraw an L-asset back out.
+   *
+   * One method for what were two, dispatching on `assetIn` — which is the only
+   * thing that distinguished them:
+   *
+   * - `assetIn: LBTC` burns LBTC, releasing BTC cross-chain or BTC.b same-chain
+   * - `assetIn: BTC.b` burns BTC.b, releasing BTC via the Asset Router
+   *
+   * @throws LombardError if `assetIn` is neither LBTC nor BTC.b
+   */
+  withdraw(
+    params: SolanaUnstakeParams | SolanaRedeemParams,
+  ): ISolanaUnstake | ISolanaRedeem {
+    if (params.assetIn === AssetId.LBTC) {
+      return new SolanaUnstake(this.ctx, params as SolanaUnstakeParams);
+    }
+
+    if (params.assetIn === AssetId.BTCb) {
+      return new SolanaRedeem(this.ctx, params as SolanaRedeemParams);
+    }
+
+    // Dispatching on an asset with no route would otherwise pick a class
+    // arbitrarily and fail later, inside a flow the caller has already started.
+    throw new LombardError(
+      ValidationErrorCode.INVALID_ASSET,
+      `Cannot withdraw ${String(params.assetIn)} on Solana. ` +
+        `Supported: ${AssetId.LBTC}, ${AssetId.BTCb}.`,
+    );
   }
 
   /**
@@ -97,6 +142,10 @@ export class SolanaActions {
    * @throws LombardError if solana module is not registered
    * @throws LombardError if route is not supported
    */
+  /**
+   * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
+   * Removed in the next major.
+   */
   unstake(params: SolanaUnstakeParams): ISolanaUnstake {
     return new SolanaUnstake(this.ctx, params);
   }
@@ -108,6 +157,10 @@ export class SolanaActions {
    *
    * @throws LombardError if solana module is not registered
    * @throws LombardError if route is not supported
+   */
+  /**
+   * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
+   * Removed in the next major.
    */
   redeem(params: SolanaRedeemParams): ISolanaRedeem {
     return new SolanaRedeem(this.ctx, params);
