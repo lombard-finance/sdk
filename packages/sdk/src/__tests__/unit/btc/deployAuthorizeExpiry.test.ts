@@ -18,6 +18,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { evmDepositAndDeployConfig } from '../../../chains/btc/actions/depositAndDeploy/config/evm';
 import { evmStakeAndDeployConfig } from '../../../chains/btc/actions/stakeAndDeploy/config/evm';
 import { ChainId } from '../../../common/chains';
+import { signStakeAndBake } from '../../../contract-functions/signStakeAndBake/signStakeAndBake';
 import type { BtcCoreContext } from '../../../shared/context';
 
 const RECIPIENT = '0x1111111111111111111111111111111111111111';
@@ -145,5 +146,38 @@ describe('the expiry unit convention', () => {
     // enters the SDK. A milliseconds value would be ~1000x too far out.
     expect(SEVEN_DAYS).toBeLessThan(2_000_000_000);
     expect(SEVEN_DAYS).toBeGreaterThan(1_000_000_000);
+  });
+});
+
+/**
+ * `BigInt()` rejects anything that is not an integer, so an unvalidated expiry
+ * surfaced as a RangeError from inside the permit build, naming neither the
+ * parameter nor its unit. The parameter is in seconds, so the likely mistake is
+ * passing milliseconds or `Date.now() / 1000` without a floor.
+ */
+describe('expiry validation', () => {
+  const base = {
+    account: RECIPIENT as `0x${string}`,
+    value: '1000',
+    chainId: ChainId.ethereum,
+    provider: {} as never,
+  };
+
+  it.each([
+    ['a fractional value, i.e. Date.now() / 1000 unfloored', 1893456000.5],
+    ['a negative timestamp', -1],
+    ['NaN', Number.NaN],
+    ['Infinity', Number.POSITIVE_INFINITY],
+    ['zero', 0],
+  ])('rejects %s', async (_label, expiry) => {
+    await expect(
+      signStakeAndBake({ ...base, expiry } as never),
+    ).rejects.toThrow(/expiry must be a positive whole number of seconds/);
+  });
+
+  it('names the unit, so the caller can see what to change', async () => {
+    await expect(
+      signStakeAndBake({ ...base, expiry: 1893456000.5 } as never),
+    ).rejects.toThrow(/Math\.floor/);
   });
 });

@@ -7,6 +7,7 @@ import {
   DefiProtocol,
   StakeAndBakeToken,
 } from '../../defi/defi-registry';
+import { LombardError, ValidationErrorCode } from '../../shared/errors';
 import { DAY, now, toUnix } from '../../utils/time';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
 import { handleApproveFlow } from './handleApprove';
@@ -89,6 +90,26 @@ export interface ISignStakeAndBakeResult {
  *
  * @returns {Promise<ISignStakeAndBakeResult>} - The signature and typed data.
  */
+/**
+ * Rejects an expiry that cannot become a permit deadline.
+ *
+ * The parameter is an absolute UNIX timestamp in **seconds**. A fractional
+ * value is almost always milliseconds, or `Date.now() / 1000` without a
+ * `Math.floor`, and `BigInt()` would reject it with a message that names
+ * neither the parameter nor the unit.
+ */
+function assertValidExpiry(expiry: number): void {
+  if (!Number.isSafeInteger(expiry) || expiry <= 0) {
+    throw new LombardError(
+      ValidationErrorCode.INVALID_PARAMETER,
+      `expiry must be a positive whole number of seconds since the epoch, ` +
+        `received ${String(expiry)}. It is an absolute UNIX timestamp in ` +
+        `seconds — a fractional value usually means milliseconds, or ` +
+        `Date.now() / 1000 without Math.floor.`,
+    );
+  }
+}
+
 export async function signStakeAndBake({
   account,
   expiry = toUnix(now() + DAY),
@@ -116,7 +137,17 @@ export async function signStakeAndBake({
   const tokenAddress = tokenContract.address;
   const tokenAbi = tokenContract.abi;
 
-  // Calculate deadline based on expiry behavior
+  // Calculate deadline based on expiry behavior.
+  //
+  // `BigInt()` throws a RangeError for anything that is not an integer, so a
+  // caller passing `Date.now() / 1000` unfloored — the obvious mistake, since
+  // the parameter is in seconds and `Date.now()` is in milliseconds — would get
+  // an opaque failure from inside the permit build. Check it here and say what
+  // was wrong. Zero-deadline strategies never read the value, so they are exempt.
+  if (strategy.approval.deadlineStrategy !== 'zero') {
+    assertValidExpiry(expiry);
+  }
+
   const deadline =
     strategy.approval.deadlineStrategy === 'zero' ? 0n : BigInt(expiry);
 

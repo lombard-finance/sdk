@@ -21,11 +21,13 @@ await action.authorizeDeposit({
 
 `expiry` is an **absolute UNIX timestamp in seconds**, matching the low-level parameter it forwards to, so no second unit convention enters the SDK. Omitting it passes `undefined` the whole way down rather than computing a default en route, so the 24-hour fallback stays in exactly one place.
 
+An `expiry` that is not a positive whole number of seconds is rejected with an `INVALID_PARAMETER` error naming the unit. `BigInt()` would otherwise throw a `RangeError` from inside the permit build for a fractional value — which is what `Date.now() / 1000` produces without a `Math.floor`.
+
 The override reaches the signer through all four hops — action, config, service, signer — and each is covered by a test that fails if the hop drops it.
 
 `authorizeDeposit()` still takes no required arguments, so **every existing call site compiles and behaves as before**.
 
-Silo BTC.b signs with a zero deadline (`deadlineStrategy: 'zero'`), so the option is accepted there for interface parity and has no effect on that route.
+The BTC.b vault route signs with a zero deadline (`deadlineStrategy: 'zero'`), so the option is accepted there for interface parity and has no effect on that route.
 
 # 5.3.0
 
