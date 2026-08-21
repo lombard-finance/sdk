@@ -1,3 +1,9 @@
+# 4.2.0
+
+### Added
+
+- `SignStakeAndBakeParams.expiry` — optional signature expiration as an absolute UNIX timestamp in seconds. Present so `EvmService` can forward a caller-supplied expiry to `signStakeAndBake`, which has always accepted one. Omitting it preserves the 24-hour default.
+
 # Changelog
 
 All notable changes to `@lombard.finance/sdk-common` will be documented in this file.

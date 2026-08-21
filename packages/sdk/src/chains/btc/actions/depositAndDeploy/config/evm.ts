@@ -69,7 +69,15 @@ export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
 
   async authorizeDepositAndDeploy(
     ctx,
-    { chainId, recipient, amount, vaultKey, token, storeSignature = true },
+    {
+      chainId,
+      recipient,
+      amount,
+      vaultKey,
+      token,
+      expiry,
+      storeSignature = true,
+    },
   ) {
     const evm = ctx.capabilities.require('evm') as EvmService;
     const provider = await ctx.getProvider('evm');
@@ -88,6 +96,7 @@ export const evmDepositAndDeployConfig: DepositAndDeployChainConfig = {
       provider: provider as EIP1193Provider,
       vaultKey,
       token,
+      expiry,
     });
 
     // Kept for the resume path: generateDepositAddress returns early when an

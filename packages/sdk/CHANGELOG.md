@@ -1,3 +1,32 @@
+# 5.4.0
+
+### Configurable Stake-And-Bake Signature Expiry
+
+`signStakeAndBake()` has always accepted an expiry and defaulted to 24 hours, but no higher-level caller could set one. `SignStakeAndBakeParams` had no `expiry` field, so `EvmService.signStakeAndBake()` could not forward one; neither deploy config threaded it; and `authorizeDeposit()` took no arguments at all. Every consumer going through `btc.stakeAndDeploy()` or `btc.depositAndDeploy()` was pinned to 24 hours, and a user whose signature lapsed had to come back and sign again.
+
+```ts
+const action = sdk.chain.btc.stakeAndDeploy({
+  assetOut: AssetId.LBTC,
+  destChain: Chain.ETHEREUM,
+  protocol: DefiProtocol.Veda,
+});
+
+await action.prepare({ amount: '0.1', recipient: '0x...' });
+
+// Ten days instead of 24 hours
+await action.authorizeDeposit({
+  expiry: Math.floor(Date.now() / 1000) + 10 * 24 * 60 * 60,
+});
+```
+
+`expiry` is an **absolute UNIX timestamp in seconds**, matching the low-level parameter it forwards to, so no second unit convention enters the SDK. Omitting it passes `undefined` the whole way down rather than computing a default en route, so the 24-hour fallback stays in exactly one place.
+
+The override reaches the signer through all four hops — action, config, service, signer — and each is covered by a test that fails if the hop drops it.
+
+`authorizeDeposit()` still takes no required arguments, so **every existing call site compiles and behaves as before**.
+
+Silo BTC.b signs with a zero deadline (`deadlineStrategy: 'zero'`), so the option is accepted there for interface parity and has no effect on that route.
+
 # 5.3.0
 
 ### Deposit Address Over The Wallet JWT
