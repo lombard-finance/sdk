@@ -34,8 +34,10 @@
  */
 
 import type { LombardConfig } from '../../config/types';
+import { AssetId } from '../../core';
 import type { EvmCoreContext } from '../../shared/context';
 import { createEvmCoreContext } from '../../shared/context';
+import { LombardError, ValidationErrorCode } from '../../shared/errors';
 import {
   createEvmDeploy,
   type EvmDeployParams,
@@ -120,6 +122,10 @@ export class EvmActions {
    * });
    * ```
    */
+  /**
+   * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
+   * Removed in the next major.
+   */
   unstake(params: EvmUnstakeParams): IEvmUnstake {
     return createEvmUnstake(this.ctx, params);
   }
@@ -139,8 +145,31 @@ export class EvmActions {
    * });
    * ```
    */
-  deposit(params: EvmDepositParams): IEvmDeposit {
+  /**
+   * Claim an already-notarized mint.
+   *
+   * The new name for what `deposit()` has always done.
+   */
+  claim(params: EvmDepositParams): IEvmDeposit {
     return createEvmDeposit(this.ctx, params);
+  }
+
+  /**
+   * Claim an already-notarized mint.
+   *
+   * @deprecated Use {@link claim} instead. Removed in the next major.
+   *
+   * **This name is deliberately not reused in 6.0.0.** Under the three-verb
+   * model `deposit` should mean the BTC.b-to-LBTC route `stake()` serves — but
+   * `EvmDepositParams` and `EvmStakeParams` are structurally identical, both
+   * `{ assetIn, assetOut, sourceChain, destChain }`. Reassigning the name would
+   * hand an existing caller a different action, and because the parameters are
+   * indistinguishable neither the compiler nor a runtime guard could catch it.
+   * So `deposit` keeps its 5.x meaning here, and the name is only free once this
+   * alias is removed.
+   */
+  deposit(params: EvmDepositParams): IEvmDeposit {
+    return this.claim(params);
   }
 
   /**
@@ -181,8 +210,48 @@ export class EvmActions {
    * await withdraw.execute();
    * ```
    */
-  withdraw(params: EvmWithdrawParams): IEvmWithdraw {
-    return createEvmWithdraw(this.ctx, params);
+  /**
+   * Withdraw value out: to an asset, or out of a vault.
+   *
+   * Overloaded rather than unioned so the caller gets the precisely-typed
+   * action. That matters because the two arms have different terminals —
+   * `EvmWithdrawStatus` has `completed` and no `queued`, `EvmVaultWithdrawStatus`
+   * has `queued` and no `completed` — so comparing against the wrong one is a
+   * compile error rather than a UI reporting an unsettled request as done.
+   *
+   * The vault arm is what this method already did in 5.x, unchanged, so no
+   * existing call moves. The asset arms are new here and dispatch on `assetIn`:
+   *
+   * - `assetIn: LBTC` burns LBTC for BTC cross-chain or BTC.b same-chain
+   * - `assetIn: BTC.b` redeems BTC.b for BTC
+   *
+   * @throws LombardError if `assetIn` names no withdrawable asset
+   */
+  withdraw(params: EvmWithdrawParams): IEvmWithdraw;
+  withdraw(params: EvmUnstakeParams): IEvmUnstake;
+  withdraw(params: EvmRedeemParams): IEvmRedeem;
+  withdraw(
+    params: EvmWithdrawParams | EvmUnstakeParams | EvmRedeemParams,
+  ): IEvmWithdraw | IEvmUnstake | IEvmRedeem {
+    // A vault exit names a protocol and no input asset: the shares it burns
+    // have no AssetId. That absence is what separates the arms.
+    if (!('assetIn' in params)) {
+      return createEvmWithdraw(this.ctx, params);
+    }
+
+    if (params.assetIn === AssetId.LBTC) {
+      return createEvmUnstake(this.ctx, params as EvmUnstakeParams);
+    }
+
+    if (params.assetIn === AssetId.BTCb) {
+      return createEvmRedeem(this.ctx, params as EvmRedeemParams);
+    }
+
+    throw new LombardError(
+      ValidationErrorCode.INVALID_ASSET,
+      `Cannot withdraw ${String(params.assetIn)} on EVM. ` +
+        `Supported: ${AssetId.LBTC}, ${AssetId.BTCb}, or a vault protocol.`,
+    );
   }
 
   /**
@@ -227,6 +296,10 @@ export class EvmActions {
    * });
    * const { txHash } = await redeem.execute();
    * ```
+   */
+  /**
+   * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
+   * Removed in the next major.
    */
   redeem(params: EvmRedeemParams): IEvmRedeem {
     return createEvmRedeem(this.ctx, params);

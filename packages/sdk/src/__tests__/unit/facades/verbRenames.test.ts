@@ -14,6 +14,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it } from 'vitest';
 
 import { btcActions } from '../../../chains/btc/BtcActions';
+import { evmActions } from '../../../chains/evm/EvmActions';
 import { solanaActions } from '../../../chains/solana/SolanaActions';
 import { starknetActions } from '../../../chains/starknet/StarknetActions';
 import { suiActions } from '../../../chains/sui/SuiActions';
@@ -174,5 +175,113 @@ describe('the single-action chains', () => {
     expect(starknet.unstake(starknetParams).constructor.name).toBe(
       'StarknetUnstake',
     );
+  });
+});
+
+describe('evm.withdraw()', () => {
+  const evm = evmActions(config);
+  const assetArm = {
+    sourceChain: Chain.ETHEREUM,
+    destChain: Chain.BITCOIN_MAINNET,
+  };
+
+  it('keeps its 5.x meaning for the vault arm, so no existing call moves', () => {
+    const action = evm.withdraw({
+      protocol: 'veda' as never,
+      sourceChain: Chain.ETHEREUM,
+      recipient: '0x1111111111111111111111111111111111111111',
+    });
+
+    expect(action.constructor.name).toBe('EvmWithdraw');
+  });
+
+  it('routes an LBTC withdrawal to the unstake action', () => {
+    const action = evm.withdraw({
+      ...assetArm,
+      assetIn: AssetId.LBTC,
+      assetOut: AssetId.BTC,
+    });
+
+    expect(action.constructor.name).toBe('EvmUnstake');
+  });
+
+  it('routes a BTC.b withdrawal to the redeem action', () => {
+    const action = evm.withdraw({
+      ...assetArm,
+      assetIn: AssetId.BTCb,
+      assetOut: AssetId.BTC,
+    });
+
+    expect(action.constructor.name).toBe('EvmRedeem');
+  });
+
+  // The absence of assetIn is what marks a vault exit: the shares it burns have
+  // no AssetId. Reading a protocol instead would misfire on a future route that
+  // carried both.
+  it('separates the arms on whether assetIn is present at all', () => {
+    const vault = evm.withdraw({
+      protocol: 'veda' as never,
+      sourceChain: Chain.ETHEREUM,
+      recipient: '0x1111111111111111111111111111111111111111',
+    });
+    const asset = evm.withdraw({
+      ...assetArm,
+      assetIn: AssetId.LBTC,
+      assetOut: AssetId.BTC,
+    });
+
+    expect(vault.constructor.name).not.toBe(asset.constructor.name);
+  });
+
+  it('rejects an asset it cannot withdraw', () => {
+    expect(() =>
+      evm.withdraw({
+        ...assetArm,
+        assetIn: AssetId.WBTC,
+        assetOut: AssetId.BTC,
+      }),
+    ).toThrow(/Cannot withdraw/);
+  });
+
+  it('keeps both absorbed names working', () => {
+    expect(
+      evm.unstake({ ...assetArm, assetIn: AssetId.LBTC, assetOut: AssetId.BTC })
+        .constructor.name,
+    ).toBe('EvmUnstake');
+    expect(
+      evm.redeem({ ...assetArm, assetIn: AssetId.BTCb, assetOut: AssetId.BTC })
+        .constructor.name,
+    ).toBe('EvmRedeem');
+  });
+});
+
+describe('evm.claim()', () => {
+  const evm = evmActions(config);
+  const params = {
+    assetIn: AssetId.BTCb,
+    assetOut: AssetId.LBTC,
+    sourceChain: Chain.ETHEREUM,
+    destChain: Chain.ETHEREUM,
+  };
+
+  it('is the new name for what deposit() has always done', () => {
+    expect(evm.claim(params).constructor.name).toBe('EvmDeposit');
+    expect(evm.deposit(params).constructor.name).toBe('EvmDeposit');
+  });
+
+  /**
+   * The reason `deposit` is not reassigned to the BTC.b-to-LBTC route in this
+   * major. If these two param types ever diverge, a runtime guard becomes
+   * possible and the name can move — so the identity is asserted, not assumed.
+   */
+  it('cannot be told apart from stake() by its parameters', () => {
+    const asStake = evm.stake(params);
+    const asClaim = evm.claim(params);
+
+    expect(asStake.constructor.name).toBe('EvmStake');
+    expect(asClaim.constructor.name).toBe('EvmDeposit');
+    // Same input, two different actions. Nothing in the parameters distinguishes
+    // them, which is why reassigning the name would be silent.
+    expect(asStake.constructor.name).not.toBe(asClaim.constructor.name);
   });
 });

@@ -12,6 +12,16 @@ migrate once.
 
 ### Added
 
+- `evm.withdraw()` now serves the asset routes as well as the vault exit, absorbing `unstake()` and `redeem()`. **The vault arm is unchanged**, so no existing call moves: a call passing `protocol` behaves exactly as it did in 5.x. The asset arms are new and dispatch on `assetIn` — LBTC burns LBTC for BTC or BTC.b, BTC.b redeems for BTC.
+
+  It is overloaded rather than returning a union, so a caller gets the precisely-typed action. That matters because the arms have different terminals: `EvmWithdrawStatus` carries `completed` and no `queued`, `EvmVaultWithdrawStatus` carries `queued` and no `completed`. Comparing against the wrong one is a compile error instead of a UI reporting an unsettled withdrawal as done — which is what 5.x did, silently.
+
+  The arms are separated on whether `assetIn` is present at all, not on whether `protocol` is: a vault exit burns shares that have no `AssetId`, and that absence is the durable distinction.
+
+- `evm.claim()`, the new name for what `evm.deposit()` has always done.
+
+  **`deposit` is deliberately not reassigned in this major.** Under the three-verb model it should name the BTC.b-to-LBTC route that `stake()` serves, but `EvmDepositParams` and `EvmStakeParams` are structurally identical — both `{ assetIn, assetOut, sourceChain, destChain }`. Reassigning the name would hand an existing caller a different action, and because the parameters are indistinguishable neither the compiler nor a runtime guard could detect it. `deposit` therefore keeps its 5.x meaning and the name is only free once the alias is removed.
+
 - The three-verb facade methods, on the chains where the new name was free. `btc.deploy()`, `solana.deposit()`, `solana.withdraw()`, `sui.withdraw()` and `starknet.withdraw()`. Every old method still works and is deprecated.
 
   Two of these merge a pair, and the merged method dispatches on the parameter that actually distinguished them rather than asking the caller to pick a class:
