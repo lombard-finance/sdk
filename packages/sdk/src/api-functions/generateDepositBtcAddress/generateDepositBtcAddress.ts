@@ -235,13 +235,18 @@ export async function generateDepositBtcAddress({
   } catch (error) {
     const errorMsg = getErrorMessage(error);
 
-    if (isSanctioned(errorMsg)) {
+    if (isSanctionedAddressError(errorMsg)) {
       return SANCTIONED_ADDRESS;
     }
     throw new Error(errorMsg);
   }
 }
 
-function isSanctioned(errorMsg: string): boolean {
+/**
+ * Whether an address-generation failure is the sanctions refusal, which every
+ * address route reports the same way and answers with `SANCTIONED_ADDRESS`
+ * rather than an error.
+ */
+export function isSanctionedAddressError(errorMsg: string): boolean {
   return errorMsg.includes(SANCTIONS_MESSAGE);
 }

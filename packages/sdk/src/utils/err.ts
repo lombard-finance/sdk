@@ -70,6 +70,18 @@ export class TokenContractAddressNotFoundError extends Error {
   }
 }
 
+/**
+ * Thrown when a v2 API route rejects the wallet JWT (expired, revoked, or
+ * issued to a different address). Consumers catch this to trigger a re-login
+ * instead of inspecting raw axios error shapes.
+ */
+export class UnauthorizedWalletJwtError extends Error {
+  constructor(public readonly url: string) {
+    super(`Wallet JWT rejected (${url})`);
+    this.name = 'UnauthorizedWalletJwtError';
+  }
+}
+
 export class UnsupportedTokenFlow extends Error {
   constructor(
     public readonly tokenIn: Token,

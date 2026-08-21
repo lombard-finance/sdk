@@ -305,6 +305,7 @@ export {
   getChainIdByName,
   getChainNameById,
   getEthNetworkByEnv,
+  getLegacyChainNameById,
   getSolanaNetworkByEnv,
   getSonicNetworkByEnv,
   getStarknetNetworkByEnv,
@@ -530,6 +531,12 @@ export {
   type IGetUserStakeAndBakeSignatureParams,
   type IGetUserStakeAndBakeSignatureResponse,
 } from './api-functions/getUserStakeAndBakeSignature/getUserStakeAndBakeSignature';
+export {
+  canResolveDepositBtcAddressWithJwt,
+  getDepositAssetTypeById,
+  type IResolveDepositBtcAddressParams,
+  resolveDepositBtcAddress,
+} from './api-functions/resolveDepositBtcAddress/resolveDepositBtcAddress';
 export {
   type ISetReferralParams,
   setReferral,

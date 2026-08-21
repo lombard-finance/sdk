@@ -6,6 +6,7 @@ export * from './getNetworkFeeSignature';
 export * from './getPointsByAddress';
 export * from './getUnstakesByAddress';
 export * from './getUserStakeAndBakeSignature';
+export * from './resolveDepositBtcAddress';
 export * from './setReferral';
 export * from './storeNetworkFeeSignature';
 export * from './storeStakeAndBakeSignature';
