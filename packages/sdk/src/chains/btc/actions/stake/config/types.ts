@@ -102,7 +102,14 @@ export interface FeeAuthConfig {
    */
   authorizeFee: (
     ctx: BtcCoreContext,
-    params: { chainId: unknown; recipient: string; fee: string },
+    params: {
+      chainId: unknown;
+      recipient: string;
+      fee: string;
+      // False while the signature is about to travel with generateDepositAddress,
+      // which registers it server-side. Registering it twice reads as a reuse.
+      storeSignature?: boolean;
+    },
   ) => Promise<FeeAuthResult>;
 }
 

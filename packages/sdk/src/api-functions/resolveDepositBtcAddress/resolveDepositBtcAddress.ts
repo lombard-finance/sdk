@@ -22,10 +22,9 @@ const RESOLVE_ADDRESS_URL = 'v2/addresses/deposit';
 const RESOLVE_ADDRESS_TIMEOUT_MS = 30_000;
 
 /**
- * The asset identifiers this route accepts. Only the pairs verified against a
- * live deployment are listed: a token missing here has no identifier as far as
- * this SDK is concerned, so callers fall back to the signature-carrying
- * `generateDepositBtcAddress` rather than guessing a name.
+ * The asset identifiers this route accepts. A token missing here has no
+ * identifier as far as this SDK is concerned, so callers fall back to the
+ * signature-carrying `generateDepositBtcAddress` rather than guessing a name.
  */
 const ASSET_TYPE_BY_TOKEN: Partial<Record<Token, string>> = {
   [Token.LBTC]: 'ASSET_TYPE_LBTC',
@@ -120,8 +119,7 @@ export function canResolveDepositBtcAddressWithJwt(
  *
  * The JWT proves control of the destination address, so unlike
  * `generateDepositBtcAddress` this carries no destination-address signature
- * and no captcha. A network-fee approval, where one is needed, is stored with
- * the claimer on its own path and never travels with this request.
+ * and no captcha.
  *
  * Returns `SANCTIONED_ADDRESS` when the destination address is sanctioned,
  * matching `generateDepositBtcAddress`.

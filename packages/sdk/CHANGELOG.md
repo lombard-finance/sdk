@@ -2,7 +2,7 @@
 
 ### Deposit Address Over The Wallet JWT
 
-The BTC deposit address can now be obtained with a wallet JWT instead of a destination-address signature. The token already proves control of the destination address, so the request that carries it needs no signature of its own, and a network-fee approval, where one is needed, stays with the claimer on its own path rather than travelling with the address request.
+The BTC deposit address can now be obtained with a wallet JWT instead of a destination-address signature. The token already proves control of the destination address, so the request that carries it needs no signature of its own.
 
 ### Added
 
@@ -10,7 +10,7 @@ The BTC deposit address can now be obtained with a wallet JWT instead of a desti
   - The v2 host comes from `getApiConfig(env).baseApiV2Url`, so every environment (dev, stage, testnet, ibc, prod) reaches its own gateway.
   - A 401 is raised as `UnauthorizedWalletJwtError`, so consumers already handling an expired vault-manager token handle this route the same way.
   - A sanctioned destination resolves to `SANCTIONED_ADDRESS`, matching `generateDepositBtcAddress` rather than throwing.
-- `canResolveDepositBtcAddressWithJwt(chainId, token = Token.LBTC)` reports whether the route has an identifier for that pair. `false` is not an error: it means the caller keeps to `generateDepositBtcAddress`. Only the asset identifiers verified against a live deployment are claimed (`LBTC`, `BTCb`), so an unverified token falls back instead of guessing a wire name.
+- `canResolveDepositBtcAddressWithJwt(chainId, token = Token.LBTC)` reports whether the route has an identifier for that pair. `false` is not an error: it means the caller keeps to `generateDepositBtcAddress`. The route names `LBTC` and `BTCb`; any other token falls back instead of guessing a wire name.
 - `getDepositAssetTypeById(token)` returns the `ASSET_TYPE_*` identifier for a token, and throws when there is none.
 - `getLegacyChainNameById(chainId)` returns the short `BLOCKCHAIN_*` identifier that the v2 address route accepts, derived from the same chain resolution as `getChainNameById`. A testnet deployment answers to its mainnet name (holesky and sepolia are both `BLOCKCHAIN_ETHEREUM`), and non-EVM chains are covered too.
 
@@ -19,6 +19,26 @@ The BTC deposit address can now be obtained with a wallet JWT instead of a desti
 - `UnauthorizedWalletJwtError` moved to the shared error module so routes outside the vault-manager can raise it. It is still exported from `@lombard.finance/sdk/strategies` and its `name` is unchanged; only the message text is now route-agnostic (`Wallet JWT rejected (<url>)`).
 
 ---
+
+# 5.2.2
+
+### Fixed
+
+The `dev` environment now sends v2 API requests to `https://api.devnet-bft.lombard-fi.com` instead of `https://bft-dev.stage.lombard-fi.com`.
+
+The dev v1 host does not serve the `/v2/*` routes, so every v2 call from that environment returned HTTP 404 — `POST /v2/auth/wallet/challenge` and the rest of the wallet-auth flow (`verify`, `verify/status`, `token/revoke`), plus the strategy metrics endpoints (`nav-history`, `rates-history`, per-user positions). `baseApiUrl` is unchanged, so v1 calls keep hitting the same host as before.
+
+# 5.2.1
+
+### Fixed
+
+A BTC action no longer stores its fee approval or stake-and-bake signature with the server when that same signature is about to be sent to `generateDepositAddress`.
+
+Both halves used to happen: the action signed, stored the signature itself, and then handed it to address generation, which stores it again. The server cannot tell that second write apart from the same signature being presented for a second address request, so the deposit address request looks like a reuse of an approval that is readable on chain, in the mint calldata and the event logs.
+
+The rule is now one writer per signature. Each of `BtcDeposit`, `BtcStake`, `BtcDepositAndDeploy` and `BtcStakeAndDeploy` stores it only when it is not about to carry it into address generation, which is exactly when it already holds a deposit address, resuming a flow whose address was created earlier. In that case nothing else would store it: `generateDepositAddress` returns the address it already has without a network call.
+
+No API change for callers. `authorizeFee()`, `authorizeDeposit()` and the address generation that follows are called exactly as before; the config-level `authorizeFee`, `authorizeDepositAndDeploy` and `authorizeStakeAndBake` gained an optional `storeSignature` parameter that defaults to `true`, so a custom chain config keeps its current behaviour.
 
 # 5.2.0
 

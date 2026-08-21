@@ -132,7 +132,7 @@ describe('canResolveDepositBtcAddressWithJwt', () => {
     expect(
       canResolveDepositBtcAddressWithJwt(ChainId.holesky, Token.BTCb),
     ).toBe(true);
-    // No verified identifier for the token means the caller keeps to the
+    // No identifier for the token means the caller keeps to the
     // signature-carrying route.
     expect(canResolveDepositBtcAddressWithJwt(ChainId.ethereum, Token.wBTC)).toBe(
       false,
