@@ -104,9 +104,11 @@ export function resolveRegistryToken(
   asset: DeployAsset,
 ): DefiRegistryToken {
   const key = `${namespace}:${asset}` as RegistryTokenKey;
-  const token = REGISTRY_TOKEN_TABLE[key];
 
-  if (token === undefined) {
+  // `hasOwn` rather than an undefined check: it distinguishes "no row for this
+  // pair" from "a row whose value happens to be undefined", and the first is
+  // the only condition that should throw.
+  if (!Object.hasOwn(REGISTRY_TOKEN_TABLE, key)) {
     throw new Error(
       `No registry token for ${namespace}/${asset}. A deploy must resolve its ` +
         `key from the route table, because deriving it from the asset alone ` +
@@ -114,7 +116,7 @@ export function resolveRegistryToken(
     );
   }
 
-  return token;
+  return REGISTRY_TOKEN_TABLE[key];
 }
 
 /** Every (namespace, asset) pair the table covers, for parameterised tests. */
@@ -207,12 +209,15 @@ export function vaultAsset(protocol: string): AssetId {
   const entry = (DEFI_REGISTRY as Record<string, Record<string, unknown>>)[
     protocol
   ];
-  const key = entry
-    ? Object.keys(entry).find((token) => token !== VIRTUAL_BTC_KEY)
-    : undefined;
 
-  if (key === Token.LBTC) return AssetId.LBTC;
-  if (key === Token.BTCb) return AssetId.BTCb;
+  // Asks which real token the vault holds, rather than "whichever key is not
+  // the virtual one". Same answer today, but it says what it means: the virtual
+  // BTC key names an input denomination, not a holding, so it is never the
+  // vault's asset however many keys a protocol grows.
+  if (entry) {
+    if (Object.hasOwn(entry, Token.LBTC)) return AssetId.LBTC;
+    if (Object.hasOwn(entry, Token.BTCb)) return AssetId.BTCb;
+  }
 
   throw new Error(
     `No vault asset for protocol '${protocol}'. A route label appears in logs ` +

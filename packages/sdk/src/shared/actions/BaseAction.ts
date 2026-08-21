@@ -344,8 +344,16 @@ export abstract class BaseAction<
    * @throws LombardError if called before the action is prepared.
    */
   async authorize(): Promise<void> {
-    const handlers = this.authorizationHandlers();
-    const handler = handlers[this._status];
+    // A Map rather than an index into the record. The key is an internal status
+    // and never caller input, but a dynamic property read can reach inherited
+    // members like `constructor`, and `Map.get` cannot — so the class of bug is
+    // gone rather than merely unreachable.
+    const handlers = new Map(
+      Object.entries(this.authorizationHandlers()) as Array<
+        [TStatus, () => Promise<void>]
+      >,
+    );
+    const handler = handlers.get(this._status);
 
     if (handler) {
       return handler();
@@ -353,7 +361,7 @@ export abstract class BaseAction<
 
     // Nothing outstanding at this status. Distinguish "already done" from
     // "not started": the first is a no-op, the second is a caller error.
-    const pending = Object.keys(handlers) as TStatus[];
+    const pending = [...handlers.keys()];
     if (pending.length > 0 && this.isPreAuthorizationStatus()) {
       throw new LombardError(
         ValidationErrorCode.INVALID_STATE,
