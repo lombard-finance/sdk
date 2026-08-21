@@ -33,7 +33,6 @@ const ASSET_TYPE_BY_TOKEN: Partial<Record<Token, string>> = {
 
 interface IResolveDepositAddressResponse {
   deposit_address?: {
-    btc_address?: string;
     address?: string;
   };
   address?: string;
@@ -72,7 +71,9 @@ export interface IResolveDepositBtcAddressParams extends IEnvParam {
   nonce?: number;
   /**
    * Destination asset contract address, for the case where the gateway should
-   * not resolve it from `token`. Omitted by default.
+   * not resolve it from `token`. Omitted by default. Naming the asset this way
+   * replaces `token` on the wire rather than narrowing it, so a token with no
+   * `ASSET_TYPE_*` identifier is reachable this way.
    */
   destinationAssetAddress?: string;
 }
@@ -124,6 +125,11 @@ export function canResolveDepositBtcAddressWithJwt(
  * Returns `SANCTIONED_ADDRESS` when the destination address is sanctioned,
  * matching `generateDepositBtcAddress`.
  *
+ * `env` alone picks the network: a testnet chain id resolves to its mainnet
+ * identifier (holesky and sepolia are both `BLOCKCHAIN_ETHEREUM`), so passing a
+ * testnet chain id with `env: prod` asks the mainnet gateway for a mainnet
+ * address. The pair has to be consistent at the call site.
+ *
  * POST /v2/addresses/deposit
  *
  * @param {IResolveDepositBtcAddressParams} parameters - The parameters for resolving the deposit address.
@@ -137,7 +143,8 @@ export function canResolveDepositBtcAddressWithJwt(
  * @param {string} parameters.destinationAssetAddress - An explicit destination asset address.
  * @param {Env} parameters.env - The optional environment identifier.
  *
- * @throws {UnauthorizedWalletJwtError} when the gateway rejects the JWT.
+ * @throws {UnauthorizedWalletJwtError} when the gateway refuses the JWT (401)
+ * or the JWT does not authorise the requested address (403).
  *
  * @returns {Promise<string>} The BTC deposit address.
  */
@@ -154,14 +161,16 @@ export async function resolveDepositBtcAddress({
 }: IResolveDepositBtcAddressParams): Promise<string> {
   const { baseApiV2Url } = getApiConfig(env);
 
+  // The asset type and the asset address are the same field on the wire: the
+  // route rejects a request that carries both. An explicit address therefore
+  // replaces the type instead of being added to it.
   const requestParams = {
     chain: getLegacyChainNameById(chainId),
     destination_user_address: address,
-    destination_asset_type: getDepositAssetTypeById(token),
     nonce,
     ...(destinationAssetAddress
       ? { destination_asset_address: destinationAssetAddress }
-      : {}),
+      : { destination_asset_type: getDepositAssetTypeById(token) }),
     ...(partnerId ? { partner_id: partnerId } : {}),
     ...(referrerCode ? { referral_code: referrerCode } : {}),
   };
@@ -182,25 +191,26 @@ export async function resolveDepositBtcAddress({
       },
     ));
   } catch (error) {
-    // Read the status off the shape rather than through `instanceof AxiosError`
-    // so a rejection that crossed a module boundary is still recognised.
-    if ((error as AxiosError)?.response?.status === 401) {
-      throw new UnauthorizedWalletJwtError(RESOLVE_ADDRESS_URL);
-    }
-
     const errorMsg = getErrorMessage(error);
 
     if (isSanctionedAddressError(errorMsg)) {
       return SANCTIONED_ADDRESS;
     }
 
+    // Read the status off the shape rather than through `instanceof AxiosError`
+    // so a rejection that crossed a module boundary is still recognised. Both
+    // statuses are the JWT being refused: 401 a token the route will not accept
+    // at all, 403 one that does not authorise the requested address.
+    const status = (error as AxiosError)?.response?.status;
+
+    if (status === 401 || status === 403) {
+      throw new UnauthorizedWalletJwtError(RESOLVE_ADDRESS_URL);
+    }
+
     throw new Error(errorMsg);
   }
 
-  const resolvedAddress =
-    data.deposit_address?.btc_address ??
-    data.deposit_address?.address ??
-    data.address;
+  const resolvedAddress = data.deposit_address?.address ?? data.address;
 
   if (!resolvedAddress) {
     throw new Error('Deposit address resolution returned no address');

@@ -33,7 +33,7 @@ const params = {
 beforeEach(() => {
   vi.resetAllMocks();
   post.mockResolvedValue({
-    data: { deposit_address: { btc_address: 'bc1qexample' } },
+    data: { deposit_address: { address: 'bc1qexample' } },
   });
   mockedAxios.post = post as unknown as typeof axios.post;
 });
@@ -75,6 +75,29 @@ describe('resolveDepositBtcAddress', () => {
     expect(body.partner_id).toBe('partner');
     expect(body.referral_code).toBe('ref');
     expect(body.destination_asset_address).toBe('0xa55e7');
+    // The asset type and the asset address are one field on the wire, so
+    // carrying both is refused by the route.
+    expect(body).not.toHaveProperty('destination_asset_type');
+  });
+
+  it('names the asset by type when no explicit address is given', async () => {
+    await resolveDepositBtcAddress(params);
+
+    const [, body] = post.mock.calls[0];
+    expect(body.destination_asset_type).toBe('ASSET_TYPE_LBTC');
+    expect(body).not.toHaveProperty('destination_asset_address');
+  });
+
+  it('reaches a token with no asset identifier through an explicit address', async () => {
+    await resolveDepositBtcAddress({
+      ...params,
+      token: Token.wBTC,
+      destinationAssetAddress: '0xa55e7',
+    });
+
+    const [, body] = post.mock.calls[0];
+    expect(body.destination_asset_address).toBe('0xa55e7');
+    expect(body).not.toHaveProperty('destination_asset_type');
   });
 
   it('refuses an answer without an address', async () => {
@@ -93,9 +116,31 @@ describe('resolveDepositBtcAddress', () => {
     );
   });
 
+  // A JWT that does not authorise the requested address is refused with 403,
+  // and is the same re-login case for the caller as a refused token.
+  it('reports a JWT that does not authorise the address the same way', async () => {
+    post.mockRejectedValue(axiosFailure(403, 'permission denied'));
+
+    await expect(resolveDepositBtcAddress(params)).rejects.toBeInstanceOf(
+      UnauthorizedWalletJwtError,
+    );
+  });
+
   it('answers a sanctioned destination the same way the v1 route does', async () => {
     post.mockRejectedValue(
       axiosFailure(400, 'destination address is under sanctions'),
+    );
+
+    await expect(resolveDepositBtcAddress(params)).resolves.toBe(
+      'sanctioned_address',
+    );
+  });
+
+  // The sanctions refusal is answered with an address whatever status carries
+  // it, so it is read before the statuses that mean a refused JWT.
+  it('answers a sanctioned destination refused with a 403', async () => {
+    post.mockRejectedValue(
+      axiosFailure(403, 'destination address is under sanctions'),
     );
 
     await expect(resolveDepositBtcAddress(params)).resolves.toBe(
