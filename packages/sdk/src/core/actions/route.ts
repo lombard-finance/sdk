@@ -96,7 +96,7 @@ export type DeployAsset = typeof AssetId.LBTC | typeof AssetId.BTCb;
  * Resolves the `DEFI_REGISTRY` key for a deploy, from the namespace **and** the
  * asset — never from the asset alone.
  *
- * @throws {@link Error} when the pair is not in the table, which is preferable
+ * @throws when the pair is not in the table, which is preferable
  * to guessing a key whose amount strategy may be wrong.
  */
 export function resolveRegistryToken(
@@ -160,7 +160,7 @@ export interface RouteLabelParams {
  * A vault leg is named by the asset on the non-vault side, since the share
  * token has no `AssetId` to name.
  *
- * @throws {@link Error} when the combination has no label, rather than
+ * @throws when the combination has no label, rather than
  * inventing one that would then appear in logs as fact.
  */
 export function deriveRouteLabel(params: RouteLabelParams): RouteLabel {
@@ -203,7 +203,7 @@ export function deriveRouteLabel(params: RouteLabelParams): RouteLabel {
  * conversion; the virtual key is skipped, since it names an input denomination
  * rather than what the vault holds.
  *
- * @throws {@link Error} when the protocol has no registry entry.
+ * @throws when the protocol has no registry entry.
  */
 export function vaultAsset(protocol: string): AssetId {
   const entry = (DEFI_REGISTRY as Record<string, Record<string, unknown>>)[
