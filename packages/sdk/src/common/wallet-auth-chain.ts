@@ -80,10 +80,23 @@ const WALLET_AUTH_CHAIN_NAME: Partial<Record<BlockchainIdentifier, string>> = {
  * @throws if the chain has no wallet-auth name, or is not a chain the SDK knows.
  */
 export function walletAuthChainName(
-  chainId: ChainId | SuiChain | SolanaChain | StarknetChainId,
+  chainId:
+    | ChainId
+    | SuiChain
+    | SolanaChain
+    | StarknetChainId
+    // A plain number as well as the known ids: every EVM wallet reports its
+    // chain as an unbranded `number`, and requiring the union would put a cast
+    // at every call site — which defeats the point of deriving the name at all.
+    // Unknown ids already throw, so nothing is lost by accepting one.
+    | (number & {}),
 ): string {
-  // Throws on its own for a chain id the SDK does not know at all.
-  const family = getChainNameById(chainId);
+  // Throws on its own for a chain id the SDK does not know at all, which is
+  // what makes accepting a plain number safe: an id outside the known set never
+  // reaches the table below.
+  const family = getChainNameById(
+    chainId as ChainId | SuiChain | SolanaChain | StarknetChainId,
+  );
 
   const name = WALLET_AUTH_CHAIN_NAME[family];
   if (!name) {

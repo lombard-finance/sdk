@@ -15,6 +15,16 @@ migrate once.
 
   **Wire values are unchanged**, so `action.on('progress', ...)`, `'status-change'`, `'completed'`, `'failed'` and `'error'` behave exactly as before. All nine old names remain as deprecated aliases pointing at the same object, so `StakeEvent === ActionEvent` holds and `StakeEvent.Progress` still resolves. `StrategyEventMap` and `StrategyEvent` were nine-member unions of structurally identical types — which made each equivalent to any single member — and are now that single type. Dropping the aliases is deferred to the next major.
 
+### Fixed
+
+- **The shipped declarations resolved to `any` for a large part of the surface.**
+
+  The build writes one bundle per export subpath as `dist/<name>.js`, and `tsc` wrote the declaration tree into the same directory — so `dist/core.js` sat beside `dist/core/index.d.ts`, and every internal `from '../../core'` inside a `.d.ts` resolved to the JavaScript file rather than the declaration directory. TypeScript found no types for it and fell back to `any`. Eight subpaths collided that way: `bridge`, `contracts`, `core`, `defi`, `metrics`, `strategies`, `utils`, `vaults`.
+
+  The failure is silent by construction, which is why it went unnoticed through several releases. `skipLibCheck: true` is the default in the Vite, Next and CRA templates, and it suppresses exactly these errors while leaving the affected types as `any` — so the SDK's own `tsc` passed, the consumer's passed, and the consumer lost the types. What surfaced instead was overload resolution picking the wrong signature: with `AssetId` degraded to `any`, `evm.withdraw` could not tell an unstake's parameters from a redeem's.
+
+  Declarations now emit to `dist/types`, where no bundle can shadow them, and the `exports` map points there. Subpaths are unchanged, so nothing about how the package is imported moves; only the location of the declaration files inside it. `yarn check-types-resolve` type-checks every entry in the `exports` map with `skipLibCheck` off and runs as the last step of the build, so a declaration tree that does not resolve fails the build instead of shipping. The build also cleans `dist` first, since a stale layout otherwise survives.
+
 ### Breaking
 
 - **The asset a dispatching verb switches on is now typed as a literal.** `EvmUnstakeParams.assetIn` is `'LBTC'`, `EvmRedeemParams.assetIn` is `'BTC.b'`, the two Solana equivalents likewise, and the two BTC deploy params carry the matching `assetOut` literal.
