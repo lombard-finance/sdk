@@ -13,7 +13,7 @@
  */
 
 import { execFileSync } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join, resolve } from 'path';
 
 const LOMBARD_SCOPE = '@lombard.finance/';
@@ -70,15 +70,16 @@ function getPublishedVersions(packageName) {
  * Simple implementation for common cases
  */
 function versionSatisfies(versions, range) {
-  // Handle Yarn workspace protocol: workspace:* means "any version"
+  // Any published version satisfies this. Peer dependencies publish as `*`.
+  if (range === '*') {
+    return versions.length > 0;
+  }
+
+  // Ranges are resolved by `rangeAsPublished` before they get here, so a
+  // `workspace:` prefix at this point means resolution was skipped. Fail closed
+  // rather than guess at what would ship.
   if (range.startsWith('workspace:')) {
-    const inner = range.slice('workspace:'.length); // e.g. "*", "^1.0.0", "~2.3.0"
-    if (inner === '*') {
-      // workspace:* — any published version is fine
-      return versions.length > 0;
-    }
-    // workspace:^x.y.z or workspace:~x.y.z — strip prefix and check normally
-    return versionSatisfies(versions, inner);
+    return false;
   }
 
   // Remove ^ or ~ prefix
@@ -102,6 +103,43 @@ function versionSatisfies(versions, range) {
       return v === cleanRange;
     }
   });
+}
+
+/**
+ * Versions of every `@lombard.finance/*` package in this monorepo.
+ *
+ * The publish workflow reads exactly this to rewrite `workspace:` ranges, so
+ * the check has to read it too or the two disagree about what is shipping.
+ */
+function readLocalPackageVersions(packagesDir) {
+  const versions = {};
+  for (const dir of readdirSync(packagesDir)) {
+    const manifest = join(packagesDir, dir, 'package.json');
+    if (!existsSync(manifest)) continue;
+    try {
+      const pkg = JSON.parse(readFileSync(manifest, 'utf-8'));
+      if (pkg.name?.startsWith(LOMBARD_SCOPE)) versions[pkg.name] = pkg.version;
+    } catch {
+      // A manifest we cannot parse is not one we can publish against.
+    }
+  }
+  return versions;
+}
+
+/**
+ * The range that will actually be published for a dependency.
+ *
+ * `workspace:` is a Yarn protocol that npm does not understand, so the publish
+ * workflow rewrites it before shipping. It does so without reading what follows
+ * the colon: a regular dependency becomes the dependency's exact version from
+ * this monorepo, and a peer dependency becomes `*` for the consumer to satisfy.
+ * This has to resolve identically, or the check validates something other than
+ * what ships.
+ */
+function rangeAsPublished(depName, range, depType, localVersions) {
+  if (!range.startsWith('workspace:')) return range;
+  if (depType === 'peerDependencies') return '*';
+  return localVersions[depName] ?? '*';
 }
 
 /**
@@ -156,14 +194,17 @@ async function main() {
     `\n📦 Checking publish dependencies for ${packageJson.name}@${packageJson.version}\n`,
   );
 
-  const dependencies = {
-    ...packageJson.dependencies,
-    ...packageJson.peerDependencies,
-  };
-
-  const lombardDeps = Object.entries(dependencies).filter(([name]) =>
-    name.startsWith(LOMBARD_SCOPE),
-  );
+  // Kept per type rather than merged: the publish workflow resolves a
+  // `workspace:` range differently for each, and merging also drops one entry
+  // when a package appears in both.
+  const lombardDeps = [];
+  for (const depType of ['dependencies', 'peerDependencies']) {
+    for (const [name, range] of Object.entries(packageJson[depType] ?? {})) {
+      if (name.startsWith(LOMBARD_SCOPE)) {
+        lombardDeps.push({ name, range, depType });
+      }
+    }
+  }
 
   if (lombardDeps.length === 0) {
     console.log('✅ No internal @lombard.finance dependencies found.\n');
@@ -174,8 +215,21 @@ async function main() {
 
   let hasErrors = false;
 
-  for (const [depName, depRange] of lombardDeps) {
-    process.stdout.write(`  Checking ${depName}@${depRange}... `);
+  const localVersions = readLocalPackageVersions(packagesDir);
+
+  for (const { name: depName, range: declaredRange, depType } of lombardDeps) {
+    // What ships, not what the manifest says.
+    const depRange = rangeAsPublished(
+      depName,
+      declaredRange,
+      depType,
+      localVersions,
+    );
+    const shown =
+      depRange === declaredRange
+        ? `${depName}@${depRange}`
+        : `${depName}@${depRange} (from ${declaredRange}, ${depType})`;
+    process.stdout.write(`  Checking ${shown}... `);
 
     const publishedVersions = getPublishedVersions(depName);
 
@@ -192,6 +246,12 @@ async function main() {
     } else {
       console.log(`❌ MISSING VERSION`);
       console.log(`     Required: ${depRange}`);
+      if (depRange !== declaredRange) {
+        console.log(
+          `     Publish ${depName}@${depRange} first — the workflow resolves`,
+        );
+        console.log(`     ${declaredRange} to that exact version on publish.`);
+      }
       console.log(`     Available: ${publishedVersions.join(', ')}`);
       hasErrors = true;
     }
