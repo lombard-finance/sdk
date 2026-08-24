@@ -70,20 +70,16 @@ function getPublishedVersions(packageName) {
  * Simple implementation for common cases
  */
 function versionSatisfies(versions, range) {
-  // `workspace:` never reaches the registry. The publish workflow rewrites it
-  // to the dependency's exact version from this monorepo, so that pin is what
-  // consumers resolve and what has to exist on npm.
-  //
-  // Treating `workspace:*` as "any published version will do" is what let
-  // sdk@5.4.0 and sdk@5.5.0 ship against sdk-common versions that were never
-  // published: the check saw a range and passed, then publish shipped an exact
-  // pin nobody could install. Resolve it the same way the workflow does.
+  // Any published version satisfies this. Peer dependencies publish as `*`.
+  if (range === '*') {
+    return versions.length > 0;
+  }
+
+  // Ranges are resolved by `rangeAsPublished` before they get here, so a
+  // `workspace:` prefix at this point means resolution was skipped. Fail closed
+  // rather than guess at what would ship.
   if (range.startsWith('workspace:')) {
-    const inner = range.slice('workspace:'.length); // e.g. "*", "^1.0.0", "~2.3.0"
-    if (inner === '*' || inner === '^' || inner === '~') {
-      return false; // caller resolves this against the local version instead
-    }
-    return versionSatisfies(versions, inner);
+    return false;
   }
 
   // Remove ^ or ~ prefix
@@ -133,14 +129,17 @@ function readLocalPackageVersions(packagesDir) {
 /**
  * The range that will actually be published for a dependency.
  *
- * A bare `workspace:*` becomes the dependency's exact version from this
- * monorepo, which is what the workflow writes into the published manifest.
+ * `workspace:` is a Yarn protocol that npm does not understand, so the publish
+ * workflow rewrites it before shipping. It does so without reading what follows
+ * the colon: a regular dependency becomes the dependency's exact version from
+ * this monorepo, and a peer dependency becomes `*` for the consumer to satisfy.
+ * This has to resolve identically, or the check validates something other than
+ * what ships.
  */
-function rangeAsPublished(depName, range, localVersions) {
+function rangeAsPublished(depName, range, depType, localVersions) {
   if (!range.startsWith('workspace:')) return range;
-  const inner = range.slice('workspace:'.length);
-  if (inner !== '*' && inner !== '^' && inner !== '~') return inner;
-  return localVersions[depName] ?? range;
+  if (depType === 'peerDependencies') return '*';
+  return localVersions[depName] ?? '*';
 }
 
 /**
@@ -195,14 +194,17 @@ async function main() {
     `\n📦 Checking publish dependencies for ${packageJson.name}@${packageJson.version}\n`,
   );
 
-  const dependencies = {
-    ...packageJson.dependencies,
-    ...packageJson.peerDependencies,
-  };
-
-  const lombardDeps = Object.entries(dependencies).filter(([name]) =>
-    name.startsWith(LOMBARD_SCOPE),
-  );
+  // Kept per type rather than merged: the publish workflow resolves a
+  // `workspace:` range differently for each, and merging also drops one entry
+  // when a package appears in both.
+  const lombardDeps = [];
+  for (const depType of ['dependencies', 'peerDependencies']) {
+    for (const [name, range] of Object.entries(packageJson[depType] ?? {})) {
+      if (name.startsWith(LOMBARD_SCOPE)) {
+        lombardDeps.push({ name, range, depType });
+      }
+    }
+  }
 
   if (lombardDeps.length === 0) {
     console.log('✅ No internal @lombard.finance dependencies found.\n');
@@ -215,14 +217,18 @@ async function main() {
 
   const localVersions = readLocalPackageVersions(packagesDir);
 
-  for (const [depName, declaredRange] of lombardDeps) {
-    // What ships, not what the manifest says: a `workspace:` range is rewritten
-    // to an exact version before publish.
-    const depRange = rangeAsPublished(depName, declaredRange, localVersions);
+  for (const { name: depName, range: declaredRange, depType } of lombardDeps) {
+    // What ships, not what the manifest says.
+    const depRange = rangeAsPublished(
+      depName,
+      declaredRange,
+      depType,
+      localVersions,
+    );
     const shown =
       depRange === declaredRange
         ? `${depName}@${depRange}`
-        : `${depName}@${depRange} (from ${declaredRange})`;
+        : `${depName}@${depRange} (from ${declaredRange}, ${depType})`;
     process.stdout.write(`  Checking ${shown}... `);
 
     const publishedVersions = getPublishedVersions(depName);
