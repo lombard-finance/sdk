@@ -43,13 +43,13 @@ No separate call is needed to store the permit.
 
 **A millisecond `expiry` was accepted by `signStakeAndBake`, and set a permit deadline that never lapses.**
 
-`5.4.0` rejects an `expiry` that is not a whole number of seconds, and one that is not in the future. `Date.now()` passed unconverted is neither: it is a positive safe integer, and it is in the future. It cleared both checks and the deadline landed roughly 56,000 years out.
+The existing checks reject an `expiry` that is not a whole number of seconds, and one that is not in the future. `Date.now()` passed unconverted is neither: it is a positive safe integer, and it is in the future. It cleared both checks and the deadline landed roughly 56,000 years out.
 
 Nothing failed at any point. The permit signed, the signature was stored, and what the caller had granted was a spending allowance to the vault spender that does not expire — from one missing division. Of the ways an `expiry` can be wrong this is the only one with no downstream symptom: a fractional value throws from `BigInt()`, and a past value fails when the permit is used on chain.
 
 `expiry` must now also be no more than **365 days** ahead. Generous enough that no real authorisation window approaches it, small enough that a millisecond timestamp cannot pass. When the magnitude matches, the error names the mistake rather than just citing the bound:
 
-```
+```text
 expiry looks like milliseconds: 1787588525408 is ~1000x the current time in
 seconds (1787588525), which would set the permit deadline to the year 58616.
 It is an absolute UNIX timestamp in seconds — divide by 1000.

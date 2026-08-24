@@ -22,6 +22,20 @@ import { signStakeAndBake } from '../../../contract-functions/signStakeAndBake/s
 import { AssetId, Chain, type DeployProtocol } from '../../../core';
 import type { BtcCoreContext } from '../../../shared/context';
 
+/**
+ * The first call past `assertValidExpiry`. Stubbed so a valid expiry proves
+ * validation let it through, rather than proving the network was unreachable.
+ */
+// `vi.hoisted` because `vi.mock` is lifted above ordinary declarations.
+const { PAST_VALIDATION } = vi.hoisted(() => ({
+  PAST_VALIDATION: new Error('reached the ratio lookup'),
+}));
+vi.mock('../../../contract-functions/signStakeAndBake/utils', () => ({
+  calculateStakeAndBakeLBTCAmount: vi.fn().mockRejectedValue(PAST_VALIDATION),
+  getStakeAndBakeTokenContract: vi.fn().mockRejectedValue(PAST_VALIDATION),
+  getPermitValue: vi.fn().mockRejectedValue(PAST_VALIDATION),
+}));
+
 vi.mock('../../../api-functions/getUserStakeAndBakeSignature', () => ({
   getUserStakeAndBakeSignature: vi
     .fn()
@@ -225,10 +239,18 @@ describe('expiry validation', () => {
   it('accepts the seven days the migration guidance asks for', async () => {
     const sevenDays = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
 
-    // Past validation, so it fails later on the unstubbed network instead.
+    // Reaching the stub is the assertion: validation passed it through.
     await expect(
       signStakeAndBake({ ...base, expiry: sevenDays } as never),
-    ).rejects.not.toThrow(/expiry/);
+    ).rejects.toThrow(PAST_VALIDATION);
+  });
+
+  it('accepts a deadline just inside the horizon', async () => {
+    const almostAYear = Math.floor(Date.now() / 1000) + 364 * 24 * 60 * 60;
+
+    await expect(
+      signStakeAndBake({ ...base, expiry: almostAYear } as never),
+    ).rejects.toThrow(PAST_VALIDATION);
   });
 });
 
