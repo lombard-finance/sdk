@@ -179,6 +179,57 @@ describe('expiry validation', () => {
       signStakeAndBake({ ...base, expiry: 1893456000.5 } as never),
     ).rejects.toThrow(/Math\.floor/);
   });
+
+  // A past value signs and stores, then fails on chain. These are the two
+  // shapes that produce one: a duration, and a timestamp left lying around.
+  it.each([
+    ['a relative duration rather than a timestamp', 7 * 24 * 60 * 60],
+    [
+      'a stale timestamp',
+      Math.floor(Date.parse('2020-01-01T00:00:00Z') / 1000),
+    ],
+  ])('rejects %s', async (_label, expiry) => {
+    await expect(
+      signStakeAndBake({ ...base, expiry } as never),
+    ).rejects.toThrow(/expiry must be in the future/);
+  });
+
+  /**
+   * `Date.now()` is a positive safe integer in the future, so it clears every
+   * other check and sets the deadline ~56,000 years out. Nothing fails: the
+   * permit signs and is stored, and the spender holds an allowance that never
+   * lapses. This is the one bad expiry with no downstream symptom, so the
+   * upper bound is the only thing standing between a missing `/ 1000` and a
+   * permanent authorisation.
+   */
+  it('rejects Date.now(), i.e. milliseconds where seconds were meant', async () => {
+    await expect(
+      signStakeAndBake({ ...base, expiry: Date.now() } as never),
+    ).rejects.toThrow(/expiry looks like milliseconds/);
+  });
+
+  it('says which year the milliseconds value would have set', async () => {
+    await expect(
+      signStakeAndBake({ ...base, expiry: Date.now() } as never),
+    ).rejects.toThrow(/the year 5\d{4}/);
+  });
+
+  it('rejects a deadline beyond the horizon even when it is not milliseconds', async () => {
+    const twoYears = Math.floor(Date.now() / 1000) + 2 * 365 * 24 * 60 * 60;
+
+    await expect(
+      signStakeAndBake({ ...base, expiry: twoYears } as never),
+    ).rejects.toThrow(/at most 365 days ahead/);
+  });
+
+  it('accepts the seven days the migration guidance asks for', async () => {
+    const sevenDays = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
+
+    // Past validation, so it fails later on the unstubbed network instead.
+    await expect(
+      signStakeAndBake({ ...base, expiry: sevenDays } as never),
+    ).rejects.not.toThrow(/expiry/);
+  });
 });
 
 /**
