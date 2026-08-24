@@ -24,6 +24,7 @@ import type { SolanaService } from '@lombard.finance/sdk-common';
 import { PartnerConfiguration } from '../../client/PartnerConfiguration';
 import type { LombardConfig } from '../../config/types';
 import { getProviderGetter } from '../../config/types';
+import type { Chain } from '../../core';
 import { AssetId } from '../../core';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SolanaCoreContext } from '../../shared/context';
@@ -66,6 +67,21 @@ function createSolanaCoreContext(config: LombardConfig): SolanaCoreContext {
  * Actions are lazy-loaded - the solana module is only required when
  * an action is actually called.
  */
+/**
+ * A withdrawal whose input asset is only known at runtime.
+ *
+ * The unstake and redeem parameter types are structurally identical apart from
+ * the `assetIn` literal that tells them apart, so this is that shape with the
+ * discriminant widened — without it a caller passing a plain `AssetId` matches
+ * no overload.
+ */
+export interface SolanaAssetWithdrawParams {
+  assetIn: AssetId;
+  assetOut: AssetId;
+  sourceChain: Chain;
+  destChain: Chain;
+}
+
 export class SolanaActions {
   private _ctx: SolanaCoreContext | null = null;
 
@@ -113,8 +129,15 @@ export class SolanaActions {
    *
    * @throws LombardError if `assetIn` is neither LBTC nor BTC.b
    */
+  withdraw(params: SolanaUnstakeParams): ISolanaUnstake;
+  withdraw(params: SolanaRedeemParams): ISolanaRedeem;
+  /**
+   * The arm for a caller holding a runtime asset rather than a literal. The
+   * precise interface cannot be known statically, so the union comes back.
+   */
+  withdraw(params: SolanaAssetWithdrawParams): ISolanaUnstake | ISolanaRedeem;
   withdraw(
-    params: SolanaUnstakeParams | SolanaRedeemParams,
+    params: SolanaAssetWithdrawParams,
   ): ISolanaUnstake | ISolanaRedeem {
     if (params.assetIn === AssetId.LBTC) {
       return new SolanaUnstake(this.ctx, params as SolanaUnstakeParams);

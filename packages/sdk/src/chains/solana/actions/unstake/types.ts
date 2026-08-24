@@ -17,7 +17,8 @@ import type { NonEvmOperationStatus } from '../../../../shared/constants/statusC
  * Solana Unstake parameters
  */
 export interface SolanaUnstakeParams {
-  assetIn: AssetId;
+  /** Input asset (LBTC). A literal, so `withdraw()` can dispatch on it. */
+  assetIn: typeof AssetId.LBTC;
   assetOut: AssetId;
   sourceChain: Chain;
   destChain: Chain;

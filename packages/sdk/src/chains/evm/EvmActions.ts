@@ -34,6 +34,7 @@
  */
 
 import type { LombardConfig } from '../../config/types';
+import type { Chain } from '../../core';
 import { AssetId } from '../../core';
 import type { EvmCoreContext } from '../../shared/context';
 import { createEvmCoreContext } from '../../shared/context';
@@ -79,6 +80,21 @@ import {
  * User-facing class for EVM operations.
  * Created via evmActions(config) factory function.
  */
+/**
+ * An asset withdrawal whose input asset is only known at runtime.
+ *
+ * `EvmUnstakeParams` and `EvmRedeemParams` are structurally identical apart from
+ * the `assetIn` literal that distinguishes them, so this is their shape with
+ * that discriminant widened. It exists for the overload above: without it, a
+ * caller passing a plain `AssetId` matches no signature at all.
+ */
+export interface EvmAssetWithdrawParams {
+  assetIn: AssetId;
+  assetOut: AssetId;
+  sourceChain: Chain;
+  destChain: Chain;
+}
+
 export class EvmActions {
   private readonly ctx: EvmCoreContext;
 
@@ -230,8 +246,14 @@ export class EvmActions {
   withdraw(params: EvmWithdrawParams): IEvmWithdraw;
   withdraw(params: EvmUnstakeParams): IEvmUnstake;
   withdraw(params: EvmRedeemParams): IEvmRedeem;
+  /**
+   * The arm for a caller holding a runtime asset rather than a literal — a form
+   * picked in a UI, say. The precise interface cannot be known statically, so
+   * the union comes back and the caller narrows.
+   */
+  withdraw(params: EvmAssetWithdrawParams): IEvmUnstake | IEvmRedeem;
   withdraw(
-    params: EvmWithdrawParams | EvmUnstakeParams | EvmRedeemParams,
+    params: EvmWithdrawParams | EvmAssetWithdrawParams,
   ): IEvmWithdraw | IEvmUnstake | IEvmRedeem {
     // A vault exit names a protocol and no input asset: the shares it burns
     // have no AssetId. That absence is what separates the arms.

@@ -38,8 +38,9 @@ export { EvmOperationStatus as EvmRedeemStatus } from '../../../../shared/consta
  * Redeems BTC.b to native BTC on Bitcoin network.
  */
 export interface EvmRedeemParams {
-  /** Input asset (BTC.b) */
-  assetIn: AssetId;
+  /** Input asset (BTC.b). A literal, so `withdraw()` can tell it from an
+   * unstake — see {@link EvmUnstakeParams.assetIn}. */
+  assetIn: typeof AssetId.BTCb;
   /** Output asset (BTC) */
   assetOut: AssetId;
   /** Source chain (EVM chain where BTC.b is held) */

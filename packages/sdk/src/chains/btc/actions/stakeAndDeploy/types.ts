@@ -30,8 +30,8 @@ export { BtcActionStatus };
 export interface BtcStakeAndDeployParams {
   /** Input asset (BTC) */
   assetIn?: AssetId;
-  /** Output asset (LBTC vault shares) */
-  assetOut: AssetId;
+  /** Output asset (LBTC). A literal, so `deploy()` can dispatch on it. */
+  assetOut: typeof AssetId.LBTC;
   /** Source Bitcoin network */
   sourceChain?: typeof Chain.BITCOIN_MAINNET | typeof Chain.BITCOIN_SIGNET;
   /** Destination chain where vault exists */

@@ -34,8 +34,16 @@ export { EvmOperationStatus as EvmUnstakeStatus } from '../../../../shared/const
  * EVM Unstake parameters
  */
 export interface EvmUnstakeParams {
-  /** Input asset (LBTC) */
-  assetIn: AssetId;
+  /**
+   * Input asset (LBTC).
+   *
+   * Typed as the literal rather than `AssetId` because `withdraw()` dispatches
+   * on it: with a wide type this shape is indistinguishable from a redeem's,
+   * and overload resolution then hands every asset withdrawal the unstake
+   * interface — which has no `approve()`, so the compiler forbids the step a
+   * BTC.b redeem requires.
+   */
+  assetIn: typeof AssetId.LBTC;
   /** Output asset (BTC for cross-chain, BTCb for same-chain) */
   assetOut: AssetId;
   /** Source chain (where LBTC is burned) */

@@ -51,10 +51,10 @@ describe('EVM Redeem Integration', () => {
 
       const evm = evmActions(config);
       const redeem = evm.redeem({
-        assetIn: AssetId.LBTC,
-        assetOut: AssetId.BTCb,
+        assetIn: AssetId.BTCb,
+        assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
+        destChain: Chain.BITCOIN_MAINNET,
       });
 
       expect(redeem).toBeDefined();
@@ -68,10 +68,10 @@ describe('EVM Redeem Integration', () => {
       });
 
       const redeem = evmRedeem(config, {
-        assetIn: AssetId.LBTC,
-        assetOut: AssetId.BTCb,
+        assetIn: AssetId.BTCb,
+        assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
+        destChain: Chain.BITCOIN_MAINNET,
       });
 
       expect(redeem).toBeDefined();
@@ -87,10 +87,10 @@ describe('EVM Redeem Integration', () => {
       });
 
       const redeem = evmRedeem(config, {
-        assetIn: AssetId.LBTC,
-        assetOut: AssetId.BTCb,
+        assetIn: AssetId.BTCb,
+        assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
+        destChain: Chain.BITCOIN_MAINNET,
       });
 
       expect(redeem.status).toBe('idle');
@@ -99,57 +99,53 @@ describe('EVM Redeem Integration', () => {
     });
   });
 
-  describe('Chain Validation', () => {
-    it('should require same source and destination chain', () => {
+  /**
+   * What used to sit here claimed to validate the route and did not: three
+   * cases built the action with `assetIn: LBTC`, `assetOut: BTC.b`, both chains
+   * Avalanche — the reverse of what this action does — and asserted only that
+   * the result was defined. They passed because the params were typed `AssetId`
+   * and nothing executed. Redeem burns BTC.b and releases BTC to a Bitcoin
+   * address, so those were unstake's parameters wearing redeem's name.
+   *
+   * The asset pair is now a compile-time guarantee: `assetIn` is the `BTC.b`
+   * literal and `assetOut` the `BTC` literal, so a wrong asset is a type error
+   * rather than a case to test. What is left worth asserting is the part types
+   * cannot express.
+   */
+  describe('the route it reports', () => {
+    it('describes itself as the BTC.b to BTC journey', () => {
       const config = createConfig({
         env: Env.prod,
         providers: { evm: () => mockProvider },
       });
 
-      // Same chain - should work
       const redeem = evmRedeem(config, {
-        assetIn: AssetId.LBTC,
-        assetOut: AssetId.BTCb,
+        assetIn: AssetId.BTCb,
+        assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
+        destChain: Chain.BITCOIN_MAINNET,
       });
 
-      expect(redeem).toBeDefined();
-    });
-  });
-
-  describe('Asset Validation', () => {
-    it('should require LBTC as input', () => {
-      const config = createConfig({
-        env: Env.prod,
-        providers: { evm: () => mockProvider },
-      });
-
-      // LBTC input - should work
-      const redeem = evmRedeem(config, {
-        assetIn: AssetId.LBTC,
-        assetOut: AssetId.BTCb,
-        sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
-      });
-
-      expect(redeem).toBeDefined();
+      // Derived from the params rather than hardcoded, which is what keeps the
+      // label from drifting from the route once one class covers several.
+      expect(redeem.route).toBe('btcb-to-btc');
     });
 
-    it('should require BTCb as output', () => {
+    it('crosses to Bitcoin, so the chains differ', () => {
       const config = createConfig({
         env: Env.prod,
         providers: { evm: () => mockProvider },
       });
 
-      // BTCb output - should work
       const redeem = evmRedeem(config, {
-        assetIn: AssetId.LBTC,
-        assetOut: AssetId.BTCb,
+        assetIn: AssetId.BTCb,
+        assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE,
-        destChain: Chain.AVALANCHE,
+        destChain: Chain.BITCOIN_MAINNET,
       });
 
+      // The old test asserted the opposite — "should require same source and
+      // destination chain" — which was true only of the wrong route it built.
       expect(redeem).toBeDefined();
     });
   });

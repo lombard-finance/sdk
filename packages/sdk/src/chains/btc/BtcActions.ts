@@ -27,6 +27,7 @@
  */
 
 import type { LombardConfig } from '../../config/types';
+import type { Chain, DeployProtocol } from '../../core';
 import { AssetId } from '../../core';
 import type { BtcCoreContext } from '../../shared/context';
 import { createBtcCoreContext } from '../../shared/context';
@@ -58,6 +59,21 @@ import type {
  * User-facing class for Bitcoin operations.
  * Created via btcActions(config) factory function.
  */
+/**
+ * A deploy whose intermediate asset is only known at runtime.
+ *
+ * The two deploy parameter types differ only in the `assetOut` literal that
+ * tells them apart, so this is that shape with the discriminant widened —
+ * without it a caller passing a plain `AssetId` matches no overload.
+ */
+export interface BtcAssetDeployParams {
+  assetIn?: AssetId;
+  assetOut: AssetId;
+  sourceChain?: typeof Chain.BITCOIN_MAINNET | typeof Chain.BITCOIN_SIGNET;
+  destChain: Chain;
+  protocol: DeployProtocol;
+}
+
 export class BtcActions {
   private readonly ctx: BtcCoreContext;
 
@@ -195,8 +211,17 @@ export class BtcActions {
    *
    * @throws LombardError if `assetOut` is neither LBTC nor BTC.b
    */
+  deploy(params: BtcStakeAndDeployParams): IBtcStakeAndDeploy;
+  deploy(params: BtcDepositAndDeployParams): IBtcDepositAndDeploy;
+  /**
+   * The arm for a caller whose intermediate asset is only known at runtime. The
+   * precise interface cannot be known statically, so the union comes back.
+   */
   deploy(
-    params: BtcStakeAndDeployParams | BtcDepositAndDeployParams,
+    params: BtcAssetDeployParams,
+  ): IBtcStakeAndDeploy | IBtcDepositAndDeploy;
+  deploy(
+    params: BtcAssetDeployParams,
   ): IBtcStakeAndDeploy | IBtcDepositAndDeploy {
     if (params.assetOut === AssetId.LBTC) {
       return new BtcStakeAndDeploy(this.ctx, params as BtcStakeAndDeployParams);

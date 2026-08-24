@@ -66,7 +66,10 @@ describe('BTC Stake And Deploy Integration', () => {
 
       expect(() => {
         btcStakeAndDeploy(config, {
-          assetOut: AssetId.BTCb,
+          // `assetOut` is the `LBTC` literal, so a wrong asset is a type error
+          // now — which is the better layer to catch it. The cast keeps the
+          // runtime guard tested for callers with no types at all.
+          assetOut: AssetId.BTCb as never,
           destChain: Chain.ETHEREUM,
           protocol: 'veda', // Use Veda protocol from DefiRegistry
         });

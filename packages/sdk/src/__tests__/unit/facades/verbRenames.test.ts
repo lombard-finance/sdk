@@ -65,18 +65,25 @@ describe('btc.deploy()', () => {
     expect(action.constructor.name).toBe('BtcDepositAndDeploy');
   });
 
-  // The two intermediate assets differ in whether the signed amount is
-  // ratio-adjusted, so dispatching to the wrong one signs the wrong figure.
+  /**
+   * The two intermediate assets differ in whether the signed amount is
+   * ratio-adjusted, so dispatching to the wrong one signs the wrong figure.
+   *
+   * `assetOut` is now typed as the literal each route accepts, so this is a
+   * compile error for any typed caller — the stronger guarantee. The cast is
+   * what keeps the runtime guard covered for callers with no types, which is
+   * the only way this branch can still be reached.
+   */
   it('rejects an asset with no vault route rather than guessing', () => {
-    expect(() => btc.deploy({ ...base, assetOut: AssetId.WBTC })).toThrow(
-      /Cannot deploy through/,
-    );
+    expect(() =>
+      btc.deploy({ ...base, assetOut: AssetId.WBTC as never }),
+    ).toThrow(/Cannot deploy through/);
   });
 
   it('names the assets it does support', () => {
-    expect(() => btc.deploy({ ...base, assetOut: AssetId.WBTC })).toThrow(
-      /LBTC/,
-    );
+    expect(() =>
+      btc.deploy({ ...base, assetOut: AssetId.WBTC as never }),
+    ).toThrow(/LBTC/);
   });
 
   it('keeps both old names working', () => {

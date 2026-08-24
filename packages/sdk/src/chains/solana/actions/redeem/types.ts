@@ -16,7 +16,8 @@ import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 
 export interface SolanaRedeemParams {
-  assetIn: AssetId;
+  /** Input asset (BTC.b). A literal, so `withdraw()` can dispatch on it. */
+  assetIn: typeof AssetId.BTCb;
   assetOut: AssetId;
   sourceChain: Chain;
   destChain: Chain;

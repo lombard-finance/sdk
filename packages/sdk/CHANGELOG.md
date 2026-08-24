@@ -15,6 +15,21 @@ migrate once.
 
   **Wire values are unchanged**, so `action.on('progress', ...)`, `'status-change'`, `'completed'`, `'failed'` and `'error'` behave exactly as before. All nine old names remain as deprecated aliases pointing at the same object, so `StakeEvent === ActionEvent` holds and `StakeEvent.Progress` still resolves. `StrategyEventMap` and `StrategyEvent` were nine-member unions of structurally identical types — which made each equivalent to any single member — and are now that single type. Dropping the aliases is deferred to the next major.
 
+### Breaking
+
+- **The asset a dispatching verb switches on is now typed as a literal.** `EvmUnstakeParams.assetIn` is `'LBTC'`, `EvmRedeemParams.assetIn` is `'BTC.b'`, the two Solana equivalents likewise, and the two BTC deploy params carry the matching `assetOut` literal.
+
+  This fixes a silent type lie. `withdraw` was declared with three overloads, but `EvmUnstakeParams` and `EvmRedeemParams` were structurally identical, so the third was unreachable: a BTC.b withdrawal resolved to `IEvmUnstake` while returning an `EvmRedeem`. `IEvmRedeem` carries `approve()` and `needsApproval` and `IEvmUnstake` does not — so the compiler *forbade* the ERC-20 approval that route requires, and the only way through was a cast. The verb-dispatch tests asserted the constructed class, which was correct all along; nothing asserted the type.
+
+  A caller passing `AssetId.LBTC` or `AssetId.BTCb` directly is unaffected and now gets the precise interface. A caller holding a runtime `AssetId` — a form, typically — matches a new fallback overload and receives the union to narrow:
+
+  ```ts
+  const action = evm.withdraw(paramsFromForm); // IEvmUnstake | IEvmRedeem
+  if ('approve' in action) await action.approve();
+  ```
+
+  The runtime guards that reject an unroutable asset are unchanged; they are now unreachable from typed code, which is the point, and remain for callers with no types.
+
 ### Added
 
 - `walletAuth.signIn()` — the whole ceremony in one call: challenge, sign, verify, and poll when the chain settles on-chain.

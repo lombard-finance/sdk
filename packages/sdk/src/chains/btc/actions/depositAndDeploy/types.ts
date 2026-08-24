@@ -32,8 +32,8 @@ export { BtcActionStatus };
 export interface BtcDepositAndDeployParams {
   /** Input asset (BTC) */
   assetIn?: AssetId;
-  /** Output asset (BTC.b vault shares) */
-  assetOut: AssetId;
+  /** Output asset (BTC.b). A literal, so `deploy()` can dispatch on it. */
+  assetOut: typeof AssetId.BTCb;
   /** Source Bitcoin network */
   sourceChain?: typeof Chain.BITCOIN_MAINNET | typeof Chain.BITCOIN_SIGNET;
   /** Destination chain where vault exists (e.g., Avalanche for Silo) */
