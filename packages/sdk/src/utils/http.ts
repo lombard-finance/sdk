@@ -212,6 +212,7 @@ export async function httpRequest<T = unknown>(
    */
   async function send(): Promise<AxiosResponse<T>> {
     try {
+      // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_ssrf_rule-node-ssrf -- the url is composed from the SDK's own api-config hosts, not from caller input
       return await axios(buildConfig(authToken));
     } catch (error) {
       const status = (error as { response?: { status?: number } })?.response
@@ -240,6 +241,7 @@ export async function httpRequest<T = unknown>(
       authToken = refreshed;
 
       try {
+        // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_ssrf_rule-node-ssrf -- same url as the attempt above, retried with a fresh token
         return await axios(buildConfig(refreshed));
       } catch (retryError) {
         const retryStatus = (retryError as { response?: { status?: number } })
