@@ -9,7 +9,8 @@
  * runtime — so the compiler *forbade* `approve()`, the step that route requires.
  *
  * The fix was to type each discriminant as the literal the facade dispatches on.
- * These are the assertions that keep it true. They are compile-time checks
+ * These are the assertions that keep it true. The old verbs are gone in 6.0.0 —
+ * there are no deprecated delegators to widen for any more. They are compile-time checks
  * written as runtime tests so a regression shows up as a failing build with a
  * name attached, rather than as a type nobody inspected.
  */
@@ -19,8 +20,10 @@ import { describe, expect, it } from 'vitest';
 
 import type { BtcAssetDeployParams } from '../../../chains/btc/BtcActions';
 import { btcActions } from '../../../chains/btc/BtcActions';
+import type { IEvmRedeem, IEvmUnstake } from '../../../chains/evm';
 import type { EvmAssetWithdrawParams } from '../../../chains/evm/EvmActions';
 import { evmActions } from '../../../chains/evm/EvmActions';
+import type { ISolanaRedeem, ISolanaUnstake } from '../../../chains/solana';
 import type { SolanaAssetWithdrawParams } from '../../../chains/solana/SolanaActions';
 import { solanaActions } from '../../../chains/solana/SolanaActions';
 import { AssetId, Chain } from '../../../core';
@@ -60,7 +63,7 @@ describe('evm.withdraw', () => {
       assetOut: AssetId.BTC,
     });
 
-    assertExact<typeof action, ReturnType<typeof evm.unstake>>(true);
+    assertExact<typeof action, IEvmUnstake>(true);
     expect(action.constructor.name).toBe('EvmUnstake');
   });
 
@@ -76,7 +79,7 @@ describe('evm.withdraw', () => {
       assetOut: AssetId.BTC,
     });
 
-    assertExact<typeof action, ReturnType<typeof evm.redeem>>(true);
+    assertExact<typeof action, IEvmRedeem>(true);
     expect(typeof action.approve).toBe('function');
     expect(action.constructor.name).toBe('EvmRedeem');
   });
@@ -88,7 +91,7 @@ describe('evm.withdraw', () => {
       recipient: '0x1111111111111111111111111111111111111111',
     });
 
-    assertExact<typeof action, ReturnType<typeof evm.unstake>>(false as never);
+    assertExact<typeof action, IEvmUnstake>(false as never);
     expect(action.constructor.name).toBe('EvmWithdraw');
   });
 
@@ -109,7 +112,7 @@ describe('evm.withdraw', () => {
 
     assertExact<
       typeof action,
-      ReturnType<typeof evm.unstake> | ReturnType<typeof evm.redeem>
+      IEvmUnstake | IEvmRedeem
     >(true);
     expect(action.constructor.name).toBe('EvmRedeem');
   });
@@ -129,7 +132,7 @@ describe('solana.withdraw', () => {
       assetOut: AssetId.BTC,
     });
 
-    assertExact<typeof action, ReturnType<typeof solana.unstake>>(true);
+    assertExact<typeof action, ISolanaUnstake>(true);
     expect(action.constructor.name).toBe('SolanaUnstake');
   });
 
@@ -140,7 +143,7 @@ describe('solana.withdraw', () => {
       assetOut: AssetId.BTC,
     });
 
-    assertExact<typeof action, ReturnType<typeof solana.redeem>>(true);
+    assertExact<typeof action, ISolanaRedeem>(true);
     expect(action.constructor.name).toBe('SolanaRedeem');
   });
 
@@ -155,12 +158,22 @@ describe('solana.withdraw', () => {
 
     assertExact<
       typeof action,
-      ReturnType<typeof solana.unstake> | ReturnType<typeof solana.redeem>
+      ISolanaUnstake | ISolanaRedeem
     >(true);
     expect(action.constructor.name).toBe('SolanaUnstake');
   });
 });
 
+/**
+ * Asserted by constructed class only, not by type.
+ *
+ * Two different types are named `BtcStakeAndDeploy` today — the narrow
+ * interface in the action's `types.ts`, and the class — and `chains/btc`
+ * re-exports the *class* as `IBtcStakeAndDeploy`. So there is no unambiguous
+ * name to pin the return type against. Fixing that is the Stage A `IBtc*`
+ * defect; until then the runtime assertion is the honest one, and the EVM and
+ * Solana cases above cover the type-level guarantee.
+ */
 describe('btc.deploy', () => {
   const btc = btcActions(config);
   const base = {
@@ -172,7 +185,6 @@ describe('btc.deploy', () => {
   it('types an LBTC deploy as stake-and-deploy', () => {
     const action = btc.deploy({ ...base, assetOut: AssetId.LBTC });
 
-    assertExact<typeof action, ReturnType<typeof btc.stakeAndDeploy>>(true);
     expect(action.constructor.name).toBe('BtcStakeAndDeploy');
   });
 
@@ -184,7 +196,6 @@ describe('btc.deploy', () => {
       protocol: 'silo' as never,
     });
 
-    assertExact<typeof action, ReturnType<typeof btc.depositAndDeploy>>(true);
     expect(action.constructor.name).toBe('BtcDepositAndDeploy');
   });
 
@@ -196,113 +207,6 @@ describe('btc.deploy', () => {
 
     const action = btc.deploy(fromAForm);
 
-    assertExact<
-      typeof action,
-      | ReturnType<typeof btc.stakeAndDeploy>
-      | ReturnType<typeof btc.depositAndDeploy>
-    >(true);
     expect(action.constructor.name).toBe('BtcStakeAndDeploy');
-  });
-});
-
-/**
- * The deprecated verbs must keep accepting what v5 accepted
- *
- * A deprecated delegator exists so existing callers keep compiling. Narrowing
- * `assetIn` for the dispatching verbs initially narrowed these too, which broke
- * the exact shape a v5 caller has: one params object built once, with the method
- * chosen by a boolean, so `assetIn` is a union of both literals. The app does
- * precisely that, and it stopped compiling.
- *
- * These take the widened parameters instead. Each one builds a single known
- * class, so it has no dispatching to do and no need of the discriminant.
- */
-describe('the deprecated verbs', () => {
-  const evm = evmActions(config);
-  const solana = solanaActions(config);
-  const btc = btcActions(config);
-
-  it('accept an asset that is only known at runtime', () => {
-    // The v5 shape: built once, method picked separately.
-    const params = {
-      assetIn: AssetId.LBTC as AssetId,
-      assetOut: AssetId.BTC,
-      sourceChain: Chain.ETHEREUM,
-      destChain: Chain.BITCOIN_MAINNET,
-    };
-
-    expect(evm.unstake(params).constructor.name).toBe('EvmUnstake');
-    expect(evm.redeem(params).constructor.name).toBe('EvmRedeem');
-  });
-
-  it('still return the precise interface, since the route is fixed by the name', () => {
-    const params = {
-      assetIn: AssetId.LBTC as AssetId,
-      assetOut: AssetId.BTC,
-      sourceChain: Chain.ETHEREUM,
-      destChain: Chain.BITCOIN_MAINNET,
-    };
-
-    // Widening the input must not widen the output: `redeem` is still the only
-    // arm with `approve()`, and a caller of it needs to reach that.
-    assertExact<ReturnType<typeof evm.redeem>, ReturnType<typeof evm.unstake>>(
-      false as never,
-    );
-    expect(typeof evm.redeem(params).approve).toBe('function');
-  });
-
-  it('does the same on solana', () => {
-    const chains = {
-      sourceChain: Chain.SOLANA_MAINNET,
-      destChain: Chain.BITCOIN_MAINNET,
-    };
-
-    expect(
-      solana.unstake({
-        ...chains,
-        assetIn: AssetId.LBTC as AssetId,
-        assetOut: AssetId.BTC,
-      }).constructor.name,
-    ).toBe('SolanaUnstake');
-    expect(
-      solana.redeem({
-        ...chains,
-        assetIn: AssetId.BTCb as AssetId,
-        assetOut: AssetId.BTC,
-      }).constructor.name,
-    ).toBe('SolanaRedeem');
-  });
-
-  it('does the same for the two BTC deploys', () => {
-    expect(
-      btc.stakeAndDeploy({
-        assetOut: AssetId.LBTC as AssetId,
-        destChain: Chain.ETHEREUM,
-        protocol: 'veda' as never,
-      }).constructor.name,
-    ).toBe('BtcStakeAndDeploy');
-    expect(
-      btc.depositAndDeploy({
-        assetOut: AssetId.BTCb as AssetId,
-        destChain: Chain.AVALANCHE,
-        protocol: 'silo' as never,
-      }).constructor.name,
-    ).toBe('BtcDepositAndDeploy');
-  });
-
-  /**
-   * Widening is type-level only. Each of these builds one route and still
-   * validates the asset it was handed, so a caller that widened the type has
-   * not also switched the guard off — the first version of this file passed the
-   * same object to both methods and was rejected at runtime by exactly that.
-   */
-  it('still rejects an asset its own route cannot serve', () => {
-    expect(() =>
-      btc.depositAndDeploy({
-        assetOut: AssetId.LBTC as AssetId,
-        destChain: Chain.AVALANCHE,
-        protocol: 'silo' as never,
-      }),
-    ).toThrow(/not supported for deposit and deploy/);
   });
 });

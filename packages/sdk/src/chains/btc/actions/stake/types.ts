@@ -25,8 +25,11 @@ export { BtcActionStatus };
  * Parameters for initiating a BTC stake operation.
  */
 export interface BtcStakeParams {
-  /** Output asset (LBTC) */
-  assetOut: AssetId;
+  /**
+   * Output asset (LBTC). A literal, so `deposit()` can dispatch on it — the two
+   * BTC deposit routes are otherwise the same shape.
+   */
+  assetOut: typeof AssetId.LBTC;
   /** Destination chain to mint LBTC on */
   destChain: Chain;
   /** Source Bitcoin network (optional, defaults based on env) */

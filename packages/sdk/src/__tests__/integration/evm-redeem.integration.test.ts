@@ -50,7 +50,7 @@ describe('EVM Redeem Integration', () => {
       });
 
       const evm = evmActions(config);
-      const redeem = evm.redeem({
+      const redeem = evm.withdraw({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE,

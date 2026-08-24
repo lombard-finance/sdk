@@ -73,7 +73,7 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
           message: 'Creating unstake action...',
         });
 
-        const action = sdk.chain.evm.unstake({
+        const action = sdk.chain.evm.withdraw({
           assetIn: AssetId.LBTC,
           assetOut: params.assetOut,
           sourceChain: params.sourceChain,

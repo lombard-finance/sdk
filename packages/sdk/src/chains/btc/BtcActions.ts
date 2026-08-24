@@ -74,78 +74,24 @@ export interface BtcAssetDeployParams {
   protocol: DeployProtocol;
 }
 
+/**
+ * A BTC deposit whose output asset is only known at runtime.
+ *
+ * The two routes' parameter types are identical apart from the `assetOut`
+ * literal that tells them apart, so this is that shape with the discriminant
+ * widened — without it a caller passing a plain `AssetId` matches no overload.
+ */
+export interface BtcAssetDepositParams {
+  assetOut: AssetId;
+  destChain: Chain;
+  sourceChain?: typeof Chain.BITCOIN_MAINNET | typeof Chain.BITCOIN_SIGNET;
+}
+
 export class BtcActions {
   private readonly ctx: BtcCoreContext;
 
   constructor(config: LombardConfig) {
     this.ctx = createBtcCoreContext(config);
-  }
-
-  /**
-   * Stake BTC → LBTC
-   *
-   * Creates a stake operation for converting BTC to LBTC on a destination chain.
-   * Supports all destination chains: EVM, Solana, Sui, and Starknet.
-   *
-   * @param params - Stake parameters
-   * @returns BtcStake instance
-   *
-   * @example
-   * ```typescript
-   * const stake = btc.stake({
-   *   assetOut: AssetId.LBTC,
-   *   destChain: Chain.ETHEREUM,
-   * });
-   *
-   * await stake.prepare({ amount: '0.1', recipient: '0x...' });
-   * await stake.authorize();
-   * const address = await stake.generateDepositAddress();
-   * ```
-   */
-  stake(params: BtcStakeParams): IBtcStake {
-    return new BtcStake(this.ctx, params);
-  }
-
-  /**
-   * Stake and Deploy BTC → LBTC + auto-deploy ("Stake and Bake")
-   *
-   * Creates an atomic operation that:
-   * 1. Converts BTC to LBTC
-   * 2. Automatically deposits LBTC to the specified DeFi vault
-   *
-   * @param params - StakeAndDeploy parameters including protocol/vault
-   * @returns BtcStakeAndDeploy instance
-   *
-   * @example
-   * ```typescript
-   * const action = btc.stakeAndDeploy({
-   *   assetOut: AssetId.LBTC,
-   *   destChain: Chain.ETHEREUM,
-   *   protocol: DeployProtocol.Veda,
-   * });
-   *
-   * await action.prepare({ amount: '0.1', recipient: '0x...' });
-   * await action.authorizeDeposit();
-   * const address = await action.generateDepositAddress();
-   * ```
-   */
-  /**
-   * @deprecated Use {@link deploy} instead, which dispatches on `assetOut`.
-   * Removed in the next major.
-   */
-  /**
-   * Takes the widened parameters on purpose. This method builds one known
-   * class, so it has no dispatching to do and no need of the discriminant —
-   * and narrowing it would break the callers it exists to keep working, which
-   * is the whole point of a deprecated delegator. A v5 caller that picks
-   * between the two routes with a boolean holds `assetIn` as a union of both
-   * literals, and would have nowhere to go.
-   */
-  stakeAndDeploy(params: BtcAssetDeployParams): IBtcStakeAndDeploy {
-    return new BtcStakeAndDeploy(
-      this.ctx,
-      params as BtcStakeAndDeployParams,
-    );
   }
 
   /**
@@ -169,51 +115,30 @@ export class BtcActions {
    * const address = await deposit.generateDepositAddress();
    * ```
    */
-  deposit(params: BtcDepositParams): IBtcDeposit {
-    return new BtcDeposit(this.ctx, params);
-  }
+  deposit(params: BtcStakeParams): IBtcStake;
+  deposit(params: BtcDepositParams): IBtcDeposit;
+  /**
+   * The arm for a caller whose output asset is only known at runtime — a form,
+   * typically. The precise interface cannot be known statically, so the union
+   * comes back and the caller narrows.
+   */
+  deposit(params: BtcAssetDepositParams): IBtcStake | IBtcDeposit;
+  deposit(params: BtcAssetDepositParams): IBtcStake | IBtcDeposit {
+    if (params.assetOut === AssetId.LBTC) {
+      return new BtcStake(this.ctx, params as BtcStakeParams);
+    }
 
-  /**
-   * Deposit and Deploy BTC → BTC.b + auto-deploy to vault
-   *
-   * Creates an atomic operation that:
-   * 1. Converts BTC to BTC.b (wrapped BTC)
-   * 2. Automatically deposits BTC.b to the specified DeFi vault (e.g., Silo on Avalanche)
-   *
-   * This is similar to stakeAndDeploy but for protocols that accept BTC.b instead of LBTC.
-   *
-   * @param params - DepositAndDeploy parameters including protocol/vault
-   * @returns BtcDepositAndDeploy instance
-   *
-   * @example
-   * ```typescript
-   * const action = btc.depositAndDeploy({
-   *   assetOut: AssetId.BTCb,
-   *   destChain: Chain.AVALANCHE,
-   *   protocol: DeployProtocol.Silo,
-   * });
-   *
-   * await action.prepare({ amount: '0.1', recipient: '0x...' });
-   * await action.authorizeDeposit();
-   * const address = await action.generateDepositAddress();
-   * ```
-   */
-  /**
-   * @deprecated Use {@link deploy} instead, which dispatches on `assetOut`.
-   * Removed in the next major.
-   */
-  /**
-   * Takes the widened parameters on purpose. This method builds one known
-   * class, so it has no dispatching to do and no need of the discriminant —
-   * and narrowing it would break the callers it exists to keep working, which
-   * is the whole point of a deprecated delegator. A v5 caller that picks
-   * between the two routes with a boolean holds `assetIn` as a union of both
-   * literals, and would have nowhere to go.
-   */
-  depositAndDeploy(params: BtcAssetDeployParams): IBtcDepositAndDeploy {
-    return new BtcDepositAndDeploy(
-      this.ctx,
-      params as BtcDepositAndDeployParams,
+    if (params.assetOut === AssetId.BTCb) {
+      return new BtcDeposit(this.ctx, params as BtcDepositParams);
+    }
+
+    // The two routes mint different assets through different contracts, so
+    // picking one arbitrarily fails later — inside a flow the caller has already
+    // started, and after a signature.
+    throw new LombardError(
+      ValidationErrorCode.INVALID_ASSET,
+      `Cannot deposit BTC as ${String(params.assetOut)}. ` +
+        `Supported: ${AssetId.LBTC}, ${AssetId.BTCb}.`,
     );
   }
 

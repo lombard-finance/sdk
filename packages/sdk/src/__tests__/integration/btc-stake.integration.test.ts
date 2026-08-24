@@ -440,7 +440,7 @@ describe.skip('BTC Stake Integration (Real Network)', () => {
   });
 
   it('should complete full BTC → LBTC stake flow', async () => {
-    const stake = sdk.chain.btc.stake({
+    const stake = sdk.chain.btc.deposit({
       assetOut: AssetId.LBTC,
       destChain: Chain.ETHEREUM,
     });
@@ -454,7 +454,7 @@ describe.skip('BTC Stake Integration (Real Network)', () => {
   }, 60000);
 
   it('should handle invalid recipient addresses', async () => {
-    const stake = sdk.chain.btc.stake({
+    const stake = sdk.chain.btc.deposit({
       assetOut: AssetId.LBTC,
       destChain: Chain.ETHEREUM,
     });

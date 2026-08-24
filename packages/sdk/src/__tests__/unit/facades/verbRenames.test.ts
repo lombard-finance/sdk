@@ -1,12 +1,13 @@
 /**
- * The three-verb facade methods
+ * The three-verb vocabulary
  *
- * Nine overlapping verbs become three. Where the new name was free the old one
- * becomes a deprecated delegator; where two old methods describe the same verb
- * the new one dispatches on the parameter that actually distinguished them.
+ * Nine overlapping verbs became three. In 6.0.0 the old names are **gone** — no
+ * deprecated delegators — so this pins two things: that each surviving verb
+ * builds the right action, and that the removed names are actually absent rather
+ * than quietly still there.
  *
  * The dispatch is the part worth testing hardest, because picking the wrong
- * class does not fail at the call — it fails later, inside a flow the caller has
+ * class does not fail at the call. It fails later, inside a flow the caller has
  * already started, possibly after a signature.
  */
 
@@ -40,6 +41,76 @@ const config = {
   modules: stubModules(),
 } as never;
 
+describe('the removed verbs are gone', () => {
+  /**
+   * Asserted by name rather than left to the compiler.
+   *
+   * A consumer on plain JavaScript gets no type error from calling a verb that
+   * no longer exists — they get `undefined is not a function` at the call site.
+   * And a delegator quietly left behind would keep the old vocabulary alive in
+   * every example anyone copies, which is what this release is for.
+   */
+  const removed = {
+    btc: ['stake', 'stakeAndDeploy', 'depositAndDeploy'],
+    evm: ['stake', 'unstake', 'redeem'],
+    solana: ['stake', 'unstake', 'redeem'],
+    sui: ['unstake'],
+    starknet: ['unstake'],
+  } as const;
+
+  const facades: Record<string, object> = {
+    btc: btcActions(config),
+    evm: evmActions(config),
+    solana: solanaActions(config),
+    sui: suiActions(config),
+    starknet: starknetActions(config),
+  };
+
+  for (const [chain, verbs] of Object.entries(removed)) {
+    for (const verb of verbs) {
+      it(`${chain}.${verb}() no longer exists`, () => {
+        expect(
+          (facades[chain] as Record<string, unknown>)[verb],
+        ).toBeUndefined();
+      });
+    }
+  }
+});
+
+describe('btc.deposit()', () => {
+  const btc = btcActions(config);
+  const base = { destChain: Chain.ETHEREUM };
+
+  /**
+   * The two BTC deposit routes were `stake` (LBTC) and `deposit` (BTC.b). Their
+   * parameters are identical apart from the output asset, so one verb
+   * dispatching on it is the whole difference.
+   */
+  it('routes an LBTC deposit to the stake action', () => {
+    expect(
+      btc.deposit({ ...base, assetOut: AssetId.LBTC }).constructor.name,
+    ).toBe('BtcStake');
+  });
+
+  it('routes a BTC.b deposit to the deposit action', () => {
+    expect(
+      btc.deposit({ ...base, assetOut: AssetId.BTCb }).constructor.name,
+    ).toBe('BtcDeposit');
+  });
+
+  it('rejects an asset neither route mints, rather than guessing', () => {
+    expect(() =>
+      btc.deposit({ ...base, assetOut: AssetId.WBTC as never }),
+    ).toThrow(/Cannot deposit BTC as/);
+  });
+
+  it('names the assets it does support', () => {
+    expect(() =>
+      btc.deposit({ ...base, assetOut: AssetId.WBTC as never }),
+    ).toThrow(/LBTC/);
+  });
+});
+
 describe('btc.deploy()', () => {
   const btc = btcActions(config);
   const base = {
@@ -49,49 +120,14 @@ describe('btc.deploy()', () => {
   };
 
   it('routes an LBTC deploy to the stake-and-deploy action', () => {
-    const action = btc.deploy({ ...base, assetOut: AssetId.LBTC });
-
-    expect(action.constructor.name).toBe('BtcStakeAndDeploy');
+    expect(
+      btc.deploy({ ...base, assetOut: AssetId.LBTC }).constructor.name,
+    ).toBe('BtcStakeAndDeploy');
   });
 
   it('routes a BTC.b deploy to the deposit-and-deploy action', () => {
-    const action = btc.deploy({
-      ...base,
-      assetOut: AssetId.BTCb,
-      destChain: Chain.AVALANCHE,
-      protocol: 'silo' as never,
-    });
-
-    expect(action.constructor.name).toBe('BtcDepositAndDeploy');
-  });
-
-  /**
-   * The two intermediate assets differ in whether the signed amount is
-   * ratio-adjusted, so dispatching to the wrong one signs the wrong figure.
-   *
-   * `assetOut` is now typed as the literal each route accepts, so this is a
-   * compile error for any typed caller — the stronger guarantee. The cast is
-   * what keeps the runtime guard covered for callers with no types, which is
-   * the only way this branch can still be reached.
-   */
-  it('rejects an asset with no vault route rather than guessing', () => {
-    expect(() =>
-      btc.deploy({ ...base, assetOut: AssetId.WBTC as never }),
-    ).toThrow(/Cannot deploy through/);
-  });
-
-  it('names the assets it does support', () => {
-    expect(() =>
-      btc.deploy({ ...base, assetOut: AssetId.WBTC as never }),
-    ).toThrow(/LBTC/);
-  });
-
-  it('keeps both old names working', () => {
     expect(
-      btc.stakeAndDeploy({ ...base, assetOut: AssetId.LBTC }).constructor.name,
-    ).toBe('BtcStakeAndDeploy');
-    expect(
-      btc.depositAndDeploy({
+      btc.deploy({
         ...base,
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
@@ -99,88 +135,46 @@ describe('btc.deploy()', () => {
       }).constructor.name,
     ).toBe('BtcDepositAndDeploy');
   });
-});
 
-describe('solana.withdraw()', () => {
-  const solana = solanaActions(config);
-  const base = {
-    sourceChain: Chain.SOLANA_MAINNET,
-    destChain: Chain.BITCOIN_MAINNET,
-  } as never;
-
-  it('routes an LBTC withdrawal to the unstake action', () => {
-    const action = solana.withdraw({
-      ...(base as object),
-      assetIn: AssetId.LBTC,
-      assetOut: AssetId.BTC,
-    } as never);
-
-    expect(action.constructor.name).toBe('SolanaUnstake');
-  });
-
-  it('routes a BTC.b withdrawal to the redeem action', () => {
-    const action = solana.withdraw({
-      ...(base as object),
-      assetIn: AssetId.BTCb,
-      assetOut: AssetId.BTC,
-    } as never);
-
-    expect(action.constructor.name).toBe('SolanaRedeem');
-  });
-
-  it('rejects an asset it cannot withdraw', () => {
+  // The two intermediate assets differ in whether the signed amount is
+  // ratio-adjusted, so dispatching to the wrong one signs the wrong figure.
+  it('rejects an asset with no vault route', () => {
     expect(() =>
-      solana.withdraw({
-        ...(base as object),
-        assetIn: AssetId.WBTC,
-        assetOut: AssetId.BTC,
-      } as never),
-    ).toThrow(/Cannot withdraw/);
+      btc.deploy({ ...base, assetOut: AssetId.WBTC as never }),
+    ).toThrow(/Cannot deploy through/);
   });
 });
 
-describe('solana.deposit()', () => {
-  const solana = solanaActions(config);
-
-  it('is the new name for stake', () => {
-    const params = {
-      assetIn: AssetId.BTCb,
-      assetOut: AssetId.LBTC,
-      chain: Chain.SOLANA_MAINNET,
-    } as never;
-
-    expect(solana.deposit(params).constructor.name).toBe('SolanaStake');
-    expect(solana.stake(params).constructor.name).toBe('SolanaStake');
-  });
-});
-
-describe('the single-action chains', () => {
+describe('evm.deposit() and evm.claim()', () => {
+  const evm = evmActions(config);
   const params = {
-    assetIn: AssetId.LBTC,
-    assetOut: AssetId.BTC,
-    sourceChain: Chain.SUI_MAINNET,
-    destChain: Chain.BITCOIN_MAINNET,
-  } as never;
+    assetIn: AssetId.BTCb,
+    assetOut: AssetId.LBTC,
+    sourceChain: Chain.ETHEREUM,
+    destChain: Chain.ETHEREUM,
+  };
 
-  it('sui exposes withdraw, with unstake delegating', () => {
-    const sui = suiActions(config);
-
-    expect(sui.withdraw(params).constructor.name).toBe('SuiUnstake');
-    expect(sui.unstake(params).constructor.name).toBe('SuiUnstake');
+  /**
+   * `deposit` is the former `stake`: an asset becomes its L-asset, which is what
+   * the verb means everywhere else.
+   */
+  it('deposit builds the stake action', () => {
+    expect(evm.deposit(params).constructor.name).toBe('EvmStake');
   });
 
-  it('starknet exposes withdraw, with unstake delegating', () => {
-    const starknet = starknetActions(config);
-    const starknetParams = {
-      ...(params as object),
-      sourceChain: Chain.STARKNET_MAINNET,
-    } as never;
+  /**
+   * And `claim` is the former `deposit` — claiming a pending BTC.b deposit as
+   * LBTC. Reassigning `deposit` was only safe once `claim` existed to carry the
+   * old meaning, because the two take identical parameters: nothing but the verb
+   * name distinguishes them.
+   */
+  it('claim builds the deposit action', () => {
+    expect(evm.claim(params).constructor.name).toBe('EvmDeposit');
+  });
 
-    expect(starknet.withdraw(starknetParams).constructor.name).toBe(
-      'StarknetUnstake',
-    );
-    expect(starknet.unstake(starknetParams).constructor.name).toBe(
-      'StarknetUnstake',
+  it('they are different actions for the same parameters', () => {
+    expect(evm.deposit(params).constructor.name).not.toBe(
+      evm.claim(params).constructor.name,
     );
   });
 });
@@ -192,103 +186,107 @@ describe('evm.withdraw()', () => {
     destChain: Chain.BITCOIN_MAINNET,
   };
 
-  it('keeps its 5.x meaning for the vault arm, so no existing call moves', () => {
-    const action = evm.withdraw({
-      protocol: 'veda' as never,
-      sourceChain: Chain.ETHEREUM,
-      recipient: '0x1111111111111111111111111111111111111111',
-    });
-
-    expect(action.constructor.name).toBe('EvmWithdraw');
-  });
-
   it('routes an LBTC withdrawal to the unstake action', () => {
-    const action = evm.withdraw({
-      ...assetArm,
-      assetIn: AssetId.LBTC,
-      assetOut: AssetId.BTC,
-    });
-
-    expect(action.constructor.name).toBe('EvmUnstake');
+    expect(
+      evm.withdraw({
+        ...assetArm,
+        assetIn: AssetId.LBTC,
+        assetOut: AssetId.BTC,
+      }).constructor.name,
+    ).toBe('EvmUnstake');
   });
 
   it('routes a BTC.b withdrawal to the redeem action', () => {
-    const action = evm.withdraw({
-      ...assetArm,
-      assetIn: AssetId.BTCb,
-      assetOut: AssetId.BTC,
-    });
-
-    expect(action.constructor.name).toBe('EvmRedeem');
+    expect(
+      evm.withdraw({
+        ...assetArm,
+        assetIn: AssetId.BTCb,
+        assetOut: AssetId.BTC,
+      }).constructor.name,
+    ).toBe('EvmRedeem');
   });
 
-  // The absence of assetIn is what marks a vault exit: the shares it burns have
-  // no AssetId. Reading a protocol instead would misfire on a future route that
-  // carried both.
-  it('separates the arms on whether assetIn is present at all', () => {
-    const vault = evm.withdraw({
-      protocol: 'veda' as never,
-      sourceChain: Chain.ETHEREUM,
-      recipient: '0x1111111111111111111111111111111111111111',
-    });
-    const asset = evm.withdraw({
-      ...assetArm,
-      assetIn: AssetId.LBTC,
-      assetOut: AssetId.BTC,
-    });
-
-    expect(vault.constructor.name).not.toBe(asset.constructor.name);
+  /**
+   * The vault exit keeps this verb too. The absence of `assetIn` is what marks
+   * it: the shares it burns have no `AssetId`. Reading a protocol instead would
+   * misfire on a future route that carried both.
+   */
+  it('routes a vault exit to the withdraw action', () => {
+    expect(
+      evm.withdraw({
+        protocol: 'veda' as never,
+        sourceChain: Chain.ETHEREUM,
+        recipient: '0x1111111111111111111111111111111111111111',
+      }).constructor.name,
+    ).toBe('EvmWithdraw');
   });
 
   it('rejects an asset it cannot withdraw', () => {
     expect(() =>
       evm.withdraw({
         ...assetArm,
-        assetIn: AssetId.WBTC,
+        assetIn: AssetId.WBTC as never,
         assetOut: AssetId.BTC,
       }),
     ).toThrow(/Cannot withdraw/);
   });
-
-  it('keeps both absorbed names working', () => {
-    expect(
-      evm.unstake({ ...assetArm, assetIn: AssetId.LBTC, assetOut: AssetId.BTC })
-        .constructor.name,
-    ).toBe('EvmUnstake');
-    expect(
-      evm.redeem({ ...assetArm, assetIn: AssetId.BTCb, assetOut: AssetId.BTC })
-        .constructor.name,
-    ).toBe('EvmRedeem');
-  });
 });
 
-describe('evm.claim()', () => {
-  const evm = evmActions(config);
-  const params = {
-    assetIn: AssetId.BTCb,
-    assetOut: AssetId.LBTC,
-    sourceChain: Chain.ETHEREUM,
-    destChain: Chain.ETHEREUM,
-  };
+describe('the non-EVM chains', () => {
+  it('solana.deposit builds the stake action', () => {
+    const solana = solanaActions(config);
 
-  it('is the new name for what deposit() has always done', () => {
-    expect(evm.claim(params).constructor.name).toBe('EvmDeposit');
-    expect(evm.deposit(params).constructor.name).toBe('EvmDeposit');
+    expect(
+      solana.deposit({
+        assetIn: AssetId.BTCb,
+        assetOut: AssetId.LBTC,
+        chain: Chain.SOLANA_MAINNET,
+      } as never).constructor.name,
+    ).toBe('SolanaStake');
   });
 
-  /**
-   * The reason `deposit` is not reassigned to the BTC.b-to-LBTC route in this
-   * major. If these two param types ever diverge, a runtime guard becomes
-   * possible and the name can move — so the identity is asserted, not assumed.
-   */
-  it('cannot be told apart from stake() by its parameters', () => {
-    const asStake = evm.stake(params);
-    const asClaim = evm.claim(params);
+  it('solana.withdraw dispatches on assetIn', () => {
+    const solana = solanaActions(config);
+    const chains = {
+      sourceChain: Chain.SOLANA_MAINNET,
+      destChain: Chain.BITCOIN_MAINNET,
+    };
 
-    expect(asStake.constructor.name).toBe('EvmStake');
-    expect(asClaim.constructor.name).toBe('EvmDeposit');
-    // Same input, two different actions. Nothing in the parameters distinguishes
-    // them, which is why reassigning the name would be silent.
-    expect(asStake.constructor.name).not.toBe(asClaim.constructor.name);
+    expect(
+      solana.withdraw({
+        ...chains,
+        assetIn: AssetId.LBTC,
+        assetOut: AssetId.BTC,
+      }).constructor.name,
+    ).toBe('SolanaUnstake');
+    expect(
+      solana.withdraw({
+        ...chains,
+        assetIn: AssetId.BTCb,
+        assetOut: AssetId.BTC,
+      }).constructor.name,
+    ).toBe('SolanaRedeem');
+  });
+
+  // One withdrawal each, so nothing to dispatch on.
+  it('sui.withdraw and starknet.withdraw build their single action', () => {
+    const params = {
+      assetIn: AssetId.LBTC,
+      assetOut: AssetId.BTC,
+      destChain: Chain.BITCOIN_MAINNET,
+    };
+
+    expect(
+      suiActions(config).withdraw({
+        ...params,
+        sourceChain: Chain.SUI_MAINNET,
+      } as never).constructor.name,
+    ).toBe('SuiUnstake');
+    expect(
+      starknetActions(config).withdraw({
+        ...params,
+        sourceChain: Chain.STARKNET_MAINNET,
+      } as never).constructor.name,
+    ).toBe('StarknetUnstake');
   });
 });

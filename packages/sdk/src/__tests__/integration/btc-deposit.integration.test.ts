@@ -65,7 +65,10 @@ describe('BTC Deposit Integration', () => {
 
       expect(() => {
         btcDeposit(config, {
-          assetOut: AssetId.LBTC,
+          // `assetOut` is the `BTC.b` literal now, so a wrong asset is a type
+          // error — the better layer. The cast keeps the runtime guard covered
+          // for callers with no types, which is the only way to reach it.
+          assetOut: AssetId.LBTC as never,
           destChain: Chain.AVALANCHE_FUJI,
         });
       }).toThrow(/not supported for BTC deposits/);

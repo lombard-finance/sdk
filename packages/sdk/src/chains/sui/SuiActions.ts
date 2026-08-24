@@ -81,12 +81,6 @@ export class SuiActions {
     return new SuiUnstake(this.ctx, params);
   }
 
-  /**
-   * @deprecated Use {@link withdraw} instead. Removed in the next major.
-   */
-  unstake(params: SuiUnstakeParams): ISuiUnstake {
-    return this.withdraw(params);
-  }
 }
 
 /**

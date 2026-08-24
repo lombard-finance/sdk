@@ -79,7 +79,7 @@ export function useBtcStakeAndBake(
           message: 'Creating stake-and-bake action...',
         });
 
-        const action = sdk.chain.btc.stakeAndDeploy({
+        const action = sdk.chain.btc.deploy({
           assetOut: AssetId.LBTC,
           destChain: params.destChain,
           sourceChain: params.sourceChain,

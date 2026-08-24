@@ -30,8 +30,8 @@ export { BtcActionStatus };
  * For staking operations (BTC → LBTC), use BtcStake instead.
  */
 export interface BtcDepositParams {
-  /** Output asset - should be BTCb for deposit, LBTC for stake */
-  assetOut: AssetId;
+  /** Output asset (BTC.b). A literal, so `deposit()` can dispatch on it. */
+  assetOut: typeof AssetId.BTCb;
   /** Destination chain for minted asset */
   destChain: Chain;
   /** Source Bitcoin network (optional, defaults based on env) */

@@ -84,12 +84,6 @@ export class StarknetActions {
     return new StarknetUnstake(this.ctx, params);
   }
 
-  /**
-   * @deprecated Use {@link withdraw} instead. Removed in the next major.
-   */
-  unstake(params: StarknetUnstakeParams): IStarknetUnstake {
-    return this.withdraw(params);
-  }
 }
 
 /**

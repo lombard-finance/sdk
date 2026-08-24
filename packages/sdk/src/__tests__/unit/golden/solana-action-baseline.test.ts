@@ -3,8 +3,8 @@
  *
  * ## Why this file exists
  *
- * 6.0.0 renames `solana.stake()` → `solana.deposit()` and merges
- * `solana.unstake()` + `solana.redeem()` into `solana.withdraw()`, keeping the
+ * 6.0.0 renames `solana.deposit()` → `solana.deposit()` and merges
+ * `solana.withdraw()` + `solana.withdraw()` into `solana.withdraw()`, keeping the
  * old names as delegating aliases. That merge is the best-founded one in the
  * release — `SolanaRedeem` calls only `ctx.solana.redeemForBtc`, which is a
  * strict subset of what `SolanaUnstake` calls — but "well-founded" is not

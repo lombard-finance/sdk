@@ -112,13 +112,6 @@ export class SolanaActions {
   }
 
   /**
-   * @deprecated Use {@link deposit} instead. Removed in the next major.
-   */
-  stake(params: SolanaStakeParams): ISolanaStake {
-    return this.deposit(params);
-  }
-
-  /**
    * Withdraw an L-asset back out.
    *
    * One method for what were two, dispatching on `assetIn` — which is the only
@@ -156,55 +149,6 @@ export class SolanaActions {
     );
   }
 
-  /**
-   * Unstake LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
-   *
-   * Burns LBTC on Solana and outputs BTC or BTC.b depending on `assetOut`:
-   * - BTC: via LBTC program directly (cross-chain to Bitcoin)
-   * - BTC.b: via Asset Router redeem (same-chain on Solana)
-   *
-   * @throws LombardError if solana module is not registered
-   * @throws LombardError if route is not supported
-   */
-  /**
-   * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
-   * Removed in the next major.
-   */
-  /**
-   * Takes the widened parameters on purpose. This method builds one known
-   * class, so it has no dispatching to do and no need of the discriminant —
-   * and narrowing it would break the callers it exists to keep working, which
-   * is the whole point of a deprecated delegator. A v5 caller that picks
-   * between the two routes with a boolean holds `assetIn` as a union of both
-   * literals, and would have nowhere to go.
-   */
-  unstake(params: SolanaAssetWithdrawParams): ISolanaUnstake {
-    return new SolanaUnstake(this.ctx, params as SolanaUnstakeParams);
-  }
-
-  /**
-   * Redeem BTC.b → BTC (cross-chain)
-   *
-   * Burns BTC.b on Solana and releases BTC to a Bitcoin address via Asset Router.
-   *
-   * @throws LombardError if solana module is not registered
-   * @throws LombardError if route is not supported
-   */
-  /**
-   * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
-   * Removed in the next major.
-   */
-  /**
-   * Takes the widened parameters on purpose. This method builds one known
-   * class, so it has no dispatching to do and no need of the discriminant —
-   * and narrowing it would break the callers it exists to keep working, which
-   * is the whole point of a deprecated delegator. A v5 caller that picks
-   * between the two routes with a boolean holds `assetIn` as a union of both
-   * literals, and would have nowhere to go.
-   */
-  redeem(params: SolanaAssetWithdrawParams): ISolanaRedeem {
-    return new SolanaRedeem(this.ctx, params as SolanaRedeemParams);
-  }
 }
 
 /**

@@ -75,7 +75,7 @@ export function useNonEvmUnstake(
         });
 
         const chain = sdk.chain[chainNamespace];
-        const action = chain.unstake({
+        const action = chain.withdraw({
           assetIn: AssetId.LBTC,
           assetOut: AssetId.BTC,
           sourceChain: params.sourceChain,

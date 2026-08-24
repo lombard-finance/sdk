@@ -4,7 +4,7 @@
 
 End users with on-chain positions are unaffected. Most consumers do a mechanical migration once; two changes need a decision rather than a rename, and both are marked below.
 
-Every old verb still works as a deprecated delegator, so you can migrate incrementally. If you need more time, stay on `^5.4.0`.
+**The old verbs are gone.** There are no deprecated delegators: `stake`, `unstake`, `redeem`, `stakeAndDeploy` and `depositAndDeploy` are removed, so every call site moves in one go. If you need more time, stay on `^5.5.0`.
 
 ---
 
@@ -12,12 +12,12 @@ Every old verb still works as a deprecated delegator, so you can migrate increme
 
 Nine verbs described the same three journeys. Which one you called depended on the asset and the chain rather than on what you were doing, so the same intent had a different name per route.
 
-| Verb       | What it means                                 | Replaces                                                      |
-| ---------- | --------------------------------------------- | ------------------------------------------------------------- |
-| `deposit`  | An asset becomes its L-asset                  | `stake` (Solana)                                              |
-| `withdraw` | An L-asset becomes the asset, or a vault exit | `unstake`, `redeem` (EVM, Solana, Sui, Starknet)              |
-| `deploy`   | An asset becomes a protocol position          | `stakeAndDeploy`, `depositAndDeploy` (BTC)                    |
-| `claim`    | A pending BTC.b deposit is claimed as LBTC    | `deposit` (EVM) — see [the one that cannot move](#evmdeposit) |
+| Verb       | What it means                                 | Replaces                                             |
+| ---------- | --------------------------------------------- | ---------------------------------------------------- |
+| `deposit`  | An asset becomes its L-asset                  | `stake` (Solana)                                     |
+| `withdraw` | An L-asset becomes the asset, or a vault exit | `unstake`, `redeem` (EVM, Solana, Sui, Starknet)     |
+| `deploy`   | An asset becomes a protocol position          | `stakeAndDeploy`, `depositAndDeploy` (BTC)           |
+| `claim`    | A pending BTC.b deposit is claimed as LBTC    | `deposit` (EVM) — see [the double move](#evmdeposit) |
 
 `cancelWithdraw` is unchanged.
 
@@ -99,11 +99,43 @@ The two routes differ in whether the signed amount is ratio-adjusted, so passing
 
 A pure rename; the parameters are identical.
 
-### <a id="evmdeposit"></a>`evm.deposit` → `evm.claim`, and why `deposit` did not move
+### <a id="evmdeposit"></a>`evm.stake` → `evm.deposit`, and `evm.deposit` → `evm.claim`
 
-`evm.deposit` claims a pending BTC.b deposit as LBTC. Under the three-verb model that is a `claim`, so `claim` is the new name and `deposit` is deprecated.
+Two moves at once, so read this one carefully if you call either.
 
-`evm.deposit` was **not** reassigned to mean "asset becomes L-asset" in this major, even though that is what `deposit` means everywhere else. `EvmDepositParams` and `EvmStakeParams` are structurally identical, so neither the compiler nor a runtime guard could tell a caller's intent apart — reassigning the name would silently swap which action a working call constructs. It moves in the next major, once the parameter types diverge.
+`evm.stake` becomes `evm.deposit` — an asset becoming its L-asset is what the verb means everywhere else. That frees nothing on its own, because `evm.deposit` was already taken: it claimed a pending BTC.b deposit as LBTC. That meaning moves to `evm.claim`.
+
+```ts
+// Before (5.x)
+const stake = sdk.chain.evm.stake({
+  assetIn,
+  assetOut,
+  sourceChain,
+  destChain,
+});
+const claim = sdk.chain.evm.deposit({
+  assetIn,
+  assetOut,
+  sourceChain,
+  destChain,
+});
+
+// After (6.0.0)
+const deposit = sdk.chain.evm.deposit({
+  assetIn,
+  assetOut,
+  sourceChain,
+  destChain,
+});
+const claim = sdk.chain.evm.claim({
+  assetIn,
+  assetOut,
+  sourceChain,
+  destChain,
+});
+```
+
+The two take **identical parameters**, so nothing about the call distinguishes them — a `deposit` call left unchanged silently becomes the other action. What saves you is the return type: the claim exposes `needsApproval`, `approve()` and `setClaimData`, and the deposit does not, so any real use of the result fails to compile. A call whose result is discarded is the one to check by hand.
 
 ---
 
@@ -216,7 +248,7 @@ So the signature path is **not** deprecated in 6.0.0. Deleting it would make tho
 
 ## What didn't change
 
-- Every old verb still works, as a deprecated delegator to the new one. Nothing forces a same-day migration.
+- Event names and payloads on the wire.
 - `evm.stake`, `evm.deploy`, `btc.stake` and `btc.deposit` keep their names and meanings.
 - Event names and payloads on the wire.
 - Contract interactions. The ABI method names this package calls are pinned by a test, precisely because a verb rename could otherwise reach one.

@@ -16,7 +16,6 @@ migrate once.
 
   Previously they were sent anonymously and the gateway allowed it. That allowance is being withdrawn: BFF enforcement is merged behind a flag, so the alternative to failing locally is a 401 from the gateway later. Aggregate routes — `dune-api/query/*` and per-vault performance — stay `public` and are unaffected.
 
-
 - The nine per-operation event vocabularies are now one. `shared/events.ts` declared the same five events nine times over — `StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`, `WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent`, `DepositAndDeployEvent` — as nine const objects and nine handler-map interfaces with byte-identical members. They collapse to a single `ActionEvent` / `ActionEventMap`.
 
   **Wire values are unchanged**, so `action.on('progress', ...)`, `'status-change'`, `'completed'`, `'failed'` and `'error'` behave exactly as before. All nine old names remain as deprecated aliases pointing at the same object, so `StakeEvent === ActionEvent` holds and `StakeEvent.Progress` still resolves. `StrategyEventMap` and `StrategyEvent` were nine-member unions of structurally identical types — which made each equivalent to any single member — and are now that single type. Dropping the aliases is deferred to the next major.
@@ -33,9 +32,15 @@ migrate once.
 
 ### Breaking
 
+- **`stake` is gone, and with it every other old verb.** No deprecated delegators: `btc.stake`, `btc.stakeAndDeploy`, `btc.depositAndDeploy`, `evm.stake`, `evm.unstake`, `evm.redeem`, `solana.stake`, `solana.unstake`, `solana.redeem`, `sui.unstake` and `starknet.unstake` are removed. A three-verb design that still shipped two `stake` methods was not the design.
+
+  `btc.deposit` absorbs `btc.stake` and dispatches on `assetOut`, the same way `withdraw` dispatches on `assetIn` and `deploy` already did. The two BTC deposit routes had identical parameters apart from the output asset, so one verb dispatching on it is the entire difference. A caller whose asset is only known at runtime matches a fallback overload and narrows the union.
+
+  `evm.stake` becomes `evm.deposit`, and the old `evm.deposit` — claiming a pending BTC.b deposit — is now only `evm.claim`. Those two take identical parameters, so a `deposit` call left unchanged silently becomes the other action; what catches it is the return type, since the claim exposes `needsApproval`, `approve()` and `setClaimData` and the deposit does not. A call whose result is discarded needs checking by hand.
+
 - **The asset a dispatching verb switches on is now typed as a literal.** `EvmUnstakeParams.assetIn` is `'LBTC'`, `EvmRedeemParams.assetIn` is `'BTC.b'`, the two Solana equivalents likewise, and the two BTC deploy params carry the matching `assetOut` literal.
 
-  This fixes a silent type lie. `withdraw` was declared with three overloads, but `EvmUnstakeParams` and `EvmRedeemParams` were structurally identical, so the third was unreachable: a BTC.b withdrawal resolved to `IEvmUnstake` while returning an `EvmRedeem`. `IEvmRedeem` carries `approve()` and `needsApproval` and `IEvmUnstake` does not — so the compiler *forbade* the ERC-20 approval that route requires, and the only way through was a cast. The verb-dispatch tests asserted the constructed class, which was correct all along; nothing asserted the type.
+  This fixes a silent type lie. `withdraw` was declared with three overloads, but `EvmUnstakeParams` and `EvmRedeemParams` were structurally identical, so the third was unreachable: a BTC.b withdrawal resolved to `IEvmUnstake` while returning an `EvmRedeem`. `IEvmRedeem` carries `approve()` and `needsApproval` and `IEvmUnstake` does not — so the compiler _forbade_ the ERC-20 approval that route requires, and the only way through was a cast. The verb-dispatch tests asserted the constructed class, which was correct all along; nothing asserted the type.
 
   A caller passing `AssetId.LBTC` or `AssetId.BTCb` directly is unaffected and now gets the precise interface. A caller holding a runtime `AssetId` — a form, typically — matches a new fallback overload and receives the union to narrow:
 
@@ -66,13 +71,13 @@ migrate once.
   const { jwt, expiresAt } = await sdk.walletAuth.signIn({
     address,
     chain: walletAuthChainName(chainId),
-    sign: async payload => ({ signature: await wallet.signMessage(payload) }),
+    sign: async (payload) => ({ signature: await wallet.signMessage(payload) }),
   });
   ```
 
 - `walletAuthChainName(chainId)` — the chain name the wallet-auth routes want, derived rather than hand-written.
 
-  Those routes name chains a fourth way: not a viem chain id, not `DESTINATION_BLOCKCHAIN_*`, not `BLOCKCHAIN_*`, but the short `name` from `/v2/chains`. The name is load-bearing on the second call only — an EOA signature is ECDSA and verifies off-chain, but a smart-contract wallet is verified by an ERC-1271 call *on the named chain*, so a Safe that exists only on Base and is submitted as `ethereum` has no code at that address there and can never verify. The challenge call before it returns 200 either way, so the mistake surfaces one step later as an opaque failure.
+  Those routes name chains a fourth way: not a viem chain id, not `DESTINATION_BLOCKCHAIN_*`, not `BLOCKCHAIN_*`, but the short `name` from `/v2/chains`. The name is load-bearing on the second call only — an EOA signature is ECDSA and verifies off-chain, but a smart-contract wallet is verified by an ERC-1271 call _on the named chain_, so a Safe that exists only on Base and is submitted as `ethereum` has no code at that address there and can never verify. The challenge call before it returns 200 either way, so the mistake surfaces one step later as an opaque failure.
 
   There is deliberately no env-suffixed form. The env already picks the gateway, and each gateway enumerates its own chains under the canonical name — testnet's `/v2/chains` lists `ethereum` at chain id 11155111. Suffixed aliases are accepted by the testnet host and rejected by mainnet, and the alias set is not the set of chain slugs used elsewhere in the SDK: `sonic` has no accepted testnet alias, so a slug-derived `sonic_blaze` is rejected by both hosts. One unsuffixed name per chain family is both simpler and the only form correct on every env. Unknown chains throw rather than falling back to Ethereum, because a wrong name is unrecoverable for a contract wallet and silent for an EOA.
 
@@ -103,7 +108,6 @@ migrate once.
 
 - `AuthErrorCode` joins the error taxonomy with `missing-token` and `unauthorized`, so an auth failure carries a machine-readable code like every other SDK error.
 
-
 - The v6 action contract is exported from the package root and from `@lombard.finance/sdk/core`: `ActionStatus`, `ActionSteps` and `ACTION_STEP_KEYS`, `ActionProgress`, the three parameter unions, the five action interfaces, `deriveRouteLabel`, `vaultAsset`, `resolveRegistryToken` and the status predicates.
 
   It existed, compiled and was tested before this, and was reachable from no entry point — the tests import it by relative path, so nothing noticed. The export-surface snapshot guards against names disappearing, not against a module never being wired up.
@@ -123,7 +127,6 @@ migrate once.
 - The three-verb facade methods, on the chains where the new name was free. `btc.deploy()`, `solana.deposit()`, `solana.withdraw()`, `sui.withdraw()` and `starknet.withdraw()`. Every old method still works and is deprecated.
 
   Two of these merge a pair, and the merged method dispatches on the parameter that actually distinguished them rather than asking the caller to pick a class:
-
   - `btc.deploy({ assetOut })` — LBTC routes through the ratio-adjusted path, BTC.b through the 1:1 one.
   - `solana.withdraw({ assetIn })` — LBTC burns LBTC, BTC.b redeems through the Asset Router.
 
@@ -174,8 +177,8 @@ migrate once.
 
   This also means "deploy supports BTC.b" was never true. Adding a `DEFI_REGISTRY` cell for BTC.b would not have made it true on its own, because the class would still have looked up LBTC.
 
-- `sdk.chain.btc.stakeAndDeploy()` no longer throws `INVALID_STATE` on the documented call sequence when a deposit is resumed. `prepare()` can legitimately finish in `ADDRESS_READY` — a returning user whose deposit address and vault signature already exist server-side — but `authorizeDeposit()` rejected that status, and `generateDepositAddress()` asserted `READY` *before* checking whether it already held an address. Both now accept the resumed state: `authorizeDeposit()` is a no-op (authorization is already complete) and `generateDepositAddress()` returns the held address without a further API call. Callers that guarded on `depositAddress` and returned early were unaffected; callers following the sequence in the SDK's own documentation were not.
-- The same resume path no longer marks itself authorized when the server returns signature *metadata* without the signature itself. `restoreStakeAndBakeSignature()` intentionally reports `hasSignature: true` when only an expiry is available, which meant `generateDepositAddress()` could post `signature: undefined` to the deposit-address endpoint. A stored signature now requires the signature string to be present; otherwise the action falls through to re-authorization. Note the endpoint does not return `typedData`, so `signatureData` remains absent on this path — unchanged, and accepted by the API.
+- `sdk.chain.btc.stakeAndDeploy()` no longer throws `INVALID_STATE` on the documented call sequence when a deposit is resumed. `prepare()` can legitimately finish in `ADDRESS_READY` — a returning user whose deposit address and vault signature already exist server-side — but `authorizeDeposit()` rejected that status, and `generateDepositAddress()` asserted `READY` _before_ checking whether it already held an address. Both now accept the resumed state: `authorizeDeposit()` is a no-op (authorization is already complete) and `generateDepositAddress()` returns the held address without a further API call. Callers that guarded on `depositAddress` and returned early were unaffected; callers following the sequence in the SDK's own documentation were not.
+- The same resume path no longer marks itself authorized when the server returns signature _metadata_ without the signature itself. `restoreStakeAndBakeSignature()` intentionally reports `hasSignature: true` when only an expiry is available, which meant `generateDepositAddress()` could post `signature: undefined` to the deposit-address endpoint. A stored signature now requires the signature string to be present; otherwise the action falls through to re-authorization. Note the endpoint does not return `typedData`, so `signatureData` remains absent on this path — unchanged, and accepted by the API.
 - BTC actions that omit the optional `sourceChain` now monitor the Bitcoin network matching their environment. `bitcoinNetwork` read the raw parameter, so a production caller who left `sourceChain` unset monitored the Bitcoin **testnet** and waited for confirmations that could never arrive. Source chain is now resolved once (prod → mainnet, every other environment → signet) and validation, monitoring and deposit lookup all read that single value.
 
 ---
@@ -283,6 +286,7 @@ The override reaches the signer through all four hops — action, config, servic
 `authorizeDeposit()` still takes no required arguments, so **every existing call site compiles and behaves as before**.
 
 The BTC.b vault route signs with a zero deadline (`deadlineStrategy: 'zero'`), so the option is accepted there for interface parity and has no effect on that route.
+
 # 5.3.0
 
 ### Deposit Address Over The Wallet JWT

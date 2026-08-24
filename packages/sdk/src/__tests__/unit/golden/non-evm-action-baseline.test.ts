@@ -3,7 +3,7 @@
  *
  * ## Why this file exists
  *
- * 6.0.0 renames `sui.unstake()` → `sui.withdraw()` and the same for Starknet,
+ * 6.0.0 renames `sui.withdraw()` → `sui.withdraw()` and the same for Starknet,
  * keeping the old names as delegating aliases. The guarantee sold to integrators
  * is that an alias behaves identically to its 5.x original — and that guarantee
  * **cannot be verified after the fact**, because once the rename lands the

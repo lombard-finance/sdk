@@ -81,7 +81,7 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
         setIsLoading(true);
         setStatus({ phase: 'preparing', message: 'Creating stake action...' });
 
-        const action = sdk.chain.btc.stake({
+        const action = sdk.chain.btc.deposit({
           assetOut: params.assetOut,
           destChain: params.destChain,
           sourceChain: params.sourceChain,

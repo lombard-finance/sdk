@@ -118,40 +118,8 @@ export class EvmActions {
    * });
    * ```
    */
-  stake(params: EvmStakeParams): IEvmStake {
+  deposit(params: EvmStakeParams): IEvmStake {
     return createEvmStake(this.ctx, params);
-  }
-
-  /**
-   * Unstake LBTC to BTC or BTC.b
-   *
-   * - LBTC → BTC: Cross-chain to Bitcoin mainnet/signet
-   * - LBTC → BTC.b: Same-chain wrapped BTC on EVM
-   *
-   * @example
-   * ```typescript
-   * const unstake = evm.unstake({
-   *   assetIn: AssetId.LBTC,
-   *   assetOut: AssetId.BTC,
-   *   sourceChain: Chain.ETHEREUM,
-   *   destChain: Chain.BITCOIN_MAINNET,
-   * });
-   * ```
-   */
-  /**
-   * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
-   * Removed in the next major.
-   */
-  /**
-   * Takes the widened parameters on purpose. This method builds one known
-   * class, so it has no dispatching to do and no need of the discriminant —
-   * and narrowing it would break the callers it exists to keep working, which
-   * is the whole point of a deprecated delegator. A v5 caller that picks
-   * between the two routes with a boolean holds `assetIn` as a union of both
-   * literals, and would have nowhere to go.
-   */
-  unstake(params: EvmAssetWithdrawParams): IEvmUnstake {
-    return createEvmUnstake(this.ctx, params as EvmUnstakeParams);
   }
 
   /**
@@ -176,24 +144,6 @@ export class EvmActions {
    */
   claim(params: EvmDepositParams): IEvmDeposit {
     return createEvmDeposit(this.ctx, params);
-  }
-
-  /**
-   * Claim an already-notarized mint.
-   *
-   * @deprecated Use {@link claim} instead. Removed in the next major.
-   *
-   * **This name is deliberately not reused in 6.0.0.** Under the three-verb
-   * model `deposit` should mean the BTC.b-to-LBTC route `stake()` serves — but
-   * `EvmDepositParams` and `EvmStakeParams` are structurally identical, both
-   * `{ assetIn, assetOut, sourceChain, destChain }`. Reassigning the name would
-   * hand an existing caller a different action, and because the parameters are
-   * indistinguishable neither the compiler nor a runtime guard could catch it.
-   * So `deposit` keeps its 5.x meaning here, and the name is only free once this
-   * alias is removed.
-   */
-  deposit(params: EvmDepositParams): IEvmDeposit {
-    return this.claim(params);
   }
 
   /**
@@ -303,45 +253,6 @@ export class EvmActions {
     return createEvmCancelWithdraw(this.ctx, params);
   }
 
-  /**
-   * Redeem BTC.b to native BTC (cross-chain to Bitcoin)
-   *
-   * Burns BTC.b on the EVM source chain and releases native BTC to a Bitcoin
-   * recipient address. This is the inverse of BTC Deposit. The destination is
-   * always the Bitcoin network — for LBTC → BTC.b on the same EVM chain, use
-   * {@link unstake} with `assetOut: AssetId.BTCb`.
-   *
-   * @example
-   * ```typescript
-   * const redeem = evm.redeem({
-   *   assetIn: AssetId.BTCb,
-   *   assetOut: AssetId.BTC,
-   *   sourceChain: Chain.AVALANCHE,
-   *   destChain: Chain.BITCOIN_MAINNET,
-   * });
-   *
-   * await redeem.prepare({
-   *   amount: '0.1',
-   *   recipient: 'bc1q...',
-   * });
-   * const { txHash } = await redeem.execute();
-   * ```
-   */
-  /**
-   * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
-   * Removed in the next major.
-   */
-  /**
-   * Takes the widened parameters on purpose. This method builds one known
-   * class, so it has no dispatching to do and no need of the discriminant —
-   * and narrowing it would break the callers it exists to keep working, which
-   * is the whole point of a deprecated delegator. A v5 caller that picks
-   * between the two routes with a boolean holds `assetIn` as a union of both
-   * literals, and would have nowhere to go.
-   */
-  redeem(params: EvmAssetWithdrawParams): IEvmRedeem {
-    return createEvmRedeem(this.ctx, params as EvmRedeemParams);
-  }
 }
 
 /**
