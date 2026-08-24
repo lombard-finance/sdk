@@ -49,7 +49,9 @@ describe('every api-function attaches the token through one place', () => {
     isAxiosErrorFn.mockReturnValue(false);
   });
 
-  const cases: ReadonlyArray<[string, (t?: () => string | undefined) => Promise<unknown>]> = [
+  const cases: ReadonlyArray<
+    [string, (t?: () => string | undefined) => Promise<unknown>]
+  > = [
     [
       'getNetworkFeeSignature',
       (getAuthToken) =>
@@ -83,32 +85,77 @@ describe('every api-function attaches the token through one place', () => {
     ],
   ];
 
-  it.each(cases)('%s sends Bearer when a token is configured', async (_n, call) => {
-    await call(() => TOKEN).catch(() => undefined);
-    expect(authHeader()).toBe(`Bearer ${TOKEN}`);
-  });
+  it.each(cases)(
+    '%s sends Bearer when a token is configured',
+    async (_n, call) => {
+      await call(() => TOKEN).catch(() => undefined);
+      expect(authHeader()).toBe(`Bearer ${TOKEN}`);
+    },
+  );
 
-  it.each(cases)('%s sends no header when none is configured', async (_n, call) => {
-    await call(undefined).catch(() => undefined);
-    expect(authHeader()).toBeUndefined();
-  });
+  it.each(cases)(
+    '%s sends no header when none is configured',
+    async (_n, call) => {
+      await call(undefined).catch(() => undefined);
+      expect(authHeader()).toBeUndefined();
+    },
+  );
 });
 
-describe('no api-function bypasses utils/http', () => {
-  const ROOT = join(__dirname, '..', '..', '..', 'api-functions');
+/**
+ * The rule is about Lombard-bound traffic, not about axios.
+ *
+ * Scoping the earlier version to `api-functions/` was too narrow: it passed
+ * while five files under `metrics/`, `vaults/` and `strategies/` called axios
+ * directly against a Lombard host, which is exactly the traffic that needs a
+ * token once the gateway enforces one. Scoping it to *all* axios would be too
+ * wide — mempool.space, coins.llama.fi and api.veda.tech are third parties and
+ * must not receive our token.
+ *
+ * So the rule is: a file that resolves a Lombard host through `getApiConfig`
+ * goes through `utils/http`. That is self-maintaining — a new file inherits it
+ * by using the config, and a third-party call is never caught by accident.
+ */
+describe('nothing Lombard-bound bypasses utils/http', () => {
+  const SRC = join(__dirname, '..', '..', '..');
+  const SKIP = new Set(['__tests__', 'node_modules', 'dist', 'stories']);
+
+  /** Leaves only code, so a type import or a mention in prose is not a hit. */
+  function stripImportsAndComments(src: string): string {
+    return src
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '')
+      .replace(/^import [\s\S]*?from '[^']*';$/gm, '');
+  }
 
   function tsFilesUnder(dir: string): string[] {
     return readdirSync(dir).flatMap((entry) => {
+      if (SKIP.has(entry)) return [];
       const full = join(dir, entry);
       if (statSync(full).isDirectory()) return tsFilesUnder(full);
       return full.endsWith('.ts') && !full.endsWith('.test.ts') ? [full] : [];
     });
   }
 
-  it('has no raw axios.get or axios.post call anywhere under api-functions', () => {
-    const offenders = tsFilesUnder(ROOT).filter((f) =>
-      /\baxios\.(get|post|put|delete|patch)\s*[<(]/.test(readFileSync(f, 'utf8')),
-    );
-    expect(offenders.map((f) => f.replace(ROOT, ''))).toEqual([]);
+  const lombardBound = tsFilesUnder(SRC).filter((f) => {
+    const src = readFileSync(f, 'utf8');
+    return /getApiConfig\s*\(/.test(src) && !f.endsWith('api-config.ts');
+  });
+
+  it('finds the Lombard-bound files, so an empty sweep cannot pass', () => {
+    // If this ever drops to zero the rule below is vacuous.
+    expect(lombardBound.length).toBeGreaterThan(10);
+  });
+
+  it('none of them calls axios directly', () => {
+    const offenders = lombardBound
+      .filter((f) =>
+        // Imports and comments are stripped first: `AxiosError` is a legitimate
+        // type import, and prose mentioning axios is not a call.
+        /\baxios[.(]/.test(stripImportsAndComments(readFileSync(f, 'utf8'))),
+      )
+      .map((f) => f.slice(SRC.length + 1));
+
+    expect(offenders).toEqual([]);
   });
 });

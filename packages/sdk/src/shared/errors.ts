@@ -49,6 +49,16 @@ export enum RegistryErrorCode {
 /**
  * Validation error codes
  */
+/**
+ * Authentication error codes.
+ */
+export enum AuthErrorCode {
+  /** A user-scoped request was made with no token available. */
+  MISSING_TOKEN = 'missing-token',
+  /** The backend rejected the token: expired, revoked, or issued elsewhere. */
+  UNAUTHORIZED = 'unauthorized',
+}
+
 export enum ValidationErrorCode {
   INVALID_ADDRESS = 'invalid-address',
   INVALID_AMOUNT = 'invalid-amount',
@@ -94,6 +104,7 @@ export enum WithdrawErrorCode {
 export type AnyErrorCode =
   | ErrorCode
   | ProviderErrorCode
+  | AuthErrorCode
   | RegistryErrorCode
   | ValidationErrorCode
   | ContractErrorCode

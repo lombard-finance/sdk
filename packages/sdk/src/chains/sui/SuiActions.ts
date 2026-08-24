@@ -35,6 +35,7 @@ function createSuiCoreContext(config: LombardConfig): SuiCoreContext {
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
+    auth: config.auth,
     getAuthToken: config.getAuthToken,
     getProvider: async (key) => {
       const getter = getProviderGetter(config.providers, key);

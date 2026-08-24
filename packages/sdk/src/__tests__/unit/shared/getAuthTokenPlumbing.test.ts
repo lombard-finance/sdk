@@ -88,3 +88,38 @@ describe('getAuthToken reaches every documented construction path', () => {
     expect(ctx.getAuthToken).toBeUndefined();
   });
 });
+/**
+ * `auth` has to reach the same five construction paths `getAuthToken` does.
+ * Adding a field to the config and forgetting one facade is the exact failure
+ * this file was written for, and there are now two fields to forget.
+ */
+describe('auth reaches every documented construction path', () => {
+  const provider = { getToken: async () => TOKEN };
+
+  function configWithAuth(): LombardConfig {
+    return {
+      env: Env.prod,
+      providers: {},
+      modules: stubModules(),
+      auth: provider,
+    };
+  }
+
+  const paths: ReadonlyArray<[string, () => unknown]> = [
+    ['btcActions', () => btcActions(configWithAuth())],
+    ['evmActions', () => evmActions(configWithAuth())],
+    ['solanaActions', () => solanaActions(configWithAuth())],
+    ['suiActions', () => suiActions(configWithAuth())],
+    ['starknetActions', () => starknetActions(configWithAuth())],
+  ];
+
+  it.each(paths)('%s puts auth on the context', (_name, build) => {
+    const ctx = ctxOf(build()) as { auth?: unknown };
+
+    expect(ctx.auth).toBe(provider);
+  });
+
+  it('covers every facade, so a new one cannot be missed silently', () => {
+    expect(paths).toHaveLength(5);
+  });
+});

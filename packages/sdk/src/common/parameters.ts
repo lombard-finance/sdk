@@ -1,3 +1,4 @@
+import type { LombardAuth } from '@lombard.finance/sdk-common';
 import { Env } from '@lombard.finance/sdk-common';
 import { Address, EIP1193Provider } from 'viem';
 
@@ -23,6 +24,13 @@ export interface IEnvParam {
    * to know which gateway to call and, soon, who is calling. Action classes pass
    * `ctx.getAuthToken` straight through.
    */
+  /**
+   * How to obtain a wallet JWT for this call. Inherited from
+   * `LombardConfig.auth` when the SDK builds the call, and passable directly
+   * by a standalone caller.
+   */
+  auth?: LombardAuth;
+  /** @deprecated Cannot refresh. Prefer {@link auth}. */
   getAuthToken?: () => string | undefined;
 }
 

@@ -6,11 +6,34 @@ migrate once.
 
 ### Breaking
 
+- **Two per-account vault routes now require a wallet token.** `getEarnDeposits` and `getEarnWithdrawals` hit `sevenseas-api/{deposits,withdraw-requests}/<network>/<vault>/<account>` — a path keyed by an address — so they are `userScoped` and fail before sending when no token is available, with a `missing-token` error naming the config field that fixes it.
+
+  Previously they were sent anonymously and the gateway allowed it. That allowance is being withdrawn: BFF enforcement is merged behind a flag, so the alternative to failing locally is a 401 from the gateway later. Aggregate routes — `dune-api/query/*` and per-vault performance — stay `public` and are unaffected.
+
+
 - The nine per-operation event vocabularies are now one. `shared/events.ts` declared the same five events nine times over — `StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`, `WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent`, `DepositAndDeployEvent` — as nine const objects and nine handler-map interfaces with byte-identical members. They collapse to a single `ActionEvent` / `ActionEventMap`.
 
   **Wire values are unchanged**, so `action.on('progress', ...)`, `'status-change'`, `'completed'`, `'failed'` and `'error'` behave exactly as before. All nine old names remain as deprecated aliases pointing at the same object, so `StakeEvent === ActionEvent` holds and `StakeEvent.Progress` still resolves. `StrategyEventMap` and `StrategyEvent` were nine-member unions of structurally identical types — which made each equivalent to any single member — and are now that single type. Dropping the aliases is deferred to the next major.
 
 ### Added
+
+- `LombardConfig.auth`, an asynchronous wallet-token provider, replacing the synchronous `getAuthToken` (kept, deprecated, still honoured when `auth` is absent).
+
+  ```ts
+  const sdk = await createLombardSDK({
+    env: Env.prod,
+    auth: { getToken: async () => myStore.freshToken() },
+  });
+  ```
+
+  Asynchronous because the token lives seven days: a synchronous accessor can only hand back what the host already holds, so a long-lived session eventually attaches an expired token and takes a 401 instead of refreshing. Making it a promise moves the refresh decision to the host, which owns the wallet and the signing UX. The SDK never stores the result — it asks per request, so a token acquired after construction is picked up without re-creating anything.
+
+  Every outbound request declares a **scope**. `public` attaches a token when one is available and never requires one, which is what lets chain reads happen before a wallet is connected. `userScoped` requires one and fails locally without it, turning a 401 the caller has to interpret into a precondition they can check. A `userScoped` request that is rejected re-asks the provider and retries **once** — enough to distinguish an expired token from a revoked one without looping — then fires `onUnauthorized` and surfaces a typed `unauthorized` error.
+
+  An explicit `Authorization` header still wins and is never refreshed, so `revokeWalletToken` sending the token it is invalidating, and any caller passing `walletJwt` directly, behave exactly as before.
+
+- `AuthErrorCode` joins the error taxonomy with `missing-token` and `unauthorized`, so an auth failure carries a machine-readable code like every other SDK error.
+
 
 - The v6 action contract is exported from the package root and from `@lombard.finance/sdk/core`: `ActionStatus`, `ActionSteps` and `ACTION_STEP_KEYS`, `ActionProgress`, the three parameter unions, the five action interfaces, `deriveRouteLabel`, `vaultAsset`, `resolveRegistryToken` and the status predicates.
 

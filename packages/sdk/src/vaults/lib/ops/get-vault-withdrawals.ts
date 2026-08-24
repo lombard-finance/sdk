@@ -1,4 +1,3 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
 
@@ -12,6 +11,7 @@ import {
 } from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
+import { httpRequest } from '../../../utils/http';
 import {
   EARN_CHAIN_TO_NETWORK_MAP,
   EARN_VAULT,
@@ -130,6 +130,7 @@ const normalizeSevenSeasWithdrawRequests = (
  * @returns {Promise<EarnWithdrawals>}
  */
 export async function getEarnWithdrawals({
+  auth,
   account,
   chainId,
   rpcUrl,
@@ -156,7 +157,11 @@ export async function getEarnWithdrawals({
   });
   const url = `${endpoint}?${searchParams.toString()}`;
 
-  const { data } = await axios.get<WithdrawalsPayload>(url);
+  const { data } = await httpRequest<WithdrawalsPayload>({
+    url: url,
+    scope: 'userScoped',
+    auth,
+  });
   const response = normalizeSevenSeasWithdrawRequests(data);
 
   const cancelledRequests = response.cancelled_requests ?? [];

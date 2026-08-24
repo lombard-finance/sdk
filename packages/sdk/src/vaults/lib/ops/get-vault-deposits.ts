@@ -1,4 +1,3 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
 
@@ -12,6 +11,7 @@ import {
 } from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
+import { httpRequest } from '../../../utils/http';
 import {
   EARN_CHAIN_TO_NETWORK_MAP,
   EARN_VAULT,
@@ -95,6 +95,7 @@ export type EarnDeposit = {
  * @returns {Promise<EarnDeposit[]>}
  */
 export async function getEarnDeposits({
+  auth,
   account,
   chainId,
   rpcUrl,
@@ -116,7 +117,11 @@ export async function getEarnDeposits({
   }
   const url = `${bffApiUrl}/sevenseas-api/deposits/${network}/${vault.vaultContract.address}/${account}`;
 
-  const { data } = await axios.get<SevenSeasDepositsPayload>(url);
+  const { data } = await httpRequest<SevenSeasDepositsPayload>({
+    url: url,
+    scope: 'userScoped',
+    auth,
+  });
   const entries = normalizeSevenSeasDeposits(data);
 
   const depositAssetsAddresses = unique(

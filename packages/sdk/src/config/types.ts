@@ -5,7 +5,7 @@
  * provider getters, partner configuration, and custom asset registration.
  */
 
-import type { AnyModule, Env } from '@lombard.finance/sdk-common';
+import type { AnyModule, Env, LombardAuth } from '@lombard.finance/sdk-common';
 
 import type { AssetId, Chain } from '../core';
 import type { Logger } from '../shared/context/types';
@@ -167,6 +167,18 @@ export interface LombardConfig {
    *
    * No endpoint requires a token today, so supplying this changes nothing. It
    * exists so that when one does, the change is one place rather than 23.
+   */
+  /**
+   * How the SDK obtains a wallet JWT.
+   *
+   * Asynchronous, so the host can refresh an expired token rather than
+   * returning the stale one it holds. The SDK asks per request and never
+   * stores the result.
+   */
+  auth?: LombardAuth;
+  /**
+   * @deprecated Synchronous, so it cannot refresh an expired token. Prefer
+   * {@link auth}. Still honoured when `auth` is absent.
    */
   getAuthToken?: () => string | undefined;
 }

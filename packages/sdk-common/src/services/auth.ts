@@ -125,3 +125,58 @@ export interface WalletAuthService {
    */
   revokeToken(params: RevokeWalletTokenRequest): Promise<void>;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Transport: supplying the token to the SDK
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Whether a request needs a caller identity.
+ *
+ * Declared per request rather than inferred, because "attach the token
+ * everywhere" is not a viable rule: the SDK reads chain state before any wallet
+ * is connected, so requiring one would break first paint.
+ */
+export type RequestScope =
+  /** Attached when a token is available, never required. */
+  | 'public'
+  /** Required. Fails before the request is sent when no token is available. */
+  | 'userScoped';
+
+/** What the SDK knows about a request when it asks for a token. */
+export interface AuthRequestContext {
+  /** The URL about to be requested. */
+  url: string;
+  scope: RequestScope;
+}
+
+/**
+ * How the SDK obtains a wallet JWT.
+ *
+ * Asynchronous on purpose. The token lives seven days, so any long-lived
+ * session will eventually hold an expired one, and a synchronous accessor can
+ * only return what it already has — it cannot refresh. Making this a promise
+ * moves the refresh decision to the host, which owns the wallet and the signing
+ * UX, and lets the SDK stop assuming the cached answer is still good.
+ *
+ * The SDK never stores the result. It asks per request, so a token acquired
+ * after construction is picked up without re-creating anything.
+ */
+export interface LombardAuth {
+  /**
+   * Resolve the current token, refreshing if the host judges it necessary.
+   *
+   * Return `undefined` to mean "no token available". On a `public` request that
+   * is fine; on a `userScoped` one the SDK fails before sending.
+   */
+  getToken(context: AuthRequestContext): Promise<string | undefined>;
+
+  /**
+   * Called after a `userScoped` request was rejected twice — once with the
+   * original token and once with a freshly requested one.
+   *
+   * The hook exists so a host can drop its session and prompt for a new
+   * signature. It is not a retry callback: the SDK has already retried.
+   */
+  onUnauthorized?(context: AuthRequestContext): void;
+}
