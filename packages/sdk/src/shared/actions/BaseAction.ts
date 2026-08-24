@@ -54,6 +54,14 @@ export interface LogMeta {
   errorCode?: string;
   /** Chain identifier */
   chain?: string;
+  /**
+   * Which journey this line belongs to, e.g. `lbtc-to-btc`.
+   *
+   * One action class covers several routes now that the verbs dispatch, so the
+   * class name alone no longer identifies what a line is about. This is the
+   * part that does.
+   */
+  route?: string;
   /** Any additional context */
   [key: string]: unknown;
 }
@@ -163,6 +171,26 @@ export abstract class BaseAction<
    *
    * Uses explicit switch to avoid dynamic property access (security best practice).
    */
+  /**
+   * The route label, when this action can name one.
+   *
+   * Actions expose `route` as a getter, but not uniformly and not always
+   * safely: some derive it from parameters that only exist after `prepare()`,
+   * and a getter that throws while building a log line would replace the real
+   * failure with its own. So this reads defensively and reports nothing rather
+   * than failing.
+   */
+  protected routeLabel(): string | undefined {
+    const self = this as unknown as { route?: unknown };
+
+    try {
+      return typeof self.route === 'string' ? self.route : undefined;
+    } catch {
+      // A route that cannot be derived yet is not worth a broken log line.
+      return undefined;
+    }
+  }
+
   protected log(
     level: 'debug' | 'info' | 'warn' | 'error',
     message: string,
@@ -173,6 +201,10 @@ export abstract class BaseAction<
     const enrichedMeta: LogMeta = {
       action: this.constructor.name,
       status: this._status,
+      // Read off the subclass rather than declared abstract here: not every
+      // action can name a route before `prepare()` has run, and a getter that
+      // throws would take the log line down with it.
+      ...(this.routeLabel() === undefined ? {} : { route: this.routeLabel() }),
       ...meta,
     };
 
@@ -405,7 +437,15 @@ export abstract class BaseAction<
    * @throws The wrapped LombardError
    */
   protected handleFailure(error: unknown): never {
-    this._error = error instanceof LombardError ? error : wrapError(error);
+    const wrapped = error instanceof LombardError ? error : wrapError(error);
+    const route = this.routeLabel();
+
+    // The route is the one piece of context the action knows and the thrower
+    // does not: one class covers several journeys now that the verbs dispatch,
+    // so without it `toSentryContext()` cannot say which one failed.
+    this._error =
+      route === undefined ? wrapped : wrapped.withContext({ route });
+
     this.emitError(this._error);
     this.emitFailed();
     throw this._error;

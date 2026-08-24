@@ -42,6 +42,12 @@ migrate once.
 
 ### Added
 
+- The route label now reaches telemetry, which is the point of having it.
+
+  Every action exposes a `route` getter and the conformance suite checks that it does — but nothing read it, so it could not tell anyone which journey failed. It matters because one class now covers several: `EvmUnstake` runs both `lbtc-to-btc` and `lbtc-to-btcb`, so the class name in a log line no longer says what the line is about.
+
+  Every log line an action emits now carries `route`, and a failure carries it into `toSentryContext()`. `LombardError.withContext()` is how — a copy with merged metadata rather than a mutation, keeping the original stack, because the useful frame is where the failure happened and an error that changes after it is thrown is a poor thing to debug from. Existing keys win: whatever raised the error knew more than the layer adding context.
+
 - `walletAuth.signIn()` — the whole ceremony in one call: challenge, sign, verify, and poll when the chain settles on-chain.
 
   Consumers were building this on top of the three primitives, which meant each of them re-derived the sync/async branch. That branch is not a choice. An EOA on EVM, Solana or Sui is verified off-chain and the token is in the verify response; a Safe or a Starknet account is verified through a contract call and only yields a token once polled. A consumer handling only the first case works until the first contract wallet signs in, and then that user has produced a signature and holds no token — with no error to show for it.

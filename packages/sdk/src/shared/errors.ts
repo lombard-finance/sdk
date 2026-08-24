@@ -157,6 +157,29 @@ export class LombardError extends Error {
   }
 
   /**
+   * A copy of this error carrying extra metadata.
+   *
+   * `metadata` is readonly on purpose — an error that changes after it is
+   * thrown is a poor thing to debug from — so context is added by producing a
+   * new error rather than mutating this one. The original stack is carried
+   * over: the useful frame is where the failure happened, not where the
+   * context was attached.
+   *
+   * Existing keys win. The caller adding context knows less about the failure
+   * than whatever raised it, so it must not overwrite what is already there.
+   */
+  withContext(extra: Record<string, unknown>): LombardError {
+    const enriched = new LombardError(this.code, this.message, {
+      ...extra,
+      ...this.metadata,
+    });
+
+    enriched.stack = this.stack;
+
+    return enriched;
+  }
+
+  /**
    * Serialize error to JSON for logging
    *
    * Includes all context needed for debugging: code, message, metadata,

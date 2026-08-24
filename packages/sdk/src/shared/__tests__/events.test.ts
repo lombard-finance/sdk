@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { StrategyProgress } from '../../core/types';
-import { ErrorCode, type LombardError } from '../errors';
+import { ErrorCode, LombardError } from '../errors';
 import {
   BridgeEvent,
   DeployEvent,
@@ -97,24 +97,10 @@ describe('Event Types', () => {
       progressHandler({ status: 'executing', steps: {} });
       statusHandler('ready');
       completedHandler();
-      errorHandler({
-        code: ErrorCode.UNKNOWN_ERROR,
-        message: 'Test',
-        name: 'LombardError',
-        sdkVersion: '3.8.0',
-        timestamp: new Date().toISOString(),
-        toJSON: () => ({
-          code: ErrorCode.UNKNOWN_ERROR,
-          message: 'Test',
-          name: 'LombardError',
-        }),
-        toSentryContext: () => ({
-          errorCode: ErrorCode.UNKNOWN_ERROR,
-          errorMessage: 'Test',
-          sdkVersion: '3.8.0',
-          timestamp: new Date().toISOString(),
-        }),
-      } as LombardError);
+      // A real instance rather than a structural copy: the copy had to be kept
+      // in step with the class by hand, and fell behind the moment the class
+      // gained a method.
+      errorHandler(new LombardError(ErrorCode.UNKNOWN_ERROR, 'Test'));
     });
   });
 });
