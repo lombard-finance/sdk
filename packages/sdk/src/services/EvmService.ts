@@ -100,6 +100,8 @@ export class EvmService implements IEvmService {
       env: this.env,
       vaultKey: params.vaultKey as DefiProtocol,
       token: params.token as StakeAndBakeToken,
+      // undefined lets signStakeAndBake apply its own 24h default
+      expiry: params.expiry,
     });
 
     return {

@@ -7,6 +7,7 @@ import {
   DefiProtocol,
   StakeAndBakeToken,
 } from '../../defi/defi-registry';
+import { LombardError, ValidationErrorCode } from '../../shared/errors';
 import { DAY, now, toUnix } from '../../utils/time';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
 import { handleApproveFlow } from './handleApprove';
@@ -71,6 +72,41 @@ export interface ISignStakeAndBakeResult {
 }
 
 /**
+ * Rejects an expiry that cannot become a usable permit deadline.
+ *
+ * The parameter is an absolute UNIX timestamp in **seconds**, and two mistakes
+ * follow from that. A fractional value is almost always milliseconds, or
+ * `Date.now() / 1000` without a `Math.floor`, and `BigInt()` would reject it
+ * with a message naming neither the parameter nor the unit. A value in the past
+ * is almost always a relative duration — `7 * 24 * 60 * 60` puts the deadline in
+ * 1970 — or a timestamp that has gone stale. That one is worse than a throw:
+ * the permit signs, the signature is stored, and the failure only appears when
+ * the permit is used on chain, far from the call site.
+ */
+function assertValidExpiry(expiry: number): void {
+  if (!Number.isSafeInteger(expiry) || expiry <= 0) {
+    throw new LombardError(
+      ValidationErrorCode.INVALID_PARAMETER,
+      `expiry must be a positive whole number of seconds since the epoch, ` +
+        `received ${String(expiry)}. It is an absolute UNIX timestamp in ` +
+        `seconds — a fractional value usually means milliseconds, or ` +
+        `Date.now() / 1000 without Math.floor.`,
+    );
+  }
+
+  const nowSeconds = toUnix(now());
+  if (expiry <= nowSeconds) {
+    throw new LombardError(
+      ValidationErrorCode.INVALID_PARAMETER,
+      `expiry must be in the future, received ${String(expiry)} with the ` +
+        `current time at ${String(nowSeconds)}. It is an absolute UNIX ` +
+        `timestamp in seconds, not a duration — for seven days from now use ` +
+        `Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60.`,
+    );
+  }
+}
+
+/**
  * Signs the "stake and bake" signature that allows Lombard to claim specified
  * amount of BTC (converted to LBTC using current ratio) and deposit that amount directly to the specified DeFi
  * vault.
@@ -103,6 +139,14 @@ export async function signStakeAndBake({
 }: ISignStakeAndBakeParams): Promise<ISignStakeAndBakeResult> {
   const strategy = getStakeAndBakeConfig(protocol, token, chainId, env);
 
+  // Validated here, before anything reaches the network. Left until the
+  // deadline was built, a bad expiry first cost an exchange-ratio request, and
+  // a failure there reported itself instead of the parameter that was wrong.
+  // Zero-deadline strategies never read the value, so they are exempt.
+  if (strategy.approval.deadlineStrategy !== 'zero') {
+    assertValidExpiry(expiry);
+  }
+
   const spenderAddress = strategy.spenderContract.address;
 
   // Calculate permit value (with conversion if needed)
@@ -116,7 +160,6 @@ export async function signStakeAndBake({
   const tokenAddress = tokenContract.address;
   const tokenAbi = tokenContract.abi;
 
-  // Calculate deadline based on expiry behavior
   const deadline =
     strategy.approval.deadlineStrategy === 'zero' ? 0n : BigInt(expiry);
 

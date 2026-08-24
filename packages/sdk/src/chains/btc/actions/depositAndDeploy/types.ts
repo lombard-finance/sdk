@@ -7,7 +7,6 @@
  *
  * @module chains/btc/actions/depositAndDeploy/types
  */
-
 import type {
   AssetId,
   Chain,
@@ -18,6 +17,7 @@ import type {
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import { BtcActionStatus } from '../../../../shared/constants/statusConstants';
 import type { MonitorProgress } from '../../../../shared/monitoring';
+import type { AuthorizeDepositOptions } from '../shared';
 
 // Re-export for convenience (single export statement avoids duplicate identifier)
 export { BtcActionStatus };
@@ -98,9 +98,12 @@ export interface BtcDepositAndDeploy extends MonitorableAction {
   prepare(params: BtcDepositAndDeployPrepareParams): Promise<void>;
 
   /**
-   * Authorize vault deposit via signature
+   * Authorize the vault deposit.
+   *
+   * @param options - Optional signing overrides. `expiry` sets the signature
+   * expiration as an absolute UNIX timestamp in seconds, defaulting to 24 hours.
    */
-  authorizeDeposit(): Promise<void>;
+  authorizeDeposit(options?: AuthorizeDepositOptions): Promise<void>;
 
   /**
    * Generate BTC deposit address

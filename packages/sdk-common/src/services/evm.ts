@@ -61,6 +61,14 @@ export interface SignStakeAndBakeParams {
   provider: EvmProvider;
   vaultKey: string;
   token: string;
+  /**
+   * Signature expiration as an absolute UNIX timestamp in seconds.
+   * Defaults to 24 hours from the time of signing when omitted.
+   *
+   * Ignored by protocols whose approval config uses a zero deadline
+   * (e.g. Silo BTC.b, which signs with no expiry).
+   */
+  expiry?: number;
 }
 
 /**
