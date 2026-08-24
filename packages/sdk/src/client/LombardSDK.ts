@@ -7,6 +7,7 @@
  */
 
 import type { Env } from '@lombard.finance/sdk-common';
+import type { WalletAuthService as IWalletAuthService } from '@lombard.finance/sdk-common';
 
 import { BtcActions } from '../chains/btc/BtcActions';
 import { EvmActions } from '../chains/evm/EvmActions';
@@ -105,6 +106,29 @@ export class LombardSDK<E extends Env = Env> {
 
   /** Capability registry (manages optional module services) */
   public readonly capabilities: CapabilityRegistry;
+
+  /**
+   * Wallet-auth service: challenge, verify, poll, revoke.
+   *
+   * `null` unless `walletAuthModule()` is registered, because acquiring a token
+   * is optional — a consumer that only reads public data never needs one.
+   *
+   * An accessor rather than a `capabilities.require('walletAuth')` call at every
+   * site, because that is what the module's own `@example` and the design both
+   * document, and because a namespace is how every other service on this class
+   * is reached.
+   */
+  public get walletAuth(): IWalletAuthService | null {
+    // The registry is generic over the modules a caller registered, and this
+    // class is not, so it cannot know statically that 'walletAuth' yields a
+    // WalletAuthService. The module is the only thing that registers under that
+    // id, so the assertion is safe and narrow.
+    return (
+      (this.capabilities.optional('walletAuth') as
+        | IWalletAuthService
+        | undefined) ?? null
+    );
+  }
 
   constructor(config: ResolvedLombardConfig) {
     this.config = config;

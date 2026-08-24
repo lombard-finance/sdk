@@ -17,6 +17,10 @@ migrate once.
 
 ### Added
 
+- `sdk.walletAuth` — the wallet-auth service as a namespace, `null` when `walletAuthModule()` is not registered.
+
+  `walletAuthModule`'s own `@example` already read `sdk.walletAuth.requestChallenge(…)` and the design assumed the same accessor, but the property did not exist: the service was only reachable through `capabilities.require('walletAuth')`. A documented call that cannot be made is worse than an undocumented one. `null` rather than a throw when the module is absent, because acquiring a token is optional — a consumer that only reads public data never needs one.
+
 - `LombardConfig.auth`, an asynchronous wallet-token provider, replacing the synchronous `getAuthToken` (kept, deprecated, still honoured when `auth` is absent).
 
   ```ts
