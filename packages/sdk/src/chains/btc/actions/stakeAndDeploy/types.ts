@@ -96,9 +96,6 @@ export interface BtcStakeAndDeploy extends MonitorableAction {
   prepare(params: BtcStakeAndDeployPrepareParams): Promise<void>;
 
   /**
-   * Authorize vault deposit via signature
-   */
-  /**
    * Authorize the vault deposit.
    *
    * @param options - Optional signing overrides. `expiry` sets the signature

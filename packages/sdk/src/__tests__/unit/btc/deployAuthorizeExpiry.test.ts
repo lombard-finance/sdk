@@ -19,10 +19,18 @@ import { evmDepositAndDeployConfig } from '../../../chains/btc/actions/depositAn
 import { evmStakeAndDeployConfig } from '../../../chains/btc/actions/stakeAndDeploy/config/evm';
 import { ChainId } from '../../../common/chains';
 import { signStakeAndBake } from '../../../contract-functions/signStakeAndBake/signStakeAndBake';
+import { AssetId, Chain, type DeployProtocol } from '../../../core';
 import type { BtcCoreContext } from '../../../shared/context';
 
+vi.mock('../../../api-functions/getUserStakeAndBakeSignature', () => ({
+  getUserStakeAndBakeSignature: vi
+    .fn()
+    .mockRejectedValue(new Error('no stored signature')),
+}));
+
 const RECIPIENT = '0x1111111111111111111111111111111111111111';
-const SEVEN_DAYS = Math.floor(Date.parse('2027-01-08T00:00:00Z') / 1000);
+/** A fixed timestamp comfortably in the future, in seconds. */
+const FUTURE_EXPIRY = Math.floor(Date.parse('2027-01-08T00:00:00Z') / 1000);
 
 /**
  * A context whose EVM capability records what it was asked to sign.
@@ -84,10 +92,10 @@ describe.each(CONFIGS)('%s config', (_name, authorize) => {
   };
 
   it('forwards an explicit expiry to the signer', async () => {
-    await authorize(subject.ctx, { ...params, expiry: SEVEN_DAYS });
+    await authorize(subject.ctx, { ...params, expiry: FUTURE_EXPIRY });
 
     expect(subject.signStakeAndBake).toHaveBeenCalledWith(
-      expect.objectContaining({ expiry: SEVEN_DAYS }),
+      expect.objectContaining({ expiry: FUTURE_EXPIRY }),
     );
   });
 
@@ -103,7 +111,7 @@ describe.each(CONFIGS)('%s config', (_name, authorize) => {
   });
 
   it('does not alter the rest of the signing payload', async () => {
-    await authorize(subject.ctx, { ...params, expiry: SEVEN_DAYS });
+    await authorize(subject.ctx, { ...params, expiry: FUTURE_EXPIRY });
 
     expect(subject.signStakeAndBake).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -116,7 +124,7 @@ describe.each(CONFIGS)('%s config', (_name, authorize) => {
   });
 
   it('stores the signature it received', async () => {
-    await authorize(subject.ctx, { ...params, expiry: SEVEN_DAYS });
+    await authorize(subject.ctx, { ...params, expiry: FUTURE_EXPIRY });
 
     expect(subject.storeStakeAndBakeSignature).toHaveBeenCalledWith({
       signature: '0xsig',
@@ -134,18 +142,9 @@ describe.each(CONFIGS)('%s config', (_name, authorize) => {
       order.push('store');
     });
 
-    await authorize(subject.ctx, { ...params, expiry: SEVEN_DAYS });
+    await authorize(subject.ctx, { ...params, expiry: FUTURE_EXPIRY });
 
     expect(order).toEqual(['sign', 'store']);
-  });
-});
-
-describe('the expiry unit convention', () => {
-  it('is an absolute UNIX timestamp in seconds', () => {
-    // Matching the low-level parameter it forwards to, so no second convention
-    // enters the SDK. A milliseconds value would be ~1000x too far out.
-    expect(SEVEN_DAYS).toBeLessThan(2_000_000_000);
-    expect(SEVEN_DAYS).toBeGreaterThan(1_000_000_000);
   });
 });
 
@@ -179,5 +178,73 @@ describe('expiry validation', () => {
     await expect(
       signStakeAndBake({ ...base, expiry: 1893456000.5 } as never),
     ).rejects.toThrow(/Math\.floor/);
+  });
+});
+
+/**
+ * The hop consumers actually use.
+ *
+ * The config-level tests above call `authorizeStakeAndBake` directly, which
+ * skips the action class — the one place a consumer touches. These drive the
+ * real `BtcStakeAndDeploy` through `prepare()` and `authorizeDeposit()`, so the
+ * option has to survive the whole path to be seen by the signer.
+ */
+describe('BtcStakeAndDeploy.authorizeDeposit', () => {
+  async function readyAction() {
+    const subject = contextWithSpy();
+
+    // All reached through ctx by prepare(); none is part of what is under test.
+    const mutable = subject.ctx as unknown as Record<string, unknown>;
+    mutable.api = {
+      ...(mutable.api as Record<string, unknown>),
+      getDepositAddress: vi.fn().mockResolvedValue(undefined),
+    };
+    mutable.partner = { getPartnerId: () => undefined };
+    mutable.capabilities = {
+      require: (id: string) => {
+        if (id === 'evm') {
+          return {
+            signStakeAndBake: subject.signStakeAndBake,
+            getStakeAndBakeFee: vi.fn().mockResolvedValue('0'),
+          };
+        }
+        throw new Error(`not stubbed: ${id}`);
+      },
+      has: () => true,
+    };
+
+    const { BtcStakeAndDeploy } =
+      await import('../../../chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy');
+
+    const action = new BtcStakeAndDeploy(subject.ctx, {
+      assetOut: AssetId.LBTC,
+      sourceChain: Chain.BITCOIN_MAINNET,
+      destChain: Chain.ETHEREUM,
+      protocol: 'veda' as DeployProtocol,
+    });
+
+    await action.prepare({ amount: '0.01', recipient: RECIPIENT });
+
+    return { action, subject };
+  }
+
+  it('carries an explicit expiry from the action down to the signer', async () => {
+    const { action, subject } = await readyAction();
+
+    await action.authorizeDeposit({ expiry: FUTURE_EXPIRY });
+
+    expect(subject.signStakeAndBake).toHaveBeenCalledWith(
+      expect.objectContaining({ expiry: FUTURE_EXPIRY }),
+    );
+  });
+
+  it('passes undefined when called with no options, leaving the default downstream', async () => {
+    const { action, subject } = await readyAction();
+
+    await action.authorizeDeposit();
+
+    expect(subject.signStakeAndBake).toHaveBeenCalledWith(
+      expect.objectContaining({ expiry: undefined }),
+    );
   });
 });
