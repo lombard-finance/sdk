@@ -205,59 +205,60 @@ export async function httpRequest<T = unknown>(
   /**
    * Sends the request, retrying once on a 401 for a user-scoped call.
    *
-   * One retry, not a loop: asking the host again distinguishes a token that had
-   * simply expired — the common case at a seven-day lifetime — from one that was
-   * revoked or issued to another address. A second rejection means the session
-   * is genuinely gone, so `onUnauthorized` fires and the error surfaces.
+   * One retry, not an open loop: asking the host again distinguishes a token
+   * that had simply expired — the common case at a seven-day lifetime — from one
+   * that was revoked or issued to another address. A second rejection means the
+   * session is genuinely gone, so `onUnauthorized` fires and the error
+   * surfaces.
    */
   async function send(): Promise<AxiosResponse<T>> {
-    try {
-      // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_ssrf_rule-node-ssrf -- the url is composed from the SDK's own api-config hosts, not from caller input
-      return await axios(buildConfig(authToken));
-    } catch (error) {
-      const status = (error as { response?: { status?: number } })?.response
-        ?.status;
-      const canRetry =
-        scope === 'userScoped' &&
-        status === 401 &&
-        !!auth &&
-        !callerSuppliedAuth;
-
-      if (!canRetry) throw error;
-
-      const refreshed = await auth.getToken(authContext);
-
-      if (!refreshed || refreshed === authToken) {
-        // Nothing new to try. Re-asking with the same token would just fail
-        // again, so report it rather than spend another round trip.
-        auth.onUnauthorized?.(authContext);
-        throw new LombardError(
-          AuthErrorCode.UNAUTHORIZED,
-          `${fullUrl} rejected the wallet token, and no new token was available.`,
-          { url: fullUrl, scope },
-        );
-      }
-
-      authToken = refreshed;
-
+    // Two attempts at most, and one call site. A second attempt happens only
+    // when the host handed back a token we have not tried yet.
+    for (let attempt = 0; ; attempt += 1) {
       try {
-        // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_ssrf_rule-node-ssrf -- same url as the attempt above, retried with a fresh token
-        return await axios(buildConfig(refreshed));
-      } catch (retryError) {
-        const retryStatus = (retryError as { response?: { status?: number } })
-          ?.response?.status;
+        // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_ssrf_rule-node-ssrf -- the url is composed from the SDK's own api-config hosts, not from caller input
+        return await axios(buildConfig(authToken));
+      } catch (error) {
+        const status = (error as { response?: { status?: number } })?.response
+          ?.status;
 
-        if (retryStatus === 401) {
+        const retryable =
+          attempt === 0 &&
+          scope === 'userScoped' &&
+          status === 401 &&
+          !!auth &&
+          !callerSuppliedAuth;
+
+        if (!retryable) {
+          // A 401 on the second attempt means the session is gone rather than
+          // stale: the token that failed was one the host had just minted.
+          if (attempt > 0 && status === 401) {
+            auth?.onUnauthorized?.(authContext);
+            throw new LombardError(
+              AuthErrorCode.UNAUTHORIZED,
+              `${fullUrl} rejected a freshly obtained wallet token. The session ` +
+                `is no longer valid.`,
+              { url: fullUrl, scope },
+            );
+          }
+
+          throw error;
+        }
+
+        const refreshed = await auth.getToken(authContext);
+
+        if (!refreshed || refreshed === authToken) {
+          // Nothing new to try. Re-asking with the same token would just fail
+          // again, so report it rather than spend another round trip.
           auth.onUnauthorized?.(authContext);
           throw new LombardError(
             AuthErrorCode.UNAUTHORIZED,
-            `${fullUrl} rejected a freshly obtained wallet token. The session ` +
-              `is no longer valid.`,
+            `${fullUrl} rejected the wallet token, and no new token was available.`,
             { url: fullUrl, scope },
           );
         }
 
-        throw retryError;
+        authToken = refreshed;
       }
     }
   }

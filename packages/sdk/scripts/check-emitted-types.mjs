@@ -49,8 +49,8 @@ function fail(message) {
 function declarationEntries() {
   // The path is this package's own manifest, resolved from this file's
   // location. Nothing external reaches it.
-  // eslint-disable-next-line security/detect-non-literal-fs-filename
   // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
   const pkg = JSON.parse(readFileSync(join(PKG_ROOT, 'package.json'), 'utf8'));
   const entries = new Set();
 
@@ -73,8 +73,8 @@ if (entries.length === 0) {
 const missing = entries.filter(
   // Each entry is a `types` path read out of our own exports map, joined to
   // this package's root. There is no caller-supplied input in this script.
-  // eslint-disable-next-line security/detect-non-literal-fs-filename
   // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
   (entry) => !existsSync(join(PKG_ROOT, entry)),
 );
 
