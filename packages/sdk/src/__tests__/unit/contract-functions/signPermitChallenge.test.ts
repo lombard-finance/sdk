@@ -3,16 +3,20 @@ import type { EIP1193Provider } from 'viem';
 import { hashTypedData } from 'viem';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { getUserStakeAndBakeSignature } from '../../../api-functions/getUserStakeAndBakeSignature';
 import { pollWalletVerification } from '../../../api-functions/walletAuth/pollWalletVerification';
 import { requestWalletChallenge } from '../../../api-functions/walletAuth/requestWalletChallenge';
 import { verifyWalletSignature } from '../../../api-functions/walletAuth/verifyWalletSignature';
 import { ChainId } from '../../../common/chains';
 import { signPermitChallenge } from '../../../contract-functions/signPermitChallenge';
+import { ActivePermitExistsError } from '../../../utils/err';
 
+vi.mock('../../../api-functions/getUserStakeAndBakeSignature');
 vi.mock('../../../api-functions/walletAuth/requestWalletChallenge');
 vi.mock('../../../api-functions/walletAuth/verifyWalletSignature');
 vi.mock('../../../api-functions/walletAuth/pollWalletVerification');
 
+const mockedStored = vi.mocked(getUserStakeAndBakeSignature);
 const mockedChallenge = vi.mocked(requestWalletChallenge);
 const mockedVerify = vi.mocked(verifyWalletSignature);
 const mockedPoll = vi.mocked(pollWalletVerification);
@@ -74,6 +78,7 @@ const params = {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  mockedStored.mockRejectedValue(new Error('no stored signature'));
   request.mockResolvedValue('0xsignature');
   mockedChallenge.mockResolvedValue({
     nonce: 'abc',
@@ -222,5 +227,94 @@ describe('signPermitChallenge', () => {
 
     await expect(signPermitChallenge(params)).rejects.toThrow('no signature');
     expect(mockedVerify).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * A wallet already holding an active signature is the default state for a
+ * returning user, for the whole lifetime of their previous permit. The gateway
+ * issues a permit challenge anyway and only refuses at verify, so without a
+ * pre-check the user signs a real mainnet permit that is then discarded.
+ */
+describe('signPermitChallenge with an active signature on file', () => {
+  const future = () => String(Math.floor(Date.now() / 1000) + 3 * 24 * 60 * 60);
+
+  function onFile(expirationDate: string) {
+    mockedStored.mockResolvedValue({
+      userDestinationAddress: account,
+      signature: '0xstored',
+      expirationDate,
+      depositAmount: '99512',
+      chainId: '1',
+    });
+  }
+
+  it('fails before the wallet is prompted', async () => {
+    onFile(future());
+
+    await expect(signPermitChallenge(params)).rejects.toThrow(
+      ActivePermitExistsError,
+    );
+    expect(request).not.toHaveBeenCalled();
+    expect(mockedChallenge).not.toHaveBeenCalled();
+  });
+
+  it('reports when the existing signature lapses, so callers can say when to retry', async () => {
+    const expiresAt = future();
+    onFile(expiresAt);
+
+    await expect(signPermitChallenge(params)).rejects.toMatchObject({
+      code: 9,
+      expiresAt,
+    });
+  });
+
+  it('proceeds once the stored signature has elapsed', async () => {
+    onFile(String(Math.floor(Date.now() / 1000) - 60));
+
+    await expect(signPermitChallenge(params)).resolves.toMatchObject({
+      jwt: 'jwt-token',
+    });
+  });
+
+  it('proceeds when the record is empty', async () => {
+    mockedStored.mockResolvedValue({
+      userDestinationAddress: account,
+      signature: '',
+      expirationDate: '',
+      depositAmount: '',
+      chainId: '1',
+    });
+
+    await expect(signPermitChallenge(params)).resolves.toMatchObject({
+      jwt: 'jwt-token',
+    });
+  });
+
+  // Blocking a first-time user because an unrelated endpoint is down would be
+  // a worse trade than the wasted prompt the check exists to avoid.
+  it('proceeds when the lookup itself fails', async () => {
+    mockedStored.mockRejectedValue(new Error('gateway unreachable'));
+
+    await expect(signPermitChallenge(params)).resolves.toMatchObject({
+      jwt: 'jwt-token',
+    });
+  });
+});
+
+describe('signPermitChallenge wallet rejection', () => {
+  // Wallets reject with an EIP-1193 object rather than an Error, so an
+  // unwrapped rejection reaches callers as `[object Object]`.
+  it('wraps an EIP-1193 rejection in a real Error', async () => {
+    request.mockRejectedValue({
+      code: 4001,
+      message: 'User rejected the request',
+    });
+
+    const caught = await signPermitChallenge(params).catch((e: unknown) => e);
+
+    expect(caught).toBeInstanceOf(Error);
+    expect(String(caught)).toContain('User rejected the request');
+    expect(String(caught)).not.toContain('[object Object]');
   });
 });

@@ -3,12 +3,14 @@ import { WALLET_CHALLENGE_TYPE } from '@lombard.finance/sdk-common';
 import type { Address, EIP1193Provider } from 'viem';
 import { hashTypedData } from 'viem';
 
+import { getUserStakeAndBakeSignature } from '../../api-functions/getUserStakeAndBakeSignature';
 import { pollWalletVerification } from '../../api-functions/walletAuth/pollWalletVerification';
 import { requestWalletChallenge } from '../../api-functions/walletAuth/requestWalletChallenge';
 import { verifyWalletSignature } from '../../api-functions/walletAuth/verifyWalletSignature';
 import { getLegacyChainNameById } from '../../common/blockchain-identifier';
 import type { ChainId } from '../../common/chains';
 import type { IEnvParam } from '../../common/parameters';
+import { ActivePermitExistsError, getErrorMessage } from '../../utils/err';
 import { DAY, now, toUnix } from '../../utils/time';
 
 /** Seven days, the deadline requested when the caller does not name one. */
@@ -89,6 +91,8 @@ export async function signPermitChallenge({
 }: ISignPermitChallengeParams): Promise<ISignPermitChallengeResult> {
   const chain = getLegacyChainNameById(chainId);
 
+  await assertNoActivePermit(account, chainId, env);
+
   const challenge = await requestWalletChallenge({
     address: account,
     chain,
@@ -112,10 +116,20 @@ export async function signPermitChallenge({
   // Signed as the exact string the server returned: viem's signTypedData takes
   // a structured object and re-serialises it, which is the one thing that can
   // move the digest off the reserved one.
-  const signature = (await provider.request({
-    method: 'eth_signTypedData_v4',
-    params: [account, challenge.payload],
-  } as unknown as Parameters<EIP1193Provider['request']>[0])) as string;
+  let signature: string;
+  try {
+    signature = (await provider.request({
+      method: 'eth_signTypedData_v4',
+      params: [account, challenge.payload],
+    } as unknown as Parameters<EIP1193Provider['request']>[0])) as string;
+  } catch (error) {
+    // A wallet rejects with an EIP-1193 object, not an Error, so an unwrapped
+    // rejection reaches callers as `[object Object]` once stringified. The
+    // other two calls in this flow already normalise the same way.
+    throw new Error(
+      `Wallet rejected the permit signature: ${getErrorMessage(error)}`,
+    );
+  }
 
   if (typeof signature !== 'string' || !signature.startsWith('0x')) {
     throw new Error('Wallet returned no signature for the permit challenge');
@@ -147,6 +161,57 @@ export async function signPermitChallenge({
       ? { signatureExpiresAt: challenge.signatureExpiresAt }
       : {}),
   };
+}
+
+/**
+ * Fails before the wallet prompt when the address already has an active
+ * stake-and-bake signature.
+ *
+ * The gateway issues a permit challenge regardless, and only refuses at verify
+ * — after the user has signed a real permit that is then thrown away. A
+ * returning user is in this state for the whole lifetime of their previous
+ * permit, so without this check that wasted prompt is the default path for
+ * them.
+ *
+ * A lookup failure is not treated as "no signature present" in only one
+ * direction: if the endpoint is unreachable this proceeds, because blocking a
+ * first-time user on an unrelated outage is worse than the wasted prompt this
+ * avoids.
+ */
+async function assertNoActivePermit(
+  account: Address,
+  chainId: ChainId,
+  env: IEnvParam['env'],
+): Promise<void> {
+  let stored: Awaited<ReturnType<typeof getUserStakeAndBakeSignature>>;
+  try {
+    stored = await getUserStakeAndBakeSignature({
+      userDestinationAddress: account,
+      chainId,
+      env,
+    });
+  } catch {
+    return;
+  }
+
+  // The route answers 200 with an empty record when nothing is on file.
+  const expiresAt = Number(stored?.expirationDate);
+  if (!Number.isFinite(expiresAt) || expiresAt <= 0) {
+    return;
+  }
+
+  // An elapsed signature no longer blocks a new one.
+  if (expiresAt <= toUnix(now())) {
+    return;
+  }
+
+  throw new ActivePermitExistsError(
+    `An active stake-and-bake signature already exists for ${account} and ` +
+      `lapses at ${new Date(expiresAt * 1000).toISOString()}. A permit ` +
+      `challenge would be refused at verify, so sign in with a plain wallet ` +
+      `challenge instead, or wait for this one to expire.`,
+    String(expiresAt),
+  );
 }
 
 /**

@@ -10,7 +10,7 @@ import {
   WALLET_AUTH_REQUEST_TIMEOUT_MS,
 } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
-import { getErrorMessage } from '../../utils/err';
+import { ActivePermitExistsError, getErrorMessage } from '../../utils/err';
 
 interface WalletVerifyApiResponse {
   /** Present (non-empty) for synchronous verification. */
@@ -98,6 +98,17 @@ export async function verifyWalletSignature({
       'Wallet verification returned neither a token nor a verification id',
     );
   } catch (error) {
+    // A returning user hits this for the lifetime of their previous permit, so
+    // callers need to branch on it and fall back to the plain challenge. A
+    // bare string would make them match on message text.
+    if (
+      axios.isAxiosError(error) &&
+      (error.response?.data as { code?: number } | undefined)?.code === 9
+    ) {
+      const message = (error.response?.data as { message?: string } | undefined)
+        ?.message;
+      throw new ActivePermitExistsError(message);
+    }
     throw new Error(getErrorMessage(error));
   }
 }

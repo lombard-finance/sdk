@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { requestWalletChallenge } from '../../../api-functions/walletAuth/requestWalletChallenge';
 import { verifyWalletSignature } from '../../../api-functions/walletAuth/verifyWalletSignature';
+import { ActivePermitExistsError } from '../../../utils/err';
 
 vi.mock('axios');
 const mockedAxios = vi.mocked(axios);
@@ -26,6 +27,10 @@ beforeEach(() => {
   vi.resetAllMocks();
   post.mockResolvedValue({ data: permitChallenge });
   mockedAxios.post = post as unknown as typeof axios.post;
+  mockedAxios.isAxiosError = ((e: unknown) =>
+    Boolean(
+      (e as { isAxiosError?: boolean } | null)?.isAxiosError,
+    )) as unknown as typeof axios.isAxiosError;
 });
 
 describe('requestWalletChallenge', () => {
@@ -174,5 +179,52 @@ describe('verifyWalletSignature', () => {
     });
 
     expect(post.mock.calls[0][1]).not.toHaveProperty('challenge_type');
+  });
+
+  // Code 9 means the wallet already holds an active stake-and-bake signature.
+  // Callers fall back to the plain challenge on it, so it has to be branchable
+  // without matching on message text.
+  it('raises a typed error when the wallet already has an active signature', async () => {
+    post.mockRejectedValue(
+      Object.assign(new Error('request failed'), {
+        isAxiosError: true,
+        response: {
+          status: 400,
+          data: {
+            code: 9,
+            message:
+              'an active signature is already stored for this wallet; sign in with a plain wallet challenge instead',
+          },
+        },
+      }),
+    );
+
+    const caught = await verifyWalletSignature({
+      ...base,
+      payload: '{"types":{}}',
+      signature: '0xsig',
+      challengeType: WALLET_CHALLENGE_TYPE.permit,
+    }).catch((e: unknown) => e);
+
+    expect(caught).toBeInstanceOf(ActivePermitExistsError);
+    expect(caught).toMatchObject({ code: 9 });
+    expect(String(caught)).toContain('active signature is already stored');
+  });
+
+  it('leaves other failures as plain errors', async () => {
+    post.mockRejectedValue(
+      Object.assign(new Error('boom'), {
+        isAxiosError: true,
+        response: { status: 500, data: { code: 13, message: 'internal' } },
+      }),
+    );
+
+    const caught = await verifyWalletSignature({
+      ...base,
+      payload: '{"types":{}}',
+      signature: '0xsig',
+    }).catch((e: unknown) => e);
+
+    expect(caught).not.toBeInstanceOf(ActivePermitExistsError);
   });
 });

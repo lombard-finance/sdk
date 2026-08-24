@@ -37,12 +37,15 @@ No separate call is needed to store the permit.
 - `requestWalletChallenge()` accepts `challengeType` plus `permit` / `feeApproval` params, and returns `challengeType`, `digest` and `signatureExpiresAt`.
 - `verifyWalletSignature()` accepts `challengeType`.
 - `WALLET_CHALLENGE_TYPE`, `WalletChallengeType`, `PermitChallengeParams` and `FeeApprovalChallengeParams` are re-exported from the package root, so naming a challenge type does not require depending on `@lombard.finance/sdk-common` directly.
+- `ActivePermitExistsError` (`code: 9`, with the existing signature's `expiresAt` when the pre-check raised it) — thrown when a wallet already holds an active stake-and-bake signature, so a permit challenge cannot be redeemed.
 
 ### Notes
 
 - **The permit is built server-side.** It reads `nonces(owner)` from the token and picks the deadline, because a client-chosen nonce and a predictable deadline are what make a published signature replayable. `deadline` is a request; the server may shorten it. Do not assemble the typed data locally.
 - **The payload reaches the wallet as the exact string the server returned.** It is the JSON the server hashed, and re-serialising it can move the digest off the one it reserved. `signPermitChallenge` recomputes the digest and throws before prompting if it does not match.
 - **`challengeType` is sent again on verify.** Challenges are stored per address and type, so omitting it looks up a plain-text challenge that was never issued.
+- **A wallet that already holds an active signature never reaches the prompt.** The gateway issues a permit challenge regardless of one being on file and only refuses at verify, after the user has signed a real permit that is then discarded. For a returning user that is the default state for the lifetime of their previous permit, so `signPermitChallenge` looks the record up first and throws `ActivePermitExistsError` before prompting. Fall back to the plain wallet challenge on it, which issues a JWT without a second permit. The same error is raised from `verifyWalletSignature` when the API reports code `9`, so the case stays branchable if the pre-check is bypassed. A lookup that itself fails is treated as nothing being on file: blocking a first-time user on an unrelated outage is a worse trade than the wasted prompt this avoids.
+- **A wallet rejection arrives as an `Error`.** Wallets reject with an EIP-1193 object rather than an `Error`, so an unwrapped rejection reached callers as `[object Object]` once stringified. It is normalised the same way as the two API calls in the flow.
 - A challenge requested without the params its type requires is rejected at the call site. The gateway does not refuse it — it answers with the plain-text payload, which a wallet signs happily and the server then rejects.
 - `signStakeAndBake()` is unchanged and still builds the permit locally for the v1 route.
 

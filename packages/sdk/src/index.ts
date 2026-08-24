@@ -107,6 +107,10 @@ export {
   type WalletChallengeType,
 } from '@lombard.finance/sdk-common';
 
+// Raised when a wallet already holds an active stake-and-bake signature, so a
+// permit challenge would be refused; callers fall back to the plain challenge.
+export { ActivePermitExistsError } from './utils/err';
+
 // One-call permit authorisation: sign a server-issued permit, get a JWT.
 export {
   type ISignPermitChallengeParams,
