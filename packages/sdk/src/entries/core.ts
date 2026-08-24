@@ -215,3 +215,67 @@ export {
 } from '../utils/err';
 export { ensureHex, isHex } from '../utils/hex';
 export { DAY, HOUR, MINUTE, now, SECOND, toUnix } from '../utils/time';
+
+// ── The v6 action contract (§5 of the redesign) ──
+//
+// Exported from the root and from `./core` so a consumer can name a status, a
+// step or a route without reaching into the package. Without this the whole
+// contract compiles, is tested, and is unreachable — which is exactly what
+// happened until the playground tried to import it.
+export type {
+  Action,
+  ActionNamespace,
+  ActionProgress,
+  ActionResult,
+  ActionStepKey,
+  ActionSteps,
+  ActionTxHashes,
+  AuthorizationGroup,
+  AuthorizationStatus,
+  BitcoinSourceAction,
+  BtcDeployStatus,
+  BtcDepositStatus,
+  CancellableAction,
+  ClaimableAction,
+  DeployAsset,
+  DeployNamespace,
+  DeployParams,
+  DepositParams,
+  EvmCancelWithdrawStatus,
+  EvmClaimStatus,
+  // EvmDeployStatus is deliberately absent. v5 already exports that name as an
+  // alias of EvmOperationStatus, and the v6 narrowing describes the same concept
+  // with a smaller member set. Exporting both is a duplicate identifier;
+  // silently swapping the meaning would change what a consumer's type admits
+  // with no error at their call site. It lands when the EVM classes adopt the
+  // narrowings in stage D, as a named breaking change.
+  EvmVaultWithdrawStatus,
+  FeeAuthorizedAction,
+  PrepareParams,
+  ReachableActionStatus,
+  RouteLabel,
+  RouteLabelParams,
+  ShareAmount,
+  SolanaDepositStatus,
+  SolanaWithdrawStatus,
+  StarknetWithdrawStatus,
+  SubmitProgress,
+  SuiWithdrawStatus,
+  TerminalStatus,
+  WithdrawParams,
+} from '../core/actions';
+export {
+  ACTION_STEP_KEYS,
+  ActionStatus,
+  AUTHORIZATION_STATUSES,
+  deriveRouteLabel,
+  isAddressResult,
+  isAuthorizationStatus,
+  isTerminalStatus,
+  isTxResult,
+  REGISTRY_TOKEN_ROWS,
+  resolveRegistryToken,
+  shares,
+  TERMINAL_STATUSES,
+  vaultAsset,
+} from '../core/actions';

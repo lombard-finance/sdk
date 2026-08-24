@@ -12,6 +12,12 @@ migrate once.
 
 ### Added
 
+- The v6 action contract is exported from the package root and from `@lombard.finance/sdk/core`: `ActionStatus`, `ActionSteps` and `ACTION_STEP_KEYS`, `ActionProgress`, the three parameter unions, the five action interfaces, `deriveRouteLabel`, `vaultAsset`, `resolveRegistryToken` and the status predicates.
+
+  It existed, compiled and was tested before this, and was reachable from no entry point — the tests import it by relative path, so nothing noticed. The export-surface snapshot guards against names disappearing, not against a module never being wired up.
+
+  `EvmDeployStatus` is the one member held back. 5.x already exports that name as an alias of `EvmOperationStatus`, and the v6 narrowing describes the same concept with fewer members; exporting both is a duplicate identifier, and silently swapping the meaning would change what a consumer's type admits with no error at their call site. It lands with the EVM classes in stage D as a named breaking change.
+
 - `evm.withdraw()` now serves the asset routes as well as the vault exit, absorbing `unstake()` and `redeem()`. **The vault arm is unchanged**, so no existing call moves: a call passing `protocol` behaves exactly as it did in 5.x. The asset arms are new and dispatch on `assetIn` — LBTC burns LBTC for BTC or BTC.b, BTC.b redeems for BTC.
 
   It is overloaded rather than returning a union, so a caller gets the precisely-typed action. That matters because the arms have different terminals: `EvmWithdrawStatus` carries `completed` and no `queued`, `EvmVaultWithdrawStatus` carries `queued` and no `completed`. Comparing against the wrong one is a compile error instead of a UI reporting an unsettled withdrawal as done — which is what 5.x did, silently.
