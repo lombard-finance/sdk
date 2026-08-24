@@ -21,7 +21,13 @@ await action.authorizeDeposit({
 
 `expiry` is an **absolute UNIX timestamp in seconds**, matching the low-level parameter it forwards to, so no second unit convention enters the SDK. Omitting it passes `undefined` the whole way down rather than computing a default en route, so the 24-hour fallback stays in exactly one place.
 
-On routes with a non-zero deadline, an `expiry` is rejected with an `INVALID_PARAMETER` error before anything reaches the network if it is not a positive whole number of seconds, or if it is not in the future. The first catches a fractional value — what `Date.now() / 1000` produces without a `Math.floor` — which `BigInt()` would otherwise turn into a `RangeError` from inside the permit build. The second catches a relative duration (`7 * 24 * 60 * 60` puts the deadline in 1970) and a stale timestamp; both would otherwise sign and store successfully and only fail when the permit was used on chain.
+On routes with a non-zero deadline, an `expiry` is rejected with an `INVALID_PARAMETER` error before anything reaches the network unless it is a whole number of seconds, in the future, and no more than **365 days** ahead.
+
+Each bound catches a different mistake, and they get progressively quieter:
+
+- **Not a whole number** — a fractional value is what `Date.now() / 1000` produces without a `Math.floor`. `BigInt()` would otherwise turn it into a `RangeError` from inside the permit build, naming neither the parameter nor its unit.
+- **Not in the future** — a relative duration (`7 * 24 * 60 * 60` puts the deadline in 1970) or a stale timestamp. Either signs and stores successfully and only fails when the permit is used on chain.
+- **Beyond 365 days** — `Date.now()` passed unconverted. It is a positive safe integer in the future, so it clears both bounds above and sets the deadline tens of thousands of years out. Nothing fails at any point: the permit signs, is stored, and stands as an allowance to the vault spender that never lapses. This is the only bad expiry with no downstream symptom, which is what the upper bound exists for. The error names milliseconds directly when the magnitude matches.
 
 The override reaches the signer through all four hops — action, config, service, signer — and each is covered by a test that fails if the hop drops it.
 
