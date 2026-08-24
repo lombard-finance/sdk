@@ -261,13 +261,13 @@ export {
   BtcStakeAndDeploy,
 } from './chains/btc';
 
-// Note: Sync factory functions (btcStake, btcDeposit, etc.) are intentionally
-// not exported. Use createLombardSDK() instead:
+// Note: Sync factory functions are intentionally not exported. Use
+// createLombardSDK() instead:
 //
 //   const sdk = await createLombardSDK({ env: Env.prod, ... });
-//   const stake = sdk.chain.btc.stake({ ... });
+//   const deposit = sdk.chain.btc.deposit({ assetOut: AssetId.LBTC, ... });
 //
-// This ensures consistent behavior when remote catalog fetching is added in v4.1.
+// This ensures consistent behavior when remote catalog fetching is added.
 
 // EVM types and direct actions
 export type {
@@ -308,7 +308,7 @@ export {
   EvmWithdrawStatus,
 } from './chains/evm';
 
-// Note: Sync factory functions (evmStake, evmUnstake, etc.) are intentionally
+// Note: Sync factory functions are intentionally
 // not exported. Use createLombardSDK() instead:
 //
 //   const sdk = await createLombardSDK({ env: Env.prod, ... });
