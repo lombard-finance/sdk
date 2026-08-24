@@ -1,20 +1,25 @@
-import { getExplorerTxUrl } from '@lombard.finance/sdk';
+import { type Chain, getExplorerTxUrl } from '@lombard.finance/sdk';
 
 import type { SolanaUnstakingStatus } from '../pages/SolanaUnstakePage/useSolanaUnstaking';
 
 interface SolanaUnstakingProgressProps {
   txHash: string | null;
   status: SolanaUnstakingStatus;
-  sourceChain: string;
+  /**
+   * The chain the burn happened on. `null` before a submission has set it —
+   * the explorer lookup needs a real `Chain`, so the absence is modelled
+   * rather than stood in for by an empty string.
+   */
+  sourceChain: Chain | null;
   onReset: () => void;
 }
 
 /**
  * Get Solana explorer URL for transaction
  */
-function getSolanaExplorerUrl(txHash: string, chain: string): string {
+function getSolanaExplorerUrl(txHash: string, chain: Chain | null): string {
   return (
-    getExplorerTxUrl(chain, txHash) ??
+    (chain === null ? undefined : getExplorerTxUrl(chain, txHash)) ??
     `https://explorer.solana.com/tx/${txHash}`
   );
 }

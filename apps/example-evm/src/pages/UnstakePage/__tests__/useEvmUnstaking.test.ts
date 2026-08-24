@@ -13,22 +13,13 @@ const {
   mockSwitchNetwork: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('@lombard.finance/sdk', () => ({
+// Extends the real module rather than replacing it. The previous factory
+// invented a `Chain` map with values like 'ethereum-mainnet', which do not
+// exist in the SDK — the real identifiers are CAIP-style — so these tests
+// asserted against chain ids no code path ever produces.
+vi.mock('@lombard.finance/sdk', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   createConfig: mockCreateConfig,
-  AssetId: {
-    LBTC: 'LBTC',
-    BTC: 'BTC',
-  },
-  Chain: {
-    BITCOIN_MAINNET: 'bitcoin-mainnet',
-    BITCOIN_SIGNET: 'bitcoin-signet',
-    ETHEREUM_MAINNET: 'ethereum-mainnet',
-  },
-  Env: {
-    prod: 'prod',
-    testnet: 'testnet',
-    stage: 'stage',
-  },
 }));
 
 vi.mock('@lombard.finance/sdk-react', () => ({
@@ -122,7 +113,7 @@ describe('useEvmUnstaking', () => {
 
     const formData: UnstakingFormData = {
       amount: '0.5',
-      sourceChain: Chain.ETHEREUM_MAINNET as Chain,
+      sourceChain: Chain.ETHEREUM as Chain,
       destChain: Chain.BITCOIN_MAINNET as Chain,
       recipient: 'bc1q_btc_address',
       assetOut: 'BTC' as never,
@@ -130,10 +121,10 @@ describe('useEvmUnstaking', () => {
 
     await result.current.unstake(formData);
 
-    expect(mockSwitchNetwork).toHaveBeenCalledWith(Chain.ETHEREUM_MAINNET);
+    expect(mockSwitchNetwork).toHaveBeenCalledWith(Chain.ETHEREUM);
     expect(mockUnstakeFn).toHaveBeenCalledWith({
       amount: '0.5',
-      sourceChain: Chain.ETHEREUM_MAINNET,
+      sourceChain: Chain.ETHEREUM,
       destChain: Chain.BITCOIN_MAINNET,
       recipient: 'bc1q_btc_address',
       assetOut: 'BTC',

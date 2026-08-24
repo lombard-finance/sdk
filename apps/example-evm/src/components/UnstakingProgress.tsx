@@ -1,4 +1,4 @@
-import { getExplorerTxUrl } from '@lombard.finance/sdk';
+import { Chain, getExplorerTxUrl } from '@lombard.finance/sdk';
 
 import { getStatusColor } from '../lib/status-colors';
 import type { UnstakingStatus } from '../pages/UnstakePage/useEvmUnstaking';
@@ -6,7 +6,12 @@ import type { UnstakingStatus } from '../pages/UnstakePage/useEvmUnstaking';
 interface UnstakingProgressProps {
   txHash: string | null;
   status: UnstakingStatus;
-  sourceChain: string;
+  /**
+   * The chain the burn happened on. `null` before a submission has set it —
+   * `getExplorerTxUrl` needs a real `Chain` to pick the right explorer, so the
+   * absence is modelled rather than stood in for by an empty string.
+   */
+  sourceChain: Chain | null;
   onReset: () => void;
 }
 
@@ -24,7 +29,8 @@ export function UnstakingProgress({
 
   const getExplorerUrl = (hash: string) => {
     return (
-      getExplorerTxUrl(sourceChain, hash) ?? `https://etherscan.io/tx/${hash}`
+      (sourceChain === null ? undefined : getExplorerTxUrl(sourceChain, hash)) ??
+      `https://etherscan.io/tx/${hash}`
     );
   };
 

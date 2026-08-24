@@ -1,4 +1,4 @@
-import { Env, getLbtcContractAddresses } from '@lombard.finance/sdk';
+import { type Chain, Env, getLbtcContractAddresses } from '@lombard.finance/sdk';
 import { useEffect, useState } from 'react';
 
 import { UnstakingForm } from '../../components/UnstakingForm';
@@ -27,7 +27,9 @@ interface UnstakePageProps {
  */
 export function UnstakePage({ env, onReset }: UnstakePageProps) {
   const [isUnstaking, setIsUnstaking] = useState(false);
-  const [sourceChain, setSourceChain] = useState('');
+  // `Chain | null` rather than `''`: the empty string is not a chain, and
+  // typing it as one is what let a bare string reach `getExplorerTxUrl`.
+  const [sourceChain, setSourceChain] = useState<Chain | null>(null);
   const [lbtcBalance, setLbtcBalance] = useState<string | null>(null);
   const { address: evmAddress } = useEvmWallet();
 

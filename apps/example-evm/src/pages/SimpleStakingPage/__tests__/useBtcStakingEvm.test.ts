@@ -9,18 +9,13 @@ const { mockCreateConfig, mockUseBtcStake, mockUseLombardSDK } = vi.hoisted(
   }),
 );
 
-vi.mock('@lombard.finance/sdk', () => ({
+// Extends the real module rather than replacing it. The previous factory
+// invented a `Chain` map with values like 'ethereum-mainnet', which do not
+// exist in the SDK — the real identifiers are CAIP-style — so these tests
+// asserted against chain ids no code path ever produces.
+vi.mock('@lombard.finance/sdk', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
   createConfig: mockCreateConfig,
-  Chain: {
-    BITCOIN_MAINNET: 'bitcoin-mainnet',
-    BITCOIN_SIGNET: 'bitcoin-signet',
-    ETHEREUM_MAINNET: 'ethereum-mainnet',
-  },
-  Env: {
-    prod: 'prod',
-    testnet: 'testnet',
-    stage: 'stage',
-  },
 }));
 
 vi.mock('@lombard.finance/sdk-react', () => ({
@@ -130,14 +125,14 @@ describe('useBtcStakingEvm', () => {
 
     result.current.stake({
       amount: '0.5',
-      destChain: Chain.ETHEREUM_MAINNET as Chain,
+      destChain: Chain.ETHEREUM as Chain,
       destAddress: '0xRecipient',
       assetOut: 'LBTC' as never,
     });
 
     expect(mockStakeFn).toHaveBeenCalledWith({
       amount: '0.5',
-      destChain: Chain.ETHEREUM_MAINNET,
+      destChain: Chain.ETHEREUM,
       sourceChain: Chain.BITCOIN_MAINNET,
       assetOut: 'LBTC',
       recipient: '0xRecipient',
@@ -155,14 +150,14 @@ describe('useBtcStakingEvm', () => {
 
     result.current.stake({
       amount: '0.1',
-      destChain: Chain.ETHEREUM_MAINNET as Chain,
+      destChain: Chain.ETHEREUM as Chain,
       destAddress: '0xRecipient',
       assetOut: 'LBTC' as never,
     });
 
     expect(mockStakeFn).toHaveBeenCalledWith({
       amount: '0.1',
-      destChain: Chain.ETHEREUM_MAINNET,
+      destChain: Chain.ETHEREUM,
       sourceChain: Chain.BITCOIN_SIGNET,
       assetOut: 'LBTC',
       recipient: '0xRecipient',

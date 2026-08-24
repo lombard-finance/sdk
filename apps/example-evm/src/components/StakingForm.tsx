@@ -1,9 +1,4 @@
-import {
-  AssetId,
-  Chain,
-  Env,
-  MIN_STAKE_AMOUNT_BTC,
-} from '@lombard.finance/sdk';
+import { AssetId, Chain, Env, isChain, MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
 import { useCallback, useEffect, useState } from 'react';
 
 import { getAvailableChains, getDefaultChain } from '../lib/chains';
@@ -153,7 +148,12 @@ export function StakingForm({
             <select
               id="destChain"
               value={destChain}
-              onChange={(e) => setDestChain(e.target.value)}
+              onChange={(e) => {
+                // A select hands back a string. `isChain` is the SDK's own
+                // guard, so the state stays typed as `Chain` rather than
+                // being cast into shape.
+                if (isChain(e.target.value)) setDestChain(e.target.value);
+              }}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             >
               {availableChains.map((chain) => (

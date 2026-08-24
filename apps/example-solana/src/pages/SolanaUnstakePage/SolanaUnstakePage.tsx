@@ -1,4 +1,4 @@
-import { Env } from '@lombard.finance/sdk';
+import { type Chain, Env } from '@lombard.finance/sdk';
 import { useState } from 'react';
 
 import { SolanaUnstakingForm } from '../../components/SolanaUnstakingForm';
@@ -26,7 +26,9 @@ interface SolanaUnstakePageProps {
  */
 export function SolanaUnstakePage({ env, onReset }: SolanaUnstakePageProps) {
   const [isUnstaking, setIsUnstaking] = useState(false);
-  const [sourceChain, setSourceChain] = useState('');
+  // `Chain | null` rather than `''`: the empty string is not a chain, and
+  // typing it as one is what let a bare string reach the explorer lookup.
+  const [sourceChain, setSourceChain] = useState<Chain | null>(null);
   const { address: solanaAddress } = useSolanaWallet();
 
   const {
