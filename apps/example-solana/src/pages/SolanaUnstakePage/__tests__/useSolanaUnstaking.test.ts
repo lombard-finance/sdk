@@ -1,7 +1,7 @@
 import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const {
   mockCreateConfig,
@@ -20,7 +20,7 @@ const {
     mockUnstake,
     mockReset,
     mockUseNonEvmUnstakeReturn: {
-      unstake: mockUnstake,
+      withdraw: mockUnstake,
       reset: mockReset,
       txHash: null as string | null,
       status: { phase: 'idle', message: '' },
@@ -58,7 +58,7 @@ vi.mock('@lombard.finance/sdk-react', () => ({
     capturedConfigFactory.current = factory;
     return { sdk: null, isInitializing: false, error: null };
   }),
-  useNonEvmUnstake: vi.fn(() => mockUseNonEvmUnstakeReturn),
+  useNonEvmWithdraw: vi.fn(() => mockUseNonEvmUnstakeReturn),
 }));
 
 vi.mock('../../../lib/config', () => ({
@@ -66,7 +66,8 @@ vi.mock('../../../lib/config', () => ({
 }));
 
 import { Chain } from '@lombard.finance/sdk';
-import { useLombardSDK, useNonEvmUnstake } from '@lombard.finance/sdk-react';
+import { useLombardSDK, useNonEvmWithdraw } from '@lombard.finance/sdk-react';
+
 import { useSolanaUnstaking } from '../useSolanaUnstaking';
 
 // Minimal renderHook using react-dom/client
@@ -101,7 +102,7 @@ describe('useSolanaUnstaking', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     capturedConfigFactory.current = null;
-    mockUseNonEvmUnstakeReturn.unstake = mockUnstake;
+    mockUseNonEvmUnstakeReturn.withdraw = mockUnstake;
     mockUseNonEvmUnstakeReturn.reset = mockReset;
     mockUseNonEvmUnstakeReturn.txHash = null;
     mockUseNonEvmUnstakeReturn.status = { phase: 'idle', message: '' };
@@ -187,14 +188,14 @@ describe('useSolanaUnstaking', () => {
     unmount();
   });
 
-  it('uses useNonEvmUnstake with solana chain identifier', () => {
+  it('uses useNonEvmWithdraw with solana chain identifier', () => {
     vi.stubGlobal('solana', mockSolana);
 
     const { unmount } = renderHook(() =>
       useSolanaUnstaking('solana-address-123'),
     );
 
-    expect(useNonEvmUnstake).toHaveBeenCalledWith(null, 'solana');
+    expect(useNonEvmWithdraw).toHaveBeenCalledWith(null, 'solana');
 
     unmount();
   });
@@ -233,7 +234,7 @@ describe('useSolanaUnstaking', () => {
     unmount();
   });
 
-  it('passes sdk from useLombardSDK to useNonEvmUnstake', () => {
+  it('passes sdk from useLombardSDK to useNonEvmWithdraw', () => {
     vi.stubGlobal('solana', mockSolana);
 
     const mockSdk = { chain: {} };
@@ -247,7 +248,7 @@ describe('useSolanaUnstaking', () => {
       useSolanaUnstaking('solana-address-123'),
     );
 
-    expect(useNonEvmUnstake).toHaveBeenCalledWith(mockSdk, 'solana');
+    expect(useNonEvmWithdraw).toHaveBeenCalledWith(mockSdk, 'solana');
 
     unmount();
   });

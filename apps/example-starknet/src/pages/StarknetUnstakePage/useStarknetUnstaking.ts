@@ -4,12 +4,12 @@ import {
   StarknetChainId,
   starknetModule,
 } from '@lombard.finance/sdk-starknet';
-import { useNonEvmUnstake, useLombardSDK } from '@lombard.finance/sdk-react';
+import { useNonEvmWithdraw, useLombardSDK } from '@lombard.finance/sdk-react';
 import { useCallback, useEffect, useState } from 'react';
 import { WalletAccount } from 'starknet';
 
 import { getEnvironment } from '../../lib/config';
-import type { UnstakingFormData, UnstakingStatus } from '../../lib/types';
+import type { UnstakingFormData, WithdrawStatus } from '../../lib/types';
 
 /**
  * Hook for managing Starknet unstaking flow (LBTC → BTC)
@@ -105,14 +105,14 @@ export function useStarknetUnstaking(
   }, [starknetAddress, walletAccount, currentEnv]);
 
   const {
-    unstake: unstakeCore,
+    withdraw: unstakeCore,
     reset,
     txHash,
     status: unstakeStatus,
     error: unstakeError,
-  } = useNonEvmUnstake(sdk, 'starknet');
+  } = useNonEvmWithdraw(sdk, 'starknet');
 
-  const status = unstakeStatus as UnstakingStatus;
+  const status = unstakeStatus as WithdrawStatus;
 
   const unstake = useCallback(
     (formData: UnstakingFormData) =>

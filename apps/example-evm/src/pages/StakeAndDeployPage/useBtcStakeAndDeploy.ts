@@ -1,14 +1,14 @@
 import { Chain, createConfig, DeployProtocol, Env } from '@lombard.finance/sdk';
 import {
-  useBtcStakeAndBake as useBtcStakeAndBakeHook,
+  useBtcDeploy as useBtcStakeAndBakeHook,
   useLombardSDK,
 } from '@lombard.finance/sdk-react';
 import { useCallback } from 'react';
 
 import { getEnvironment } from '../../lib/config';
 
-export type { StakeAndBakeStatus } from '@lombard.finance/sdk-react';
-export type { StakeAndBakeProgressInfo as StakeAndBakeProgress } from '@lombard.finance/sdk-react';
+export type { DeployStatus } from '@lombard.finance/sdk-react';
+export type { DeployProgressInfo as StakeAndBakeProgress } from '@lombard.finance/sdk-react';
 
 /**
  * Hook for managing Stake-and-Deploy flow (BTC → LBTC → Vault)
@@ -45,10 +45,10 @@ export function useBtcStakeAndDeploy(
   );
 
   const {
-    stakeAndDeploy: stakeAndDeployCore,
+    deploy: stakeAndDeployCore,
     reset,
     depositAddress,
-    stakeAmount,
+    depositAmount: stakeAmount,
     status,
     progress,
     error: snbError,

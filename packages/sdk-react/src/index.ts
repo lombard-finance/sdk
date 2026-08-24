@@ -1,27 +1,27 @@
-export type { UseBtcStakeReturn } from './hooks/useBtcStake';
-export { useBtcStake } from './hooks/useBtcStake';
-export type { UseBtcStakeAndBakeReturn } from './hooks/useBtcStakeAndBake';
-export { useBtcStakeAndBake } from './hooks/useBtcStakeAndBake';
-export type { UseEvmUnstakeReturn } from './hooks/useEvmUnstake';
-export { useEvmUnstake } from './hooks/useEvmUnstake';
+export type { UseBtcDeployReturn } from './hooks/useBtcDeploy';
+export { useBtcDeploy } from './hooks/useBtcDeploy';
+export type { UseBtcDepositReturn } from './hooks/useBtcDeposit';
+export { useBtcDeposit } from './hooks/useBtcDeposit';
+export type { UseEvmWithdrawReturn } from './hooks/useEvmWithdraw';
+export { useEvmWithdraw } from './hooks/useEvmWithdraw';
 export type { UseLombardSDKReturn } from './hooks/useLombardSDK';
 export { useLombardSDK } from './hooks/useLombardSDK';
 export type {
   NonEvmChainNamespace,
-  UseNonEvmUnstakeReturn,
-} from './hooks/useNonEvmUnstake';
-export { useNonEvmUnstake } from './hooks/useNonEvmUnstake';
+  UseNonEvmWithdrawReturn,
+} from './hooks/useNonEvmWithdraw';
+export { useNonEvmWithdraw } from './hooks/useNonEvmWithdraw';
 export type {
-  BtcStakeAndBakeParams,
-  BtcStakeParams,
-  EvmUnstakeParams,
-  NonEvmUnstakeParams,
-  StakeAndBakePhase,
-  StakeAndBakeProgressInfo,
-  StakeAndBakeStatus,
-  StakingPhase,
-  StakingProgressInfo,
-  StakingStatus,
-  UnstakingPhase,
-  UnstakingStatus,
+  BtcDeployParams,
+  BtcDepositParams,
+  DeployPhase,
+  DeployProgressInfo,
+  DeployStatus,
+  DepositPhase,
+  DepositProgressInfo,
+  DepositStatus,
+  EvmWithdrawParams,
+  NonEvmWithdrawParams,
+  WithdrawPhase,
+  WithdrawStatus,
 } from './types';

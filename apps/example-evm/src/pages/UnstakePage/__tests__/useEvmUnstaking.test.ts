@@ -23,7 +23,7 @@ vi.mock('@lombard.finance/sdk', async (importOriginal) => ({
 }));
 
 vi.mock('@lombard.finance/sdk-react', () => ({
-  useEvmUnstake: mockUseEvmUnstake,
+  useEvmWithdraw: mockUseEvmUnstake,
   useLombardSDK: mockUseLombardSDK,
 }));
 
@@ -44,7 +44,7 @@ describe('useEvmUnstaking', () => {
   let capturedConfigFn: () => unknown;
 
   const defaultUnstakeReturn = {
-    unstake: vi.fn(),
+    withdraw: vi.fn(),
     reset: vi.fn(),
     txHash: null,
     status: { phase: 'idle', message: 'Ready' },
@@ -96,7 +96,7 @@ describe('useEvmUnstaking', () => {
     expect(callArgs.providers.evm()).toBe(fakeProvider);
   });
 
-  it('uses useEvmUnstake hook', () => {
+  it('uses useEvmWithdraw hook', () => {
     renderHook(() => useEvmUnstaking('0xAddress'));
 
     expect(mockUseEvmUnstake).toHaveBeenCalledWith({ mock: 'sdk' });
@@ -106,7 +106,7 @@ describe('useEvmUnstaking', () => {
     const mockUnstakeFn = vi.fn();
     mockUseEvmUnstake.mockReturnValue({
       ...defaultUnstakeReturn,
-      unstake: mockUnstakeFn,
+      withdraw: mockUnstakeFn,
     });
 
     const { result } = renderHook(() => useEvmUnstaking('0xAddress'));

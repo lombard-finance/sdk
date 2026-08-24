@@ -15,7 +15,7 @@ const {
   const mockUnstake = vi.fn();
   const mockReset = vi.fn();
   const mockUseNonEvmUnstakeReturn = {
-    unstake: mockUnstake,
+    withdraw: mockUnstake,
     reset: mockReset,
     txHash: null,
     status: { phase: 'idle', message: '' },
@@ -65,7 +65,7 @@ vi.mock('@lombard.finance/sdk-sui', () => ({
 }));
 
 vi.mock('@lombard.finance/sdk-react', () => ({
-  useNonEvmUnstake: mockUseNonEvmUnstake,
+  useNonEvmWithdraw: mockUseNonEvmUnstake,
   useLombardSDK: mockUseLombardSDK,
 }));
 
@@ -124,7 +124,7 @@ describe('useSuiUnstaking', () => {
     expect(suiProvider.getWalletAccount()).toBe(mockAccount);
   });
 
-  it('uses useNonEvmUnstake with sui chain identifier', () => {
+  it('uses useNonEvmWithdraw with sui chain identifier', () => {
     useSuiUnstaking('0xsuiaddress');
 
     expect(mockUseNonEvmUnstake).toHaveBeenCalledWith(null, 'sui');
@@ -134,7 +134,7 @@ describe('useSuiUnstaking', () => {
     const mockUnstakeFn = vi.fn();
     mockUseNonEvmUnstake.mockReturnValue({
       ...mockUseNonEvmUnstakeReturn,
-      unstake: mockUnstakeFn,
+      withdraw: mockUnstakeFn,
     });
 
     const result = useSuiUnstaking('0xsuiaddress');

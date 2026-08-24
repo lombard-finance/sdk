@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useNonEvmUnstake } from '../src/hooks/useNonEvmUnstake';
+import { useNonEvmWithdraw } from '../src/hooks/useNonEvmWithdraw';
 
 vi.mock('@lombard.finance/sdk', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@lombard.finance/sdk')>();
@@ -26,20 +26,20 @@ function createMockAction() {
   };
 }
 
-const unstakeParams = {
+const withdrawParams = {
   amount: '0.001',
   sourceChain: Chain.SOLANA_MAINNET,
   destChain: Chain.BITCOIN_MAINNET,
   recipient: 'bc1q_btc_address',
 };
 
-describe('useNonEvmUnstake', () => {
+describe('useNonEvmWithdraw', () => {
   let mockAction: ReturnType<typeof createMockAction>;
   let mockSdk: {
     chain: {
-      solana: { unstake: ReturnType<typeof vi.fn> };
-      starknet: { unstake: ReturnType<typeof vi.fn> };
-      sui: { unstake: ReturnType<typeof vi.fn> };
+      solana: { withdraw: ReturnType<typeof vi.fn> };
+      starknet: { withdraw: ReturnType<typeof vi.fn> };
+      sui: { withdraw: ReturnType<typeof vi.fn> };
     };
   };
 
@@ -50,15 +50,15 @@ describe('useNonEvmUnstake', () => {
 
     mockSdk = {
       chain: {
-        solana: { unstake: vi.fn().mockReturnValue(mockAction) },
-        starknet: { unstake: vi.fn().mockReturnValue(mockAction) },
-        sui: { unstake: vi.fn().mockReturnValue(mockAction) },
+        solana: { withdraw: vi.fn().mockReturnValue(mockAction) },
+        starknet: { withdraw: vi.fn().mockReturnValue(mockAction) },
+        sui: { withdraw: vi.fn().mockReturnValue(mockAction) },
       },
     };
   });
 
   it('returns idle state when sdk is null', () => {
-    const { result } = renderHook(() => useNonEvmUnstake(null, 'solana'));
+    const { result } = renderHook(() => useNonEvmWithdraw(null, 'solana'));
 
     expect(result.current.status.phase).toBe('idle');
     expect(result.current.txHash).toBeNull();
@@ -67,31 +67,31 @@ describe('useNonEvmUnstake', () => {
   });
 
   it('throws when called with null sdk', async () => {
-    const { result } = renderHook(() => useNonEvmUnstake(null, 'solana'));
+    const { result } = renderHook(() => useNonEvmWithdraw(null, 'solana'));
 
-    await expect(result.current.unstake(unstakeParams)).rejects.toThrow(
+    await expect(result.current.withdraw(withdrawParams)).rejects.toThrow(
       'SDK not initialized',
     );
   });
 
-  it('completes full unstake flow and returns txHash', async () => {
+  it('completes a full withdrawal and returns txHash', async () => {
     const { result } = renderHook(() =>
-      useNonEvmUnstake(mockSdk as never, 'solana'),
+      useNonEvmWithdraw(mockSdk as never, 'solana'),
     );
 
     await act(async () => {
-      await result.current.unstake(unstakeParams);
+      await result.current.withdraw(withdrawParams);
     });
 
-    expect(mockSdk.chain.solana.unstake).toHaveBeenCalledWith({
+    expect(mockSdk.chain.solana.withdraw).toHaveBeenCalledWith({
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTC,
-      sourceChain: unstakeParams.sourceChain,
-      destChain: unstakeParams.destChain,
+      sourceChain: withdrawParams.sourceChain,
+      destChain: withdrawParams.destChain,
     });
     expect(mockAction.prepare).toHaveBeenCalledWith({
-      amount: unstakeParams.amount,
-      recipient: unstakeParams.recipient,
+      amount: withdrawParams.amount,
+      recipient: withdrawParams.recipient,
     });
     expect(mockAction.execute).toHaveBeenCalled();
     expect(result.current.txHash).toBe('solana_tx_hash');
@@ -101,29 +101,29 @@ describe('useNonEvmUnstake', () => {
 
   it('routes to the correct chain namespace', async () => {
     const { result: starknetResult } = renderHook(() =>
-      useNonEvmUnstake(mockSdk as never, 'starknet'),
+      useNonEvmWithdraw(mockSdk as never, 'starknet'),
     );
 
     await act(async () => {
-      await starknetResult.current.unstake({
-        ...unstakeParams,
+      await starknetResult.current.withdraw({
+        ...withdrawParams,
         sourceChain: Chain.STARKNET_MAINNET,
       });
     });
 
-    expect(mockSdk.chain.starknet.unstake).toHaveBeenCalled();
-    expect(mockSdk.chain.solana.unstake).not.toHaveBeenCalled();
+    expect(mockSdk.chain.starknet.withdraw).toHaveBeenCalled();
+    expect(mockSdk.chain.solana.withdraw).not.toHaveBeenCalled();
   });
 
   it('sets error on failure and reset clears state', async () => {
     mockAction.execute.mockRejectedValue(new Error('Burn failed'));
 
     const { result } = renderHook(() =>
-      useNonEvmUnstake(mockSdk as never, 'solana'),
+      useNonEvmWithdraw(mockSdk as never, 'solana'),
     );
 
     await act(async () => {
-      await result.current.unstake(unstakeParams).catch(() => {});
+      await result.current.withdraw(withdrawParams).catch(() => {});
     });
 
     expect(result.current.error).toBe('Burn failed');

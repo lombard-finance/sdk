@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react';
 
 import { getStatusColor } from '../lib/status-colors';
-import type { StakingProgressInfo, StakingStatus } from '../lib/types';
+import type { DepositProgressInfo, DepositStatus } from '../lib/types';
 
 interface StakingProgressProps {
   depositAddress: string | null;
   amount: string | null;
-  status: StakingStatus;
-  progress: StakingProgressInfo;
+  status: DepositStatus;
+  progress: DepositProgressInfo;
   onReset: () => void;
   targetChain?: string;
 }

@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useEvmUnstake } from '../src/hooks/useEvmUnstake';
+import { useEvmWithdraw } from '../src/hooks/useEvmWithdraw';
 
 vi.mock('@lombard.finance/sdk', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@lombard.finance/sdk')>();
@@ -36,7 +36,7 @@ function createMockUnstakeAction(
   };
 }
 
-const unstakeParams = {
+const withdrawParams = {
   amount: '0.001',
   sourceChain: Chain.ETHEREUM_MAINNET,
   destChain: Chain.BITCOIN_MAINNET,
@@ -44,9 +44,9 @@ const unstakeParams = {
   assetOut: AssetId.BTC,
 };
 
-describe('useEvmUnstake', () => {
+describe('useEvmWithdraw', () => {
   let mockAction: ReturnType<typeof createMockUnstakeAction>;
-  let mockSdk: { chain: { evm: { unstake: ReturnType<typeof vi.fn> } } };
+  let mockSdk: { chain: { evm: { withdraw: ReturnType<typeof vi.fn> } } };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -57,14 +57,14 @@ describe('useEvmUnstake', () => {
     mockSdk = {
       chain: {
         evm: {
-          unstake: vi.fn().mockReturnValue(mockAction),
+          withdraw: vi.fn().mockReturnValue(mockAction),
         },
       },
     };
   });
 
   it('returns idle state when sdk is null', () => {
-    const { result } = renderHook(() => useEvmUnstake(null));
+    const { result } = renderHook(() => useEvmWithdraw(null));
 
     expect(result.current.status.phase).toBe('idle');
     expect(result.current.txHash).toBeNull();
@@ -72,24 +72,24 @@ describe('useEvmUnstake', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it('completes full unstake flow without authorizeFee', async () => {
+  it('completes a full withdrawal without authorizeFee', async () => {
     mockAction.status = EvmOperationStatus.READY;
 
-    const { result } = renderHook(() => useEvmUnstake(mockSdk as never));
+    const { result } = renderHook(() => useEvmWithdraw(mockSdk as never));
 
     await act(async () => {
-      await result.current.unstake(unstakeParams);
+      await result.current.withdraw(withdrawParams);
     });
 
-    expect(mockSdk.chain.evm.unstake).toHaveBeenCalledWith({
+    expect(mockSdk.chain.evm.withdraw).toHaveBeenCalledWith({
       assetIn: AssetId.LBTC,
-      assetOut: unstakeParams.assetOut,
-      sourceChain: unstakeParams.sourceChain,
-      destChain: unstakeParams.destChain,
+      assetOut: withdrawParams.assetOut,
+      sourceChain: withdrawParams.sourceChain,
+      destChain: withdrawParams.destChain,
     });
     expect(mockAction.prepare).toHaveBeenCalledWith({
-      amount: unstakeParams.amount,
-      recipient: unstakeParams.recipient,
+      amount: withdrawParams.amount,
+      recipient: withdrawParams.recipient,
     });
     expect(mockAction.authorizeFee).not.toHaveBeenCalled();
     expect(mockAction.execute).toHaveBeenCalled();
@@ -108,10 +108,10 @@ describe('useEvmUnstake', () => {
       return Promise.resolve(undefined);
     });
 
-    const { result } = renderHook(() => useEvmUnstake(mockSdk as never));
+    const { result } = renderHook(() => useEvmWithdraw(mockSdk as never));
 
     await act(async () => {
-      await result.current.unstake(unstakeParams);
+      await result.current.withdraw(withdrawParams);
     });
 
     expect(mockAction.authorizeFee).toHaveBeenCalled();
@@ -122,10 +122,10 @@ describe('useEvmUnstake', () => {
   it('sets error on failure and reset clears state', async () => {
     mockAction.prepare.mockRejectedValue(new Error('Execution failed'));
 
-    const { result } = renderHook(() => useEvmUnstake(mockSdk as never));
+    const { result } = renderHook(() => useEvmWithdraw(mockSdk as never));
 
     await act(async () => {
-      await result.current.unstake(unstakeParams).catch(() => {});
+      await result.current.withdraw(withdrawParams).catch(() => {});
     });
 
     expect(result.current.error).toBe('Execution failed');

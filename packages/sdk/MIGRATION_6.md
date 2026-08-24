@@ -215,6 +215,49 @@ if ('approve' in action) {
 
 ---
 
+## Reads renamed with the verbs
+
+`sdk.api.unstakes()` is now `sdk.api.withdrawals()`:
+
+```ts
+// Before (5.x)
+const records = await sdk.api.unstakes(address, { show_redeems: true });
+
+// After (6.0.0)
+const records = await sdk.api.withdrawals(address, { show_redeems: true });
+```
+
+Same arguments, same return type. `UnstakeOptions` is `WithdrawalOptions`; its fields keep the endpoint's names, and the records are still `Unstake[]` — renaming that type would misdescribe what the endpoint sends.
+
+---
+
+## The React hooks
+
+`@lombard.finance/sdk-react` renames all four action hooks, the methods they return, and their types.
+
+| before | after |
+| --- | --- |
+| `useBtcStake().stake()` | `useBtcDeposit().deposit()` |
+| `useBtcStakeAndBake().stakeAndDeploy()` | `useBtcDeploy().deploy()` |
+| `useEvmUnstake().unstake()` | `useEvmWithdraw().withdraw()` |
+| `useNonEvmUnstake().unstake()` | `useNonEvmWithdraw().withdraw()` |
+
+`stakeAmount` becomes `depositAmount` on the two BTC hooks.
+
+```ts
+// Before (5.x)
+const { stake, depositAddress, stakeAmount, status } = useBtcStake(sdk);
+
+// After (6.0.0)
+const { deposit, depositAddress, depositAmount, status } = useBtcDeposit(sdk);
+```
+
+Types move with them: `BtcStakeParams` → `BtcDepositParams`, `BtcStakeAndBakeParams` → `BtcDeployParams`, `EvmUnstakeParams` → `EvmWithdrawParams`, `NonEvmUnstakeParams` → `NonEvmWithdrawParams`. The three status vocabularies — `StakingPhase`/`StakingStatus`/`StakingProgressInfo`, `StakeAndBakePhase`/`StakeAndBakeStatus`/`StakeAndBakeProgressInfo`, `UnstakingPhase`/`UnstakingStatus` — become `Deposit*`, `Deploy*` and `Withdraw*`.
+
+There are no aliases here, and none are needed: a hook is destructured at its call site, so every missing member is a compile error on the exact line that has to change.
+
+---
+
 ## Also removed
 
 The nine per-operation event vocabularies are one. `StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`, `WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent` and `DepositAndDeployEvent` declared identical members; they collapse to `ActionEvent` / `ActionEventMap`. **Wire values are unchanged**, so `action.on('progress', …)` behaves exactly as before, and all nine old names remain as deprecated aliases — `StakeEvent === ActionEvent` holds.
@@ -249,10 +292,10 @@ So the signature path is **not** deprecated in 6.0.0. Deleting it would make tho
 ## What didn't change
 
 - Event names and payloads on the wire.
-- `evm.stake`, `evm.deploy`, `btc.stake` and `btc.deposit` keep their names and meanings.
-- Event names and payloads on the wire.
+- `evm.deploy` and `btc.deposit` keep their names. Note that `btc.deposit` now also covers what `btc.stake` did — see [the three verbs](#the-three-verbs) — and that `evm.deposit` kept its *name* while changing its *meaning*, which is the one rename that can pass review unnoticed.
 - Contract interactions. The ABI method names this package calls are pinned by a test, precisely because a verb rename could otherwise reach one.
 - Route labels (`lbtc-to-btc`, `btcb-to-vault`, …), which are analytics keys with history behind them.
+- The wire vocabulary generally: `show_redeems` and `show_unstakes` are still the withdrawal endpoint's query parameters, `Unstake` is still the record it returns, and `stake-and-bake` is still the product name the permit routes use.
 - Aggregate read helpers, which stay anonymous.
 
 ## Need help?

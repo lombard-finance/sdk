@@ -36,10 +36,10 @@ const mockUseLombardSDK = vi
 const mockStake = vi.fn();
 const mockReset = vi.fn();
 const defaultStakeReturn = {
-  stake: mockStake,
+  deposit: mockStake,
   reset: mockReset,
   depositAddress: null,
-  stakeAmount: null,
+  depositAmount: null,
   status: { phase: 'idle', message: 'Ready to stake' },
   progress: {},
   error: null,
@@ -49,7 +49,7 @@ const mockUseBtcStake = vi.fn().mockReturnValue(defaultStakeReturn);
 
 vi.mock('@lombard.finance/sdk-react', () => ({
   useLombardSDK: (...args: unknown[]) => mockUseLombardSDK(...args),
-  useBtcStake: (...args: unknown[]) => mockUseBtcStake(...args),
+  useBtcDeposit: (...args: unknown[]) => mockUseBtcStake(...args),
 }));
 
 const mockWalletAccountConnect = vi.fn();
@@ -200,7 +200,7 @@ describe('useBtcStakingStarknet', () => {
     );
   });
 
-  it('delegates stake call to useBtcStake', async () => {
+  it('delegates stake call to useBtcDeposit', async () => {
     const fakeSdk = { __sdk: true };
     mockUseLombardSDK.mockImplementation((configFn: () => unknown) => {
       capturedConfigFn = configFn;
@@ -211,7 +211,7 @@ describe('useBtcStakingStarknet', () => {
       ...defaultStakeReturn,
       status: { phase: 'waiting-deposit', message: 'Send BTC' },
       depositAddress: 'bc1q_test',
-      stakeAmount: '0.01',
+      depositAmount: '0.01',
     };
     mockUseBtcStake.mockReturnValue(stakeReturn);
 
@@ -219,10 +219,10 @@ describe('useBtcStakingStarknet', () => {
       useBtcStakingStarknet({ id: 'braavos' }),
     );
 
-    // useBtcStake should have been called with the sdk from useLombardSDK
+    // useBtcDeposit should have been called with the sdk from useLombardSDK
     expect(mockUseBtcStake).toHaveBeenCalledWith(fakeSdk);
 
-    // The hook should forward useBtcStake's return values
+    // The hook should forward useBtcDeposit's return values
     expect(result.current.depositAddress).toBe('bc1q_test');
     expect(result.current.stakeAmount).toBe('0.01');
     expect(result.current.status.phase).toBe('waiting-deposit');

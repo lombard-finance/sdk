@@ -32,7 +32,7 @@ const mockUseLombardSDK = vi
 const mockUnstake = vi.fn();
 const mockReset = vi.fn();
 const defaultUnstakeReturn = {
-  unstake: mockUnstake,
+  withdraw: mockUnstake,
   reset: mockReset,
   txHash: null,
   status: { phase: 'idle', message: 'Ready to unstake' },
@@ -43,7 +43,7 @@ const mockUseNonEvmUnstake = vi.fn().mockReturnValue(defaultUnstakeReturn);
 
 vi.mock('@lombard.finance/sdk-react', () => ({
   useLombardSDK: (...args: unknown[]) => mockUseLombardSDK(...args),
-  useNonEvmUnstake: (...args: unknown[]) => mockUseNonEvmUnstake(...args),
+  useNonEvmWithdraw: (...args: unknown[]) => mockUseNonEvmUnstake(...args),
 }));
 
 const mockWalletAccountConnect = vi.fn();
@@ -188,7 +188,7 @@ describe('useStarknetUnstaking', () => {
     expect(starknetProviderFn().getProvider()).toBe(fakeWalletAccount);
   });
 
-  it('delegates unstake to useNonEvmUnstake with starknet namespace', async () => {
+  it('delegates unstake to useNonEvmWithdraw with starknet namespace', async () => {
     const fakeSdk = { __sdk: true };
     mockUseLombardSDK.mockImplementation((configFn: () => unknown) => {
       capturedConfigFn = configFn;
@@ -211,10 +211,10 @@ describe('useStarknetUnstaking', () => {
       ),
     );
 
-    // useNonEvmUnstake should have been called with sdk and 'starknet'
+    // useNonEvmWithdraw should have been called with sdk and 'starknet'
     expect(mockUseNonEvmUnstake).toHaveBeenCalledWith(fakeSdk, 'starknet');
 
-    // The hook should forward useNonEvmUnstake's return values
+    // The hook should forward useNonEvmWithdraw's return values
     expect(result.current.txHash).toBe('starknet_tx_hash');
     expect(result.current.status.phase).toBe('complete');
 

@@ -33,8 +33,8 @@ export type {
   DepositAddressOptions,
   DestinationChain,
   ExchangeRateOptions,
-  UnstakeOptions,
   VaultWithdrawalsOptions,
+  WithdrawalOptions,
 } from './client/ApiNamespace';
 export { ApiNamespace } from './client/ApiNamespace';
 // EarnWithdrawal, EarnWithdrawals exported via './vaults'

@@ -1,9 +1,9 @@
 import { Env } from '@lombard.finance/sdk';
 
-import type { UnstakingStatus } from '../lib/types';
+import type { WithdrawStatus } from '../lib/types';
 
 interface StarknetUnstakingProgressProps {
-  status: UnstakingStatus;
+  status: WithdrawStatus;
   txHash?: string | null;
   env?: Env;
   onReset: () => void;

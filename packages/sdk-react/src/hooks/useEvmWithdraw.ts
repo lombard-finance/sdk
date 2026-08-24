@@ -5,18 +5,18 @@ import {
 } from '@lombard.finance/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { EvmUnstakeParams, UnstakingStatus } from '../types';
+import type { EvmWithdrawParams, WithdrawStatus } from '../types';
 
-export interface UseEvmUnstakeReturn {
-  unstake: (params: EvmUnstakeParams) => Promise<void>;
+export interface UseEvmWithdrawReturn {
+  withdraw: (params: EvmWithdrawParams) => Promise<void>;
   reset: () => void;
   txHash: string | null;
-  status: UnstakingStatus;
+  status: WithdrawStatus;
   error: string | null;
   isLoading: boolean;
 }
 
-const EVM_UNSTAKE_STATUS_MAP: Partial<Record<string, UnstakingStatus>> = {
+const EVM_UNSTAKE_STATUS_MAP: Partial<Record<string, WithdrawStatus>> = {
   [EvmOperationStatus.IDLE]: { phase: 'idle', message: 'Ready' },
   [EvmOperationStatus.NEEDS_FEE_AUTHORIZATION]: {
     phase: 'authorizing',
@@ -33,30 +33,30 @@ const EVM_UNSTAKE_STATUS_MAP: Partial<Record<string, UnstakingStatus>> = {
   },
   [EvmOperationStatus.COMPLETED]: {
     phase: 'complete',
-    message: 'Unstake complete!',
+    message: 'Withdrawal complete!',
   },
 };
 
 /**
- * Hook for running an EVM unstake action flow (burn LBTC → receive BTC/BTCb).
+ * Hook for running an EVM withdraw action flow (burn LBTC → receive BTC/BTCb).
  *
  * Manages the lifecycle: prepare → authorizeFee (if needed) → execute.
  * Returns txHash on completion.
  *
  * @param sdk - LombardSDK instance from useLombardSDK, or null if not yet initialized
  */
-export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
+export function useEvmWithdraw(sdk: LombardSDK | null): UseEvmWithdrawReturn {
   const [txHash, setTxHash] = useState<string | null>(null);
-  const [status, setStatus] = useState<UnstakingStatus>({
+  const [status, setStatus] = useState<WithdrawStatus>({
     phase: 'idle',
-    message: 'Ready to unstake',
+    message: 'Ready to withdraw',
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
-  const unstake = useCallback(
-    async (params: EvmUnstakeParams) => {
+  const withdraw = useCallback(
+    async (params: EvmWithdrawParams) => {
       if (!sdk) {
         throw new Error('SDK not initialized');
       }
@@ -70,7 +70,7 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
         setIsLoading(true);
         setStatus({
           phase: 'preparing',
-          message: 'Creating unstake action...',
+          message: 'Creating withdraw action...',
         });
 
         const action = sdk.chain.evm.withdraw({
@@ -94,7 +94,7 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
 
         setStatus({
           phase: 'preparing',
-          message: 'Preparing unstake parameters...',
+          message: 'Preparing withdraw parameters...',
         });
         await action.prepare({
           amount: params.amount,
@@ -111,7 +111,7 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
 
         setStatus({
           phase: 'executing',
-          message: 'Executing unstake transaction...',
+          message: 'Executing withdraw transaction...',
         });
         const result = await action.execute();
 
@@ -119,7 +119,7 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
           setTxHash(result.txHash);
           setStatus({
             phase: 'complete',
-            message: 'Unstake completed successfully!',
+            message: 'Withdrawal completed successfully!',
           });
         }
       } catch (err) {
@@ -128,7 +128,7 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
         setStatus({ phase: 'error', message });
         throw err;
       } finally {
-        // Unstake is complete (success or failure); unsubscribe now
+        // The withdrawal is settled either way; unsubscribe now
         unsubscribeRef.current?.();
         unsubscribeRef.current = null;
         setIsLoading(false);
@@ -141,7 +141,7 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
     unsubscribeRef.current?.();
     unsubscribeRef.current = null;
     setTxHash(null);
-    setStatus({ phase: 'idle', message: 'Ready to unstake' });
+    setStatus({ phase: 'idle', message: 'Ready to withdraw' });
     setError(null);
     setIsLoading(false);
   }, []);
@@ -154,5 +154,5 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
     };
   }, []);
 
-  return { unstake, reset, txHash, status, error, isLoading };
+  return { withdraw, reset, txHash, status, error, isLoading };
 }

@@ -4,13 +4,13 @@ import { useCallback, useState } from 'react';
 import { getStatusColor } from '../lib/status-colors';
 import type {
   StakeAndBakeProgress,
-  StakeAndBakeStatus,
+  DeployStatus,
 } from '../pages/StakeAndDeployPage/useBtcStakeAndDeploy';
 
 interface StakeAndDeployProgressProps {
   depositAddress: string | null;
   amount: string | null;
-  status: StakeAndBakeStatus;
+  status: DeployStatus;
   progress: StakeAndBakeProgress;
   onReset: () => void;
   protocol: DeployProtocol;

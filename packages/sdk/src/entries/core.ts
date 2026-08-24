@@ -25,7 +25,7 @@ export type {
   DepositAddressOptions,
   DestinationChain,
   ExchangeRateOptions,
-  UnstakeOptions,
+  WithdrawalOptions,
 } from '../client/ApiNamespace';
 export { ApiNamespace } from '../client/ApiNamespace';
 export { createConfig } from '../client/createConfig';

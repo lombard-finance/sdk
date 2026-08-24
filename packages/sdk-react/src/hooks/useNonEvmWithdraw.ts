@@ -5,20 +5,20 @@ import {
 } from '@lombard.finance/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { NonEvmUnstakeParams, UnstakingStatus } from '../types';
+import type { NonEvmWithdrawParams, WithdrawStatus } from '../types';
 
 export type NonEvmChainNamespace = 'solana' | 'starknet' | 'sui';
 
-export interface UseNonEvmUnstakeReturn {
-  unstake: (params: NonEvmUnstakeParams) => Promise<void>;
+export interface UseNonEvmWithdrawReturn {
+  withdraw: (params: NonEvmWithdrawParams) => Promise<void>;
   reset: () => void;
   txHash: string | null;
-  status: UnstakingStatus;
+  status: WithdrawStatus;
   error: string | null;
   isLoading: boolean;
 }
 
-const NON_EVM_UNSTAKE_STATUS_MAP: Partial<Record<string, UnstakingStatus>> = {
+const NON_EVM_UNSTAKE_STATUS_MAP: Partial<Record<string, WithdrawStatus>> = {
   [NonEvmOperationStatus.IDLE]: { phase: 'idle', message: 'Ready' },
   [NonEvmOperationStatus.READY]: {
     phase: 'ready',
@@ -30,34 +30,34 @@ const NON_EVM_UNSTAKE_STATUS_MAP: Partial<Record<string, UnstakingStatus>> = {
   },
   [NonEvmOperationStatus.COMPLETED]: {
     phase: 'complete',
-    message: 'Unstake complete!',
+    message: 'Withdrawal complete!',
   },
 };
 
 /**
- * Hook for running a non-EVM unstake action flow (burn LBTC on Solana/Starknet/Sui → receive BTC).
+ * Hook for running a non-EVM withdraw action flow (burn LBTC on Solana/Starknet/Sui → receive BTC).
  *
  * Manages the lifecycle: prepare → execute.
  * Returns txHash on completion.
  *
  * @param sdk - LombardSDK instance from useLombardSDK, or null if not yet initialized
- * @param chainNamespace - The chain to unstake from: 'solana' | 'starknet' | 'sui'
+ * @param chainNamespace - The chain to withdraw from: 'solana' | 'starknet' | 'sui'
  */
-export function useNonEvmUnstake(
+export function useNonEvmWithdraw(
   sdk: LombardSDK | null,
   chainNamespace: NonEvmChainNamespace,
-): UseNonEvmUnstakeReturn {
+): UseNonEvmWithdrawReturn {
   const [txHash, setTxHash] = useState<string | null>(null);
-  const [status, setStatus] = useState<UnstakingStatus>({
+  const [status, setStatus] = useState<WithdrawStatus>({
     phase: 'idle',
-    message: 'Ready to unstake',
+    message: 'Ready to withdraw',
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
-  const unstake = useCallback(
-    async (params: NonEvmUnstakeParams) => {
+  const withdraw = useCallback(
+    async (params: NonEvmWithdrawParams) => {
       if (!sdk) {
         throw new Error('SDK not initialized');
       }
@@ -71,7 +71,7 @@ export function useNonEvmUnstake(
         setIsLoading(true);
         setStatus({
           phase: 'preparing',
-          message: 'Creating unstake action...',
+          message: 'Creating withdraw action...',
         });
 
         const chain = sdk.chain[chainNamespace];
@@ -96,7 +96,7 @@ export function useNonEvmUnstake(
 
         setStatus({
           phase: 'preparing',
-          message: 'Preparing unstake parameters...',
+          message: 'Preparing withdraw parameters...',
         });
         await action.prepare({
           amount: params.amount,
@@ -109,7 +109,7 @@ export function useNonEvmUnstake(
         setTxHash(result.txHash);
         setStatus({
           phase: 'complete',
-          message: 'Unstake complete! BTC will be released.',
+          message: 'Withdrawal complete! BTC will be released.',
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unstaking failed';
@@ -117,7 +117,7 @@ export function useNonEvmUnstake(
         setStatus({ phase: 'error', message });
         throw err;
       } finally {
-        // Unstake is complete (success or failure); unsubscribe now
+        // The withdrawal is settled either way; unsubscribe now
         unsubscribeRef.current?.();
         unsubscribeRef.current = null;
         setIsLoading(false);
@@ -130,7 +130,7 @@ export function useNonEvmUnstake(
     unsubscribeRef.current?.();
     unsubscribeRef.current = null;
     setTxHash(null);
-    setStatus({ phase: 'idle', message: 'Ready to unstake' });
+    setStatus({ phase: 'idle', message: 'Ready to withdraw' });
     setError(null);
     setIsLoading(false);
   }, []);
@@ -143,5 +143,5 @@ export function useNonEvmUnstake(
     };
   }, []);
 
-  return { unstake, reset, txHash, status, error, isLoading };
+  return { withdraw, reset, txHash, status, error, isLoading };
 }

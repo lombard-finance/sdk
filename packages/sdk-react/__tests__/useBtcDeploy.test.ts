@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useBtcStakeAndBake } from '../src/hooks/useBtcStakeAndBake';
+import { useBtcDeploy } from '../src/hooks/useBtcDeploy';
 
 vi.mock('@lombard.finance/sdk', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@lombard.finance/sdk')>();
@@ -45,7 +45,7 @@ function createMockAction(initialStatus: string = BtcActionStatus.IDLE) {
   return action;
 }
 
-const stakeAndBakeParams = {
+const deployParams = {
   amount: '0.01',
   destChain: Chain.ETHEREUM_MAINNET,
   sourceChain: Chain.BITCOIN_SIGNET,
@@ -53,9 +53,9 @@ const stakeAndBakeParams = {
   recipient: '0xrecipient',
 };
 
-describe('useBtcStakeAndBake', () => {
+describe('useBtcDeploy', () => {
   let mockAction: ReturnType<typeof createMockAction>;
-  let mockSdk: { chain: { btc: { stakeAndDeploy: ReturnType<typeof vi.fn> } } };
+  let mockSdk: { chain: { btc: { deploy: ReturnType<typeof vi.fn> } } };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -67,52 +67,52 @@ describe('useBtcStakeAndBake', () => {
     mockSdk = {
       chain: {
         btc: {
-          stakeAndDeploy: vi.fn().mockReturnValue(mockAction),
+          deploy: vi.fn().mockReturnValue(mockAction),
         },
       },
     };
   });
 
   it('returns idle state when sdk is null', () => {
-    const { result } = renderHook(() => useBtcStakeAndBake(null));
+    const { result } = renderHook(() => useBtcDeploy(null));
 
     expect(result.current.status.phase).toBe('idle');
     expect(result.current.depositAddress).toBeNull();
-    expect(result.current.stakeAmount).toBeNull();
+    expect(result.current.depositAmount).toBeNull();
     expect(result.current.error).toBeNull();
     expect(result.current.isLoading).toBe(false);
   });
 
   it('throws when called with null sdk', async () => {
-    const { result } = renderHook(() => useBtcStakeAndBake(null));
+    const { result } = renderHook(() => useBtcDeploy(null));
 
     await expect(
-      result.current.stakeAndDeploy(stakeAndBakeParams),
+      result.current.deploy(deployParams),
     ).rejects.toThrow('SDK not initialized');
   });
 
   it('calls SDK methods in correct order and sets depositAddress', async () => {
     mockAction.status = BtcActionStatus.READY;
 
-    const { result } = renderHook(() => useBtcStakeAndBake(mockSdk as never));
+    const { result } = renderHook(() => useBtcDeploy(mockSdk as never));
 
     await act(async () => {
-      await result.current.stakeAndDeploy(stakeAndBakeParams);
+      await result.current.deploy(deployParams);
     });
 
-    expect(mockSdk.chain.btc.stakeAndDeploy).toHaveBeenCalledWith({
+    expect(mockSdk.chain.btc.deploy).toHaveBeenCalledWith({
       assetOut: AssetId.LBTC,
-      destChain: stakeAndBakeParams.destChain,
-      sourceChain: stakeAndBakeParams.sourceChain,
-      protocol: stakeAndBakeParams.protocol,
+      destChain: deployParams.destChain,
+      sourceChain: deployParams.sourceChain,
+      protocol: deployParams.protocol,
     });
     expect(mockAction.prepare).toHaveBeenCalledWith({
-      amount: stakeAndBakeParams.amount,
-      recipient: stakeAndBakeParams.recipient,
+      amount: deployParams.amount,
+      recipient: deployParams.recipient,
     });
     expect(mockAction.generateDepositAddress).toHaveBeenCalled();
     expect(result.current.depositAddress).toBe('bc1q_snb_address');
-    expect(result.current.stakeAmount).toBe('0.01');
+    expect(result.current.depositAmount).toBe('0.01');
     expect(result.current.status.phase).toBe('waiting-deposit');
     expect(result.current.isLoading).toBe(false);
   });
@@ -127,10 +127,10 @@ describe('useBtcStakeAndBake', () => {
       return Promise.resolve(undefined);
     });
 
-    const { result } = renderHook(() => useBtcStakeAndBake(mockSdk as never));
+    const { result } = renderHook(() => useBtcDeploy(mockSdk as never));
 
     await act(async () => {
-      await result.current.stakeAndDeploy(stakeAndBakeParams);
+      await result.current.deploy(deployParams);
     });
 
     expect(mockAction.authorizeDeposit).toHaveBeenCalled();
@@ -140,10 +140,10 @@ describe('useBtcStakeAndBake', () => {
   it('sets error on failure and reset clears state', async () => {
     mockAction.prepare.mockRejectedValue(new Error('Authorization failed'));
 
-    const { result } = renderHook(() => useBtcStakeAndBake(mockSdk as never));
+    const { result } = renderHook(() => useBtcDeploy(mockSdk as never));
 
     await act(async () => {
-      await result.current.stakeAndDeploy(stakeAndBakeParams).catch(() => {});
+      await result.current.deploy(deployParams).catch(() => {});
     });
 
     expect(result.current.error).toBe('Authorization failed');
@@ -157,16 +157,16 @@ describe('useBtcStakeAndBake', () => {
     expect(result.current.error).toBeNull();
     expect(result.current.status.phase).toBe('idle');
     expect(result.current.depositAddress).toBeNull();
-    expect(result.current.stakeAmount).toBeNull();
+    expect(result.current.depositAmount).toBeNull();
   });
 
-  it('unsubscribes previous listeners when stakeAndDeploy is called again', async () => {
+  it('unsubscribes previous listeners when deploy is called again', async () => {
     mockAction.status = BtcActionStatus.READY;
 
-    const { result } = renderHook(() => useBtcStakeAndBake(mockSdk as never));
+    const { result } = renderHook(() => useBtcDeploy(mockSdk as never));
 
     await act(async () => {
-      await result.current.stakeAndDeploy(stakeAndBakeParams);
+      await result.current.deploy(deployParams);
     });
 
     const firstCallOnCount = mockAction.on.mock.calls.length;
@@ -176,7 +176,7 @@ describe('useBtcStakeAndBake', () => {
     mockAction.generateDepositAddress.mockResolvedValue('bc1q_second_address');
 
     await act(async () => {
-      await result.current.stakeAndDeploy(stakeAndBakeParams);
+      await result.current.deploy(deployParams);
     });
 
     // on() called twice per call (status-change + progress)

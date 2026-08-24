@@ -13,7 +13,7 @@ export interface StakingFormData {
 /**
  * Staking status from SDK
  */
-export interface StakingStatus {
+export interface DepositStatus {
   phase:
     | 'idle'
     | 'preparing'
@@ -28,7 +28,7 @@ export interface StakingStatus {
 /**
  * Progress information from SDK events
  */
-export interface StakingProgressInfo {
+export interface DepositProgressInfo {
   confirmations?: number;
   requiredConfirmations?: number;
 }
@@ -48,7 +48,7 @@ export interface UnstakingFormData {
 /**
  * Unstaking status
  */
-export interface UnstakingStatus {
+export interface WithdrawStatus {
   phase:
     | 'idle'
     | 'preparing'

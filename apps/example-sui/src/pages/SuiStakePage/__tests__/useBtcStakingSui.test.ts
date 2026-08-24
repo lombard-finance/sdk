@@ -17,10 +17,10 @@ const {
   const mockStake = vi.fn();
   const mockReset = vi.fn();
   const mockUseBtcStakeReturn = {
-    stake: mockStake,
+    deposit: mockStake,
     reset: mockReset,
     depositAddress: null,
-    stakeAmount: null,
+    depositAmount: null,
     status: { phase: 'idle', message: '' },
     progress: null,
     error: null,
@@ -71,7 +71,7 @@ vi.mock('@lombard.finance/sdk-sui', () => ({
 }));
 
 vi.mock('@lombard.finance/sdk-react', () => ({
-  useBtcStake: mockUseBtcStake,
+  useBtcDeposit: mockUseBtcStake,
   useLombardSDK: mockUseLombardSDK,
 }));
 
@@ -187,7 +187,7 @@ describe('useBtcStakingSui', () => {
     const mockStakeFn = vi.fn();
     mockUseBtcStake.mockReturnValue({
       ...mockUseBtcStakeReturn,
-      stake: mockStakeFn,
+      deposit: mockStakeFn,
     });
 
     const result = useBtcStakingSui(mockWallet, mockAccount);
@@ -217,7 +217,7 @@ describe('useBtcStakingSui', () => {
     const mockStakeFn = vi.fn();
     mockUseBtcStake.mockReturnValue({
       ...mockUseBtcStakeReturn,
-      stake: mockStakeFn,
+      deposit: mockStakeFn,
     });
 
     const result = useBtcStakingSui(

@@ -1,11 +1,11 @@
 import { Chain, getExplorerTxUrl } from '@lombard.finance/sdk';
 
 import { getStatusColor } from '../lib/status-colors';
-import type { UnstakingStatus } from '../pages/UnstakePage/useEvmUnstaking';
+import type { WithdrawStatus } from '../pages/UnstakePage/useEvmUnstaking';
 
 interface UnstakingProgressProps {
   txHash: string | null;
-  status: UnstakingStatus;
+  status: WithdrawStatus;
   /**
    * The chain the burn happened on. `null` before a submission has set it —
    * `getExplorerTxUrl` needs a real `Chain` to pick the right explorer, so the

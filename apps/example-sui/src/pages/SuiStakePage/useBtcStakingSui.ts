@@ -1,6 +1,6 @@
 import { Chain, createConfig, Env } from '@lombard.finance/sdk';
 import { suiModule } from '@lombard.finance/sdk-sui';
-import { useBtcStake, useLombardSDK } from '@lombard.finance/sdk-react';
+import { useBtcDeposit, useLombardSDK } from '@lombard.finance/sdk-react';
 import { useCallback } from 'react';
 
 import { getEnvironment } from '../../lib/config';
@@ -48,14 +48,14 @@ export function useBtcStakingSui(
   }, [suiWallet, suiWalletAccount, partnerId, currentEnv]);
 
   const {
-    stake: stakeCore,
+    deposit: stakeCore,
     reset,
     depositAddress,
-    stakeAmount,
+    depositAmount: stakeAmount,
     status,
     progress,
     error: stakeError,
-  } = useBtcStake(sdk);
+  } = useBtcDeposit(sdk);
 
   const sourceChain =
     currentEnv === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET;

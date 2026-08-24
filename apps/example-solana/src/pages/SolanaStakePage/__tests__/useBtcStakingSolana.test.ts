@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Mocks (using vi.hoisted to avoid hoisting issues)
@@ -20,10 +20,10 @@ const {
 }));
 
 const defaultStakeReturn = {
-  stake: mockStake,
+  deposit: mockStake,
   reset: mockReset,
   depositAddress: null as string | null,
-  stakeAmount: null as string | null,
+  depositAmount: null as string | null,
   status: { phase: 'idle', message: '' },
   progress: null,
   error: null as string | null,
@@ -49,7 +49,7 @@ vi.mock('@lombard.finance/sdk-react', () => ({
     capturedConfigFactory.current = factory;
     return { sdk: null, isInitializing: false, error: null };
   }),
-  useBtcStake: vi.fn(() => defaultStakeReturn),
+  useBtcDeposit: vi.fn(() => defaultStakeReturn),
 }));
 
 vi.mock('../../../lib/config', () => ({
@@ -57,7 +57,8 @@ vi.mock('../../../lib/config', () => ({
 }));
 
 import { Env } from '@lombard.finance/sdk';
-import { useLombardSDK, useBtcStake } from '@lombard.finance/sdk-react';
+import { useBtcDeposit,useLombardSDK } from '@lombard.finance/sdk-react';
+
 import { useBtcStakingSolana } from '../useBtcStakingSolana';
 
 describe('useBtcStakingSolana', () => {
@@ -66,10 +67,10 @@ describe('useBtcStakingSolana', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     capturedConfigFactory.current = null;
-    defaultStakeReturn.stake = mockStake;
+    defaultStakeReturn.deposit = mockStake;
     defaultStakeReturn.reset = mockReset;
     defaultStakeReturn.depositAddress = null;
-    defaultStakeReturn.stakeAmount = null;
+    defaultStakeReturn.depositAmount = null;
     defaultStakeReturn.status = { phase: 'idle', message: '' };
     defaultStakeReturn.error = null;
   });
@@ -211,7 +212,7 @@ describe('useBtcStakingSolana', () => {
     unmount();
   });
 
-  it('passes sdk to useBtcStake', () => {
+  it('passes sdk to useBtcDeposit', () => {
     vi.stubGlobal('solana', mockSolana);
 
     const mockSdk = { chain: {} };
@@ -223,7 +224,7 @@ describe('useBtcStakingSolana', () => {
 
     const { unmount } = renderHook(() => useBtcStakingSolana());
 
-    expect(useBtcStake).toHaveBeenCalledWith(mockSdk);
+    expect(useBtcDeposit).toHaveBeenCalledWith(mockSdk);
 
     unmount();
   });

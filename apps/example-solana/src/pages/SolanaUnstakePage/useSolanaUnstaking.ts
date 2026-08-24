@@ -1,6 +1,6 @@
 import { AssetId, Chain, createConfig, Env } from '@lombard.finance/sdk';
+import { useLombardSDK,useNonEvmWithdraw } from '@lombard.finance/sdk-react';
 import { solanaModule } from '@lombard.finance/sdk-solana';
-import { useNonEvmUnstake, useLombardSDK } from '@lombard.finance/sdk-react';
 import { useCallback } from 'react';
 
 import { getEnvironment } from '../../lib/config';
@@ -19,7 +19,7 @@ export interface SolanaUnstakingFormData {
 /**
  * Unstaking status for UI
  */
-export type { UnstakingStatus as SolanaUnstakingStatus } from '@lombard.finance/sdk-react';
+export type { WithdrawStatus as SolanaUnstakingStatus } from '@lombard.finance/sdk-react';
 
 /**
  * Hook for managing Solana unstaking flow (LBTC → BTC)
@@ -47,12 +47,12 @@ export function useSolanaUnstaking(solanaAddress?: string | null, env?: Env) {
   }, [solanaAddress, currentEnv]);
 
   const {
-    unstake: unstakeCore,
+    withdraw: unstakeCore,
     reset,
     txHash,
     status,
     error: unstakeError,
-  } = useNonEvmUnstake(sdk, 'solana');
+  } = useNonEvmWithdraw(sdk, 'solana');
 
   const unstake = useCallback(
     (formData: SolanaUnstakingFormData) =>

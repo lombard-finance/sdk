@@ -38,6 +38,23 @@ migrate once.
 
   `evm.stake` becomes `evm.deposit`, and the old `evm.deposit` — claiming a pending BTC.b deposit — is now only `evm.claim`. Those two take identical parameters, so a `deposit` call left unchanged silently becomes the other action; what catches it is the return type, since the claim exposes `needsApproval`, `approve()` and `setClaimData` and the deposit does not. A call whose result is discarded needs checking by hand.
 
+- **`sdk.api.unstakes()` is now `sdk.api.withdrawals()`,** and `UnstakeOptions` is `WithdrawalOptions`. Same call, same arguments, same return type.
+
+  The options object keeps its wire field names — `show_redeems`, `show_unstakes`, `to_native` — because those are the endpoint's query parameters, not the SDK's vocabulary. The returned record type stays `Unstake` for the same reason: it describes what the endpoint sends back, and renaming it would misdescribe the payload.
+
+- **The React hooks follow the verbs.** `@lombard.finance/sdk-react` renames all four action hooks and the methods they return:
+
+  | before | after |
+  | --- | --- |
+  | `useBtcStake().stake()` | `useBtcDeposit().deposit()` |
+  | `useBtcStakeAndBake().stakeAndDeploy()` | `useBtcDeploy().deploy()` |
+  | `useEvmUnstake().unstake()` | `useEvmWithdraw().withdraw()` |
+  | `useNonEvmUnstake().unstake()` | `useNonEvmWithdraw().withdraw()` |
+
+  `stakeAmount` becomes `depositAmount` on the two BTC hooks. The exported types move with them: `BtcStakeParams` → `BtcDepositParams`, `BtcStakeAndBakeParams` → `BtcDeployParams`, `EvmUnstakeParams` → `EvmWithdrawParams`, `NonEvmUnstakeParams` → `NonEvmWithdrawParams`, and the three status vocabularies — `Staking*`, `StakeAndBake*`, `Unstaking*` — become `Deposit*`, `Deploy*` and `Withdraw*`.
+
+  No aliases here either. A hook is destructured at its call site, so a missing member is a compile error at the exact line that needs changing.
+
 - **The asset a dispatching verb switches on is now typed as a literal.** `EvmUnstakeParams.assetIn` is `'LBTC'`, `EvmRedeemParams.assetIn` is `'BTC.b'`, the two Solana equivalents likewise, and the two BTC deploy params carry the matching `assetOut` literal.
 
   This fixes a silent type lie. `withdraw` was declared with three overloads, but `EvmUnstakeParams` and `EvmRedeemParams` were structurally identical, so the third was unreachable: a BTC.b withdrawal resolved to `IEvmUnstake` while returning an `EvmRedeem`. `IEvmRedeem` carries `approve()` and `needsApproval` and `IEvmUnstake` does not — so the compiler _forbade_ the ERC-20 approval that route requires, and the only way through was a cast. The verb-dispatch tests asserted the constructed class, which was correct all along; nothing asserted the type.

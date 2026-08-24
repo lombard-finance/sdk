@@ -19,7 +19,7 @@ vi.mock('@lombard.finance/sdk', async (importOriginal) => ({
 }));
 
 vi.mock('@lombard.finance/sdk-react', () => ({
-  useBtcStake: mockUseBtcStake,
+  useBtcDeposit: mockUseBtcStake,
   useLombardSDK: mockUseLombardSDK,
 }));
 
@@ -35,10 +35,10 @@ describe('useBtcStakingEvm', () => {
   let capturedConfigFn: () => unknown;
 
   const defaultStakeReturn = {
-    stake: vi.fn(),
+    deposit: vi.fn(),
     reset: vi.fn(),
     depositAddress: null,
-    stakeAmount: null,
+    depositAmount: null,
     status: { phase: 'idle', message: 'Ready' },
     progress: {},
     error: null,
@@ -118,7 +118,7 @@ describe('useBtcStakingEvm', () => {
     const mockStakeFn = vi.fn();
     mockUseBtcStake.mockReturnValue({
       ...defaultStakeReturn,
-      stake: mockStakeFn,
+      deposit: mockStakeFn,
     });
 
     const { result } = renderHook(() => useBtcStakingEvm(undefined, Env.prod));
@@ -143,7 +143,7 @@ describe('useBtcStakingEvm', () => {
     const mockStakeFn = vi.fn();
     mockUseBtcStake.mockReturnValue({
       ...defaultStakeReturn,
-      stake: mockStakeFn,
+      deposit: mockStakeFn,
     });
 
     const { result } = renderHook(() => useBtcStakingEvm(undefined, Env.stage));

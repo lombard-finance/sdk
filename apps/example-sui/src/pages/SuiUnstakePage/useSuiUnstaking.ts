@@ -1,10 +1,10 @@
 import { createConfig, Env } from '@lombard.finance/sdk';
 import { suiModule } from '@lombard.finance/sdk-sui';
-import { useNonEvmUnstake, useLombardSDK } from '@lombard.finance/sdk-react';
+import { useNonEvmWithdraw, useLombardSDK } from '@lombard.finance/sdk-react';
 import { useCallback } from 'react';
 
 import { getEnvironment } from '../../lib/config';
-import type { UnstakingFormData, UnstakingStatus } from '../../lib/types';
+import type { UnstakingFormData, WithdrawStatus } from '../../lib/types';
 
 /**
  * Hook for managing Sui unstaking flow (LBTC → BTC)
@@ -47,14 +47,14 @@ export function useSuiUnstaking(
   }, [suiAddress, suiWallet, suiWalletAccount, currentEnv]);
 
   const {
-    unstake: unstakeCore,
+    withdraw: unstakeCore,
     reset,
     txHash,
     status: unstakeStatus,
     error: unstakeError,
-  } = useNonEvmUnstake(sdk, 'sui');
+  } = useNonEvmWithdraw(sdk, 'sui');
 
-  const status = unstakeStatus as UnstakingStatus;
+  const status = unstakeStatus as WithdrawStatus;
 
   const unstake = useCallback(
     (formData: UnstakingFormData) =>

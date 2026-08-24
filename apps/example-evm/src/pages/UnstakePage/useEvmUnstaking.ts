@@ -1,11 +1,11 @@
 import { AssetId, Chain, createConfig, Env } from '@lombard.finance/sdk';
-import { useEvmUnstake, useLombardSDK } from '@lombard.finance/sdk-react';
+import { useEvmWithdraw, useLombardSDK } from '@lombard.finance/sdk-react';
 import { useCallback } from 'react';
 
 import { getEnvironment } from '../../lib/config';
 import { useEvmWallet } from '../../hooks/useEvmWallet';
 
-export type { UnstakingStatus } from '@lombard.finance/sdk-react';
+export type { WithdrawStatus } from '@lombard.finance/sdk-react';
 
 /**
  * Form data for EVM unstaking
@@ -45,12 +45,12 @@ export function useEvmUnstaking(evmAddress?: string | null, env?: Env) {
   );
 
   const {
-    unstake: unstakeCore,
+    withdraw: unstakeCore,
     reset,
     txHash,
     status,
     error: unstakeError,
-  } = useEvmUnstake(sdk);
+  } = useEvmWithdraw(sdk);
 
   const unstake = useCallback(
     async (formData: UnstakingFormData) => {

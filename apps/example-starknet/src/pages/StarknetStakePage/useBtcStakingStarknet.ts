@@ -4,7 +4,7 @@ import {
   StarknetChainId,
   starknetModule,
 } from '@lombard.finance/sdk-starknet';
-import { useBtcStake, useLombardSDK } from '@lombard.finance/sdk-react';
+import { useBtcDeposit, useLombardSDK } from '@lombard.finance/sdk-react';
 import { useCallback, useEffect, useState } from 'react';
 import { WalletAccount } from 'starknet';
 
@@ -107,14 +107,14 @@ export function useBtcStakingStarknet(
   }, [walletAccount, partnerId, currentEnv]);
 
   const {
-    stake: stakeCore,
+    deposit: stakeCore,
     reset,
     depositAddress,
-    stakeAmount,
+    depositAmount: stakeAmount,
     status,
     progress,
     error: stakeError,
-  } = useBtcStake(sdk);
+  } = useBtcDeposit(sdk);
 
   const sourceChain =
     currentEnv === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET;

@@ -1,10 +1,10 @@
 import { Chain, Env, getExplorerTxUrl } from '@lombard.finance/sdk';
 
-import type { UnstakingStatus } from '../lib/types';
+import type { WithdrawStatus } from '../lib/types';
 
 interface SuiUnstakingProgressProps {
   txHash: string | null;
-  status: UnstakingStatus;
+  status: WithdrawStatus;
   onReset: () => void;
   env: Env;
 }

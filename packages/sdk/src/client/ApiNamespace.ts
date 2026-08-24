@@ -13,8 +13,8 @@
  * // Fetch deposits for an address
  * const deposits = await sdk.api.deposits('0x...');
  *
- * // Fetch unstakes with options
- * const unstakes = await sdk.api.unstakes('0x...', { show_redeems: true });
+ * // Fetch withdrawals with options
+ * const withdrawals = await sdk.api.withdrawals('0x...', { show_redeems: true });
  *
  * // Fetch points (defaults to current season)
  * const points = await sdk.api.points('0x...');
@@ -67,8 +67,13 @@ import {
 /** Supported API versions (for future v2 migration) */
 export type ApiVersion = 'v1' | 'v2';
 
-/** Options for fetching unstakes */
-export interface UnstakeOptions {
+/**
+ * Options for fetching withdrawals.
+ *
+ * The field names are the query parameters the endpoint takes, so they keep the
+ * wire's vocabulary rather than the SDK's.
+ */
+export interface WithdrawalOptions {
   /** Include redeem operations */
   show_redeems?: boolean;
   /** Include unstake operations */
@@ -156,33 +161,33 @@ export class ApiNamespace {
   }
 
   /* -------------------------------------------------------------------------- */
-  /*                               Unstakes                                     */
+  /*                              Withdrawals                                   */
   /* -------------------------------------------------------------------------- */
 
   /**
-   * Fetch all unstakes/redemptions for an address.
+   * Fetch every withdrawal an address has made.
    *
-   * Returns unstake records for both direct BTC unstakes and
-   * native blockchain redemptions.
+   * Covers both arms: burning an L-asset for native BTC, and redeeming on the
+   * destination chain. The record type is still `Unstake` — that is the shape
+   * the endpoint returns, and renaming it here would misdescribe the payload.
    *
-   * @param address - The address that initiated the unstakes
+   * @param address - The address that made the withdrawals
    * @param options - Optional filters (show_redeems, show_unstakes, to_native)
    * @returns Promise resolving to array of Unstake objects
    *
    * @example
    * ```ts
-   * // Get all unstakes
-   * const unstakes = await sdk.api.unstakes('0x1234...');
+   * // Every withdrawal
+   * const withdrawals = await sdk.api.withdrawals('0x1234...');
    *
-   * // Get only native chain redemptions
-   * const redeems = await sdk.api.unstakes('0x1234...', { to_native: true });
+   * // Only native chain redemptions
+   * const redeems = await sdk.api.withdrawals('0x1234...', { to_native: true });
    * ```
    */
-  async unstakes(
+  async withdrawals(
     address: string,
-    options?: UnstakeOptions,
+    options?: WithdrawalOptions,
   ): Promise<Unstake[]> {
-    // Future: if (this.apiVersion === 'v2') return this.unstakesV2(address, options);
     return getUnstakesByAddress({ address, env: this.env, options });
   }
 
