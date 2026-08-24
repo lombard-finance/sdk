@@ -14,7 +14,6 @@ vi.mock('../../contract-functions/signStakeAndBake/signStakeAndBake', () => ({
   signStakeAndBake: vi.fn(),
 }));
 
- 
 import { getMintingFee } from '../../contract-functions/getLBTCMintingFee/getLBTCMintingFee';
 import { signStakeAndBake } from '../../contract-functions/signStakeAndBake/signStakeAndBake';
 

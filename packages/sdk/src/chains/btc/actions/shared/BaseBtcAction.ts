@@ -39,6 +39,7 @@ import {
 } from '../../../../shared/validation';
 import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctionedAddress';
 import { toSatoshi } from '../../../../utils/satoshi';
+import type { BtcAuthorizeOptions } from './routeConfig';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -70,6 +71,13 @@ export interface BasePrepareParams {
   recipient: string;
   referralCode?: string;
 }
+
+/**
+ * @deprecated Renamed to {@link BtcAuthorizeOptions}, which every BTC action's
+ * `authorize()` takes now that the four ceremony methods collapsed into one per
+ * class. Identical shape; removed in the next major.
+ */
+export type AuthorizeDepositOptions = BtcAuthorizeOptions;
 
 /**
  * Progress step definitions

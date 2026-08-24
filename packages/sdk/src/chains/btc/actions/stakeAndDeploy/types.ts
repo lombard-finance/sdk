@@ -96,21 +96,14 @@ export interface BtcStakeAndDeploy extends MonitorableAction {
   prepare(params: BtcStakeAndDeployPrepareParams): Promise<void>;
 
   /**
-
    * Run the vault-deposit authorization ceremony.
-
    *
-
    * @param options - `expiry` sets the signature expiration as an absolute
-
    * UNIX timestamp in seconds, defaulting to 24 hours.
-
    */
-
   authorize(options?: BtcAuthorizeOptions): Promise<void>;
 
   /** @deprecated Use {@link authorize}. */
-
   authorizeDeposit(options?: BtcAuthorizeOptions): Promise<void>;
 
   /**

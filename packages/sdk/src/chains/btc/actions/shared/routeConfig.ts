@@ -198,5 +198,20 @@ export type BtcAuthorizationKind =
  * rather than silently changing it.
  */
 export interface BtcAuthorizeOptions {
+  /**
+   * Signature expiration as an absolute UNIX timestamp in seconds.
+   * Defaults to 24 hours from the time of signing when omitted.
+   *
+   * Routes that sign with a zero deadline — Silo BTC.b — never read it, so it
+   * is accepted there for interface parity and has no effect.
+   *
+   * @example
+   * ```typescript
+   * // Expire in 7 days instead of 24 hours
+   * await action.authorize({
+   *   expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+   * });
+   * ```
+   */
   expiry?: number;
 }

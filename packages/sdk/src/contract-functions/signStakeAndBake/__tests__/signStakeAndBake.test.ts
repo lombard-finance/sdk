@@ -102,7 +102,16 @@ vi.mock(
 // Test data
 const MOCK_ACCOUNT = '0x1234567890123456789012345678901234567890';
 const MOCK_PROVIDER = {} as EIP1193Provider;
-const MOCK_EXPIRY = 1700000000;
+/**
+ * A future expiry, computed rather than fixed.
+ *
+ * This was the literal `1700000000` — November 2023 — which
+ * `assertValidExpiry` rejects, so every case passing it threw instead of
+ * signing. It went unnoticed because the unit config named three directories
+ * explicitly and this file is co-located, so it ran only under `test:watch`.
+ * A fixed future date would rot the same way; a computed one cannot.
+ */
+const MOCK_EXPIRY = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
 
 describe('signStakeAndBake - Current Behavior Tests', () => {
   beforeEach(() => {
@@ -822,7 +831,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         vaultKey: DefiProtocol.Veda,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
-        expiry: 1700000000,
+        expiry: MOCK_EXPIRY,
         env: Env.prod,
       });
 
