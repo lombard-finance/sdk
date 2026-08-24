@@ -1,3 +1,51 @@
+# 5.5.0
+
+### One-Signature Permit Authorisation
+
+A stake-and-bake deposit needed two things from the user: an ERC-2612 permit authorising the vault spender, and proof that they control the destination address so a BTC deposit address could be issued for it. The v1 deposit-address route took the permit signature as that proof, but a permit is submitted on chain and readable in the mint calldata, so it is not private and the route now refuses a signature it has already seen. Doing it properly over the v2 route meant a second, separate signature.
+
+The wallet-auth challenge can now carry the permit itself. One signature does both jobs: the server issues the permit as EIP-712 typed data, the wallet signs it, and verification returns a JWT _and_ records the permit for the claimer.
+
+```ts
+import {
+  signPermitChallenge,
+  resolveDepositBtcAddress,
+  Token,
+} from '@lombard.finance/sdk';
+
+const { jwt, signatureExpiresAt } = await signPermitChallenge({
+  account,
+  chainId: ChainId.ethereum,
+  provider,
+  value: '99512', // token base units
+  deadline: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+});
+
+const depositAddress = await resolveDepositBtcAddress({
+  address: account,
+  chainId: ChainId.ethereum,
+  token: Token.LBTC,
+  walletJwt: jwt,
+});
+```
+
+No separate call is needed to store the permit.
+
+### Added
+
+- `signPermitChallenge()` runs the whole ceremony: request a permit challenge, sign it, exchange it for a JWT, polling when the wallet verifies asynchronously. It returns the JWT alongside the signed payload and `signatureExpiresAt`, the permit deadline the server settled on.
+- `requestWalletChallenge()` accepts `challengeType` plus `permit` / `feeApproval` params, and returns `challengeType`, `digest` and `signatureExpiresAt`.
+- `verifyWalletSignature()` accepts `challengeType`.
+- `WALLET_CHALLENGE_TYPE`, `WalletChallengeType`, `PermitChallengeParams` and `FeeApprovalChallengeParams` are re-exported from the package root, so naming a challenge type does not require depending on `@lombard.finance/sdk-common` directly.
+
+### Notes
+
+- **The permit is built server-side.** It reads `nonces(owner)` from the token and picks the deadline, because a client-chosen nonce and a predictable deadline are what make a published signature replayable. `deadline` is a request; the server may shorten it. Do not assemble the typed data locally.
+- **The payload reaches the wallet as the exact string the server returned.** It is the JSON the server hashed, and re-serialising it can move the digest off the one it reserved. `signPermitChallenge` recomputes the digest and throws before prompting if it does not match.
+- **`challengeType` is sent again on verify.** Challenges are stored per address and type, so omitting it looks up a plain-text challenge that was never issued.
+- A challenge requested without the params its type requires is rejected at the call site. The gateway does not refuse it — it answers with the plain-text payload, which a wallet signs happily and the server then rejects.
+- `signStakeAndBake()` is unchanged and still builds the permit locally for the v1 route.
+
 # 5.4.0
 
 ### Configurable Stake-And-Bake Signature Expiry

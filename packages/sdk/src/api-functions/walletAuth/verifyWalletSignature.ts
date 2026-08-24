@@ -1,5 +1,6 @@
 import type {
   WalletAuthChain,
+  WalletChallengeType,
   WalletVerifyResponse,
 } from '@lombard.finance/sdk-common';
 import axios from 'axios';
@@ -29,6 +30,12 @@ export interface VerifyWalletSignatureParams extends IEnvParam {
   chain: WalletAuthChain;
   /** Required for chains that don't expose pubkey in the signature (Starknet, Cosmos). */
   publicKey?: string;
+  /**
+   * Must repeat the `challengeType` the challenge was requested with.
+   * Challenges are stored per address *and* type, so omitting it here looks up
+   * a plain-text challenge that was never issued.
+   */
+  challengeType?: WalletChallengeType;
 }
 
 /**
@@ -40,6 +47,10 @@ export interface VerifyWalletSignatureParams extends IEnvParam {
  * as a `complete` result. Async path (EVM smart-contract wallets / Starknet):
  * the signature is verified on-chain, so a `verificationId` is returned as a
  * `pending` result — poll it with `pollWalletVerification`.
+ *
+ * For a typed-data challenge (`permit`, `feeApproval`) the server also records
+ * the signed authorisation on success, so no separate call is needed to store
+ * it.
  */
 export async function verifyWalletSignature({
   address,
@@ -47,6 +58,7 @@ export async function verifyWalletSignature({
   signature,
   chain,
   publicKey,
+  challengeType,
   env,
 }: VerifyWalletSignatureParams): Promise<WalletVerifyResponse> {
   const { baseApiV2Url } = getApiConfig(env);
@@ -60,6 +72,7 @@ export async function verifyWalletSignature({
         signature,
         chain,
         ...(publicKey ? { public_key: publicKey } : {}),
+        ...(challengeType ? { challenge_type: challengeType } : {}),
       },
       {
         baseURL: baseApiV2Url,

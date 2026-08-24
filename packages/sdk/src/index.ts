@@ -98,6 +98,22 @@ export {
   type VerifyWalletSignatureParams,
 } from './api-functions/walletAuth';
 
+// Wallet-auth challenge types, re-exported so callers naming a challenge type
+// do not have to depend on sdk-common directly.
+export {
+  type FeeApprovalChallengeParams,
+  type PermitChallengeParams,
+  WALLET_CHALLENGE_TYPE,
+  type WalletChallengeType,
+} from '@lombard.finance/sdk-common';
+
+// One-call permit authorisation: sign a server-issued permit, get a JWT.
+export {
+  type ISignPermitChallengeParams,
+  type ISignPermitChallengeResult,
+  signPermitChallenge,
+} from './contract-functions/signPermitChallenge';
+
 // Context types
 export type {
   BtcCoreContext,

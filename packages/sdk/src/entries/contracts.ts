@@ -62,6 +62,11 @@ export {
   signNetworkFee,
 } from '../contract-functions/signNetworkFee/signNetworkFee';
 export {
+  type ISignPermitChallengeParams,
+  type ISignPermitChallengeResult,
+  signPermitChallenge,
+} from '../contract-functions/signPermitChallenge';
+export {
   type ISignStakeAndBakeParams,
   type ISignStakeAndBakeResult,
   signStakeAndBake,
