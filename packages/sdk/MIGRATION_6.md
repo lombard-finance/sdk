@@ -193,14 +193,26 @@ The nine per-operation event vocabularies are one. `StakeEvent`, `DepositEvent`,
 
 `resolveDepositBtcAddress` derives the address from the authenticated session, so no signature ceremony is needed. It is the path to build on.
 
-The signature-based path — `generateDepositBtcAddress`, and `getDepositBtcAddress` for reading back what it produced — is still exported and still works. It is on its way out with the gateway allowance it depends on, so treat it as deprecated even where the type is not yet marked, and move new work to `resolveDepositBtcAddress`.
+The signature-based path — `generateDepositBtcAddress`, and `getDepositBtcAddress` for reading back what it produced — is still exported and still works, and for some routes it is still the only option. The JWT route names the destination asset with an `ASSET_TYPE_*` identifier and only has one for LBTC and BTC.b, so a pair it cannot name has to go the signature way. That is a gap in the route rather than an error, so ask before you choose:
 
 ```ts
-// Prefer this
-const address = await resolveDepositBtcAddress({
-  /* … */
-});
+if (canResolveDepositBtcAddressWithJwt(chainId, token)) {
+  // Preferred: no signature, control of the address proven by the token.
+  const address = await resolveDepositBtcAddress({
+    address: userAddress,
+    chainId,
+    token,
+    walletJwt: jwt,
+  });
+} else {
+  // The route has no identifier for this pair yet.
+  const address = await generateDepositBtcAddress({
+    /* … */
+  });
+}
 ```
+
+So the signature path is **not** deprecated in 6.0.0. Deleting it would make those pairs unreachable rather than merely inconvenient; it goes when the JWT route can name every supported asset.
 
 ## What didn't change
 
