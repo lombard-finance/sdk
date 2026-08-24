@@ -13,7 +13,7 @@
  */
 
 import { execFileSync } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join, resolve } from 'path';
 
 const LOMBARD_SCOPE = '@lombard.finance/';
@@ -70,14 +70,19 @@ function getPublishedVersions(packageName) {
  * Simple implementation for common cases
  */
 function versionSatisfies(versions, range) {
-  // Handle Yarn workspace protocol: workspace:* means "any version"
+  // `workspace:` never reaches the registry. The publish workflow rewrites it
+  // to the dependency's exact version from this monorepo, so that pin is what
+  // consumers resolve and what has to exist on npm.
+  //
+  // Treating `workspace:*` as "any published version will do" is what let
+  // sdk@5.4.0 and sdk@5.5.0 ship against sdk-common versions that were never
+  // published: the check saw a range and passed, then publish shipped an exact
+  // pin nobody could install. Resolve it the same way the workflow does.
   if (range.startsWith('workspace:')) {
     const inner = range.slice('workspace:'.length); // e.g. "*", "^1.0.0", "~2.3.0"
-    if (inner === '*') {
-      // workspace:* — any published version is fine
-      return versions.length > 0;
+    if (inner === '*' || inner === '^' || inner === '~') {
+      return false; // caller resolves this against the local version instead
     }
-    // workspace:^x.y.z or workspace:~x.y.z — strip prefix and check normally
     return versionSatisfies(versions, inner);
   }
 
@@ -102,6 +107,40 @@ function versionSatisfies(versions, range) {
       return v === cleanRange;
     }
   });
+}
+
+/**
+ * Versions of every `@lombard.finance/*` package in this monorepo.
+ *
+ * The publish workflow reads exactly this to rewrite `workspace:` ranges, so
+ * the check has to read it too or the two disagree about what is shipping.
+ */
+function readLocalPackageVersions(packagesDir) {
+  const versions = {};
+  for (const dir of readdirSync(packagesDir)) {
+    const manifest = join(packagesDir, dir, 'package.json');
+    if (!existsSync(manifest)) continue;
+    try {
+      const pkg = JSON.parse(readFileSync(manifest, 'utf-8'));
+      if (pkg.name?.startsWith(LOMBARD_SCOPE)) versions[pkg.name] = pkg.version;
+    } catch {
+      // A manifest we cannot parse is not one we can publish against.
+    }
+  }
+  return versions;
+}
+
+/**
+ * The range that will actually be published for a dependency.
+ *
+ * A bare `workspace:*` becomes the dependency's exact version from this
+ * monorepo, which is what the workflow writes into the published manifest.
+ */
+function rangeAsPublished(depName, range, localVersions) {
+  if (!range.startsWith('workspace:')) return range;
+  const inner = range.slice('workspace:'.length);
+  if (inner !== '*' && inner !== '^' && inner !== '~') return inner;
+  return localVersions[depName] ?? range;
 }
 
 /**
@@ -174,8 +213,17 @@ async function main() {
 
   let hasErrors = false;
 
-  for (const [depName, depRange] of lombardDeps) {
-    process.stdout.write(`  Checking ${depName}@${depRange}... `);
+  const localVersions = readLocalPackageVersions(packagesDir);
+
+  for (const [depName, declaredRange] of lombardDeps) {
+    // What ships, not what the manifest says: a `workspace:` range is rewritten
+    // to an exact version before publish.
+    const depRange = rangeAsPublished(depName, declaredRange, localVersions);
+    const shown =
+      depRange === declaredRange
+        ? `${depName}@${depRange}`
+        : `${depName}@${depRange} (from ${declaredRange})`;
+    process.stdout.write(`  Checking ${shown}... `);
 
     const publishedVersions = getPublishedVersions(depName);
 
@@ -192,6 +240,12 @@ async function main() {
     } else {
       console.log(`❌ MISSING VERSION`);
       console.log(`     Required: ${depRange}`);
+      if (depRange !== declaredRange) {
+        console.log(
+          `     Publish ${depName}@${depRange} first — the workflow resolves`,
+        );
+        console.log(`     ${declaredRange} to that exact version on publish.`);
+      }
       console.log(`     Available: ${publishedVersions.join(', ')}`);
       hasErrors = true;
     }
