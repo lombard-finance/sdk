@@ -5,10 +5,10 @@
  * `exports` map — `.` plus `src/entries/*.ts`. Nothing else is reachable by an
  * `exports`-aware resolver, so this file is the whole contract.
  *
- * Why static parsing rather than importing the modules: roughly 40% of the
- * surface is type-only, and `Object.keys(await import(...))` cannot see a type.
- * Parsing the source sees both, needs no build step, and therefore runs in the
- * plain unit tier.
+ * Name collection lives in `helpers/collectExports` — shared with the
+ * contract-reachability check, because a parsing bug in a private copy is a
+ * silent hole in a snapshot: a name the parser drops is indistinguishable from
+ * a name that was never exported.
  *
  * When a snapshot fails, read the diff before updating it. An unintended
  * addition or removal here is a public API change.
@@ -19,48 +19,10 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { collectExports } from '../../helpers/collectExports';
+
 const SRC = join(__dirname, '../../..');
 const ENTRIES_DIR = join(SRC, 'entries');
-
-/**
- * Collect exported names from a module's source.
- *
- * Handles the three forms this codebase uses:
- *   export { a, b as c } from '...'      // re-export lists, incl. multi-line
- *   export type { X } from '...'
- *   export const / function / class / interface / type / enum X
- *
- * `export *` is deliberately unsupported: it would make the surface
- * non-enumerable without resolving the target. Verified absent from every
- * entry point, and the assertion below keeps it that way.
- */
-function collectExports(source: string): string[] {
-  const names = new Set<string>();
-
-  // Braced export lists, including `export type { ... }` and multi-line bodies.
-  const braced = source.matchAll(/export\s+(?:type\s+)?\{([^}]*)\}/g);
-  for (const match of braced) {
-    for (const raw of match[1].split(',')) {
-      const part = raw
-        .replace(/\/\/.*$/gm, '')
-        .replace(/\btype\b/g, '')
-        .trim();
-      if (!part) continue;
-      // `X as Y` exports Y; a bare `X` exports X.
-      const asMatch = part.match(/\bas\s+([A-Za-z_$][\w$]*)/);
-      const name = asMatch ? asMatch[1] : part;
-      if (/^[A-Za-z_$][\w$]*$/.test(name)) names.add(name);
-    }
-  }
-
-  // Direct declarations.
-  const declared = source.matchAll(
-    /export\s+(?:declare\s+)?(?:abstract\s+)?(?:const|let|var|function\*?|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g,
-  );
-  for (const match of declared) names.add(match[1]);
-
-  return [...names].sort();
-}
 
 function readModule(path: string): string {
   return readFileSync(path, 'utf8');
