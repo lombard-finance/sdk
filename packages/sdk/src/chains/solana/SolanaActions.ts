@@ -170,8 +170,16 @@ export class SolanaActions {
    * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
    * Removed in the next major.
    */
-  unstake(params: SolanaUnstakeParams): ISolanaUnstake {
-    return new SolanaUnstake(this.ctx, params);
+  /**
+   * Takes the widened parameters on purpose. This method builds one known
+   * class, so it has no dispatching to do and no need of the discriminant —
+   * and narrowing it would break the callers it exists to keep working, which
+   * is the whole point of a deprecated delegator. A v5 caller that picks
+   * between the two routes with a boolean holds `assetIn` as a union of both
+   * literals, and would have nowhere to go.
+   */
+  unstake(params: SolanaAssetWithdrawParams): ISolanaUnstake {
+    return new SolanaUnstake(this.ctx, params as SolanaUnstakeParams);
   }
 
   /**
@@ -186,8 +194,16 @@ export class SolanaActions {
    * @deprecated Use {@link withdraw} instead, which dispatches on `assetIn`.
    * Removed in the next major.
    */
-  redeem(params: SolanaRedeemParams): ISolanaRedeem {
-    return new SolanaRedeem(this.ctx, params);
+  /**
+   * Takes the widened parameters on purpose. This method builds one known
+   * class, so it has no dispatching to do and no need of the discriminant —
+   * and narrowing it would break the callers it exists to keep working, which
+   * is the whole point of a deprecated delegator. A v5 caller that picks
+   * between the two routes with a boolean holds `assetIn` as a union of both
+   * literals, and would have nowhere to go.
+   */
+  redeem(params: SolanaAssetWithdrawParams): ISolanaRedeem {
+    return new SolanaRedeem(this.ctx, params as SolanaRedeemParams);
   }
 }
 

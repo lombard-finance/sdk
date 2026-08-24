@@ -38,7 +38,9 @@ migrate once.
   if ('approve' in action) await action.approve();
   ```
 
-  The runtime guards that reject an unroutable asset are unchanged; they are now unreachable from typed code, which is the point, and remain for callers with no types.
+  The runtime guards that reject an unroutable asset are unchanged; they are now unreachable from well-typed dispatching code, which is the point, and remain for callers with no types.
+
+  **The deprecated verbs take the widened parameters**, deliberately. `unstake`, `redeem`, `stakeAndDeploy` and `depositAndDeploy` each build one known class, so they have no dispatching to do and no need of the discriminant — and narrowing them would break the callers they exist to keep working. The shape that matters is the common one: a params object built once with the method chosen by a boolean, so `assetIn` is a union of both literals and fits neither. Their return types stay precise, since the route is fixed by which name was called, and each still validates at runtime the asset its own route can serve.
 
 ### Added
 

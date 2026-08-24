@@ -204,3 +204,105 @@ describe('btc.deploy', () => {
     expect(action.constructor.name).toBe('BtcStakeAndDeploy');
   });
 });
+
+/**
+ * The deprecated verbs must keep accepting what v5 accepted
+ *
+ * A deprecated delegator exists so existing callers keep compiling. Narrowing
+ * `assetIn` for the dispatching verbs initially narrowed these too, which broke
+ * the exact shape a v5 caller has: one params object built once, with the method
+ * chosen by a boolean, so `assetIn` is a union of both literals. The app does
+ * precisely that, and it stopped compiling.
+ *
+ * These take the widened parameters instead. Each one builds a single known
+ * class, so it has no dispatching to do and no need of the discriminant.
+ */
+describe('the deprecated verbs', () => {
+  const evm = evmActions(config);
+  const solana = solanaActions(config);
+  const btc = btcActions(config);
+
+  it('accept an asset that is only known at runtime', () => {
+    // The v5 shape: built once, method picked separately.
+    const params = {
+      assetIn: AssetId.LBTC as AssetId,
+      assetOut: AssetId.BTC,
+      sourceChain: Chain.ETHEREUM,
+      destChain: Chain.BITCOIN_MAINNET,
+    };
+
+    expect(evm.unstake(params).constructor.name).toBe('EvmUnstake');
+    expect(evm.redeem(params).constructor.name).toBe('EvmRedeem');
+  });
+
+  it('still return the precise interface, since the route is fixed by the name', () => {
+    const params = {
+      assetIn: AssetId.LBTC as AssetId,
+      assetOut: AssetId.BTC,
+      sourceChain: Chain.ETHEREUM,
+      destChain: Chain.BITCOIN_MAINNET,
+    };
+
+    // Widening the input must not widen the output: `redeem` is still the only
+    // arm with `approve()`, and a caller of it needs to reach that.
+    assertExact<ReturnType<typeof evm.redeem>, ReturnType<typeof evm.unstake>>(
+      false as never,
+    );
+    expect(typeof evm.redeem(params).approve).toBe('function');
+  });
+
+  it('does the same on solana', () => {
+    const chains = {
+      sourceChain: Chain.SOLANA_MAINNET,
+      destChain: Chain.BITCOIN_MAINNET,
+    };
+
+    expect(
+      solana.unstake({
+        ...chains,
+        assetIn: AssetId.LBTC as AssetId,
+        assetOut: AssetId.BTC,
+      }).constructor.name,
+    ).toBe('SolanaUnstake');
+    expect(
+      solana.redeem({
+        ...chains,
+        assetIn: AssetId.BTCb as AssetId,
+        assetOut: AssetId.BTC,
+      }).constructor.name,
+    ).toBe('SolanaRedeem');
+  });
+
+  it('does the same for the two BTC deploys', () => {
+    expect(
+      btc.stakeAndDeploy({
+        assetOut: AssetId.LBTC as AssetId,
+        destChain: Chain.ETHEREUM,
+        protocol: 'veda' as never,
+      }).constructor.name,
+    ).toBe('BtcStakeAndDeploy');
+    expect(
+      btc.depositAndDeploy({
+        assetOut: AssetId.BTCb as AssetId,
+        destChain: Chain.AVALANCHE,
+        protocol: 'silo' as never,
+      }).constructor.name,
+    ).toBe('BtcDepositAndDeploy');
+  });
+
+  /**
+   * Widening is type-level only. Each of these builds one route and still
+   * validates the asset it was handed, so a caller that widened the type has
+   * not also switched the guard off — the first version of this file passed the
+   * same object to both methods and was rejected at runtime by exactly that.
+   */
+  it('still rejects an asset its own route cannot serve', () => {
+    expect(() =>
+      btc.depositAndDeploy({
+        assetOut: AssetId.LBTC as AssetId,
+        destChain: Chain.AVALANCHE,
+        protocol: 'silo' as never,
+      }),
+    ).toThrow(/not supported for deposit and deploy/);
+  });
+});

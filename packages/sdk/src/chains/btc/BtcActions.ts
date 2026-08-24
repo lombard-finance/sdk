@@ -133,8 +133,19 @@ export class BtcActions {
    * @deprecated Use {@link deploy} instead, which dispatches on `assetOut`.
    * Removed in the next major.
    */
-  stakeAndDeploy(params: BtcStakeAndDeployParams): IBtcStakeAndDeploy {
-    return new BtcStakeAndDeploy(this.ctx, params);
+  /**
+   * Takes the widened parameters on purpose. This method builds one known
+   * class, so it has no dispatching to do and no need of the discriminant —
+   * and narrowing it would break the callers it exists to keep working, which
+   * is the whole point of a deprecated delegator. A v5 caller that picks
+   * between the two routes with a boolean holds `assetIn` as a union of both
+   * literals, and would have nowhere to go.
+   */
+  stakeAndDeploy(params: BtcAssetDeployParams): IBtcStakeAndDeploy {
+    return new BtcStakeAndDeploy(
+      this.ctx,
+      params as BtcStakeAndDeployParams,
+    );
   }
 
   /**
@@ -191,8 +202,19 @@ export class BtcActions {
    * @deprecated Use {@link deploy} instead, which dispatches on `assetOut`.
    * Removed in the next major.
    */
-  depositAndDeploy(params: BtcDepositAndDeployParams): IBtcDepositAndDeploy {
-    return new BtcDepositAndDeploy(this.ctx, params);
+  /**
+   * Takes the widened parameters on purpose. This method builds one known
+   * class, so it has no dispatching to do and no need of the discriminant —
+   * and narrowing it would break the callers it exists to keep working, which
+   * is the whole point of a deprecated delegator. A v5 caller that picks
+   * between the two routes with a boolean holds `assetIn` as a union of both
+   * literals, and would have nowhere to go.
+   */
+  depositAndDeploy(params: BtcAssetDeployParams): IBtcDepositAndDeploy {
+    return new BtcDepositAndDeploy(
+      this.ctx,
+      params as BtcDepositAndDeployParams,
+    );
   }
 
   /**
