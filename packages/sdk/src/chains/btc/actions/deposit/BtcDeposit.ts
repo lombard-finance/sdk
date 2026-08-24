@@ -110,8 +110,8 @@ export class BtcDeposit
     if (!isAssetOutSupported(config, params.assetOut)) {
       throw new LombardError(
         ValidationErrorCode.INVALID_ASSET,
-        `Asset ${params.assetOut} is not supported for BTC deposits. ` +
-          `BTC Deposit produces BTC.b. For LBTC, use BtcStake instead.`,
+        `btc.deposit() cannot mint ${params.assetOut} on this route, which ` +
+          `produces BTC.b. Pass assetOut: AssetId.LBTC for the LBTC route.`,
       );
     }
 

@@ -114,8 +114,8 @@ export class BtcStake
     if (!isAssetOutSupported(config, params.assetOut)) {
       throw new LombardError(
         ValidationErrorCode.INVALID_ASSET,
-        `Asset ${params.assetOut} is not supported for BTC staking. ` +
-          `BTC Stake produces LBTC. For BTC.b, use BtcDeposit instead.`,
+        `btc.deposit() cannot mint ${params.assetOut} on this route, which ` +
+          `produces LBTC. Pass assetOut: AssetId.BTCb for the BTC.b route.`,
       );
     }
 

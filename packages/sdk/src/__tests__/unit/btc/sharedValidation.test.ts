@@ -150,12 +150,12 @@ describe('validateBtcActionParams', () => {
       validateBtcActionParams(
         configFixture(),
         { assetOut: AssetId.BTCb, destChain: Chain.ETHEREUM },
-        { ...context, alternativeAction: 'BtcDeposit' },
+        { ...context, alternativeAction: 'assetOut: AssetId.BTCb' },
       );
       expect.unreachable('should have thrown');
     } catch (error) {
       expect((error as LombardError).message).toContain(
-        'Use BtcDeposit instead.',
+        'Use assetOut: AssetId.BTCb instead.',
       );
     }
   });

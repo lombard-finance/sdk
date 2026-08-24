@@ -30,7 +30,7 @@ describe('BTC Deposit Config', () => {
       expect(isAssetOutSupported(evmConfig, AssetId.BTCb)).toBe(true);
     });
 
-    it('should NOT support LBTC for BTC Deposit (use BtcStake instead)', () => {
+    it('should NOT support LBTC on the BTC.b route', () => {
       // LBTC is produced by BtcStake, not BtcDeposit
       expect(isAssetOutSupported(evmConfig, AssetId.LBTC)).toBe(false);
     });

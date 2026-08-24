@@ -2,7 +2,7 @@
  * EVM Chain Configuration for BTC Deposit
  *
  * BTC Deposit: BTC → BTC.b (wrapped BTC without yield)
- * For staking (BTC → LBTC), use BtcStake instead.
+ * The LBTC route is the same verb with `assetOut: AssetId.LBTC`.
  *
  * Supported chains are derived from ASSET_CATALOG - single source of truth.
  *

@@ -12,6 +12,10 @@
 
 import { describe, expect, it, vi } from 'vitest';
 
+import {
+  getDepositChainConfig,
+  isAssetOutSupported,
+} from '../../../chains/btc/actions/deposit/config';
 import type {
   BtcDepositParams,
   BtcDepositPrepareParams,
@@ -209,14 +213,20 @@ describe('BtcDeposit Interface', () => {
   });
 
   describe('Error Handling', () => {
-    it('should reject LBTC as output asset', () => {
-      const error = new LombardError(
-        ValidationErrorCode.INVALID_ASSET,
-        `Asset LBTC is not supported for BTC deposits. Use BtcStake instead.`,
-      );
+    /**
+     * Asserted against the real config rather than a hand-built error.
+     *
+     * The previous version of this test constructed a `LombardError` and then
+     * checked the string it had just passed in, so it held no matter what the
+     * action did — and it went on passing after the message it described had
+     * been rewritten.
+     */
+    it('does not accept LBTC as an output asset', () => {
+      const config = getDepositChainConfig('evm');
 
-      expect(error.code).toBe(ValidationErrorCode.INVALID_ASSET);
-      expect(error.message).toContain('BtcStake');
+      expect(config).toBeDefined();
+      expect(isAssetOutSupported(config!, AssetId.LBTC)).toBe(false);
+      expect(isAssetOutSupported(config!, AssetId.BTCb)).toBe(true);
     });
 
     it('should reject unsupported destination chains', () => {

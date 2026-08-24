@@ -71,7 +71,7 @@ describe('BTC Deposit Integration', () => {
           assetOut: AssetId.LBTC as never,
           destChain: Chain.AVALANCHE_FUJI,
         });
-      }).toThrow(/not supported for BTC deposits/);
+      }).toThrow(/cannot mint LBTC on this route/);
     });
   });
 

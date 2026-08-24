@@ -27,7 +27,7 @@ export { BtcActionStatus };
  * BTC Deposit parameters
  *
  * Note: BTC Deposit is for custody operations (BTC → BTC.b).
- * For staking operations (BTC → LBTC), use BtcStake instead.
+ * The LBTC route is the same verb with `assetOut: AssetId.LBTC`.
  */
 export interface BtcDepositParams {
   /** Output asset (BTC.b). A literal, so `deposit()` can dispatch on it. */
