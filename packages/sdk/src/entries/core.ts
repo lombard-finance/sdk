@@ -279,3 +279,30 @@ export {
   TERMINAL_STATUSES,
   vaultAsset,
 } from '../core/actions';
+
+// ── The wallet-auth transport contract ──
+//
+// Re-exported from `sdk-common` so a consumer can type an `auth` provider
+// without depending on `sdk-common` directly. `LombardConfig.auth` is typed as
+// `LombardAuth`, so a consumer that cannot name the type cannot implement it.
+export type {
+  AuthRequestContext,
+  LombardAuth,
+  RequestScope,
+} from '@lombard.finance/sdk-common';
+
+// ── Wallet-auth chain names ──
+//
+// The auth routes name chains a fourth way (the short `/v2/chains` name), so
+// this derives it rather than leaving each consumer to hand-write the table.
+export {
+  walletAuthChainName,
+  walletAuthChainNames,
+} from '../common/wallet-auth-chain';
+
+// The one-call sign-in ceremony and its parameter types.
+export type {
+  WalletSignInParams,
+  WalletSignInResult,
+  WalletSignResult,
+} from '@lombard.finance/sdk-common';

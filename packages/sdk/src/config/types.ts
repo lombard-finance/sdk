@@ -109,6 +109,18 @@ export interface CreateConfigOptions {
   partner?: PartnerConfig;
 
   /**
+   * How the SDK obtains a wallet JWT. See `LombardConfig.auth`.
+   *
+   * Present here as well as on `LombardConfig` because `createConfig` is the
+   * documented way to build one, and an option missing from the builder is an
+   * option a consumer cannot set.
+   */
+  auth?: LombardAuth;
+
+  /** @deprecated Cannot refresh. Prefer {@link auth}. */
+  getAuthToken?: () => string | undefined;
+
+  /**
    * Optional logger for SDK operations
    *
    * Provide your own logger to integrate with your logging infrastructure

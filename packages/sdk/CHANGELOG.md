@@ -17,6 +17,32 @@ migrate once.
 
 ### Added
 
+- `walletAuth.signIn()` — the whole ceremony in one call: challenge, sign, verify, and poll when the chain settles on-chain.
+
+  Consumers were building this on top of the three primitives, which meant each of them re-derived the sync/async branch. That branch is not a choice. An EOA on EVM, Solana or Sui is verified off-chain and the token is in the verify response; a Safe or a Starknet account is verified through a contract call and only yields a token once polled. A consumer handling only the first case works until the first contract wallet signs in, and then that user has produced a signature and holds no token — with no error to show for it.
+
+  Signing stays with the caller, since the SDK holds no key material and every chain's wallets expose a different signing method:
+
+  ```ts
+  const { jwt, expiresAt } = await sdk.walletAuth.signIn({
+    address,
+    chain: walletAuthChainName(chainId),
+    sign: async payload => ({ signature: await wallet.signMessage(payload) }),
+  });
+  ```
+
+- `walletAuthChainName(chainId)` — the chain name the wallet-auth routes want, derived rather than hand-written.
+
+  Those routes name chains a fourth way: not a viem chain id, not `DESTINATION_BLOCKCHAIN_*`, not `BLOCKCHAIN_*`, but the short `name` from `/v2/chains`. The name is load-bearing on the second call only — an EOA signature is ECDSA and verifies off-chain, but a smart-contract wallet is verified by an ERC-1271 call *on the named chain*, so a Safe that exists only on Base and is submitted as `ethereum` has no code at that address there and can never verify. The challenge call before it returns 200 either way, so the mistake surfaces one step later as an opaque failure.
+
+  There is deliberately no env-suffixed form. The env already picks the gateway, and each gateway enumerates its own chains under the canonical name — testnet's `/v2/chains` lists `ethereum` at chain id 11155111. Suffixed aliases are accepted by the testnet host and rejected by mainnet, and the alias set is not the set of chain slugs used elsewhere in the SDK: `sonic` has no accepted testnet alias, so a slug-derived `sonic_blaze` is rejected by both hosts. One unsuffixed name per chain family is both simpler and the only form correct on every env. Unknown chains throw rather than falling back to Ethereum, because a wrong name is unrecoverable for a contract wallet and silent for an EOA.
+
+### Fixed
+
+- `createConfig` no longer discards `auth` and `getAuthToken`.
+
+  `validateAndApplyDefaults` builds a fresh object rather than spreading its input, so every settable field has to be copied by hand — and both auth fields were missed. They passed the type check and were silently dropped, so a wallet token never reached a request made through `createLombardSDK`, the documented entry point. The bare chain facades threaded it correctly, which is why the plumbing test missed it: that test hands `LombardConfig` literals straight to the facades and never runs the builder.
+
 - `sdk.walletAuth` — the wallet-auth service as a namespace, `null` when `walletAuthModule()` is not registered.
 
   `walletAuthModule`'s own `@example` already read `sdk.walletAuth.requestChallenge(…)` and the design assumed the same accessor, but the property did not exist: the service was only reachable through `capabilities.require('walletAuth')`. A documented call that cannot be made is worse than an undocumented one. `null` rather than a throw when the module is absent, because acquiring a token is optional — a consumer that only reads public data never needs one.

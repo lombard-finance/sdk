@@ -97,6 +97,32 @@ export interface PollWalletVerificationRequest {
 /**
  * Wallet auth service contract. Implementations live in `@lombard.finance/sdk`.
  */
+/** Result of a chain-specific signature over the challenge payload. */
+export interface WalletSignResult {
+  signature: string;
+  /**
+   * Required for chains where the public key cannot be recovered from the
+   * signature (Starknet, Cosmos). Ignored elsewhere.
+   */
+  publicKey?: string;
+}
+
+export interface WalletSignInParams {
+  address: string;
+  chain: WalletAuthChain;
+  /**
+   * Signs the challenge payload. Chain-specific by necessity — the SDK holds no
+   * signing key and each chain's wallets expose a different signing method — so
+   * the caller supplies it and the SDK owns everything around it.
+   */
+  sign(payload: string): Promise<WalletSignResult>;
+}
+
+export interface WalletSignInResult extends WalletVerifyResult {
+  /** The address the token is bound to, echoed back for convenience. */
+  address: string;
+}
+
 export interface WalletAuthService {
   /** Request a challenge payload for the given wallet. */
   requestChallenge(
@@ -118,6 +144,14 @@ export interface WalletAuthService {
   pollVerification(
     params: PollWalletVerificationRequest,
   ): Promise<WalletVerifyResult>;
+
+  /**
+   * Run the whole ceremony: challenge, sign, verify, and poll when the chain
+   * verifies on-chain. Prefer this over calling the three separately — the
+   * sync/async branch is a property of the wallet rather than a choice, and
+   * getting it wrong strands a signed-in user with no token.
+   */
+  signIn(params: WalletSignInParams): Promise<WalletSignInResult>;
 
   /**
    * Invalidate a JWT server-side. Best-effort: implementations may swallow
