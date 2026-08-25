@@ -1,5 +1,5 @@
 /**
- * Starknet Unstake Action
+ * Starknet Withdraw Action
  *
  * Burns LBTC on Starknet and releases BTC on Bitcoin.
  *
@@ -21,7 +21,7 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
-import { isBtcUnstakeSupported, starknetToBtcConfig } from './config';
+import { isBtcWithdrawSupported, starknetToBtcConfig } from './config';
 import type {
   IStarknetWithdraw,
   StarknetWithdrawParams,
@@ -44,7 +44,7 @@ export class StarknetWithdraw
     super(NonEvmOperationStatus.IDLE);
     this.env = ctx.env;
 
-    if (!isBtcUnstakeSupported(params.sourceChain, this.env)) {
+    if (!isBtcWithdrawSupported(params.sourceChain, this.env)) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
@@ -115,7 +115,7 @@ export class StarknetWithdraw
         steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
       });
 
-      // Call the Starknet service to execute unstake
+      // Call the Starknet service to execute withdraw
       const { txHash } = await this.ctx.starknet.unstake({
         amount,
         btcAddress: recipient,

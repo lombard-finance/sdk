@@ -1,5 +1,5 @@
 /**
- * Sui Unstake Chain Configuration Types
+ * Sui Withdraw Chain Configuration Types
  *
  * @module chains/sui/actions/withdraw/config/types
  */
@@ -10,7 +10,7 @@ import type { z } from 'zod';
 import type { Chain, ChainType } from '../../../../../core';
 
 /**
- * Route definition for Sui unstake operations
+ * Route definition for Sui withdraw operations
  */
 export interface RouteDefinition {
   sourceChains: Chain[];
@@ -19,7 +19,7 @@ export interface RouteDefinition {
 }
 
 /**
- * Chain-specific configuration for Sui unstake operations
+ * Chain-specific configuration for Sui withdraw operations
  */
 export interface ChainConfig {
   chainType: ChainType;

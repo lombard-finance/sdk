@@ -313,7 +313,7 @@ describe('EVM Stake Action', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// EVM Unstake Tests (LBTC → BTC or BTC.b)
+// EVM Withdraw Tests (LBTC → BTC or BTC.b)
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('EVM Unstake Action', () => {

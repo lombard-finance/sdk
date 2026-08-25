@@ -5,7 +5,7 @@
  *
  * Operations:
  * - stake: BTC.b → LBTC (stake wrapped BTC to get LBTC)
- * - unstake: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
+ * - withdraw: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
  * - redeem: BTC.b → BTC (cross-chain via Asset Router)
  *
  * Note: Solana module must be registered before using these actions.
@@ -70,7 +70,7 @@ function createSolanaCoreContext(config: LombardConfig): SolanaCoreContext {
 /**
  * A withdrawal whose input asset is only known at runtime.
  *
- * The unstake and redeem parameter types are structurally identical apart from
+ * The withdraw and redeem parameter types are structurally identical apart from
  * the `assetIn` literal that tells them apart, so this is that shape with the
  * discriminant widened — without it a caller passing a plain `AssetId` matches
  * no overload.

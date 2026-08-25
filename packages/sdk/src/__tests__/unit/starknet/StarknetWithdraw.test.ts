@@ -1,7 +1,7 @@
 /**
  * StarknetWithdraw Unit Tests
  *
- * Tests for the Starknet LBTC unstaking action with mocked providers.
+ * Tests for the Starknet LBTC withdrawing action with mocked providers.
  */
 
 import { Env } from '@lombard.finance/sdk-common';

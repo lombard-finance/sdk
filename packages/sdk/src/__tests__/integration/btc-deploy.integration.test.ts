@@ -1,9 +1,9 @@
 /**
- * BTC Stake And Deploy Integration Tests
+ * BTC Deploy Integration Tests
  *
- * Tests BTC Stake And Deploy action with mocked API responses.
+ * Tests BTC Deploy action with mocked API responses.
  *
- * @module __tests__/integration/btc-stake-and-deploy.integration.test.ts
+ * @module packages/sdk/__tests__/integration/btc-deploy.integration.test.ts
  */
 
 import { Env } from '@lombard.finance/sdk-common';

@@ -1,11 +1,11 @@
 /**
- * Solana Unstake Chain Configuration Registry
+ * Solana Withdraw Chain Configuration Registry
  *
  * @module chains/solana/actions/withdraw-lbtc/config
  */
 
 export {
-  isUnstakeSupported,
+  isWithdrawSupported,
   solanaToBtcbConfig,
   solanaToBtcConfig,
 } from './btc';

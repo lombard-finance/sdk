@@ -1,7 +1,7 @@
 /**
- * BTC Stake Integration Tests
+ * BTC Deposit Integration Tests
  *
- * Tests for BTC staking operations:
+ * Tests for BTC deposit operations:
  * - BtcDepositLbtc: BTC → LBTC
  * - BtcDepositBtcb: BTC → BTC.b
  * - BtcDeployLbtc: BTC → LBTC → DeFi
@@ -54,7 +54,7 @@ function createMockEvmProvider(): EIP1193Provider {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// BTC Stake Action Tests
+// BTC Deposit Action Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('BTC Stake Action', () => {

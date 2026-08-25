@@ -11,7 +11,7 @@
  * EVM Redeem does NOT require network fee authorization on any source chain.
  * The destination is the Bitcoin network — there is no auto-mint operation on
  * an EVM destination, so the auto-mint fee model (used by BTC Deposit and
- * EVM Unstake to BTC.b on Ethereum/Sepolia) does not apply here.
+ * EVM Withdraw to BTC.b on Ethereum/Sepolia) does not apply here.
  *
  * **Flow (all source chains):**
  * IDLE → READY → COMPLETED
@@ -117,7 +117,7 @@ export class EvmWithdrawBtcb
 
       // EVM Redeem releases native BTC on the Bitcoin network. There is no
       // EVM auto-mint on the destination, so the network-fee authorization
-      // model used by BTC Deposit / EVM Unstake-to-BTC.b does not apply.
+      // model used by BTC Deposit / EVM Withdraw-to-BTC.b does not apply.
       this._needsApproval = false;
       this.emitProgress({
         status: EvmOperationStatus.READY,

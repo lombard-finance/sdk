@@ -1,7 +1,7 @@
 /**
- * BTC Destination Configuration for Starknet Unstake
+ * BTC Destination Configuration for Starknet Withdraw
  *
- * Handles unstaking LBTC from Starknet to BTC on Bitcoin.
+ * Handles withdrawing LBTC from Starknet to BTC on Bitcoin.
  *
  * @module chains/starknet/actions/withdraw/config/btc
  */
@@ -35,9 +35,9 @@ export const starknetToBtcConfig: ChainConfig = {
 };
 
 /**
- * Check if unstake to BTC is supported from this Starknet chain
+ * Check if withdraw to BTC is supported from this Starknet chain
  */
-export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
+export function isBtcWithdrawSupported(sourceChain: Chain, env: Env): boolean {
   return starknetToBtcConfig.routes.some(
     (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),

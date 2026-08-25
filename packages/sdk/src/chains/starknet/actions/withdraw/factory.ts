@@ -1,5 +1,5 @@
 /**
- * Starknet Unstake Factory Functions
+ * Starknet Withdraw Factory Functions
  *
  * @module chains/starknet/actions/withdraw/factory
  */
@@ -10,9 +10,9 @@ import { StarknetWithdraw } from './StarknetWithdraw';
 import type { IStarknetWithdraw, StarknetWithdrawParams } from './types';
 
 /**
- * Create Starknet unstake from context
+ * Create Starknet withdraw from context
  */
-export function createStarknetUnstake(
+export function createStarknetWithdraw(
   ctx: StarknetCoreContext,
   params: StarknetWithdrawParams,
 ): IStarknetWithdraw {
@@ -20,13 +20,13 @@ export function createStarknetUnstake(
 }
 
 /**
- * Create Starknet unstake from config
+ * Create Starknet withdraw from config
  */
-export function starknetUnstake(
+export function starknetWithdraw(
   _config: LombardConfig,
   _params: StarknetWithdrawParams,
 ): IStarknetWithdraw {
   throw new Error(
-    'starknetUnstake() from config is not yet supported. Use sdk.chain.starknet.unstake() instead.',
+    'starknetWithdraw() from config is not yet supported. Use sdk.chain.starknet.withdraw() instead.',
   );
 }

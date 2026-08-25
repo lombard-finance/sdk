@@ -76,7 +76,7 @@ export type ApiVersion = 'v1' | 'v2';
 export interface WithdrawalOptions {
   /** Include redeem operations */
   show_redeems?: boolean;
-  /** Include unstake operations */
+  /** Include withdraw operations */
   show_unstakes?: boolean;
   /** Filter for native chain redemptions */
   to_native?: boolean;
@@ -168,12 +168,12 @@ export class ApiNamespace {
    * Fetch every withdrawal an address has made.
    *
    * Covers both arms: burning an L-asset for native BTC, and redeeming on the
-   * destination chain. The record type is still `Unstake` — that is the shape
+   * destination chain. The record type is still `Withdraw` — that is the shape
    * the endpoint returns, and renaming it here would misdescribe the payload.
    *
    * @param address - The address that made the withdrawals
    * @param options - Optional filters (show_redeems, show_unstakes, to_native)
-   * @returns Promise resolving to array of Unstake objects
+   * @returns Promise resolving to array of Withdraw objects
    *
    * @example
    * ```ts

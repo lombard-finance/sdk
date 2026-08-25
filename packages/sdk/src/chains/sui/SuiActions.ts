@@ -1,7 +1,7 @@
 /**
  * Sui Actions
  *
- * Provides factory methods for Sui operations (unstake).
+ * Provides factory methods for Sui operations (withdraw).
  *
  * Note: Sui module must be registered before using these actions.
  *
@@ -65,7 +65,7 @@ export class SuiActions {
   }
 
   /**
-   * Unstake LBTC → BTC
+   * Withdraw LBTC → BTC
    *
    * Burns LBTC on Sui and releases BTC on Bitcoin.
    *

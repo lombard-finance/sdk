@@ -1,10 +1,10 @@
 /**
- * Solana Unstake Action
+ * Solana Withdraw Action
  *
  * @module chains/solana/actions/withdraw-lbtc
  */
 
-export { createSolanaUnstake, solanaUnstake } from './factory';
+export { createSolanaWithdrawLbtc, solanaWithdrawLbtc } from './factory';
 export { SolanaWithdrawLbtc } from './SolanaWithdrawLbtc';
 export type {
   ISolanaWithdrawLbtc,

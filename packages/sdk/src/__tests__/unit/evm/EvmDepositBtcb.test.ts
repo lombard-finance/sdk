@@ -1,5 +1,5 @@
 /**
- * EVM Stake Action Unit Tests
+ * EVM Deposit Action Unit Tests
  *
  * Tests the BTC.b → LBTC staking flow on EVM chains.
  *
@@ -8,7 +8,7 @@
  * Fee authorization is required on unsubsidized chains (Ethereum, Sepolia).
  * On subsidized chains (Avalanche, Base, BSC), no fee auth is required.
  *
- * @module __tests__/unit/evm/EvmDepositBtcb.test.ts
+ * @module packages/sdk/__tests__/unit/evm/EvmDepositBtcb.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';

@@ -1,5 +1,5 @@
 /**
- * Solana Unstake Action Types
+ * Solana Withdraw Action Types
  *
  * @module chains/solana/actions/withdraw-lbtc/types
  */
@@ -14,7 +14,7 @@ import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 
 /**
- * Solana Unstake parameters
+ * Solana Withdraw parameters
  */
 export interface SolanaWithdrawLbtcParams {
   /** Input asset (LBTC). A literal, so `withdraw()` can dispatch on it. */
@@ -25,7 +25,7 @@ export interface SolanaWithdrawLbtcParams {
 }
 
 /**
- * Solana Unstake progress
+ * Solana Withdraw progress
  */
 export interface SolanaWithdrawLbtcProgress extends StrategyProgress<NonEvmOperationStatus> {
   status: NonEvmOperationStatus;
@@ -38,7 +38,7 @@ export interface SolanaWithdrawLbtcProgress extends StrategyProgress<NonEvmOpera
 }
 
 /**
- * Solana Unstake prepare params
+ * Solana Withdraw prepare params
  */
 export interface SolanaWithdrawLbtcPrepareParams {
   amount: string;
@@ -46,7 +46,7 @@ export interface SolanaWithdrawLbtcPrepareParams {
 }
 
 /**
- * Solana Unstake interface
+ * Solana Withdraw interface
  */
 export interface ISolanaWithdrawLbtc extends MonitorableAction {
   readonly status: NonEvmOperationStatus;

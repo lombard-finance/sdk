@@ -10,7 +10,7 @@
  *
  * EVM Redeem does not require network-fee authorization on any source chain.
  * There is no auto-mint on the Bitcoin destination, so the model used by BTC
- * Deposit and EVM Unstake-to-BTC.b on Ethereum/Sepolia does not apply here.
+ * Deposit and EVM Withdraw-to-BTC.b on Ethereum/Sepolia does not apply here.
  *
  * **Flow (all source chains):**
  * IDLE → READY → COMPLETED
@@ -39,7 +39,7 @@ export { EvmOperationStatus as EvmWithdrawBtcbStatus } from '../../../../shared/
  */
 export interface EvmWithdrawBtcbParams {
   /** Input asset (BTC.b). A literal, so `withdraw()` can tell it from an
-   * unstake — see {@link EvmWithdrawLbtcParams.assetIn}. */
+   * withdraw — see {@link EvmWithdrawLbtcParams.assetIn}. */
   assetIn: typeof AssetId.BTCb;
   /** Output asset (BTC) */
   assetOut: AssetId;

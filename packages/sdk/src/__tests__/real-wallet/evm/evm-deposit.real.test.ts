@@ -16,7 +16,7 @@ runIfConfigured('EVM Stake Real Wallet', () => {
   let wallet: WalletClient;
 
   beforeAll(async () => {
-    // EVM Stake usually happens on Avalanche (BTC.b -> LBTC)
+    // EVM Deposit usually happens on Avalanche (BTC.b -> LBTC)
     const res = await createTestEvmWallet(
       process.env.TEST_EVM_PRIVATE_KEY as `0x${string}`,
       'avalanche-fuji',

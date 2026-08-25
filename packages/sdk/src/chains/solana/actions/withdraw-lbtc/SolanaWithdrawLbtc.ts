@@ -1,5 +1,5 @@
 /**
- * Solana Unstake Action
+ * Solana Withdraw Action
  *
  * Burns LBTC on Solana and outputs BTC or BTC.b depending on `assetOut`.
  *
@@ -30,7 +30,7 @@ import {
 import { toSatoshi } from '../../../../utils/satoshi';
 import { envToSolanaChain, envToSolanaNetwork } from '../../utils';
 import {
-  isUnstakeSupported,
+  isWithdrawSupported,
   solanaToBtcbConfig,
   solanaToBtcConfig,
 } from './config';
@@ -58,7 +58,7 @@ export class SolanaWithdrawLbtc
     this.isBtcbOutput = params.assetOut === AssetId.BTCb;
 
     if (
-      !isUnstakeSupported(
+      !isWithdrawSupported(
         params.sourceChain,
         params.destChain,
         params.assetIn,

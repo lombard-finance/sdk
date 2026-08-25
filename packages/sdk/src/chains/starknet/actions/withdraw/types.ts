@@ -1,5 +1,5 @@
 /**
- * Starknet Unstake Action Types
+ * Starknet Withdraw Action Types
  *
  * @module chains/starknet/actions/withdraw/types
  */
@@ -14,7 +14,7 @@ import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 
 /**
- * Starknet Unstake parameters
+ * Starknet Withdraw parameters
  */
 export interface StarknetWithdrawParams {
   assetIn: AssetId;
@@ -24,7 +24,7 @@ export interface StarknetWithdrawParams {
 }
 
 /**
- * Starknet Unstake progress
+ * Starknet Withdraw progress
  */
 export interface StarknetWithdrawProgress extends StrategyProgress<NonEvmOperationStatus> {
   status: NonEvmOperationStatus;
@@ -36,7 +36,7 @@ export interface StarknetWithdrawProgress extends StrategyProgress<NonEvmOperati
 }
 
 /**
- * Starknet Unstake prepare params
+ * Starknet Withdraw prepare params
  */
 export interface StarknetWithdrawPrepareParams {
   amount: string;
@@ -44,7 +44,7 @@ export interface StarknetWithdrawPrepareParams {
 }
 
 /**
- * Starknet Unstake interface
+ * Starknet Withdraw interface
  */
 export interface IStarknetWithdraw extends MonitorableAction {
   readonly status: NonEvmOperationStatus;

@@ -113,12 +113,21 @@ export class EvmClaim
     };
   }
 
+  /**
+   * Approve the token spend.
+   *
+   * @deprecated A safe no-op on this route. `prepare()` sets `needsApproval`
+   * false and goes straight to `READY` — the claim mints against a notarized
+   * payload and moves nothing the contract needs an allowance for — so the
+   * status this used to assert is one the route never reaches, and the call
+   * always threw.
+   *
+   * That mattered because callers narrowing a union by capability write
+   * `if ('approve' in action) await action.approve()`. Resolving quietly is what
+   * makes that shape safe here, matching `EvmWithdrawBtcb`.
+   */
   async approve(): Promise<void> {
-    this.assertStatus(EvmClaimStatus.NEEDS_APPROVAL, 'approve');
-
-    return this.act(async () => {
-      this._needsApproval = false;
-    }, EvmClaimStatus.READY);
+    // Intentionally a no-op: there is no allowance for the caller to grant.
   }
 
   async execute(): Promise<{ txHash: string }> {

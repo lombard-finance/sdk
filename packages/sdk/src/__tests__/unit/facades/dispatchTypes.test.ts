@@ -69,7 +69,7 @@ describe('evm.withdraw', () => {
 
   /**
    * The case that was broken. `approve()` exists on the redeem interface and
-   * not on unstake's, so a mis-resolved overload does not merely mislabel the
+   * not on withdraw's, so a mis-resolved overload does not merely mislabel the
    * result — it removes the method the caller has to call.
    */
   it('types a BTC.b withdrawal as a redeem, with approve() reachable', () => {

@@ -1,11 +1,11 @@
 /**
- * EVM Redeem action unit tests
+ * EVM Withdraw action unit tests
  *
  * Covers the BTC.b → native BTC redemption flow on EVM chains. The action
  * burns BTC.b on an EVM source chain and releases native BTC to a Bitcoin
  * recipient address.
  *
- * @module __tests__/unit/evm/EvmWithdrawBtcb.test.ts
+ * @module packages/sdk/__tests__/unit/evm/EvmWithdrawBtcb.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';

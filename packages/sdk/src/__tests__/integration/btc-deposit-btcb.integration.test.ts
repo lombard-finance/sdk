@@ -3,7 +3,7 @@
  *
  * Tests BTC Deposit action with mocked API responses.
  *
- * @module __tests__/integration/btc-deposit.integration.test.ts
+ * @module packages/sdk/__tests__/integration/btc-deposit-btcb.integration.test.ts
  */
 
 import { Env } from '@lombard.finance/sdk-common';

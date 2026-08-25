@@ -7,7 +7,7 @@
  * refactor, it is a behaviour change with no compiler and no test to stop it.
  *
  * That matters most during a rename release. v6 renames facade verbs —
- * `unstake` becomes `withdraw`, `stakeAndDeploy` becomes `deploy`, `deposit`
+ * `withdraw` becomes `withdraw`, `stakeAndDeploy` becomes `deploy`, `deposit`
  * becomes `claim` on EVM — and every one of those words also appears as an ABI
  * method name. A repo-wide replace of `deposit` would rewrite
  * `functionName: 'deposit'` into a selector no contract implements, and the

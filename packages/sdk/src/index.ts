@@ -298,7 +298,7 @@ export {
 // not exported. Use createLombardSDK() instead:
 //
 //   const sdk = await createLombardSDK({ env: Env.prod, ... });
-//   const unstake = sdk.chain.evm.unstake({ ... });
+//   const withdraw = sdk.chain.evm.withdraw({ ... });
 
 // Utils - API Config:
 export { getApiConfig, type IApiConfig } from './common/api-config';

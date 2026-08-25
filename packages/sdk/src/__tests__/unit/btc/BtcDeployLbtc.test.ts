@@ -1,12 +1,12 @@
 /**
- * BTC Stake And Deploy Action Unit Tests
+ * BTC Deploy Action Unit Tests
  *
  * Tests the BTC → LBTC → DeFi vault flow including:
  * - Parameter validation
  * - Stake and bake signature handling
  * - Protocol/vault selection
  *
- * @module __tests__/unit/btc/BtcDeployLbtc.test.ts
+ * @module packages/sdk/__tests__/unit/btc/BtcDeployLbtc.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';

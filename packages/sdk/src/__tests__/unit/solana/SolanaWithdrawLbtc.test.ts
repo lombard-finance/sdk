@@ -1,7 +1,7 @@
 /**
  * SolanaWithdrawLbtc Unit Tests
  *
- * Tests for the Solana unstake action:
+ * Tests for the Solana withdraw action:
  * - LBTC → BTC  (cross-chain, via LBTC program)
  * - LBTC → BTC.b (same-chain, via Asset Router redeem)
  */

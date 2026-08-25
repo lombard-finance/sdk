@@ -1,7 +1,7 @@
 /**
- * Solana Unstake Configuration
+ * Solana Withdraw Configuration
  *
- * Handles unstaking LBTC on Solana to BTC (cross-chain) or BTC.b (same-chain).
+ * Handles withdrawing LBTC on Solana to BTC (cross-chain) or BTC.b (same-chain).
  *
  * @module chains/solana/actions/withdraw-lbtc/config/btc
  */
@@ -74,9 +74,9 @@ export const solanaToBtcbConfig: ChainConfig = {
 const allRoutes = [...solanaToBtcConfig.routes, ...solanaToBtcbConfig.routes];
 
 /**
- * Check if unstake is supported for the given route
+ * Check if withdraw is supported for the given route
  */
-export function isUnstakeSupported(
+export function isWithdrawSupported(
   sourceChain: Chain,
   destChain: Chain,
   assetIn: AssetId,

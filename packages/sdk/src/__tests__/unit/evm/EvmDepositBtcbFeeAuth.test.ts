@@ -1,12 +1,12 @@
 /**
- * EVM Stake Fee Authorization Tests
+ * EVM Deposit Fee Authorization Tests
  *
  * Tests the fee authorization flow for BTC.b → LBTC staking on EVM chains.
  *
  * Fee authorization is required on unsubsidized chains (Ethereum, Sepolia).
  * On subsidized chains (Avalanche, Base, BSC), no fee auth is required.
  *
- * @module __tests__/unit/evm/EvmDepositBtcbFeeAuth.test.ts
+ * @module packages/sdk/__tests__/unit/evm/EvmDepositBtcbFeeAuth.test.ts
  */
 
 import { Env } from '@lombard.finance/sdk-common';

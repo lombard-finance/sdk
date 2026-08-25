@@ -1,5 +1,5 @@
 /**
- * EVM Unstake Action Types
+ * EVM Withdraw Action Types
  *
  * ## Fee Authorization
  *
@@ -31,7 +31,7 @@ import type { FeeAuthState } from '../../shared/feeAuth';
 export { EvmOperationStatus as EvmWithdrawLbtcStatus } from '../../../../shared/constants/statusConstants';
 
 /**
- * EVM Unstake parameters
+ * EVM Withdraw parameters
  */
 export interface EvmWithdrawLbtcParams {
   /**
@@ -39,7 +39,7 @@ export interface EvmWithdrawLbtcParams {
    *
    * Typed as the literal rather than `AssetId` because `withdraw()` dispatches
    * on it: with a wide type this shape is indistinguishable from a redeem's,
-   * and overload resolution then hands every asset withdrawal the unstake
+   * and overload resolution then hands every asset withdrawal the withdraw
    * interface — which has no `approve()`, so the compiler forbids the step a
    * BTC.b redeem requires.
    */
@@ -53,17 +53,17 @@ export interface EvmWithdrawLbtcParams {
 }
 
 /**
- * EVM Unstake prepare parameters
+ * EVM Withdraw prepare parameters
  */
 export interface EvmWithdrawLbtcPrepareParams {
-  /** Amount to unstake (in LBTC) */
+  /** Amount to withdraw (in LBTC) */
   amount: string;
   /** Recipient address (BTC address or EVM address) */
   recipient: string;
 }
 
 /**
- * EVM Unstake progress
+ * EVM Withdraw progress
  */
 export interface EvmWithdrawLbtcProgress extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
@@ -75,7 +75,7 @@ export interface EvmWithdrawLbtcProgress extends StrategyProgress<EvmOperationSt
 }
 
 /**
- * EVM Unstake interface
+ * EVM Withdraw interface
  */
 export interface IEvmWithdrawLbtc extends MonitorableAction {
   readonly status: EvmOperationStatus;

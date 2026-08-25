@@ -1,7 +1,7 @@
 /**
  * Starknet Actions
  *
- * Provides factory methods for Starknet operations (unstake).
+ * Provides factory methods for Starknet operations (withdraw).
  *
  * Note: Starknet module must be registered before using these actions.
  *
@@ -68,7 +68,7 @@ export class StarknetActions {
   }
 
   /**
-   * Unstake LBTC → BTC
+   * Withdraw LBTC → BTC
    *
    * Burns LBTC on Starknet and releases BTC on Bitcoin.
    *

@@ -1,5 +1,5 @@
 /**
- * EVM Unstake Action
+ * EVM Withdraw Action
  *
  * Burns LBTC on EVM chains and releases BTC (cross-chain) or BTC.b (same-chain).
  *

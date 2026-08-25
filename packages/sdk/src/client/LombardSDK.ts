@@ -74,10 +74,10 @@ export class LombardSDK<E extends Env = Env> {
    *
    * Access operations for each supported chain:
    * - btc: Bitcoin operations (stake, stakeAndDeploy, deposit)
-   * - evm: EVM operations (deposit, stake, unstake, deploy, redeem)
-   * - solana: Solana operations (unstake)
-   * - sui: Sui operations (unstake)
-   * - starknet: Starknet operations (unstake)
+   * - evm: EVM operations (deposit, stake, withdraw, deploy, redeem)
+   * - solana: Solana operations (withdraw)
+   * - sui: Sui operations (withdraw)
+   * - starknet: Starknet operations (withdraw)
    */
   public readonly chain: {
     btc: BtcActions;

@@ -18,11 +18,11 @@ export {
   type IEvmDepositBtcb,
 } from './deposit-btcb';
 
-// Unstake action
+// Withdraw action
 export {
-  createEvmUnstake,
-  evmUnstake,
+  createEvmWithdrawLbtc,
   EvmWithdrawLbtc,
+  evmWithdrawLbtc,
   type EvmWithdrawLbtcParams,
   type EvmWithdrawLbtcPrepareParams,
   type EvmWithdrawLbtcProgress,

@@ -1,7 +1,7 @@
 /**
- * BTC Destination Configuration for Sui Unstake
+ * BTC Destination Configuration for Sui Withdraw
  *
- * Handles unstaking LBTC from Sui to BTC on Bitcoin.
+ * Handles withdrawing LBTC from Sui to BTC on Bitcoin.
  *
  * @module chains/sui/actions/withdraw/config/btc
  */
@@ -35,9 +35,9 @@ export const suiToBtcConfig: ChainConfig = {
 };
 
 /**
- * Check if unstake to BTC is supported from this Sui chain
+ * Check if withdraw to BTC is supported from this Sui chain
  */
-export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
+export function isBtcWithdrawSupported(sourceChain: Chain, env: Env): boolean {
   return suiToBtcConfig.routes.some(
     (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),

@@ -14,7 +14,7 @@ import { SOLANA_DEVNET_CHAIN, SOLANA_MAINNET_CHAIN } from '../../common/chains';
  * sdk-solana functions (e.g. SolanaNetwork enum values).
  *
  * NOTE: SolanaWithdrawLbtc.ts contains an identical copy pending a follow-up
- * cleanup PR (unstake was not part of this branch).
+ * cleanup PR (withdraw was not part of this branch).
  */
 export function envToSolanaNetwork(env: Env): string {
   switch (env) {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 /**
- * Solana Unstake Real Wallet Tests
+ * Solana Withdraw Real Wallet Tests
  *
  * NOTE: These tests are skipped because:
  * 1. The Solana module requires separate registration via createConfig({ modules: [...] })

@@ -1,7 +1,7 @@
 /**
  * SuiWithdraw Unit Tests
  *
- * Tests for the Sui LBTC unstaking action with mocked providers.
+ * Tests for the Sui LBTC withdrawing action with mocked providers.
  */
 
 import { Env } from '@lombard.finance/sdk-common';

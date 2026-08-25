@@ -1,5 +1,5 @@
 /**
- * EVM Unstake Fee Authorization Status Tests
+ * EVM Withdraw Fee Authorization Status Tests
  *
  * Verifies that prepare() correctly transitions to NEEDS_FEE_AUTHORIZATION
  * when checkFeeAuthorization returns requiresAuth: true, hasValidSignature: false.

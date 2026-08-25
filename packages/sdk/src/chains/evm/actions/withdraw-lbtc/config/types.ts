@@ -1,5 +1,5 @@
 /**
- * EVM Unstake Chain Configuration Types
+ * EVM Withdraw Chain Configuration Types
  *
  * @module chains/evm/actions/withdraw-lbtc/config/types
  */
@@ -10,7 +10,7 @@ import type { z } from 'zod';
 import type { Chain, ChainType } from '../../../../../core';
 
 /**
- * Route definition for EVM unstake operations
+ * Route definition for EVM withdraw operations
  */
 export interface RouteDefinition {
   /** Supported source chains (where LBTC is burned) */
@@ -22,9 +22,9 @@ export interface RouteDefinition {
 }
 
 /**
- * Chain-specific configuration for EVM unstake operations
+ * Chain-specific configuration for EVM withdraw operations
  *
- * EVM unstake burns LBTC and releases BTC (cross-chain) or BTC.b (same-chain).
+ * EVM withdraw burns LBTC and releases BTC (cross-chain) or BTC.b (same-chain).
  */
 export interface ChainConfig {
   /** Chain type identifier */

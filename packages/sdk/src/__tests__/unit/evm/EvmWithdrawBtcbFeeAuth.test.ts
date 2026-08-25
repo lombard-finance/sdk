@@ -1,12 +1,12 @@
 /**
- * EVM Redeem Fee Authorization Tests
+ * EVM Withdraw Fee Authorization Tests
  *
- * EVM Redeem (BTC.b → BTC) releases native BTC on the Bitcoin network. The
+ * EVM Withdraw (BTC.b → BTC) releases native BTC on the Bitcoin network. The
  * auto-mint fee model only applies when minting BTC.b / LBTC on an EVM
- * destination (BTC Deposit, EVM Unstake → BTC.b), so EVM Redeem does NOT
+ * destination (BTC Deposit, EVM Withdraw → BTC.b), so EVM Withdraw does NOT
  * require fee authorization regardless of source chain.
  *
- * These tests document the simplified EVM Redeem flow and confirm that
+ * These tests document the simplified EVM Withdraw flow and confirm that
  * `requiresAutoMintFee` itself still behaves correctly for the other actions
  * that rely on it.
  */

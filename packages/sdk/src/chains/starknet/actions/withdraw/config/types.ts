@@ -1,5 +1,5 @@
 /**
- * Starknet Unstake Chain Configuration Types
+ * Starknet Withdraw Chain Configuration Types
  *
  * @module chains/starknet/actions/withdraw/config/types
  */
@@ -10,7 +10,7 @@ import type { z } from 'zod';
 import type { Chain, ChainType } from '../../../../../core';
 
 /**
- * Route definition for Starknet unstake operations
+ * Route definition for Starknet withdraw operations
  */
 export interface RouteDefinition {
   sourceChains: Chain[];
@@ -19,7 +19,7 @@ export interface RouteDefinition {
 }
 
 /**
- * Chain-specific configuration for Starknet unstake operations
+ * Chain-specific configuration for Starknet withdraw operations
  */
 export interface ChainConfig {
   chainType: ChainType;

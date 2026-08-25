@@ -1,10 +1,10 @@
 /**
- * EVM Unstake Config Unit Tests
+ * EVM Withdraw Config Unit Tests
  *
  * Tests address validation based on assetOut to prevent
  * bugs like #9 (EVM address validation errors when Bitcoin address expected).
  *
- * @module __tests__/unit/evm/EvmWithdrawLbtcConfig.test.ts
+ * @module packages/sdk/__tests__/unit/evm/EvmWithdrawLbtcConfig.test.ts
  */
 
 import { Env } from '@lombard.finance/sdk-common';
@@ -183,7 +183,7 @@ describe('EVM Unstake Config', () => {
 
     describe('EVM to BTCb routes', () => {
       it('should have matching destination for same-chain operations', () => {
-        // BTC.b unstake is same-chain (e.g., Avalanche → Avalanche)
+        // BTC.b withdraw is same-chain (e.g., Avalanche → Avalanche)
         expect(evmToBtcbConfig.routes.length).toBeGreaterThan(0);
 
         // Each route should have source and dest as the same chain

@@ -5,7 +5,7 @@
  *
  * Operations:
  * - stake: BTC.b → LBTC (stake wrapped BTC to get LBTC)
- * - unstake: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
+ * - withdraw: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
  * - deposit: BTCb → LBTC (deposit BTC.b to receive LBTC)
  * - deploy: LBTC/BTC.b → DeFi protocols (Veda, Silo)
  * - withdraw: Queue withdrawal from DeFi protocols
@@ -21,13 +21,13 @@
  *   providers: { evm: () => window.ethereum },
  * });
  *
- * const unstake = sdk.chain.evm.unstake({
+ * const withdraw = sdk.chain.evm.withdraw({
  *   sourceChain: Chain.ETHEREUM,
  *   assetOut: AssetId.BTC,
  * });
  *
- * await unstake.prepare({ amount: '0.1', recipient: 'bc1q...' });
- * const { txHash } = await unstake.execute();
+ * await withdraw.prepare({ amount: '0.1', recipient: 'bc1q...' });
+ * const { txHash } = await withdraw.execute();
  * ```
  *
  * @module chains/evm/EvmActions
@@ -61,7 +61,7 @@ import {
   type IEvmWithdrawBtcb,
 } from './actions/withdraw-btcb';
 import {
-  createEvmUnstake,
+  createEvmWithdrawLbtc,
   type EvmWithdrawLbtcParams,
   type IEvmWithdrawLbtc,
 } from './actions/withdraw-lbtc';
@@ -220,7 +220,7 @@ export class EvmActions {
     }
 
     if (params.assetIn === AssetId.LBTC) {
-      return createEvmUnstake(this.ctx, params as EvmWithdrawLbtcParams);
+      return createEvmWithdrawLbtc(this.ctx, params as EvmWithdrawLbtcParams);
     }
 
     if (params.assetIn === AssetId.BTCb) {

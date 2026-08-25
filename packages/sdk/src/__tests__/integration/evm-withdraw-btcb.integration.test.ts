@@ -1,9 +1,9 @@
 /**
- * EVM Redeem Integration Tests
+ * EVM Withdraw Integration Tests
  *
- * Tests EVM Redeem action with mocked API responses.
+ * Tests EVM Withdraw action with mocked API responses.
  *
- * @module __tests__/integration/evm-redeem.integration.test.ts
+ * @module packages/sdk/__tests__/integration/evm-withdraw-btcb.integration.test.ts
  */
 
 import { Env } from '@lombard.finance/sdk-common';
@@ -105,7 +105,7 @@ describe('EVM Redeem Integration', () => {
    * Avalanche — the reverse of what this action does — and asserted only that
    * the result was defined. They passed because the params were typed `AssetId`
    * and nothing executed. Redeem burns BTC.b and releases BTC to a Bitcoin
-   * address, so those were unstake's parameters wearing redeem's name.
+   * address, so those were withdraw's parameters wearing redeem's name.
    *
    * The asset pair is now a compile-time guarantee: `assetIn` is the `BTC.b`
    * literal and `assetOut` the `BTC` literal, so a wrong asset is a type error

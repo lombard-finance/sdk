@@ -1,7 +1,7 @@
 /**
- * EVM Chain Configuration for Unstake
+ * EVM Chain Configuration for Withdraw
  *
- * Handles unstaking LBTC to BTC (cross-chain) or BTC.b (same-chain).
+ * Handles withdrawing LBTC to BTC (cross-chain) or BTC.b (same-chain).
  * Routes are derived from ASSET_CATALOG to ensure consistency.
  *
  * @module chains/evm/actions/withdraw-lbtc/config/evm
@@ -25,7 +25,7 @@ import type { ChainConfig } from './types';
 // Catalog-Derived Chain Lists
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** EVM chains with LBTC deployed (can unstake to BTC) */
+/** EVM chains with LBTC deployed (can withdraw to BTC) */
 const LBTC_PROD_CHAINS = getEvmAssetChains(AssetId.LBTC, [Env.prod]);
 const LBTC_TESTNET_CHAINS = getEvmAssetChains(AssetId.LBTC, [
   Env.testnet,
@@ -34,7 +34,7 @@ const LBTC_TESTNET_CHAINS = getEvmAssetChains(AssetId.LBTC, [
   Env.ibc,
 ]);
 
-/** EVM chains with BOTH LBTC and BTCb deployed (can unstake to BTCb) */
+/** EVM chains with BOTH LBTC and BTCb deployed (can withdraw to BTCb) */
 const LBTC_BTCB_PROD_CHAINS = getEvmChainsWithAllAssets(
   [AssetId.LBTC, AssetId.BTCb],
   [Env.prod],
@@ -49,7 +49,7 @@ const LBTC_BTCB_TESTNET_CHAINS = getEvmChainsWithAllAssets(
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * EVM → BTC configuration (cross-chain unstake)
+ * EVM → BTC configuration (cross-chain withdraw)
  *
  * Burns LBTC on EVM, releases BTC on Bitcoin network.
  * Source chains derived from ASSET_CATALOG LBTC deployments.
@@ -104,9 +104,9 @@ export const evmToBtcbConfig: ChainConfig = {
 };
 
 /**
- * Check if unstake to BTC is supported
+ * Check if withdraw to BTC is supported
  */
-export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
+export function isBtcWithdrawSupported(sourceChain: Chain, env: Env): boolean {
   return evmToBtcConfig.routes.some(
     (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
@@ -114,9 +114,9 @@ export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
 }
 
 /**
- * Check if unstake to BTC.b is supported
+ * Check if withdraw to BTC.b is supported
  */
-export function isBtcbUnstakeSupported(sourceChain: Chain, env: Env): boolean {
+export function isBtcbWithdrawSupported(sourceChain: Chain, env: Env): boolean {
   return evmToBtcbConfig.routes.some(
     (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),

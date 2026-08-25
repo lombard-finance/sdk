@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 /**
- * Starknet Unstake Real Wallet Tests
+ * Starknet Withdraw Real Wallet Tests
  *
  * NOTE: These tests are skipped because:
  * 1. The Starknet module requires separate registration via createConfig({ modules: [...] })

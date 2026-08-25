@@ -1,11 +1,11 @@
 /**
- * EVM Redeem prepare() status transition tests
+ * EVM Withdraw prepare() status transition tests
  *
- * EVM Redeem releases native BTC on the Bitcoin network. There is no EVM
+ * EVM Withdraw releases native BTC on the Bitcoin network. There is no EVM
  * auto-mint on the destination, so the action never requires network-fee
  * authorization — `prepare()` must transition straight to READY regardless of
  * the source chain (including Ethereum / Sepolia, which DO require fee auth
- * for BTC Deposit and EVM Unstake to BTC.b).
+ * for BTC Deposit and EVM Withdraw to BTC.b).
  *
  * This file used to assert the opposite behavior; the assertions are inverted
  * here to lock in the new contract and act as a regression guard.

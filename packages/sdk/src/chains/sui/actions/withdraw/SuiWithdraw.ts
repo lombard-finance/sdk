@@ -1,5 +1,5 @@
 /**
- * Sui Unstake Action
+ * Sui Withdraw Action
  *
  * Burns LBTC on Sui and releases BTC on Bitcoin.
  *
@@ -21,7 +21,7 @@ import {
   amountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
-import { isBtcUnstakeSupported, suiToBtcConfig } from './config';
+import { isBtcWithdrawSupported, suiToBtcConfig } from './config';
 import type {
   ISuiWithdraw,
   SuiWithdrawParams,
@@ -58,7 +58,7 @@ export class SuiWithdraw
     super(NonEvmOperationStatus.IDLE);
     this.env = ctx.env;
 
-    if (!isBtcUnstakeSupported(params.sourceChain, this.env)) {
+    if (!isBtcWithdrawSupported(params.sourceChain, this.env)) {
       throw LombardError.routeNotFound({
         assetOut: params.assetOut,
         sourceChain: params.sourceChain,
@@ -132,7 +132,7 @@ export class SuiWithdraw
       // Get Sui chain ID from source chain
       const chainId = getSuiChainId(this.params.sourceChain);
 
-      // Call the Sui service to execute unstake
+      // Call the Sui service to execute withdraw
       const { txHash } = await this.ctx.sui.unstake({
         amount,
         btcAddress: recipient,

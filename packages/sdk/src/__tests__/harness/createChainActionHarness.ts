@@ -45,7 +45,7 @@ export interface RecordedCall {
 export interface RecordedCalls {
   readonly all: RecordedCall[];
   of(target: string, method: string): ReadonlyArray<readonly unknown[]>;
-  /** `['sui.unstake', ...]` — the shape a snapshot compares. */
+  /** `['sui.withdraw', ...]` — the shape a snapshot compares. */
   sequence(): string[];
 }
 

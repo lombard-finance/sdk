@@ -1,5 +1,5 @@
 /**
- * Sui Unstake Factory Functions
+ * Sui Withdraw Factory Functions
  *
  * @module chains/sui/actions/withdraw/factory
  */
@@ -10,9 +10,9 @@ import { SuiWithdraw } from './SuiWithdraw';
 import type { ISuiWithdraw, SuiWithdrawParams } from './types';
 
 /**
- * Create Sui unstake from context
+ * Create Sui withdraw from context
  */
-export function createSuiUnstake(
+export function createSuiWithdraw(
   ctx: SuiCoreContext,
   params: SuiWithdrawParams,
 ): ISuiWithdraw {
@@ -20,13 +20,13 @@ export function createSuiUnstake(
 }
 
 /**
- * Create Sui unstake from config
+ * Create Sui withdraw from config
  */
-export function suiUnstake(
+export function suiWithdraw(
   _config: LombardConfig,
   _params: SuiWithdrawParams,
 ): ISuiWithdraw {
   throw new Error(
-    'suiUnstake() from config is not yet supported. Use sdk.chain.sui.unstake() instead.',
+    'suiWithdraw() from config is not yet supported. Use sdk.chain.sui.withdraw() instead.',
   );
 }

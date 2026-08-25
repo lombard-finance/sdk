@@ -1,5 +1,5 @@
 /**
- * Unit tests for BTC Stake fee-authorization recovery when the BFF reports
+ * Unit tests for BTC Deposit fee-authorization recovery when the BFF reports
  * an active signature already exists for the user.
  *
  * Scenario: the user (or a prior tab) already triggered a fee auth flow.

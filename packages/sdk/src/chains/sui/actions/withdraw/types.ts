@@ -1,5 +1,5 @@
 /**
- * Sui Unstake Action Types
+ * Sui Withdraw Action Types
  *
  * @module chains/sui/actions/withdraw/types
  */
@@ -14,7 +14,7 @@ import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 
 /**
- * Sui Unstake parameters
+ * Sui Withdraw parameters
  */
 export interface SuiWithdrawParams {
   assetIn: AssetId;
@@ -24,7 +24,7 @@ export interface SuiWithdrawParams {
 }
 
 /**
- * Sui Unstake progress
+ * Sui Withdraw progress
  */
 export interface SuiWithdrawProgress extends StrategyProgress<NonEvmOperationStatus> {
   status: NonEvmOperationStatus;
@@ -36,7 +36,7 @@ export interface SuiWithdrawProgress extends StrategyProgress<NonEvmOperationSta
 }
 
 /**
- * Sui Unstake prepare params
+ * Sui Withdraw prepare params
  */
 export interface SuiWithdrawPrepareParams {
   amount: string;
@@ -44,7 +44,7 @@ export interface SuiWithdrawPrepareParams {
 }
 
 /**
- * Sui Unstake interface
+ * Sui Withdraw interface
  */
 export interface ISuiWithdraw extends MonitorableAction {
   readonly status: NonEvmOperationStatus;

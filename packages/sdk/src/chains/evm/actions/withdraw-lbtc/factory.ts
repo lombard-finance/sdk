@@ -1,5 +1,5 @@
 /**
- * EVM Unstake Factory Functions
+ * EVM Withdraw Factory Functions
  *
  * @module chains/evm/actions/withdraw-lbtc/factory
  */
@@ -18,14 +18,14 @@ import type { EvmWithdrawLbtcParams } from './types';
  * @example
  * ```typescript
  * const sdk = await createLombardSDK({ env: Env.prod, providers: { evm: () => window.ethereum } });
- * const unstake = sdk.chain.evm.unstake({
+ * const withdraw = sdk.chain.evm.withdraw({
  *   sourceChain: Chain.ETHEREUM,
  *   assetOut: AssetId.BTC,
  * });
- * await unstake.prepare({ amount: '0.1', recipient: 'bc1q...' });
+ * await withdraw.prepare({ amount: '0.1', recipient: 'bc1q...' });
  * ```
  */
-export function evmUnstake(
+export function evmWithdrawLbtc(
   config: LombardConfig,
   params: EvmWithdrawLbtcParams,
 ): EvmWithdrawLbtc {
@@ -36,7 +36,7 @@ export function evmUnstake(
 /**
  * Create EvmWithdrawLbtc action from context
  */
-export function createEvmUnstake(
+export function createEvmWithdrawLbtc(
   ctx: EvmCoreContext,
   params: EvmWithdrawLbtcParams,
 ): EvmWithdrawLbtc {

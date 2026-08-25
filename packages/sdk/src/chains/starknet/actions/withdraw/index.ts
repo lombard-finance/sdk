@@ -1,10 +1,10 @@
 /**
- * Starknet Unstake Action
+ * Starknet Withdraw Action
  *
  * @module chains/starknet/actions/withdraw
  */
 
-export { createStarknetUnstake, starknetUnstake } from './factory';
+export { createStarknetWithdraw, starknetWithdraw } from './factory';
 export { StarknetWithdraw } from './StarknetWithdraw';
 export type {
   IStarknetWithdraw,

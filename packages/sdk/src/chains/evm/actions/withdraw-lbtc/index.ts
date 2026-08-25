@@ -1,5 +1,5 @@
 /**
- * EVM Unstake Action
+ * EVM Withdraw Action
  *
  * @module chains/evm/actions/withdraw-lbtc
  */
@@ -8,11 +8,11 @@ export type { ChainConfig, RouteDefinition } from './config';
 export {
   evmToBtcbConfig,
   evmToBtcConfig,
-  isBtcbUnstakeSupported,
-  isBtcUnstakeSupported,
+  isBtcbWithdrawSupported,
+  isBtcWithdrawSupported,
 } from './config';
 export { EvmWithdrawLbtc } from './EvmWithdrawLbtc';
-export { createEvmUnstake, evmUnstake } from './factory';
+export { createEvmWithdrawLbtc, evmWithdrawLbtc } from './factory';
 export {
   type EvmWithdrawLbtcParams,
   type EvmWithdrawLbtcPrepareParams,
