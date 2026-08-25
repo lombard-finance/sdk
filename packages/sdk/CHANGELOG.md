@@ -38,6 +38,10 @@ migrate once.
 
   `evm.stake` becomes `evm.deposit`, and the old `evm.deposit` — claiming a pending BTC.b deposit — is now only `evm.claim`. Those two take identical parameters, so a `deposit` call left unchanged silently becomes the other action; what catches it is the return type, since the claim exposes `needsApproval`, `approve()` and `setClaimData` and the deposit does not. A call whose result is discarded needs checking by hand.
 
+- **`evm.withdraw().approve()` on the BTC.b route always threw.** It asserted `NEEDS_APPROVAL`, and that route prepares straight to `READY` — the allowance is read and granted inside `execute()` — so the status it required was one the route never reaches.
+
+  That made the union-narrowing shape this changelog recommends, `if ('approve' in action) await action.approve()`, fail every time on the BTC.b arm. It is now a documented safe no-op, matching `authorizeFee()` beside it, which was already one for the same reason. Nothing covered it because each class was driven through its own happy path rather than through the union; a test now drives the union.
+
 - **Every action class, interface and param type is renamed, and three ambiguous names are retired rather than reassigned.**
 
   A verb now dispatches on an asset, so several classes serve one verb — which makes naming a class after a verb a guaranteed collision. Classes carry the verb *and* the asset arm: `BtcStake` is `BtcDepositLbtc`, `BtcDeposit` is `BtcDepositBtcb`, `EvmUnstake` is `EvmWithdrawLbtc`, `EvmRedeem` is `EvmWithdrawBtcb`, `EvmWithdraw` is `EvmWithdrawVault`, `EvmStake` is `EvmDepositBtcb`, `EvmDeposit` is `EvmClaim`, and the Solana, Sui and Starknet classes follow the same pattern. Each `I*`, `*Params`, `*PrepareParams` and `*Progress` moves with its class.
@@ -69,7 +73,9 @@ migrate once.
 
 - **The asset a dispatching verb switches on is now typed as a literal.** `EvmUnstakeParams.assetIn` is `'LBTC'`, `EvmRedeemParams.assetIn` is `'BTC.b'`, the two Solana equivalents likewise, and the two BTC deploy params carry the matching `assetOut` literal.
 
-  This fixes a silent type lie. `withdraw` was declared with three overloads, but `EvmUnstakeParams` and `EvmRedeemParams` were structurally identical, so the third was unreachable: a BTC.b withdrawal resolved to `IEvmUnstake` while returning an `EvmRedeem`. `IEvmRedeem` carries `approve()` and `needsApproval` and `IEvmUnstake` does not — so the compiler _forbade_ the ERC-20 approval that route requires, and the only way through was a cast. The verb-dispatch tests asserted the constructed class, which was correct all along; nothing asserted the type.
+  This fixes a silent type lie. `withdraw` was declared with three overloads, but `EvmUnstakeParams` and `EvmRedeemParams` were structurally identical, so the third was unreachable: a BTC.b withdrawal resolved to `IEvmUnstake` while returning an `EvmRedeem`. Only the BTC.b interface carries `approve()` and `needsApproval`, so the compiler rejected any use of them and the only way through was a cast. The verb-dispatch tests asserted the constructed class, which was correct all along; nothing asserted the type.
+
+  (The BTC.b route does need an ERC-20 allowance, but the caller never drives it: `execute()` reads the allowance and submits the approval inline when it is short. `needsApproval` is `false` there for that reason, and `approve()` resolves without doing anything — see the fix below.)
 
   A caller passing `AssetId.LBTC` or `AssetId.BTCb` directly is unaffected and now gets the precise interface. A caller holding a runtime `AssetId` — a form, typically — matches a new fallback overload and receives the union to narrow:
 

@@ -134,6 +134,9 @@ export class EvmWithdrawBtcb
   protected override authorizationHandlers(): Partial<
     Record<EvmOperationStatus, () => Promise<void>>
   > {
+    // Both entries are unreachable on this route — it prepares straight to
+    // READY — and both handlers resolve quietly. They stay so that `authorize()`
+    // has an entry for every status a caller might dispatch on.
     return {
       [EvmOperationStatus.NEEDS_APPROVAL]: () => this.approve(),
       [EvmOperationStatus.NEEDS_FEE_AUTHORIZATION]: () => this.authorizeFee(),
@@ -156,16 +159,21 @@ export class EvmWithdrawBtcb
     // hitting a status-assertion error.
   }
 
+  /**
+   * Approve the BTC.b spend.
+   *
+   * @deprecated A safe no-op on this route, for the same reason as
+   * `authorizeFee` above. `execute()` reads the allowance itself and submits the
+   * approval inline when it is short, so the status machine never reaches
+   * `NEEDS_APPROVAL` and there is no separate step to drive.
+   *
+   * It used to assert that status, which meant it *always* threw — including
+   * for the `if ('approve' in action) await action.approve()` shape the
+   * migration guide recommends for narrowing the withdraw union. Resolving
+   * quietly is what makes that pattern safe on both arms.
+   */
   async approve(): Promise<void> {
-    this.assertStatus(EvmOperationStatus.NEEDS_APPROVAL, 'approve');
-
-    return this.act(async () => {
-      this._needsApproval = false;
-      this.emitProgress({
-        status: EvmOperationStatus.READY,
-        steps: { burning: StepStatus.IDLE, releasing: StepStatus.IDLE },
-      });
-    }, EvmOperationStatus.READY);
+    // Intentionally a no-op: the allowance is handled inside execute().
   }
 
   async execute(): Promise<{ txHash: string }> {
