@@ -385,7 +385,7 @@ export class BtcDeployLbtc
   }
 
   /**
-   * @deprecated Use {@link authorize} instead. Removed in the next major.
+   * @deprecated Use {@link authorize} instead. Removed in 7.0.0.
    */
   async authorizeDeposit(options?: BtcAuthorizeOptions): Promise<void> {
     return this.authorize(options);

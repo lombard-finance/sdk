@@ -405,7 +405,7 @@ export class BtcDepositBtcb
 
   /**
    * @deprecated Use {@link authorize} instead, which picks the ceremony from
-   * the route. Removed in the next major.
+   * the route. Removed in 7.0.0.
    *
    * Kept behaviourally identical, including the guard: calling this on a route
    * that needs no fee still throws rather than silently signing an address.
@@ -431,7 +431,7 @@ export class BtcDepositBtcb
 
   /**
    * @deprecated Use {@link authorize} instead, which picks the ceremony from
-   * the route. Removed in the next major.
+   * the route. Removed in 7.0.0.
    *
    * Kept behaviourally identical, including the guard: calling this on a route
    * that needs a fee still throws rather than signing the wrong thing.

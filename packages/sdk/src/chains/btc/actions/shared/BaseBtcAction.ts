@@ -75,7 +75,7 @@ export interface BasePrepareParams {
 /**
  * @deprecated Renamed to {@link BtcAuthorizeOptions}, which every BTC action's
  * `authorize()` takes now that the four ceremony methods collapsed into one per
- * class. Identical shape; removed in the next major.
+ * class. Identical shape; removed in 7.0.0.
  */
 export type AuthorizeDepositOptions = BtcAuthorizeOptions;
 
