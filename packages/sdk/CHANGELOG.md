@@ -38,6 +38,14 @@ migrate once.
 
   `evm.stake` becomes `evm.deposit`, and the old `evm.deposit` — claiming a pending BTC.b deposit — is now only `evm.claim`. Those two take identical parameters, so a `deposit` call left unchanged silently becomes the other action; what catches it is the return type, since the claim exposes `needsApproval`, `approve()` and `setClaimData` and the deposit does not. A call whose result is discarded needs checking by hand.
 
+- **`resolveDepositBtcAddress` now retries with the token's contract address when the gateway refuses the asset identifier.**
+
+  The route takes either a `destination_asset_type` or a `destination_asset_address`, never both. The type is the smaller request, but it only works for pairs the gateway has provisioned under that identifier — Sepolia LBTC is not one — and it answers a bare `invalid token address` with nothing pointing at the fix. The caller could pass the address explicitly, but had no way to know they needed to.
+
+  `canResolveDepositBtcAddressWithJwt` returned `true` for exactly those pairs, because all it can check is that the SDK has a name for each half; nothing available to it knows what the gateway has provisioned. Its documentation says that plainly now, and the retry is what makes "worth attempting" good enough in practice. A pair with no catalog address, or a caller who already supplied one, is unchanged — as is any other error.
+
+  `getTokenAddressForChain` takes an optional `token`, defaulting to LBTC, so existing callers are unaffected.
+
 - **`evm.withdraw().approve()` on the BTC.b route always threw.** It asserted `NEEDS_APPROVAL`, and that route prepares straight to `READY` — the allowance is read and granted inside `execute()` — so the status it required was one the route never reaches.
 
   That made the union-narrowing shape this changelog recommends, `if ('approve' in action) await action.approve()`, fail every time on the BTC.b arm. It is now a documented safe no-op, matching `authorizeFee()` beside it, which was already one for the same reason. Nothing covered it because each class was driven through its own happy path rather than through the union; a test now drives the union.

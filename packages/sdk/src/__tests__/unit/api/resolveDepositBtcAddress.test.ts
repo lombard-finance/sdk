@@ -188,3 +188,107 @@ describe('canResolveDepositBtcAddressWithJwt', () => {
     expect(canResolveDepositBtcAddressWithJwt(ChainId.base)).toBe(true);
   });
 });
+
+/**
+ * The gateway accepts the asset identifier for the pairs it has provisioned and
+ * answers `invalid token address` for the rest — Sepolia LBTC among them. The
+ * caller has no way to tell which is which, and no reason to care, so the SDK
+ * asks again with the token's contract address before giving up.
+ */
+describe('the asset-address retry', () => {
+  const invalidToken = () => axiosFailure(400, 'invalid token address');
+
+  /**
+   * Sepolia, not the shared `params`. Those point at Ethereum mainnet, which
+   * `stage` has no LBTC deployment for — so there is no address to retry with
+   * and the retry correctly declines. Using them here tested the wrong thing.
+   */
+  const onSepolia = { ...params, chainId: ChainId.sepolia };
+
+  it('retries with the contract address and returns the result', async () => {
+    post
+      .mockRejectedValueOnce(invalidToken())
+      .mockResolvedValueOnce({ data: { address: 'bc1qretried' } });
+
+    await expect(resolveDepositBtcAddress(onSepolia)).resolves.toBe(
+      'bc1qretried',
+    );
+    expect(post).toHaveBeenCalledTimes(2);
+  });
+
+  it('sends the address instead of the type, never both', async () => {
+    post
+      .mockRejectedValueOnce(invalidToken())
+      .mockResolvedValueOnce({ data: { address: 'bc1qretried' } });
+
+    await resolveDepositBtcAddress(onSepolia);
+
+    const retry = post.mock.calls[1][0] as { body: Record<string, unknown> };
+
+    expect(retry.body.destination_asset_address).toMatch(/^0x[0-9a-fA-F]{40}$/);
+    // The route rejects a request carrying both fields.
+    expect(retry.body).not.toHaveProperty('destination_asset_type');
+  });
+
+  it('keeps the partner and referral fields on the retry', async () => {
+    post
+      .mockRejectedValueOnce(invalidToken())
+      .mockResolvedValueOnce({ data: { address: 'bc1qretried' } });
+
+    await resolveDepositBtcAddress({
+      ...onSepolia,
+      partnerId: 'a-partner',
+      referrerCode: 'a-code',
+    });
+
+    const retry = post.mock.calls[1][0] as { body: Record<string, unknown> };
+
+    expect(retry.body.partner_id).toBe('a-partner');
+    expect(retry.body.referral_code).toBe('a-code');
+  });
+
+  it('does not retry when the caller already gave an address', async () => {
+    post.mockRejectedValueOnce(invalidToken());
+
+    await expect(
+      resolveDepositBtcAddress({
+        ...onSepolia,
+        destinationAssetAddress: '0x731eFa688F3679688cf60A3993b8658138953ED6',
+      }),
+    ).rejects.toThrow(/invalid token address/);
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  /** Any other failure is the caller's to see, unchanged. */
+  it('does not retry a different error', async () => {
+    post.mockRejectedValueOnce(axiosFailure(500, 'internal error'));
+
+    await expect(resolveDepositBtcAddress(onSepolia)).rejects.toThrow(
+      /internal error/,
+    );
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  it('still refuses a JWT the gateway rejects', async () => {
+    post.mockRejectedValueOnce(axiosFailure(401, 'invalid token address'));
+
+    await expect(resolveDepositBtcAddress(onSepolia)).rejects.toThrow(
+      UnauthorizedWalletJwtError,
+    );
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  /**
+   * A pair with no deployment has nothing to retry with, so the original error
+   * stands. Worth pinning: it is the case that made the first version of these
+   * tests pass for the wrong reason.
+   */
+  it('does not retry when the catalog has no address for the pair', async () => {
+    post.mockRejectedValueOnce(invalidToken());
+
+    await expect(resolveDepositBtcAddress(params)).rejects.toThrow(
+      /invalid token address/,
+    );
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+});

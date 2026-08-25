@@ -387,16 +387,27 @@ export const getTokenByAddress = (
   }
 };
 
+/**
+ * The token's contract address on a chain, whichever family the chain belongs to.
+ *
+ * `token` defaults to LBTC, which is what every existing caller wanted and what
+ * the non-EVM maps carry. Only the EVM map has other tokens, so a non-LBTC
+ * request on a non-EVM chain is undefined rather than wrong.
+ */
 export const getTokenAddressForChain = (
   chainId: ChainId | SuiChain | SolanaChain | StarknetChainId,
   adapter: AddressKind = AddressKind.Token,
   env: Env = DEFAULT_ENV,
+  token: Token = Token.LBTC,
 ): string | undefined => {
   if (isValidChain(chainId)) {
-    const found = TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId];
+    const found = TOKEN_ADDRESSES[token]?.[env]?.[chainId];
     if (found) {
       return typeof found === 'string' ? found : found[adapter];
     }
+  }
+  if (token !== Token.LBTC) {
+    return undefined;
   }
   if (isSuiChain(chainId)) {
     return SUI_TOKEN_ADDRESSES[Token.LBTC]?.[env]?.[chainId];
