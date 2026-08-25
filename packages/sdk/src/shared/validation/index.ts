@@ -319,7 +319,7 @@ export type SolanaAddress = z.infer<typeof solanaAddressSchema>;
 export type SuiAddress = z.infer<typeof suiAddressSchema>;
 export type StarknetAddress = z.infer<typeof starknetAddressSchema>;
 export type BitcoinAddress = z.infer<typeof bitcoinAddressSchema>;
-export type BtcStakePrepareParams = z.infer<typeof btcStakePrepareBaseSchema>;
+export type BtcDepositLbtcPrepareParams = z.infer<typeof btcStakePrepareBaseSchema>;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Validation Helpers

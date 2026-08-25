@@ -13,14 +13,14 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { evmDepositConfig } from '../../../chains/btc/actions/deposit/config/evm';
-import { solanaDepositConfig } from '../../../chains/btc/actions/deposit/config/solana';
+import { evmDepositConfig } from '../../../chains/btc/actions/deposit-btcb/config/evm';
+import { solanaDepositConfig } from '../../../chains/btc/actions/deposit-btcb/config/solana';
+import { evmConfig } from '../../../chains/btc/actions/deposit-lbtc/config/evm';
+import { solanaConfig } from '../../../chains/btc/actions/deposit-lbtc/config/solana';
+import { starknetConfig } from '../../../chains/btc/actions/deposit-lbtc/config/starknet';
+import { suiConfig } from '../../../chains/btc/actions/deposit-lbtc/config/sui';
 import type { BtcDepositRouteConfig } from '../../../chains/btc/actions/shared/routeConfig';
 import { toBtcDepositRouteConfig } from '../../../chains/btc/actions/shared/routeConfig';
-import { evmConfig } from '../../../chains/btc/actions/stake/config/evm';
-import { solanaConfig } from '../../../chains/btc/actions/stake/config/solana';
-import { starknetConfig } from '../../../chains/btc/actions/stake/config/starknet';
-import { suiConfig } from '../../../chains/btc/actions/stake/config/sui';
 import { AssetId, Chain } from '../../../core';
 
 /**

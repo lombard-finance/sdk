@@ -5,10 +5,10 @@ import {
 } from '@lombard.finance/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { EvmWithdrawParams, WithdrawStatus } from '../types';
+import type { EvmWithdrawVaultParams, WithdrawStatus } from '../types';
 
 export interface UseEvmWithdrawReturn {
-  withdraw: (params: EvmWithdrawParams) => Promise<void>;
+  withdraw: (params: EvmWithdrawVaultParams) => Promise<void>;
   reset: () => void;
   txHash: string | null;
   status: WithdrawStatus;
@@ -56,7 +56,7 @@ export function useEvmWithdraw(sdk: LombardSDK | null): UseEvmWithdrawReturn {
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   const withdraw = useCallback(
-    async (params: EvmWithdrawParams) => {
+    async (params: EvmWithdrawVaultParams) => {
       if (!sdk) {
         throw new Error('SDK not initialized');
       }

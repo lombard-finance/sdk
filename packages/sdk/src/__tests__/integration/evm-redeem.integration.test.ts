@@ -9,7 +9,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { evmRedeem } from '../../chains/evm/actions/redeem';
+import { evmRedeem } from '../../chains/evm/actions/withdraw-btcb';
 import { AssetId, Chain, evmActions } from '../../index';
 import { createTestConfig as createConfig } from '../helpers/createTestConfig';
 

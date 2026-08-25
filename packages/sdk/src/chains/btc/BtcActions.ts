@@ -32,26 +32,26 @@ import { AssetId } from '../../core';
 import type { BtcCoreContext } from '../../shared/context';
 import { createBtcCoreContext } from '../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../shared/errors';
-import { BtcDeposit } from './actions/deposit/BtcDeposit';
+import { BtcDeployBtcb } from './actions/deploy-btcb/BtcDeployBtcb';
 import type {
-  BtcDeposit as IBtcDeposit,
-  BtcDepositParams,
-} from './actions/deposit/types';
-import { BtcDepositAndDeploy } from './actions/depositAndDeploy/BtcDepositAndDeploy';
+  BtcDeployBtcb as IBtcDeployBtcb,
+  BtcDeployBtcbParams,
+} from './actions/deploy-btcb/types';
+import { BtcDeployLbtc } from './actions/deploy-lbtc/BtcDeployLbtc';
 import type {
-  BtcDepositAndDeploy as IBtcDepositAndDeploy,
-  BtcDepositAndDeployParams,
-} from './actions/depositAndDeploy/types';
-import { BtcStake } from './actions/stake/BtcStake';
+  BtcDeployLbtc as IBtcDeployLbtc,
+  BtcDeployLbtcParams,
+} from './actions/deploy-lbtc/types';
+import { BtcDepositBtcb } from './actions/deposit-btcb/BtcDepositBtcb';
 import type {
-  BtcStake as IBtcStake,
-  BtcStakeParams,
-} from './actions/stake/types';
-import { BtcStakeAndDeploy } from './actions/stakeAndDeploy/BtcStakeAndDeploy';
+  BtcDepositBtcb as IBtcDepositBtcb,
+  BtcDepositBtcbParams,
+} from './actions/deposit-btcb/types';
+import { BtcDepositLbtc } from './actions/deposit-lbtc/BtcDepositLbtc';
 import type {
-  BtcStakeAndDeploy as IBtcStakeAndDeploy,
-  BtcStakeAndDeployParams,
-} from './actions/stakeAndDeploy/types';
+  BtcDepositLbtc as IBtcDepositLbtc,
+  BtcDepositLbtcParams,
+} from './actions/deposit-lbtc/types';
 
 /**
  * BTC Actions
@@ -101,7 +101,7 @@ export class BtcActions {
    * This is for custody without staking. For staking (BTC → LBTC), use stake().
    *
    * @param params - Deposit parameters
-   * @returns BtcDeposit instance
+   * @returns BtcDepositBtcb instance
    *
    * @example
    * ```typescript
@@ -115,21 +115,21 @@ export class BtcActions {
    * const address = await deposit.generateDepositAddress();
    * ```
    */
-  deposit(params: BtcStakeParams): IBtcStake;
-  deposit(params: BtcDepositParams): IBtcDeposit;
+  deposit(params: BtcDepositLbtcParams): IBtcDepositLbtc;
+  deposit(params: BtcDepositBtcbParams): IBtcDepositBtcb;
   /**
    * The arm for a caller whose output asset is only known at runtime — a form,
    * typically. The precise interface cannot be known statically, so the union
    * comes back and the caller narrows.
    */
-  deposit(params: BtcAssetDepositParams): IBtcStake | IBtcDeposit;
-  deposit(params: BtcAssetDepositParams): IBtcStake | IBtcDeposit {
+  deposit(params: BtcAssetDepositParams): IBtcDepositLbtc | IBtcDepositBtcb;
+  deposit(params: BtcAssetDepositParams): IBtcDepositLbtc | IBtcDepositBtcb {
     if (params.assetOut === AssetId.LBTC) {
-      return new BtcStake(this.ctx, params as BtcStakeParams);
+      return new BtcDepositLbtc(this.ctx, params as BtcDepositLbtcParams);
     }
 
     if (params.assetOut === AssetId.BTCb) {
-      return new BtcDeposit(this.ctx, params as BtcDepositParams);
+      return new BtcDepositBtcb(this.ctx, params as BtcDepositBtcbParams);
     }
 
     // The two routes mint different assets through different contracts, so
@@ -158,26 +158,26 @@ export class BtcActions {
    *
    * @throws LombardError if `assetOut` is neither LBTC nor BTC.b
    */
-  deploy(params: BtcStakeAndDeployParams): IBtcStakeAndDeploy;
-  deploy(params: BtcDepositAndDeployParams): IBtcDepositAndDeploy;
+  deploy(params: BtcDeployLbtcParams): IBtcDeployLbtc;
+  deploy(params: BtcDeployBtcbParams): IBtcDeployBtcb;
   /**
    * The arm for a caller whose intermediate asset is only known at runtime. The
    * precise interface cannot be known statically, so the union comes back.
    */
   deploy(
     params: BtcAssetDeployParams,
-  ): IBtcStakeAndDeploy | IBtcDepositAndDeploy;
+  ): IBtcDeployLbtc | IBtcDeployBtcb;
   deploy(
     params: BtcAssetDeployParams,
-  ): IBtcStakeAndDeploy | IBtcDepositAndDeploy {
+  ): IBtcDeployLbtc | IBtcDeployBtcb {
     if (params.assetOut === AssetId.LBTC) {
-      return new BtcStakeAndDeploy(this.ctx, params as BtcStakeAndDeployParams);
+      return new BtcDeployLbtc(this.ctx, params as BtcDeployLbtcParams);
     }
 
     if (params.assetOut === AssetId.BTCb) {
-      return new BtcDepositAndDeploy(
+      return new BtcDeployBtcb(
         this.ctx,
-        params as BtcDepositAndDeployParams,
+        params as BtcDeployBtcbParams,
       );
     }
 

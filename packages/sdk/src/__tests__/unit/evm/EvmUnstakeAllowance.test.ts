@@ -1,7 +1,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { EvmUnstake } from '../../../chains/evm/actions/unstake/EvmUnstake';
+import { EvmWithdrawLbtc } from '../../../chains/evm/actions/withdraw-lbtc/EvmWithdrawLbtc';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
 import { EvmOperationStatus } from '../../../shared/constants/statusConstants';
@@ -45,7 +45,7 @@ function createContext(): EvmCoreContext {
   };
 }
 
-describe('EvmUnstake allowance handling', () => {
+describe('EvmWithdrawLbtc allowance handling', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -55,7 +55,7 @@ describe('EvmUnstake allowance handling', () => {
       await import('../../../contract-functions/approveToken');
 
     const ctx = createContext();
-    const unstake = new EvmUnstake(ctx, {
+    const unstake = new EvmWithdrawLbtc(ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.BASE,

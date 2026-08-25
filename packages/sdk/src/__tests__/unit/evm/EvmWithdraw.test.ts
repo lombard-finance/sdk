@@ -3,7 +3,7 @@
  *
  * Tests the DeFi vault → LBTC withdrawal flow on EVM chains.
  *
- * @module __tests__/unit/evm/EvmWithdraw.test.ts
+ * @module __tests__/unit/evm/EvmWithdrawVault.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -15,8 +15,8 @@ import {
   WithdrawErrorCode,
 } from '../../../shared/errors';
 
-describe('EvmWithdraw Interface', () => {
-  describe('EvmWithdrawParams', () => {
+describe('EvmWithdrawVault Interface', () => {
+  describe('EvmWithdrawVaultParams', () => {
     it('should require protocol selection', () => {
       const params = {
         sourceChain: Chain.ETHEREUM,
@@ -51,7 +51,7 @@ describe('EvmWithdraw Interface', () => {
     });
   });
 
-  describe('EvmWithdrawPrepareParams', () => {
+  describe('EvmWithdrawVaultPrepareParams', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',

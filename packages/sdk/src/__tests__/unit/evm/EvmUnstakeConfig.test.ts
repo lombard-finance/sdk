@@ -4,7 +4,7 @@
  * Tests address validation based on assetOut to prevent
  * bugs like #9 (EVM address validation errors when Bitcoin address expected).
  *
- * @module __tests__/unit/evm/EvmUnstakeConfig.test.ts
+ * @module __tests__/unit/evm/EvmWithdrawLbtcConfig.test.ts
  */
 
 import { Env } from '@lombard.finance/sdk-common';
@@ -13,7 +13,7 @@ import { describe, expect, it } from 'vitest';
 import {
   evmToBtcbConfig,
   evmToBtcConfig,
-} from '../../../chains/evm/actions/unstake/config/evm';
+} from '../../../chains/evm/actions/withdraw-lbtc/config/evm';
 import { Chain } from '../../../core';
 import {
   bitcoinAddressSchema,

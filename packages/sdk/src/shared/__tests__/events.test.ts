@@ -8,86 +8,79 @@ import { describe, expect, it } from 'vitest';
 
 import type { StrategyProgress } from '../../core/types';
 import { ErrorCode, LombardError } from '../errors';
-import {
-  BridgeEvent,
-  DeployEvent,
-  DepositEvent,
-  type DepositEventMap,
-  RedeemEvent,
-  UnstakeEvent,
-} from '../events';
+import { ActionEvent, type ActionEventMap } from '../events';
 
 describe('Event Types', () => {
-  describe('DepositEvent Enum', () => {
+  describe('ActionEvent Enum', () => {
     it('should define all deposit events', () => {
-      expect(DepositEvent.Progress).toBe('progress');
-      expect(DepositEvent.StatusChange).toBe('status-change');
-      expect(DepositEvent.Completed).toBe('completed');
-      expect(DepositEvent.Failed).toBe('failed');
-      expect(DepositEvent.Error).toBe('error');
+      expect(ActionEvent.Progress).toBe('progress');
+      expect(ActionEvent.StatusChange).toBe('status-change');
+      expect(ActionEvent.Completed).toBe('completed');
+      expect(ActionEvent.Failed).toBe('failed');
+      expect(ActionEvent.Error).toBe('error');
     });
   });
 
-  describe('RedeemEvent Enum', () => {
+  describe('ActionEvent Enum', () => {
     it('should define all redeem events', () => {
-      expect(RedeemEvent.Progress).toBe('progress');
-      expect(RedeemEvent.StatusChange).toBe('status-change');
-      expect(RedeemEvent.Completed).toBe('completed');
-      expect(RedeemEvent.Failed).toBe('failed');
-      expect(RedeemEvent.Error).toBe('error');
+      expect(ActionEvent.Progress).toBe('progress');
+      expect(ActionEvent.StatusChange).toBe('status-change');
+      expect(ActionEvent.Completed).toBe('completed');
+      expect(ActionEvent.Failed).toBe('failed');
+      expect(ActionEvent.Error).toBe('error');
     });
   });
 
-  describe('UnstakeEvent Enum', () => {
+  describe('ActionEvent Enum', () => {
     it('should define all unstake events', () => {
-      expect(UnstakeEvent.Progress).toBe('progress');
-      expect(UnstakeEvent.StatusChange).toBe('status-change');
-      expect(UnstakeEvent.Completed).toBe('completed');
-      expect(UnstakeEvent.Failed).toBe('failed');
-      expect(UnstakeEvent.Error).toBe('error');
+      expect(ActionEvent.Progress).toBe('progress');
+      expect(ActionEvent.StatusChange).toBe('status-change');
+      expect(ActionEvent.Completed).toBe('completed');
+      expect(ActionEvent.Failed).toBe('failed');
+      expect(ActionEvent.Error).toBe('error');
     });
   });
 
-  describe('DeployEvent Enum', () => {
+  describe('ActionEvent Enum', () => {
     it('should define all deploy events', () => {
-      expect(DeployEvent.Progress).toBe('progress');
-      expect(DeployEvent.StatusChange).toBe('status-change');
-      expect(DeployEvent.Completed).toBe('completed');
-      expect(DeployEvent.Failed).toBe('failed');
-      expect(DeployEvent.Error).toBe('error');
+      expect(ActionEvent.Progress).toBe('progress');
+      expect(ActionEvent.StatusChange).toBe('status-change');
+      expect(ActionEvent.Completed).toBe('completed');
+      expect(ActionEvent.Failed).toBe('failed');
+      expect(ActionEvent.Error).toBe('error');
     });
   });
 
-  describe('BridgeEvent Enum', () => {
+  describe('ActionEvent Enum', () => {
     it('should define all bridge events', () => {
-      expect(BridgeEvent.Progress).toBe('progress');
-      expect(BridgeEvent.StatusChange).toBe('status-change');
-      expect(BridgeEvent.Completed).toBe('completed');
-      expect(BridgeEvent.Failed).toBe('failed');
-      expect(BridgeEvent.Error).toBe('error');
+      expect(ActionEvent.Progress).toBe('progress');
+      expect(ActionEvent.StatusChange).toBe('status-change');
+      expect(ActionEvent.Completed).toBe('completed');
+      expect(ActionEvent.Failed).toBe('failed');
+      expect(ActionEvent.Error).toBe('error');
     });
   });
 
-  describe('DepositEventMap Type', () => {
+  describe('ActionEventMap Type', () => {
     it('should map events to their handler types', () => {
-      const progressHandler: DepositEventMap[typeof DepositEvent.Progress] = (
+      const progressHandler: ActionEventMap[typeof ActionEvent.Progress] = (
         progress: StrategyProgress<string>,
       ) => {
         expect(progress).toBeDefined();
       };
 
-      const statusHandler: DepositEventMap[typeof DepositEvent.StatusChange] = (
+      const statusHandler: ActionEventMap[typeof ActionEvent.StatusChange] = (
         status: string,
       ) => {
         expect(typeof status).toBe('string');
       };
 
-      const completedHandler: DepositEventMap[typeof DepositEvent.Completed] =
+      const completedHandler: ActionEventMap[typeof ActionEvent.Completed] =
         () => {
           // No params
         };
 
-      const errorHandler: DepositEventMap[typeof DepositEvent.Error] = (
+      const errorHandler: ActionEventMap[typeof ActionEvent.Error] = (
         error: LombardError,
       ) => {
         expect(error).toBeDefined();

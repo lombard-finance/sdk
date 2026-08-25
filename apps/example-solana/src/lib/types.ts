@@ -3,7 +3,7 @@ import type { AssetId, Chain } from '@lombard.finance/sdk';
 /**
  * Form data for staking configuration
  */
-export interface StakingFormData {
+export interface DepositFormData {
   amount: string;
   destChain: Chain;
   destAddress: string;
@@ -36,7 +36,7 @@ export interface DepositProgressInfo {
 /**
  * Form data for unstaking configuration
  */
-export interface UnstakingFormData {
+export interface WithdrawFormData {
   amount: string;
   assetIn: AssetId;
   assetOut: AssetId;

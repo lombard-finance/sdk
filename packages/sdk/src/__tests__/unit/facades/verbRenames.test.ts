@@ -89,13 +89,13 @@ describe('btc.deposit()', () => {
   it('routes an LBTC deposit to the stake action', () => {
     expect(
       btc.deposit({ ...base, assetOut: AssetId.LBTC }).constructor.name,
-    ).toBe('BtcStake');
+    ).toBe('BtcDepositLbtc');
   });
 
   it('routes a BTC.b deposit to the deposit action', () => {
     expect(
       btc.deposit({ ...base, assetOut: AssetId.BTCb }).constructor.name,
-    ).toBe('BtcDeposit');
+    ).toBe('BtcDepositBtcb');
   });
 
   it('rejects an asset neither route mints, rather than guessing', () => {
@@ -122,7 +122,7 @@ describe('btc.deploy()', () => {
   it('routes an LBTC deploy to the stake-and-deploy action', () => {
     expect(
       btc.deploy({ ...base, assetOut: AssetId.LBTC }).constructor.name,
-    ).toBe('BtcStakeAndDeploy');
+    ).toBe('BtcDeployLbtc');
   });
 
   it('routes a BTC.b deploy to the deposit-and-deploy action', () => {
@@ -133,7 +133,7 @@ describe('btc.deploy()', () => {
         destChain: Chain.AVALANCHE,
         protocol: 'silo' as never,
       }).constructor.name,
-    ).toBe('BtcDepositAndDeploy');
+    ).toBe('BtcDeployBtcb');
   });
 
   // The two intermediate assets differ in whether the signed amount is
@@ -159,7 +159,7 @@ describe('evm.deposit() and evm.claim()', () => {
    * the verb means everywhere else.
    */
   it('deposit builds the stake action', () => {
-    expect(evm.deposit(params).constructor.name).toBe('EvmStake');
+    expect(evm.deposit(params).constructor.name).toBe('EvmDepositBtcb');
   });
 
   /**
@@ -169,7 +169,7 @@ describe('evm.deposit() and evm.claim()', () => {
    * name distinguishes them.
    */
   it('claim builds the deposit action', () => {
-    expect(evm.claim(params).constructor.name).toBe('EvmDeposit');
+    expect(evm.claim(params).constructor.name).toBe('EvmClaim');
   });
 
   it('they are different actions for the same parameters', () => {
@@ -193,7 +193,7 @@ describe('evm.withdraw()', () => {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
       }).constructor.name,
-    ).toBe('EvmUnstake');
+    ).toBe('EvmWithdrawLbtc');
   });
 
   it('routes a BTC.b withdrawal to the redeem action', () => {
@@ -203,7 +203,7 @@ describe('evm.withdraw()', () => {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
       }).constructor.name,
-    ).toBe('EvmRedeem');
+    ).toBe('EvmWithdrawBtcb');
   });
 
   /**
@@ -218,7 +218,7 @@ describe('evm.withdraw()', () => {
         sourceChain: Chain.ETHEREUM,
         recipient: '0x1111111111111111111111111111111111111111',
       }).constructor.name,
-    ).toBe('EvmWithdraw');
+    ).toBe('EvmWithdrawVault');
   });
 
   it('rejects an asset it cannot withdraw', () => {
@@ -242,7 +242,7 @@ describe('the non-EVM chains', () => {
         assetOut: AssetId.LBTC,
         chain: Chain.SOLANA_MAINNET,
       } as never).constructor.name,
-    ).toBe('SolanaStake');
+    ).toBe('SolanaDepositBtcb');
   });
 
   it('solana.withdraw dispatches on assetIn', () => {
@@ -258,14 +258,14 @@ describe('the non-EVM chains', () => {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
       }).constructor.name,
-    ).toBe('SolanaUnstake');
+    ).toBe('SolanaWithdrawLbtc');
     expect(
       solana.withdraw({
         ...chains,
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
       }).constructor.name,
-    ).toBe('SolanaRedeem');
+    ).toBe('SolanaWithdrawBtcb');
   });
 
   // One withdrawal each, so nothing to dispatch on.
@@ -281,12 +281,12 @@ describe('the non-EVM chains', () => {
         ...params,
         sourceChain: Chain.SUI_MAINNET,
       } as never).constructor.name,
-    ).toBe('SuiUnstake');
+    ).toBe('SuiWithdraw');
     expect(
       starknetActions(config).withdraw({
         ...params,
         sourceChain: Chain.STARKNET_MAINNET,
       } as never).constructor.name,
-    ).toBe('StarknetUnstake');
+    ).toBe('StarknetWithdraw');
   });
 });

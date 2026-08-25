@@ -2,52 +2,52 @@
 
 exports[`v5 to v6 interface conformance > reports the remaining gap per class 1`] = `
 {
-  "BtcDeposit": [
+  "BtcDeployBtcb": [
     "monitor",
   ],
-  "BtcDepositAndDeploy": [
+  "BtcDeployLbtc": [
     "monitor",
   ],
-  "BtcStake": [
+  "BtcDepositBtcb": [
     "monitor",
   ],
-  "BtcStakeAndDeploy": [
+  "BtcDepositLbtc": [
     "monitor",
   ],
   "EvmCancelWithdraw": [
     "monitor",
   ],
+  "EvmClaim": [
+    "monitor",
+  ],
   "EvmDeploy": [
     "monitor",
   ],
-  "EvmDeposit": [
+  "EvmDepositBtcb": [
     "monitor",
   ],
-  "EvmRedeem": [
+  "EvmWithdrawBtcb": [
     "monitor",
   ],
-  "EvmStake": [
+  "EvmWithdrawLbtc": [
     "monitor",
   ],
-  "EvmUnstake": [
+  "EvmWithdrawVault": [
     "monitor",
   ],
-  "EvmWithdraw": [
+  "SolanaDepositBtcb": [
     "monitor",
   ],
-  "SolanaRedeem": [
+  "SolanaWithdrawBtcb": [
     "monitor",
   ],
-  "SolanaStake": [
+  "SolanaWithdrawLbtc": [
     "monitor",
   ],
-  "SolanaUnstake": [
+  "StarknetWithdraw": [
     "monitor",
   ],
-  "StarknetUnstake": [
-    "monitor",
-  ],
-  "SuiUnstake": [
+  "SuiWithdraw": [
     "monitor",
   ],
 }

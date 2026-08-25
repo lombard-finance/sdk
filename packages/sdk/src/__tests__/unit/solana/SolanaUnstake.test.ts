@@ -1,5 +1,5 @@
 /**
- * SolanaUnstake Unit Tests
+ * SolanaWithdrawLbtc Unit Tests
  *
  * Tests for the Solana unstake action:
  * - LBTC → BTC  (cross-chain, via LBTC program)
@@ -9,7 +9,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SolanaUnstake } from '../../../chains/solana/actions/unstake/SolanaUnstake';
+import { SolanaWithdrawLbtc } from '../../../chains/solana/actions/withdraw-lbtc/SolanaWithdrawLbtc';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
 import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
@@ -46,7 +46,7 @@ function createMockContext(
 // Tests — LBTC → BTC (cross-chain)
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('SolanaUnstake — LBTC → BTC', () => {
+describe('SolanaWithdrawLbtc — LBTC → BTC', () => {
   let mockCtx: SolanaCoreContext;
 
   const validParams = {
@@ -68,7 +68,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
 
   describe('initialization', () => {
     it('should initialize with IDLE status', () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
@@ -78,13 +78,13 @@ describe('SolanaUnstake — LBTC → BTC', () => {
         sourceChain: Chain.ETHEREUM,
       };
 
-      expect(() => new SolanaUnstake(mockCtx, invalidParams)).toThrow();
+      expect(() => new SolanaWithdrawLbtc(mockCtx, invalidParams)).toThrow();
     });
 
     it('should throw for unsupported env/chain combination', () => {
       const testnetCtx = createMockContext({ env: Env.testnet });
 
-      expect(() => new SolanaUnstake(testnetCtx, validParams)).toThrow();
+      expect(() => new SolanaWithdrawLbtc(testnetCtx, validParams)).toThrow();
     });
 
     it('should accept valid testnet configuration', () => {
@@ -95,14 +95,14 @@ describe('SolanaUnstake — LBTC → BTC', () => {
         destChain: Chain.BITCOIN_SIGNET,
       };
 
-      const unstake = new SolanaUnstake(testnetCtx, testnetParams);
+      const unstake = new SolanaWithdrawLbtc(testnetCtx, testnetParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
   });
 
   describe('prepare', () => {
     it('should transition to READY status on valid prepare', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
 
       await unstake.prepare(validPrepareParams);
 
@@ -112,7 +112,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     });
 
     it('should validate BTC address format', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
 
       await expect(
         unstake.prepare({
@@ -123,7 +123,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     });
 
     it('should validate amount is positive', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
 
       await expect(
         unstake.prepare({
@@ -134,7 +134,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     });
 
     it('should throw if called when not IDLE', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await expect(unstake.prepare(validPrepareParams)).rejects.toThrow(
@@ -145,7 +145,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
 
   describe('execute', () => {
     it('should call solana service redeemForBtc with LBTC tokenMint', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       const result = await unstake.execute();
@@ -163,7 +163,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     });
 
     it('should NOT call solana service redeem', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -172,7 +172,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     });
 
     it('should transition to COMPLETED status', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -181,7 +181,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     });
 
     it('should throw if called when not READY', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
 
       await expect(unstake.execute()).rejects.toThrow(/execute/);
     });
@@ -191,7 +191,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
         .fn()
         .mockRejectedValue(new Error('Transaction failed'));
 
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await expect(unstake.execute()).rejects.toThrow('Transaction failed');
@@ -199,7 +199,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     });
 
     it('should set txHash property on success', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -210,7 +210,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
 
   describe('events', () => {
     it('should emit progress events during prepare', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       const progressHandler = vi.fn();
 
       unstake.on('progress', progressHandler);
@@ -220,7 +220,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
     });
 
     it('should emit completed event after execute', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       const completedHandler = vi.fn();
 
       unstake.on('completed', completedHandler);
@@ -235,7 +235,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
         .fn()
         .mockRejectedValue(new Error('Service error'));
 
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       const errorHandler = vi.fn();
 
       unstake.on('error', errorHandler);
@@ -249,7 +249,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
   describe('network mapping', () => {
     it('should use mainnet-beta for prod env', async () => {
       const prodCtx = createMockContext({ env: Env.prod });
-      const unstake = new SolanaUnstake(prodCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(prodCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -266,7 +266,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
         sourceChain: Chain.SOLANA_DEVNET,
         destChain: Chain.BITCOIN_SIGNET,
       };
-      const unstake = new SolanaUnstake(stageCtx, stageParams);
+      const unstake = new SolanaWithdrawLbtc(stageCtx, stageParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -282,7 +282,7 @@ describe('SolanaUnstake — LBTC → BTC', () => {
 // Tests — LBTC → BTC.b (same-chain)
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('SolanaUnstake — LBTC → BTC.b', () => {
+describe('SolanaWithdrawLbtc — LBTC → BTC.b', () => {
   let mockCtx: SolanaCoreContext;
 
   const validParams = {
@@ -304,13 +304,13 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
 
   describe('initialization', () => {
     it('should initialize with IDLE status in dev env', () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should initialize with IDLE status in stage env', () => {
       const stageCtx = createMockContext({ env: Env.stage });
-      const unstake = new SolanaUnstake(stageCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(stageCtx, validParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
@@ -321,7 +321,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
         sourceChain: Chain.SOLANA_MAINNET,
         destChain: Chain.SOLANA_MAINNET,
       };
-      const unstake = new SolanaUnstake(prodCtx, prodParams);
+      const unstake = new SolanaWithdrawLbtc(prodCtx, prodParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
@@ -330,13 +330,13 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
         ...validParams,
         sourceChain: Chain.ETHEREUM,
       };
-      expect(() => new SolanaUnstake(mockCtx, invalidParams)).toThrow();
+      expect(() => new SolanaWithdrawLbtc(mockCtx, invalidParams)).toThrow();
     });
   });
 
   describe('prepare', () => {
     it('should validate Solana address for BTC.b output', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
 
       await unstake.prepare(validPrepareParams);
 
@@ -345,7 +345,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
     });
 
     it('should reject BTC address for BTC.b output', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
 
       await expect(
         unstake.prepare({
@@ -358,7 +358,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
 
   describe('execute', () => {
     it('should call solana service redeem method', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       const result = await unstake.execute();
@@ -375,7 +375,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
     });
 
     it('should transition to COMPLETED status', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -388,7 +388,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
         .fn()
         .mockRejectedValue(new Error('Redeem failed'));
 
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await expect(unstake.execute()).rejects.toThrow('Redeem failed');
@@ -398,7 +398,7 @@ describe('SolanaUnstake — LBTC → BTC.b', () => {
 
   describe('network mapping', () => {
     it('should use devnet for dev env', async () => {
-      const unstake = new SolanaUnstake(mockCtx, validParams);
+      const unstake = new SolanaWithdrawLbtc(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
       await unstake.execute();
 

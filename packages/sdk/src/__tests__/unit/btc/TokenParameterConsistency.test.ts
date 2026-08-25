@@ -27,48 +27,48 @@ describe('Token Parameter Consistency', () => {
    * ┌─────────────────────────┬────────────────┬─────────────────────┬─────────────────┐
    * │ Action                  │ Source → Dest  │ Token Param         │ Amount Strategy │
    * ├─────────────────────────┼────────────────┼─────────────────────┼─────────────────┤
-   * │ BtcStake                │ BTC → LBTC     │ Token.LBTC          │ N/A (fee only)  │
-   * │ BtcDeposit              │ BTC → BTC.b    │ Token.BTCb          │ N/A (fee only)  │
-   * │ BtcStakeAndDeploy       │ BTC → LBTC     │ 'BTC'               │ btcToLbtc       │
-   * │ BtcDepositAndDeploy     │ BTC → BTC.b    │ Token.BTCb          │ identity        │
+   * │ BtcDepositLbtc                │ BTC → LBTC     │ Token.LBTC          │ N/A (fee only)  │
+   * │ BtcDepositBtcb              │ BTC → BTC.b    │ Token.BTCb          │ N/A (fee only)  │
+   * │ BtcDeployLbtc       │ BTC → LBTC     │ 'BTC'               │ btcToLbtc       │
+   * │ BtcDeployBtcb     │ BTC → BTC.b    │ Token.BTCb          │ identity        │
    * └─────────────────────────┴────────────────┴─────────────────────┴─────────────────┘
    *
    * Key Insight:
-   * - BtcStake and BtcDeposit use token for fee authorization (signNetworkFee)
-   * - BtcStakeAndDeploy and BtcDepositAndDeploy use token for vault permit (signStakeAndBake)
-   * - Only BtcStakeAndDeploy needs ratio conversion because it creates LBTC from BTC
+   * - BtcDepositLbtc and BtcDepositBtcb use token for fee authorization (signNetworkFee)
+   * - BtcDeployLbtc and BtcDeployBtcb use token for vault permit (signStakeAndBake)
+   * - Only BtcDeployLbtc needs ratio conversion because it creates LBTC from BTC
    */
 
-  describe('BtcStake Action', () => {
+  describe('BtcDepositLbtc Action', () => {
     it('uses Token.LBTC for network fee authorization', () => {
       /**
-       * BtcStake authorizes network fee using Token.LBTC.
+       * BtcDepositLbtc authorizes network fee using Token.LBTC.
        * This is for the fee signature, not the deposit amount.
        *
-       * Code location: packages/sdk/src/chains/btc/actions/stake/config/evm.ts
+       * Code location: packages/sdk/src/chains/btc/actions/deposit-lbtc/config/evm.ts
        * Line: token: Token.LBTC
        */
       expect(Token.LBTC).toBe('LBTC');
     });
   });
 
-  describe('BtcDeposit Action', () => {
+  describe('BtcDepositBtcb Action', () => {
     it('uses Token.BTCb for network fee authorization', () => {
       /**
-       * BtcDeposit authorizes network fee using Token.BTCb.
+       * BtcDepositBtcb authorizes network fee using Token.BTCb.
        * This distinguishes BTC.b fee signatures from LBTC fee signatures.
        *
-       * Code location: packages/sdk/src/chains/btc/actions/deposit/config/evm.ts
+       * Code location: packages/sdk/src/chains/btc/actions/deposit-btcb/config/evm.ts
        * Line: token: Token.BTCb
        */
       expect(Token.BTCb).toBe('BTC.b');
     });
   });
 
-  describe('BtcStakeAndDeploy Action', () => {
+  describe('BtcDeployLbtc Action', () => {
     it('uses "BTC" token for stake and bake permit (triggers ratio conversion)', () => {
       /**
-       * BtcStakeAndDeploy uses 'BTC' as token parameter to trigger ratio conversion.
+       * BtcDeployLbtc uses 'BTC' as token parameter to trigger ratio conversion.
        *
        * This is CRITICAL because:
        * 1. User deposits BTC (e.g., 20000 satoshis)
@@ -79,7 +79,7 @@ describe('Token Parameter Consistency', () => {
        * Using 'BTC' hits DEFI_REGISTRY[Veda]['BTC'] which has:
        *   amountStrategy: 'btcToLbtc' → applies ratio conversion
        *
-       * Code location: packages/sdk/src/chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy.ts
+       * Code location: packages/sdk/src/chains/btc/actions/deploy-lbtc/BtcDeployLbtc.ts
        * Line: token: 'BTC'
        */
       const vedaBtcConfig = DEFI_REGISTRY[DefiProtocol.Veda]?.['BTC'];
@@ -100,7 +100,7 @@ describe('Token Parameter Consistency', () => {
 
     it('should NOT use AssetId.LBTC (would skip ratio conversion)', () => {
       /**
-       * If BtcStakeAndDeploy used AssetId.LBTC (or Token.LBTC) as token,
+       * If BtcDeployLbtc used AssetId.LBTC (or Token.LBTC) as token,
        * it would hit DEFI_REGISTRY[Veda][Token.LBTC] which has:
        *   amountStrategy: 'identity' → NO ratio conversion
        *
@@ -125,15 +125,15 @@ describe('Token Parameter Consistency', () => {
     });
   });
 
-  describe('BtcDepositAndDeploy Action', () => {
+  describe('BtcDeployBtcb Action', () => {
     it('uses Token.BTCb for deposit and deploy permit (no ratio conversion needed)', () => {
       /**
-       * BtcDepositAndDeploy uses Token.BTCb which has:
+       * BtcDeployBtcb uses Token.BTCb which has:
        *   amountStrategy: 'identity' → no conversion
        *
        * This is correct because 1 BTC = 1 BTC.b (no exchange rate).
        *
-       * Code location: packages/sdk/src/chains/btc/actions/depositAndDeploy/BtcDepositAndDeploy.ts
+       * Code location: packages/sdk/src/chains/btc/actions/deploy-btcb/BtcDeployBtcb.ts
        * Line: token: Token.BTCb
        */
       const siloBtcbConfig = DEFI_REGISTRY[DefiProtocol.Silo]?.[Token.BTCb];

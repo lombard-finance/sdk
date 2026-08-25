@@ -7,7 +7,7 @@
  * - Authorization flow
  * - Deposit address generation
  *
- * @module __tests__/unit/btc/BtcDeposit.test.ts
+ * @module __tests__/unit/btc/BtcDepositBtcb.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -15,18 +15,18 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   getDepositChainConfig,
   isAssetOutSupported,
-} from '../../../chains/btc/actions/deposit/config';
+} from '../../../chains/btc/actions/deposit-btcb/config';
 import type {
-  BtcDepositParams,
-  BtcDepositPrepareParams,
-} from '../../../chains/btc/actions/deposit/types';
+  BtcDepositBtcbParams,
+  BtcDepositBtcbPrepareParams,
+} from '../../../chains/btc/actions/deposit-btcb/types';
 import { AssetId, Chain } from '../../../core';
 import { LombardError, ValidationErrorCode } from '../../../shared/errors';
 
-describe('BtcDeposit Interface', () => {
-  describe('BtcDepositParams', () => {
+describe('BtcDepositBtcb Interface', () => {
+  describe('BtcDepositBtcbParams', () => {
     it('should accept valid deposit parameters', () => {
-      const params: BtcDepositParams = {
+      const params: BtcDepositBtcbParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
       };
@@ -36,7 +36,7 @@ describe('BtcDeposit Interface', () => {
     });
 
     it('should require BTCb as output asset', () => {
-      const validParams: BtcDepositParams = {
+      const validParams: BtcDepositBtcbParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
       };
@@ -46,7 +46,7 @@ describe('BtcDeposit Interface', () => {
     });
 
     it('should support optional source chain', () => {
-      const params: BtcDepositParams = {
+      const params: BtcDepositBtcbParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
         sourceChain: Chain.BITCOIN_MAINNET,
@@ -56,12 +56,12 @@ describe('BtcDeposit Interface', () => {
     });
 
     it('should support Avalanche chains for BTC.b', () => {
-      const mainnetParams: BtcDepositParams = {
+      const mainnetParams: BtcDepositBtcbParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
       };
 
-      const testnetParams: BtcDepositParams = {
+      const testnetParams: BtcDepositBtcbParams = {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE_FUJI,
       };
@@ -71,9 +71,9 @@ describe('BtcDeposit Interface', () => {
     });
   });
 
-  describe('BtcDepositPrepareParams', () => {
+  describe('BtcDepositBtcbPrepareParams', () => {
     it('should accept valid prepare parameters', () => {
-      const params: BtcDepositPrepareParams = {
+      const params: BtcDepositBtcbPrepareParams = {
         amount: '0.1',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       };
@@ -83,7 +83,7 @@ describe('BtcDeposit Interface', () => {
     });
 
     it('should support optional referral code', () => {
-      const params: BtcDepositPrepareParams = {
+      const params: BtcDepositBtcbPrepareParams = {
         amount: '0.1',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
         referralCode: 'REF123',
@@ -123,7 +123,7 @@ describe('BtcDeposit Interface', () => {
 
   describe('Method Signatures', () => {
     it('should define prepare method', () => {
-      type PrepareMethod = (params: BtcDepositPrepareParams) => Promise<void>;
+      type PrepareMethod = (params: BtcDepositBtcbPrepareParams) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });

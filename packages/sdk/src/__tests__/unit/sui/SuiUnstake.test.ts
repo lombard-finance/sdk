@@ -1,5 +1,5 @@
 /**
- * SuiUnstake Unit Tests
+ * SuiWithdraw Unit Tests
  *
  * Tests for the Sui LBTC unstaking action with mocked providers.
  */
@@ -7,7 +7,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SuiUnstake } from '../../../chains/sui/actions/unstake/SuiUnstake';
+import { SuiWithdraw } from '../../../chains/sui/actions/withdraw/SuiWithdraw';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
 import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
@@ -40,7 +40,7 @@ function createMockContext(
 // Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('SuiUnstake', () => {
+describe('SuiWithdraw', () => {
   let mockCtx: SuiCoreContext;
 
   const validParams = {
@@ -66,7 +66,7 @@ describe('SuiUnstake', () => {
 
   describe('initialization', () => {
     it('should initialize with IDLE status', () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
@@ -76,14 +76,14 @@ describe('SuiUnstake', () => {
         sourceChain: Chain.ETHEREUM, // Not a Sui chain
       };
 
-      expect(() => new SuiUnstake(mockCtx, invalidParams)).toThrow();
+      expect(() => new SuiWithdraw(mockCtx, invalidParams)).toThrow();
     });
 
     it('should throw for unsupported env/chain combination', () => {
       // testnet env with mainnet chain
       const testnetCtx = createMockContext({ env: Env.testnet });
 
-      expect(() => new SuiUnstake(testnetCtx, validParams)).toThrow();
+      expect(() => new SuiWithdraw(testnetCtx, validParams)).toThrow();
     });
 
     it('should accept valid testnet configuration', () => {
@@ -94,7 +94,7 @@ describe('SuiUnstake', () => {
         destChain: Chain.BITCOIN_SIGNET,
       };
 
-      const unstake = new SuiUnstake(testnetCtx, testnetParams);
+      const unstake = new SuiWithdraw(testnetCtx, testnetParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
   });
@@ -105,7 +105,7 @@ describe('SuiUnstake', () => {
 
   describe('prepare', () => {
     it('should transition to READY status on valid prepare', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
 
       await unstake.prepare(validPrepareParams);
 
@@ -115,7 +115,7 @@ describe('SuiUnstake', () => {
     });
 
     it('should validate BTC address format', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
 
       await expect(
         unstake.prepare({
@@ -126,7 +126,7 @@ describe('SuiUnstake', () => {
     });
 
     it('should validate amount is positive', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
 
       await expect(
         unstake.prepare({
@@ -137,7 +137,7 @@ describe('SuiUnstake', () => {
     });
 
     it('should throw if called when not IDLE', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await expect(unstake.prepare(validPrepareParams)).rejects.toThrow(
@@ -152,7 +152,7 @@ describe('SuiUnstake', () => {
 
   describe('execute', () => {
     it('should call sui service unstake method', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       const result = await unstake.execute();
@@ -167,7 +167,7 @@ describe('SuiUnstake', () => {
     });
 
     it('should transition to COMPLETED status', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -176,7 +176,7 @@ describe('SuiUnstake', () => {
     });
 
     it('should throw if called when not READY', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
 
       await expect(unstake.execute()).rejects.toThrow(/execute/);
     });
@@ -186,7 +186,7 @@ describe('SuiUnstake', () => {
         .fn()
         .mockRejectedValue(new Error('Sui transaction failed'));
 
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await expect(unstake.execute()).rejects.toThrow('Sui transaction failed');
@@ -194,7 +194,7 @@ describe('SuiUnstake', () => {
     });
 
     it('should set txHash property on success', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -209,7 +209,7 @@ describe('SuiUnstake', () => {
 
   describe('events', () => {
     it('should emit progress events during prepare', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       const progressHandler = vi.fn();
 
       unstake.on('progress', progressHandler);
@@ -219,7 +219,7 @@ describe('SuiUnstake', () => {
     });
 
     it('should emit completed event after execute', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       const completedHandler = vi.fn();
 
       unstake.on('completed', completedHandler);
@@ -232,7 +232,7 @@ describe('SuiUnstake', () => {
     it('should emit error event on failure', async () => {
       mockCtx.sui.unstake = vi.fn().mockRejectedValue(new Error('Sui error'));
 
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       const errorHandler = vi.fn();
 
       unstake.on('error', errorHandler);
@@ -249,7 +249,7 @@ describe('SuiUnstake', () => {
 
   describe('chain ID mapping', () => {
     it('should use sui:mainnet for mainnet chain', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -266,7 +266,7 @@ describe('SuiUnstake', () => {
         sourceChain: Chain.SUI_TESTNET,
         destChain: Chain.BITCOIN_SIGNET,
       };
-      const unstake = new SuiUnstake(testnetCtx, testnetParams);
+      const unstake = new SuiWithdraw(testnetCtx, testnetParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -283,7 +283,7 @@ describe('SuiUnstake', () => {
 
   describe('loading state', () => {
     it('should set isLoading during prepare', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       const loadingStates: boolean[] = [];
 
       unstake.on('loading', (isLoading) => loadingStates.push(isLoading));
@@ -294,7 +294,7 @@ describe('SuiUnstake', () => {
     });
 
     it('should set isLoading during execute', async () => {
-      const unstake = new SuiUnstake(mockCtx, validParams);
+      const unstake = new SuiWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       const loadingStates: boolean[] = [];

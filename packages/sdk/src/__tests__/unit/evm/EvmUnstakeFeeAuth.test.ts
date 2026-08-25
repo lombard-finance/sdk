@@ -13,7 +13,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { EvmUnstake } from '../../../chains/evm/actions/unstake/EvmUnstake';
+import { EvmWithdrawLbtc } from '../../../chains/evm/actions/withdraw-lbtc/EvmWithdrawLbtc';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
 import { EvmOperationStatus } from '../../../shared/constants/statusConstants';
@@ -51,7 +51,7 @@ function createContext(): EvmCoreContext {
   };
 }
 
-describe('EvmUnstake fee authorization status', () => {
+describe('EvmWithdrawLbtc fee authorization status', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -70,7 +70,7 @@ describe('EvmUnstake fee authorization status', () => {
     });
 
     const ctx = createContext();
-    const unstake = new EvmUnstake(ctx, {
+    const unstake = new EvmWithdrawLbtc(ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,
@@ -109,7 +109,7 @@ describe('EvmUnstake fee authorization status', () => {
     });
 
     const ctx = createContext();
-    const unstake = new EvmUnstake(ctx, {
+    const unstake = new EvmWithdrawLbtc(ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.BASE,
@@ -139,7 +139,7 @@ describe('EvmUnstake fee authorization status', () => {
     });
 
     const ctx = createContext();
-    const unstake = new EvmUnstake(ctx, {
+    const unstake = new EvmWithdrawLbtc(ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,
@@ -169,7 +169,7 @@ describe('EvmUnstake fee authorization status', () => {
     });
 
     const ctx = createContext();
-    const unstake = new EvmUnstake(ctx, {
+    const unstake = new EvmWithdrawLbtc(ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,

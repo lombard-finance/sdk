@@ -1,7 +1,7 @@
 import {
   AssetId,
   BtcActionStatus,
-  type BtcStakeAndDeployProgress,
+  type BtcDeployLbtcProgress,
   type LombardSDK,
 } from '@lombard.finance/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -97,7 +97,7 @@ export function useBtcDeploy(
         });
 
         const unsubProgress = action.on('progress', (...args: unknown[]) => {
-          const data = args[0] as BtcStakeAndDeployProgress;
+          const data = args[0] as BtcDeployLbtcProgress;
 
           setProgress({
             confirmations: data.confirmations,

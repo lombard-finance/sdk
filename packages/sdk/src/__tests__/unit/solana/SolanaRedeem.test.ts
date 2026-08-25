@@ -1,5 +1,5 @@
 /**
- * SolanaRedeem Unit Tests
+ * SolanaWithdrawBtcb Unit Tests
  *
  * Tests for the Solana BTC.b → BTC redeem action with mocked providers.
  */
@@ -7,7 +7,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SolanaRedeem } from '../../../chains/solana/actions/redeem/SolanaRedeem';
+import { SolanaWithdrawBtcb } from '../../../chains/solana/actions/withdraw-btcb/SolanaWithdrawBtcb';
 import { envToSolanaChain } from '../../../chains/solana/utils';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
@@ -46,7 +46,7 @@ function createMockContext(
 // Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('SolanaRedeem — BTC.b → BTC', () => {
+describe('SolanaWithdrawBtcb — BTC.b → BTC', () => {
   let mockCtx: SolanaCoreContext;
 
   const validParams = {
@@ -68,13 +68,13 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
 
   describe('initialization', () => {
     it('should initialize with IDLE status in dev env', () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
       expect(redeem.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
     it('should initialize with IDLE status in stage env', () => {
       const stageCtx = createMockContext({ env: Env.stage });
-      const redeem = new SolanaRedeem(stageCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(stageCtx, validParams);
       expect(redeem.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
@@ -85,7 +85,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
         sourceChain: Chain.SOLANA_MAINNET,
         destChain: Chain.BITCOIN_MAINNET,
       };
-      const redeem = new SolanaRedeem(prodCtx, prodParams);
+      const redeem = new SolanaWithdrawBtcb(prodCtx, prodParams);
       expect(redeem.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
@@ -94,13 +94,13 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
         ...validParams,
         sourceChain: Chain.ETHEREUM,
       };
-      expect(() => new SolanaRedeem(mockCtx, invalidParams)).toThrow();
+      expect(() => new SolanaWithdrawBtcb(mockCtx, invalidParams)).toThrow();
     });
   });
 
   describe('prepare', () => {
     it('should transition to READY status on valid prepare', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
 
       await redeem.prepare(validPrepareParams);
 
@@ -110,7 +110,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
     });
 
     it('should validate BTC address format', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
 
       await expect(
         redeem.prepare({ amount: '0.001', recipient: 'invalid-address' }),
@@ -118,7 +118,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
     });
 
     it('should validate amount is positive', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
 
       await expect(
         redeem.prepare({
@@ -129,7 +129,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
     });
 
     it('should throw if called when not IDLE', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
       await expect(redeem.prepare(validPrepareParams)).rejects.toThrow(
@@ -140,7 +140,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
 
   describe('execute', () => {
     it('should call solana service redeemForBtc method', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
       const result = await redeem.execute();
@@ -162,7 +162,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
     });
 
     it('should NOT call solana service redeem or unstake', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
       await redeem.execute();
@@ -171,7 +171,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
     });
 
     it('should transition to COMPLETED status after execute', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
       await redeem.execute();
@@ -180,13 +180,13 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
     });
 
     it('should throw if called when not READY', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
 
       await expect(redeem.execute()).rejects.toThrow(/execute/);
     });
 
     it('should set txHash property on success', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
       await redeem.execute();
@@ -199,7 +199,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
         .fn()
         .mockRejectedValue(new Error('Transaction failed'));
 
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
 
       await expect(redeem.execute()).rejects.toThrow('Transaction failed');
@@ -209,7 +209,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
 
   describe('network mapping', () => {
     it('should use devnet for dev env', async () => {
-      const redeem = new SolanaRedeem(mockCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(mockCtx, validParams);
       await redeem.prepare(validPrepareParams);
       await redeem.execute();
 
@@ -220,7 +220,7 @@ describe('SolanaRedeem — BTC.b → BTC', () => {
 
     it('should use devnet for stage env', async () => {
       const stageCtx = createMockContext({ env: Env.stage });
-      const redeem = new SolanaRedeem(stageCtx, validParams);
+      const redeem = new SolanaWithdrawBtcb(stageCtx, validParams);
       await redeem.prepare(validPrepareParams);
       await redeem.execute();
 

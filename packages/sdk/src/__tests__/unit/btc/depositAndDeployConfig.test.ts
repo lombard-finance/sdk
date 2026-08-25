@@ -20,7 +20,7 @@ import {
   getVaultKey,
   isProtocolChainSupported,
   isProtocolSupported,
-} from '../../../chains/btc/actions/depositAndDeploy/config';
+} from '../../../chains/btc/actions/deploy-btcb/config';
 import { ChainId } from '../../../common/chains';
 import { AssetId } from '../../../core/assets/types';
 import { DEFI_REGISTRY, DefiProtocol } from '../../../defi';

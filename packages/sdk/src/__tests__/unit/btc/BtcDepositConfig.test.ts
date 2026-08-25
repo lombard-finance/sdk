@@ -6,7 +6,7 @@
  * Note: Supported chains are derived dynamically from ASSET_CATALOG.
  * These tests verify the validation logic works correctly.
  *
- * @module __tests__/unit/btc/BtcDepositConfig.test.ts
+ * @module __tests__/unit/btc/BtcDepositBtcbConfig.test.ts
  */
 
 import { Env } from '@lombard.finance/sdk-common';
@@ -19,7 +19,7 @@ import {
   isDestChainSupported,
   isRouteAvailable,
   solanaDepositConfig,
-} from '../../../chains/btc/actions/deposit/config';
+} from '../../../chains/btc/actions/deposit-btcb/config';
 import { AssetId, Chain } from '../../../core';
 
 describe('BTC Deposit Config', () => {
@@ -31,7 +31,7 @@ describe('BTC Deposit Config', () => {
     });
 
     it('should NOT support LBTC on the BTC.b route', () => {
-      // LBTC is produced by BtcStake, not BtcDeposit
+      // LBTC is produced by BtcDepositLbtc, not BtcDepositBtcb
       expect(isAssetOutSupported(evmConfig, AssetId.LBTC)).toBe(false);
     });
 

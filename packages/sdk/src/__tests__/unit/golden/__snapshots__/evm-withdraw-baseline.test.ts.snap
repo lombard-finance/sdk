@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmRedeem (BTC.b → BTC) records prepare → execute 1`] = `
+exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmWithdrawBtcb (BTC.b → BTC) records prepare → execute 1`] = `
 {
   "progress": [
     "ready [burning=idle,releasing=idle]",
@@ -18,7 +18,7 @@ exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmRedeem (BTC
 }
 `;
 
-exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmUnstake (LBTC → BTC): terminal releasing is PENDING 1`] = `
+exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmWithdrawLbtc (LBTC → BTC): terminal releasing is PENDING 1`] = `
 {
   "progress": [
     "ready [burning=idle,releasing=idle]",
@@ -36,7 +36,7 @@ exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmUnstake (LB
 }
 `;
 
-exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmUnstake (LBTC → BTC.b): terminal releasing is COMPLETE — the other branch 1`] = `
+exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmWithdrawLbtc (LBTC → BTC.b): terminal releasing is COMPLETE — the other branch 1`] = `
 {
   "progress": [
     "ready [burning=idle,releasing=idle]",

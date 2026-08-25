@@ -14,7 +14,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { EvmRedeem } from '../../../chains/evm/actions/redeem/EvmRedeem';
+import { EvmWithdrawBtcb } from '../../../chains/evm/actions/withdraw-btcb/EvmWithdrawBtcb';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
 import { EvmOperationStatus } from '../../../shared/constants/statusConstants';
@@ -38,14 +38,14 @@ function createContext(env: Env = Env.prod): EvmCoreContext {
   };
 }
 
-describe('EvmRedeem prepare()', () => {
+describe('EvmWithdrawBtcb prepare()', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('transitions IDLE → READY on Ethereum (no fee auth for BTC destination)', async () => {
     const ctx = createContext();
-    const redeem = new EvmRedeem(ctx, {
+    const redeem = new EvmWithdrawBtcb(ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.ETHEREUM,
@@ -67,7 +67,7 @@ describe('EvmRedeem prepare()', () => {
 
   it('transitions IDLE → READY on Sepolia (testnet of an unsubsidized chain)', async () => {
     const ctx = createContext(Env.testnet);
-    const redeem = new EvmRedeem(ctx, {
+    const redeem = new EvmWithdrawBtcb(ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.SEPOLIA,
@@ -85,7 +85,7 @@ describe('EvmRedeem prepare()', () => {
 
   it('transitions IDLE → READY on subsidized source chain (Base)', async () => {
     const ctx = createContext();
-    const redeem = new EvmRedeem(ctx, {
+    const redeem = new EvmWithdrawBtcb(ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.BASE,
@@ -103,7 +103,7 @@ describe('EvmRedeem prepare()', () => {
 
   it('never emits NEEDS_FEE_AUTHORIZATION status-change', async () => {
     const ctx = createContext();
-    const redeem = new EvmRedeem(ctx, {
+    const redeem = new EvmWithdrawBtcb(ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.ETHEREUM,
@@ -127,10 +127,10 @@ describe('EvmRedeem prepare()', () => {
   });
 });
 
-describe('EvmRedeem.authorizeFee() (deprecated no-op)', () => {
+describe('EvmWithdrawBtcb.authorizeFee() (deprecated no-op)', () => {
   it('resolves without changing status when called before prepare()', async () => {
     const ctx = createContext();
-    const redeem = new EvmRedeem(ctx, {
+    const redeem = new EvmWithdrawBtcb(ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.ETHEREUM,
@@ -143,7 +143,7 @@ describe('EvmRedeem.authorizeFee() (deprecated no-op)', () => {
 
   it('resolves without changing status when called after prepare() in READY', async () => {
     const ctx = createContext();
-    const redeem = new EvmRedeem(ctx, {
+    const redeem = new EvmWithdrawBtcb(ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.ETHEREUM,

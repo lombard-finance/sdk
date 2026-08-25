@@ -10,7 +10,7 @@
  *   Its `asset` param was accepted and never read, every call site hardcoding
  *   `Token.LBTC`; A2 fixed that, and this snapshot pins the action-level
  *   behaviour the fix had to leave alone.
- * - `EvmWithdraw` becomes `EvmVaultWithdraw`, and its terminal status changes
+ * - `EvmWithdrawVault` becomes `EvmVaultWithdraw`, and its terminal status changes
  *   from `COMPLETED` to `QUEUED`. That is **the one break no compiler catches**,
  *   because `evm.withdraw()` keeps its name. What is recorded here is the
  *   `COMPLETED` a consumer is reading today.
@@ -46,7 +46,7 @@ vi.mock('../../../clients/wallet-client', () => ({
 // Imports below intentionally sit after the vi.mock calls above; the sorter
 // already accepts this order, so no disable directive is needed.
 import { EvmDeploy } from '../../../chains/evm/actions/deploy/EvmDeploy';
-import { EvmWithdraw } from '../../../chains/evm/actions/withdraw/EvmWithdraw';
+import { EvmWithdrawVault } from '../../../chains/evm/actions/withdraw-vault/EvmWithdrawVault';
 import { AssetId, Chain, DeployProtocol } from '../../../core';
 import { createChainActionHarness } from '../../harness/createChainActionHarness';
 
@@ -133,9 +133,9 @@ describe('golden baseline — the EVM vault actions on 5.x', () => {
     }).toMatchSnapshot();
   });
 
-  it('EvmWithdraw: the vault exit whose terminal COMPLETED becomes QUEUED', async () => {
+  it('EvmWithdrawVault: the vault exit whose terminal COMPLETED becomes QUEUED', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
-    const action = new EvmWithdraw(h.ctx, {
+    const action = new EvmWithdrawVault(h.ctx, {
       protocol: DeployProtocol.Veda,
       sourceChain: Chain.ETHEREUM,
       recipient: EVM_RECIPIENT,
@@ -152,9 +152,9 @@ describe('golden baseline — the EVM vault actions on 5.x', () => {
     }).toMatchSnapshot();
   });
 
-  it('EvmWithdraw: refuses on a chain with no Veda vault', async () => {
+  it('EvmWithdrawVault: refuses on a chain with no Veda vault', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
-    const action = new EvmWithdraw(h.ctx, {
+    const action = new EvmWithdrawVault(h.ctx, {
       protocol: DeployProtocol.Veda,
       sourceChain: Chain.AVALANCHE,
       recipient: EVM_RECIPIENT,

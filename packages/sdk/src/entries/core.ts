@@ -142,26 +142,12 @@ export { Env } from '@lombard.finance/sdk-common';
 // Event types
 export type {
   ActionEventMap,
-  BridgeEventMap,
-  DeployEventMap,
-  DepositEventMap,
-  RedeemEventMap,
-  StakeEventMap,
   StrategyEvent,
   StrategyEventHandlerMap,
   StrategyEventMap,
-  UnstakeEventMap,
-  WithdrawEventMap,
 } from '../shared/events';
 export {
   ActionEvent,
-  BridgeEvent,
-  DeployEvent,
-  DepositEvent,
-  RedeemEvent,
-  StakeEvent,
-  UnstakeEvent,
-  WithdrawEvent,
 } from '../shared/events';
 
 // Error handling
@@ -242,14 +228,19 @@ export type {
   DeployParams,
   DepositParams,
   EvmCancelWithdrawStatus,
-  EvmClaimStatus,
-  // EvmDeployStatus is deliberately absent. v5 already exports that name as an
-  // alias of EvmOperationStatus, and the v6 narrowing describes the same concept
-  // with a smaller member set. Exporting both is a duplicate identifier;
-  // silently swapping the meaning would change what a consumer's type admits
-  // with no error at their call site. It lands when the EVM classes adopt the
-  // narrowings in stage D, as a named breaking change.
+  // EvmClaimStatus and EvmDeployStatus are deliberately absent. Each name is
+  // already taken by a v5 alias of EvmOperationStatus, and the v6 narrowing
+  // describes the same concept with a smaller member set. Exporting both is a
+  // duplicate identifier, and silently swapping which one wins would change what
+  // a consumer's type admits with no error at their call site. They land when
+  // the EVM classes adopt the narrowings, as a named breaking change.
+  //
+  // EvmDepositStatus and EvmWithdrawStatus are here for the first time: those
+  // names used to be taken by the per-action aliases, and the class rename
+  // freed them.
+  EvmDepositStatus,
   EvmVaultWithdrawStatus,
+  EvmWithdrawStatus,
   FeeAuthorizedAction,
   PrepareParams,
   ReachableActionStatus,

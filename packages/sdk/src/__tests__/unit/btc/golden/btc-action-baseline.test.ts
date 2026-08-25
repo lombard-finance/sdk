@@ -3,9 +3,9 @@
  *
  * ## Why this file exists
  *
- * The consolidation roadmap collapses `BtcStake`, `BtcDeposit`,
- * `BtcStakeAndDeploy` and `BtcDepositAndDeploy` into a single asset-parameterised
- * `BtcDeposit`, keeping the old names as delegating aliases. The guarantee sold
+ * The consolidation roadmap collapses `BtcDepositLbtc`, `BtcDepositBtcb`,
+ * `BtcDeployLbtc` and `BtcDeployBtcb` into a single asset-parameterised
+ * `BtcDepositBtcb`, keeping the old names as delegating aliases. The guarantee sold
  * to integrators is that an alias behaves identically to its 5.x original.
  *
  * That guarantee **cannot be verified after the fact** — once the merge lands,
@@ -56,10 +56,10 @@ vi.mock('../../../../api-functions/getUserStakeAndBakeSignature', () => ({
 // eslint-disable-next-line simple-import-sort/imports -- must follow the vi.mock above
 import { getUserStakeAndBakeSignature } from '../../../../api-functions/getUserStakeAndBakeSignature';
 
-import { BtcDeposit } from '../../../../chains/btc/actions/deposit/BtcDeposit';
-import { BtcDepositAndDeploy } from '../../../../chains/btc/actions/depositAndDeploy/BtcDepositAndDeploy';
-import { BtcStake } from '../../../../chains/btc/actions/stake/BtcStake';
-import { BtcStakeAndDeploy } from '../../../../chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy';
+import { BtcDepositBtcb } from '../../../../chains/btc/actions/deposit-btcb/BtcDepositBtcb';
+import { BtcDeployBtcb } from '../../../../chains/btc/actions/deploy-btcb/BtcDeployBtcb';
+import { BtcDepositLbtc } from '../../../../chains/btc/actions/deposit-lbtc/BtcDepositLbtc';
+import { BtcDeployLbtc } from '../../../../chains/btc/actions/deploy-lbtc/BtcDeployLbtc';
 import { AssetId, Chain } from '../../../../core';
 import { DefiProtocol } from '../../../../defi';
 import {
@@ -89,10 +89,10 @@ describe('golden baseline — BTC actions on 5.x', () => {
     mockRestore.mockRejectedValue(new Error('not found'));
   });
 
-  describe('BtcStake (native BTC → LBTC)', () => {
+  describe('BtcDepositLbtc (native BTC → LBTC)', () => {
     it('records its prepare lifecycle', async () => {
       const h = createBtcActionHarness({ env: Env.prod });
-      const action = new BtcStake(h.ctx, {
+      const action = new BtcDepositLbtc(h.ctx, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         sourceChain: Chain.BITCOIN_MAINNET,
@@ -110,10 +110,10 @@ describe('golden baseline — BTC actions on 5.x', () => {
     });
   });
 
-  describe('BtcDeposit (native BTC → BTC.b)', () => {
+  describe('BtcDepositBtcb (native BTC → BTC.b)', () => {
     it('records its prepare lifecycle', async () => {
       const h = createBtcActionHarness({ env: Env.prod });
-      const action = new BtcDeposit(h.ctx, {
+      const action = new BtcDepositBtcb(h.ctx, {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
         sourceChain: Chain.BITCOIN_MAINNET,
@@ -131,10 +131,10 @@ describe('golden baseline — BTC actions on 5.x', () => {
     });
   });
 
-  describe('BtcStakeAndDeploy (native BTC → LBTC → Veda vault)', () => {
+  describe('BtcDeployLbtc (native BTC → LBTC → Veda vault)', () => {
     it('records its prepare lifecycle with no existing deposit', async () => {
       const h = createBtcActionHarness({ env: Env.prod });
-      const action = new BtcStakeAndDeploy(h.ctx, {
+      const action = new BtcDeployLbtc(h.ctx, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         sourceChain: Chain.BITCOIN_MAINNET,
@@ -170,7 +170,7 @@ describe('golden baseline — BTC actions on 5.x', () => {
         expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
       } as Awaited<ReturnType<typeof getUserStakeAndBakeSignature>>);
 
-      const action = new BtcStakeAndDeploy(h.ctx, {
+      const action = new BtcDeployLbtc(h.ctx, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         sourceChain: Chain.BITCOIN_MAINNET,
@@ -190,7 +190,7 @@ describe('golden baseline — BTC actions on 5.x', () => {
     });
   });
 
-  describe('BtcDepositAndDeploy (native BTC → BTC.b → Silo vault)', () => {
+  describe('BtcDeployBtcb (native BTC → BTC.b → Silo vault)', () => {
     it('records what happens today on testnet', async () => {
       // Documented as never completing on any environment. Whatever it does —
       // including throwing — is recorded so the removal is evidenced rather
@@ -198,7 +198,7 @@ describe('golden baseline — BTC actions on 5.x', () => {
       const h = createBtcActionHarness({ env: Env.testnet });
       let outcome: string;
       try {
-        const action = new BtcDepositAndDeploy(h.ctx, {
+        const action = new BtcDeployBtcb(h.ctx, {
           assetOut: AssetId.BTCb,
           destChain: Chain.AVALANCHE_FUJI,
           sourceChain: Chain.BITCOIN_SIGNET,
@@ -226,9 +226,9 @@ describe('golden baseline — BTC actions on 5.x', () => {
   // recorded here is the thing an alias has to reproduce exactly.
   // ───────────────────────────────────────────────────────────────────────────
   describe('ceremony and address legs', () => {
-    it('BtcStake: authorize() then generateDepositAddress()', async () => {
+    it('BtcDepositLbtc: authorize() then generateDepositAddress()', async () => {
       const h = createBtcActionHarness({ env: Env.prod });
-      const action = new BtcStake(h.ctx, {
+      const action = new BtcDepositLbtc(h.ctx, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
       });
@@ -251,16 +251,16 @@ describe('golden baseline — BTC actions on 5.x', () => {
     // correct method and `authorizeFee()` is the one that would throw. Which of
     // the two refuses depends on the destination chain, which is exactly why the
     // merged class resolves it from config instead of asking the caller to know.
-    it('BtcDeposit: the confirmAddress path, and authorizeFee after it', async () => {
+    it('BtcDepositBtcb: the confirmAddress path, and authorizeFee after it', async () => {
       const h = createBtcActionHarness({ env: Env.prod });
-      const action = new BtcDeposit(h.ctx, {
+      const action = new BtcDepositBtcb(h.ctx, {
         assetOut: AssetId.BTCb,
         destChain: Chain.AVALANCHE,
       });
       h.observe(action);
 
       await action.prepare({ amount: AMOUNT, recipient: RECIPIENT });
-      // BtcDeposit splits the decision across two methods that throw at each
+      // BtcDepositBtcb splits the decision across two methods that throw at each
       // other. Which one is correct depends on feeAuthConfig, so record both
       // the choice and the refusal — the merged class must keep the behaviour,
       // not the method names.
@@ -284,9 +284,9 @@ describe('golden baseline — BTC actions on 5.x', () => {
       }).toMatchSnapshot();
     });
 
-    it('BtcStakeAndDeploy: authorizeDeposit() then generateDepositAddress()', async () => {
+    it('BtcDeployLbtc: authorizeDeposit() then generateDepositAddress()', async () => {
       const h = createBtcActionHarness({ env: Env.prod });
-      const action = new BtcStakeAndDeploy(h.ctx, {
+      const action = new BtcDeployLbtc(h.ctx, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         protocol: DefiProtocol.Veda,

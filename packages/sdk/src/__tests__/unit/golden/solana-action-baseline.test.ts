@@ -6,11 +6,11 @@
  * 6.0.0 renames `solana.deposit()` → `solana.deposit()` and merges
  * `solana.withdraw()` + `solana.withdraw()` into `solana.withdraw()`, keeping the
  * old names as delegating aliases. That merge is the best-founded one in the
- * release — `SolanaRedeem` calls only `ctx.solana.redeemForBtc`, which is a
- * strict subset of what `SolanaUnstake` calls — but "well-founded" is not
+ * release — `SolanaWithdrawBtcb` calls only `ctx.solana.redeemForBtc`, which is a
+ * strict subset of what `SolanaWithdrawLbtc` calls — but "well-founded" is not
  * "verified", and the reference behaviour disappears once the merge lands.
  *
- * `SolanaUnstake` is the class that carries the merge risk: it dispatches on
+ * `SolanaWithdrawLbtc` is the class that carries the merge risk: it dispatches on
  * `assetOut`, calling `redeem` for BTC.b and `redeemForBtc` for native BTC. Both
  * branches are captured, because the merged class has to keep the same
  * dispatch and the same call for each.
@@ -23,9 +23,9 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it } from 'vitest';
 
-import { SolanaRedeem } from '../../../chains/solana/actions/redeem/SolanaRedeem';
-import { SolanaStake } from '../../../chains/solana/actions/stake/SolanaStake';
-import { SolanaUnstake } from '../../../chains/solana/actions/unstake/SolanaUnstake';
+import { SolanaDepositBtcb } from '../../../chains/solana/actions/deposit-btcb/SolanaDepositBtcb';
+import { SolanaWithdrawBtcb } from '../../../chains/solana/actions/withdraw-btcb/SolanaWithdrawBtcb';
+import { SolanaWithdrawLbtc } from '../../../chains/solana/actions/withdraw-lbtc/SolanaWithdrawLbtc';
 import { AssetId, Chain } from '../../../core';
 import { createChainActionHarness } from '../../harness/createChainActionHarness';
 
@@ -49,9 +49,9 @@ function progressShape(payloads: unknown[]): string[] {
 }
 
 describe('golden baseline — Solana actions on 5.x', () => {
-  it('SolanaStake (BTC.b → LBTC) records prepare → execute', async () => {
+  it('SolanaDepositBtcb (BTC.b → LBTC) records prepare → execute', async () => {
     const h = createChainActionHarness('solana', { env: Env.prod });
-    const action = new SolanaStake(h.ctx, {
+    const action = new SolanaDepositBtcb(h.ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       chain: Chain.SOLANA_MAINNET,
@@ -69,9 +69,9 @@ describe('golden baseline — Solana actions on 5.x', () => {
     }).toMatchSnapshot();
   });
 
-  it('SolanaUnstake (LBTC → BTC) dispatches to redeemForBtc', async () => {
+  it('SolanaWithdrawLbtc (LBTC → BTC) dispatches to redeemForBtc', async () => {
     const h = createChainActionHarness('solana', { env: Env.prod });
-    const action = new SolanaUnstake(h.ctx, {
+    const action = new SolanaWithdrawLbtc(h.ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTC,
       sourceChain: Chain.SOLANA_MAINNET,
@@ -90,9 +90,9 @@ describe('golden baseline — Solana actions on 5.x', () => {
     }).toMatchSnapshot();
   });
 
-  it('SolanaUnstake (LBTC → BTC.b) dispatches to redeem — the other branch', async () => {
+  it('SolanaWithdrawLbtc (LBTC → BTC.b) dispatches to redeem — the other branch', async () => {
     const h = createChainActionHarness('solana', { env: Env.prod });
-    const action = new SolanaUnstake(h.ctx, {
+    const action = new SolanaWithdrawLbtc(h.ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.SOLANA_MAINNET,
@@ -111,9 +111,9 @@ describe('golden baseline — Solana actions on 5.x', () => {
     }).toMatchSnapshot();
   });
 
-  it('SolanaRedeem (BTC.b → BTC) records prepare → execute', async () => {
+  it('SolanaWithdrawBtcb (BTC.b → BTC) records prepare → execute', async () => {
     const h = createChainActionHarness('solana', { env: Env.prod });
-    const action = new SolanaRedeem(h.ctx, {
+    const action = new SolanaWithdrawBtcb(h.ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.SOLANA_MAINNET,

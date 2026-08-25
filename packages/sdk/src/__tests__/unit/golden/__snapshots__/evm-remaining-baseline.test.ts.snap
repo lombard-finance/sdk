@@ -12,7 +12,7 @@ exports[`golden baseline — the remaining EVM actions on 5.x > EvmCancelWithdra
 }
 `;
 
-exports[`golden baseline — the remaining EVM actions on 5.x > EvmDeposit — the CLAIM action, which 6.0.0 renames to EvmClaim 1`] = `
+exports[`golden baseline — the remaining EVM actions on 5.x > EvmClaim — the CLAIM action, which 6.0.0 renames to EvmClaim 1`] = `
 {
   "claimLBTCCalls": 1,
   "progress": [
@@ -29,7 +29,7 @@ exports[`golden baseline — the remaining EVM actions on 5.x > EvmDeposit — t
 }
 `;
 
-exports[`golden baseline — the remaining EVM actions on 5.x > EvmStake (BTC.b → LBTC) records its prepare lifecycle 1`] = `
+exports[`golden baseline — the remaining EVM actions on 5.x > EvmDepositBtcb (BTC.b → LBTC) records its prepare lifecycle 1`] = `
 {
   "calls": [],
   "feeAuthRequiresAuth": false,

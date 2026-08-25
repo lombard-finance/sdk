@@ -6,7 +6,7 @@
  * - Stake and bake signature handling
  * - Protocol/vault selection
  *
- * @module __tests__/unit/btc/BtcStakeAndDeploy.test.ts
+ * @module __tests__/unit/btc/BtcDeployLbtc.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -14,8 +14,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { AssetId, Chain } from '../../../core';
 import { LombardError, ValidationErrorCode } from '../../../shared/errors';
 
-describe('BtcStakeAndDeploy Interface', () => {
-  describe('BtcStakeAndDeployParams', () => {
+describe('BtcDeployLbtc Interface', () => {
+  describe('BtcDeployLbtcParams', () => {
     it('should require LBTC as output asset', () => {
       const params = {
         assetOut: AssetId.LBTC,
@@ -58,7 +58,7 @@ describe('BtcStakeAndDeploy Interface', () => {
     });
   });
 
-  describe('BtcStakeAndDeployPrepareParams', () => {
+  describe('BtcDeployLbtcPrepareParams', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',
@@ -139,7 +139,7 @@ describe('BtcStakeAndDeploy Interface', () => {
     it('should reject BTCb as output asset', () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_ASSET,
-        `Asset BTCb is not supported for stake and deploy. Use BtcDepositAndDeploy instead.`,
+        `Asset BTCb is not supported for stake and deploy. Use BtcDeployBtcb instead.`,
       );
 
       expect(error.code).toBe(ValidationErrorCode.INVALID_ASSET);

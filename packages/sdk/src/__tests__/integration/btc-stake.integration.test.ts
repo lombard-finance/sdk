@@ -2,10 +2,10 @@
  * BTC Stake Integration Tests
  *
  * Tests for BTC staking operations:
- * - BtcStake: BTC → LBTC
- * - BtcDeposit: BTC → BTC.b
- * - BtcStakeAndDeploy: BTC → LBTC → DeFi
- * - BtcDepositAndDeploy: BTC → BTC.b → DeFi
+ * - BtcDepositLbtc: BTC → LBTC
+ * - BtcDepositBtcb: BTC → BTC.b
+ * - BtcDeployLbtc: BTC → LBTC → DeFi
+ * - BtcDeployBtcb: BTC → BTC.b → DeFi
  *
  * @see SDK_DEVELOPER_FAQ.md
  */
@@ -14,7 +14,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import type { EIP1193Provider } from 'viem';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { btcStake } from '../../chains/btc/actions/stake';
+import { btcStake } from '../../chains/btc/actions/deposit-lbtc';
 import { LombardSDK } from '../../client/LombardSDK';
 import { AssetId, Chain } from '../../core';
 import { BtcActionStatus } from '../../shared/constants/statusConstants';

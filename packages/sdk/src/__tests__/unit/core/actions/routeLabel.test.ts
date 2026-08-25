@@ -1,8 +1,8 @@
 /**
  * Route labels
  *
- * After the merges one class covers several journeys — `BtcDeposit` covers four
- * and `EvmWithdraw` two — so `constructor.name` no longer identifies what
+ * After the merges one class covers several journeys — `BtcDepositBtcb` covers four
+ * and `EvmWithdrawVault` two — so `constructor.name` no longer identifies what
  * failed. `LogMeta` carries `route` into `toSentryContext()` instead, which
  * means a wrong label is a wrong answer in a log line during exactly the window
  * partners are filing migration bugs.

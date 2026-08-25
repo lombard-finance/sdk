@@ -14,7 +14,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { FeeSignatureAlreadyExistsError } from '../../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
-import { evmConfig } from '../../../chains/btc/actions/stake/config/evm';
+import { evmConfig } from '../../../chains/btc/actions/deposit-lbtc/config/evm';
 import { ChainId } from '../../../common/chains';
 import { Chain } from '../../../core';
 import type { BtcCoreContext } from '../../../shared/context';

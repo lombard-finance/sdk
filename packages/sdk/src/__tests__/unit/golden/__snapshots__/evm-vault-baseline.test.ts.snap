@@ -27,14 +27,14 @@ exports[`golden baseline — the EVM vault actions on 5.x > EvmDeploy: prepare w
 }
 `;
 
-exports[`golden baseline — the EVM vault actions on 5.x > EvmWithdraw: refuses on a chain with no Veda vault 1`] = `
+exports[`golden baseline — the EVM vault actions on 5.x > EvmWithdrawVault: refuses on a chain with no Veda vault 1`] = `
 {
   "outcome": "threw: Chain eip155:43114 does not support Veda vault withdrawals",
   "statuses": [],
 }
 `;
 
-exports[`golden baseline — the EVM vault actions on 5.x > EvmWithdraw: the vault exit whose terminal COMPLETED becomes QUEUED 1`] = `
+exports[`golden baseline — the EVM vault actions on 5.x > EvmWithdrawVault: the vault exit whose terminal COMPLETED becomes QUEUED 1`] = `
 {
   "needsApproval": false,
   "outcome": "resolved",

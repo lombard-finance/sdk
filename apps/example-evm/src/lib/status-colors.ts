@@ -1,7 +1,7 @@
 /**
  * Map a status phase to a Tailwind text-color class.
  *
- * Shared across StakingProgress, StakeAndDeployProgress, and UnstakingProgress.
+ * Shared across DepositingProgress, DeployingProgress, and WithdrawingProgress.
  */
 export function getStatusColor(phase: string): string {
   switch (phase) {

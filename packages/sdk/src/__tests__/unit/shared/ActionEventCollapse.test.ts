@@ -1,45 +1,35 @@
 /**
- * Guards the nine-into-one event collapse.
+ * One event vocabulary, and the wire values it must keep
  *
- * `shared/events.ts` previously declared the same five events nine times, once
- * per operation, as nine const objects and nine handler-map interfaces with
- * byte-identical members. They are now one `ActionEvent` / `ActionEventMap` with
- * the old names as deprecated aliases.
+ * `shared/events.ts` once declared the same five events nine times over, one
+ * const object and one handler map per operation, with byte-identical members.
+ * They collapsed to a single `ActionEvent` / `ActionEventMap`; 6.0.0 then
+ * removed the nine deprecated aliases, for the same reason the verbs went
+ * without delegators — a name kept alive is a name that keeps getting copied.
  *
- * The whole safety argument is that the *wire values* did not change, so any
- * consumer subscribing by string keeps working. That is what this file pins.
+ * The whole safety argument is that the **wire values did not change**, so any
+ * consumer subscribing by string keeps working through both steps. That is what
+ * this file pins, along with the absence of the aliases: on plain JavaScript a
+ * removed const is `undefined`, not an error, so `StakeEvent.Progress` would
+ * throw somewhere unrelated rather than at the import.
  */
 
 import { describe, expect, expectTypeOf, it } from 'vitest';
 
+import * as events from '../../../shared/events';
 import {
   ActionEvent,
   type ActionEventMap,
-  BridgeEvent,
-  type BridgeEventMap,
-  DeployEvent,
-  type DeployEventMap,
-  DepositAndDeployEvent,
-  type DepositAndDeployEventMap,
-  DepositEvent,
-  type DepositEventMap,
-  RedeemEvent,
-  type RedeemEventMap,
-  StakeAndDeployEvent,
-  type StakeAndDeployEventMap,
-  StakeEvent,
-  type StakeEventMap,
   type StrategyEvent,
   type StrategyEventHandlerMap,
   type StrategyEventMap,
-  UnstakeEvent,
-  type UnstakeEventMap,
-  WithdrawEvent,
-  type WithdrawEventMap,
 } from '../../../shared/events';
 
-/** The frozen wire contract. Changing any value here breaks every consumer
- *  that subscribes by string, so this literal is the point of the test. */
+/**
+ * The frozen wire contract. Changing any value here breaks every consumer that
+ * subscribes by string, which is the point of spelling it out as a literal
+ * rather than deriving it from the enum under test.
+ */
 const WIRE_VALUES = {
   Progress: 'progress',
   StatusChange: 'status-change',
@@ -48,74 +38,73 @@ const WIRE_VALUES = {
   Error: 'error',
 } as const;
 
-const DEPRECATED_ALIASES = {
-  StakeEvent,
-  DepositEvent,
-  RedeemEvent,
-  UnstakeEvent,
-  DeployEvent,
-  WithdrawEvent,
-  BridgeEvent,
-  StakeAndDeployEvent,
-  DepositAndDeployEvent,
-};
+describe('the wire values', () => {
+  for (const [member, value] of Object.entries(WIRE_VALUES)) {
+    it(`ActionEvent.${member} is "${value}"`, () => {
+      expect(ActionEvent[member as keyof typeof ActionEvent]).toBe(value);
+    });
+  }
 
-describe('ActionEvent', () => {
-  it('has exactly the frozen wire values', () => {
-    expect({ ...ActionEvent }).toEqual(WIRE_VALUES);
-  });
-
-  it('exposes no members beyond the five', () => {
+  it('has exactly these five members, and no more', () => {
     expect(Object.keys(ActionEvent).sort()).toEqual(
       Object.keys(WIRE_VALUES).sort(),
     );
   });
 });
 
-describe('deprecated per-operation aliases', () => {
-  it.each(Object.entries(DEPRECATED_ALIASES))(
-    '%s is the same object as ActionEvent',
-    (_name, alias) => {
-      // Identity, not deep equality: consumers may compare by reference, and a
-      // separate-but-equal object would silently break `===`.
-      expect(alias).toBe(ActionEvent);
-    },
-  );
+/**
+ * Asserted by name against the module object, because a type-level check cannot
+ * see a value that is merely absent — and absence is the whole claim.
+ */
+describe('the nine per-operation aliases are gone', () => {
+  const removed = [
+    'StakeEvent',
+    'DepositEvent',
+    'RedeemEvent',
+    'UnstakeEvent',
+    'DeployEvent',
+    'WithdrawEvent',
+    'BridgeEvent',
+    'StakeAndDeployEvent',
+    'DepositAndDeployEvent',
+  ] as const;
 
-  it.each(Object.entries(DEPRECATED_ALIASES))(
-    '%s still carries the original wire values',
-    (_name, alias) => {
-      expect({ ...alias }).toEqual(WIRE_VALUES);
-    },
-  );
+  for (const name of removed) {
+    it(`${name} is not exported`, () => {
+      expect((events as Record<string, unknown>)[name]).toBeUndefined();
+    });
+
+    it(`${name}Map is not exported`, () => {
+      expect((events as Record<string, unknown>)[`${name}Map`]).toBeUndefined();
+    });
+  }
 });
 
-describe('handler map types', () => {
-  it('every deprecated map alias resolves to ActionEventMap', () => {
-    expectTypeOf<StakeEventMap>().toEqualTypeOf<ActionEventMap>();
-    expectTypeOf<DepositEventMap>().toEqualTypeOf<ActionEventMap>();
-    expectTypeOf<RedeemEventMap>().toEqualTypeOf<ActionEventMap>();
-    expectTypeOf<UnstakeEventMap>().toEqualTypeOf<ActionEventMap>();
-    expectTypeOf<DeployEventMap>().toEqualTypeOf<ActionEventMap>();
-    expectTypeOf<WithdrawEventMap>().toEqualTypeOf<ActionEventMap>();
-    expectTypeOf<BridgeEventMap>().toEqualTypeOf<ActionEventMap>();
-    expectTypeOf<StakeAndDeployEventMap>().toEqualTypeOf<ActionEventMap>();
-    expectTypeOf<DepositAndDeployEventMap>().toEqualTypeOf<ActionEventMap>();
-  });
-
-  it('the generic aliases resolve to the canonical types', () => {
-    expectTypeOf<StrategyEventMap>().toEqualTypeOf<ActionEventMap>();
+/**
+ * `StrategyEvent` and `StrategyEventMap` were unions of nine structurally
+ * identical types, which made each equivalent to any single member. They are
+ * that single type now, and stay exported because they were never per-operation
+ * names to begin with.
+ */
+describe('the strategy aliases still describe the one vocabulary', () => {
+  it('StrategyEvent is ActionEvent', () => {
     expectTypeOf<StrategyEvent>().toEqualTypeOf<ActionEvent>();
   });
 
-  it('keeps the index signature action classes depend on', () => {
-    // ActionEventMap must remain assignable to the handler-map constraint, or
-    // BaseAction's generic bound rejects every action class at once. Asserted
-    // as a compile-time conditional so it fails the build, not just the run.
-    type Satisfies = ActionEventMap extends StrategyEventHandlerMap
-      ? true
-      : false;
-    const satisfies: Satisfies = true;
-    expect(satisfies).toBe(true);
+  it('StrategyEventMap is ActionEventMap', () => {
+    expectTypeOf<StrategyEventMap>().toEqualTypeOf<ActionEventMap>();
+  });
+
+  /**
+   * `StrategyEventHandlerMap` is not an alias — it is the bare index signature
+   * `ActionEventMap` extends, and that `extends` is the only reason the map
+   * satisfies `BaseAction`'s generic constraint. So the relationship to pin is
+   * one-way assignability, not equality.
+   */
+  it('ActionEventMap still satisfies StrategyEventHandlerMap', () => {
+    const asBase: StrategyEventHandlerMap = {} as ActionEventMap;
+
+    expect(asBase).toBeDefined();
+    expectTypeOf<ActionEventMap>().toMatchTypeOf<StrategyEventHandlerMap>();
   });
 });

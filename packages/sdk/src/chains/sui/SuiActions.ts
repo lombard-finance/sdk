@@ -21,8 +21,8 @@ import type { LombardConfig } from '../../config/types';
 import { getProviderGetter } from '../../config/types';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SuiCoreContext } from '../../shared/context';
-import { SuiUnstake } from './actions/unstake/SuiUnstake';
-import type { ISuiUnstake, SuiUnstakeParams } from './actions/unstake/types';
+import { SuiWithdraw } from './actions/withdraw/SuiWithdraw';
+import type { ISuiWithdraw, SuiWithdrawParams } from './actions/withdraw/types';
 
 /**
  * Create Sui core context from config
@@ -77,8 +77,8 @@ export class SuiActions {
    * Burns LBTC on Sui and releases BTC on Bitcoin. Named `withdraw` under the
    * three-verb model: an L-asset in, an asset out.
    */
-  withdraw(params: SuiUnstakeParams): ISuiUnstake {
-    return new SuiUnstake(this.ctx, params);
+  withdraw(params: SuiWithdrawParams): ISuiWithdraw {
+    return new SuiWithdraw(this.ctx, params);
   }
 
 }

@@ -35,7 +35,7 @@ import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { EvmCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
-import type { DeployEventMap } from '../../../../shared/events';
+import type { ActionEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
   validatePrepareParams,
@@ -59,7 +59,7 @@ import type {
 } from './types';
 
 export class EvmDeploy
-  extends BaseAction<DeployEventMap, EvmOperationStatus>
+  extends BaseAction<ActionEventMap, EvmOperationStatus>
   implements IEvmDeploy
 {
   private _amount?: string;

@@ -42,7 +42,7 @@ import {
  * Log metadata for structured logging
  */
 export interface LogMeta {
-  /** Action name (e.g., 'BtcStake', 'EvmUnstake') */
+  /** Action name (e.g., 'BtcDepositLbtc', 'EvmWithdrawLbtc') */
   action?: string;
   /** Current step (e.g., 'prepare', 'authorize', 'execute') */
   step?: string;

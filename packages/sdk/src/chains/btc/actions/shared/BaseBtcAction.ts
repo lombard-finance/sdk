@@ -110,7 +110,7 @@ export interface StatusConfig<TStatus extends string> {
  *
  * @example
  * ```typescript
- * class BtcStake extends BaseBtcAction<StakeEventMap, BtcActionStatus, BtcStakeParams> {
+ * class BtcDepositLbtc extends BaseBtcAction<ActionEventMap, BtcActionStatus, BtcDepositLbtcParams> {
  *   protected getAddressSchema() { return evmAddressSchema; }
  *   protected getStatusConfig() { return { idle: BtcActionStatus.IDLE, ... }; }
  *   protected getInitialSteps() { return { created: StepStatus.IDLE, ... }; }

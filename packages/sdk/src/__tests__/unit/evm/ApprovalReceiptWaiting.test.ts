@@ -142,10 +142,10 @@ describe('Approval Receipt Waiting', () => {
       }),
   });
 
-  describe('EvmWithdraw.approve()', () => {
+  describe('EvmWithdrawVault.approve()', () => {
     it('should wait for transaction receipt after sending approval tx', async () => {
       const { evmWithdraw } =
-        await import('../../../chains/evm/actions/withdraw');
+        await import('../../../chains/evm/actions/withdraw-vault');
       const { createTestConfig } =
         await import('../../helpers/createTestConfig');
       const { Chain } = await import('../../../core');
@@ -177,7 +177,7 @@ describe('Approval Receipt Waiting', () => {
 
     it('should set error state when receipt waiting fails', async () => {
       const { evmWithdraw } =
-        await import('../../../chains/evm/actions/withdraw');
+        await import('../../../chains/evm/actions/withdraw-vault');
       const { createTestConfig } =
         await import('../../helpers/createTestConfig');
       const { Chain } = await import('../../../core');
@@ -207,14 +207,14 @@ describe('Approval Receipt Waiting', () => {
     });
   });
 
-  describe('EvmStake.approve()', () => {
+  describe('EvmDepositBtcb.approve()', () => {
     it('should wait for transaction receipt after approveToken call', async () => {
-      const { evmStake } = await import('../../../chains/evm/actions/stake');
+      const { evmStake } = await import('../../../chains/evm/actions/deposit-btcb');
       const { createTestConfig } =
         await import('../../helpers/createTestConfig');
       const { Chain, AssetId } = await import('../../../core');
 
-      // Mock getAssetRouterAddress used by EvmStake.prepare()
+      // Mock getAssetRouterAddress used by EvmDepositBtcb.prepare()
       vi.doMock('../../../contract-functions/getAssetRouterAddress', () => ({
         getAssetRouterAddress: vi
           .fn()
@@ -268,7 +268,7 @@ describe('Approval Receipt Waiting', () => {
       });
 
       const { evmWithdraw } =
-        await import('../../../chains/evm/actions/withdraw');
+        await import('../../../chains/evm/actions/withdraw-vault');
       const { createTestConfig } =
         await import('../../helpers/createTestConfig');
       const { Chain } = await import('../../../core');

@@ -8,7 +8,7 @@
  * Fee authorization is required on unsubsidized chains (Ethereum, Sepolia).
  * On subsidized chains (Avalanche, Base, BSC), no fee auth is required.
  *
- * @module __tests__/unit/evm/EvmStake.test.ts
+ * @module __tests__/unit/evm/EvmDepositBtcb.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -16,8 +16,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { AssetId, Chain } from '../../../core';
 import { LombardError, ValidationErrorCode } from '../../../shared/errors';
 
-describe('EvmStake Interface', () => {
-  describe('EvmStakeParams', () => {
+describe('EvmDepositBtcb Interface', () => {
+  describe('EvmDepositBtcbParams', () => {
     it('should require BTCb as input asset', () => {
       const params = {
         assetIn: AssetId.BTCb,
@@ -56,7 +56,7 @@ describe('EvmStake Interface', () => {
     });
   });
 
-  describe('EvmStakePrepareParams', () => {
+  describe('EvmDepositBtcbPrepareParams', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',

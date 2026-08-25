@@ -5,7 +5,7 @@
  * burns BTC.b on an EVM source chain and releases native BTC to a Bitcoin
  * recipient address.
  *
- * @module __tests__/unit/evm/EvmRedeem.test.ts
+ * @module __tests__/unit/evm/EvmWithdrawBtcb.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -13,8 +13,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { AssetId, Chain } from '../../../core';
 import { LombardError, ValidationErrorCode } from '../../../shared/errors';
 
-describe('EvmRedeem interface', () => {
-  describe('EvmRedeemParams', () => {
+describe('EvmWithdrawBtcb interface', () => {
+  describe('EvmWithdrawBtcbParams', () => {
     it('requires BTC.b as input asset', () => {
       const params = {
         assetIn: AssetId.BTCb,
@@ -49,7 +49,7 @@ describe('EvmRedeem interface', () => {
     });
   });
 
-  describe('EvmRedeemPrepareParams', () => {
+  describe('EvmWithdrawBtcbPrepareParams', () => {
     it('accepts valid prepare parameters', () => {
       const params = {
         amount: '0.1',

@@ -1,5 +1,5 @@
 /**
- * Resume-path regression tests for BtcStakeAndDeploy.
+ * Resume-path regression tests for BtcDeployLbtc.
  *
  * Each test here corresponds to a defect found while designing the BTC action
  * consolidation. They matter disproportionately because the consolidation makes
@@ -18,7 +18,7 @@ vi.mock('../../../api-functions/getUserStakeAndBakeSignature', () => ({
 }));
 
 import { getUserStakeAndBakeSignature } from '../../../api-functions/getUserStakeAndBakeSignature';
-import { BtcStakeAndDeploy } from '../../../chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy';
+import { BtcDeployLbtc } from '../../../chains/btc/actions/deploy-lbtc/BtcDeployLbtc';
 import { AssetId, Chain } from '../../../core';
 import { DefiProtocol } from '../../../defi';
 import { BtcActionStatus } from '../../../shared/constants/statusConstants';
@@ -59,7 +59,7 @@ function makeAction(
   harnessOpts: Parameters<typeof createBtcActionHarness>[0] = {},
 ) {
   const h = createBtcActionHarness({ env: Env.prod, ...harnessOpts });
-  const action = new BtcStakeAndDeploy(h.ctx, {
+  const action = new BtcDeployLbtc(h.ctx, {
     assetOut: AssetId.LBTC,
     destChain: Chain.ETHEREUM,
     sourceChain: Chain.BITCOIN_MAINNET,
@@ -69,7 +69,7 @@ function makeAction(
   return { h, action };
 }
 
-describe('BtcStakeAndDeploy — resume path', () => {
+describe('BtcDeployLbtc — resume path', () => {
   beforeEach(() => {
     mockRestore.mockReset();
     mockRestore.mockRejectedValue(new Error('not found'));
@@ -155,7 +155,7 @@ describe('BtcStakeAndDeploy — resume path', () => {
 
         expect(
           () =>
-            new BtcStakeAndDeploy(h.ctx, {
+            new BtcDeployLbtc(h.ctx, {
               assetIn,
               assetOut: AssetId.LBTC,
               destChain: Chain.ETHEREUM,
@@ -171,7 +171,7 @@ describe('BtcStakeAndDeploy — resume path', () => {
 
       expect(
         () =>
-          new BtcStakeAndDeploy(h.ctx, {
+          new BtcDeployLbtc(h.ctx, {
             assetIn: AssetId.BTC,
             assetOut: AssetId.LBTC,
             destChain: Chain.ETHEREUM,
@@ -192,7 +192,7 @@ describe('BtcStakeAndDeploy — resume path', () => {
       'monitors the %s network when sourceChain is omitted',
       (env, expected) => {
         const h = createBtcActionHarness({ env });
-        const action = new BtcStakeAndDeploy(h.ctx, {
+        const action = new BtcDeployLbtc(h.ctx, {
           assetOut: AssetId.LBTC,
           destChain: Chain.ETHEREUM,
           protocol: DefiProtocol.Veda,

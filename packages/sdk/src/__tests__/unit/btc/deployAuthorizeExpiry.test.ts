@@ -15,8 +15,8 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { evmDepositAndDeployConfig } from '../../../chains/btc/actions/depositAndDeploy/config/evm';
-import { evmStakeAndDeployConfig } from '../../../chains/btc/actions/stakeAndDeploy/config/evm';
+import { evmDepositAndDeployConfig } from '../../../chains/btc/actions/deploy-btcb/config/evm';
+import { evmStakeAndDeployConfig } from '../../../chains/btc/actions/deploy-lbtc/config/evm';
 import { ChainId } from '../../../common/chains';
 import { signStakeAndBake } from '../../../contract-functions/signStakeAndBake/signStakeAndBake';
 import { AssetId, Chain, type DeployProtocol } from '../../../core';
@@ -259,10 +259,10 @@ describe('expiry validation', () => {
  *
  * The config-level tests above call `authorizeStakeAndBake` directly, which
  * skips the action class — the one place a consumer touches. These drive the
- * real `BtcStakeAndDeploy` through `prepare()` and `authorize()`, so the
+ * real `BtcDeployLbtc` through `prepare()` and `authorize()`, so the
  * option has to survive the whole path to be seen by the signer.
  */
-describe('BtcStakeAndDeploy.authorizeDeposit', () => {
+describe('BtcDeployLbtc.authorizeDeposit', () => {
   async function readyAction() {
     const subject = contextWithSpy();
 
@@ -286,10 +286,10 @@ describe('BtcStakeAndDeploy.authorizeDeposit', () => {
       has: () => true,
     };
 
-    const { BtcStakeAndDeploy } =
-      await import('../../../chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy');
+    const { BtcDeployLbtc } =
+      await import('../../../chains/btc/actions/deploy-lbtc/BtcDeployLbtc');
 
-    const action = new BtcStakeAndDeploy(subject.ctx, {
+    const action = new BtcDeployLbtc(subject.ctx, {
       assetOut: AssetId.LBTC,
       sourceChain: Chain.BITCOIN_MAINNET,
       destChain: Chain.ETHEREUM,

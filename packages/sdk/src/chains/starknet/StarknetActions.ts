@@ -21,11 +21,11 @@ import type { LombardConfig } from '../../config/types';
 import { getProviderGetter } from '../../config/types';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { StarknetCoreContext } from '../../shared/context';
-import { StarknetUnstake } from './actions/unstake/StarknetUnstake';
+import { StarknetWithdraw } from './actions/withdraw/StarknetWithdraw';
 import type {
-  IStarknetUnstake,
-  StarknetUnstakeParams,
-} from './actions/unstake/types';
+  IStarknetWithdraw,
+  StarknetWithdrawParams,
+} from './actions/withdraw/types';
 
 /**
  * Create Starknet core context from config
@@ -80,8 +80,8 @@ export class StarknetActions {
    * Burns LBTC on Starknet and releases BTC on Bitcoin. Named `withdraw` under the
    * three-verb model: an L-asset in, an asset out.
    */
-  withdraw(params: StarknetUnstakeParams): IStarknetUnstake {
-    return new StarknetUnstake(this.ctx, params);
+  withdraw(params: StarknetWithdrawParams): IStarknetWithdraw {
+    return new StarknetWithdraw(this.ctx, params);
   }
 
 }

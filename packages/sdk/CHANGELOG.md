@@ -18,7 +18,7 @@ migrate once.
 
 - The nine per-operation event vocabularies are now one. `shared/events.ts` declared the same five events nine times over — `StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`, `WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent`, `DepositAndDeployEvent` — as nine const objects and nine handler-map interfaces with byte-identical members. They collapse to a single `ActionEvent` / `ActionEventMap`.
 
-  **Wire values are unchanged**, so `action.on('progress', ...)`, `'status-change'`, `'completed'`, `'failed'` and `'error'` behave exactly as before. All nine old names remain as deprecated aliases pointing at the same object, so `StakeEvent === ActionEvent` holds and `StakeEvent.Progress` still resolves. `StrategyEventMap` and `StrategyEvent` were nine-member unions of structurally identical types — which made each equivalent to any single member — and are now that single type. Dropping the aliases is deferred to the next major.
+  **Wire values are unchanged**, so `action.on('progress', ...)`, `'status-change'`, `'completed'`, `'failed'` and `'error'` behave exactly as before. The nine old names were briefly kept as deprecated aliases; they are **removed** in this release rather than deferred, for the reason the verbs went without delegators — a name kept alive keeps being copied. `StrategyEventMap` and `StrategyEvent` were nine-member unions of structurally identical types, which made each equivalent to any single member, and are now that single type.
 
 ### Fixed
 
@@ -37,6 +37,18 @@ migrate once.
   `btc.deposit` absorbs `btc.stake` and dispatches on `assetOut`, the same way `withdraw` dispatches on `assetIn` and `deploy` already did. The two BTC deposit routes had identical parameters apart from the output asset, so one verb dispatching on it is the entire difference. A caller whose asset is only known at runtime matches a fallback overload and narrows the union.
 
   `evm.stake` becomes `evm.deposit`, and the old `evm.deposit` — claiming a pending BTC.b deposit — is now only `evm.claim`. Those two take identical parameters, so a `deposit` call left unchanged silently becomes the other action; what catches it is the return type, since the claim exposes `needsApproval`, `approve()` and `setClaimData` and the deposit does not. A call whose result is discarded needs checking by hand.
+
+- **Every action class, interface and param type is renamed, and three ambiguous names are retired rather than reassigned.**
+
+  A verb now dispatches on an asset, so several classes serve one verb — which makes naming a class after a verb a guaranteed collision. Classes carry the verb *and* the asset arm: `BtcStake` is `BtcDepositLbtc`, `BtcDeposit` is `BtcDepositBtcb`, `EvmUnstake` is `EvmWithdrawLbtc`, `EvmRedeem` is `EvmWithdrawBtcb`, `EvmWithdraw` is `EvmWithdrawVault`, `EvmStake` is `EvmDepositBtcb`, `EvmDeposit` is `EvmClaim`, and the Solana, Sui and Starknet classes follow the same pattern. Each `I*`, `*Params`, `*PrepareParams` and `*Progress` moves with its class.
+
+  `BtcDeposit`, `EvmDeposit` and `EvmWithdraw` are now owned by nothing. That is deliberate: handing `EvmDeposit` to the BTC.b deposit action would leave a 5.x import compiling while pointing at a different action, and the two take identical parameters. A retired name is a compile error at the import; a reassigned one is a runtime surprise.
+
+  The per-action status aliases follow their classes — `EvmStakeStatus` is `EvmDepositBtcbStatus`, and so on. All were re-exports of one `EvmOperationStatus`, so only the names change. `EvmDepositStatus` and `EvmWithdrawStatus` now name the core narrowings, which are reachable for the first time: those names were previously taken by the per-action aliases, and the rename freed them.
+
+  Directories follow too — `chains/evm/actions/deposit` held the *claim* action, which is the sort of thing that misleads every reader who opens it.
+
+- **The nine deprecated event aliases are removed.** `StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`, `WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent`, `DepositAndDeployEvent` and their `*Map` counterparts are gone; use `ActionEvent` / `ActionEventMap`. Wire values are untouched, so anything subscribing by string is unaffected.
 
 - **`sdk.api.unstakes()` is now `sdk.api.withdrawals()`,** and `UnstakeOptions` is `WithdrawalOptions`. Same call, same arguments, same return type.
 

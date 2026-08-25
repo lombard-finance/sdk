@@ -9,7 +9,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { btcStakeAndDeploy } from '../../chains/btc/actions/stakeAndDeploy';
+import { btcStakeAndDeploy } from '../../chains/btc/actions/deploy-lbtc';
 import { AssetId, Chain } from '../../index';
 import { createTestConfig as createConfig } from '../helpers/createTestConfig';
 

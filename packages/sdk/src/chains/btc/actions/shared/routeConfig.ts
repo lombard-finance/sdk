@@ -1,7 +1,7 @@
 /**
  * The unified BTC route config
  *
- * `BtcStake` and `BtcDeposit` carried two config interfaces that were
+ * `BtcDepositLbtc` and `BtcDepositBtcb` carried two config interfaces that were
  * structurally identical apart from one method name — `getSignature` against
  * `signDestination` — and two pairs of result types that differed only by which
  * optional fields one side had bothered to declare. The merge in stage C needs

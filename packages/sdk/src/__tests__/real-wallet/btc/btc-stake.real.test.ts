@@ -2,7 +2,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import type { PrivateKeyAccount, WalletClient } from 'viem';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { btcStake } from '../../../chains/btc/actions/stake';
+import { btcStake } from '../../../chains/btc/actions/deposit-lbtc';
 import { AssetId, Chain } from '../../../core';
 import { createTestConfig as createConfig } from '../../helpers/createTestConfig';
 import { walletClientToProvider } from '../../test-utils/eip1193-adapter';

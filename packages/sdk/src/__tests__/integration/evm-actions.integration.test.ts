@@ -2,11 +2,11 @@
  * EVM Actions Integration Tests
  *
  * Tests for all EVM chain operations:
- * - EvmStake: BTC.b → LBTC
- * - EvmUnstake: LBTC → BTC or BTC.b
- * - EvmDeposit: Claim LBTC with proof
+ * - EvmDepositBtcb: BTC.b → LBTC
+ * - EvmWithdrawLbtc: LBTC → BTC or BTC.b
+ * - EvmClaim: Claim LBTC with proof
  * - EvmDeploy: LBTC/BTC.b → DeFi
- * - EvmRedeem: LBTC → BTC.b
+ * - EvmWithdrawBtcb: LBTC → BTC.b
  *
  * @see SDK_DEVELOPER_FAQ.md
  */
@@ -82,7 +82,7 @@ vi.mock('../../contract-functions/approveToken', () => ({
   getTokenAllowance: vi.fn(async () => new BigNumber('1000000')),
 }));
 
-// Mock fee authorization for EvmStake (subsidized chains don't require fee auth)
+// Mock fee authorization for EvmDepositBtcb (subsidized chains don't require fee auth)
 vi.mock('../../chains/evm/shared/feeAuth', async (importOriginal) => {
   const original =
     await importOriginal<typeof import('../../chains/evm/shared/feeAuth')>();

@@ -1,5 +1,5 @@
 /**
- * StarknetUnstake Unit Tests
+ * StarknetWithdraw Unit Tests
  *
  * Tests for the Starknet LBTC unstaking action with mocked providers.
  */
@@ -7,7 +7,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { StarknetUnstake } from '../../../chains/starknet/actions/unstake/StarknetUnstake';
+import { StarknetWithdraw } from '../../../chains/starknet/actions/withdraw/StarknetWithdraw';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
 import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
@@ -44,7 +44,7 @@ function createMockContext(
 // Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('StarknetUnstake', () => {
+describe('StarknetWithdraw', () => {
   let mockCtx: StarknetCoreContext;
 
   const validParams = {
@@ -70,7 +70,7 @@ describe('StarknetUnstake', () => {
 
   describe('initialization', () => {
     it('should initialize with IDLE status', () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
 
@@ -80,14 +80,14 @@ describe('StarknetUnstake', () => {
         sourceChain: Chain.ETHEREUM, // Not a Starknet chain
       };
 
-      expect(() => new StarknetUnstake(mockCtx, invalidParams)).toThrow();
+      expect(() => new StarknetWithdraw(mockCtx, invalidParams)).toThrow();
     });
 
     it('should throw for unsupported env/chain combination', () => {
       // testnet env with mainnet chain
       const testnetCtx = createMockContext({ env: Env.testnet });
 
-      expect(() => new StarknetUnstake(testnetCtx, validParams)).toThrow();
+      expect(() => new StarknetWithdraw(testnetCtx, validParams)).toThrow();
     });
 
     it('should accept valid testnet configuration', () => {
@@ -98,7 +98,7 @@ describe('StarknetUnstake', () => {
         destChain: Chain.BITCOIN_SIGNET,
       };
 
-      const unstake = new StarknetUnstake(testnetCtx, testnetParams);
+      const unstake = new StarknetWithdraw(testnetCtx, testnetParams);
       expect(unstake.status).toBe(NonEvmOperationStatus.IDLE);
     });
   });
@@ -109,7 +109,7 @@ describe('StarknetUnstake', () => {
 
   describe('prepare', () => {
     it('should transition to READY status on valid prepare', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
 
       await unstake.prepare(validPrepareParams);
 
@@ -119,7 +119,7 @@ describe('StarknetUnstake', () => {
     });
 
     it('should validate BTC address format', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
 
       await expect(
         unstake.prepare({
@@ -130,7 +130,7 @@ describe('StarknetUnstake', () => {
     });
 
     it('should validate amount is positive', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
 
       await expect(
         unstake.prepare({
@@ -141,7 +141,7 @@ describe('StarknetUnstake', () => {
     });
 
     it('should throw if called when not IDLE', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await expect(unstake.prepare(validPrepareParams)).rejects.toThrow(
@@ -156,7 +156,7 @@ describe('StarknetUnstake', () => {
 
   describe('execute', () => {
     it('should call starknet service unstake method', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       const result = await unstake.execute();
@@ -170,7 +170,7 @@ describe('StarknetUnstake', () => {
     });
 
     it('should transition to COMPLETED status', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -179,7 +179,7 @@ describe('StarknetUnstake', () => {
     });
 
     it('should throw if called when not READY', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
 
       await expect(unstake.execute()).rejects.toThrow(/execute/);
     });
@@ -189,7 +189,7 @@ describe('StarknetUnstake', () => {
         .fn()
         .mockRejectedValue(new Error('Starknet transaction rejected'));
 
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await expect(unstake.execute()).rejects.toThrow(
@@ -199,7 +199,7 @@ describe('StarknetUnstake', () => {
     });
 
     it('should set txHash property on success', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -214,7 +214,7 @@ describe('StarknetUnstake', () => {
 
   describe('events', () => {
     it('should emit progress events during prepare', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       const progressHandler = vi.fn();
 
       unstake.on('progress', progressHandler);
@@ -224,7 +224,7 @@ describe('StarknetUnstake', () => {
     });
 
     it('should emit completed event after execute', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       const completedHandler = vi.fn();
 
       unstake.on('completed', completedHandler);
@@ -239,7 +239,7 @@ describe('StarknetUnstake', () => {
         .fn()
         .mockRejectedValue(new Error('Starknet error'));
 
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       const errorHandler = vi.fn();
 
       unstake.on('error', errorHandler);
@@ -256,7 +256,7 @@ describe('StarknetUnstake', () => {
 
   describe('loading state', () => {
     it('should set isLoading during prepare', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       const loadingStates: boolean[] = [];
 
       unstake.on('loading', (isLoading) => loadingStates.push(isLoading));
@@ -267,7 +267,7 @@ describe('StarknetUnstake', () => {
     });
 
     it('should set isLoading during execute', async () => {
-      const unstake = new StarknetUnstake(mockCtx, validParams);
+      const unstake = new StarknetWithdraw(mockCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       const loadingStates: boolean[] = [];
@@ -287,7 +287,7 @@ describe('StarknetUnstake', () => {
   describe('environment handling', () => {
     it('should pass env to service for prod', async () => {
       const prodCtx = createMockContext({ env: Env.prod });
-      const unstake = new StarknetUnstake(prodCtx, validParams);
+      const unstake = new StarknetWithdraw(prodCtx, validParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();
@@ -304,7 +304,7 @@ describe('StarknetUnstake', () => {
         sourceChain: Chain.STARKNET_SEPOLIA,
         destChain: Chain.BITCOIN_SIGNET,
       };
-      const unstake = new StarknetUnstake(stageCtx, stageParams);
+      const unstake = new StarknetWithdraw(stageCtx, stageParams);
       await unstake.prepare(validPrepareParams);
 
       await unstake.execute();

@@ -6,8 +6,8 @@
  * cannot tell anyone which journey failed, and the design assumed it flowed into
  * logs and into `toSentryContext()` when in fact nothing wired it up.
  *
- * It matters because one class now covers several journeys. `EvmUnstake` runs
- * both `lbtc-to-btc` and `lbtc-to-btcb`; `BtcStake` feeds every destination
+ * It matters because one class now covers several journeys. `EvmWithdrawLbtc` runs
+ * both `lbtc-to-btc` and `lbtc-to-btcb`; `BtcDepositLbtc` feeds every destination
  * chain. So the class name in a log line no longer says what the line is about,
  * and an error captured without the route names the code path but not the
  * product flow.

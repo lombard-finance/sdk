@@ -13,8 +13,10 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { depositConfigs } from '../../../chains/btc/actions/deposit/config';
-import { depositAndDeployConfig } from '../../../chains/btc/actions/depositAndDeploy/config';
+import { depositAndDeployConfig } from '../../../chains/btc/actions/deploy-btcb/config';
+import { stakeAndDeployConfig } from '../../../chains/btc/actions/deploy-lbtc/config';
+import { depositConfigs } from '../../../chains/btc/actions/deposit-btcb/config';
+import { chainConfigs as stakeChainConfigs } from '../../../chains/btc/actions/deposit-lbtc/config';
 import {
   isAssetSupported,
   isDestChainSupported,
@@ -23,8 +25,6 @@ import {
   validateBtcActionParams,
   validateProtocol,
 } from '../../../chains/btc/actions/shared/validation';
-import { chainConfigs as stakeChainConfigs } from '../../../chains/btc/actions/stake/config';
-import { stakeAndDeployConfig } from '../../../chains/btc/actions/stakeAndDeploy/config';
 import { AssetId, Chain } from '../../../core';
 import { LombardError } from '../../../shared/errors';
 

@@ -1,11 +1,11 @@
 /**
- * SolanaStake unit tests
+ * SolanaDepositBtcb unit tests
  */
 
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SolanaStake } from '../../../chains/solana/actions/stake/SolanaStake';
+import { SolanaDepositBtcb } from '../../../chains/solana/actions/deposit-btcb/SolanaDepositBtcb';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
 import { NonEvmOperationStatus } from '../../../shared/constants/statusConstants';
@@ -36,7 +36,7 @@ function createMockContext(
   };
 }
 
-describe('SolanaStake — BTC.b → LBTC on Solana', () => {
+describe('SolanaDepositBtcb — BTC.b → LBTC on Solana', () => {
   let mockCtx: SolanaCoreContext;
 
   const validParams = {
@@ -57,7 +57,7 @@ describe('SolanaStake — BTC.b → LBTC on Solana', () => {
 
   describe('execute', () => {
     it('should emit CONFIRMING progress with txHash matching the deposit signature', async () => {
-      const stake = new SolanaStake(mockCtx, validParams);
+      const stake = new SolanaDepositBtcb(mockCtx, validParams);
       await stake.prepare(validPrepareParams);
 
       const confirmingPayloads: { txHash?: string; status: string }[] = [];
@@ -74,7 +74,7 @@ describe('SolanaStake — BTC.b → LBTC on Solana', () => {
     });
 
     it('should emit completed event after execute', async () => {
-      const stake = new SolanaStake(mockCtx, validParams);
+      const stake = new SolanaDepositBtcb(mockCtx, validParams);
       await stake.prepare(validPrepareParams);
 
       const completedHandler = vi.fn();

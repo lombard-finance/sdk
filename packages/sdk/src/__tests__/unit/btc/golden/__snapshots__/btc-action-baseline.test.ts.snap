@@ -1,21 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`golden baseline — BTC actions on 5.x > BtcDeposit (native BTC → BTC.b) > records its prepare lifecycle 1`] = `
-{
-  "calls": [
-    "api.getDepositAddress",
-  ],
-  "progress": [
-    "needs_address_confirmation [created,issuing,verifying]",
-  ],
-  "statusAfterPrepare": "needs_address_confirmation",
-  "statuses": [
-    "needs_address_confirmation",
-  ],
-}
-`;
-
-exports[`golden baseline — BTC actions on 5.x > BtcDepositAndDeploy (native BTC → BTC.b → Silo vault) > records what happens today on testnet 1`] = `
+exports[`golden baseline — BTC actions on 5.x > BtcDeployBtcb (native BTC → BTC.b → Silo vault) > records what happens today on testnet 1`] = `
 {
   "calls": [
     "capabilities.require",
@@ -25,25 +10,7 @@ exports[`golden baseline — BTC actions on 5.x > BtcDepositAndDeploy (native BT
 }
 `;
 
-exports[`golden baseline — BTC actions on 5.x > BtcStake (native BTC → LBTC) > records its prepare lifecycle 1`] = `
-{
-  "calls": [
-    "api.getDepositAddress",
-    "api.getFeeSignature",
-    "capabilities.require",
-    "evm.getMintingFee",
-  ],
-  "progress": [
-    "needs_fee_authorization [created,issuing,verifying]",
-  ],
-  "statusAfterPrepare": "needs_fee_authorization",
-  "statuses": [
-    "needs_fee_authorization",
-  ],
-}
-`;
-
-exports[`golden baseline — BTC actions on 5.x > BtcStakeAndDeploy (native BTC → LBTC → Veda vault) > records its prepare lifecycle with no existing deposit 1`] = `
+exports[`golden baseline — BTC actions on 5.x > BtcDeployLbtc (native BTC → LBTC → Veda vault) > records its prepare lifecycle with no existing deposit 1`] = `
 {
   "calls": [
     "capabilities.require",
@@ -60,7 +27,7 @@ exports[`golden baseline — BTC actions on 5.x > BtcStakeAndDeploy (native BTC 
 }
 `;
 
-exports[`golden baseline — BTC actions on 5.x > BtcStakeAndDeploy (native BTC → LBTC → Veda vault) > records the resume path when a deposit address already exists 1`] = `
+exports[`golden baseline — BTC actions on 5.x > BtcDeployLbtc (native BTC → LBTC → Veda vault) > records the resume path when a deposit address already exists 1`] = `
 {
   "calls": [
     "capabilities.require",
@@ -78,7 +45,64 @@ exports[`golden baseline — BTC actions on 5.x > BtcStakeAndDeploy (native BTC 
 }
 `;
 
-exports[`golden baseline — BTC actions on 5.x > ceremony and address legs > BtcDeposit: the confirmAddress path, and authorizeFee after it 1`] = `
+exports[`golden baseline — BTC actions on 5.x > BtcDepositBtcb (native BTC → BTC.b) > records its prepare lifecycle 1`] = `
+{
+  "calls": [
+    "api.getDepositAddress",
+  ],
+  "progress": [
+    "needs_address_confirmation [created,issuing,verifying]",
+  ],
+  "statusAfterPrepare": "needs_address_confirmation",
+  "statuses": [
+    "needs_address_confirmation",
+  ],
+}
+`;
+
+exports[`golden baseline — BTC actions on 5.x > BtcDepositLbtc (native BTC → LBTC) > records its prepare lifecycle 1`] = `
+{
+  "calls": [
+    "api.getDepositAddress",
+    "api.getFeeSignature",
+    "capabilities.require",
+    "evm.getMintingFee",
+  ],
+  "progress": [
+    "needs_fee_authorization [created,issuing,verifying]",
+  ],
+  "statusAfterPrepare": "needs_fee_authorization",
+  "statuses": [
+    "needs_fee_authorization",
+  ],
+}
+`;
+
+exports[`golden baseline — BTC actions on 5.x > ceremony and address legs > BtcDeployLbtc: authorizeDeposit() then generateDepositAddress() 1`] = `
+{
+  "addressReturned": true,
+  "calls": [
+    "capabilities.require",
+    "evm.getStakeAndBakeFee",
+    "api.getDepositAddress",
+    "capabilities.require",
+    "evm.signStakeAndBake",
+    "api.generateDepositAddress",
+  ],
+  "method": "authorizeDeposit",
+  "progress": [
+    "needs_deploy_authorization [created,depositing,issuing,verifying]",
+    "address_ready [created,depositing,issuing,verifying]",
+  ],
+  "statuses": [
+    "needs_deploy_authorization",
+    "ready",
+    "address_ready",
+  ],
+}
+`;
+
+exports[`golden baseline — BTC actions on 5.x > ceremony and address legs > BtcDepositBtcb: the confirmAddress path, and authorizeFee after it 1`] = `
 {
   "addressReturned": true,
   "authorizeFeeAfterReady": "returns early, no second signature",
@@ -102,7 +126,7 @@ exports[`golden baseline — BTC actions on 5.x > ceremony and address legs > Bt
 }
 `;
 
-exports[`golden baseline — BTC actions on 5.x > ceremony and address legs > BtcStake: authorize() then generateDepositAddress() 1`] = `
+exports[`golden baseline — BTC actions on 5.x > ceremony and address legs > BtcDepositLbtc: authorize() then generateDepositAddress() 1`] = `
 {
   "addressReturned": true,
   "calls": [
@@ -121,30 +145,6 @@ exports[`golden baseline — BTC actions on 5.x > ceremony and address legs > Bt
   ],
   "statuses": [
     "needs_fee_authorization",
-    "ready",
-    "address_ready",
-  ],
-}
-`;
-
-exports[`golden baseline — BTC actions on 5.x > ceremony and address legs > BtcStakeAndDeploy: authorizeDeposit() then generateDepositAddress() 1`] = `
-{
-  "addressReturned": true,
-  "calls": [
-    "capabilities.require",
-    "evm.getStakeAndBakeFee",
-    "api.getDepositAddress",
-    "capabilities.require",
-    "evm.signStakeAndBake",
-    "api.generateDepositAddress",
-  ],
-  "method": "authorizeDeposit",
-  "progress": [
-    "needs_deploy_authorization [created,depositing,issuing,verifying]",
-    "address_ready [created,depositing,issuing,verifying]",
-  ],
-  "statuses": [
-    "needs_deploy_authorization",
     "ready",
     "address_ready",
   ],

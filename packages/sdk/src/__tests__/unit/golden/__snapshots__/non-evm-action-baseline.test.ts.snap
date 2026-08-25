@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`golden baseline — Sui and Starknet on 5.x > StarknetUnstake (LBTC → BTC) > records the full prepare → execute lifecycle 1`] = `
+exports[`golden baseline — Sui and Starknet on 5.x > StarknetWithdraw (LBTC → BTC) > records the full prepare → execute lifecycle 1`] = `
 {
   "calls": [
     "starknet.unstake",
@@ -25,7 +25,7 @@ exports[`golden baseline — Sui and Starknet on 5.x > StarknetUnstake (LBTC →
 }
 `;
 
-exports[`golden baseline — Sui and Starknet on 5.x > SuiUnstake (LBTC → BTC) > records the full prepare → execute lifecycle 1`] = `
+exports[`golden baseline — Sui and Starknet on 5.x > SuiWithdraw (LBTC → BTC) > records the full prepare → execute lifecycle 1`] = `
 {
   "calls": [
     "sui.unstake",

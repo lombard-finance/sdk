@@ -1,12 +1,12 @@
 /**
  * Stake and Bake Ratio Conversion Tests
  *
- * Verifies that BtcStakeAndDeploy correctly passes 'BTC' as the token
+ * Verifies that BtcDeployLbtc correctly passes 'BTC' as the token
  * to trigger the btcToLbtc ratio conversion in signStakeAndBake.
  *
  * Background:
  * - Signature must contain ratio-adjusted LBTC amount, not raw BTC
- * - BtcStakeAndDeploy must pass `token: 'BTC'` to trigger 'btcToLbtc' strategy
+ * - BtcDeployLbtc must pass `token: 'BTC'` to trigger 'btcToLbtc' strategy
  * - Using wrong token causes signature mismatch with backend
  *
  * @module __tests__/unit/btc/StakeAndBakeRatioConversion.test.ts
@@ -150,11 +150,11 @@ describe('Stake and Bake Ratio Conversion', () => {
   });
 
   describe('Token Parameter Selection', () => {
-    it('BtcStakeAndDeploy should use BTC token for authorizeStakeAndBake', () => {
+    it('BtcDeployLbtc should use BTC token for authorizeStakeAndBake', () => {
       /**
        * This test documents the expected behavior:
        *
-       * BtcStakeAndDeploy.authorizeDeposit() should call:
+       * BtcDeployLbtc.authorizeDeposit() should call:
        *   authorizeStakeAndBake({ ..., token: 'BTC' })
        *
        * NOT:
@@ -171,7 +171,7 @@ describe('Stake and Bake Ratio Conversion', () => {
       const vedaBtcConfig = DEFI_REGISTRY[DefiProtocol.Veda]?.['BTC'];
       expect(vedaBtcConfig).toBeDefined();
 
-      // The fix ensures BtcStakeAndDeploy passes 'BTC' which hits this config
+      // The fix ensures BtcDeployLbtc passes 'BTC' which hits this config
       if (!vedaBtcConfig) return;
       const firstEnv = Object.values(vedaBtcConfig)[0];
       if (!firstEnv) return;
@@ -180,9 +180,9 @@ describe('Stake and Bake Ratio Conversion', () => {
       expect(firstChain?.amountStrategy).toBe('btcToLbtc');
     });
 
-    it('BtcDepositAndDeploy should use BTCb token (no conversion)', () => {
+    it('BtcDeployBtcb should use BTCb token (no conversion)', () => {
       /**
-       * BtcDepositAndDeploy correctly uses Token.BTCb which has 'identity'
+       * BtcDeployBtcb correctly uses Token.BTCb which has 'identity'
        * strategy - no ratio conversion is needed for BTC.b deposits.
        *
        * This is correct because 1 BTC = 1 BTC.b (no exchange rate).

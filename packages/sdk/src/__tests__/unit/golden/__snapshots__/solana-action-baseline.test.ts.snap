@@ -1,26 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`golden baseline — Solana actions on 5.x > SolanaRedeem (BTC.b → BTC) records prepare → execute 1`] = `
-{
-  "calls": [
-    "solana.redeemForBtc",
-  ],
-  "progress": [
-    "ready [burning=idle,releasing=idle]",
-    "ready [burning=pending,releasing=idle]",
-    "completed [burning=complete,releasing=complete]",
-  ],
-  "resultKeys": [
-    "txHash",
-  ],
-  "statuses": [
-    "ready",
-    "completed",
-  ],
-}
-`;
-
-exports[`golden baseline — Solana actions on 5.x > SolanaStake (BTC.b → LBTC) records prepare → execute 1`] = `
+exports[`golden baseline — Solana actions on 5.x > SolanaDepositBtcb (BTC.b → LBTC) records prepare → execute 1`] = `
 {
   "calls": [
     "solana.deposit",
@@ -40,7 +20,7 @@ exports[`golden baseline — Solana actions on 5.x > SolanaStake (BTC.b → LBTC
 }
 `;
 
-exports[`golden baseline — Solana actions on 5.x > SolanaUnstake (LBTC → BTC) dispatches to redeemForBtc 1`] = `
+exports[`golden baseline — Solana actions on 5.x > SolanaWithdrawBtcb (BTC.b → BTC) records prepare → execute 1`] = `
 {
   "calls": [
     "solana.redeemForBtc",
@@ -60,7 +40,27 @@ exports[`golden baseline — Solana actions on 5.x > SolanaUnstake (LBTC → BTC
 }
 `;
 
-exports[`golden baseline — Solana actions on 5.x > SolanaUnstake (LBTC → BTC.b) dispatches to redeem — the other branch 1`] = `
+exports[`golden baseline — Solana actions on 5.x > SolanaWithdrawLbtc (LBTC → BTC) dispatches to redeemForBtc 1`] = `
+{
+  "calls": [
+    "solana.redeemForBtc",
+  ],
+  "progress": [
+    "ready [burning=idle,releasing=idle]",
+    "ready [burning=pending,releasing=idle]",
+    "completed [burning=complete,releasing=complete]",
+  ],
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+}
+`;
+
+exports[`golden baseline — Solana actions on 5.x > SolanaWithdrawLbtc (LBTC → BTC.b) dispatches to redeem — the other branch 1`] = `
 {
   "calls": [
     "solana.redeem",

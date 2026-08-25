@@ -30,7 +30,7 @@ export type QueueWithdrawParameters = {
 } & CommonWriteParameters;
 
 /**
- * @internal Internal helper used by `EvmWithdraw` and other action classes.
+ * @internal Internal helper used by `EvmWithdrawVault` and other action classes.
  * The public `queueWithdraw` function was removed in 5.0.0; consumers use
  * `withdrawEarn` instead.
  *

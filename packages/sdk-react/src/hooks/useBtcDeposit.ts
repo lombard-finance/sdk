@@ -1,18 +1,18 @@
 import {
   BtcActionStatus,
-  type BtcStakeProgress,
+  type BtcDepositLbtcProgress,
   type LombardSDK,
 } from '@lombard.finance/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type {
-  BtcDepositParams,
+  BtcDepositBtcbParams,
   DepositProgressInfo,
   DepositStatus,
 } from '../types';
 
 export interface UseBtcDepositReturn {
-  deposit: (params: BtcDepositParams) => Promise<void>;
+  deposit: (params: BtcDepositBtcbParams) => Promise<void>;
   reset: () => void;
   depositAddress: string | null;
   depositAmount: string | null;
@@ -67,7 +67,7 @@ export function useBtcDeposit(sdk: LombardSDK | null): UseBtcDepositReturn {
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   const deposit = useCallback(
-    async (params: BtcDepositParams) => {
+    async (params: BtcDepositBtcbParams) => {
       if (!sdk) {
         throw new Error('SDK not initialized');
       }
@@ -98,7 +98,7 @@ export function useBtcDeposit(sdk: LombardSDK | null): UseBtcDepositReturn {
         });
 
         const unsubProgress = action.on('progress', (...args: unknown[]) => {
-          const data = args[0] as BtcStakeProgress;
+          const data = args[0] as BtcDepositLbtcProgress;
 
           setProgress({
             confirmations: data.confirmations,

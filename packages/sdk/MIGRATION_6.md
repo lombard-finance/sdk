@@ -43,14 +43,14 @@ const redeem = sdk.chain.evm.redeem({
 
 // After (6.0.0)
 const unstake = sdk.chain.evm.withdraw({
-  assetIn: AssetId.LBTC, // → IEvmUnstake
+  assetIn: AssetId.LBTC, // → IEvmWithdrawLbtc
   assetOut: AssetId.BTC,
   sourceChain: Chain.ETHEREUM,
   destChain: Chain.BITCOIN_MAINNET,
 });
 
 const redeem = sdk.chain.evm.withdraw({
-  assetIn: AssetId.BTCb, // → IEvmRedeem
+  assetIn: AssetId.BTCb, // → IEvmWithdrawBtcb
   assetOut: AssetId.BTC,
   sourceChain: Chain.AVALANCHE,
   destChain: Chain.BITCOIN_MAINNET,
@@ -81,7 +81,7 @@ const viaBtcb = sdk.chain.btc.depositAndDeploy({ ... });
 
 // After
 const viaLbtc = sdk.chain.btc.deploy({
-  assetOut: AssetId.LBTC, // → IBtcStakeAndDeploy
+  assetOut: AssetId.LBTC, // → IBtcDeployLbtc
   destChain: Chain.ETHEREUM,
   protocol: DeployProtocol.Veda,
 });
@@ -201,17 +201,92 @@ The build wrote one bundle per export subpath as `dist/<name>.js` beside a decla
 
 `EvmUnstakeParams.assetIn` is now `'LBTC'` rather than `AssetId`, `EvmRedeemParams.assetIn` is `'BTC.b'`, and the Solana and BTC equivalents match.
 
-This was load-bearing. The two parameter types were structurally identical, so `withdraw`'s redeem overload was unreachable: a BTC.b withdrawal resolved to `IEvmUnstake` while returning an `EvmRedeem`. `IEvmRedeem` carries `approve()` and `needsApproval` and `IEvmUnstake` does not, so the compiler forbade the ERC-20 approval that route requires.
+This was load-bearing. The two parameter types were structurally identical, so `withdraw`'s BTC.b overload was unreachable: a BTC.b withdrawal resolved to the LBTC interface while returning the BTC.b action. Only the BTC.b one carries `approve()` and `needsApproval`, so the compiler forbade the ERC-20 approval that route requires. (In 5.x names: `IEvmUnstake` and `EvmRedeem`.)
 
 Passing `AssetId.LBTC` or `AssetId.BTCb` directly needs no change and now gets the precise interface. If your asset is only known at runtime — from a form, typically — you match a fallback overload and get the union to narrow:
 
 ```ts
-const action = sdk.chain.evm.withdraw(paramsFromForm); // IEvmUnstake | IEvmRedeem
+const action = sdk.chain.evm.withdraw(paramsFromForm); // IEvmWithdrawLbtc | IEvmWithdrawBtcb
 
 if ('approve' in action) {
   await action.approve();
 }
 ```
+
+---
+
+## The action classes and their types
+
+The verbs dispatch on an asset now, so several classes serve one verb — which
+means naming a class after a verb guarantees a collision. Classes are named
+**verb + asset arm** instead, and the three names that were ambiguous are
+**retired rather than reassigned**: `BtcDeposit`, `EvmDeposit` and `EvmWithdraw`
+are owned by nothing, so a stale import is a compile error at the import line
+instead of a silently different action at runtime.
+
+| 5.x | 6.0.0 | built by |
+| --- | --- | --- |
+| `BtcStake` | `BtcDepositLbtc` | `btc.deposit({ assetOut: LBTC })` |
+| `BtcDeposit` | `BtcDepositBtcb` | `btc.deposit({ assetOut: BTCb })` |
+| `BtcStakeAndDeploy` | `BtcDeployLbtc` | `btc.deploy({ assetOut: LBTC })` |
+| `BtcDepositAndDeploy` | `BtcDeployBtcb` | `btc.deploy({ assetOut: BTCb })` |
+| `EvmStake` | `EvmDepositBtcb` | `evm.deposit()` |
+| `EvmDeposit` | `EvmClaim` | `evm.claim()` |
+| `EvmUnstake` | `EvmWithdrawLbtc` | `evm.withdraw({ assetIn: LBTC })` |
+| `EvmRedeem` | `EvmWithdrawBtcb` | `evm.withdraw({ assetIn: BTCb })` |
+| `EvmWithdraw` | `EvmWithdrawVault` | `evm.withdraw({ protocol })` |
+| `SolanaStake` | `SolanaDepositBtcb` | `solana.deposit()` |
+| `SolanaUnstake` | `SolanaWithdrawLbtc` | `solana.withdraw({ assetIn: LBTC })` |
+| `SolanaRedeem` | `SolanaWithdrawBtcb` | `solana.withdraw({ assetIn: BTCb })` |
+| `SuiUnstake` | `SuiWithdraw` | `sui.withdraw()` |
+| `StarknetUnstake` | `StarknetWithdraw` | `starknet.withdraw()` |
+
+Each class's `I*` interface, `*Params`, `*PrepareParams` and `*Progress` follow
+the same rename — `IBtcStake` is `IBtcDepositLbtc`, `EvmUnstakeParams` is
+`EvmWithdrawLbtcParams`, and so on.
+
+**The one to read twice is `EvmDeposit`.** In 5.x that name meant *claim a
+pending deposit*. It does not now mean the BTC.b deposit; it means nothing. The
+claim action is `EvmClaim`, and the BTC.b deposit is `EvmDepositBtcb`. Had the
+name been handed to the deposit action, a 5.x import would have kept compiling
+while pointing at a different action.
+
+Two status names moved with it. `EvmDepositStatus` used to be the claim action's
+enum and is now the core narrowing; the claim enum is `EvmClaimStatus`. The
+per-action aliases follow their classes: `EvmStakeStatus` is
+`EvmDepositBtcbStatus`, `EvmUnstakeStatus` is `EvmWithdrawLbtcStatus`,
+`EvmRedeemStatus` is `EvmWithdrawBtcbStatus`, and `EvmWithdrawStatus` is
+`EvmWithdrawVaultStatus`. All of them were re-exports of one
+`EvmOperationStatus`, so only the name changes.
+
+---
+
+## The nine event aliases are gone
+
+`StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`,
+`WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent` and
+`DepositAndDeployEvent` — and their `*Map` counterparts — are removed. They were
+deprecated aliases of `ActionEvent` / `ActionEventMap` in the first cut of
+6.0.0; keeping them would have left the old vocabulary in every example anyone
+copies, which is what this release exists to stop.
+
+**Wire values are unchanged.** `action.on('progress', …)`, `'status-change'`,
+`'completed'`, `'failed'` and `'error'` behave exactly as before, so a consumer
+subscribing by string needs no change at all. Only the constants moved:
+
+```ts
+// Before (5.x and early 6.0.0)
+import { StakeEvent } from '@lombard.finance/sdk';
+action.on(StakeEvent.Progress, onProgress);
+
+// After
+import { ActionEvent } from '@lombard.finance/sdk';
+action.on(ActionEvent.Progress, onProgress);
+```
+
+`StrategyEvent` and `StrategyEventMap` stay, because they were never
+per-operation names — they are the one vocabulary, and were nine-member unions
+of structurally identical types before.
 
 ---
 
@@ -258,12 +333,6 @@ There are no aliases here, and none are needed: a hook is destructured at its ca
 
 ---
 
-## Also removed
-
-The nine per-operation event vocabularies are one. `StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`, `WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent` and `DepositAndDeployEvent` declared identical members; they collapse to `ActionEvent` / `ActionEventMap`. **Wire values are unchanged**, so `action.on('progress', …)` behaves exactly as before, and all nine old names remain as deprecated aliases — `StakeEvent === ActionEvent` holds.
-
----
-
 ## The deposit-address flow
 
 `resolveDepositBtcAddress` derives the address from the authenticated session, so no signature ceremony is needed. It is the path to build on.
@@ -292,7 +361,7 @@ So the signature path is **not** deprecated in 6.0.0. Deleting it would make tho
 ## What didn't change
 
 - Event names and payloads on the wire.
-- `evm.deploy` and `btc.deposit` keep their names. Note that `btc.deposit` now also covers what `btc.stake` did — see [the three verbs](#the-three-verbs) — and that `evm.deposit` kept its *name* while changing its *meaning*, which is the one rename that can pass review unnoticed.
+- `evm.deploy` and `btc.deposit` keep their names as *verbs*. `btc.deposit` now also covers what `btc.stake` did — see [the three verbs](#the-three-verbs) — and `evm.deposit` kept its name while changing its meaning, which is the one rename that can pass review unnoticed. The *classes* behind them did move, and the ambiguous class names were retired rather than reassigned; see [the action classes](#the-action-classes-and-their-types).
 - Contract interactions. The ABI method names this package calls are pinned by a test, precisely because a verb rename could otherwise reach one.
 - Route labels (`lbtc-to-btc`, `btcb-to-vault`, …), which are analytics keys with history behind them.
 - The wire vocabulary generally: `show_redeems` and `show_unstakes` are still the withdrawal endpoint's query parameters, `Unstake` is still the record it returns, and `stake-and-bake` is still the product name the permit routes use.

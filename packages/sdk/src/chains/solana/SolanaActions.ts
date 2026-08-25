@@ -29,15 +29,15 @@ import { AssetId } from '../../core';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SolanaCoreContext } from '../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../shared/errors';
-import { SolanaRedeem } from './actions/redeem/SolanaRedeem';
-import type { ISolanaRedeem, SolanaRedeemParams } from './actions/redeem/types';
-import { SolanaStake } from './actions/stake/SolanaStake';
-import type { ISolanaStake, SolanaStakeParams } from './actions/stake/types';
-import { SolanaUnstake } from './actions/unstake/SolanaUnstake';
+import { SolanaDepositBtcb } from './actions/deposit-btcb/SolanaDepositBtcb';
+import type { ISolanaDepositBtcb, SolanaDepositBtcbParams } from './actions/deposit-btcb/types';
+import { SolanaWithdrawBtcb } from './actions/withdraw-btcb/SolanaWithdrawBtcb';
+import type { ISolanaWithdrawBtcb, SolanaWithdrawBtcbParams } from './actions/withdraw-btcb/types';
+import { SolanaWithdrawLbtc } from './actions/withdraw-lbtc/SolanaWithdrawLbtc';
 import type {
-  ISolanaUnstake,
-  SolanaUnstakeParams,
-} from './actions/unstake/types';
+  ISolanaWithdrawLbtc,
+  SolanaWithdrawLbtcParams,
+} from './actions/withdraw-lbtc/types';
 
 /**
  * Create Solana core context from config
@@ -107,8 +107,8 @@ export class SolanaActions {
    *
    * Named `deposit` under the three-verb model: an asset in, an L-asset out.
    */
-  deposit(params: SolanaStakeParams): ISolanaStake {
-    return new SolanaStake(this.ctx, params);
+  deposit(params: SolanaDepositBtcbParams): ISolanaDepositBtcb {
+    return new SolanaDepositBtcb(this.ctx, params);
   }
 
   /**
@@ -122,22 +122,22 @@ export class SolanaActions {
    *
    * @throws LombardError if `assetIn` is neither LBTC nor BTC.b
    */
-  withdraw(params: SolanaUnstakeParams): ISolanaUnstake;
-  withdraw(params: SolanaRedeemParams): ISolanaRedeem;
+  withdraw(params: SolanaWithdrawLbtcParams): ISolanaWithdrawLbtc;
+  withdraw(params: SolanaWithdrawBtcbParams): ISolanaWithdrawBtcb;
   /**
    * The arm for a caller holding a runtime asset rather than a literal. The
    * precise interface cannot be known statically, so the union comes back.
    */
-  withdraw(params: SolanaAssetWithdrawParams): ISolanaUnstake | ISolanaRedeem;
+  withdraw(params: SolanaAssetWithdrawParams): ISolanaWithdrawLbtc | ISolanaWithdrawBtcb;
   withdraw(
     params: SolanaAssetWithdrawParams,
-  ): ISolanaUnstake | ISolanaRedeem {
+  ): ISolanaWithdrawLbtc | ISolanaWithdrawBtcb {
     if (params.assetIn === AssetId.LBTC) {
-      return new SolanaUnstake(this.ctx, params as SolanaUnstakeParams);
+      return new SolanaWithdrawLbtc(this.ctx, params as SolanaWithdrawLbtcParams);
     }
 
     if (params.assetIn === AssetId.BTCb) {
-      return new SolanaRedeem(this.ctx, params as SolanaRedeemParams);
+      return new SolanaWithdrawBtcb(this.ctx, params as SolanaWithdrawBtcbParams);
     }
 
     // Dispatching on an asset with no route would otherwise pick a class

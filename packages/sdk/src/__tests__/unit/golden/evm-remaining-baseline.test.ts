@@ -6,11 +6,11 @@
  * These four complete the sixteen-class capture. Between them they carry the
  * three riskiest renames in the release:
  *
- * - `EvmStake` → `EvmDeposit`. It is the other half of a 2→1 merge in the design
+ * - `EvmDepositBtcb` → `EvmClaim`. It is the other half of a 2→1 merge in the design
  *   as first drafted; `deploy` surviving as a verb means it is now a plain
  *   rename, but its two-ceremony prepare (`approve` *and* `authorizeFee`) is
  *   what the collapsed `authorize()` has to reproduce.
- * - `EvmDeposit` → `EvmClaim`. **The one method whose meaning is reassigned**:
+ * - `EvmClaim` → `EvmClaim`. **The one method whose meaning is reassigned**:
  *   `evm.deposit()` claims a notarised deposit in 5.x and mints in 6.0.0, so
  *   what is recorded here is what the *old* name did.
  * - `EvmCancelWithdraw` keeps its name, so its snapshot is a pure regression net.
@@ -52,9 +52,9 @@ vi.mock('../../../chains/evm/shared/feeAuth', async (orig) => ({
 
 // Imports below intentionally sit after the vi.mock calls above; the sorter
 // already accepts this order, so no disable directive is needed.
-import { EvmDeposit } from '../../../chains/evm/actions/deposit/EvmDeposit';
-import { EvmStake } from '../../../chains/evm/actions/stake/EvmStake';
-import { EvmCancelWithdraw } from '../../../chains/evm/actions/withdraw/EvmCancelWithdraw';
+import { EvmClaim } from '../../../chains/evm/actions/claim/EvmClaim';
+import { EvmDepositBtcb } from '../../../chains/evm/actions/deposit-btcb/EvmDepositBtcb';
+import { EvmCancelWithdraw } from '../../../chains/evm/actions/withdraw-vault/EvmCancelWithdraw';
 import { checkFeeAuthorization } from '../../../chains/evm/shared/feeAuth';
 import { claimLBTC } from '../../../contract-functions';
 import { AssetId, Chain, DeployProtocol } from '../../../core';
@@ -104,9 +104,9 @@ describe('golden baseline — the remaining EVM actions on 5.x', () => {
     } as never);
   });
 
-  it('EvmStake (BTC.b → LBTC) records its prepare lifecycle', async () => {
+  it('EvmDepositBtcb (BTC.b → LBTC) records its prepare lifecycle', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
-    const action = new EvmStake(h.ctx, {
+    const action = new EvmDepositBtcb(h.ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE,
@@ -127,9 +127,9 @@ describe('golden baseline — the remaining EVM actions on 5.x', () => {
     }).toMatchSnapshot();
   });
 
-  it('EvmDeposit — the CLAIM action, which 6.0.0 renames to EvmClaim', async () => {
+  it('EvmClaim — the CLAIM action, which 6.0.0 renames to EvmClaim', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
-    const action = new EvmDeposit(h.ctx, {
+    const action = new EvmClaim(h.ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.ETHEREUM,

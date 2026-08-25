@@ -16,8 +16,8 @@ import { AssetId } from '../assets/types';
 /**
  * Which journey an action instance is running.
  *
- * After the merges one class covers several journeys — `BtcDeposit` covers four
- * and `EvmWithdraw` covers two — so `constructor.name` no longer identifies
+ * After the merges one class covers several journeys — `BtcDepositBtcb` covers four
+ * and `EvmWithdrawVault` covers two — so `constructor.name` no longer identifies
  * what failed. `LogMeta` carries this into `toSentryContext()` for the same
  * reason: without it, every log line loses the ability to say which journey
  * broke, during exactly the window partners are filing migration bugs.
@@ -194,7 +194,7 @@ export function deriveRouteLabel(params: RouteLabelParams): RouteLabel {
 /**
  * Which asset a protocol's vault is denominated in.
  *
- * A vault exit names no asset in its parameters — `EvmWithdrawParams` carries
+ * A vault exit names no asset in its parameters — `EvmWithdrawVaultParams` carries
  * only a protocol and a chain — so the label has to come from the registry
  * rather than from the call. Reading it here means a protocol added to
  * `DEFI_REGISTRY` is labelled without a second edit.

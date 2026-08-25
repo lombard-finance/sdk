@@ -20,8 +20,8 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it } from 'vitest';
 
-import { StarknetUnstake } from '../../../chains/starknet/actions/unstake/StarknetUnstake';
-import { SuiUnstake } from '../../../chains/sui/actions/unstake/SuiUnstake';
+import { StarknetWithdraw } from '../../../chains/starknet/actions/withdraw/StarknetWithdraw';
+import { SuiWithdraw } from '../../../chains/sui/actions/withdraw/SuiWithdraw';
 import { AssetId, Chain } from '../../../core';
 import { createChainActionHarness } from '../../harness/createChainActionHarness';
 
@@ -46,10 +46,10 @@ function progressShape(payloads: unknown[]): string[] {
 }
 
 describe('golden baseline — Sui and Starknet on 5.x', () => {
-  describe('SuiUnstake (LBTC → BTC)', () => {
+  describe('SuiWithdraw (LBTC → BTC)', () => {
     it('records the full prepare → execute lifecycle', async () => {
       const h = createChainActionHarness('sui', { env: Env.prod });
-      const action = new SuiUnstake(h.ctx, {
+      const action = new SuiWithdraw(h.ctx, {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
         sourceChain: Chain.SUI_MAINNET,
@@ -73,10 +73,10 @@ describe('golden baseline — Sui and Starknet on 5.x', () => {
     });
   });
 
-  describe('StarknetUnstake (LBTC → BTC)', () => {
+  describe('StarknetWithdraw (LBTC → BTC)', () => {
     it('records the full prepare → execute lifecycle', async () => {
       const h = createChainActionHarness('starknet', { env: Env.prod });
-      const action = new StarknetUnstake(h.ctx, {
+      const action = new StarknetWithdraw(h.ctx, {
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
         sourceChain: Chain.STARKNET_MAINNET,

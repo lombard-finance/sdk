@@ -13,14 +13,14 @@ export type {
 export { useNonEvmWithdraw } from './hooks/useNonEvmWithdraw';
 export type {
   BtcDeployParams,
-  BtcDepositParams,
+  BtcDepositBtcbParams,
   DeployPhase,
   DeployProgressInfo,
   DeployStatus,
   DepositPhase,
   DepositProgressInfo,
   DepositStatus,
-  EvmWithdrawParams,
+  EvmWithdrawVaultParams,
   NonEvmWithdrawParams,
   WithdrawPhase,
   WithdrawStatus,

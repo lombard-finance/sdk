@@ -2,7 +2,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import type { WalletClient } from 'viem';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { evmUnstake } from '../../../chains/evm/actions/unstake';
+import { evmUnstake } from '../../../chains/evm/actions/withdraw-lbtc';
 import { AssetId, Chain } from '../../../core';
 import { createTestConfig as createConfig } from '../../helpers/createTestConfig';
 import { walletClientToProvider } from '../../test-utils/eip1193-adapter';

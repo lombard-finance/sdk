@@ -2,9 +2,9 @@
  * Shared Fee Authorization Logic for EVM Actions
  *
  * Provides fee authorization support for EVM actions that require it:
- * - EvmStake (BTC.b → LBTC on Ethereum/Sepolia)
- * - EvmRedeem (BTC.b → BTC on Ethereum/Sepolia)
- * - EvmUnstake (LBTC → BTC.b on Ethereum/Sepolia)
+ * - EvmDepositBtcb (BTC.b → LBTC on Ethereum/Sepolia)
+ * - EvmWithdrawBtcb (BTC.b → BTC on Ethereum/Sepolia)
+ * - EvmWithdrawLbtc (LBTC → BTC.b on Ethereum/Sepolia)
  *
  * Fee authorization is only required on unsubsidized chains (Ethereum, Sepolia).
  * Other chains (Base, BSC, Avalanche) are subsidized by Lombard.

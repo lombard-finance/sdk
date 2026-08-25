@@ -3,7 +3,7 @@
  *
  * ## Why this file exists
  *
- * 6.0.0 merges `EvmUnstake` and `EvmRedeem` into one `EvmWithdraw`, reached
+ * 6.0.0 merges `EvmWithdrawLbtc` and `EvmWithdrawBtcb` into one `EvmWithdrawVault`, reached
  * through `evm.withdraw()`, keeping both old names as delegating aliases. The
  * design's argument for the merge is that both call `redeemToken`, both use
  * `steps {burning, releasing}`, both use `EvmOperationStatus`, and the only
@@ -11,7 +11,7 @@
  *
  * That is an argument, not a proof, and the reference behaviour disappears once
  * the merge lands. What is captured here is the part the argument does not
- * cover: `EvmUnstake` dispatches on `assetOut`, and its terminal `releasing`
+ * cover: `EvmWithdrawLbtc` dispatches on `assetOut`, and its terminal `releasing`
  * step differs between the two branches —
  *
  *     releasing: isBtcbOutput ? COMPLETE : PENDING
@@ -39,8 +39,8 @@ vi.mock('../../../chains/evm/shared/feeAuth', async (orig) => ({
 
 // Imports below intentionally sit after the vi.mock calls above; the sorter
 // already accepts this order, so no disable directive is needed.
-import { EvmRedeem } from '../../../chains/evm/actions/redeem/EvmRedeem';
-import { EvmUnstake } from '../../../chains/evm/actions/unstake/EvmUnstake';
+import { EvmWithdrawBtcb } from '../../../chains/evm/actions/withdraw-btcb/EvmWithdrawBtcb';
+import { EvmWithdrawLbtc } from '../../../chains/evm/actions/withdraw-lbtc/EvmWithdrawLbtc';
 import { checkFeeAuthorization } from '../../../chains/evm/shared/feeAuth';
 import { redeemToken } from '../../../contract-functions';
 import { AssetId, Chain } from '../../../core';
@@ -84,9 +84,9 @@ describe('golden baseline — the EVM withdraw merge pair on 5.x', () => {
     } as never);
   });
 
-  it('EvmUnstake (LBTC → BTC): terminal releasing is PENDING', async () => {
+  it('EvmWithdrawLbtc (LBTC → BTC): terminal releasing is PENDING', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
-    const action = new EvmUnstake(h.ctx, {
+    const action = new EvmWithdrawLbtc(h.ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTC,
       sourceChain: Chain.ETHEREUM,
@@ -105,9 +105,9 @@ describe('golden baseline — the EVM withdraw merge pair on 5.x', () => {
     }).toMatchSnapshot();
   });
 
-  it('EvmUnstake (LBTC → BTC.b): terminal releasing is COMPLETE — the other branch', async () => {
+  it('EvmWithdrawLbtc (LBTC → BTC.b): terminal releasing is COMPLETE — the other branch', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
-    const action = new EvmUnstake(h.ctx, {
+    const action = new EvmWithdrawLbtc(h.ctx, {
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,
@@ -126,9 +126,9 @@ describe('golden baseline — the EVM withdraw merge pair on 5.x', () => {
     }).toMatchSnapshot();
   });
 
-  it('EvmRedeem (BTC.b → BTC) records prepare → execute', async () => {
+  it('EvmWithdrawBtcb (BTC.b → BTC) records prepare → execute', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
-    const action = new EvmRedeem(h.ctx, {
+    const action = new EvmWithdrawBtcb(h.ctx, {
       assetIn: AssetId.BTCb,
       assetOut: AssetId.BTC,
       sourceChain: Chain.AVALANCHE,

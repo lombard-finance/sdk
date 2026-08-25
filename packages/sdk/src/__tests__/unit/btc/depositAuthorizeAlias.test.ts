@@ -1,5 +1,5 @@
 /**
- * `BtcDeposit.authorize()` and the two methods it replaces
+ * `BtcDepositBtcb.authorize()` and the two methods it replaces
  *
  * Stage C collapses `authorizeFee()` and `confirmAddress()` into one
  * `authorize()` that picks its ceremony from the route. The two old names stay
@@ -14,7 +14,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { BtcDeposit } from '../../../chains/btc/actions/deposit/BtcDeposit';
+import { BtcDepositBtcb } from '../../../chains/btc/actions/deposit-btcb/BtcDepositBtcb';
 import { AssetId, Chain } from '../../../core';
 import { BtcActionStatus } from '../../../shared/constants/statusConstants';
 import { createBtcActionHarness } from '../../harness/createBtcActionHarness';
@@ -28,7 +28,7 @@ const AMOUNT = '0.01';
  */
 function addressRoute() {
   const harness = createBtcActionHarness({ env: Env.prod });
-  const action = new BtcDeposit(harness.ctx, {
+  const action = new BtcDepositBtcb(harness.ctx, {
     assetOut: AssetId.BTCb,
     destChain: Chain.AVALANCHE,
   });

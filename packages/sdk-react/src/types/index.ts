@@ -21,7 +21,7 @@ export interface DepositProgressInfo {
   requiredConfirmations?: number;
 }
 
-export interface BtcDepositParams {
+export interface BtcDepositBtcbParams {
   amount: string;
   destChain: Chain;
   sourceChain: Chain;
@@ -85,7 +85,7 @@ export interface WithdrawStatus {
   message: string;
 }
 
-export interface EvmWithdrawParams {
+export interface EvmWithdrawVaultParams {
   amount: string;
   sourceChain: Chain;
   destChain: Chain;

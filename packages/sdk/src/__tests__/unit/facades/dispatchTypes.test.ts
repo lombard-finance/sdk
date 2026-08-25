@@ -3,9 +3,9 @@
  *
  * `verbRenames.test.ts` asserts the class each verb builds, which is a runtime
  * fact. It passed while the static types were wrong, and that gap hid a real
- * defect: `evm.withdraw` had three overloads, and because `EvmUnstakeParams` and
- * `EvmRedeemParams` were structurally identical, the third was unreachable. A
- * BTC.b withdrawal resolved to `IEvmUnstake` while returning an `EvmRedeem` at
+ * defect: `evm.withdraw` had three overloads, and because `EvmWithdrawLbtcParams` and
+ * `EvmWithdrawBtcbParams` were structurally identical, the third was unreachable. A
+ * BTC.b withdrawal resolved to `IEvmWithdrawLbtc` while returning an `EvmWithdrawBtcb` at
  * runtime — so the compiler *forbade* `approve()`, the step that route requires.
  *
  * The fix was to type each discriminant as the literal the facade dispatches on.
@@ -20,10 +20,10 @@ import { describe, expect, it } from 'vitest';
 
 import type { BtcAssetDeployParams } from '../../../chains/btc/BtcActions';
 import { btcActions } from '../../../chains/btc/BtcActions';
-import type { IEvmRedeem, IEvmUnstake } from '../../../chains/evm';
+import type { IEvmWithdrawBtcb, IEvmWithdrawLbtc } from '../../../chains/evm';
 import type { EvmAssetWithdrawParams } from '../../../chains/evm/EvmActions';
 import { evmActions } from '../../../chains/evm/EvmActions';
-import type { ISolanaRedeem, ISolanaUnstake } from '../../../chains/solana';
+import type { ISolanaWithdrawBtcb, ISolanaWithdrawLbtc } from '../../../chains/solana';
 import type { SolanaAssetWithdrawParams } from '../../../chains/solana/SolanaActions';
 import { solanaActions } from '../../../chains/solana/SolanaActions';
 import { AssetId, Chain } from '../../../core';
@@ -63,8 +63,8 @@ describe('evm.withdraw', () => {
       assetOut: AssetId.BTC,
     });
 
-    assertExact<typeof action, IEvmUnstake>(true);
-    expect(action.constructor.name).toBe('EvmUnstake');
+    assertExact<typeof action, IEvmWithdrawLbtc>(true);
+    expect(action.constructor.name).toBe('EvmWithdrawLbtc');
   });
 
   /**
@@ -79,9 +79,9 @@ describe('evm.withdraw', () => {
       assetOut: AssetId.BTC,
     });
 
-    assertExact<typeof action, IEvmRedeem>(true);
+    assertExact<typeof action, IEvmWithdrawBtcb>(true);
     expect(typeof action.approve).toBe('function');
-    expect(action.constructor.name).toBe('EvmRedeem');
+    expect(action.constructor.name).toBe('EvmWithdrawBtcb');
   });
 
   it('types a vault exit as a withdraw', () => {
@@ -91,8 +91,8 @@ describe('evm.withdraw', () => {
       recipient: '0x1111111111111111111111111111111111111111',
     });
 
-    assertExact<typeof action, IEvmUnstake>(false as never);
-    expect(action.constructor.name).toBe('EvmWithdraw');
+    assertExact<typeof action, IEvmWithdrawLbtc>(false as never);
+    expect(action.constructor.name).toBe('EvmWithdrawVault');
   });
 
   /**
@@ -112,9 +112,9 @@ describe('evm.withdraw', () => {
 
     assertExact<
       typeof action,
-      IEvmUnstake | IEvmRedeem
+      IEvmWithdrawLbtc | IEvmWithdrawBtcb
     >(true);
-    expect(action.constructor.name).toBe('EvmRedeem');
+    expect(action.constructor.name).toBe('EvmWithdrawBtcb');
   });
 });
 
@@ -132,8 +132,8 @@ describe('solana.withdraw', () => {
       assetOut: AssetId.BTC,
     });
 
-    assertExact<typeof action, ISolanaUnstake>(true);
-    expect(action.constructor.name).toBe('SolanaUnstake');
+    assertExact<typeof action, ISolanaWithdrawLbtc>(true);
+    expect(action.constructor.name).toBe('SolanaWithdrawLbtc');
   });
 
   it('types a BTC.b withdrawal as a redeem', () => {
@@ -143,8 +143,8 @@ describe('solana.withdraw', () => {
       assetOut: AssetId.BTC,
     });
 
-    assertExact<typeof action, ISolanaRedeem>(true);
-    expect(action.constructor.name).toBe('SolanaRedeem');
+    assertExact<typeof action, ISolanaWithdrawBtcb>(true);
+    expect(action.constructor.name).toBe('SolanaWithdrawBtcb');
   });
 
   it('hands a runtime asset back the union', () => {
@@ -158,18 +158,18 @@ describe('solana.withdraw', () => {
 
     assertExact<
       typeof action,
-      ISolanaUnstake | ISolanaRedeem
+      ISolanaWithdrawLbtc | ISolanaWithdrawBtcb
     >(true);
-    expect(action.constructor.name).toBe('SolanaUnstake');
+    expect(action.constructor.name).toBe('SolanaWithdrawLbtc');
   });
 });
 
 /**
  * Asserted by constructed class only, not by type.
  *
- * Two different types are named `BtcStakeAndDeploy` today — the narrow
+ * Two different types are named `BtcDeployLbtc` today — the narrow
  * interface in the action's `types.ts`, and the class — and `chains/btc`
- * re-exports the *class* as `IBtcStakeAndDeploy`. So there is no unambiguous
+ * re-exports the *class* as `IBtcDeployLbtc`. So there is no unambiguous
  * name to pin the return type against. Fixing that is the Stage A `IBtc*`
  * defect; until then the runtime assertion is the honest one, and the EVM and
  * Solana cases above cover the type-level guarantee.
@@ -185,7 +185,7 @@ describe('btc.deploy', () => {
   it('types an LBTC deploy as stake-and-deploy', () => {
     const action = btc.deploy({ ...base, assetOut: AssetId.LBTC });
 
-    expect(action.constructor.name).toBe('BtcStakeAndDeploy');
+    expect(action.constructor.name).toBe('BtcDeployLbtc');
   });
 
   it('types a BTC.b deploy as deposit-and-deploy', () => {
@@ -196,7 +196,7 @@ describe('btc.deploy', () => {
       protocol: 'silo' as never,
     });
 
-    expect(action.constructor.name).toBe('BtcDepositAndDeploy');
+    expect(action.constructor.name).toBe('BtcDeployBtcb');
   });
 
   it('hands a runtime asset back the union', () => {
@@ -207,6 +207,6 @@ describe('btc.deploy', () => {
 
     const action = btc.deploy(fromAForm);
 
-    expect(action.constructor.name).toBe('BtcStakeAndDeploy');
+    expect(action.constructor.name).toBe('BtcDeployLbtc');
   });
 });

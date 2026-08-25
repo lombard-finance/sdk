@@ -17,22 +17,22 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { BtcDeposit } from '../../../../chains/btc/actions/deposit/BtcDeposit';
-import { BtcDepositAndDeploy } from '../../../../chains/btc/actions/depositAndDeploy/BtcDepositAndDeploy';
-import { BtcStake } from '../../../../chains/btc/actions/stake/BtcStake';
-import { BtcStakeAndDeploy } from '../../../../chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy';
+import { BtcDeployBtcb } from '../../../../chains/btc/actions/deploy-btcb/BtcDeployBtcb';
+import { BtcDeployLbtc } from '../../../../chains/btc/actions/deploy-lbtc/BtcDeployLbtc';
+import { BtcDepositBtcb } from '../../../../chains/btc/actions/deposit-btcb/BtcDepositBtcb';
+import { BtcDepositLbtc } from '../../../../chains/btc/actions/deposit-lbtc/BtcDepositLbtc';
+import { EvmClaim } from '../../../../chains/evm/actions/claim/EvmClaim';
 import { EvmDeploy } from '../../../../chains/evm/actions/deploy/EvmDeploy';
-import { EvmDeposit } from '../../../../chains/evm/actions/deposit/EvmDeposit';
-import { EvmRedeem } from '../../../../chains/evm/actions/redeem/EvmRedeem';
-import { EvmStake } from '../../../../chains/evm/actions/stake/EvmStake';
-import { EvmUnstake } from '../../../../chains/evm/actions/unstake/EvmUnstake';
-import { EvmCancelWithdraw } from '../../../../chains/evm/actions/withdraw/EvmCancelWithdraw';
-import { EvmWithdraw } from '../../../../chains/evm/actions/withdraw/EvmWithdraw';
-import { SolanaRedeem } from '../../../../chains/solana/actions/redeem/SolanaRedeem';
-import { SolanaStake } from '../../../../chains/solana/actions/stake/SolanaStake';
-import { SolanaUnstake } from '../../../../chains/solana/actions/unstake/SolanaUnstake';
-import { StarknetUnstake } from '../../../../chains/starknet/actions/unstake/StarknetUnstake';
-import { SuiUnstake } from '../../../../chains/sui/actions/unstake/SuiUnstake';
+import { EvmDepositBtcb } from '../../../../chains/evm/actions/deposit-btcb/EvmDepositBtcb';
+import { EvmWithdrawBtcb } from '../../../../chains/evm/actions/withdraw-btcb/EvmWithdrawBtcb';
+import { EvmWithdrawLbtc } from '../../../../chains/evm/actions/withdraw-lbtc/EvmWithdrawLbtc';
+import { EvmCancelWithdraw } from '../../../../chains/evm/actions/withdraw-vault/EvmCancelWithdraw';
+import { EvmWithdrawVault } from '../../../../chains/evm/actions/withdraw-vault/EvmWithdrawVault';
+import { SolanaDepositBtcb } from '../../../../chains/solana/actions/deposit-btcb/SolanaDepositBtcb';
+import { SolanaWithdrawBtcb } from '../../../../chains/solana/actions/withdraw-btcb/SolanaWithdrawBtcb';
+import { SolanaWithdrawLbtc } from '../../../../chains/solana/actions/withdraw-lbtc/SolanaWithdrawLbtc';
+import { StarknetWithdraw } from '../../../../chains/starknet/actions/withdraw/StarknetWithdraw';
+import { SuiWithdraw } from '../../../../chains/sui/actions/withdraw/SuiWithdraw';
 
 /** The members `Action` requires, excluding the optional `pendingAuthorization`. */
 const ACTION_MEMBERS = [
@@ -66,34 +66,34 @@ interface Subject {
 }
 
 const SUBJECTS: Subject[] = [
-  { name: 'BtcStake', ctor: BtcStake, target: 'BitcoinSourceAction' },
-  { name: 'BtcDeposit', ctor: BtcDeposit, target: 'BitcoinSourceAction' },
+  { name: 'BtcDepositLbtc', ctor: BtcDepositLbtc, target: 'BitcoinSourceAction' },
+  { name: 'BtcDepositBtcb', ctor: BtcDepositBtcb, target: 'BitcoinSourceAction' },
   {
-    name: 'BtcStakeAndDeploy',
-    ctor: BtcStakeAndDeploy,
+    name: 'BtcDeployLbtc',
+    ctor: BtcDeployLbtc,
     target: 'BitcoinSourceAction',
   },
   {
-    name: 'BtcDepositAndDeploy',
-    ctor: BtcDepositAndDeploy,
+    name: 'BtcDeployBtcb',
+    ctor: BtcDeployBtcb,
     target: 'BitcoinSourceAction',
   },
-  { name: 'EvmStake', ctor: EvmStake, target: 'FeeAuthorizedAction' },
-  { name: 'EvmUnstake', ctor: EvmUnstake, target: 'FeeAuthorizedAction' },
-  { name: 'EvmRedeem', ctor: EvmRedeem, target: 'FeeAuthorizedAction' },
-  { name: 'EvmDeposit', ctor: EvmDeposit, target: 'ClaimableAction' },
+  { name: 'EvmDepositBtcb', ctor: EvmDepositBtcb, target: 'FeeAuthorizedAction' },
+  { name: 'EvmWithdrawLbtc', ctor: EvmWithdrawLbtc, target: 'FeeAuthorizedAction' },
+  { name: 'EvmWithdrawBtcb', ctor: EvmWithdrawBtcb, target: 'FeeAuthorizedAction' },
+  { name: 'EvmClaim', ctor: EvmClaim, target: 'ClaimableAction' },
   { name: 'EvmDeploy', ctor: EvmDeploy, target: 'Action' },
-  { name: 'EvmWithdraw', ctor: EvmWithdraw, target: 'Action' },
+  { name: 'EvmWithdrawVault', ctor: EvmWithdrawVault, target: 'Action' },
   {
     name: 'EvmCancelWithdraw',
     ctor: EvmCancelWithdraw,
     target: 'CancellableAction',
   },
-  { name: 'SolanaStake', ctor: SolanaStake, target: 'Action' },
-  { name: 'SolanaUnstake', ctor: SolanaUnstake, target: 'Action' },
-  { name: 'SolanaRedeem', ctor: SolanaRedeem, target: 'Action' },
-  { name: 'SuiUnstake', ctor: SuiUnstake, target: 'Action' },
-  { name: 'StarknetUnstake', ctor: StarknetUnstake, target: 'Action' },
+  { name: 'SolanaDepositBtcb', ctor: SolanaDepositBtcb, target: 'Action' },
+  { name: 'SolanaWithdrawLbtc', ctor: SolanaWithdrawLbtc, target: 'Action' },
+  { name: 'SolanaWithdrawBtcb', ctor: SolanaWithdrawBtcb, target: 'Action' },
+  { name: 'SuiWithdraw', ctor: SuiWithdraw, target: 'Action' },
+  { name: 'StarknetWithdraw', ctor: StarknetWithdraw, target: 'Action' },
 ];
 
 /** Every own property name up the prototype chain, stopping before Object. */

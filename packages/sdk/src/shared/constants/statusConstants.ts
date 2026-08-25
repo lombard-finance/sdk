@@ -33,13 +33,13 @@
  *
  * ## Flow Examples
  *
- * **BtcStake/BtcDeposit (to Ethereum):**
+ * **BtcDepositLbtc/BtcDepositBtcb (to Ethereum):**
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → ADDRESS_READY
  *
- * **BtcStake/BtcDeposit (to non-Ethereum):**
+ * **BtcDepositLbtc/BtcDepositBtcb (to non-Ethereum):**
  * IDLE → NEEDS_ADDRESS_CONFIRMATION → READY → ADDRESS_READY
  *
- * **BtcStakeAndDeploy/BtcDepositAndDeploy:**
+ * **BtcDeployLbtc/BtcDeployBtcb:**
  * IDLE → NEEDS_DEPLOY_AUTHORIZATION → READY → ADDRESS_READY
  */
 export const BtcActionStatus = {

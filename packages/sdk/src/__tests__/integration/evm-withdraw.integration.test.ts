@@ -12,7 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   evmCancelWithdraw,
   evmWithdraw,
-} from '../../chains/evm/actions/withdraw';
+} from '../../chains/evm/actions/withdraw-vault';
 import { Chain, evmActions } from '../../index';
 import { EvmOperationStatus } from '../../shared/constants/statusConstants';
 import { createTestConfig as createConfig } from '../helpers/createTestConfig';

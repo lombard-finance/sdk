@@ -199,26 +199,12 @@ export {
 // Event types
 export type {
   ActionEventMap,
-  BridgeEventMap,
-  DeployEventMap,
-  DepositEventMap,
-  RedeemEventMap,
-  StakeEventMap,
   StrategyEvent,
   StrategyEventHandlerMap,
   StrategyEventMap,
-  UnstakeEventMap,
-  WithdrawEventMap,
 } from './shared/events';
 export {
   ActionEvent,
-  BridgeEvent,
-  DeployEvent,
-  DepositEvent,
-  RedeemEvent,
-  StakeEvent,
-  UnstakeEvent,
-  WithdrawEvent,
 } from './shared/events';
 
 // Error handling
@@ -238,27 +224,27 @@ export type { LogMeta, MonitorableAction } from './shared/actions/BaseAction';
 
 // BTC types and direct actions
 export type {
-  BtcDepositAndDeployParams,
-  BtcDepositAndDeployPrepareParams,
-  BtcDepositAndDeployProgress,
-  BtcDepositParams,
-  BtcDepositPrepareParams,
-  BtcDepositProgress,
-  BtcStakeAndDeployParams,
-  BtcStakeAndDeployPrepareParams,
-  BtcStakeAndDeployProgress,
-  BtcStakeParams,
-  BtcStakeProgress,
-  IBtcDeposit,
-  IBtcDepositAndDeploy,
-  IBtcStake,
-  IBtcStakeAndDeploy,
+  BtcDeployBtcbParams,
+  BtcDeployBtcbPrepareParams,
+  BtcDeployBtcbProgress,
+  BtcDeployLbtcParams,
+  BtcDeployLbtcPrepareParams,
+  BtcDeployLbtcProgress,
+  BtcDepositBtcbParams,
+  BtcDepositBtcbPrepareParams,
+  BtcDepositBtcbProgress,
+  BtcDepositLbtcParams,
+  BtcDepositLbtcProgress,
+  IBtcDeployBtcb,
+  IBtcDeployLbtc,
+  IBtcDepositBtcb,
+  IBtcDepositLbtc,
 } from './chains/btc';
 export {
-  BtcDeposit,
-  BtcDepositAndDeploy,
-  BtcStake,
-  BtcStakeAndDeploy,
+  BtcDeployBtcb,
+  BtcDeployLbtc,
+  BtcDepositBtcb,
+  BtcDepositLbtc,
 } from './chains/btc';
 
 // Note: Sync factory functions are intentionally not exported. Use
@@ -273,39 +259,39 @@ export {
 export type {
   EvmCancelWithdrawParams,
   EvmCancelWithdrawProgress,
+  EvmClaimParams,
+  EvmClaimPrepareParams,
+  EvmClaimProgress,
   EvmDeployParams,
   EvmDeployPrepareParams,
   EvmDeployProgress,
-  EvmDepositParams,
-  EvmDepositPrepareParams,
-  EvmDepositProgress,
-  EvmRedeemParams,
-  EvmRedeemPrepareParams,
-  EvmRedeemProgress,
-  EvmStakeParams,
-  EvmStakePrepareParams,
-  EvmStakeProgress,
-  EvmUnstakeParams,
-  EvmUnstakePrepareParams,
-  EvmUnstakeProgress,
-  EvmWithdrawParams,
-  EvmWithdrawPrepareParams,
-  EvmWithdrawProgress,
+  EvmDepositBtcbParams,
+  EvmDepositBtcbPrepareParams,
+  EvmDepositBtcbProgress,
+  EvmWithdrawBtcbParams,
+  EvmWithdrawBtcbPrepareParams,
+  EvmWithdrawBtcbProgress,
+  EvmWithdrawLbtcParams,
+  EvmWithdrawLbtcPrepareParams,
+  EvmWithdrawLbtcProgress,
+  EvmWithdrawVaultParams,
+  EvmWithdrawVaultPrepareParams,
+  EvmWithdrawVaultProgress,
   IEvmCancelWithdraw,
+  IEvmClaim,
   IEvmDeploy,
-  IEvmDeposit,
-  IEvmRedeem,
-  IEvmStake,
-  IEvmUnstake,
-  IEvmWithdraw,
+  IEvmDepositBtcb,
+  IEvmWithdrawBtcb,
+  IEvmWithdrawLbtc,
+  IEvmWithdrawVault,
 } from './chains/evm';
 export {
+  EvmClaimStatus,
   EvmDeployStatus,
-  EvmDepositStatus,
-  EvmRedeemStatus,
-  EvmStakeStatus,
-  EvmUnstakeStatus,
-  EvmWithdrawStatus,
+  EvmDepositBtcbStatus,
+  EvmWithdrawBtcbStatus,
+  EvmWithdrawLbtcStatus,
+  EvmWithdrawVaultStatus,
 } from './chains/evm';
 
 // Note: Sync factory functions are intentionally
@@ -787,14 +773,20 @@ export type {
   DeployParams,
   DepositParams,
   EvmCancelWithdrawStatus,
-  EvmClaimStatus,
-  // EvmDeployStatus is deliberately absent. v5 already exports that name as an
-  // alias of EvmOperationStatus, and the v6 narrowing describes the same concept
-  // with a smaller member set. Exporting both is a duplicate identifier;
-  // silently swapping the meaning would change what a consumer's type admits
-  // with no error at their call site. It lands when the EVM classes adopt the
-  // narrowings in stage D, as a named breaking change.
+  // EvmClaimStatus and EvmDeployStatus are deliberately absent. The claim
+  // action's own enum carries the `EvmClaimStatus` name now — it was
+  // `EvmDepositStatus`, which named the verb this action stopped being — and the
+  // core narrowing describes the same concept with a smaller member set.
+  // Exporting both is a duplicate identifier, and silently swapping which one
+  // wins would change what a consumer's type admits with no error at their call
+  // site. Both land when the EVM classes adopt the narrowings.
+  //
+  // EvmDepositStatus and EvmWithdrawStatus are reachable for the first time
+  // here: the per-action aliases used to own those names, and the class rename
+  // freed them.
+  EvmDepositStatus,
   EvmVaultWithdrawStatus,
+  EvmWithdrawStatus,
   FeeAuthorizedAction,
   PrepareParams,
   ReachableActionStatus,

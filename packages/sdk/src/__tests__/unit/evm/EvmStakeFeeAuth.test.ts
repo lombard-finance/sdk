@@ -6,14 +6,14 @@
  * Fee authorization is required on unsubsidized chains (Ethereum, Sepolia).
  * On subsidized chains (Avalanche, Base, BSC), no fee auth is required.
  *
- * @module __tests__/unit/evm/EvmStakeFeeAuth.test.ts
+ * @module __tests__/unit/evm/EvmDepositBtcbFeeAuth.test.ts
  */
 
 import { Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { EvmStake } from '../../../chains/evm/actions/stake/EvmStake';
+import { EvmDepositBtcb } from '../../../chains/evm/actions/deposit-btcb/EvmDepositBtcb';
 import * as feeAuthModule from '../../../chains/evm/shared/feeAuth';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { AssetId, Chain } from '../../../core';
@@ -55,7 +55,7 @@ function createContext(): EvmCoreContext {
   };
 }
 
-describe('EvmStake Fee Authorization', () => {
+describe('EvmDepositBtcb Fee Authorization', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -72,7 +72,7 @@ describe('EvmStake Fee Authorization', () => {
       });
 
       const ctx = createContext();
-      const stake = new EvmStake(ctx, {
+      const stake = new EvmDepositBtcb(ctx, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BASE,
@@ -97,7 +97,7 @@ describe('EvmStake Fee Authorization', () => {
       });
 
       const ctx = createContext();
-      const stake = new EvmStake(ctx, {
+      const stake = new EvmDepositBtcb(ctx, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
@@ -122,7 +122,7 @@ describe('EvmStake Fee Authorization', () => {
       });
 
       const ctx = createContext();
-      const stake = new EvmStake(ctx, {
+      const stake = new EvmDepositBtcb(ctx, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
@@ -150,7 +150,7 @@ describe('EvmStake Fee Authorization', () => {
       });
 
       const ctx = createContext();
-      const stake = new EvmStake(ctx, {
+      const stake = new EvmDepositBtcb(ctx, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
@@ -177,7 +177,7 @@ describe('EvmStake Fee Authorization', () => {
       });
 
       const ctx = createContext();
-      const stake = new EvmStake(ctx, {
+      const stake = new EvmDepositBtcb(ctx, {
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,

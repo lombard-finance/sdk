@@ -1,0 +1,1 @@
+export { SimpleDepositPage } from './SimpleDepositPage';

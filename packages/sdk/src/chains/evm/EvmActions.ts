@@ -40,39 +40,39 @@ import type { EvmCoreContext } from '../../shared/context';
 import { createEvmCoreContext } from '../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../shared/errors';
 import {
+  createEvmDeposit,
+  type EvmClaimParams,
+  type IEvmClaim,
+} from './actions/claim';
+import {
   createEvmDeploy,
   type EvmDeployParams,
   type IEvmDeploy,
 } from './actions/deploy';
-import {
-  createEvmDeposit,
-  type EvmDepositParams,
-  type IEvmDeposit,
-} from './actions/deposit';
-import {
-  createEvmRedeem,
-  type EvmRedeemParams,
-  type IEvmRedeem,
-} from './actions/redeem';
 // Import action factories
 import {
   createEvmStake,
-  type EvmStakeParams,
-  type IEvmStake,
-} from './actions/stake';
+  type EvmDepositBtcbParams,
+  type IEvmDepositBtcb,
+} from './actions/deposit-btcb';
+import {
+  createEvmRedeem,
+  type EvmWithdrawBtcbParams,
+  type IEvmWithdrawBtcb,
+} from './actions/withdraw-btcb';
 import {
   createEvmUnstake,
-  type EvmUnstakeParams,
-  type IEvmUnstake,
-} from './actions/unstake';
+  type EvmWithdrawLbtcParams,
+  type IEvmWithdrawLbtc,
+} from './actions/withdraw-lbtc';
 import {
   createEvmCancelWithdraw,
   createEvmWithdraw,
   type EvmCancelWithdrawParams,
-  type EvmWithdrawParams,
+  type EvmWithdrawVaultParams,
   type IEvmCancelWithdraw,
-  type IEvmWithdraw,
-} from './actions/withdraw';
+  type IEvmWithdrawVault,
+} from './actions/withdraw-vault';
 
 /**
  * EVM Actions
@@ -83,7 +83,7 @@ import {
 /**
  * An asset withdrawal whose input asset is only known at runtime.
  *
- * `EvmUnstakeParams` and `EvmRedeemParams` are structurally identical apart from
+ * `EvmWithdrawLbtcParams` and `EvmWithdrawBtcbParams` are structurally identical apart from
  * the `assetIn` literal that distinguishes them, so this is their shape with
  * that discriminant widened. It exists for the overload above: without it, a
  * caller passing a plain `AssetId` matches no signature at all.
@@ -118,7 +118,7 @@ export class EvmActions {
    * });
    * ```
    */
-  deposit(params: EvmStakeParams): IEvmStake {
+  deposit(params: EvmDepositBtcbParams): IEvmDepositBtcb {
     return createEvmStake(this.ctx, params);
   }
 
@@ -142,7 +142,7 @@ export class EvmActions {
    *
    * The new name for what `deposit()` has always done.
    */
-  claim(params: EvmDepositParams): IEvmDeposit {
+  claim(params: EvmClaimParams): IEvmClaim {
     return createEvmDeposit(this.ctx, params);
   }
 
@@ -189,7 +189,7 @@ export class EvmActions {
    *
    * Overloaded rather than unioned so the caller gets the precisely-typed
    * action. That matters because the two arms have different terminals —
-   * `EvmWithdrawStatus` has `completed` and no `queued`, `EvmVaultWithdrawStatus`
+   * `EvmWithdrawVaultStatus` has `completed` and no `queued`, `EvmVaultWithdrawStatus`
    * has `queued` and no `completed` — so comparing against the wrong one is a
    * compile error rather than a UI reporting an unsettled request as done.
    *
@@ -201,18 +201,18 @@ export class EvmActions {
    *
    * @throws LombardError if `assetIn` names no withdrawable asset
    */
-  withdraw(params: EvmWithdrawParams): IEvmWithdraw;
-  withdraw(params: EvmUnstakeParams): IEvmUnstake;
-  withdraw(params: EvmRedeemParams): IEvmRedeem;
+  withdraw(params: EvmWithdrawVaultParams): IEvmWithdrawVault;
+  withdraw(params: EvmWithdrawLbtcParams): IEvmWithdrawLbtc;
+  withdraw(params: EvmWithdrawBtcbParams): IEvmWithdrawBtcb;
   /**
    * The arm for a caller holding a runtime asset rather than a literal — a form
    * picked in a UI, say. The precise interface cannot be known statically, so
    * the union comes back and the caller narrows.
    */
-  withdraw(params: EvmAssetWithdrawParams): IEvmUnstake | IEvmRedeem;
+  withdraw(params: EvmAssetWithdrawParams): IEvmWithdrawLbtc | IEvmWithdrawBtcb;
   withdraw(
-    params: EvmWithdrawParams | EvmAssetWithdrawParams,
-  ): IEvmWithdraw | IEvmUnstake | IEvmRedeem {
+    params: EvmWithdrawVaultParams | EvmAssetWithdrawParams,
+  ): IEvmWithdrawVault | IEvmWithdrawLbtc | IEvmWithdrawBtcb {
     // A vault exit names a protocol and no input asset: the shares it burns
     // have no AssetId. That absence is what separates the arms.
     if (!('assetIn' in params)) {
@@ -220,11 +220,11 @@ export class EvmActions {
     }
 
     if (params.assetIn === AssetId.LBTC) {
-      return createEvmUnstake(this.ctx, params as EvmUnstakeParams);
+      return createEvmUnstake(this.ctx, params as EvmWithdrawLbtcParams);
     }
 
     if (params.assetIn === AssetId.BTCb) {
-      return createEvmRedeem(this.ctx, params as EvmRedeemParams);
+      return createEvmRedeem(this.ctx, params as EvmWithdrawBtcbParams);
     }
 
     throw new LombardError(
