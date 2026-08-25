@@ -105,3 +105,11 @@ jobs:
 
       - name: Test
         run: yarn test:required
+
+      # The reference docs had never been built in CI, so a broken doc comment
+      # or an unresolvable type could only be discovered at release time.
+      # Warnings are not failures here: most are links into viem's types, which
+      # is a peer dependency and deliberately not bundled, so typedoc cannot
+      # resolve them from this side.
+      - name: Build reference docs
+        run: yarn workspace @lombard.finance/sdk build-docs
