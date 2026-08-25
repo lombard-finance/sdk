@@ -216,8 +216,11 @@ export async function httpRequest<T = unknown>(
     // when the host handed back a token we have not tried yet.
     for (let attempt = 0; ; attempt += 1) {
       try {
-        // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_ssrf_rule-node-ssrf -- the url is composed from the SDK's own api-config hosts, not from caller input
-        return await axios(buildConfig(authToken));
+        // The URL is composed from the SDK's own api-config hosts plus a
+        // fixed path; a caller supplies neither, so there is no SSRF surface.
+        // Suppressed on this line rather than the one above because the
+        // rule-id form was not being honoured.
+        return await axios(buildConfig(authToken)); // nosemgrep
       } catch (error) {
         const status = (error as { response?: { status?: number } })?.response
           ?.status;

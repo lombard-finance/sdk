@@ -406,6 +406,7 @@ export const getTokenAddressForChain = (
       return typeof found === 'string' ? found : found[adapter];
     }
   }
+  // nosemgrep: codacy.tools-configs.rules_lgpl_javascript_crypto_rule-node-timing-attack -- comparing Token enum values, not secrets
   if (token !== Token.LBTC) {
     return undefined;
   }
