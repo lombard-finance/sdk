@@ -101,7 +101,7 @@ describe.each(CONFIGS)('%s config', (_name, authorize) => {
     chainId: ChainId.ethereum,
     recipient: RECIPIENT,
     amount: '1000000',
-    vaultKey: 'veda',
+    vaultKey: 'bitcoinEarn',
     token: 'LBTC',
   };
 
@@ -132,7 +132,7 @@ describe.each(CONFIGS)('%s config', (_name, authorize) => {
         value: '1000000',
         account: RECIPIENT,
         chainId: ChainId.ethereum,
-        vaultKey: 'veda',
+        vaultKey: 'bitcoinEarn',
       }),
     );
   });
@@ -293,7 +293,7 @@ describe('BtcDeployLbtc.authorizeDeposit', () => {
       assetOut: AssetId.LBTC,
       sourceChain: Chain.BITCOIN_MAINNET,
       destChain: Chain.ETHEREUM,
-      protocol: 'veda' as DeployProtocol,
+      protocol: 'bitcoinEarn' as DeployProtocol,
     });
 
     await action.prepare({ amount: '0.01', recipient: RECIPIENT });

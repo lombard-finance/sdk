@@ -159,7 +159,7 @@ describe('golden baseline — the remaining EVM actions on 5.x', () => {
   it('EvmCancelWithdraw keeps its name, so this is a pure regression net', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
     const action = new EvmCancelWithdraw(h.ctx, {
-      protocol: DeployProtocol.Veda,
+      protocol: DeployProtocol.BitcoinEarn,
       chain: Chain.ETHEREUM,
     });
     h.observe(action);

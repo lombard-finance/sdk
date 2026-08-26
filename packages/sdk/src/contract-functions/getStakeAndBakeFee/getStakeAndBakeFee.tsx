@@ -19,19 +19,19 @@ import { getStakeAndBakeConfig } from '../signStakeAndBake/validation';
  * Used when token is not explicitly provided.
  */
 const PROTOCOL_DEFAULT_TOKENS: Record<DefiProtocol, StakeAndBakeToken> = {
-  [DefiProtocol.Veda]: Token.LBTC,
+  [DefiProtocol.BitcoinEarn]: Token.LBTC,
   [DefiProtocol.Silo]: Token.BTCb,
 };
 
 export interface IGetStakeAndBakeFeeParams extends CommonParameters {
   /**
-   * The DeFi protocol identifier (e.g., Veda, Silo).
+   * The DeFi protocol identifier (e.g., Bitcoin Earn, Silo).
    */
   protocol?: DefiProtocol;
   /**
    * The token to query the fee for (optional).
    * If not provided, defaults to the protocol's primary token:
-   * - Veda: LBTC
+   * - Bitcoin Earn: LBTC
    * - Silo: BTCb
    */
   token?: StakeAndBakeToken;
@@ -41,11 +41,11 @@ export interface IGetStakeAndBakeFeeParams extends CommonParameters {
  * Get Stake and bake fee for a specific DeFi protocol and token.
  *
  * If token is not provided, uses the default token for the protocol:
- * - Veda: LBTC
+ * - Bitcoin Earn: LBTC
  * - Silo: BTCb
  *
  * @param {IGetStakeAndBakeFeeParams} parameters - The parameters.
- * @param {DefiProtocol} parameters.protocol - The optional DeFi protocol identifier (defaults to Veda).
+ * @param {DefiProtocol} parameters.protocol - The optional DeFi protocol identifier (defaults to Bitcoin Earn).
  * @param {StakeAndBakeToken} parameters.token - The optional token (defaults to protocol's primary token).
  * @param {ChainId} parameters.chainId - The chain id.
  * @param {Env} parameters.env - The environment (prod, testnet, etc.).
@@ -54,7 +54,7 @@ export interface IGetStakeAndBakeFeeParams extends CommonParameters {
  * @returns Stake and bake fee amount.
  */
 export async function getStakeAndBakeFee({
-  protocol = DefiProtocol.Veda,
+  protocol = DefiProtocol.BitcoinEarn,
   token,
   chainId,
   env = DEFAULT_ENV,

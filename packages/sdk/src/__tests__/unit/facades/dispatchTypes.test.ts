@@ -89,7 +89,7 @@ describe('evm.withdraw', () => {
 
   it('types a vault exit as a withdraw', () => {
     const action = evm.withdraw({
-      protocol: 'veda' as never,
+      protocol: 'bitcoinEarn' as never,
       sourceChain: Chain.ETHEREUM,
       recipient: '0x1111111111111111111111111111111111111111',
     });
@@ -175,7 +175,7 @@ describe('btc.deploy', () => {
   const btc = btcActions(config);
   const base = {
     destChain: Chain.ETHEREUM,
-    protocol: 'veda' as never,
+    protocol: 'bitcoinEarn' as never,
     recipient: '0x1111111111111111111111111111111111111111',
   };
 

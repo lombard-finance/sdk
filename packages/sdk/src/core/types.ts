@@ -92,7 +92,7 @@ export interface RouteParams {
  * Deploy protocol identifiers
  *
  * Re-exported from defi-registry.ts which is the single source of truth.
- * Use DefiProtocol.Veda ('veda') or DefiProtocol.Silo ('silo').
+ * Use DefiProtocol.BitcoinEarn ('bitcoinEarn') or DefiProtocol.Silo ('silo').
  */
 export {
   type DefiProtocol,
@@ -103,7 +103,7 @@ export {
  * Deploy configuration for stake-and-deploy operations
  */
 export interface DeployConfig {
-  /** Target protocol (use DeployProtocol.Veda or DeployProtocol.Silo) */
+  /** Target protocol (use DeployProtocol.BitcoinEarn or DeployProtocol.Silo) */
   protocol: string;
 
   /** Optional: Amount to deploy (partial deployment) */

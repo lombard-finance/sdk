@@ -1,10 +1,10 @@
 /**
  * EVM Withdraw Action
  *
- * Queues withdrawal of vault shares from DeFi protocols (Veda).
+ * Queues withdrawal of vault shares from DeFi protocols (Bitcoin Earn).
  *
  * Protocol availability:
- * - Veda: Ethereum, Base, BSC (prod only)
+ * - Bitcoin Earn: Ethereum, Base, BSC (prod only)
  *
  * Step ordering on BTCe chains (ETH/Base/BSC) when the user's direct LBTCv
  * balance does not cover the requested amount:
@@ -18,8 +18,8 @@
  *    it skips its own approve + unwrap and just queues.
  *
  * Protocol routing in execute():
- * - Veda on ETH/Base/BSC (BTCe chains): calls `withdrawEarn`.
- * - Veda without a BTCe deployment: calls `queueWithdrawInternal` directly.
+ * - Bitcoin Earn on ETH/Base/BSC (BTCe chains): calls `withdrawEarn`.
+ * - Bitcoin Earn without a BTCe deployment: calls `queueWithdrawInternal` directly.
  *
  * @module chains/evm/actions/withdraw-vault/EvmWithdrawVault
  */
@@ -145,11 +145,11 @@ export class EvmWithdrawVault
       this._account = account;
       this._chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
-      // Validate chain supports Veda vault
+      // Validate chain supports Bitcoin Earn vault
       if (!isEarnChain(this._chainId)) {
         throw new LombardError(
           WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED,
-          `Chain ${this.params.sourceChain} does not support Veda vault withdrawals`,
+          `Chain ${this.params.sourceChain} does not support Bitcoin Earn vault withdrawals`,
           { chain: this.params.sourceChain, protocol: this._protocol },
         );
       }

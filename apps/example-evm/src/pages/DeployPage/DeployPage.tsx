@@ -55,7 +55,7 @@ function StakeAndDeployPageInner({ env }: StakeAndDeployPageProps) {
   const [partnerId, setPartnerIdState] = useState(
     () => localStorage.getItem('lombard-partnerId') || '',
   );
-  const [protocol] = useState<DeployProtocol>(DeployProtocol.Veda);
+  const [protocol] = useState<DeployProtocol>(DeployProtocol.BitcoinEarn);
 
   const setPartnerId = (value: string) => {
     setPartnerIdState(value);

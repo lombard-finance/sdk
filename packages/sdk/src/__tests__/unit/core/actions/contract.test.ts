@@ -197,17 +197,17 @@ describe('DepositParams', () => {
   it('accepts the protocol arm', () => {
     const params: DepositParams = {
       assetIn: AssetId.BTC,
-      protocol: DefiProtocol.Veda,
+      protocol: DefiProtocol.BitcoinEarn,
       destChain: Chain.ETHEREUM,
     };
-    expect(params.protocol).toBe('veda');
+    expect(params.protocol).toBe('bitcoinEarn');
   });
 
   it('rejects both assetOut and protocol', () => {
     const literal = {
       assetIn: AssetId.BTC,
       assetOut: AssetId.LBTC,
-      protocol: DefiProtocol.Veda,
+      protocol: DefiProtocol.BitcoinEarn,
     };
 
     // @ts-expect-error - saying both is saying two contradictory things about
@@ -237,15 +237,15 @@ describe('WithdrawParams', () => {
 
   it('accepts the vault arm with no assetIn', () => {
     const params: WithdrawParams = {
-      protocol: DefiProtocol.Veda,
+      protocol: DefiProtocol.BitcoinEarn,
       assetOut: AssetId.LBTC,
     };
-    expect(params.protocol).toBe('veda');
+    expect(params.protocol).toBe('bitcoinEarn');
   });
 
   it('rejects assetIn on a vault withdrawal', () => {
     const literal = {
-      protocol: DefiProtocol.Veda,
+      protocol: DefiProtocol.BitcoinEarn,
       assetOut: AssetId.LBTC,
       assetIn: AssetId.LBTC,
     };
@@ -263,7 +263,7 @@ describe('DeployParams', () => {
   it('takes an asset and a protocol', () => {
     const params: DeployParams = {
       asset: AssetId.BTC,
-      protocol: DefiProtocol.Veda,
+      protocol: DefiProtocol.BitcoinEarn,
       destChain: Chain.ETHEREUM,
     };
     expect(params.asset).toBe(AssetId.BTC);
@@ -272,7 +272,7 @@ describe('DeployParams', () => {
   it('rejects assetOut', () => {
     const literal = {
       asset: AssetId.BTC,
-      protocol: DefiProtocol.Veda,
+      protocol: DefiProtocol.BitcoinEarn,
       assetOut: AssetId.LBTC,
     };
 

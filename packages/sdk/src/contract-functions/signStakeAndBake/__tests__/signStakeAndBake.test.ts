@@ -128,7 +128,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
@@ -172,7 +172,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('0.5'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
@@ -192,7 +192,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         // No expiry provided
@@ -217,7 +217,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -239,7 +239,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: btcAmount,
         token: 'BTC',
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
@@ -260,7 +260,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         // token not specified - should default to 'BTC'
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -391,14 +391,14 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
 
     it('should throw validation error for BTCb on unsupported vault/chain', async () => {
       // BTCb is only configured for Silo vault on Avalanche
-      // Attempting to use it with Veda vault or on other chains should fail validation
+      // Attempting to use it with the Bitcoin Earn vault or on other chains should fail validation
 
       await expect(
         signStakeAndBake({
           account: MOCK_ACCOUNT,
           value: new BigNumber('1'),
           token: Token.BTCb,
-          vaultKey: DefiProtocol.Veda, // BTCb not configured for Veda
+          vaultKey: DefiProtocol.BitcoinEarn, // BTCb not configured for Bitcoin Earn
           chainId: ChainId.sepolia, // BTCb not configured for Sepolia
           provider: MOCK_PROVIDER,
           env: Env.testnet,
@@ -426,8 +426,8 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         signStakeAndBake({
           account: MOCK_ACCOUNT,
           value: new BigNumber('1'),
-          vaultKey: DefiProtocol.Veda,
-          chainId: ChainId.avalanche, // Not supported by Veda
+          vaultKey: DefiProtocol.BitcoinEarn,
+          chainId: ChainId.avalanche, // Not supported by Bitcoin Earn
           provider: MOCK_PROVIDER,
           env: Env.prod,
         }),
@@ -442,7 +442,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         signStakeAndBake({
           account: MOCK_ACCOUNT,
           value: new BigNumber('1'),
-          vaultKey: DefiProtocol.Veda,
+          vaultKey: DefiProtocol.BitcoinEarn,
           chainId: 99999 as ChainId, // Invalid chain
           provider: MOCK_PROVIDER,
           env: Env.prod,
@@ -455,7 +455,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         await signStakeAndBake({
           account: MOCK_ACCOUNT,
           value: new BigNumber('1'),
-          vaultKey: DefiProtocol.Veda,
+          vaultKey: DefiProtocol.BitcoinEarn,
           chainId: ChainId.avalanche,
           provider: MOCK_PROVIDER,
           env: Env.prod,
@@ -476,7 +476,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -495,7 +495,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -517,7 +517,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -542,7 +542,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: testValue,
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,
@@ -565,7 +565,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -590,7 +590,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1.123456789'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -610,7 +610,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: largeValue,
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -627,7 +627,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: smallValue,
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -640,12 +640,12 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
   });
 
   describe('Spender Contract Selection', () => {
-    it('should use correct spender contract for Veda on Ethereum', async () => {
+    it('should use correct spender contract for Bitcoin Earn on Ethereum', async () => {
       const result = await signStakeAndBake({
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -653,18 +653,18 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
 
       const typedData = JSON.parse(result.typedData);
 
-      // Should match Veda spender contract for Ethereum
+      // Should match Bitcoin Earn spender contract for Ethereum
       expect(typedData.message.spender).toBe(
         '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
       );
     });
 
-    it('should use correct spender contract for Veda on Sepolia (testnet)', async () => {
+    it('should use correct spender contract for Bitcoin Earn on Sepolia (testnet)', async () => {
       const result = await signStakeAndBake({
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.sepolia,
         provider: MOCK_PROVIDER,
         env: Env.testnet,
@@ -700,7 +700,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.sepolia,
         provider: MOCK_PROVIDER,
         env: Env.testnet,
@@ -714,7 +714,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         // No env specified
@@ -732,7 +732,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: 'BTC',
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -753,7 +753,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: MOCK_ACCOUNT,
         value: new BigNumber('1'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         env: Env.prod,
@@ -828,7 +828,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         account: '0xUser123',
         value: new BigNumber('0.5'),
         token: Token.LBTC,
-        vaultKey: DefiProtocol.Veda,
+        vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         provider: MOCK_PROVIDER,
         expiry: MOCK_EXPIRY,

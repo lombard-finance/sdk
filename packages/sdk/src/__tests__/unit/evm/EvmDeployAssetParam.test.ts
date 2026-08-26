@@ -4,7 +4,7 @@
  * Every one of the four call sites in `EvmDeploy` hardcodes `Token.LBTC`, and
  * `params.asset` appears zero times in the class body. So
  *
- *     evm.deploy({ asset: AssetId.BTCb, protocol: Veda })
+ *     evm.deploy({ asset: AssetId.BTCb, protocol: Bitcoin Earn })
  *
  * resolves cleanly and then deposits **LBTC**. A caller who names one asset gets
  * another, silently. "Deploy supports BTC.b" was never true, and PR #43's
@@ -69,11 +69,14 @@ describe('EvmDeploy reads the asset it was given', () => {
     const action = new EvmDeploy(h.ctx, {
       asset: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,
-      protocol: DeployProtocol.Veda,
+      protocol: DeployProtocol.BitcoinEarn,
       recipient: EVM_RECIPIENT,
     });
 
-    await action.prepare({ amount: '0.001', protocol: DeployProtocol.Veda });
+    await action.prepare({
+      amount: '0.001',
+      protocol: DeployProtocol.BitcoinEarn,
+    });
 
     // The assertion the bug fails: whatever token the class looked up must be
     // the one the caller named.
@@ -88,11 +91,14 @@ describe('EvmDeploy reads the asset it was given', () => {
     const action = new EvmDeploy(h.ctx, {
       asset: AssetId.LBTC,
       sourceChain: Chain.ETHEREUM,
-      protocol: DeployProtocol.Veda,
+      protocol: DeployProtocol.BitcoinEarn,
       recipient: EVM_RECIPIENT,
     });
 
-    await action.prepare({ amount: '0.001', protocol: DeployProtocol.Veda });
+    await action.prepare({
+      amount: '0.001',
+      protocol: DeployProtocol.BitcoinEarn,
+    });
 
     expect(getTokenInfo.mock.calls.map((c) => c[0])).toContain(Token.LBTC);
   });

@@ -10,6 +10,41 @@ exports[`golden baseline — BTC actions on 5.x > BtcDeployBtcb (native BTC → 
 }
 `;
 
+exports[`golden baseline — BTC actions on 5.x > BtcDeployLbtc (native BTC → LBTC → Bitcoin Earn vault) > records its prepare lifecycle with no existing deposit 1`] = `
+{
+  "calls": [
+    "capabilities.require",
+    "evm.getStakeAndBakeFee",
+    "api.getDepositAddress",
+  ],
+  "progress": [
+    "needs_deploy_authorization [created,depositing,issuing,verifying]",
+  ],
+  "statusAfterPrepare": "needs_deploy_authorization",
+  "statuses": [
+    "needs_deploy_authorization",
+  ],
+}
+`;
+
+exports[`golden baseline — BTC actions on 5.x > BtcDeployLbtc (native BTC → LBTC → Bitcoin Earn vault) > records the resume path when a deposit address already exists 1`] = `
+{
+  "calls": [
+    "capabilities.require",
+    "evm.getStakeAndBakeFee",
+    "api.getDepositAddress",
+  ],
+  "depositAddress": "tb1qexistingdeposit0000000000000000000000",
+  "progress": [
+    "address_ready [created,depositing,issuing,verifying]",
+  ],
+  "statusAfterPrepare": "address_ready",
+  "statuses": [
+    "address_ready",
+  ],
+}
+`;
+
 exports[`golden baseline — BTC actions on 5.x > BtcDeployLbtc (native BTC → LBTC → Veda vault) > records its prepare lifecycle with no existing deposit 1`] = `
 {
   "calls": [

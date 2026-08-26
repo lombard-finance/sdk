@@ -1,7 +1,7 @@
 /**
  * EVM Cancel Withdraw Action
  *
- * Cancels a pending vault withdrawal from DeFi protocols (Veda).
+ * Cancels a pending vault withdrawal from DeFi protocols (Bitcoin Earn).
  *
  * @module chains/evm/actions/withdraw-vault/EvmCancelWithdraw
  */
@@ -71,11 +71,11 @@ export class EvmCancelWithdraw
       this._account = account;
       this._chainId = parseChainIdentifier(this.params.chain) as ChainId;
 
-      // Validate chain supports Veda vault
+      // Validate chain supports Bitcoin Earn vault
       if (!isEarnChain(this._chainId)) {
         throw new LombardError(
           WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED,
-          `Chain ${this.params.chain} does not support Veda vault withdrawals`,
+          `Chain ${this.params.chain} does not support Bitcoin Earn vault withdrawals`,
           { chain: this.params.chain, protocol: this.params.protocol },
         );
       }

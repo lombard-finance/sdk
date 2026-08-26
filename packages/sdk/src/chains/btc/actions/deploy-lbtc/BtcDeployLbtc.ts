@@ -71,7 +71,7 @@ interface AuthState {
  * const stakeAndDeploy = new BtcDeployLbtc(ctx, {
  *   assetOut: AssetId.LBTC,
  *   destChain: Chain.ETHEREUM,
- *   protocol: DeployProtocol.Veda,
+ *   protocol: DeployProtocol.BitcoinEarn,
  * });
  *
  * await stakeAndDeploy.prepare({ amount: '0.1', recipient: '0x...' });

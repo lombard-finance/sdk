@@ -248,23 +248,31 @@ describe('validateBtcActionParams', () => {
 describe('validateProtocol', () => {
   it('accepts a supported protocol', () => {
     expect(() =>
-      validateProtocol(['veda', 'silo'], 'veda', 'BTC Stake and Deploy'),
+      validateProtocol(
+        ['bitcoinEarn', 'silo'],
+        'bitcoinEarn',
+        'BTC Stake and Deploy',
+      ),
     ).not.toThrow();
   });
 
   it('rejects an unsupported one, naming what is supported', () => {
     try {
-      validateProtocol(['veda'], 'silo', 'BTC Stake and Deploy');
+      validateProtocol(['bitcoinEarn'], 'silo', 'BTC Stake and Deploy');
       expect.unreachable('should have thrown');
     } catch (error) {
       expect((error as LombardError).code).toBe('invalid-parameter');
       expect((error as LombardError).message).toContain('silo');
-      expect((error as LombardError).message).toContain('Supported: veda');
+      expect((error as LombardError).message).toContain(
+        'Supported: bitcoinEarn',
+      );
     }
   });
 
   it('is case sensitive, so a display-cased protocol is rejected', () => {
-    expect(() => validateProtocol(['veda'], 'Veda', 'x')).toThrow(LombardError);
+    expect(() => validateProtocol(['bitcoinEarn'], 'BitcoinEarn', 'x')).toThrow(
+      LombardError,
+    );
   });
 });
 

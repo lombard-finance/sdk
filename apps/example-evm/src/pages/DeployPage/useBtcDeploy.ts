@@ -15,7 +15,7 @@ export type { DeployProgressInfo as StakeAndBakeProgress } from '@lombard.financ
  *
  * Combines staking and vault deployment in a single atomic operation
  *
- * @param protocol - DeFi protocol to deploy to (Veda or Silo)
+ * @param protocol - DeFi protocol to deploy to (Bitcoin Earn or Silo)
  * @param partnerId - Partner ID to bypass reCAPTCHA (required without captcha integration)
  * @param env - Environment (prod, testnet, stage)
  */

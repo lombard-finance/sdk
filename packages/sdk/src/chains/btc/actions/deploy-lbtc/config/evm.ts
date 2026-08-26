@@ -1,10 +1,10 @@
 /**
  * EVM Chain Configuration for BTC StakeAndDeploy
  *
- * BTC StakeAndDeploy: BTC → LBTC → DeFi vault (Veda, Silo)
+ * BTC StakeAndDeploy: BTC → LBTC → DeFi vault (Bitcoin Earn, Silo)
  *
  * Note: StakeAndDeploy is limited to chains that have both LBTC deployed
- * AND Veda/Silo vault support. This is a subset of all LBTC chains.
+ * AND Bitcoin Earn/Silo vault support. This is a subset of all LBTC chains.
  *
  * @module chains/btc/actions/deploy-lbtc/config/evm
  */
@@ -33,7 +33,7 @@ const STAKE_AND_DEPLOY_DEST_CHAINS = EARN_STAKE_AND_BAKE_CHAINS.map((chainId) =>
  * EVM stake and deploy configuration
  *
  * StakeAndDeploy produces LBTC then deploys to a vault.
- * Limited to chains with Veda/Silo vault support.
+ * Limited to chains with Bitcoin Earn/Silo vault support.
  */
 export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
   chainType: 'evm',

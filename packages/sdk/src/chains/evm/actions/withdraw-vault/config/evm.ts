@@ -16,16 +16,16 @@ import type { WithdrawChainConfig } from './types';
  * EVM withdraw configuration
  *
  * Withdraw support mirrors deploy support:
- * - Veda: Ethereum, Base, BSC (prod only)
+ * - Bitcoin Earn: Ethereum, Base, BSC (prod only)
  */
 export const evmWithdrawConfig: WithdrawChainConfig = {
   chainType: 'evm',
 
   routes: [
-    // Veda - Ethereum, Base, BSC
+    // Bitcoin Earn - Ethereum, Base, BSC
     {
       sourceChains: [Chain.ETHEREUM, Chain.BASE, Chain.BSC],
-      protocols: [DeployProtocol.Veda],
+      protocols: [DeployProtocol.BitcoinEarn],
       envs: [Env.prod],
     },
   ],

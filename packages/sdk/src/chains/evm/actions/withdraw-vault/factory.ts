@@ -21,7 +21,7 @@ import type { EvmCancelWithdrawParams, EvmWithdrawVaultParams } from './types';
  * const sdk = await createLombardSDK({ env: Env.prod, providers: { evm: () => window.ethereum } });
  * const withdraw = sdk.chain.evm.withdraw({
  *   sourceChain: Chain.ETHEREUM,
- *   protocol: DeployProtocol.Veda,
+ *   protocol: DeployProtocol.BitcoinEarn,
  *   recipient: '0x...',
  * });
  * await withdraw.prepare({ amount: '0.1' });
@@ -55,7 +55,7 @@ export function createEvmWithdraw(
  * const sdk = await createLombardSDK({ env: Env.prod, providers: { evm: () => window.ethereum } });
  * const cancelWithdraw = sdk.chain.evm.cancelWithdraw({
  *   chain: Chain.ETHEREUM,
- *   protocol: DeployProtocol.Veda,
+ *   protocol: DeployProtocol.BitcoinEarn,
  * });
  * await cancelWithdraw.prepare();
  * await cancelWithdraw.execute();

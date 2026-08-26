@@ -51,7 +51,7 @@ describe('BTC Stake And Deploy Integration', () => {
       const stakeAndDeploy = btcStakeAndDeploy(config, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: 'veda', // Use Veda protocol from DefiRegistry
+        protocol: 'bitcoinEarn', // Use Bitcoin Earn protocol from DefiRegistry
       });
 
       expect(stakeAndDeploy).toBeDefined();
@@ -71,7 +71,7 @@ describe('BTC Stake And Deploy Integration', () => {
           // runtime guard tested for callers with no types at all.
           assetOut: AssetId.BTCb as never,
           destChain: Chain.ETHEREUM,
-          protocol: 'veda', // Use Veda protocol from DefiRegistry
+          protocol: 'bitcoinEarn', // Use Bitcoin Earn protocol from DefiRegistry
         });
       }).toThrow(/not supported/);
     });
@@ -87,7 +87,7 @@ describe('BTC Stake And Deploy Integration', () => {
       const stakeAndDeploy = btcStakeAndDeploy(config, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: 'veda', // Use Veda protocol from DefiRegistry
+        protocol: 'bitcoinEarn', // Use Bitcoin Earn protocol from DefiRegistry
       });
 
       expect(stakeAndDeploy.status).toBe('idle');

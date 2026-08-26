@@ -49,7 +49,7 @@ const deployParams = {
   amount: '0.01',
   destChain: Chain.ETHEREUM_MAINNET,
   sourceChain: Chain.BITCOIN_SIGNET,
-  protocol: DeployProtocol.VEDA,
+  protocol: DeployProtocol.BitcoinEarn,
   recipient: '0xrecipient',
 };
 
@@ -86,9 +86,9 @@ describe('useBtcDeploy', () => {
   it('throws when called with null sdk', async () => {
     const { result } = renderHook(() => useBtcDeploy(null));
 
-    await expect(
-      result.current.deploy(deployParams),
-    ).rejects.toThrow('SDK not initialized');
+    await expect(result.current.deploy(deployParams)).rejects.toThrow(
+      'SDK not initialized',
+    );
   });
 
   it('calls SDK methods in correct order and sets depositAddress', async () => {

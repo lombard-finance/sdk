@@ -4,7 +4,7 @@
  * Handles staking LBTC to DeFi protocols on EVM chains.
  *
  * Protocol availability:
- * - Veda: Ethereum, Base, BSC (prod only)
+ * - Bitcoin Earn: Ethereum, Base, BSC (prod only)
  * - Silo: Avalanche (prod only)
  *
  * @module chains/evm/actions/deposit-btcb/config/evm
@@ -19,31 +19,31 @@ import type { ChainConfig } from './types';
 /**
  * EVM chain configuration for stake operations
  *
- * Supports staking LBTC to Veda and Silo protocols.
+ * Supports staking LBTC to Bitcoin Earn and Silo protocols.
  */
 export const evmConfig: ChainConfig = {
   chainType: 'evm',
 
   routes: [
-    // Veda - Ethereum
+    // Bitcoin Earn - Ethereum
     {
       sourceChains: [Chain.ETHEREUM],
       destChains: [Chain.ETHEREUM],
-      protocols: [DeployProtocol.Veda],
+      protocols: [DeployProtocol.BitcoinEarn],
       envs: [Env.prod],
     },
-    // Veda - Base
+    // Bitcoin Earn - Base
     {
       sourceChains: [Chain.BASE],
       destChains: [Chain.BASE],
-      protocols: [DeployProtocol.Veda],
+      protocols: [DeployProtocol.BitcoinEarn],
       envs: [Env.prod],
     },
-    // Veda - BSC
+    // Bitcoin Earn - BSC
     {
       sourceChains: [Chain.BSC],
       destChains: [Chain.BSC],
-      protocols: [DeployProtocol.Veda],
+      protocols: [DeployProtocol.BitcoinEarn],
       envs: [Env.prod],
     },
     // Silo - Avalanche

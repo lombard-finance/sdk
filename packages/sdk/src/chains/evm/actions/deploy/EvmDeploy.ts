@@ -1,13 +1,13 @@
 /**
  * EVM Deploy Action
  *
- * Deploys L-Assets to DeFi protocols (Veda, Silo).
+ * Deploys L-Assets to DeFi protocols (Bitcoin Earn, Silo).
  *
  * Protocol routing:
- * - Veda on ETH/Base/BSC → deposits through the BTCe ERC-4626 wrapper
+ * - Bitcoin Earn on ETH/Base/BSC → deposits through the BTCe ERC-4626 wrapper
  *   (`depositEarn`), giving the user BTCe shares. The `recipient` param
  *   is forwarded as the BTCe share receiver.
- * - Veda on a chain without a BTCe deployment → deposits directly into the
+ * - Bitcoin Earn on a chain without a BTCe deployment → deposits directly into the
  *   LBTCv BoringVault teller
  *   (BTCe wrapper is not deployed there).
  * - Silo → separate stake-and-bake mechanism; not handled by this class.
@@ -111,11 +111,11 @@ export class EvmDeploy
 
   /**
    * Returns true when the deposit should go through the BTCe ERC-4626 wrapper:
-   * Veda protocol on a chain that has the BTCe contract deployed.
+   * Bitcoin Earn protocol on a chain that has the BTCe contract deployed.
    */
-  private isVedaBtcePath(): boolean {
+  private isBitcoinEarnBtcePath(): boolean {
     return (
-      this._protocol === DeployProtocol.Veda &&
+      this._protocol === DeployProtocol.BitcoinEarn &&
       this._chainId !== undefined &&
       isBtceVaultChain(this._chainId)
     );
@@ -151,11 +151,11 @@ export class EvmDeploy
 
   /**
    * Returns the ERC-20 spender address for LBTC approval:
-   * - BTCe wrapper address for Veda on BTCe-supported chains
+   * - BTCe wrapper address for Bitcoin Earn on BTCe-supported chains
    * - LBTCv BoringVault address for all other cases
    */
   private getSpenderAddress(): Address {
-    if (this.isVedaBtcePath()) {
+    if (this.isBitcoinEarnBtcePath()) {
       return BTCE_VAULT.contracts[
         this._chainId as keyof typeof BTCE_VAULT.contracts
       ];
@@ -317,7 +317,7 @@ export class EvmDeploy
 
       let txHash: string;
 
-      if (this.isVedaBtcePath()) {
+      if (this.isBitcoinEarnBtcePath()) {
         // Route through BTCe ERC-4626 wrapper: user receives BTCe shares.
         // Approval was already done in approve(), so pass approve: false.
         txHash = await depositEarn({
@@ -331,7 +331,7 @@ export class EvmDeploy
           env: this.ctx.env,
         });
       } else {
-        // Veda on a chain without the BTCe wrapper, or other protocols:
+        // Bitcoin Earn on a chain without the BTCe wrapper, or other protocols:
         // deposit directly into the LBTCv BoringVault teller.
         // Approval was already done in approve(), so pass approve: false.
         txHash = await depositInternal({

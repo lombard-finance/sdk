@@ -41,7 +41,7 @@ export interface RouteDefinition {
 /**
  * Chain-specific configuration for EVM stake operations
  *
- * EVM stake deposits already-owned LBTC to DeFi vaults (Veda, Silo).
+ * EVM stake deposits already-owned LBTC to DeFi vaults (Bitcoin Earn, Silo).
  */
 export interface ChainConfig {
   /** Chain type identifier */

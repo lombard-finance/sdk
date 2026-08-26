@@ -199,7 +199,7 @@ export function deriveRouteLabel(params: RouteLabelParams): RouteLabel {
  * rather than from the call. Reading it here means a protocol added to
  * `DEFI_REGISTRY` is labelled without a second edit.
  *
- * Veda holds both a real LBTC key and the virtual `'BTC'` one used for
+ * Bitcoin Earn holds both a real LBTC key and the virtual `'BTC'` one used for
  * conversion; the virtual key is skipped, since it names an input denomination
  * rather than what the vault holds.
  *

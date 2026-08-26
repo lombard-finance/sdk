@@ -41,9 +41,9 @@ describe('Stake and Bake Ratio Conversion', () => {
   });
 
   describe('DEFI_REGISTRY Configuration', () => {
-    it('should have btcToLbtc strategy for BTC token in Veda protocol', () => {
+    it('should have btcToLbtc strategy for BTC token in Bitcoin Earn protocol', () => {
       // This ensures that when 'BTC' is passed as token, ratio conversion happens
-      const vedaRegistry = DEFI_REGISTRY[DefiProtocol.Veda];
+      const vedaRegistry = DEFI_REGISTRY[DefiProtocol.BitcoinEarn];
       expect(vedaRegistry).toBeDefined();
 
       const btcStrategy = vedaRegistry['BTC'];
@@ -63,9 +63,9 @@ describe('Stake and Bake Ratio Conversion', () => {
       expect(hasConversion).toBe(true);
     });
 
-    it('should have identity strategy for LBTC token in Veda protocol', () => {
+    it('should have identity strategy for LBTC token in Bitcoin Earn protocol', () => {
       // This shows that passing LBTC as token does NOT trigger conversion
-      const vedaRegistry = DEFI_REGISTRY[DefiProtocol.Veda];
+      const vedaRegistry = DEFI_REGISTRY[DefiProtocol.BitcoinEarn];
       expect(vedaRegistry).toBeDefined();
 
       const lbtcStrategy = vedaRegistry[Token.LBTC];
@@ -168,7 +168,7 @@ describe('Stake and Bake Ratio Conversion', () => {
        */
 
       // Verify the registry is configured correctly for this use case
-      const vedaBtcConfig = DEFI_REGISTRY[DefiProtocol.Veda]?.['BTC'];
+      const vedaBtcConfig = DEFI_REGISTRY[DefiProtocol.BitcoinEarn]?.['BTC'];
       expect(vedaBtcConfig).toBeDefined();
 
       // The fix ensures BtcDeployLbtc passes 'BTC' which hits this config

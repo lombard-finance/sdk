@@ -35,18 +35,18 @@ describe('deriveRouteLabel', () => {
     [AssetId.LBTC, 'lbtc-to-vault'],
     [AssetId.BTCb, 'btcb-to-vault'],
   ])('labels a deploy of %s as %s', (assetIn, expected) => {
-    expect(deriveRouteLabel({ assetIn, protocol: DefiProtocol.Veda })).toBe(
-      expected,
-    );
+    expect(
+      deriveRouteLabel({ assetIn, protocol: DefiProtocol.BitcoinEarn }),
+    ).toBe(expected);
   });
 
   it.each([
     [AssetId.LBTC, 'vault-to-lbtc'],
     [AssetId.BTCb, 'vault-to-btcb'],
   ])('labels a vault exit to %s as %s', (assetOut, expected) => {
-    expect(deriveRouteLabel({ assetOut, protocol: DefiProtocol.Veda })).toBe(
-      expected,
-    );
+    expect(
+      deriveRouteLabel({ assetOut, protocol: DefiProtocol.BitcoinEarn }),
+    ).toBe(expected);
   });
 
   // A vault route names only the non-vault side, because the share token has no
@@ -55,13 +55,13 @@ describe('deriveRouteLabel', () => {
     expect(
       deriveRouteLabel({
         assetIn: AssetId.LBTC,
-        protocol: DefiProtocol.Veda,
+        protocol: DefiProtocol.BitcoinEarn,
       }),
     ).toBe('lbtc-to-vault');
     expect(
       deriveRouteLabel({
         assetOut: AssetId.LBTC,
-        protocol: DefiProtocol.Veda,
+        protocol: DefiProtocol.BitcoinEarn,
       }),
     ).toBe('vault-to-lbtc');
   });
@@ -86,15 +86,17 @@ describe('vaultAsset', () => {
   it('reads the asset a protocol holds out of the registry', () => {
     // Not restated here: a protocol added to DEFI_REGISTRY is labelled without
     // a second edit.
-    expect(vaultAsset(DefiProtocol.Veda)).toBe(AssetId.LBTC);
+    expect(vaultAsset(DefiProtocol.BitcoinEarn)).toBe(AssetId.LBTC);
     expect(vaultAsset(DefiProtocol.Silo)).toBe(AssetId.BTCb);
   });
 
   it('skips the virtual BTC key, which names an input rather than a holding', () => {
-    // Veda carries both a real LBTC key and the synthetic 'BTC' one used for
+    // Bitcoin Earn carries both a real LBTC key and the synthetic 'BTC' one used for
     // ratio conversion. The vault holds LBTC.
-    expect(Object.keys(DEFI_REGISTRY[DefiProtocol.Veda])).toContain('BTC');
-    expect(vaultAsset(DefiProtocol.Veda)).not.toBe(AssetId.BTC);
+    expect(Object.keys(DEFI_REGISTRY[DefiProtocol.BitcoinEarn])).toContain(
+      'BTC',
+    );
+    expect(vaultAsset(DefiProtocol.BitcoinEarn)).not.toBe(AssetId.BTC);
   });
 
   it('throws for a protocol with no registry entry', () => {
@@ -115,7 +117,10 @@ describe('the label vocabulary', () => {
     // compile rather than emitting an unknown string.
     const produced: RouteLabel[] = [
       deriveRouteLabel({ assetIn: AssetId.BTC, assetOut: AssetId.LBTC }),
-      deriveRouteLabel({ assetIn: AssetId.BTC, protocol: DefiProtocol.Veda }),
+      deriveRouteLabel({
+        assetIn: AssetId.BTC,
+        protocol: DefiProtocol.BitcoinEarn,
+      }),
       deriveRouteLabel({
         assetOut: vaultAsset(DefiProtocol.Silo),
         protocol: DefiProtocol.Silo,

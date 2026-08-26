@@ -46,7 +46,9 @@ export function DeployForm({
 }: StakeAndDeployFormProps) {
   const [amount, setAmount] = useState(String(MIN_STAKE_AMOUNT_BTC));
   const [destAddress, setDestAddress] = useState('');
-  const [protocol, setProtocol] = useState<DeployProtocol>(DeployProtocol.Veda);
+  const [protocol, setProtocol] = useState<DeployProtocol>(
+    DeployProtocol.BitcoinEarn,
+  );
   // Stake-and-Deploy only supports Ethereum mainnet
   const [destChain, setDestChain] = useState<Chain>(Chain.ETHEREUM);
   const [referralCode, setReferralCode] = useState('');
@@ -105,9 +107,7 @@ export function DeployForm({
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             disabled={isLoading || disabled}
           >
-            <option value={DeployProtocol.Veda}>
-              Lombard DeFi Vault (Veda)
-            </option>
+            <option value={DeployProtocol.BitcoinEarn}>Bitcoin Earn</option>
           </select>
           <p className="text-xs text-secondary mt-1">
             Lombard&apos;s native vault with optimized yields

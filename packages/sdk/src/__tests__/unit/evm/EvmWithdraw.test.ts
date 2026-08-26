@@ -20,26 +20,26 @@ describe('EvmWithdrawVault Interface', () => {
     it('should require protocol selection', () => {
       const params = {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       };
 
-      expect(params.protocol).toBe('veda');
+      expect(params.protocol).toBe('bitcoinEarn');
     });
 
     it('should require recipient address', () => {
       const params = {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       };
 
       expect(params.recipient).toMatch(/^0x/);
     });
 
-    it('should support Veda protocol', () => {
-      const protocol = 'veda';
-      expect(protocol).toBe('veda');
+    it('should support Bitcoin Earn protocol', () => {
+      const protocol = 'bitcoinEarn';
+      expect(protocol).toBe('bitcoinEarn');
     });
 
     it('should support multiple chains', () => {
@@ -170,8 +170,8 @@ describe('EvmWithdrawVault Interface', () => {
     it('should handle unsupported chains', () => {
       const error = new LombardError(
         WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED,
-        `Chain avalanche does not support Veda vault withdrawals`,
-        { chain: Chain.AVALANCHE, protocol: 'veda' },
+        `Chain avalanche does not support Bitcoin Earn vault withdrawals`,
+        { chain: Chain.AVALANCHE, protocol: 'bitcoinEarn' },
       );
 
       expect(error.code).toBe(WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED);
@@ -192,8 +192,8 @@ describe('EvmWithdrawVault Interface', () => {
   describe('Public Properties', () => {
     it('should expose protocol property', () => {
       type HasProtocol = { readonly protocol?: string };
-      const obj: HasProtocol = { protocol: 'veda' };
-      expect(obj.protocol).toBe('veda');
+      const obj: HasProtocol = { protocol: 'bitcoinEarn' };
+      expect(obj.protocol).toBe('bitcoinEarn');
     });
 
     it('should expose status property', () => {
@@ -240,16 +240,16 @@ describe('EvmCancelWithdraw Interface', () => {
     it('should require protocol selection', () => {
       const params = {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       };
 
-      expect(params.protocol).toBe('veda');
+      expect(params.protocol).toBe('bitcoinEarn');
     });
 
     it('should require chain selection', () => {
       const params = {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       };
 
       expect(params.chain).toBe(Chain.ETHEREUM);

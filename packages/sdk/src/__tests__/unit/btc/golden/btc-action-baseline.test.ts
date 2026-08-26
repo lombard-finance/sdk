@@ -131,14 +131,14 @@ describe('golden baseline — BTC actions on 5.x', () => {
     });
   });
 
-  describe('BtcDeployLbtc (native BTC → LBTC → Veda vault)', () => {
+  describe('BtcDeployLbtc (native BTC → LBTC → Bitcoin Earn vault)', () => {
     it('records its prepare lifecycle with no existing deposit', async () => {
       const h = createBtcActionHarness({ env: Env.prod });
       const action = new BtcDeployLbtc(h.ctx, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         sourceChain: Chain.BITCOIN_MAINNET,
-        protocol: DefiProtocol.Veda,
+        protocol: DefiProtocol.BitcoinEarn,
       });
       h.observe(action);
 
@@ -174,7 +174,7 @@ describe('golden baseline — BTC actions on 5.x', () => {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
         sourceChain: Chain.BITCOIN_MAINNET,
-        protocol: DefiProtocol.Veda,
+        protocol: DefiProtocol.BitcoinEarn,
       });
       h.observe(action);
 
@@ -289,7 +289,7 @@ describe('golden baseline — BTC actions on 5.x', () => {
       const action = new BtcDeployLbtc(h.ctx, {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: DefiProtocol.Veda,
+        protocol: DefiProtocol.BitcoinEarn,
       });
       h.observe(action);
 

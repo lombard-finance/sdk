@@ -64,7 +64,7 @@ The same applies to `sdk.chain.solana`. On Sui and Starknet there was only ever 
 ```ts
 // Unchanged from 5.x
 const exit = sdk.chain.evm.withdraw({
-  protocol: DeployProtocol.Veda,
+  protocol: DeployProtocol.BitcoinEarn,
   sourceChain: Chain.ETHEREUM,
   recipient: userAddress,
 });
@@ -83,7 +83,7 @@ const viaBtcb = sdk.chain.btc.depositAndDeploy({ ... });
 const viaLbtc = sdk.chain.btc.deploy({
   assetOut: AssetId.LBTC, // → IBtcDeployLbtc
   destChain: Chain.ETHEREUM,
-  protocol: DeployProtocol.Veda,
+  protocol: DeployProtocol.BitcoinEarn,
 });
 
 const viaBtcb = sdk.chain.btc.deploy({
@@ -224,29 +224,29 @@ means naming a class after a verb guarantees a collision. Classes are named
 are owned by nothing, so a stale import is a compile error at the import line
 instead of a silently different action at runtime.
 
-| 5.x | 6.0.0 | built by |
-| --- | --- | --- |
-| `BtcStake` | `BtcDepositLbtc` | `btc.deposit({ assetOut: LBTC })` |
-| `BtcDeposit` | `BtcDepositBtcb` | `btc.deposit({ assetOut: BTCb })` |
-| `BtcStakeAndDeploy` | `BtcDeployLbtc` | `btc.deploy({ assetOut: LBTC })` |
-| `BtcDepositAndDeploy` | `BtcDeployBtcb` | `btc.deploy({ assetOut: BTCb })` |
-| `EvmStake` | `EvmDepositBtcb` | `evm.deposit()` |
-| `EvmDeposit` | `EvmClaim` | `evm.claim()` |
-| `EvmUnstake` | `EvmWithdrawLbtc` | `evm.withdraw({ assetIn: LBTC })` |
-| `EvmRedeem` | `EvmWithdrawBtcb` | `evm.withdraw({ assetIn: BTCb })` |
-| `EvmWithdraw` | `EvmWithdrawVault` | `evm.withdraw({ protocol })` |
-| `SolanaStake` | `SolanaDepositBtcb` | `solana.deposit()` |
-| `SolanaUnstake` | `SolanaWithdrawLbtc` | `solana.withdraw({ assetIn: LBTC })` |
-| `SolanaRedeem` | `SolanaWithdrawBtcb` | `solana.withdraw({ assetIn: BTCb })` |
-| `SuiUnstake` | `SuiWithdraw` | `sui.withdraw()` |
-| `StarknetUnstake` | `StarknetWithdraw` | `starknet.withdraw()` |
+| 5.x                   | 6.0.0                | built by                             |
+| --------------------- | -------------------- | ------------------------------------ |
+| `BtcStake`            | `BtcDepositLbtc`     | `btc.deposit({ assetOut: LBTC })`    |
+| `BtcDeposit`          | `BtcDepositBtcb`     | `btc.deposit({ assetOut: BTCb })`    |
+| `BtcStakeAndDeploy`   | `BtcDeployLbtc`      | `btc.deploy({ assetOut: LBTC })`     |
+| `BtcDepositAndDeploy` | `BtcDeployBtcb`      | `btc.deploy({ assetOut: BTCb })`     |
+| `EvmStake`            | `EvmDepositBtcb`     | `evm.deposit()`                      |
+| `EvmDeposit`          | `EvmClaim`           | `evm.claim()`                        |
+| `EvmUnstake`          | `EvmWithdrawLbtc`    | `evm.withdraw({ assetIn: LBTC })`    |
+| `EvmRedeem`           | `EvmWithdrawBtcb`    | `evm.withdraw({ assetIn: BTCb })`    |
+| `EvmWithdraw`         | `EvmWithdrawVault`   | `evm.withdraw({ protocol })`         |
+| `SolanaStake`         | `SolanaDepositBtcb`  | `solana.deposit()`                   |
+| `SolanaUnstake`       | `SolanaWithdrawLbtc` | `solana.withdraw({ assetIn: LBTC })` |
+| `SolanaRedeem`        | `SolanaWithdrawBtcb` | `solana.withdraw({ assetIn: BTCb })` |
+| `SuiUnstake`          | `SuiWithdraw`        | `sui.withdraw()`                     |
+| `StarknetUnstake`     | `StarknetWithdraw`   | `starknet.withdraw()`                |
 
 Each class's `I*` interface, `*Params`, `*PrepareParams` and `*Progress` follow
 the same rename — `IBtcStake` is `IBtcDepositLbtc`, `EvmUnstakeParams` is
 `EvmWithdrawLbtcParams`, and so on.
 
-**The one to read twice is `EvmDeposit`.** In 5.x that name meant *claim a
-pending deposit*. It does not now mean the BTC.b deposit; it means nothing. The
+**The one to read twice is `EvmDeposit`.** In 5.x that name meant _claim a
+pending deposit_. It does not now mean the BTC.b deposit; it means nothing. The
 claim action is `EvmClaim`, and the BTC.b deposit is `EvmDepositBtcb`. Had the
 name been handed to the deposit action, a 5.x import would have kept compiling
 while pointing at a different action.
@@ -290,6 +290,52 @@ of structurally identical types before.
 
 ---
 
+## The vault protocol is named after the product, not the vendor
+
+`DeployProtocol.Veda` is `DeployProtocol.BitcoinEarn`, and the value it carries
+is `'bitcoinEarn'` rather than `'veda'`. The alias `DefiProtocol` moves with it.
+
+```diff
+- import { DeployProtocol } from '@lombard.finance/sdk';
+- await sdk.chain.evm.deploy({ amount, protocol: DeployProtocol.Veda });
++ import { DeployProtocol } from '@lombard.finance/sdk';
++ await sdk.chain.evm.deploy({ amount, protocol: DeployProtocol.BitcoinEarn });
+```
+
+The value changed as well as the member, so a hardcoded string needs updating
+too:
+
+```diff
+- await sdk.chain.evm.deploy({ amount, protocol: 'veda' });
++ await sdk.chain.evm.deploy({ amount, protocol: 'bitcoinEarn' });
+```
+
+`getAvailableProtocolsWithMetadata()` returns the new value and the label
+`'Bitcoin Earn'`; code matching on either string sees the change.
+
+There is no compatibility alias, so a missed call site is a compile error rather
+than a silent success.
+
+This reverses a note in `MIGRATION_5.md`, which kept `DefiProtocol.Veda` on the
+grounds that it named a third-party protocol. The member's label had always been
+`'Lombard DeFi Vault'`, so the key named the vendor while the value shown to
+users named the product; this change settles that on the product. `Silo` keeps
+its vendor name because there the vendor _is_ the product being selected.
+
+Two names that look like they should have moved and did not:
+
+- The `VEDA_VAULT_*` ABIs, `api.veda.tech`, and response fields such as
+  `userTotalVedaPointsSum` name a third party's contracts, host, and payload.
+  They are external identifiers, and renaming them would misdescribe what they
+  address.
+- The "Lombard DeFi Vault Strategy" under `@lombard.finance/sdk/strategies`
+  (BTCoc) is a different product from the Bitcoin Earn vault under
+  `@lombard.finance/sdk/vaults`. It keeps its name.
+
+The EIP-712 `domainName` used when signing a deposit permit is unchanged.
+
+---
+
 ## Reads renamed with the verbs
 
 `sdk.api.unstakes()` is now `sdk.api.withdrawals()`:
@@ -310,12 +356,12 @@ Same arguments, same return type. `UnstakeOptions` is `WithdrawalOptions`; its f
 
 `@lombard.finance/sdk-react` renames all four action hooks, the methods they return, and their types.
 
-| before | after |
-| --- | --- |
-| `useBtcStake().stake()` | `useBtcDeposit().deposit()` |
-| `useBtcStakeAndBake().stakeAndDeploy()` | `useBtcDeploy().deploy()` |
-| `useEvmUnstake().unstake()` | `useEvmWithdraw().withdraw()` |
-| `useNonEvmUnstake().unstake()` | `useNonEvmWithdraw().withdraw()` |
+| before                                  | after                            |
+| --------------------------------------- | -------------------------------- |
+| `useBtcStake().stake()`                 | `useBtcDeposit().deposit()`      |
+| `useBtcStakeAndBake().stakeAndDeploy()` | `useBtcDeploy().deploy()`        |
+| `useEvmUnstake().unstake()`             | `useEvmWithdraw().withdraw()`    |
+| `useNonEvmUnstake().unstake()`          | `useNonEvmWithdraw().withdraw()` |
 
 `stakeAmount` becomes `depositAmount` on the two BTC hooks.
 
@@ -361,7 +407,7 @@ So the signature path is **not** deprecated in 6.0.0. Deleting it would make tho
 ## What didn't change
 
 - Event names and payloads on the wire.
-- `evm.deploy` and `btc.deposit` keep their names as *verbs*. `btc.deposit` now also covers what `btc.stake` did — see [the three verbs](#the-three-verbs) — and `evm.deposit` kept its name while changing its meaning, which is the one rename that can pass review unnoticed. The *classes* behind them did move, and the ambiguous class names were retired rather than reassigned; see [the action classes](#the-action-classes-and-their-types).
+- `evm.deploy` and `btc.deposit` keep their names as _verbs_. `btc.deposit` now also covers what `btc.stake` did — see [the three verbs](#the-three-verbs) — and `evm.deposit` kept its name while changing its meaning, which is the one rename that can pass review unnoticed. The _classes_ behind them did move, and the ambiguous class names were retired rather than reassigned; see [the action classes](#the-action-classes-and-their-types).
 - Contract interactions. The ABI method names this package calls are pinned by a test, precisely because a verb rename could otherwise reach one.
 - Route labels (`lbtc-to-btc`, `btcb-to-vault`, …), which are analytics keys with history behind them.
 - The wire vocabulary generally: `show_redeems` and `show_unstakes` are still the withdrawal endpoint's query parameters, `Unstake` is still the record it returns, and `stake-and-bake` is still the product name the permit routes use.

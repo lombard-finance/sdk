@@ -16,6 +16,12 @@ migrate once.
 
   Previously they were sent anonymously and the gateway allowed it. That allowance is being withdrawn: BFF enforcement is merged behind a flag, so the alternative to failing locally is a 401 from the gateway later. Aggregate routes — `dune-api/query/*` and per-vault performance — stay `public` and are unaffected.
 
+- **`DeployProtocol.Veda` is `DeployProtocol.BitcoinEarn`**, and its value is `'bitcoinEarn'` rather than `'veda'`. `DefiProtocol`, which `DeployProtocol` aliases, moves with it, and the metadata label is `'Bitcoin Earn'` instead of `'Lombard DeFi Vault'`. Both the member and the value are public, so a hardcoded `protocol: 'veda'` needs updating too, and `getAvailableProtocolsWithMetadata()` returns the new value and label.
+
+  No compatibility alias: a missed call site should be a compile error, and an alias would keep `'veda'` working, which is the thing being removed. 5.x kept this member deliberately, on the grounds that it named a third-party protocol — but its label had always been `'Lombard DeFi Vault'`, so the key named the vendor while the value shown to users named the product. This settles it on the product. `Silo` is unchanged, because there the vendor is what is being selected.
+
+  The value is a registry key only — it is not sent in any request, persisted, or used in a `route` label — so nothing on the wire or on chain moves with it. In particular the EIP-712 `domainName` used to sign a deposit permit is untouched. Names that stay: the `VEDA_VAULT_*` ABIs, `api.veda.tech`, and response fields such as `userTotalVedaPointsSum`, which address a third party's contracts, host, and payload; and the "Lombard DeFi Vault Strategy" (BTCoc) under `/strategies`, which is a different product from the Bitcoin Earn vault under `/vaults`.
+
 - The nine per-operation event vocabularies are now one. `shared/events.ts` declared the same five events nine times over — `StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`, `WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent`, `DepositAndDeployEvent` — as nine const objects and nine handler-map interfaces with byte-identical members. They collapse to a single `ActionEvent` / `ActionEventMap`.
 
   **Wire values are unchanged**, so `action.on('progress', ...)`, `'status-change'`, `'completed'`, `'failed'` and `'error'` behave exactly as before. The nine old names were briefly kept as deprecated aliases; they are **removed** in this release rather than deferred, for the reason the verbs went without delegators — a name kept alive keeps being copied. `StrategyEventMap` and `StrategyEvent` were nine-member unions of structurally identical types, which made each equivalent to any single member, and are now that single type.
@@ -52,13 +58,13 @@ migrate once.
 
 - **Every action class, interface and param type is renamed, and three ambiguous names are retired rather than reassigned.**
 
-  A verb now dispatches on an asset, so several classes serve one verb — which makes naming a class after a verb a guaranteed collision. Classes carry the verb *and* the asset arm: `BtcStake` is `BtcDepositLbtc`, `BtcDeposit` is `BtcDepositBtcb`, `EvmUnstake` is `EvmWithdrawLbtc`, `EvmRedeem` is `EvmWithdrawBtcb`, `EvmWithdraw` is `EvmWithdrawVault`, `EvmStake` is `EvmDepositBtcb`, `EvmDeposit` is `EvmClaim`, and the Solana, Sui and Starknet classes follow the same pattern. Each `I*`, `*Params`, `*PrepareParams` and `*Progress` moves with its class.
+  A verb now dispatches on an asset, so several classes serve one verb — which makes naming a class after a verb a guaranteed collision. Classes carry the verb _and_ the asset arm: `BtcStake` is `BtcDepositLbtc`, `BtcDeposit` is `BtcDepositBtcb`, `EvmUnstake` is `EvmWithdrawLbtc`, `EvmRedeem` is `EvmWithdrawBtcb`, `EvmWithdraw` is `EvmWithdrawVault`, `EvmStake` is `EvmDepositBtcb`, `EvmDeposit` is `EvmClaim`, and the Solana, Sui and Starknet classes follow the same pattern. Each `I*`, `*Params`, `*PrepareParams` and `*Progress` moves with its class.
 
   `BtcDeposit`, `EvmDeposit` and `EvmWithdraw` are now owned by nothing. That is deliberate: handing `EvmDeposit` to the BTC.b deposit action would leave a 5.x import compiling while pointing at a different action, and the two take identical parameters. A retired name is a compile error at the import; a reassigned one is a runtime surprise.
 
   The per-action status aliases follow their classes — `EvmStakeStatus` is `EvmDepositBtcbStatus`, and so on. All were re-exports of one `EvmOperationStatus`, so only the names change. `EvmDepositStatus` and `EvmWithdrawStatus` now name the core narrowings, which are reachable for the first time: those names were previously taken by the per-action aliases, and the rename freed them.
 
-  Directories follow too — `chains/evm/actions/deposit` held the *claim* action, which is the sort of thing that misleads every reader who opens it.
+  Directories follow too — `chains/evm/actions/deposit` held the _claim_ action, which is the sort of thing that misleads every reader who opens it.
 
 - **The nine deprecated event aliases are removed.** `StakeEvent`, `DepositEvent`, `RedeemEvent`, `UnstakeEvent`, `DeployEvent`, `WithdrawEvent`, `BridgeEvent`, `StakeAndDeployEvent`, `DepositAndDeployEvent` and their `*Map` counterparts are gone; use `ActionEvent` / `ActionEventMap`. Wire values are untouched, so anything subscribing by string is unaffected.
 
@@ -68,12 +74,12 @@ migrate once.
 
 - **The React hooks follow the verbs.** `@lombard.finance/sdk-react` renames all four action hooks and the methods they return:
 
-  | before | after |
-  | --- | --- |
-  | `useBtcStake().stake()` | `useBtcDeposit().deposit()` |
-  | `useBtcStakeAndBake().stakeAndDeploy()` | `useBtcDeploy().deploy()` |
-  | `useEvmUnstake().unstake()` | `useEvmWithdraw().withdraw()` |
-  | `useNonEvmUnstake().unstake()` | `useNonEvmWithdraw().withdraw()` |
+  | before                                  | after                            |
+  | --------------------------------------- | -------------------------------- |
+  | `useBtcStake().stake()`                 | `useBtcDeposit().deposit()`      |
+  | `useBtcStakeAndBake().stakeAndDeploy()` | `useBtcDeploy().deploy()`        |
+  | `useEvmUnstake().unstake()`             | `useEvmWithdraw().withdraw()`    |
+  | `useNonEvmUnstake().unstake()`          | `useNonEvmWithdraw().withdraw()` |
 
   `stakeAmount` becomes `depositAmount` on the two BTC hooks. The exported types move with them: `BtcStakeParams` → `BtcDepositParams`, `BtcStakeAndBakeParams` → `BtcDeployParams`, `EvmUnstakeParams` → `EvmWithdrawParams`, `NonEvmUnstakeParams` → `NonEvmWithdrawParams`, and the three status vocabularies — `Staking*`, `StakeAndBake*`, `Unstaking*` — become `Deposit*`, `Deploy*` and `Withdraw*`.
 

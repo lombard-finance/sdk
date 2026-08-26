@@ -7,7 +7,7 @@
  * - stake: BTC.b → LBTC (stake wrapped BTC to get LBTC)
  * - withdraw: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
  * - deposit: BTCb → LBTC (deposit BTC.b to receive LBTC)
- * - deploy: LBTC/BTC.b → DeFi protocols (Veda, Silo)
+ * - deploy: LBTC/BTC.b → DeFi protocols (Bitcoin Earn, Silo)
  * - withdraw: Queue withdrawal from DeFi protocols
  * - cancelWithdraw: Cancel pending withdrawal from DeFi protocols
  * - redeem: BTC.b → BTC (cross-chain redemption to Bitcoin)
@@ -149,14 +149,14 @@ export class EvmActions {
   /**
    * Deploy L-Assets to DeFi protocols
    *
-   * Currently supports Veda and Silo protocols.
+   * Currently supports Bitcoin Earn and Silo protocols.
    *
    * @example
    * ```typescript
    * const deploy = evm.deploy({
    *   asset: AssetId.LBTC,
    *   sourceChain: Chain.ETHEREUM,
-   *   protocol: DeployProtocol.Veda,
+   *   protocol: DeployProtocol.BitcoinEarn,
    *   recipient: '0x...',
    * });
    * ```
@@ -168,14 +168,14 @@ export class EvmActions {
   /**
    * Withdraw vault shares from DeFi protocols
    *
-   * Queues a withdrawal request from DeFi protocols (e.g., Veda vault).
+   * Queues a withdrawal request from DeFi protocols (e.g., Bitcoin Earn vault).
    * After the withdrawal is queued, it will be processed within the
    * protocol's withdrawal window.
    *
    * @example
    * ```typescript
    * const withdraw = evm.withdraw({
-   *   protocol: DeployProtocol.Veda,
+   *   protocol: DeployProtocol.BitcoinEarn,
    *   sourceChain: Chain.ETHEREUM,
    *   recipient: '0x...',
    * });
@@ -242,7 +242,7 @@ export class EvmActions {
    * @example
    * ```typescript
    * const cancelWithdraw = evm.cancelWithdraw({
-   *   protocol: DeployProtocol.Veda,
+   *   protocol: DeployProtocol.BitcoinEarn,
    *   chain: Chain.ETHEREUM,
    * });
    * await cancelWithdraw.prepare();

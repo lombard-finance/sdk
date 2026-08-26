@@ -45,7 +45,7 @@ export function DeployingProgress({
   };
 
   const getVaultUrl = () => {
-    if (protocol === DeployProtocol.Veda) {
+    if (protocol === DeployProtocol.BitcoinEarn) {
       return 'https://lombard.finance/vaults';
     }
     return 'https://silo.finance';
@@ -99,8 +99,8 @@ export function DeployingProgress({
           <div className="space-y-2 text-sm text-green-800">
             <div>
               <span className="font-medium">Protocol:</span>{' '}
-              {protocol === DeployProtocol.Veda
-                ? 'Lombard DeFi Vault (Veda)'
+              {protocol === DeployProtocol.BitcoinEarn
+                ? 'Bitcoin Earn'
                 : 'Silo Finance'}
             </div>
             <div>
@@ -131,7 +131,10 @@ export function DeployingProgress({
             </li>
             <li>
               LBTC will be minted and automatically deposited to{' '}
-              {protocol === DeployProtocol.Veda ? 'Veda' : 'Silo'} vault
+              {protocol === DeployProtocol.BitcoinEarn
+                ? 'Bitcoin Earn'
+                : 'Silo'}{' '}
+              vault
             </li>
             <li>
               Track your position on the{' '}
@@ -156,8 +159,8 @@ export function DeployingProgress({
           </div>
           <div className="mb-3 text-sm text-green-800">
             Your BTC has been staked to LBTC and deposited to the{' '}
-            {protocol === DeployProtocol.Veda ? 'Veda' : 'Silo'} vault on{' '}
-            {targetChain}.
+            {protocol === DeployProtocol.BitcoinEarn ? 'Bitcoin Earn' : 'Silo'}{' '}
+            vault on {targetChain}.
           </div>
           <div className="space-y-2">
             <a

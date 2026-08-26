@@ -180,7 +180,7 @@ export async function signStakeAndBake({
   expiry = toUnix(now() + DAY),
   value,
   // TODO: Rename vaultKey to protocol
-  vaultKey: protocol = DefiProtocol.Veda,
+  vaultKey: protocol = DefiProtocol.BitcoinEarn,
   token = 'BTC',
   chainId,
   provider,

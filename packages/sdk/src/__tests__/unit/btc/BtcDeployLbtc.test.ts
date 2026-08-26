@@ -20,7 +20,7 @@ describe('BtcDeployLbtc Interface', () => {
       const params = {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         vault: 'LBTC',
       };
 
@@ -31,18 +31,18 @@ describe('BtcDeployLbtc Interface', () => {
       const params = {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         vault: 'LBTC',
       };
 
-      expect(params.protocol).toBe('veda');
+      expect(params.protocol).toBe('bitcoinEarn');
     });
 
     it('should require vault selection', () => {
       const params = {
         assetOut: AssetId.LBTC,
         destChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         vault: 'LBTC',
       };
 

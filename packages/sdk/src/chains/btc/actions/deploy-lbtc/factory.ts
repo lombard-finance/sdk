@@ -24,7 +24,7 @@ import type { BtcDeployLbtcParams } from './types';
  * const action = sdk.chain.btc.stakeAndDeploy({
  *   assetOut: AssetId.LBTC,
  *   destChain: Chain.ETHEREUM,
- *   protocol: DeployProtocol.Veda,
+ *   protocol: DeployProtocol.BitcoinEarn,
  * });
  * await action.prepare({ amount: '0.1', recipient: '0x...' });
  * ```

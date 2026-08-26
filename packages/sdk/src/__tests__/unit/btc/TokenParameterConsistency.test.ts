@@ -76,13 +76,13 @@ describe('Token Parameter Consistency', () => {
        * 3. The permit signature must contain the LBTC amount (19947)
        * 4. Backend matches signature by this adjusted amount
        *
-       * Using 'BTC' hits DEFI_REGISTRY[Veda]['BTC'] which has:
+       * Using 'BTC' hits DEFI_REGISTRY[BitcoinEarn]['BTC'] which has:
        *   amountStrategy: 'btcToLbtc' → applies ratio conversion
        *
        * Code location: packages/sdk/src/chains/btc/actions/deploy-lbtc/BtcDeployLbtc.ts
        * Line: token: 'BTC'
        */
-      const vedaBtcConfig = DEFI_REGISTRY[DefiProtocol.Veda]?.['BTC'];
+      const vedaBtcConfig = DEFI_REGISTRY[DefiProtocol.BitcoinEarn]?.['BTC'];
       expect(vedaBtcConfig).toBeDefined();
       if (!vedaBtcConfig) return;
 
@@ -101,14 +101,15 @@ describe('Token Parameter Consistency', () => {
     it('should NOT use AssetId.LBTC (would skip ratio conversion)', () => {
       /**
        * If BtcDeployLbtc used AssetId.LBTC (or Token.LBTC) as token,
-       * it would hit DEFI_REGISTRY[Veda][Token.LBTC] which has:
+       * it would hit DEFI_REGISTRY[BitcoinEarn][Token.LBTC] which has:
        *   amountStrategy: 'identity' → NO ratio conversion
        *
        * Using the wrong token causes:
        * - Signature with raw amount (20000) instead of adjusted (19947)
        * - Result: "signature not found" / deposit not claimed
        */
-      const vedaLbtcConfig = DEFI_REGISTRY[DefiProtocol.Veda]?.[Token.LBTC];
+      const vedaLbtcConfig =
+        DEFI_REGISTRY[DefiProtocol.BitcoinEarn]?.[Token.LBTC];
       expect(vedaLbtcConfig).toBeDefined();
       if (!vedaLbtcConfig) return;
 

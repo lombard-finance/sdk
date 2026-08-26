@@ -157,7 +157,7 @@ describe('Approval Receipt Waiting', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -189,7 +189,7 @@ describe('Approval Receipt Waiting', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -281,7 +281,7 @@ describe('Approval Receipt Waiting', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 

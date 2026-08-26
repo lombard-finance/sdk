@@ -63,7 +63,7 @@ function makeAction(
     assetOut: AssetId.LBTC,
     destChain: Chain.ETHEREUM,
     sourceChain: Chain.BITCOIN_MAINNET,
-    protocol: DefiProtocol.Veda,
+    protocol: DefiProtocol.BitcoinEarn,
   });
   h.observe(action);
   return { h, action };
@@ -160,7 +160,7 @@ describe('BtcDeployLbtc — resume path', () => {
               assetOut: AssetId.LBTC,
               destChain: Chain.ETHEREUM,
               sourceChain: Chain.BITCOIN_MAINNET,
-              protocol: DefiProtocol.Veda,
+              protocol: DefiProtocol.BitcoinEarn,
             }),
         ).toThrow(/assetIn must be/);
       },
@@ -176,7 +176,7 @@ describe('BtcDeployLbtc — resume path', () => {
             assetOut: AssetId.LBTC,
             destChain: Chain.ETHEREUM,
             sourceChain: Chain.BITCOIN_MAINNET,
-            protocol: DefiProtocol.Veda,
+            protocol: DefiProtocol.BitcoinEarn,
           }),
       ).not.toThrow();
     });
@@ -195,7 +195,7 @@ describe('BtcDeployLbtc — resume path', () => {
         const action = new BtcDeployLbtc(h.ctx, {
           assetOut: AssetId.LBTC,
           destChain: Chain.ETHEREUM,
-          protocol: DefiProtocol.Veda,
+          protocol: DefiProtocol.BitcoinEarn,
         });
 
         // bitcoinNetwork is protected; assert through the resolved value it

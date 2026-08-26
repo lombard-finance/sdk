@@ -122,10 +122,14 @@ describe('isProtocolChainSupported', () => {
   });
 
   it('rejects a protocol with no BTC.b entry', () => {
-    // Veda carries LBTC and the virtual BTC key, not BTC.b, so this route is
+    // Bitcoin Earn carries LBTC and the virtual BTC key, not BTC.b, so this route is
     // genuinely unavailable rather than mis-keyed.
     expect(
-      isProtocolChainSupported(DefiProtocol.Veda, ChainId.ethereum, Env.prod),
+      isProtocolChainSupported(
+        DefiProtocol.BitcoinEarn,
+        ChainId.ethereum,
+        Env.prod,
+      ),
     ).toBe(false);
   });
 
@@ -151,8 +155,10 @@ describe('getSupportedProtocols', () => {
     expect(getSupportedProtocols(AssetId.BTCb)).toContain(DefiProtocol.Silo);
   });
 
-  it('returns Veda for LBTC', () => {
-    expect(getSupportedProtocols(AssetId.LBTC)).toContain(DefiProtocol.Veda);
+  it('returns Bitcoin Earn for LBTC', () => {
+    expect(getSupportedProtocols(AssetId.LBTC)).toContain(
+      DefiProtocol.BitcoinEarn,
+    );
   });
 
   it('returns nothing for an asset with no vault route', () => {

@@ -94,13 +94,13 @@ describe('golden baseline — the EVM vault actions on 5.x', () => {
       // test in unit/evm/EvmDeployAssetParam covers the token lookup instead.
       asset: AssetId.BTCb,
       sourceChain: Chain.ETHEREUM,
-      protocol: DeployProtocol.Veda,
+      protocol: DeployProtocol.BitcoinEarn,
       recipient: EVM_RECIPIENT,
     });
     h.observe(action);
 
     const outcome = await outcomeOf(() =>
-      action.prepare({ amount: AMOUNT, protocol: DeployProtocol.Veda }),
+      action.prepare({ amount: AMOUNT, protocol: DeployProtocol.BitcoinEarn }),
     );
 
     expect({
@@ -118,13 +118,13 @@ describe('golden baseline — the EVM vault actions on 5.x', () => {
     const action = new EvmDeploy(h.ctx, {
       asset: AssetId.LBTC,
       sourceChain: Chain.ETHEREUM,
-      protocol: DeployProtocol.Veda,
+      protocol: DeployProtocol.BitcoinEarn,
       recipient: EVM_RECIPIENT,
     });
     h.observe(action);
 
     const outcome = await outcomeOf(() =>
-      action.prepare({ amount: AMOUNT, protocol: DeployProtocol.Veda }),
+      action.prepare({ amount: AMOUNT, protocol: DeployProtocol.BitcoinEarn }),
     );
 
     expect({
@@ -138,7 +138,7 @@ describe('golden baseline — the EVM vault actions on 5.x', () => {
   it('EvmWithdrawVault: the vault exit whose terminal COMPLETED becomes QUEUED', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
     const action = new EvmWithdrawVault(h.ctx, {
-      protocol: DeployProtocol.Veda,
+      protocol: DeployProtocol.BitcoinEarn,
       sourceChain: Chain.ETHEREUM,
       recipient: EVM_RECIPIENT,
     });
@@ -154,10 +154,10 @@ describe('golden baseline — the EVM vault actions on 5.x', () => {
     }).toMatchSnapshot();
   });
 
-  it('EvmWithdrawVault: refuses on a chain with no Veda vault', async () => {
+  it('EvmWithdrawVault: refuses on a chain with no Bitcoin Earn vault', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
     const action = new EvmWithdrawVault(h.ctx, {
-      protocol: DeployProtocol.Veda,
+      protocol: DeployProtocol.BitcoinEarn,
       sourceChain: Chain.AVALANCHE,
       recipient: EVM_RECIPIENT,
     });

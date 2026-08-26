@@ -27,6 +27,13 @@ exports[`golden baseline — the EVM vault actions on 5.x > EvmDeploy: prepare w
 }
 `;
 
+exports[`golden baseline — the EVM vault actions on 5.x > EvmWithdrawVault: refuses on a chain with no Bitcoin Earn vault 1`] = `
+{
+  "outcome": "threw: Chain eip155:43114 does not support Bitcoin Earn vault withdrawals",
+  "statuses": [],
+}
+`;
+
 exports[`golden baseline — the EVM vault actions on 5.x > EvmWithdrawVault: refuses on a chain with no Veda vault 1`] = `
 {
   "outcome": "threw: Chain eip155:43114 does not support Veda vault withdrawals",
