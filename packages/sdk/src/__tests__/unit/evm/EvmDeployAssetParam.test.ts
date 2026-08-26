@@ -38,7 +38,9 @@ vi.mock('../../../clients/public-client', () => ({
   })),
 }));
 vi.mock('../../../clients/wallet-client', () => ({
-  makeWalletClient: vi.fn(() => ({ writeContract: vi.fn(async () => '0xhash') })),
+  makeWalletClient: vi.fn(() => ({
+    writeContract: vi.fn(async () => '0xhash'),
+  })),
 }));
 vi.mock('../../../tokens/tokens', async (orig) => ({
   ...(await orig<Record<string, unknown>>()),

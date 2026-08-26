@@ -11,7 +11,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const axiosFn = vi.hoisted(() => vi.fn());
 vi.mock('axios', () => ({ default: axiosFn, isAxiosError: () => false }));
 
-import { getSdkHeaders, httpGet, httpPost, httpRequest } from '../../../utils/http';
+import {
+  getSdkHeaders,
+  httpGet,
+  httpPost,
+  httpRequest,
+} from '../../../utils/http';
 
 function sentHeaders(): Record<string, string> {
   return axiosFn.mock.calls[0][0].headers as Record<string, string>;

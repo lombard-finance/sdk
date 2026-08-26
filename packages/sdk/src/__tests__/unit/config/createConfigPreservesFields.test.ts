@@ -39,7 +39,8 @@ describe('createConfig', () => {
     });
 
     const dropped = Object.keys(SETTABLE_FIELDS).filter(
-      (key) => (config as unknown as Record<string, unknown>)[key] === undefined,
+      (key) =>
+        (config as unknown as Record<string, unknown>)[key] === undefined,
     );
 
     expect(dropped, 'these were accepted and discarded').toEqual([]);

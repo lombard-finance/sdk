@@ -30,9 +30,15 @@ import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SolanaCoreContext } from '../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../shared/errors';
 import { SolanaDepositBtcb } from './actions/deposit-btcb/SolanaDepositBtcb';
-import type { ISolanaDepositBtcb, SolanaDepositBtcbParams } from './actions/deposit-btcb/types';
+import type {
+  ISolanaDepositBtcb,
+  SolanaDepositBtcbParams,
+} from './actions/deposit-btcb/types';
 import { SolanaWithdrawBtcb } from './actions/withdraw-btcb/SolanaWithdrawBtcb';
-import type { ISolanaWithdrawBtcb, SolanaWithdrawBtcbParams } from './actions/withdraw-btcb/types';
+import type {
+  ISolanaWithdrawBtcb,
+  SolanaWithdrawBtcbParams,
+} from './actions/withdraw-btcb/types';
 import { SolanaWithdrawLbtc } from './actions/withdraw-lbtc/SolanaWithdrawLbtc';
 import type {
   ISolanaWithdrawLbtc,
@@ -128,16 +134,24 @@ export class SolanaActions {
    * The arm for a caller holding a runtime asset rather than a literal. The
    * precise interface cannot be known statically, so the union comes back.
    */
-  withdraw(params: SolanaAssetWithdrawParams): ISolanaWithdrawLbtc | ISolanaWithdrawBtcb;
+  withdraw(
+    params: SolanaAssetWithdrawParams,
+  ): ISolanaWithdrawLbtc | ISolanaWithdrawBtcb;
   withdraw(
     params: SolanaAssetWithdrawParams,
   ): ISolanaWithdrawLbtc | ISolanaWithdrawBtcb {
     if (params.assetIn === AssetId.LBTC) {
-      return new SolanaWithdrawLbtc(this.ctx, params as SolanaWithdrawLbtcParams);
+      return new SolanaWithdrawLbtc(
+        this.ctx,
+        params as SolanaWithdrawLbtcParams,
+      );
     }
 
     if (params.assetIn === AssetId.BTCb) {
-      return new SolanaWithdrawBtcb(this.ctx, params as SolanaWithdrawBtcbParams);
+      return new SolanaWithdrawBtcb(
+        this.ctx,
+        params as SolanaWithdrawBtcbParams,
+      );
     }
 
     // Dispatching on an asset with no route would otherwise pick a class
@@ -148,7 +162,6 @@ export class SolanaActions {
         `Supported: ${AssetId.LBTC}, ${AssetId.BTCb}.`,
     );
   }
-
 }
 
 /**

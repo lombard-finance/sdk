@@ -160,7 +160,11 @@ export function createChainActionHarness<TCtx = any>(
   const statuses: string[] = [];
   const progress: unknown[] = [];
 
-  const service = record(kind, { ...defaultService(kind), ...options.service }, calls);
+  const service = record(
+    kind,
+    { ...defaultService(kind), ...options.service },
+    calls,
+  );
 
   const ctx = {
     env,

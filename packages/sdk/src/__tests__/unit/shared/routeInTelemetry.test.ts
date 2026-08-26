@@ -132,9 +132,10 @@ describe('route in log lines', () => {
 
 describe('route in the error context', () => {
   it('reaches toSentryContext, which is what a captured error carries', () => {
-    const error = new LombardError('unknown-error' as never, 'boom').withContext(
-      { route: 'lbtc-to-vault' },
-    );
+    const error = new LombardError(
+      'unknown-error' as never,
+      'boom',
+    ).withContext({ route: 'lbtc-to-vault' });
 
     expect(error.toSentryContext()).toMatchObject({ route: 'lbtc-to-vault' });
   });

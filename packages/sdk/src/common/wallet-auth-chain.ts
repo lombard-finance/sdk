@@ -35,12 +35,7 @@ import {
   BlockchainIdentifier,
   getChainNameById,
 } from './blockchain-identifier';
-import {
-  ChainId,
-  SolanaChain,
-  StarknetChainId,
-  SuiChain,
-} from './chains';
+import { ChainId, SolanaChain, StarknetChainId, SuiChain } from './chains';
 
 /**
  * The `/v2/chains` name for each chain family.

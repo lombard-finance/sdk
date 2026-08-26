@@ -80,7 +80,6 @@ export class SuiActions {
   withdraw(params: SuiWithdrawParams): ISuiWithdraw {
     return new SuiWithdraw(this.ctx, params);
   }
-
 }
 
 /**

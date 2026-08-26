@@ -99,14 +99,12 @@ describe('public contract reachability', () => {
   // Guards the guard. If the parse silently stopped matching, every module
   // above would pass with an empty name list and prove nothing.
   it('actually parsed some names out of each module', () => {
-    const counts = PUBLIC_CONTRACT_MODULES.map((m) => [
-      m,
-      collectExports(read(m)).length,
-    ] as const);
+    const counts = PUBLIC_CONTRACT_MODULES.map(
+      (m) => [m, collectExports(read(m)).length] as const,
+    );
 
     for (const [module, count] of counts) {
       expect(count, `${module} parsed as exporting nothing`).toBeGreaterThan(0);
     }
   });
-
 });

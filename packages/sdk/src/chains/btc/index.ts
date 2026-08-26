@@ -25,7 +25,11 @@ export type {
   BtcDepositLbtcProgress,
   BtcDepositLbtc as IBtcDepositLbtc,
 } from './actions/deposit-lbtc';
-export { BtcDepositLbtc, btcStake, createBtcStake } from './actions/deposit-lbtc';
+export {
+  BtcDepositLbtc,
+  btcStake,
+  createBtcStake,
+} from './actions/deposit-lbtc';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Deposit Action
@@ -37,7 +41,11 @@ export type {
   BtcDepositBtcbProgress,
   BtcDepositBtcb as IBtcDepositBtcb,
 } from './actions/deposit-btcb';
-export { btcDeposit, BtcDepositBtcb, createBtcDeposit } from './actions/deposit-btcb';
+export {
+  btcDeposit,
+  BtcDepositBtcb,
+  createBtcDeposit,
+} from './actions/deposit-btcb';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // StakeAndDeploy Action

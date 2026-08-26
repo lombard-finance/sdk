@@ -27,7 +27,7 @@ const POLL_INTERVAL_MS = 2_000;
 const POLL_MAX_DURATION_MS = 120_000;
 
 const delay = (ms: number): Promise<void> =>
-  new Promise(resolve => {
+  new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 
@@ -55,13 +55,10 @@ export async function pollWalletVerification({
 
   try {
     while (Date.now() < deadline) {
-      const { data } = await httpGet<WalletVerificationStatusApiResponse>(
-        url,
-        {
-          baseURL: baseApiV2Url,
-          timeout: WALLET_AUTH_REQUEST_TIMEOUT_MS,
-        },
-      );
+      const { data } = await httpGet<WalletVerificationStatusApiResponse>(url, {
+        baseURL: baseApiV2Url,
+        timeout: WALLET_AUTH_REQUEST_TIMEOUT_MS,
+      });
 
       if (data.status === VERIFICATION_STATUS.completeValid) {
         if (!data.jwt) {

@@ -21,7 +21,10 @@ import { describe, expect, it } from 'vitest';
 
 import { DEFI_REGISTRY, DefiProtocol } from '../../../defi/defi-registry';
 import { Token } from '../../../tokens/token-addresses';
-import { SILO_VAULT_SPENDER_ABI, VEDA_VAULT_SPENDER_ABI } from '../../../vaults/abi';
+import {
+  SILO_VAULT_SPENDER_ABI,
+  VEDA_VAULT_SPENDER_ABI,
+} from '../../../vaults/abi';
 
 describe('the vault spender ABIs', () => {
   it('are arrays, not namespace objects', () => {
@@ -53,7 +56,8 @@ describe('the Silo BTC.b route', () => {
 
   it('carries an iterable spender ABI on the chains it does serve', () => {
     for (const entry of Object.values(silo?.[Env.testnet] ?? {})) {
-      const abi = (entry as { spenderContract: { abi: unknown } }).spenderContract.abi;
+      const abi = (entry as { spenderContract: { abi: unknown } })
+        .spenderContract.abi;
 
       expect(Array.isArray(abi)).toBe(true);
     }

@@ -61,11 +61,7 @@ describe('walletAuthChainName', () => {
     const pairs: ReadonlyArray<readonly [unknown, unknown, string]> = [
       [ChainId.ethereum, ChainId.sepolia, 'ethereum'],
       [ChainId.base, ChainId.baseSepoliaTestnet, 'base'],
-      [
-        ChainId.binanceSmartChain,
-        ChainId.binanceSmartChainTestnet,
-        'bsc',
-      ],
+      [ChainId.binanceSmartChain, ChainId.binanceSmartChainTestnet, 'bsc'],
       [ChainId.avalanche, ChainId.avalancheFuji, 'avalanche'],
       // The case a slug-derived name gets wrong: `sonic_blaze` is rejected.
       [ChainId.sonic, ChainId.sonicBlazeTestnet, 'sonic'],

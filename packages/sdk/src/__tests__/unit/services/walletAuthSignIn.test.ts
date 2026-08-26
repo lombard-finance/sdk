@@ -36,7 +36,8 @@ vi.mock('../../../api-functions/walletAuth/revokeWalletToken', () => ({
   revokeWalletToken: revokeToken,
 }));
 
-const { WalletAuthService } = await import('../../../services/WalletAuthService');
+const { WalletAuthService } =
+  await import('../../../services/WalletAuthService');
 
 const ADDRESS = '0x1111111111111111111111111111111111111111';
 const CHAIN = 'ethereum';

@@ -37,7 +37,9 @@ function stubModules(): readonly AnyModule[] {
   );
 }
 
-function configWithToken(getAuthToken: () => string | undefined = () => TOKEN): LombardConfig {
+function configWithToken(
+  getAuthToken: () => string | undefined = () => TOKEN,
+): LombardConfig {
   return {
     env: Env.prod,
     providers: {},
@@ -64,11 +66,14 @@ describe('getAuthToken reaches every documented construction path', () => {
     ['starknetActions', () => starknetActions(configWithToken())],
   ];
 
-  it.each(paths)('%s carries the accessor through to its context', (_name, build) => {
-    const ctx = ctxOf(build());
-    expect(typeof ctx.getAuthToken).toBe('function');
-    expect(ctx.getAuthToken?.()).toBe(TOKEN);
-  });
+  it.each(paths)(
+    '%s carries the accessor through to its context',
+    (_name, build) => {
+      const ctx = ctxOf(build());
+      expect(typeof ctx.getAuthToken).toBe('function');
+      expect(ctx.getAuthToken?.()).toBe(TOKEN);
+    },
+  );
 
   it('reads at call time, so a token acquired later is still seen', () => {
     // A holder rather than a reassigned binding, so it is obvious the accessor

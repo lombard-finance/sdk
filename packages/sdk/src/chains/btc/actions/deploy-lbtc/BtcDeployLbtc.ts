@@ -80,11 +80,7 @@ interface AuthState {
  * ```
  */
 export class BtcDeployLbtc
-  extends BaseBtcAction<
-    ActionEventMap,
-    BtcActionStatus,
-    BtcDeployLbtcParams
-  >
+  extends BaseBtcAction<ActionEventMap, BtcActionStatus, BtcDeployLbtcParams>
   implements IBtcDeployLbtc
 {
   private readonly chainId: ChainId;

@@ -40,7 +40,9 @@ vi.mock('../../../clients/public-client', () => ({
   })),
 }));
 vi.mock('../../../clients/wallet-client', () => ({
-  makeWalletClient: vi.fn(() => ({ writeContract: vi.fn(async () => '0xhash') })),
+  makeWalletClient: vi.fn(() => ({
+    writeContract: vi.fn(async () => '0xhash'),
+  })),
 }));
 
 // Imports below intentionally sit after the vi.mock calls above; the sorter

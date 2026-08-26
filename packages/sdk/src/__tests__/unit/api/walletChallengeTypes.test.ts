@@ -18,12 +18,10 @@ vi.mock('axios', () => ({
     Boolean((e as { isAxiosError?: boolean } | null)?.isAxiosError),
 }));
 
-const { requestWalletChallenge } = await import(
-  '../../../api-functions/walletAuth/requestWalletChallenge'
-);
-const { verifyWalletSignature } = await import(
-  '../../../api-functions/walletAuth/verifyWalletSignature'
-);
+const { requestWalletChallenge } =
+  await import('../../../api-functions/walletAuth/requestWalletChallenge');
+const { verifyWalletSignature } =
+  await import('../../../api-functions/walletAuth/verifyWalletSignature');
 const { ActivePermitExistsError } = await import('../../../utils/err');
 
 const address = '0xC1A0000000000000000000000000000000000000';

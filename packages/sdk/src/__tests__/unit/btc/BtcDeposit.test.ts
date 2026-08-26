@@ -123,7 +123,9 @@ describe('BtcDepositBtcb Interface', () => {
 
   describe('Method Signatures', () => {
     it('should define prepare method', () => {
-      type PrepareMethod = (params: BtcDepositBtcbPrepareParams) => Promise<void>;
+      type PrepareMethod = (
+        params: BtcDepositBtcbPrepareParams,
+      ) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });

@@ -46,7 +46,10 @@ import {
   isRouteAvailable,
   type SignatureResult,
 } from './config';
-import type { BtcDepositLbtc as IBtcDepositLbtc, BtcDepositLbtcParams } from './types';
+import type {
+  BtcDepositLbtc as IBtcDepositLbtc,
+  BtcDepositLbtcParams,
+} from './types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types

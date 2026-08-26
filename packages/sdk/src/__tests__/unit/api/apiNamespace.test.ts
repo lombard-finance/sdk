@@ -75,7 +75,10 @@ describe('sdk.api.withdrawals()', () => {
    * name, the same way the removed verbs are.
    */
   it('no longer answers to the old name', () => {
-    const api = new ApiNamespace(Env.prod) as unknown as Record<string, unknown>;
+    const api = new ApiNamespace(Env.prod) as unknown as Record<
+      string,
+      unknown
+    >;
 
     expect(api.unstakes).toBeUndefined();
     expect(typeof api.withdrawals).toBe('function');

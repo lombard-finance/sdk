@@ -66,8 +66,16 @@ interface Subject {
 }
 
 const SUBJECTS: Subject[] = [
-  { name: 'BtcDepositLbtc', ctor: BtcDepositLbtc, target: 'BitcoinSourceAction' },
-  { name: 'BtcDepositBtcb', ctor: BtcDepositBtcb, target: 'BitcoinSourceAction' },
+  {
+    name: 'BtcDepositLbtc',
+    ctor: BtcDepositLbtc,
+    target: 'BitcoinSourceAction',
+  },
+  {
+    name: 'BtcDepositBtcb',
+    ctor: BtcDepositBtcb,
+    target: 'BitcoinSourceAction',
+  },
   {
     name: 'BtcDeployLbtc',
     ctor: BtcDeployLbtc,
@@ -78,9 +86,21 @@ const SUBJECTS: Subject[] = [
     ctor: BtcDeployBtcb,
     target: 'BitcoinSourceAction',
   },
-  { name: 'EvmDepositBtcb', ctor: EvmDepositBtcb, target: 'FeeAuthorizedAction' },
-  { name: 'EvmWithdrawLbtc', ctor: EvmWithdrawLbtc, target: 'FeeAuthorizedAction' },
-  { name: 'EvmWithdrawBtcb', ctor: EvmWithdrawBtcb, target: 'FeeAuthorizedAction' },
+  {
+    name: 'EvmDepositBtcb',
+    ctor: EvmDepositBtcb,
+    target: 'FeeAuthorizedAction',
+  },
+  {
+    name: 'EvmWithdrawLbtc',
+    ctor: EvmWithdrawLbtc,
+    target: 'FeeAuthorizedAction',
+  },
+  {
+    name: 'EvmWithdrawBtcb',
+    ctor: EvmWithdrawBtcb,
+    target: 'FeeAuthorizedAction',
+  },
   { name: 'EvmClaim', ctor: EvmClaim, target: 'ClaimableAction' },
   { name: 'EvmDeploy', ctor: EvmDeploy, target: 'Action' },
   { name: 'EvmWithdrawVault', ctor: EvmWithdrawVault, target: 'Action' },

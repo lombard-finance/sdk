@@ -164,21 +164,14 @@ export class BtcActions {
    * The arm for a caller whose intermediate asset is only known at runtime. The
    * precise interface cannot be known statically, so the union comes back.
    */
-  deploy(
-    params: BtcAssetDeployParams,
-  ): IBtcDeployLbtc | IBtcDeployBtcb;
-  deploy(
-    params: BtcAssetDeployParams,
-  ): IBtcDeployLbtc | IBtcDeployBtcb {
+  deploy(params: BtcAssetDeployParams): IBtcDeployLbtc | IBtcDeployBtcb;
+  deploy(params: BtcAssetDeployParams): IBtcDeployLbtc | IBtcDeployBtcb {
     if (params.assetOut === AssetId.LBTC) {
       return new BtcDeployLbtc(this.ctx, params as BtcDeployLbtcParams);
     }
 
     if (params.assetOut === AssetId.BTCb) {
-      return new BtcDeployBtcb(
-        this.ctx,
-        params as BtcDeployBtcbParams,
-      );
+      return new BtcDeployBtcb(this.ctx, params as BtcDeployBtcbParams);
     }
 
     // Picking a class arbitrarily here would fail later, inside a flow the

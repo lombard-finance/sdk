@@ -93,7 +93,9 @@ describe('golden baseline — Sui and Starknet on 5.x', () => {
         progress: progressShape(h.progress),
         resultKeys: Object.keys(result).sort(),
         unstakeArgKeys: (h.calls.of('starknet', 'unstake')[0]?.[0] as object)
-          ? Object.keys(h.calls.of('starknet', 'unstake')[0][0] as object).sort()
+          ? Object.keys(
+              h.calls.of('starknet', 'unstake')[0][0] as object,
+            ).sort()
           : [],
       }).toMatchSnapshot();
     });

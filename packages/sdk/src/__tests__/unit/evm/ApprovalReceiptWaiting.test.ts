@@ -209,7 +209,8 @@ describe('Approval Receipt Waiting', () => {
 
   describe('EvmDepositBtcb.approve()', () => {
     it('should wait for transaction receipt after approveToken call', async () => {
-      const { evmStake } = await import('../../../chains/evm/actions/deposit-btcb');
+      const { evmStake } =
+        await import('../../../chains/evm/actions/deposit-btcb');
       const { createTestConfig } =
         await import('../../helpers/createTestConfig');
       const { Chain, AssetId } = await import('../../../core');

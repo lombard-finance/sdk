@@ -220,24 +220,26 @@ export async function resolveDepositBtcAddress({
 
     // Rebuilt rather than spread from `requestParams`: the two forms are a
     // union, and the route rejects a request carrying both fields.
-    const { data: retried } = await httpRequest<IResolveDepositAddressResponse>({
-      url: RESOLVE_ADDRESS_URL,
-      method: 'POST',
-      baseURL: baseApiV2Url,
-      body: {
-        chain: getLegacyChainNameById(chainId),
-        destination_user_address: address,
-        nonce,
-        destination_asset_address: assetAddress,
-        ...(partnerId ? { partner_id: partnerId } : {}),
-        ...(referrerCode ? { referral_code: referrerCode } : {}),
+    const { data: retried } = await httpRequest<IResolveDepositAddressResponse>(
+      {
+        url: RESOLVE_ADDRESS_URL,
+        method: 'POST',
+        baseURL: baseApiV2Url,
+        body: {
+          chain: getLegacyChainNameById(chainId),
+          destination_user_address: address,
+          nonce,
+          destination_asset_address: assetAddress,
+          ...(partnerId ? { partner_id: partnerId } : {}),
+          ...(referrerCode ? { referral_code: referrerCode } : {}),
+        },
+        headers: {
+          Authorization: `Bearer ${walletJwt}`,
+          Accept: 'application/json',
+        },
+        timeout: RESOLVE_ADDRESS_TIMEOUT_MS,
       },
-      headers: {
-        Authorization: `Bearer ${walletJwt}`,
-        Accept: 'application/json',
-      },
-      timeout: RESOLVE_ADDRESS_TIMEOUT_MS,
-    });
+    );
 
     return retried;
   };

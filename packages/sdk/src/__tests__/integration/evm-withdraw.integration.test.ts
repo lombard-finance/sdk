@@ -242,7 +242,6 @@ describe('EVM Withdraw Integration', () => {
 
       expect(withdraw).toBeDefined();
     });
-
   });
 
   describe('Event Subscriptions', () => {

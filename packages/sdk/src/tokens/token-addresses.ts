@@ -353,6 +353,61 @@ export const getSolanaTokenAddress = (
   return SOLANA_TOKEN_ADDRESSES[token]?.[env]?.[chainId] || undefined;
 };
 
+/** One entry in an address map: a bare address, or the token/adapter pair. */
+type AddressMapEntry = string | BridgeTokenAddresses | undefined;
+
+/** The address maps, flattened to a shape this module can walk generically. */
+type WalkableAddressMap = Partial<
+  Record<Token, Partial<Record<Env, Record<string, AddressMapEntry>>>>
+>;
+
+/**
+ * The token an address belongs to, searched across every chain in an
+ * environment.
+ *
+ * {@link getTokenByAddress} requires the token, environment **and** chain to
+ * line up, so it returns nothing whenever the backend reports a deposit on a
+ * chain the token is not registered for. BTC.b on stage is registered for
+ * Sepolia only, so a BTC.b deposit landing on Katana resolved to nothing and
+ * the caller was left to guess.
+ *
+ * This answers only when the address identifies exactly one token. Were two
+ * tokens to share an address across chains the answer would be a coin flip,
+ * and a caller is better served by "unknown" than by a guess.
+ */
+export const getTokenByAddressInEnv = (
+  tokenAddress?: string,
+  env: Env = DEFAULT_ENV,
+  addressKind: AddressKind = AddressKind.Token,
+): Token | undefined => {
+  if (!tokenAddress) return;
+
+  const maps = [
+    TOKEN_ADDRESSES,
+    SUI_TOKEN_ADDRESSES,
+    SOLANA_TOKEN_ADDRESSES,
+    STARKNET_TOKEN_ADDRESSES,
+  ] as WalkableAddressMap[];
+
+  const needle = tokenAddress.toLowerCase();
+  const found = new Set<Token>();
+
+  for (const token of [Token.LBTC, Token.BTCb]) {
+    for (const map of maps) {
+      const perEnv = map[token]?.[env];
+      if (!perEnv) continue;
+
+      for (const entry of Object.values(perEnv)) {
+        const address =
+          typeof entry === 'string' ? entry : entry?.[addressKind];
+        if (address && address.toLowerCase() === needle) found.add(token);
+      }
+    }
+  }
+
+  return found.size === 1 ? [...found][0] : undefined;
+};
+
 export const getTokenByAddress = (
   tokenAddress?: string,
   chainId?: ChainId | SuiChain | SolanaChain | StarknetChainId,

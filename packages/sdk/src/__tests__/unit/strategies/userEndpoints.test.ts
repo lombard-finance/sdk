@@ -5,7 +5,9 @@ import { getVaultBlockchainParam } from '../../../strategies/lib/metrics/userEnd
 
 describe('getVaultBlockchainParam', () => {
   it('maps mainnets to their legacy BLOCKCHAIN_* identifiers', () => {
-    expect(getVaultBlockchainParam(ChainId.ethereum)).toBe('BLOCKCHAIN_ETHEREUM');
+    expect(getVaultBlockchainParam(ChainId.ethereum)).toBe(
+      'BLOCKCHAIN_ETHEREUM',
+    );
     expect(getVaultBlockchainParam(ChainId.base)).toBe('BLOCKCHAIN_BASE');
   });
 

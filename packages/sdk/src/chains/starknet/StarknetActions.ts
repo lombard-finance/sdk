@@ -83,7 +83,6 @@ export class StarknetActions {
   withdraw(params: StarknetWithdrawParams): IStarknetWithdraw {
     return new StarknetWithdraw(this.ctx, params);
   }
-
 }
 
 /**

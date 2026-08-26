@@ -23,7 +23,10 @@ import { btcActions } from '../../../chains/btc/BtcActions';
 import type { IEvmWithdrawBtcb, IEvmWithdrawLbtc } from '../../../chains/evm';
 import type { EvmAssetWithdrawParams } from '../../../chains/evm/EvmActions';
 import { evmActions } from '../../../chains/evm/EvmActions';
-import type { ISolanaWithdrawBtcb, ISolanaWithdrawLbtc } from '../../../chains/solana';
+import type {
+  ISolanaWithdrawBtcb,
+  ISolanaWithdrawLbtc,
+} from '../../../chains/solana';
 import type { SolanaAssetWithdrawParams } from '../../../chains/solana/SolanaActions';
 import { solanaActions } from '../../../chains/solana/SolanaActions';
 import { AssetId, Chain } from '../../../core';
@@ -110,10 +113,7 @@ describe('evm.withdraw', () => {
 
     const action = evm.withdraw(fromAForm);
 
-    assertExact<
-      typeof action,
-      IEvmWithdrawLbtc | IEvmWithdrawBtcb
-    >(true);
+    assertExact<typeof action, IEvmWithdrawLbtc | IEvmWithdrawBtcb>(true);
     expect(action.constructor.name).toBe('EvmWithdrawBtcb');
   });
 });
@@ -156,10 +156,7 @@ describe('solana.withdraw', () => {
 
     const action = solana.withdraw(fromAForm);
 
-    assertExact<
-      typeof action,
-      ISolanaWithdrawLbtc | ISolanaWithdrawBtcb
-    >(true);
+    assertExact<typeof action, ISolanaWithdrawLbtc | ISolanaWithdrawBtcb>(true);
     expect(action.constructor.name).toBe('SolanaWithdrawLbtc');
   });
 });

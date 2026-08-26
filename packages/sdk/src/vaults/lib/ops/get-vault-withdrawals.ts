@@ -1,3 +1,4 @@
+import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
 
@@ -16,6 +17,7 @@ import {
   EARN_CHAIN_TO_NETWORK_MAP,
   EARN_VAULT,
   EarnChain,
+  isEarnAvailable,
   isEarnChain,
 } from '../config';
 
@@ -53,11 +55,28 @@ export type EarnWithdrawal = {
   toAddress?: Address;
 };
 
+/** A chain that could not be read, and why. */
+export type EarnWithdrawalFailure = {
+  chainId: number;
+  /** The underlying error, kept whole so a caller can inspect or report it. */
+  error: unknown;
+  /** A message safe to show a user. */
+  message: string;
+};
+
 export type EarnWithdrawals = {
   cancelled: EarnWithdrawal[];
   expired: EarnWithdrawal[];
   fulfilled: EarnWithdrawal[];
   open: EarnWithdrawal[];
+  /**
+   * Chains that could not be queried. Empty on a clean read.
+   *
+   * Required, not optional. "Nothing to show" and "could not ask" are
+   * different answers, and while the failures were swallowed the two rendered
+   * identically — an authorization failure looked like an empty account.
+   */
+  failures: EarnWithdrawalFailure[];
 };
 
 type WithdrawRequest = {
@@ -272,6 +291,8 @@ export async function getEarnWithdrawals({
       'desc',
     ),
     open: orderBy(open, (a) => a.timestamp, 'desc'),
+    // This function throws on failure, so a value returned here is a clean read.
+    failures: [],
   };
 
   return wihdrawals;
@@ -299,21 +320,45 @@ export async function getEarnWithdrawalsAllChains({
   env,
 }: GetEarnWithdrawalsAllChainsParameters): Promise<EarnWithdrawals> {
   const vault = EARN_VAULT;
-  // Fetch withdrawals from all supported chains in parallel
+
+  // Earn is configured for mainnet only. Reporting that is the difference
+  // between an empty page and an honest one: without this, a stage caller got
+  // three failed reads against mainnet contracts and an empty result.
+  if (!isEarnAvailable(env ?? DEFAULT_ENV)) {
+    const message = `The Earn vault is only configured for ${Env.prod}; it is unavailable on ${env ?? DEFAULT_ENV}.`;
+    return {
+      cancelled: [],
+      expired: [],
+      fulfilled: [],
+      open: [],
+      failures: vault.chains.map((chainId: EarnChain) => ({
+        chainId,
+        error: new Error(message),
+        message,
+      })),
+    };
+  }
+
+  // Each chain is read independently so one failure does not lose the others,
+  // but a failure is now carried out rather than logged and discarded.
   const withdrawalsPromises = vault.chains.map((chainId: EarnChain) =>
     getEarnWithdrawals({ account, chainId, rpcUrl, env }).catch(
-      (error: unknown) => {
-        console.error(
-          `Failed to fetch withdrawals for chain ${chainId}:`,
-          error,
-        );
-        return {
-          cancelled: [],
-          expired: [],
-          fulfilled: [],
-          open: [],
-        }; // Return empty withdrawals on error to not break the entire query
-      },
+      (error: unknown) => ({
+        cancelled: [],
+        expired: [],
+        fulfilled: [],
+        open: [],
+        failures: [
+          {
+            chainId,
+            error,
+            message:
+              error instanceof Error
+                ? error.message
+                : `Could not read withdrawals on chain ${chainId}.`,
+          },
+        ],
+      }),
     ),
   );
 
@@ -324,8 +369,10 @@ export async function getEarnWithdrawalsAllChains({
   const allExpired: EarnWithdrawal[] = [];
   const allFulfilled: EarnWithdrawal[] = [];
   const allOpen: EarnWithdrawal[] = [];
+  const allFailures: EarnWithdrawalFailure[] = [];
 
   for (const withdrawals of withdrawalsArrays) {
+    allFailures.push(...withdrawals.failures);
     allCancelled.push(...withdrawals.cancelled);
     allExpired.push(...withdrawals.expired);
     allFulfilled.push(...withdrawals.fulfilled);
@@ -342,5 +389,6 @@ export async function getEarnWithdrawalsAllChains({
       'desc',
     ),
     open: orderBy(allOpen, (a) => a.timestamp, 'desc'),
+    failures: allFailures,
   };
 }

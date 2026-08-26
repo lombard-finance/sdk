@@ -252,7 +252,6 @@ export class EvmActions {
   cancelWithdraw(params: EvmCancelWithdrawParams): IEvmCancelWithdraw {
     return createEvmCancelWithdraw(this.ctx, params);
   }
-
 }
 
 /**

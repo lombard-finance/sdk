@@ -203,9 +203,7 @@ export type {
   StrategyEventHandlerMap,
   StrategyEventMap,
 } from './shared/events';
-export {
-  ActionEvent,
-} from './shared/events';
+export { ActionEvent } from './shared/events';
 
 // Error handling
 export {

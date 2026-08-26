@@ -57,7 +57,11 @@ import {
   createInitialFeeAuthState,
   type FeeAuthState,
 } from '../../shared/feeAuth';
-import type { EvmDepositBtcbParams, EvmDepositBtcbPrepareParams, IEvmDepositBtcb } from './types';
+import type {
+  EvmDepositBtcbParams,
+  EvmDepositBtcbPrepareParams,
+  IEvmDepositBtcb,
+} from './types';
 
 /**
  * Chains that require ERC20 approval for BTC.b staking (to the Adapter)

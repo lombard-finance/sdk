@@ -21,7 +21,11 @@ describe('storeNetworkFeeSignature', () => {
   });
 
   it('resolves to "success" on a successful POST', async () => {
-    axiosFn.mockResolvedValue({ data: { status: 'success' }, status: 200, headers: {} });
+    axiosFn.mockResolvedValue({
+      data: { status: 'success' },
+      status: 200,
+      headers: {},
+    });
     isAxiosErrorFn.mockReturnValue(false);
 
     const result = await storeNetworkFeeSignature({
