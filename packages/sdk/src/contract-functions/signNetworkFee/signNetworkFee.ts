@@ -5,6 +5,7 @@ import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
 import { Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
+import { assertValidExpiry } from '../../utils/expiry';
 import { DAY, now, toUnix } from '../../utils/time';
 
 export interface ISignNetworkFeeParams extends CommonWriteParameters {
@@ -59,6 +60,12 @@ export async function signNetworkFee({
   env,
   token = Token.LBTC,
 }: ISignNetworkFeeParams): Promise<ISignNetworkFeeResponse> {
+  // Same absolute-UNIX-seconds parameter as signStakeAndBake's, signed into a
+  // uint256 the same way, so it can go wrong the same three ways. A far-future
+  // value is the one with no downstream symptom: the fee approval signs and
+  // stands rather than lapsing.
+  assertValidExpiry(expiry, 'fee approval expiry');
+
   const tokenContract = await getTokenContractInfo(token, chainId, env);
   const walletClient = makeWalletClient({
     chainId,
