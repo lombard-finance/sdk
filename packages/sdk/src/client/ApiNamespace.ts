@@ -29,7 +29,7 @@
  * @module client/ApiNamespace
  */
 
-import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
+import { DEFAULT_ENV, Env, LombardAuth } from '@lombard.finance/sdk-common';
 import type BigNumber from 'bignumber.js';
 
 import { getDepositBtcAddress } from '../api-functions/getDepositBtcAddress/getDepositBtcAddress';
@@ -132,7 +132,20 @@ export class ApiNamespace {
    */
   private readonly apiVersion: ApiVersion = 'v1';
 
-  constructor(private readonly env: Env = DEFAULT_ENV) {}
+  /**
+   * @param env - Which deployment to address.
+   * @param auth - How to obtain a wallet JWT, from `LombardConfig.auth`.
+   *
+   *   Several routes here are user-scoped and refuse to send without a token:
+   *   the vault withdraw and deposit reads, and the strategy user metrics. Until
+   *   this was threaded through, a host that supplied `auth` still saw those
+   *   calls fail, because the namespace was built with `env` alone and had no
+   *   token to offer — signing in changed nothing.
+   */
+  constructor(
+    private readonly env: Env = DEFAULT_ENV,
+    private readonly auth?: LombardAuth,
+  ) {}
 
   /* -------------------------------------------------------------------------- */
   /*                               Deposits                                     */
@@ -354,6 +367,7 @@ export class ApiNamespace {
         chainId: options.chainId,
         rpcUrl: options.rpcUrl,
         env: this.env,
+        auth: this.auth,
       });
     }
 
@@ -362,6 +376,7 @@ export class ApiNamespace {
       account,
       rpcUrl: options?.rpcUrl,
       env: this.env,
+      auth: this.auth,
     });
   }
 
