@@ -34,6 +34,7 @@ import {
   validatePrepareParams,
 } from '../../../../shared/validation';
 import { Token } from '../../../../tokens/token-addresses';
+import { getActiveEvmAccount } from '../../../../utils/evmAccount';
 import {
   authorizeFee as authorizeFeeShared,
   checkFeeAuthorization,
@@ -99,15 +100,13 @@ export class EvmUnstake
 
       // Fee auth is only required for BTC.b output on unsubsidized chains
       if (this.isBtcbOutput) {
-        // Get EVM account for fee auth check
         const provider = await this.ctx.getProvider('evm');
         if (!provider) {
           throw LombardError.providerMissing(this.params.sourceChain, 'evm');
         }
-        const accounts = await (provider as EIP1193Provider).request({
-          method: 'eth_accounts',
-        });
-        const account = accounts[0] as `0x${string}`;
+        const account = await getActiveEvmAccount(
+          provider as EIP1193Provider,
+        );
 
         // Check fee authorization status (use Token.BTCb for LBTC → BTC.b)
         const feeAuthResult = await checkFeeAuthorization(
@@ -171,11 +170,9 @@ export class EvmUnstake
       if (!provider) {
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
-
-      const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
-      });
-      const account = accounts[0] as `0x${string}`;
+      const account = await getActiveEvmAccount(
+        provider as EIP1193Provider,
+      );
 
       // Sign and store fee authorization (use Token.BTCb for LBTC → BTC.b)
       await authorizeFeeShared({
@@ -205,15 +202,9 @@ export class EvmUnstake
       if (!provider) {
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
-
-      // Get the connected EVM account address from the provider
-      const accounts = await (provider as EIP1193Provider).request({
-        method: 'eth_accounts',
-      });
-      const evmAccount = accounts[0] as `0x${string}`;
-      if (!evmAccount) {
-        throw LombardError.providerMissing(this.params.sourceChain, 'evm');
-      }
+      const evmAccount = await getActiveEvmAccount(
+        provider as EIP1193Provider,
+      );
 
       const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
       const isBtcbOutput = this.params.assetOut === AssetId.BTCb;
