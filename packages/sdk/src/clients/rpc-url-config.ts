@@ -5,7 +5,12 @@ import { ChainId } from '../common/chains';
 
 export type TRpcUrlConfig = Record<number, string>;
 
-export const RPC_URL = 'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
+// /multi-rpc/v2 replaces the open /multi-rpc/proxy transport. v2 accepts only
+// the JSON-RPC methods a wallet client genuinely needs and rejects the rest
+// outright, where the old route merely logged them. Every method this SDK
+// issues — readContract, simulateContract, multicall,
+// waitForTransactionReceipt, estimateFeesPerGas, getChainId — is on that list.
+export const RPC_URL = 'https://bff.prod.lombard-fi.com/multi-rpc/v2';
 
 export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.ethereum]: `${RPC_URL}/eth`,
@@ -31,7 +36,7 @@ export const rpcUrlConfig: TRpcUrlConfig = {
 export function getRpcUrlConfig(env: Env) {
   const { bffApiUrl: baseUrl } = getApiConfig(env);
 
-  const proxy = `${baseUrl}/multi-rpc/proxy`;
+  const proxy = `${baseUrl}/multi-rpc/v2`;
 
   return {
     [ChainId.ethereum]: `${proxy}/eth`,
