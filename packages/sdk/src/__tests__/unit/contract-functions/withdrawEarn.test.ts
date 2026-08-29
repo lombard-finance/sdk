@@ -59,6 +59,8 @@ const LENS = '0x5232bc0F5999f8dA604c42E1748A13a170F94A1B';
 const VAULT = '0x5401b8620E5FB570064CA9114fd1e135fd77D57c';
 const BTCE = '0x3a4baaBf4DC9910596821615e848f0e6545762F3';
 const QUEUE = '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8';
+const BORING_QUEUE = '0x4a20F4948c435fDA923399F89800CdC373de88cB';
+const LBTC = '0x8236a87084f8B84306f72007F36F2618A5634494';
 const PROVIDER = {
   request: vi.fn(),
 } as unknown as Parameters<typeof withdrawEarn>[0]['provider'];
@@ -411,6 +413,81 @@ describe('withdrawEarn', () => {
       expect(request[1]).toBe(0n); // atomicPrice
       expect(request[2]).toBe(50_000_000n); // 0.5 LBTCv
       expect(request[3]).toBe(false); // inSolve
+    });
+  });
+
+  describe('BoringQueue path (queue: "boring")', () => {
+    it('files requestOnChainWithdraw against the BoringQueue with LBTC/discount/deadline', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+      });
+
+      const result = await withdrawEarn({
+        amount: '0.5',
+        queue: 'boring',
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+      });
+
+      // Only one tx: the BoringQueue request (has allowance, underlying-only).
+      expect(result.approveTxHash).toBeUndefined();
+      expect(result.unwrapTxHash).toBeUndefined();
+      expect(result.queueTxHash).toMatch(/requestOnChainWithdraw/);
+
+      const queueCall = mockSimulateContract.mock.calls.find(
+        (c) => c[0].functionName === 'requestOnChainWithdraw',
+      )?.[0];
+
+      // Routes to the BoringQueue, NOT the legacy AtomicQueue.
+      expect(queueCall.address).toBe(BORING_QUEUE);
+      // args: [assetOut, amountOfShares, discount(bps), secondsToDeadline]
+      expect(queueCall.args[0]).toBe(LBTC);
+      expect(queueCall.args[1]).toBe(50_000_000n); // 0.5 LBTCv shares
+      expect(queueCall.args[2]).toBe(1); // discount bps (within LBTC 0-10 bounds)
+      expect(queueCall.args[3]).toBe(21 * 86_400); // 21 days, >= 20-day on-chain min
+    });
+
+    it('approves the BoringQueue address (not AtomicQueue) when allowance is short', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 0n,
+      });
+
+      await withdrawEarn({
+        amount: '0.5',
+        queue: 'boring',
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+      });
+
+      const fnNames = mockSimulateContract.mock.calls.map(
+        (c) => c[0].functionName,
+      );
+      expect(fnNames).toEqual(['approve', 'requestOnChainWithdraw']);
+
+      const approveCall = mockSimulateContract.mock.calls.find(
+        (c) => c[0].functionName === 'approve',
+      )?.[0];
+      expect(approveCall.args[0]).toBe(BORING_QUEUE); // spender = BoringQueue
+    });
+
+    it('defaults to the AtomicQueue when queue is omitted', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+      });
+
+      const result = await withdrawEarn({
+        amount: '0.5',
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+      });
+
+      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
     });
   });
 });

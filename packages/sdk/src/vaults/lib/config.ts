@@ -6,6 +6,9 @@ import BTCE_VAULT_ABI from '../abi/BTCE_VAULT_ABI.json';
 import VEDA_VAULT_ABI from '../abi/VEDA_VAULT_ABI.json';
 import VEDA_VAULT_ACCOUNTANT_ABI from '../abi/VEDA_VAULT_ACCOUNTANT_ABI.json';
 import VEDA_VAULT_BASE_ASSET_ABI from '../abi/VEDA_VAULT_BASE_ASSET_ABI.json';
+// Real Veda BoringOnChainQueue (requestOnChainWithdraw flow).
+import VEDA_VAULT_BORING_ONCHAIN_QUEUE_ABI from '../abi/VEDA_VAULT_BORING_ONCHAIN_QUEUE_ABI.json';
+// NOTE: despite the name, this is the legacy AtomicQueue ABI (safeUpdateAtomicRequest).
 import VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI from '../abi/VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI.json';
 import VEDA_VAULT_LENS_ABI from '../abi/VEDA_VAULT_LENS_ABI.json';
 import VEDA_VAULT_SPENDER_ABI from '../abi/VEDA_VAULT_SPENDER_ABI.json';
@@ -116,6 +119,25 @@ export const EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS: Record<
   },
 };
 
+/**
+ * Veda BoringOnChainQueue — the new withdrawal queue that replaces the legacy
+ * AtomicQueue (`EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS`) for LBTCv withdrawals.
+ *
+ * Deployed on Ethereum only for LBTCv. The withdraw flow routes here when the
+ * caller passes `queue: 'boring'` to `withdrawEarn`; otherwise it stays on the
+ * AtomicQueue so a rollback needs no code change. Kept a Partial<Record> since
+ * only Ethereum has a deployment today.
+ */
+export const EARN_VAULT_BORING_QUEUE_CONTRACTS: Partial<
+  Record<EarnChain, ContractInfo>
+> = {
+  [ChainId.ethereum]: {
+    abi: VEDA_VAULT_BORING_ONCHAIN_QUEUE_ABI as Abi,
+    address: '0x4a20F4948c435fDA923399F89800CdC373de88cB',
+    chainId: ChainId.ethereum,
+  },
+};
+
 export const EARN_VAULT_BASE_ASSET = {
   abi: VEDA_VAULT_BASE_ASSET_ABI,
   symbol: 'WBTC',
@@ -195,7 +217,22 @@ export const EARN_VAULT = {
   spenderContracts: EARN_VAULT_SPENDER_CONTRACTS,
   tellerContracts: EARN_VAULT_TELLER_CONTRACTS,
   withdrawQueueContracts: EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS,
+  boringQueueContracts: EARN_VAULT_BORING_QUEUE_CONTRACTS,
 
   queueWithdrawDiscountPercent: '0.01',
   queueWithdrawDaysValid: '14',
+
+  /**
+   * BoringQueue `discount` in basis points. Must sit within the withdraw
+   * asset's on-chain [minDiscount, maxDiscount] bounds or the request reverts
+   * with `BoringOnChainQueue__BadDiscount` (LBTC live bounds: 0–10 bps).
+   */
+  boringQueueDiscountBps: '1',
+  /**
+   * BoringQueue request validity window in days. Converted to
+   * `secondsToDeadline`; must be >= the asset's on-chain
+   * `minimumSecondsToDeadline` or the request reverts with
+   * `BoringOnChainQueue__BadDeadline` (LBTC live minimum: 20 days).
+   */
+  boringQueueDaysValid: '21',
 } as const;

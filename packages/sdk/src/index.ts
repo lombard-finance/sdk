@@ -667,6 +667,7 @@ export {
   type UnwrapBtceToLbtcvParameters,
 } from './contract-functions/unwrapBtceToLbtcv/unwrapBtceToLbtcv';
 export {
+  type EarnWithdrawQueue,
   withdrawEarn,
   type WithdrawEarnParameters,
   type WithdrawEarnResult,

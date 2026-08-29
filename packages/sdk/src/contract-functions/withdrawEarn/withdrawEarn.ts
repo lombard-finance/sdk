@@ -13,9 +13,19 @@ import { DAY } from '../../utils/time';
 import {
   BTCE_VAULT,
   EARN_VAULT,
+  EarnChain,
   isBtceVaultChain,
   isEarnChain,
 } from '../../vaults/lib/config';
+
+/**
+ * Which Veda withdrawal queue to file the request against.
+ *   - `atomic`: legacy AtomicQueue (`safeUpdateAtomicRequest`). Default, so
+ *     existing callers are unchanged.
+ *   - `boring`: new BoringOnChainQueue (`requestOnChainWithdraw`). Ethereum
+ *     only; LBTC is the only redemption asset currently allowed on-chain.
+ */
+export type EarnWithdrawQueue = 'atomic' | 'boring';
 
 export type WithdrawEarnParameters = {
   /** Amount to withdraw, in the withdrawal asset's natural decimal units (BTC). */
@@ -25,6 +35,11 @@ export type WithdrawEarnParameters = {
    * Defaults to Token.LBTC. Must be a deposit-side asset accepted by the vault.
    */
   withdrawalAsset?: Token;
+  /**
+   * Withdrawal queue to route the request to. Defaults to `'atomic'` to
+   * preserve legacy behavior; pass `'boring'` to use the BoringOnChainQueue.
+   */
+  queue?: EarnWithdrawQueue;
 } & CommonWriteParameters;
 
 export interface WithdrawEarnResult {
@@ -66,6 +81,7 @@ export interface WithdrawEarnResult {
 export async function withdrawEarn({
   amount: amountRaw,
   withdrawalAsset = Token.LBTC,
+  queue = 'atomic',
   account,
   chainId,
   provider,
@@ -78,6 +94,8 @@ export async function withdrawEarn({
     );
   }
 
+  const useBoringQueue = queue === 'boring';
+
   const amount = BigNumber(amountRaw);
   if (!amount.isGreaterThan(0)) {
     throw new Error(
@@ -89,8 +107,20 @@ export async function withdrawEarn({
   const vaultAddress = vault.vaultContract.address as Address;
   const accountantAddress = vault.accountantContract.address as Address;
   const lensAddress = vault.lensContract.address as Address;
-  const queueAddress = vault.withdrawQueueContracts[chainId].address as Address;
-  const queueAbi = vault.withdrawQueueContracts[chainId].abi;
+
+  const boringQueue = vault.boringQueueContracts[chainId as EarnChain];
+  if (useBoringQueue && !boringQueue) {
+    throw new Error(
+      `BoringQueue withdrawals are not available on chain ${chainId}. Supported: ${Object.keys(
+        vault.boringQueueContracts,
+      ).join(', ')}.`,
+    );
+  }
+  const queueContract = useBoringQueue
+    ? boringQueue!
+    : vault.withdrawQueueContracts[chainId];
+  const queueAddress = queueContract.address as Address;
+  const queueAbi = queueContract.abi;
 
   const withdrawTokenInfo = await getTokenInfo(
     withdrawalAsset,
@@ -218,29 +248,55 @@ export async function withdrawEarn({
   }
 
   // --- Step 3: queue (always) ---
-  const expiry = BigNumber(Date.now())
-    .dividedBy(1000)
-    .plus(BigNumber(vault.queueWithdrawDaysValid).multipliedBy(DAY / 1000))
-    .decimalPlaces(0, BigNumber.ROUND_DOWN);
-  const discount = BigNumber(vault.queueWithdrawDiscountPercent).multipliedBy(
-    10000,
-  );
-
   try {
-    const { request } = await publicClient.simulateContract({
-      account,
-      chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
-      address: queueAddress,
-      abi: queueAbi,
-      functionName: 'safeUpdateAtomicRequest',
-      args: [
-        vaultAddress,
-        withdrawTokenInfo.address,
-        [BigInt(expiry.toFixed(0)), 0n, amountBase, false],
-        accountantAddress,
-        BigInt(discount.toFixed(0)),
-      ],
-    });
+    const { request } = useBoringQueue
+      ? await publicClient.simulateContract({
+          account,
+          chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+          address: queueAddress,
+          abi: queueAbi,
+          // BoringOnChainQueue.requestOnChainWithdraw(assetOut, amountOfShares, discount, secondsToDeadline)
+          functionName: 'requestOnChainWithdraw',
+          args: [
+            withdrawTokenInfo.address,
+            amountBase, // uint128 amountOfShares
+            Number(vault.boringQueueDiscountBps), // uint16 discount (bps)
+            Number(
+              BigNumber(vault.boringQueueDaysValid)
+                .multipliedBy(DAY / 1000)
+                .toFixed(0),
+            ), // uint24 secondsToDeadline
+          ],
+        })
+      : await (() => {
+          // Legacy AtomicQueue.safeUpdateAtomicRequest(offer, want, request, accountant, discount)
+          const expiry = BigNumber(Date.now())
+            .dividedBy(1000)
+            .plus(
+              BigNumber(vault.queueWithdrawDaysValid).multipliedBy(
+                DAY / 1000,
+              ),
+            )
+            .decimalPlaces(0, BigNumber.ROUND_DOWN);
+          const discount = BigNumber(
+            vault.queueWithdrawDiscountPercent,
+          ).multipliedBy(10000);
+
+          return publicClient.simulateContract({
+            account,
+            chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+            address: queueAddress,
+            abi: queueAbi,
+            functionName: 'safeUpdateAtomicRequest',
+            args: [
+              vaultAddress,
+              withdrawTokenInfo.address,
+              [BigInt(expiry.toFixed(0)), 0n, amountBase, false],
+              accountantAddress,
+              BigInt(discount.toFixed(0)),
+            ],
+          });
+        })();
     result.queueTxHash = await walletClient.writeContract(request);
   } catch (err) {
     throw new Error(
