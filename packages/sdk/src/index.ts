@@ -207,6 +207,7 @@ export { ActionEvent } from './shared/events';
 
 // Error handling
 export {
+  AuthErrorCode,
   ContractErrorCode,
   ErrorCode,
   isLombardError,
@@ -619,6 +620,10 @@ export {
   type ISignStakeAndBakeResult,
   signStakeAndBake,
 } from './contract-functions/signStakeAndBake/signStakeAndBake';
+export {
+  calculateStakeAndBakeLBTCAmount,
+  toStakeAndBakePermitValue,
+} from './contract-functions/signStakeAndBake/utils';
 export { getStakeAndBakeConfig } from './contract-functions/signStakeAndBake/validation';
 export {
   type IUnstakeLBTCParams,

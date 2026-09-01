@@ -129,6 +129,18 @@ export function getSdkHeaders(): Record<string, string> {
  * });
  * ```
  */
+/**
+ * The path part of a URL, for a message that names a call without quoting the
+ * whole thing. Tolerates a relative URL, which callers do pass.
+ */
+function pathOf(url: string): string {
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return url.split('?')[0] ?? url;
+  }
+}
+
 export async function httpRequest<T = unknown>(
   options: HttpRequestOptions,
 ): Promise<HttpResponse<T>> {
@@ -169,8 +181,11 @@ export async function httpRequest<T = unknown>(
   if (scope === 'userScoped' && !authToken && !callerSuppliedAuth) {
     throw new LombardError(
       AuthErrorCode.MISSING_TOKEN,
-      `${fullUrl} needs a wallet token and none was available. Supply ` +
-        `\`auth\` on the SDK config, or sign in before calling this.`,
+      // Says the request was not sent. Leading with the URL read as a report
+      // of a failed call, which sent readers into the network panel looking
+      // for one — nothing is sent on this path. The full URL stays in details.
+      `No wallet token was available, so ${pathOf(fullUrl)} was not sent. ` +
+        `Supply \`auth\` on the SDK config, or sign in before calling this.`,
       { url: fullUrl, scope },
     );
   }

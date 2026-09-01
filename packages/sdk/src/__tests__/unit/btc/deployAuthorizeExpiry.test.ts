@@ -32,6 +32,9 @@ const { PAST_VALIDATION } = vi.hoisted(() => ({
 }));
 vi.mock('../../../contract-functions/signStakeAndBake/utils', () => ({
   calculateStakeAndBakeLBTCAmount: vi.fn().mockRejectedValue(PAST_VALIDATION),
+  // The permit value is what signStakeAndBake reaches for now; the ratio helper
+  // sits behind it. Both are stubbed so the sentinel fires whichever is called.
+  toStakeAndBakePermitValue: vi.fn().mockRejectedValue(PAST_VALIDATION),
   getStakeAndBakeTokenContract: vi.fn().mockRejectedValue(PAST_VALIDATION),
   getPermitValue: vi.fn().mockRejectedValue(PAST_VALIDATION),
 }));
