@@ -353,11 +353,20 @@ export class BtcDepositBtcb
         BtcActionStatus.NEEDS_FEE_AUTHORIZATION,
         BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION,
         BtcActionStatus.READY,
+        BtcActionStatus.ADDRESS_READY,
       ],
       'authorize',
     );
 
-    if (this.status === BtcActionStatus.READY) return;
+    // ADDRESS_READY is reachable straight out of an authorization on the resume
+    // path, where a deposit address is already held. Authorization is done in
+    // both states, so both are a no-op rather than a re-signature.
+    if (
+      this.status === BtcActionStatus.READY ||
+      this.status === BtcActionStatus.ADDRESS_READY
+    ) {
+      return;
+    }
 
     const recipient = this.ensureRecipient();
     const feeAuthConfig = this.feeAuthConfig;
@@ -387,7 +396,7 @@ export class BtcDepositBtcb
         this.authState.signature = result.signature;
         this.authState.typedData = result.typedData;
         this.authState.authorized = true;
-      }, BtcActionStatus.READY);
+      }, this.authorizedStatus);
     }
 
     return this.act(async () => {
@@ -400,7 +409,7 @@ export class BtcDepositBtcb
       this.authState.signature = result.signature;
       this.authState.typedData = result.typedData;
       this.authState.authorized = true;
-    }, BtcActionStatus.READY);
+    }, this.authorizedStatus);
   }
 
   /**
@@ -422,7 +431,11 @@ export class BtcDepositBtcb
     }
 
     this.assertStatus(
-      [BtcActionStatus.NEEDS_FEE_AUTHORIZATION, BtcActionStatus.READY],
+      [
+        BtcActionStatus.NEEDS_FEE_AUTHORIZATION,
+        BtcActionStatus.READY,
+        BtcActionStatus.ADDRESS_READY,
+      ],
       'authorizeFee',
     );
 
@@ -445,7 +458,11 @@ export class BtcDepositBtcb
     }
 
     this.assertStatus(
-      [BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION, BtcActionStatus.READY],
+      [
+        BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION,
+        BtcActionStatus.READY,
+        BtcActionStatus.ADDRESS_READY,
+      ],
       'confirmAddress',
     );
 

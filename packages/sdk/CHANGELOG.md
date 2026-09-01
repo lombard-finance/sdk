@@ -10,6 +10,8 @@ migrate once.
 
   Two things changed in the fold. `requestWalletChallenge` and `verifyWalletSignature` arrived using `axios` directly; on this branch they go through `utils/http`, which the auth-token boundary test requires of anything resolving a Lombard host, so the new challenge fields were re-applied on top of the wrapper. And `AuthorizeDepositOptions` — 5.4.0's name for the deploy authorize options — is now a deprecated alias of `BtcAuthorizeOptions`, the unified name the collapsed `authorize()` takes.
 
+- **`BtcAuthorizeOptions` is exported from the package root.** The type every BTC action's `authorize()` accepts was only reachable through a deep import, so a consumer holding those options in a variable had to re-declare the shape inline and lost the documentation attached to it.
+
 ### Breaking
 
 - **Two per-account vault routes now require a wallet token.** `getEarnDeposits` and `getEarnWithdrawals` hit `sevenseas-api/{deposits,withdraw-requests}/<network>/<vault>/<account>` — a path keyed by an address — so they are `userScoped` and fail before sending when no token is available, with a `missing-token` error naming the config field that fixes it.
@@ -27,6 +29,12 @@ migrate once.
   **Wire values are unchanged**, so `action.on('progress', ...)`, `'status-change'`, `'completed'`, `'failed'` and `'error'` behave exactly as before. The nine old names were briefly kept as deprecated aliases; they are **removed** in this release rather than deferred, for the reason the verbs went without delegators — a name kept alive keeps being copied. `StrategyEventMap` and `StrategyEvent` were nine-member unions of structurally identical types, which made each equivalent to any single member, and are now that single type.
 
 ### Fixed
+
+- **`authorize()` reported `READY` on a resumed flow that already held a deposit address.** `READY` means "authorized, address still to be generated". A resume is past that: `prepare()` restores the deposit address and only the signature has lapsed, so re-signing it leaves the action address-ready. It now resolves to `ADDRESS_READY` when an address is held, and to `READY` when one is not.
+
+  Nothing was at risk — `generateDepositAddress()` returns a held address without a network call — but the status is what a consumer reads to choose the next step, so a UI following it offered to generate an address it was displaying on the same screen.
+
+  Two call-order consequences come with it. `generateDepositAddress()` returns a held address _before_ asserting status, so the documented `prepare` → `authorize` → `generateDepositAddress` sequence still works from `ADDRESS_READY`; and `authorize()` accepts `ADDRESS_READY` as a no-op alongside `READY`. On the BTC.b deposit route that second half was a live defect in its own right: every destination there is subsidized, so a resume reports `ADDRESS_READY` straight out of `prepare()`, and `ADDRESS_READY` was missing from the statuses `authorize()` accepted — the documented next call threw `INVALID_STATE` on the path it exists to serve.
 
 - **The shipped declarations resolved to `any` for a large part of the surface.**
 

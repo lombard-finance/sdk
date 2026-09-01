@@ -357,6 +357,20 @@ export abstract class BaseBtcAction<
     }
   }
 
+  /**
+   * The status an authorization ceremony resolves to.
+   *
+   * `ready` means "authorized, address still to be generated". A resumed flow
+   * is already past that: `prepare()` restored the deposit address, and only
+   * the signature had lapsed. Reporting `ready` there put two contradictory
+   * instructions on one screen — here is your address, and also generate your
+   * address — because a consumer reads this status to pick the next step.
+   */
+  protected get authorizedStatus(): TStatus {
+    const { ready, addressReady } = this.getStatusConfig();
+    return this._depositAddress ? addressReady : ready;
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // Common Generate Deposit Address
   // ─────────────────────────────────────────────────────────────────────────
@@ -376,12 +390,15 @@ export abstract class BaseBtcAction<
   ): Promise<string> {
     const statusConfig = this.getStatusConfig();
 
-    this.assertStatus(statusConfig.ready, 'generateDepositAddress');
-    this.ensureAuthorized();
-
+    // Return a held address before asserting status. A resumed flow reaches
+    // `addressReady` while holding one, so asserting `ready` first threw
+    // INVALID_STATE for the returning user this branch exists to serve.
     if (this._depositAddress) {
       return this._depositAddress;
     }
+
+    this.assertStatus(statusConfig.ready, 'generateDepositAddress');
+    this.ensureAuthorized();
 
     return this.act(async () => {
       const apiParams = this.getDepositAddressParams(captchaToken);

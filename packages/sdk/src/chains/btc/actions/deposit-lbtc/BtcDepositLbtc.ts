@@ -344,11 +344,20 @@ export class BtcDepositLbtc
         BtcActionStatus.NEEDS_FEE_AUTHORIZATION,
         BtcActionStatus.NEEDS_ADDRESS_CONFIRMATION,
         BtcActionStatus.READY,
+        BtcActionStatus.ADDRESS_READY,
       ],
       'authorize',
     );
 
-    if (this.status === BtcActionStatus.READY) return;
+    // ADDRESS_READY is reachable straight out of an authorization on the resume
+    // path, where a deposit address is already held. Authorization is done in
+    // both states, so both are a no-op rather than a re-signature.
+    if (
+      this.status === BtcActionStatus.READY ||
+      this.status === BtcActionStatus.ADDRESS_READY
+    ) {
+      return;
+    }
 
     const recipient = this.ensureRecipient();
     const needsFeeAuth = this.feeAuthConfig !== null;
@@ -377,16 +386,18 @@ export class BtcDepositLbtc
       }
 
       this.authState.authorized = true;
-    }, BtcActionStatus.READY);
+    }, this.authorizedStatus);
   }
 
   async generateDepositAddress(captchaToken?: string): Promise<string> {
-    this.assertStatus(BtcActionStatus.READY, 'generateDepositAddress');
-    this.ensureAuthorized();
-
+    // Held address first: authorize() resolves to ADDRESS_READY on the resume
+    // path, so asserting READY here would throw on the documented sequence.
     if (this._depositAddress) {
       return this._depositAddress;
     }
+
+    this.assertStatus(BtcActionStatus.READY, 'generateDepositAddress');
+    this.ensureAuthorized();
 
     // If no signature is available locally (fee auth exists on server but wasn't returned),
     // fall back to signing the destination address

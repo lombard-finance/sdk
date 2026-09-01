@@ -9,6 +9,10 @@
 // Main exports
 export { BtcActions, btcActions } from './BtcActions';
 
+// Options accepted by every BTC action's authorize(). Exported by name so a
+// consumer can type a variable holding them rather than inlining the shape.
+export type { BtcAuthorizeOptions } from './actions/shared';
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Unified BTC Action Status
 // ═══════════════════════════════════════════════════════════════════════════

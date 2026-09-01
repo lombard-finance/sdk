@@ -259,11 +259,23 @@ export class BtcDeployBtcb
    */
   async authorize(options?: BtcAuthorizeOptions): Promise<void> {
     this.assertStatus(
-      [BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION, BtcActionStatus.READY],
+      [
+        BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION,
+        BtcActionStatus.READY,
+        BtcActionStatus.ADDRESS_READY,
+      ],
       'authorize',
     );
 
-    if (this.status === BtcActionStatus.READY) return;
+    // ADDRESS_READY is reachable straight out of an authorization on the
+    // resume path, where a deposit address is already held. Authorization is
+    // done in both states, so both are a no-op rather than a re-signature.
+    if (
+      this.status === BtcActionStatus.READY ||
+      this.status === BtcActionStatus.ADDRESS_READY
+    ) {
+      return;
+    }
 
     const recipient = this.ensureRecipient();
     const amount = this.ensureAmount();
@@ -294,7 +306,7 @@ export class BtcDeployBtcb
       this.authState.signature = result.signature;
       this.authState.typedData = result.typedData;
       this.authState.authorized = true;
-    }, BtcActionStatus.READY);
+    }, this.authorizedStatus);
   }
 
   /**
@@ -305,12 +317,14 @@ export class BtcDeployBtcb
   }
 
   async generateDepositAddress(captchaToken?: string): Promise<string> {
-    this.assertStatus(BtcActionStatus.READY, 'generateDepositAddress');
-    this.ensureAuthorized();
-
+    // Held address first: authorize() resolves to ADDRESS_READY on the resume
+    // path, so asserting READY here would throw on the documented sequence.
     if (this._depositAddress) {
       return this._depositAddress;
     }
+
+    this.assertStatus(BtcActionStatus.READY, 'generateDepositAddress');
+    this.ensureAuthorized();
 
     return this.act(async () => {
       const apiParams = this.getDepositAddressParams(captchaToken);

@@ -743,6 +743,7 @@ exports[`public export surface > root entry (.) exports a stable set of names 1`
   "BridgeTokenAddresses",
   "BtcActionStatus",
   "BtcActions",
+  "BtcAuthorizeOptions",
   "BtcCoreContext",
   "BtcDeployBtcb",
   "BtcDeployBtcbParams",

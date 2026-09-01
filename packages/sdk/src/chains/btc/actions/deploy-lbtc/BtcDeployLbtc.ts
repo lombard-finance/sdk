@@ -377,7 +377,7 @@ export class BtcDeployLbtc
       this.authState.signature = result.signature;
       this.authState.typedData = result.typedData;
       this.authState.authorized = true;
-    }, BtcActionStatus.READY);
+    }, this.authorizedStatus);
   }
 
   /**

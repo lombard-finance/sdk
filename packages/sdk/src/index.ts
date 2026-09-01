@@ -223,6 +223,7 @@ export type { LogMeta, MonitorableAction } from './shared/actions/BaseAction';
 
 // BTC types and direct actions
 export type {
+  BtcAuthorizeOptions,
   BtcDeployBtcbParams,
   BtcDeployBtcbPrepareParams,
   BtcDeployBtcbProgress,
