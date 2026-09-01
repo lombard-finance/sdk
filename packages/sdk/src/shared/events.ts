@@ -4,8 +4,9 @@
  * Every action emits the same five events with the same wire values. This module
  * used to declare that set nine times — once per operation — as nine const
  * objects and nine handler-map interfaces with byte-identical members. They are
- * now one `ActionEvent` / `ActionEventMap`, with the nine former names kept as
- * deprecated aliases.
+ * now one `ActionEvent` / `ActionEventMap`. The nine former names were briefly
+ * kept as deprecated aliases and are removed in 6.0.0 — a name kept alive is a
+ * name that keeps being copied.
  *
  * The collapse is wire-compatible by construction: the string values are
  * unchanged, so `action.on('progress', ...)` behaves exactly as before.
