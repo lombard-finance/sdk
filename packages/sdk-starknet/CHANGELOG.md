@@ -5,6 +5,18 @@ All notable changes to `@lombard.finance/sdk-starknet` will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2026-09-01
+
+### Changed
+
+- Depends on `@lombard.finance/sdk-common@4.4.0`. That dependency is written as `workspace:*` and rewritten to an exact version at publish time, so reaching 4.4.0 requires a release of this package.
+
+### Added
+
+- A `test` script and unit tests for the chain utilities. The package had no test script, so `turbo test` skipped it entirely.
+
+No public API change.
+
 ## [0.3.3] - 2026-08-11
 
 ### Fixed
