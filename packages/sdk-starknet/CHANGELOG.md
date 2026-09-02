@@ -15,11 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **A single public RPC node per chain, with no failover, failed misleadingly.** Once its quota was spent the node answered JSON-RPC `-32601` — "the method starknet_call does not exist/is not available" — which reads as a protocol problem and is a rate limit. Every entry in `PUBLIC_KEY_GETTERS` then failed, `getPublicKey` found nothing, and the resulting error named the _account_: a healthy, correctly deployed account looked broken.
+- **A single public RPC node per chain, with no failover, failed misleadingly.** Once its quota was spent the node answered JSON-RPC `-32601` — "the method starknet*call does not exist/is not available" — which reads as a protocol problem and is a rate limit. Every entry in `PUBLIC_KEY_GETTERS` then failed, `getPublicKey` found nothing, and the resulting error named the \_account*: a healthy, correctly deployed account looked broken.
 
   Endpoints are now a list per chain, tried in order. A request fails over on a non-ok status, a 15-second timeout, a body that is not JSON, or a JSON-RPC code in `-32601 / -32005 / -32603 / 429`. `-32601` is the surprising member: a code that normally means "unsupported" has to be treated as retryable because that is how a throttled node reports a limit.
 
-  The default endpoints are unchanged, so this carries no new assumptions about hosts — choosing better ones is an operational decision, which is what the new setter is for.
+  Each chain now lists two endpoints, ordered by measured reliability rather than preference. Twelve sequential `starknet_call` requests from a cold client: lava mainnet 12/12, cartridge mainnet 12/12, cartridge Sepolia 12/12, **drpc Sepolia 9/12** — three of them the `-32601` above. Sepolia's sole endpoint was therefore failing about a quarter of the time at trivial volume, and it is now the fallback behind one that did not fail. Mainnet was never the problem; a second endpoint joins it rather than replacing it.
+
+  All four are free and need no key.
 
 - **`getPublicKey` kept asking after it had the answer.** An account contract has exactly one of the four getters, so every call after the one that answers is a certain failure: four requests per signature where one is needed, three of them guaranteed refusals, against the node that may be throttling because of them. It now stops at the first hit.
 

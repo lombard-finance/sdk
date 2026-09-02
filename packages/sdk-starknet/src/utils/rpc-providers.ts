@@ -12,14 +12,32 @@ import { StarknetChainId } from './chains';
  * limit. Every public-key getter then fails and the error names the account,
  * so a healthy, correctly deployed account looks broken.
  *
- * The endpoints here are the ones that were pinned before, kept so this change
- * carries no new assumptions about hosts. Choosing better ones is an
- * operational decision — the useful endpoints need a key — which is what
- * {@link setStarknetRpcEndpoints} exists for.
+ * Order is by measured reliability, not preference. Twelve sequential
+ * `starknet_call` requests per endpoint, from a cold client:
+ *
+ * ```
+ * mainnet   lava                12/12
+ * mainnet   cartridge           12/12
+ * sepolia   cartridge           12/12
+ * sepolia   drpc                 9/12   <- 3x -32601
+ * ```
+ *
+ * So Sepolia's previous sole endpoint fails about a quarter of the time at
+ * trivial volume, which is what put it second here. Mainnet was never the
+ * problem; `cartridge` joins it as a fallback rather than replacing it.
+ *
+ * All four are free and need no key. If that changes, or a node is retired,
+ * {@link setStarknetRpcEndpoints} replaces the list without a release.
  */
 const DEFAULT_RPC_ENDPOINTS: Record<StarknetChainId, readonly string[]> = {
-  [StarknetChainId.SN_MAIN]: ['https://rpc.starknet.lava.build:443'],
-  [StarknetChainId.SN_SEPOLIA]: ['https://starknet-sepolia.drpc.org'],
+  [StarknetChainId.SN_MAIN]: [
+    'https://rpc.starknet.lava.build:443',
+    'https://api.cartridge.gg/x/starknet/mainnet',
+  ],
+  [StarknetChainId.SN_SEPOLIA]: [
+    'https://api.cartridge.gg/x/starknet/sepolia',
+    'https://starknet-sepolia.drpc.org',
+  ],
 };
 
 /** Per-request deadline. A node that has stopped answering must not hang a signature. */
