@@ -30,6 +30,12 @@ migrate once.
 
 ### Fixed
 
+- **The all-chains vault reads never forwarded the wallet token, so they could not work at all.** `getEarnWithdrawalsAllChains` and `getEarnDepositsAllChains` did not destructure `auth`, so neither passed it to the per-chain read it fans out to. Those per-chain reads are `userScoped` and refuse before sending without a token, so every chain came back `missing-token` with no request made — the single-chain read worked and the all-chains read failed whatever the caller supplied.
+
+  `auth` reaches these functions inside `IEnvParam`, so omitting it from the destructuring was accepted by the type and silently dropped. The namespace had already been repaired to forward the provider; the ops stopped one step short of using it.
+
+  Nothing caught it because the test that covers the boundary mocks the ops module, so it asserts the provider is _sent_ to each op rather than that it arrives anywhere — the real function never runs and its dropped parameter is invisible. A second test now drives the real ops against a mocked HTTP boundary and asserts the token reaches each chain's request; stubbing the sibling export would not have worked either, since the op calls its module-local binding rather than the module object.
+
 - **`authorize()` reported `READY` on a resumed flow that already held a deposit address.** `READY` means "authorized, address still to be generated". A resume is past that: `prepare()` restores the deposit address and only the signature has lapsed, so re-signing it leaves the action address-ready. It now resolves to `ADDRESS_READY` when an address is held, and to `READY` when one is not.
 
   Nothing was at risk — `generateDepositAddress()` returns a held address without a network call — but the status is what a consumer reads to choose the next step, so a UI following it offered to generate an address it was displaying on the same screen.

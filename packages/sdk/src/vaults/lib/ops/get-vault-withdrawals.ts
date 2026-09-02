@@ -318,6 +318,13 @@ export async function getEarnWithdrawalsAllChains({
   account,
   rpcUrl,
   env,
+  // Destructured, because the per-chain read refuses before sending without
+  // it. `auth` reaches this function inside `IEnvParam`, so omitting it here
+  // was accepted by the type and silently dropped: the namespace forwarded a
+  // provider that this function then declined to pass on. Every chain came
+  // back MISSING_TOKEN and no request was ever made, which made the all-chains
+  // read unusable at any session state while the single-chain read worked.
+  auth,
 }: GetEarnWithdrawalsAllChainsParameters): Promise<EarnWithdrawals> {
   const vault = EARN_VAULT;
 
@@ -342,7 +349,7 @@ export async function getEarnWithdrawalsAllChains({
   // Each chain is read independently so one failure does not lose the others,
   // but a failure is now carried out rather than logged and discarded.
   const withdrawalsPromises = vault.chains.map((chainId: EarnChain) =>
-    getEarnWithdrawals({ account, chainId, rpcUrl, env }).catch(
+    getEarnWithdrawals({ account, chainId, rpcUrl, env, auth }).catch(
       (error: unknown) => ({
         cancelled: [],
         expired: [],

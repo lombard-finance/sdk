@@ -7,6 +7,13 @@
  * built with `env` alone, so a host that supplied `auth` still saw those calls
  * fail — signing in changed nothing, which is what QA hit on APP-2583.
  *
+ * Scope, because it has been over-read once already: these tests mock the ops
+ * module, so they assert that the namespace **sends** `auth` to each op — not
+ * that it arrives anywhere useful. Both `*AllChains` ops accepted it and then
+ * failed to forward it to their per-chain reads, which this file cannot see
+ * and did not catch. `unit/vaults/allChainsAuth.test.ts` runs the real ops
+ * against a mocked HTTP boundary and covers that half.
+ *
  * @module __tests__/unit/api/apiNamespaceAuth.test
  */
 

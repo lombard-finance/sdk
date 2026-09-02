@@ -183,11 +183,15 @@ export async function getEarnDepositsAllChains({
   account,
   rpcUrl,
   env,
+  // Same as the withdrawals op beside this one: the per-chain read is
+  // user-scoped and refuses before sending without a token, and `auth` arrives
+  // inside `IEnvParam` so dropping it type-checks.
+  auth,
 }: GetEarnDepositsAllChainsParameters): Promise<EarnDeposit[]> {
   const vault = EARN_VAULT;
   // Fetch deposits from all supported chains in parallel
   const depositsPromises = vault.chains.map((chainId: EarnChain) =>
-    getEarnDeposits({ account, chainId, rpcUrl, env }).catch(
+    getEarnDeposits({ account, chainId, rpcUrl, env, auth }).catch(
       (error: unknown) => {
         console.error(`Failed to fetch deposits for chain ${chainId}:`, error);
         return []; // Return empty array on error to not break the entire query
