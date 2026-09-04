@@ -77,10 +77,8 @@ function stripComments(source: string): string {
 // someone remembered to list, which is the gap these suites exist to close.
 // No input reaches them from outside the repository.
 function sourceFiles(dir: string, found: string[] = []): string[] {
-  // nosemgrep
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
-    // nosemgrep
     if (statSync(full).isDirectory()) {
       if (entry === '__tests__' || entry === 'node_modules') continue;
       sourceFiles(full, found);
@@ -96,7 +94,7 @@ function abiMethodNames(): Map<string, string[]> {
   const found = new Map<string, string[]>();
 
   for (const file of sourceFiles(SRC)) {
-    const text = stripComments(readFileSync(file, 'utf8')); // nosemgrep
+    const text = stripComments(readFileSync(file, 'utf8'));
     for (const match of text.matchAll(/functionName:\s*'([^']+)'/g)) {
       const rel = file.slice(SRC.length + 1);
       found.set(match[1], [...(found.get(match[1]) ?? []), rel]);

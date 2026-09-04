@@ -46,11 +46,18 @@ export function collectExports(source: string): string[] {
   // Braced export lists, including `export type { … }` and multi-line bodies.
   //
   // The optional group leads with its own `\s+` rather than trailing one, so
-  // no two whitespace quantifiers sit adjacent: each is anchored by the literal
-  // that follows it, and a long run of whitespace has exactly one way to match
-  // instead of a number of ways that grows with its length. Matches the same
-  // input as `export\s+(?:type\s+)?\{` — a space is still required before the
-  // brace, so bare `export{…}` is out of scope here as it was before.
+  // that no two whitespace quantifiers sit adjacent: each is anchored by the
+  // literal after it, and a run of whitespace has one way to match rather than
+  // a number of ways that grows with its length. Matches exactly what
+  // `export\s+(?:type\s+)?\{` did — a space is still required before the
+  // brace, so bare `export{…}` stays out of scope as it was.
+  //
+  // Note that this does not satisfy a star-height check such as
+  // `detect-unsafe-regex`, and is not meant to: that measures nesting rather
+  // than ambiguity, and objects to the `\s+` inside `(?:…)?` — which an
+  // optional keyword cannot avoid without splitting this into one pattern per
+  // keyword. Worth knowing before anyone rearranges it for that reason. The
+  // input is this package's own source, so no adversarial string reaches here.
   const braced = clean.matchAll(/export(?:\s+type)?\s+\{([^}]*)\}/g);
   for (const match of braced) {
     for (const raw of match[1].split(',')) {
@@ -72,6 +79,8 @@ export function collectExports(source: string): string[] {
   // group with `\s+` instead leaves one division per input. Accepts the same
   // declarations: `export const`, `export declare const`, `export abstract
   // class`, `export declare abstract class`.
+  //
+  // Carries the same star height as the pattern above, for the same reason.
   const declared = clean.matchAll(
     /export(?:\s+declare)?(?:\s+abstract)?\s+(?:const|let|var|function\*?|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g,
   );

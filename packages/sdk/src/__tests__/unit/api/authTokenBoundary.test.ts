@@ -134,17 +134,16 @@ describe('nothing Lombard-bound bypasses utils/http', () => {
   // someone remembered to list, which is the gap these suites exist to close.
   // No input reaches them from outside the repository.
   function tsFilesUnder(dir: string): string[] {
-    // nosemgrep
     return readdirSync(dir).flatMap((entry) => {
       if (SKIP.has(entry)) return [];
       const full = join(dir, entry);
-      if (statSync(full).isDirectory()) return tsFilesUnder(full); // nosemgrep
+      if (statSync(full).isDirectory()) return tsFilesUnder(full);
       return full.endsWith('.ts') && !full.endsWith('.test.ts') ? [full] : [];
     });
   }
 
   const lombardBound = tsFilesUnder(SRC).filter((f) => {
-    const src = readFileSync(f, 'utf8'); // nosemgrep
+    const src = readFileSync(f, 'utf8');
     return /getApiConfig\s*\(/.test(src) && !f.endsWith('api-config.ts');
   });
 
@@ -155,11 +154,10 @@ describe('nothing Lombard-bound bypasses utils/http', () => {
 
   it('none of them calls axios directly', () => {
     const offenders = lombardBound
-      .filter(
-        (f) =>
-          // Imports and comments are stripped first: `AxiosError` is a legitimate
-          // type import, and prose mentioning axios is not a call.
-          /\baxios[.(]/.test(stripImportsAndComments(readFileSync(f, 'utf8'))), // nosemgrep
+      .filter((f) =>
+        // Imports and comments are stripped first: `AxiosError` is a legitimate
+        // type import, and prose mentioning axios is not a call.
+        /\baxios[.(]/.test(stripImportsAndComments(readFileSync(f, 'utf8'))),
       )
       .map((f) => f.slice(SRC.length + 1));
 

@@ -66,7 +66,7 @@ const PUBLIC_CONTRACT_MODULES = [
 // someone remembered to list, which is the gap these suites exist to close.
 // No input reaches them from outside the repository.
 function read(rel: string): string {
-  return readFileSync(join(SRC, rel), 'utf8'); // nosemgrep
+  return readFileSync(join(SRC, rel), 'utf8');
 }
 
 /** Every name reachable through any public entry point. */

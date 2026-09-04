@@ -30,7 +30,7 @@ const ENTRIES_DIR = join(SRC, 'entries');
 // someone remembered to list, which is the gap these suites exist to close.
 // No input reaches them from outside the repository.
 function readModule(path: string): string {
-  return readFileSync(path, 'utf8'); // nosemgrep
+  return readFileSync(path, 'utf8');
 }
 
 const entryFiles = readdirSync(ENTRIES_DIR)
