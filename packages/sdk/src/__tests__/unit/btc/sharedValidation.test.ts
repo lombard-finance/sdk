@@ -347,10 +347,16 @@ describe('the shipped configs validate their own routes', () => {
       ].find((chain) => !declared.has(chain));
 
       // Every config declares only Bitcoin source chains, so an EVM chain is
-      // always available as the negative case.
-      expect(undeclared).toBeDefined();
+      // always available as the negative case. Narrowed by a throw rather than
+      // asserted non-null: `expect` does not narrow, and a `!` here would let
+      // the loop below run against `undefined` and pass for the wrong reason
+      // if that ever stopped holding.
+      if (!undeclared) {
+        throw new Error('expected an undeclared source chain to test against');
+      }
+
       for (const env of [ENV_PROD, ENV_TESTNET]) {
-        expect(isRouteAvailable(config.routes, undeclared!, env)).toBe(false);
+        expect(isRouteAvailable(config.routes, undeclared, env)).toBe(false);
       }
     });
 

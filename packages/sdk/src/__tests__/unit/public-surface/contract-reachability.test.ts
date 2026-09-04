@@ -60,8 +60,13 @@ const PUBLIC_CONTRACT_MODULES = [
  * pass. The v5-conformance suite is what pins meaning.
  */
 
+// These tests assert on the package's own source: they walk `src` and read
+// what they find, so the path is discovered rather than written down. That is
+// the property being checked — a literal path could only ever cover the files
+// someone remembered to list, which is the gap these suites exist to close.
+// No input reaches them from outside the repository.
 function read(rel: string): string {
-  return readFileSync(join(SRC, rel), 'utf8');
+  return readFileSync(join(SRC, rel), 'utf8'); // nosemgrep
 }
 
 /** Every name reachable through any public entry point. */

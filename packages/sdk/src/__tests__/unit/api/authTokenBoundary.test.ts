@@ -128,17 +128,23 @@ describe('nothing Lombard-bound bypasses utils/http', () => {
       .replace(/^import [\s\S]*?from '[^']*';$/gm, '');
   }
 
+  // These tests assert on the package's own source: they walk `src` and read
+  // what they find, so the path is discovered rather than written down. That is
+  // the property being checked — a literal path could only ever cover the files
+  // someone remembered to list, which is the gap these suites exist to close.
+  // No input reaches them from outside the repository.
   function tsFilesUnder(dir: string): string[] {
+    // nosemgrep
     return readdirSync(dir).flatMap((entry) => {
       if (SKIP.has(entry)) return [];
       const full = join(dir, entry);
-      if (statSync(full).isDirectory()) return tsFilesUnder(full);
+      if (statSync(full).isDirectory()) return tsFilesUnder(full); // nosemgrep
       return full.endsWith('.ts') && !full.endsWith('.test.ts') ? [full] : [];
     });
   }
 
   const lombardBound = tsFilesUnder(SRC).filter((f) => {
-    const src = readFileSync(f, 'utf8');
+    const src = readFileSync(f, 'utf8'); // nosemgrep
     return /getApiConfig\s*\(/.test(src) && !f.endsWith('api-config.ts');
   });
 
@@ -149,10 +155,11 @@ describe('nothing Lombard-bound bypasses utils/http', () => {
 
   it('none of them calls axios directly', () => {
     const offenders = lombardBound
-      .filter((f) =>
-        // Imports and comments are stripped first: `AxiosError` is a legitimate
-        // type import, and prose mentioning axios is not a call.
-        /\baxios[.(]/.test(stripImportsAndComments(readFileSync(f, 'utf8'))),
+      .filter(
+        (f) =>
+          // Imports and comments are stripped first: `AxiosError` is a legitimate
+          // type import, and prose mentioning axios is not a call.
+          /\baxios[.(]/.test(stripImportsAndComments(readFileSync(f, 'utf8'))), // nosemgrep
       )
       .map((f) => f.slice(SRC.length + 1));
 

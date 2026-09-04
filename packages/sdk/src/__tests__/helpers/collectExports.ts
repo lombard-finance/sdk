@@ -44,7 +44,14 @@ export function collectExports(source: string): string[] {
   const names = new Set<string>();
 
   // Braced export lists, including `export type { … }` and multi-line bodies.
-  const braced = clean.matchAll(/export\s+(?:type\s+)?\{([^}]*)\}/g);
+  //
+  // The optional group leads with its own `\s+` rather than trailing one, so
+  // no two whitespace quantifiers sit adjacent: each is anchored by the literal
+  // that follows it, and a long run of whitespace has exactly one way to match
+  // instead of a number of ways that grows with its length. Matches the same
+  // input as `export\s+(?:type\s+)?\{` — a space is still required before the
+  // brace, so bare `export{…}` is out of scope here as it was before.
+  const braced = clean.matchAll(/export(?:\s+type)?\s+\{([^}]*)\}/g);
   for (const match of braced) {
     for (const raw of match[1].split(',')) {
       const part = raw.replace(/\btype\b/g, '').trim();
@@ -57,8 +64,16 @@ export function collectExports(source: string): string[] {
   }
 
   // Direct declarations.
+  //
+  // Same rewrite as above, and it matters more here: `\s+(?:declare\s+)?
+  // (?:abstract\s+)?` put three whitespace quantifiers in a row, and on a long
+  // run each additional character multiplied the ways they could be divided
+  // before the keyword alternation ruled the split out. Leading each optional
+  // group with `\s+` instead leaves one division per input. Accepts the same
+  // declarations: `export const`, `export declare const`, `export abstract
+  // class`, `export declare abstract class`.
   const declared = clean.matchAll(
-    /export\s+(?:declare\s+)?(?:abstract\s+)?(?:const|let|var|function\*?|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g,
+    /export(?:\s+declare)?(?:\s+abstract)?\s+(?:const|let|var|function\*?|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g,
   );
   for (const match of declared) names.add(match[1]);
 

@@ -71,9 +71,16 @@ function stripComments(source: string): string {
     .replace(/(^|[^:])\/\/[^\n]*/g, '$1');
 }
 
+// These tests assert on the package's own source: they walk `src` and read
+// what they find, so the path is discovered rather than written down. That is
+// the property being checked — a literal path could only ever cover the files
+// someone remembered to list, which is the gap these suites exist to close.
+// No input reaches them from outside the repository.
 function sourceFiles(dir: string, found: string[] = []): string[] {
+  // nosemgrep
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
+    // nosemgrep
     if (statSync(full).isDirectory()) {
       if (entry === '__tests__' || entry === 'node_modules') continue;
       sourceFiles(full, found);
@@ -89,7 +96,7 @@ function abiMethodNames(): Map<string, string[]> {
   const found = new Map<string, string[]>();
 
   for (const file of sourceFiles(SRC)) {
-    const text = stripComments(readFileSync(file, 'utf8'));
+    const text = stripComments(readFileSync(file, 'utf8')); // nosemgrep
     for (const match of text.matchAll(/functionName:\s*'([^']+)'/g)) {
       const rel = file.slice(SRC.length + 1);
       found.set(match[1], [...(found.get(match[1]) ?? []), rel]);
