@@ -226,9 +226,16 @@ describe('BtcDepositBtcb Interface', () => {
     it('does not accept LBTC as an output asset', () => {
       const config = getDepositChainConfig('evm');
 
-      expect(config).toBeDefined();
-      expect(isAssetOutSupported(config!, AssetId.LBTC)).toBe(false);
-      expect(isAssetOutSupported(config!, AssetId.BTCb)).toBe(true);
+      // Narrowed by a throw rather than asserted non-null: `expect` does not
+      // narrow, so the two reads below needed `!`, and `!` is exactly what
+      // would hide this going missing — the assertions would compile against
+      // `undefined` and fail somewhere less obvious.
+      if (!config) {
+        throw new Error('expected a deposit config for evm');
+      }
+
+      expect(isAssetOutSupported(config, AssetId.LBTC)).toBe(false);
+      expect(isAssetOutSupported(config, AssetId.BTCb)).toBe(true);
     });
 
     it('should reject unsupported destination chains', () => {
