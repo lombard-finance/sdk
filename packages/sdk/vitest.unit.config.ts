@@ -5,6 +5,29 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./src/__tests__/setup.ts'],
+    /**
+     * Vitest's default is 5s, which this suite does not have the margin for.
+     *
+     * Nothing here waits: there is no sleep, no backoff and no unmocked
+     * request. But the tests that construct a real action do real
+     * cryptographic work — EIP-712 signing, secp256k1, bitcoinjs-lib
+     * initialisation — and a dozen of them take 400ms to 2.3s warm, the
+     * slowest being 2281ms. Against 5s that is a 2.2x margin, and 120 files
+     * across parallel workers on a shared runner eats it.
+     *
+     * The symptom was a suite that failed roughly one run in three, on a
+     * *different* test each time, always with `Test timed out in 5000ms` —
+     * whichever slow test lost the CPU race. It also corrupts the run it
+     * appears in: a timed-out test's late `toMatchSnapshot()` lands on the
+     * next test's snapshot counter, so an unrelated golden reports a mismatch
+     * against a key that does not exist on disk.
+     *
+     * 15s is ~6.5x the slowest measured test and half what
+     * `vitest.integration.config.ts` already allows itself. Raising this
+     * hides no hang: a test that genuinely stops still fails, just not on
+     * whether the runner was busy.
+     */
+    testTimeout: 15_000,
     // Everything under src/ except the tiers that own their own config.
     //
     // This used to name three directories explicitly, which silently stranded
