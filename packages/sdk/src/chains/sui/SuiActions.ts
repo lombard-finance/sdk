@@ -1,7 +1,7 @@
 /**
  * Sui Actions
  *
- * Provides factory methods for Sui operations (unstake).
+ * Provides factory methods for Sui operations (withdraw).
  *
  * Note: Sui module must be registered before using these actions.
  *
@@ -21,8 +21,8 @@ import type { LombardConfig } from '../../config/types';
 import { getProviderGetter } from '../../config/types';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SuiCoreContext } from '../../shared/context';
-import { SuiUnstake } from './actions/unstake/SuiUnstake';
-import type { ISuiUnstake, SuiUnstakeParams } from './actions/unstake/types';
+import { SuiWithdraw } from './actions/withdraw/SuiWithdraw';
+import type { ISuiWithdraw, SuiWithdrawParams } from './actions/withdraw/types';
 
 /**
  * Create Sui core context from config
@@ -35,6 +35,8 @@ function createSuiCoreContext(config: LombardConfig): SuiCoreContext {
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
+    auth: config.auth,
+    getAuthToken: config.getAuthToken,
     getProvider: async (key) => {
       const getter = getProviderGetter(config.providers, key);
       if (!getter) return undefined;
@@ -63,14 +65,20 @@ export class SuiActions {
   }
 
   /**
-   * Unstake LBTC → BTC
+   * Withdraw LBTC → BTC
    *
    * Burns LBTC on Sui and releases BTC on Bitcoin.
    *
    * @throws LombardError if sui module is not registered
    */
-  unstake(params: SuiUnstakeParams): ISuiUnstake {
-    return new SuiUnstake(this.ctx, params);
+  /**
+   * Withdraw LBTC to BTC.
+   *
+   * Burns LBTC on Sui and releases BTC on Bitcoin. Named `withdraw` under the
+   * three-verb model: an L-asset in, an asset out.
+   */
+  withdraw(params: SuiWithdrawParams): ISuiWithdraw {
+    return new SuiWithdraw(this.ctx, params);
   }
 }
 

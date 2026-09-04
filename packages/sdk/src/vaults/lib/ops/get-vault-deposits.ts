@@ -1,4 +1,3 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
 
@@ -12,6 +11,7 @@ import {
 } from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
 import { ensureHex } from '../../../utils/hex';
+import { httpRequest } from '../../../utils/http';
 import {
   EARN_CHAIN_TO_NETWORK_MAP,
   EARN_VAULT,
@@ -95,6 +95,7 @@ export type EarnDeposit = {
  * @returns {Promise<EarnDeposit[]>}
  */
 export async function getEarnDeposits({
+  auth,
   account,
   chainId,
   rpcUrl,
@@ -116,7 +117,11 @@ export async function getEarnDeposits({
   }
   const url = `${bffApiUrl}/sevenseas-api/deposits/${network}/${vault.vaultContract.address}/${account}`;
 
-  const { data } = await axios.get<SevenSeasDepositsPayload>(url);
+  const { data } = await httpRequest<SevenSeasDepositsPayload>({
+    url: url,
+    scope: 'userScoped',
+    auth,
+  });
   const entries = normalizeSevenSeasDeposits(data);
 
   const depositAssetsAddresses = unique(
@@ -178,11 +183,15 @@ export async function getEarnDepositsAllChains({
   account,
   rpcUrl,
   env,
+  // Same as the withdrawals op beside this one: the per-chain read is
+  // user-scoped and refuses before sending without a token, and `auth` arrives
+  // inside `IEnvParam` so dropping it type-checks.
+  auth,
 }: GetEarnDepositsAllChainsParameters): Promise<EarnDeposit[]> {
   const vault = EARN_VAULT;
   // Fetch deposits from all supported chains in parallel
   const depositsPromises = vault.chains.map((chainId: EarnChain) =>
-    getEarnDeposits({ account, chainId, rpcUrl, env }).catch(
+    getEarnDeposits({ account, chainId, rpcUrl, env, auth }).catch(
       (error: unknown) => {
         console.error(`Failed to fetch deposits for chain ${chainId}:`, error);
         return []; // Return empty array on error to not break the entire query

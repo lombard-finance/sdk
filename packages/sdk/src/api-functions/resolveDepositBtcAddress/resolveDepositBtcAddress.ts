@@ -1,4 +1,4 @@
-import axios, { type AxiosError } from 'axios';
+import { type AxiosError } from 'axios';
 
 import { getApiConfig } from '../../common/api-config';
 import { getLegacyChainNameById } from '../../common/blockchain-identifier';
@@ -9,8 +9,13 @@ import type {
   SuiChain,
 } from '../../common/chains';
 import type { IEnvParam } from '../../common/parameters';
-import { Token } from '../../tokens/token-addresses';
+import {
+  AddressKind,
+  getTokenAddressForChain,
+  Token,
+} from '../../tokens/token-addresses';
 import { getErrorMessage, UnauthorizedWalletJwtError } from '../../utils/err';
+import { httpRequest } from '../../utils/http';
 import {
   isSanctionedAddressError,
   SANCTIONED_ADDRESS,
@@ -94,9 +99,17 @@ export function getDepositAssetTypeById(token: Token): string {
 }
 
 /**
- * Whether this chain and token pair can be named on the JWT route at all.
- * `false` means the caller has to use `generateDepositBtcAddress`, and is not
- * an error: the route simply has no identifier for one half of the pair.
+ * Whether this chain and token pair can be *named* on the JWT route.
+ *
+ * Note what this does and does not promise. It checks that the SDK has an asset
+ * identifier for the token and a legacy chain name for the chain — nothing
+ * checks that the gateway has the pair provisioned, because nothing here can.
+ * So `true` means "worth attempting", not "will succeed"; a pair the gateway
+ * does not know still fails, and `resolveDepositBtcAddress` retries such a
+ * failure with the token's contract address before giving up.
+ *
+ * `false` means the caller has to use `generateDepositBtcAddress`, and is not an
+ * error: the route has no identifier for one half of the pair.
  */
 export function canResolveDepositBtcAddressWithJwt(
   chainId: ChainId | SuiChain | SolanaChain | StarknetChainId,
@@ -177,19 +190,76 @@ export async function resolveDepositBtcAddress({
 
   let data: IResolveDepositAddressResponse;
 
-  try {
-    ({ data } = await axios.post<IResolveDepositAddressResponse>(
-      RESOLVE_ADDRESS_URL,
-      requestParams,
+  /**
+   * Ask again with the token's contract address when the gateway refuses the
+   * asset *type*.
+   *
+   * The two are the same field on the wire, and the type is the smaller
+   * request — but it only works for pairs the gateway has provisioned under
+   * that identifier, and it answers `invalid token address` when it has not.
+   * The address form is unambiguous and the catalog already knows it, so a
+   * caller should not have to discover this and pass it themselves.
+   *
+   * Deliberately a fallback rather than the default: the type form is what
+   * every provisioned pair uses today, and changing the primary request shape
+   * would alter behaviour for pairs that already work.
+   */
+  const retryWithAssetAddress = async (): Promise<
+    IResolveDepositAddressResponse | undefined
+  > => {
+    if (destinationAssetAddress) return undefined; // already the address form
+
+    const assetAddress = getTokenAddressForChain(
+      chainId,
+      AddressKind.Token,
+      env,
+      token,
+    );
+
+    if (!assetAddress) return undefined;
+
+    // Rebuilt rather than spread from `requestParams`: the two forms are a
+    // union, and the route rejects a request carrying both fields.
+    const { data: retried } = await httpRequest<IResolveDepositAddressResponse>(
       {
+        url: RESOLVE_ADDRESS_URL,
+        method: 'POST',
         baseURL: baseApiV2Url,
+        body: {
+          chain: getLegacyChainNameById(chainId),
+          destination_user_address: address,
+          nonce,
+          destination_asset_address: assetAddress,
+          ...(partnerId ? { partner_id: partnerId } : {}),
+          ...(referrerCode ? { referral_code: referrerCode } : {}),
+        },
         headers: {
           Authorization: `Bearer ${walletJwt}`,
           Accept: 'application/json',
         },
         timeout: RESOLVE_ADDRESS_TIMEOUT_MS,
       },
-    ));
+    );
+
+    return retried;
+  };
+
+  try {
+    // Through the wrapper, not raw axios: it adds the SDK version headers and
+    // is the one place a token can be attached for callers that supply an
+    // `auth` provider instead of a `walletJwt` argument. The explicit header
+    // still wins here, so passing the argument keeps working unchanged.
+    ({ data } = await httpRequest<IResolveDepositAddressResponse>({
+      url: RESOLVE_ADDRESS_URL,
+      method: 'POST',
+      baseURL: baseApiV2Url,
+      body: requestParams,
+      headers: {
+        Authorization: `Bearer ${walletJwt}`,
+        Accept: 'application/json',
+      },
+      timeout: RESOLVE_ADDRESS_TIMEOUT_MS,
+    }));
   } catch (error) {
     const errorMsg = getErrorMessage(error);
 
@@ -207,7 +277,18 @@ export async function resolveDepositBtcAddress({
       throw new UnauthorizedWalletJwtError(RESOLVE_ADDRESS_URL);
     }
 
-    throw new Error(errorMsg);
+    // The one failure the caller can do nothing about but the SDK can.
+    if (/invalid token address/i.test(errorMsg)) {
+      const retried = await retryWithAssetAddress();
+
+      if (retried) {
+        data = retried;
+      } else {
+        throw new Error(errorMsg);
+      }
+    } else {
+      throw new Error(errorMsg);
+    }
   }
 
   const resolvedAddress = data.deposit_address?.address ?? data.address;

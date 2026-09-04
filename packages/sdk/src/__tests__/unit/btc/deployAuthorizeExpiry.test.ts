@@ -4,7 +4,7 @@
  * `signStakeAndBake()` has always accepted an `expiry` and defaulted to 24
  * hours, but no higher-level caller could reach it: the field was missing from
  * `SignStakeAndBakeParams`, so neither `EvmService` nor either config could
- * forward one, and `authorizeDeposit()` took no arguments at all. Every
+ * forward one, and the ceremony took no arguments at all. Every
  * consumer going through the deploy actions was pinned to 24 hours.
  *
  * These assert the whole path carries the override, and that omitting it still
@@ -15,8 +15,8 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { evmDepositAndDeployConfig } from '../../../chains/btc/actions/depositAndDeploy/config/evm';
-import { evmStakeAndDeployConfig } from '../../../chains/btc/actions/stakeAndDeploy/config/evm';
+import { evmDepositAndDeployConfig } from '../../../chains/btc/actions/deploy-btcb/config/evm';
+import { evmStakeAndDeployConfig } from '../../../chains/btc/actions/deploy-lbtc/config/evm';
 import { ChainId } from '../../../common/chains';
 import { signStakeAndBake } from '../../../contract-functions/signStakeAndBake/signStakeAndBake';
 import { AssetId, Chain, type DeployProtocol } from '../../../core';
@@ -32,6 +32,9 @@ const { PAST_VALIDATION } = vi.hoisted(() => ({
 }));
 vi.mock('../../../contract-functions/signStakeAndBake/utils', () => ({
   calculateStakeAndBakeLBTCAmount: vi.fn().mockRejectedValue(PAST_VALIDATION),
+  // The permit value is what signStakeAndBake reaches for now; the ratio helper
+  // sits behind it. Both are stubbed so the sentinel fires whichever is called.
+  toStakeAndBakePermitValue: vi.fn().mockRejectedValue(PAST_VALIDATION),
   getStakeAndBakeTokenContract: vi.fn().mockRejectedValue(PAST_VALIDATION),
   getPermitValue: vi.fn().mockRejectedValue(PAST_VALIDATION),
 }));
@@ -101,7 +104,7 @@ describe.each(CONFIGS)('%s config', (_name, authorize) => {
     chainId: ChainId.ethereum,
     recipient: RECIPIENT,
     amount: '1000000',
-    vaultKey: 'veda',
+    vaultKey: 'bitcoinEarn',
     token: 'LBTC',
   };
 
@@ -132,7 +135,7 @@ describe.each(CONFIGS)('%s config', (_name, authorize) => {
         value: '1000000',
         account: RECIPIENT,
         chainId: ChainId.ethereum,
-        vaultKey: 'veda',
+        vaultKey: 'bitcoinEarn',
       }),
     );
   });
@@ -259,10 +262,10 @@ describe('expiry validation', () => {
  *
  * The config-level tests above call `authorizeStakeAndBake` directly, which
  * skips the action class — the one place a consumer touches. These drive the
- * real `BtcStakeAndDeploy` through `prepare()` and `authorizeDeposit()`, so the
+ * real `BtcDeployLbtc` through `prepare()` and `authorize()`, so the
  * option has to survive the whole path to be seen by the signer.
  */
-describe('BtcStakeAndDeploy.authorizeDeposit', () => {
+describe('BtcDeployLbtc.authorizeDeposit', () => {
   async function readyAction() {
     const subject = contextWithSpy();
 
@@ -286,14 +289,14 @@ describe('BtcStakeAndDeploy.authorizeDeposit', () => {
       has: () => true,
     };
 
-    const { BtcStakeAndDeploy } =
-      await import('../../../chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy');
+    const { BtcDeployLbtc } =
+      await import('../../../chains/btc/actions/deploy-lbtc/BtcDeployLbtc');
 
-    const action = new BtcStakeAndDeploy(subject.ctx, {
+    const action = new BtcDeployLbtc(subject.ctx, {
       assetOut: AssetId.LBTC,
       sourceChain: Chain.BITCOIN_MAINNET,
       destChain: Chain.ETHEREUM,
-      protocol: 'veda' as DeployProtocol,
+      protocol: 'bitcoinEarn' as DeployProtocol,
     });
 
     await action.prepare({ amount: '0.01', recipient: RECIPIENT });
@@ -304,7 +307,7 @@ describe('BtcStakeAndDeploy.authorizeDeposit', () => {
   it('carries an explicit expiry from the action down to the signer', async () => {
     const { action, subject } = await readyAction();
 
-    await action.authorizeDeposit({ expiry: FUTURE_EXPIRY });
+    await action.authorize({ expiry: FUTURE_EXPIRY });
 
     expect(subject.signStakeAndBake).toHaveBeenCalledWith(
       expect.objectContaining({ expiry: FUTURE_EXPIRY }),
@@ -314,7 +317,7 @@ describe('BtcStakeAndDeploy.authorizeDeposit', () => {
   it('passes undefined when called with no options, leaving the default downstream', async () => {
     const { action, subject } = await readyAction();
 
-    await action.authorizeDeposit();
+    await action.authorize();
 
     expect(subject.signStakeAndBake).toHaveBeenCalledWith(
       expect.objectContaining({ expiry: undefined }),

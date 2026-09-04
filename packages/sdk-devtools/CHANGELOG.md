@@ -5,6 +5,15 @@ All notable changes to `@lombard.finance/sdk-devtools` will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-09-01
+
+### Changed
+
+- Documentation only. The README showed `chain.btc.stake()` in three places, including the architecture diagram, and `DevToolsEvent.source` gave `'BtcStake'` and `'EvmUnstake'` as its examples. Those names are gone in `@lombard.finance/sdk@6.0.0`; the LBTC route is `chain.btc.deposit()` and the classes are `BtcDepositLbtc` and `EvmWithdrawLbtc`.
+
+No API change. The SDK is a peer dependency here, published as `*`, so this
+release works against 5.x and 6.x alike.
+
 ## [0.1.0] - 2024-12-04
 
 ### Added

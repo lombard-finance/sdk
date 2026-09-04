@@ -13,7 +13,7 @@ import { Chain, ChainMetadata } from './types';
  *
  * They keep a catalog entry so historical activity can still be labelled, but
  * they are excluded from every chain listing and no code path routes to them.
- * The identifiers themselves are deprecated and go away in the next major.
+ * The identifiers themselves are deprecated and go away in 7.0.0.
  */
 export const RETIRED_CHAINS: ReadonlySet<Chain> = new Set([
   Chain.CORN,

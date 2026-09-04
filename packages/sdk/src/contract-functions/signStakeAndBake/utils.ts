@@ -45,6 +45,33 @@ export const getStakeAndBakeTokenContract = async (
  * @param env - The environment for fetching the exchange ratio
  * @returns The calculated LBTC amount that should be used in the permit signature
  */
+/**
+ * The value a BTC-funded vault permit must carry, in LBTC base units.
+ *
+ * BTC and LBTC are both 8-decimal, which makes it easy to believe the deposit
+ * amount and the permit value are the same number. They are not: one BTC does
+ * not buy one LBTC, so the deposit has to be divided by the current ratio. The
+ * claimer finalises against the converted amount, so a permit signed for the
+ * raw deposit is a permit for an amount that will never exist — it verifies,
+ * it registers, and then nothing ever settles against it.
+ *
+ * Rounded down, because that is the integer the permit carries on chain.
+ *
+ * Exported because more than one caller builds this permit. Anything computing
+ * it independently is one ratio step away from a signature the backend will
+ * never match.
+ */
+export async function toStakeAndBakePermitValue(
+  depositBaseUnits: BigNumber.Value,
+  env?: Env,
+): Promise<string> {
+  const lbtcAmount = await calculateStakeAndBakeLBTCAmount(
+    depositBaseUnits,
+    env,
+  );
+  return lbtcAmount.toFixed(0, BigNumber.ROUND_DOWN);
+}
+
 export async function calculateStakeAndBakeLBTCAmount(
   btcAmount: BigNumber.Value,
   env?: Env,

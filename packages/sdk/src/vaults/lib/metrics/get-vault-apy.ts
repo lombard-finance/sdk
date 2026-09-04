@@ -1,10 +1,10 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 
 import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
 import { orderBy } from '../../../utils/array';
+import { httpRequest } from '../../../utils/http';
 import { EARN_VAULT, EarnChain, isEarnChain } from '../config';
 
 type PerformanceEntry = {
@@ -60,6 +60,7 @@ export type GetEarnApyParameters = IEnvParam & {
 
 /** Gets the trailing APY performance history. */
 export async function getEarnApy({
+  auth,
   aggregationPeriod = 7,
   chainId = ChainId.ethereum,
   env,
@@ -68,6 +69,7 @@ export async function getEarnApy({
     aggregationPeriod,
     chainId,
     env,
+    auth,
   });
 
   const apys = response.map((r) => {
@@ -128,6 +130,7 @@ const NETWORK_TO_CHAIN_ID_MAP: Record<string, EarnChain> = {
  * Gets the raw response of the performance apy api for the provided vault.
  */
 async function getVaultPerformance({
+  auth,
   aggregationPeriod = 7,
   chainId,
   env,
@@ -159,7 +162,11 @@ async function getVaultPerformance({
   });
   const url = `${bffApiUrl}/sevenseas-api/performance/${network}/${vault.vaultContract.address}?${params.toString()}`;
 
-  const { data } = await axios.get<PerformancePayload>(url);
+  const { data } = await httpRequest<PerformancePayload>({
+    url: url,
+    scope: 'public',
+    auth,
+  });
 
   return normalizeSevenSeasPerformance(data);
 }

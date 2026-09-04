@@ -183,25 +183,25 @@ describe.skipIf(SKIP)("Flow 3: Yield Strategies", () => {
     expect(result.strategies.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("Veda vault has APY > 0", async () => {
+  it("Bitcoin Earn vault has APY > 0", async () => {
     const result = await getStrategies.execute({});
-    const veda = result.strategies.find(
-      (s: { vault: string }) => s.vault === "Veda",
+    const bitcoinEarn = result.strategies.find(
+      (s: { vault: string }) => s.vault === "Bitcoin Earn",
     );
-    expect(veda).toBeDefined();
+    expect(bitcoinEarn).toBeDefined();
     // APY is formatted as "X.XX%", parse the numeric part
-    const apyStr = veda!.apy.replace("%", "");
+    const apyStr = bitcoinEarn!.apy.replace("%", "");
     const apyNum = parseFloat(apyStr);
     expect(apyNum).toBeGreaterThan(0);
   });
 
-  it("Veda vault has TVL > 0", async () => {
+  it("Bitcoin Earn vault has TVL > 0", async () => {
     const result = await getStrategies.execute({});
-    const veda = result.strategies.find(
-      (s: { vault: string }) => s.vault === "Veda",
+    const bitcoinEarn = result.strategies.find(
+      (s: { vault: string }) => s.vault === "Bitcoin Earn",
     );
-    expect(veda).toBeDefined();
-    const tvl = parseFloat(veda!.tvlBtc);
+    expect(bitcoinEarn).toBeDefined();
+    const tvl = parseFloat(bitcoinEarn!.tvlBtc);
     expect(tvl).toBeGreaterThan(0);
   });
 });
@@ -541,14 +541,14 @@ describe.skipIf(SKIP)("Flow 7: Write Tool Parameter Generation", () => {
   it("prepareDeployToVault returns sdk_execute with evm.deploy method", async () => {
     const result = await prepareDeployToVault.execute({
       amount: "0.001",
-      protocol: "veda",
+      protocol: "bitcoinEarn",
       chainId: SEPOLIA_CHAIN_ID,
     });
     expect(result).toHaveProperty("action", "sdk_execute");
     expect(result).toHaveProperty("method", "evm.deploy");
     expect(result).toHaveProperty("params");
     expect(result.params).toHaveProperty("amount", "0.001");
-    expect(result.params).toHaveProperty("protocol", "veda");
+    expect(result.params).toHaveProperty("protocol", "bitcoinEarn");
     expect(result.params).toHaveProperty("token", "LBTC");
   });
 

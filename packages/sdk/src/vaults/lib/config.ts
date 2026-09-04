@@ -1,3 +1,4 @@
+import { Env } from '@lombard.finance/sdk-common';
 import { Abi, Address } from 'viem';
 
 import { ChainId } from '../../common/chains';
@@ -107,12 +108,12 @@ export const EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS: Record<
   [ChainId.base]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
     address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
-    chainId: ChainId.ethereum,
+    chainId: ChainId.base,
   },
   [ChainId.binanceSmartChain]: {
     abi: VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI as Abi,
     address: '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8',
-    chainId: ChainId.ethereum,
+    chainId: ChainId.binanceSmartChain,
   },
 };
 
@@ -168,6 +169,20 @@ export const BTCE_VAULT = {
  * been removed in favor of this flat const. Internal helpers reference this
  * directly.
  */
+/**
+ * Whether the Earn vault is configured for an environment.
+ *
+ * Every Earn value in this file is a single mainnet constant: the vault,
+ * accountant, lens, teller and withdraw-queue addresses, and the chain list.
+ * `EARN_VAULT_SPENDER_CONTRACTS` is the one exception and does carry a Sepolia
+ * entry, which is exactly why the omission is easy to miss.
+ *
+ * Until per-environment deployments exist, callers are told Earn is unavailable
+ * rather than being pointed at mainnet contracts from a testnet backend — which
+ * is what produced stage requests for a mainnet vault address.
+ */
+export const isEarnAvailable = (env: Env): boolean => env === Env.prod;
+
 export const EARN_VAULT = {
   defaultChainId: EARN_DEFAULT_CHAIN_ID,
   chains: EARN_CHAINS,

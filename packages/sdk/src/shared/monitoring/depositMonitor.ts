@@ -2,7 +2,7 @@
  * Deposit Monitor Utility
  *
  * Shared monitoring logic for tracking Bitcoin deposit confirmations
- * and minting status. Used by BtcStake, BtcDeposit, and BtcStakeAndDeploy actions.
+ * and minting status. Used by BtcDepositLbtc, BtcDepositBtcb, and BtcDeployLbtc actions.
  *
  * @module shared/monitoring/depositMonitor
  */

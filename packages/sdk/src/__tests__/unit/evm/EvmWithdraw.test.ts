@@ -3,7 +3,7 @@
  *
  * Tests the DeFi vault → LBTC withdrawal flow on EVM chains.
  *
- * @module __tests__/unit/evm/EvmWithdraw.test.ts
+ * @module __tests__/unit/evm/EvmWithdrawVault.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -15,31 +15,31 @@ import {
   WithdrawErrorCode,
 } from '../../../shared/errors';
 
-describe('EvmWithdraw Interface', () => {
-  describe('EvmWithdrawParams', () => {
+describe('EvmWithdrawVault Interface', () => {
+  describe('EvmWithdrawVaultParams', () => {
     it('should require protocol selection', () => {
       const params = {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       };
 
-      expect(params.protocol).toBe('veda');
+      expect(params.protocol).toBe('bitcoinEarn');
     });
 
     it('should require recipient address', () => {
       const params = {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       };
 
       expect(params.recipient).toMatch(/^0x/);
     });
 
-    it('should support Veda protocol', () => {
-      const protocol = 'veda';
-      expect(protocol).toBe('veda');
+    it('should support Bitcoin Earn protocol', () => {
+      const protocol = 'bitcoinEarn';
+      expect(protocol).toBe('bitcoinEarn');
     });
 
     it('should support multiple chains', () => {
@@ -51,7 +51,7 @@ describe('EvmWithdraw Interface', () => {
     });
   });
 
-  describe('EvmWithdrawPrepareParams', () => {
+  describe('EvmWithdrawVaultPrepareParams', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',
@@ -170,8 +170,8 @@ describe('EvmWithdraw Interface', () => {
     it('should handle unsupported chains', () => {
       const error = new LombardError(
         WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED,
-        `Chain avalanche does not support Veda vault withdrawals`,
-        { chain: Chain.AVALANCHE, protocol: 'veda' },
+        `Chain avalanche does not support Bitcoin Earn vault withdrawals`,
+        { chain: Chain.AVALANCHE, protocol: 'bitcoinEarn' },
       );
 
       expect(error.code).toBe(WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED);
@@ -192,8 +192,8 @@ describe('EvmWithdraw Interface', () => {
   describe('Public Properties', () => {
     it('should expose protocol property', () => {
       type HasProtocol = { readonly protocol?: string };
-      const obj: HasProtocol = { protocol: 'veda' };
-      expect(obj.protocol).toBe('veda');
+      const obj: HasProtocol = { protocol: 'bitcoinEarn' };
+      expect(obj.protocol).toBe('bitcoinEarn');
     });
 
     it('should expose status property', () => {
@@ -240,16 +240,16 @@ describe('EvmCancelWithdraw Interface', () => {
     it('should require protocol selection', () => {
       const params = {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       };
 
-      expect(params.protocol).toBe('veda');
+      expect(params.protocol).toBe('bitcoinEarn');
     });
 
     it('should require chain selection', () => {
       const params = {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       };
 
       expect(params.chain).toBe(Chain.ETHEREUM);

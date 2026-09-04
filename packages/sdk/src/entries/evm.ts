@@ -12,33 +12,42 @@ export type { FeeAuthState } from '../chains/evm/shared/feeAuth';
 
 // EVM types and direct actions
 export type {
+  EvmClaimParams,
+  EvmClaimPrepareParams,
+  EvmClaimProgress,
   EvmDeployParams,
   EvmDeployPrepareParams,
   EvmDeployProgress,
-  EvmDepositParams,
-  EvmDepositPrepareParams,
-  EvmDepositProgress,
-  EvmRedeemParams,
-  EvmRedeemPrepareParams,
-  EvmRedeemProgress,
-  EvmStakeParams,
-  EvmStakePrepareParams,
-  EvmStakeProgress,
-  EvmUnstakeParams,
-  EvmUnstakePrepareParams,
-  EvmUnstakeProgress,
+  EvmDepositBtcbParams,
+  EvmDepositBtcbPrepareParams,
+  EvmDepositBtcbProgress,
+  EvmWithdrawBtcbParams,
+  EvmWithdrawBtcbPrepareParams,
+  EvmWithdrawBtcbProgress,
+  EvmWithdrawLbtcParams,
+  EvmWithdrawLbtcPrepareParams,
+  EvmWithdrawLbtcProgress,
+  // Withdraw and cancel-withdraw were exported from the root entry but never
+  // from here, so `@lombard.finance/sdk/evm` could not reach any of them even
+  // though `evm.withdraw()` is public. Found by the export-name snapshot.
+  EvmWithdrawVaultParams,
+  EvmWithdrawVaultPrepareParams,
+  EvmWithdrawVaultProgress,
+  IEvmCancelWithdraw,
+  IEvmClaim,
   IEvmDeploy,
-  IEvmDeposit,
-  IEvmRedeem,
-  IEvmStake,
-  IEvmUnstake,
+  IEvmDepositBtcb,
+  IEvmWithdrawBtcb,
+  IEvmWithdrawLbtc,
+  IEvmWithdrawVault,
 } from '../chains/evm';
 export {
+  EvmClaimStatus,
   EvmDeployStatus,
-  EvmDepositStatus,
-  EvmRedeemStatus,
-  EvmStakeStatus,
-  EvmUnstakeStatus,
+  EvmDepositBtcbStatus,
+  EvmWithdrawBtcbStatus,
+  EvmWithdrawLbtcStatus,
+  EvmWithdrawVaultStatus,
 } from '../chains/evm';
 
 // EVM status

@@ -12,7 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   evmCancelWithdraw,
   evmWithdraw,
-} from '../../chains/evm/actions/withdraw';
+} from '../../chains/evm/actions/withdraw-vault';
 import { Chain, evmActions } from '../../index';
 import { EvmOperationStatus } from '../../shared/constants/statusConstants';
 import { createTestConfig as createConfig } from '../helpers/createTestConfig';
@@ -89,7 +89,7 @@ describe('EVM Withdraw Integration', () => {
       const evm = evmActions(config);
       const withdraw = evm.withdraw({
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -105,7 +105,7 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -122,7 +122,7 @@ describe('EVM Withdraw Integration', () => {
       const evm = evmActions(config);
       const cancel = evm.cancelWithdraw({
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       });
 
       expect(cancel).toBeDefined();
@@ -137,7 +137,7 @@ describe('EVM Withdraw Integration', () => {
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       });
 
       expect(cancel).toBeDefined();
@@ -154,7 +154,7 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -170,7 +170,7 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -180,7 +180,7 @@ describe('EVM Withdraw Integration', () => {
   });
 
   describe('Protocol Validation', () => {
-    it('should accept veda protocol', () => {
+    it('should accept bitcoinEarn protocol', () => {
       const config = createConfig({
         env: Env.prod,
         providers: { evm: () => mockProvider },
@@ -188,7 +188,7 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -206,7 +206,7 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -221,7 +221,7 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.BASE,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -236,13 +236,12 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.BSC,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
       expect(withdraw).toBeDefined();
     });
-
   });
 
   describe('Event Subscriptions', () => {
@@ -254,7 +253,7 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -278,7 +277,7 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -294,7 +293,7 @@ describe('EVM Withdraw Integration', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -321,7 +320,7 @@ describe('EVM CancelWithdraw Integration', () => {
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       });
 
       expect(cancel).toBeDefined();
@@ -338,7 +337,7 @@ describe('EVM CancelWithdraw Integration', () => {
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       });
 
       expect(cancel.status).toBe(EvmOperationStatus.IDLE);
@@ -347,7 +346,7 @@ describe('EVM CancelWithdraw Integration', () => {
   });
 
   describe('Chain Support', () => {
-    it('should support all Veda vault chains', () => {
+    it('should support all Bitcoin Earn vault chains', () => {
       const chains = [Chain.ETHEREUM, Chain.BASE, Chain.BSC];
 
       for (const chain of chains) {
@@ -358,7 +357,7 @@ describe('EVM CancelWithdraw Integration', () => {
 
         const cancel = evmCancelWithdraw(config, {
           chain,
-          protocol: 'veda',
+          protocol: 'bitcoinEarn',
         });
 
         expect(cancel).toBeDefined();
@@ -375,7 +374,7 @@ describe('EVM CancelWithdraw Integration', () => {
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       });
 
       // txHash is undefined before execute
@@ -401,7 +400,7 @@ describe('Withdraw Flow Scenarios', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -423,7 +422,7 @@ describe('Withdraw Flow Scenarios', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -438,7 +437,7 @@ describe('Withdraw Flow Scenarios', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -453,7 +452,7 @@ describe('Withdraw Flow Scenarios', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -468,7 +467,7 @@ describe('Withdraw Flow Scenarios', () => {
 
       const withdraw = evmWithdraw(config, {
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -485,7 +484,7 @@ describe('Withdraw Flow Scenarios', () => {
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       });
 
       expect(typeof cancel.prepare).toBe('function');
@@ -499,7 +498,7 @@ describe('Withdraw Flow Scenarios', () => {
 
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
-        protocol: 'veda',
+        protocol: 'bitcoinEarn',
       });
 
       expect(typeof cancel.execute).toBe('function');

@@ -4,4 +4,4 @@
  * @module chains/starknet/actions
  */
 
-export * from './unstake';
+export * from './withdraw';

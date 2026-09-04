@@ -1,14 +1,28 @@
 import { Env, WALLET_CHALLENGE_TYPE } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { requestWalletChallenge } from '../../../api-functions/walletAuth/requestWalletChallenge';
-import { verifyWalletSignature } from '../../../api-functions/walletAuth/verifyWalletSignature';
-import { ActivePermitExistsError } from '../../../utils/err';
+/**
+ * Mocked at the `utils/http` boundary, not at axios.
+ *
+ * These api-functions post through the wrapper on this branch — the auth-token
+ * boundary test requires it of anything resolving a Lombard host — so mocking
+ * `axios.post` would leave the wrapper calling a mock that was never set up and
+ * assert nothing about the request. The argument positions are the same,
+ * `httpPost(url, body, config)`, so the assertions below are unchanged.
+ */
+const { post } = vi.hoisted(() => ({ post: vi.fn() }));
+vi.mock('../../../utils/http', () => ({ httpPost: post }));
+vi.mock('axios', () => ({
+  default: vi.fn(),
+  isAxiosError: (e: unknown) =>
+    Boolean((e as { isAxiosError?: boolean } | null)?.isAxiosError),
+}));
 
-vi.mock('axios');
-const mockedAxios = vi.mocked(axios);
-const post = vi.fn();
+const { requestWalletChallenge } =
+  await import('../../../api-functions/walletAuth/requestWalletChallenge');
+const { verifyWalletSignature } =
+  await import('../../../api-functions/walletAuth/verifyWalletSignature');
+const { ActivePermitExistsError } = await import('../../../utils/err');
 
 const address = '0xC1A0000000000000000000000000000000000000';
 const base = { address, chain: 'BLOCKCHAIN_ETHEREUM', env: Env.stage };
@@ -24,13 +38,8 @@ const permitChallenge = {
 };
 
 beforeEach(() => {
-  vi.resetAllMocks();
+  post.mockReset();
   post.mockResolvedValue({ data: permitChallenge });
-  mockedAxios.post = post as unknown as typeof axios.post;
-  mockedAxios.isAxiosError = ((e: unknown) =>
-    Boolean(
-      (e as { isAxiosError?: boolean } | null)?.isAxiosError,
-    )) as unknown as typeof axios.isAxiosError;
 });
 
 describe('requestWalletChallenge', () => {

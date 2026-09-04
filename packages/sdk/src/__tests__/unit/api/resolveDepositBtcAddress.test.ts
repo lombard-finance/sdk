@@ -1,5 +1,4 @@
 import { Env } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -11,9 +10,11 @@ import { ChainId, SUI_MAINNET_CHAIN } from '../../../common/chains';
 import { Token } from '../../../tokens/token-addresses';
 import { UnauthorizedWalletJwtError } from '../../../utils/err';
 
-vi.mock('axios');
-const mockedAxios = vi.mocked(axios);
-const post = vi.fn();
+// The function reaches the network through `utils/http`, so that is the seam to
+// spy on. Mocking axios instead would pass while the call bypassed the wrapper,
+// which is exactly the drift the boundary assertion exists to catch.
+const post = vi.hoisted(() => vi.fn());
+vi.mock('../../../utils/http', () => ({ httpRequest: post }));
 
 /** An axios rejection as the real client raises it: an Error with a response. */
 function axiosFailure(status: number, message: string) {
@@ -35,7 +36,6 @@ beforeEach(() => {
   post.mockResolvedValue({
     data: { deposit_address: { address: 'bc1qexample' } },
   });
-  mockedAxios.post = post as unknown as typeof axios.post;
 });
 
 describe('resolveDepositBtcAddress', () => {
@@ -44,10 +44,10 @@ describe('resolveDepositBtcAddress', () => {
 
     expect(address).toBe('bc1qexample');
 
-    const [url, body, config] = post.mock.calls[0];
+    const [{ url, body, headers, baseURL }] = post.mock.calls[0];
     expect(url).toBe('v2/addresses/deposit');
-    expect(config.baseURL).toBe('https://staging.prod.lombard.finance');
-    expect(config.headers.Authorization).toBe('Bearer token');
+    expect(baseURL).toBe('https://staging.prod.lombard.finance');
+    expect(headers.Authorization).toBe('Bearer token');
     expect(body).toEqual({
       chain: 'BLOCKCHAIN_ETHEREUM',
       destination_user_address: params.address,
@@ -59,8 +59,8 @@ describe('resolveDepositBtcAddress', () => {
   it('resolves the v2 host per environment', async () => {
     await resolveDepositBtcAddress({ ...params, env: Env.prod });
 
-    const [, , config] = post.mock.calls[0];
-    expect(config.baseURL).toBe('https://api.lombard.finance');
+    const [{ baseURL }] = post.mock.calls[0];
+    expect(baseURL).toBe('https://api.lombard.finance');
   });
 
   it('passes the partner, referral and explicit asset address through', async () => {
@@ -71,7 +71,7 @@ describe('resolveDepositBtcAddress', () => {
       destinationAssetAddress: '0xa55e7',
     });
 
-    const [, body] = post.mock.calls[0];
+    const [{ body }] = post.mock.calls[0];
     expect(body.partner_id).toBe('partner');
     expect(body.referral_code).toBe('ref');
     expect(body.destination_asset_address).toBe('0xa55e7');
@@ -83,7 +83,7 @@ describe('resolveDepositBtcAddress', () => {
   it('names the asset by type when no explicit address is given', async () => {
     await resolveDepositBtcAddress(params);
 
-    const [, body] = post.mock.calls[0];
+    const [{ body }] = post.mock.calls[0];
     expect(body.destination_asset_type).toBe('ASSET_TYPE_LBTC');
     expect(body).not.toHaveProperty('destination_asset_address');
   });
@@ -95,7 +95,7 @@ describe('resolveDepositBtcAddress', () => {
       destinationAssetAddress: '0xa55e7',
     });
 
-    const [, body] = post.mock.calls[0];
+    const [{ body }] = post.mock.calls[0];
     expect(body.destination_asset_address).toBe('0xa55e7');
     expect(body).not.toHaveProperty('destination_asset_type');
   });
@@ -153,14 +153,14 @@ describe('resolveDepositBtcAddress', () => {
   it('sends the mainnet identifier for a testnet chain', async () => {
     await resolveDepositBtcAddress({ ...params, chainId: ChainId.holesky });
 
-    const [, body] = post.mock.calls[0];
+    const [{ body }] = post.mock.calls[0];
     expect(body.chain).toBe('BLOCKCHAIN_ETHEREUM');
   });
 
   it('names the non-EVM chains too', async () => {
     await resolveDepositBtcAddress({ ...params, chainId: SUI_MAINNET_CHAIN });
 
-    const [, body] = post.mock.calls[0];
+    const [{ body }] = post.mock.calls[0];
     expect(body.chain).toBe('BLOCKCHAIN_SUI');
   });
 
@@ -179,12 +179,116 @@ describe('canResolveDepositBtcAddressWithJwt', () => {
     ).toBe(true);
     // No identifier for the token means the caller keeps to the
     // signature-carrying route.
-    expect(canResolveDepositBtcAddressWithJwt(ChainId.ethereum, Token.wBTC)).toBe(
-      false,
-    );
+    expect(
+      canResolveDepositBtcAddressWithJwt(ChainId.ethereum, Token.wBTC),
+    ).toBe(false);
   });
 
   it('defaults the token to LBTC', () => {
     expect(canResolveDepositBtcAddressWithJwt(ChainId.base)).toBe(true);
+  });
+});
+
+/**
+ * The gateway accepts the asset identifier for the pairs it has provisioned and
+ * answers `invalid token address` for the rest — Sepolia LBTC among them. The
+ * caller has no way to tell which is which, and no reason to care, so the SDK
+ * asks again with the token's contract address before giving up.
+ */
+describe('the asset-address retry', () => {
+  const invalidToken = () => axiosFailure(400, 'invalid token address');
+
+  /**
+   * Sepolia, not the shared `params`. Those point at Ethereum mainnet, which
+   * `stage` has no LBTC deployment for — so there is no address to retry with
+   * and the retry correctly declines. Using them here tested the wrong thing.
+   */
+  const onSepolia = { ...params, chainId: ChainId.sepolia };
+
+  it('retries with the contract address and returns the result', async () => {
+    post
+      .mockRejectedValueOnce(invalidToken())
+      .mockResolvedValueOnce({ data: { address: 'bc1qretried' } });
+
+    await expect(resolveDepositBtcAddress(onSepolia)).resolves.toBe(
+      'bc1qretried',
+    );
+    expect(post).toHaveBeenCalledTimes(2);
+  });
+
+  it('sends the address instead of the type, never both', async () => {
+    post
+      .mockRejectedValueOnce(invalidToken())
+      .mockResolvedValueOnce({ data: { address: 'bc1qretried' } });
+
+    await resolveDepositBtcAddress(onSepolia);
+
+    const retry = post.mock.calls[1][0] as { body: Record<string, unknown> };
+
+    expect(retry.body.destination_asset_address).toMatch(/^0x[0-9a-fA-F]{40}$/);
+    // The route rejects a request carrying both fields.
+    expect(retry.body).not.toHaveProperty('destination_asset_type');
+  });
+
+  it('keeps the partner and referral fields on the retry', async () => {
+    post
+      .mockRejectedValueOnce(invalidToken())
+      .mockResolvedValueOnce({ data: { address: 'bc1qretried' } });
+
+    await resolveDepositBtcAddress({
+      ...onSepolia,
+      partnerId: 'a-partner',
+      referrerCode: 'a-code',
+    });
+
+    const retry = post.mock.calls[1][0] as { body: Record<string, unknown> };
+
+    expect(retry.body.partner_id).toBe('a-partner');
+    expect(retry.body.referral_code).toBe('a-code');
+  });
+
+  it('does not retry when the caller already gave an address', async () => {
+    post.mockRejectedValueOnce(invalidToken());
+
+    await expect(
+      resolveDepositBtcAddress({
+        ...onSepolia,
+        destinationAssetAddress: '0x731eFa688F3679688cf60A3993b8658138953ED6',
+      }),
+    ).rejects.toThrow(/invalid token address/);
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  /** Any other failure is the caller's to see, unchanged. */
+  it('does not retry a different error', async () => {
+    post.mockRejectedValueOnce(axiosFailure(500, 'internal error'));
+
+    await expect(resolveDepositBtcAddress(onSepolia)).rejects.toThrow(
+      /internal error/,
+    );
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  it('still refuses a JWT the gateway rejects', async () => {
+    post.mockRejectedValueOnce(axiosFailure(401, 'invalid token address'));
+
+    await expect(resolveDepositBtcAddress(onSepolia)).rejects.toThrow(
+      UnauthorizedWalletJwtError,
+    );
+    expect(post).toHaveBeenCalledTimes(1);
+  });
+
+  /**
+   * A pair with no deployment has nothing to retry with, so the original error
+   * stands. Worth pinning: it is the case that made the first version of these
+   * tests pass for the wrong reason.
+   */
+  it('does not retry when the catalog has no address for the pair', async () => {
+    post.mockRejectedValueOnce(invalidToken());
+
+    await expect(resolveDepositBtcAddress(params)).rejects.toThrow(
+      /invalid token address/,
+    );
+    expect(post).toHaveBeenCalledTimes(1);
   });
 });

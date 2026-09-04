@@ -1,8 +1,8 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
+import { httpRequest } from '../utils/http';
 
 type LBTCStatsResponse = { price: number; supply: number; tvl: number }[];
 
@@ -27,6 +27,7 @@ export async function getLBTCStats(
 ) {
   const env = parameters?.env;
   const partnerId = parameters?.partnerId;
+  const auth = parameters?.auth;
 
   const { bffApiUrl } = getApiConfig(env);
   if (!bffApiUrl) {
@@ -35,17 +36,23 @@ export async function getLBTCStats(
     );
   }
 
-  const { data } = await axios.get<LBTCStatsResponse>(
-    `${bffApiUrl}/dune-api/query/getLBTCStats?partnerId=${partnerId || ''}`,
-  );
+  const { data } = await httpRequest<LBTCStatsResponse>({
+    url: `${bffApiUrl}/dune-api/query/getLBTCStats?partnerId=${partnerId || ''}`,
+    scope: 'public',
+    auth,
+  });
 
-  const { data: holders } = await axios.get<LBTCHoldersResponse>(
-    `${bffApiUrl}/dune-api/query/lbtc-holders?partnerId=${partnerId || ''}`,
-  );
+  const { data: holders } = await httpRequest<LBTCHoldersResponse>({
+    url: `${bffApiUrl}/dune-api/query/lbtc-holders?partnerId=${partnerId || ''}`,
+    scope: 'public',
+    auth,
+  });
 
-  const { data: historicalHolders } = await axios.get<LBTCHoldersResponse>(
-    `${bffApiUrl}/dune-api/query/getTotalLBTCUsers?partnerId=${partnerId || ''}`,
-  );
+  const { data: historicalHolders } = await httpRequest<LBTCHoldersResponse>({
+    url: `${bffApiUrl}/dune-api/query/getTotalLBTCUsers?partnerId=${partnerId || ''}`,
+    scope: 'public',
+    auth,
+  });
 
   const stats: Stats = {
     price: BigNumber(data[0].price),

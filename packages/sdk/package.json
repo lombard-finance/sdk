@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "5.5.0",
+  "version": "6.0.0",
   "description": "TypeScript SDK for the Lombard protocol - stake BTC, mint LBTC, and interact with DeFi",
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
@@ -17,6 +17,7 @@
     "@storybook/react-vite": "^8.2.9",
     "@storybook/test": "^8.2.9",
     "@tanstack/react-query": "^5.71.1",
+    "@vitest/coverage-v8": "3.2.4",
     "@vitest/ui": "3.2.4",
     "axios": "1.12.0",
     "bignumber.js": "^9.1.2",
@@ -34,67 +35,67 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./core": {
-      "types": "./dist/entries/core.d.ts",
+      "types": "./dist/types/entries/core.d.ts",
       "import": "./dist/core.js",
       "require": "./dist/core.cjs"
     },
     "./api": {
-      "types": "./dist/entries/api.d.ts",
+      "types": "./dist/types/entries/api.d.ts",
       "import": "./dist/api.js",
       "require": "./dist/api.cjs"
     },
     "./contracts": {
-      "types": "./dist/entries/contracts.d.ts",
+      "types": "./dist/types/entries/contracts.d.ts",
       "import": "./dist/contracts.js",
       "require": "./dist/contracts.cjs"
     },
     "./btc": {
-      "types": "./dist/entries/btc.d.ts",
+      "types": "./dist/types/entries/btc.d.ts",
       "import": "./dist/btc.js",
       "require": "./dist/btc.cjs"
     },
     "./evm": {
-      "types": "./dist/entries/evm.d.ts",
+      "types": "./dist/types/entries/evm.d.ts",
       "import": "./dist/evm.js",
       "require": "./dist/evm.cjs"
     },
     "./metrics": {
-      "types": "./dist/entries/metrics.d.ts",
+      "types": "./dist/types/entries/metrics.d.ts",
       "import": "./dist/metrics.js",
       "require": "./dist/metrics.cjs"
     },
     "./utils": {
-      "types": "./dist/entries/utils.d.ts",
+      "types": "./dist/types/entries/utils.d.ts",
       "import": "./dist/utils.js",
       "require": "./dist/utils.cjs"
     },
     "./vaults": {
-      "types": "./dist/entries/vaults.d.ts",
+      "types": "./dist/types/entries/vaults.d.ts",
       "import": "./dist/vaults.js",
       "require": "./dist/vaults.cjs"
     },
     "./strategies": {
-      "types": "./dist/entries/strategies.d.ts",
+      "types": "./dist/types/entries/strategies.d.ts",
       "import": "./dist/strategies.js",
       "require": "./dist/strategies.cjs"
     },
     "./defi": {
-      "types": "./dist/entries/defi.d.ts",
+      "types": "./dist/types/entries/defi.d.ts",
       "import": "./dist/defi.js",
       "require": "./dist/defi.cjs"
     },
     "./bridge": {
-      "types": "./dist/entries/bridge.d.ts",
+      "types": "./dist/types/entries/bridge.d.ts",
       "import": "./dist/bridge.js",
       "require": "./dist/bridge.cjs"
     },
     "./debug": {
-      "types": "./dist/entries/debug.d.ts",
+      "types": "./dist/types/entries/debug.d.ts",
       "import": "./dist/debug.js",
       "require": "./dist/debug.cjs"
     },
@@ -133,7 +134,7 @@
     "viem": "^2.21.0"
   },
   "scripts": {
-    "build": "yarn types && vite build && yarn build-types",
+    "build": "yarn clean && yarn types && vite build && yarn build-types && yarn check-types-resolve",
     "build-docs": "rimraf ./sdk-docs && typedoc --out sdk-docs",
     "build-storybook": "storybook build -o sdk-storybook",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -143,7 +144,7 @@
     "test": "yarn test:unit && yarn test:integration:mocked",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --config vitest.unit.config.ts",
     "test:unit": "vitest run --config vitest.unit.config.ts",
     "test:integration": "yarn test:integration:mocked",
     "test:integration:mocked": "vitest run --config vitest.integration.config.ts",
@@ -153,10 +154,12 @@
     "test:check-balances": "ts-node scripts/prefund-test-wallets.ts",
     "types": "tsc --noEmit",
     "build-types": "tsc -b tsconfig.build.json",
-    "watch": "vite build --watch"
+    "watch": "vite build --watch",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "check-types-resolve": "node scripts/check-emitted-types.mjs"
   },
   "type": "module",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/types/index.d.ts",
   "typesVersions": {
     "*": {
       "core": [

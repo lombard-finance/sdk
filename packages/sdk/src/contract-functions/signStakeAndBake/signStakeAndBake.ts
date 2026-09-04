@@ -14,8 +14,8 @@ import { handleApproveFlow } from './handleApprove';
 import { handlePermitFlow } from './handlePermit';
 import { buildTypedData } from './typed-data-builder';
 import {
-  calculateStakeAndBakeLBTCAmount,
   getStakeAndBakeTokenContract,
+  toStakeAndBakePermitValue,
 } from './utils';
 import { getStakeAndBakeConfig } from './validation';
 
@@ -180,7 +180,7 @@ export async function signStakeAndBake({
   expiry = toUnix(now() + DAY),
   value,
   // TODO: Rename vaultKey to protocol
-  vaultKey: protocol = DefiProtocol.Veda,
+  vaultKey: protocol = DefiProtocol.BitcoinEarn,
   token = 'BTC',
   chainId,
   provider,
@@ -199,11 +199,14 @@ export async function signStakeAndBake({
 
   const spenderAddress = strategy.spenderContract.address;
 
-  // Calculate permit value (with conversion if needed)
-  const permitValue =
+  // One conversion, shared with any other caller that builds this permit.
+  // Two independent implementations of the ratio step is how a permit ends up
+  // signed for the raw deposit amount.
+  const permitValueBaseUnits =
     strategy.amountStrategy === 'btcToLbtc'
-      ? await calculateStakeAndBakeLBTCAmount(value, env)
-      : new BigNumber(value);
+      ? await toStakeAndBakePermitValue(value, env)
+      : new BigNumber(value).toFixed(0, BigNumber.ROUND_DOWN);
+  const permitValue = BigInt(permitValueBaseUnits);
 
   // Get token contract (always use Token address for permits/approves, not adapter)
   const tokenContract = await getStakeAndBakeTokenContract(token, chainId, env);
@@ -228,7 +231,7 @@ export async function signStakeAndBake({
     domainName: strategy.approval.domainName,
     domainVersion: strategy.approval.domainVersion,
     spender: spenderAddress,
-    value: BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN)),
+    value: permitValue,
     nonce,
     deadline,
   });
@@ -244,7 +247,7 @@ export async function signStakeAndBake({
       tokenAbi,
       spenderAddress,
       typedData,
-      requiredAmount: BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN)),
+      requiredAmount: permitValue,
     });
   }
 

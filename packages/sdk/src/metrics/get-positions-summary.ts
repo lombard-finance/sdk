@@ -1,10 +1,10 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
 
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
 import { Token } from '../tokens/token-addresses';
+import { httpRequest } from '../utils/http';
 
 type PositionAsset = 'ASSET_LBTC' | 'ASSET_UNSPECIFIED';
 type PositionType = 'BALANCE_TYPE_HOLDING' | 'BALANCE_TYPE_DEFI';
@@ -108,7 +108,7 @@ export async function getPositionsSummary({
   const { baseApiUrl } = getApiConfig(env);
 
   const url = `${baseApiUrl}/api/v1/analytics/${account}/summary`;
-  const { data } = await axios.get<Response>(url);
+  const { data } = await httpRequest<Response>({ url: url, scope: 'public' });
 
   const info: PositionsSummary = {
     btcPrice: {

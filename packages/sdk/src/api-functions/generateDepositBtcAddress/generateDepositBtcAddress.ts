@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { Address, pad } from 'viem';
 
 import { getApiConfig } from '../../common/api-config';
@@ -24,6 +23,7 @@ import {
   getErrorMessage,
   TokenContractAddressNotFoundError,
 } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 /**
  * The address which will be returned if the provided EVM address is sanctioned.
@@ -111,6 +111,7 @@ export async function generateDepositBtcAddress({
   captchaToken,
   signatureData,
   pubKey,
+  getAuthToken,
 }: IGenerateDepositBtcAddressParams): Promise<string> {
   const { baseApiUrl } = getApiConfig(env);
   const toChain = getChainNameById(chainId);
@@ -224,10 +225,10 @@ export async function generateDepositBtcAddress({
   };
 
   try {
-    const { data } = await axios.post<IGenerateNewAddressResponse>(
+    const { data } = await httpPost<IGenerateNewAddressResponse>(
       ADDRESS_URL,
       requestParams,
-      { baseURL: baseApiUrl },
+      { baseURL: baseApiUrl, getAuthToken },
     );
 
     return data.address;

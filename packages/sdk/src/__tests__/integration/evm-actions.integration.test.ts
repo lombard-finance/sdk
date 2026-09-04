@@ -2,11 +2,11 @@
  * EVM Actions Integration Tests
  *
  * Tests for all EVM chain operations:
- * - EvmStake: BTC.b → LBTC
- * - EvmUnstake: LBTC → BTC or BTC.b
- * - EvmDeposit: Claim LBTC with proof
+ * - EvmDepositBtcb: BTC.b → LBTC
+ * - EvmWithdrawLbtc: LBTC → BTC or BTC.b
+ * - EvmClaim: Claim LBTC with proof
  * - EvmDeploy: LBTC/BTC.b → DeFi
- * - EvmRedeem: LBTC → BTC.b
+ * - EvmWithdrawBtcb: LBTC → BTC.b
  *
  * @see SDK_DEVELOPER_FAQ.md
  */
@@ -82,7 +82,7 @@ vi.mock('../../contract-functions/approveToken', () => ({
   getTokenAllowance: vi.fn(async () => new BigNumber('1000000')),
 }));
 
-// Mock fee authorization for EvmStake (subsidized chains don't require fee auth)
+// Mock fee authorization for EvmDepositBtcb (subsidized chains don't require fee auth)
 vi.mock('../../chains/evm/shared/feeAuth', async (importOriginal) => {
   const original =
     await importOriginal<typeof import('../../chains/evm/shared/feeAuth')>();
@@ -157,7 +157,7 @@ describe('EVM Stake Action', () => {
       });
 
       const evm = evmActions(config);
-      const stake = evm.stake({
+      const stake = evm.deposit({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -177,7 +177,7 @@ describe('EVM Stake Action', () => {
       });
 
       const evm = evmActions(config);
-      const stake = evm.stake({
+      const stake = evm.deposit({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -198,7 +198,7 @@ describe('EVM Stake Action', () => {
       });
 
       const evm = evmActions(config);
-      const stake = evm.stake({
+      const stake = evm.deposit({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -219,7 +219,7 @@ describe('EVM Stake Action', () => {
       });
 
       const evm = evmActions(config);
-      const stake = evm.stake({
+      const stake = evm.deposit({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -246,7 +246,7 @@ describe('EVM Stake Action', () => {
       });
 
       const evm = evmActions(config);
-      const stake = evm.stake({
+      const stake = evm.deposit({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -263,7 +263,7 @@ describe('EVM Stake Action', () => {
       });
 
       const evm = evmActions(config);
-      const stake = evm.stake({
+      const stake = evm.deposit({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -287,7 +287,7 @@ describe('EVM Stake Action', () => {
       });
 
       const evm = evmActions(config);
-      const stake = evm.stake({
+      const stake = evm.deposit({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -313,7 +313,7 @@ describe('EVM Stake Action', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// EVM Unstake Tests (LBTC → BTC or BTC.b)
+// EVM Withdraw Tests (LBTC → BTC or BTC.b)
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('EVM Unstake Action', () => {
@@ -332,7 +332,7 @@ describe('EVM Unstake Action', () => {
       });
 
       const evm = evmActions(config);
-      const unstake = evm.unstake({
+      const unstake = evm.withdraw({
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -349,7 +349,7 @@ describe('EVM Unstake Action', () => {
       });
 
       const evm = evmActions(config);
-      const unstake = evm.unstake({
+      const unstake = evm.withdraw({
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTCb,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -374,7 +374,7 @@ describe('EVM Unstake Action', () => {
       });
 
       const evm = evmActions(config);
-      const unstake = evm.unstake({
+      const unstake = evm.withdraw({
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
         sourceChain: Chain.SEPOLIA,
@@ -397,7 +397,7 @@ describe('EVM Unstake Action', () => {
       });
 
       const evm = evmActions(config);
-      const unstake = evm.unstake({
+      const unstake = evm.withdraw({
         assetIn: AssetId.LBTC,
         assetOut: AssetId.BTC,
         sourceChain: Chain.SEPOLIA,
@@ -429,7 +429,7 @@ describe('EVM Deploy Action', () => {
   describe('Lifecycle', () => {
     it('should start in IDLE status', () => {
       const config = createConfig({
-        env: Env.prod, // Veda only on prod
+        env: Env.prod, // Bitcoin Earn only on prod
         providers: { evm: () => mockProvider },
       });
 
@@ -437,7 +437,7 @@ describe('EVM Deploy Action', () => {
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        protocol: DeployProtocol.Veda,
+        protocol: DeployProtocol.BitcoinEarn,
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -456,19 +456,19 @@ describe('EVM Deploy Action', () => {
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        protocol: DeployProtocol.Veda,
+        protocol: DeployProtocol.BitcoinEarn,
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
       await deploy.prepare({
         amount: '0.01',
-        protocol: DeployProtocol.Veda,
+        protocol: DeployProtocol.BitcoinEarn,
       });
 
       // With sufficient allowance, should skip to READY
       expect(deploy.status).toBe(EvmOperationStatus.READY);
       expect(deploy.amount).toBe('0.01');
-      expect(deploy.protocol).toBe(DeployProtocol.Veda);
+      expect(deploy.protocol).toBe(DeployProtocol.BitcoinEarn);
       expect(deploy.needsApproval).toBe(false);
     });
 
@@ -492,13 +492,13 @@ describe('EVM Deploy Action', () => {
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        protocol: DeployProtocol.Veda,
+        protocol: DeployProtocol.BitcoinEarn,
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
       await deploy.prepare({
         amount: '0.01',
-        protocol: DeployProtocol.Veda,
+        protocol: DeployProtocol.BitcoinEarn,
       });
 
       expect(deploy.status).toBe(EvmOperationStatus.NEEDS_APPROVAL);
@@ -525,13 +525,13 @@ describe('EVM Deploy Action', () => {
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        protocol: DeployProtocol.Veda,
+        protocol: DeployProtocol.BitcoinEarn,
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
       await deploy.prepare({
         amount: '0.01',
-        protocol: DeployProtocol.Veda,
+        protocol: DeployProtocol.BitcoinEarn,
       });
 
       expect(deploy.status).toBe(EvmOperationStatus.NEEDS_APPROVAL);
@@ -546,7 +546,7 @@ describe('EVM Deploy Action', () => {
   describe('Protocol Validation', () => {
     it('should reject unsupported protocol in testnet', async () => {
       const config = createConfig({
-        env: Env.testnet, // Veda not on testnet
+        env: Env.testnet, // Bitcoin Earn not on testnet
         providers: { evm: () => mockProvider },
       });
 
@@ -554,14 +554,14 @@ describe('EVM Deploy Action', () => {
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.SEPOLIA,
-        protocol: DeployProtocol.Veda,
+        protocol: DeployProtocol.BitcoinEarn,
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
       await expect(
         deploy.prepare({
           amount: '0.01',
-          protocol: DeployProtocol.Veda,
+          protocol: DeployProtocol.BitcoinEarn,
         }),
       ).rejects.toThrow(/not supported/i);
     });
@@ -588,7 +588,7 @@ describe('EVM Redeem Action', () => {
       });
 
       const evm = evmActions(config);
-      const redeem = evm.redeem({
+      const redeem = evm.withdraw({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -605,7 +605,7 @@ describe('EVM Redeem Action', () => {
       });
 
       const evm = evmActions(config);
-      const redeem = evm.redeem({
+      const redeem = evm.withdraw({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -630,7 +630,7 @@ describe('EVM Redeem Action', () => {
       });
 
       const evm = evmActions(config);
-      const redeem = evm.redeem({
+      const redeem = evm.withdraw({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -668,7 +668,7 @@ describe('EVM Redeem Action', () => {
       });
 
       const evm = evmActions(config);
-      const redeem = evm.redeem({
+      const redeem = evm.withdraw({
         assetIn: AssetId.BTCb,
         assetOut: AssetId.BTC,
         sourceChain: Chain.AVALANCHE_FUJI,
@@ -705,7 +705,7 @@ describe('EVM Deposit Action', () => {
       });
 
       const evm = evmActions(config);
-      const deposit = evm.deposit({
+      const deposit = evm.claim({
         assetIn: AssetId.BTC,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BITCOIN_SIGNET,
@@ -722,7 +722,7 @@ describe('EVM Deposit Action', () => {
       });
 
       const evm = evmActions(config);
-      const deposit = evm.deposit({
+      const deposit = evm.claim({
         assetIn: AssetId.BTC,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BITCOIN_SIGNET,
@@ -744,7 +744,7 @@ describe('EVM Deposit Action', () => {
       });
 
       const evm = evmActions(config);
-      const deposit = evm.deposit({
+      const deposit = evm.claim({
         assetIn: AssetId.BTC,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BITCOIN_SIGNET,
@@ -769,7 +769,7 @@ describe('EVM Deposit Action', () => {
       });
 
       const evm = evmActions(config);
-      const deposit = evm.deposit({
+      const deposit = evm.claim({
         assetIn: AssetId.BTC,
         assetOut: AssetId.LBTC,
         sourceChain: Chain.BITCOIN_SIGNET,
@@ -809,7 +809,7 @@ describe('EVM Action Error Handling', () => {
     });
 
     const evm = evmActions(config);
-    const stake = evm.stake({
+    const stake = evm.deposit({
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE_FUJI,
@@ -833,7 +833,7 @@ describe('EVM Action Error Handling', () => {
     });
 
     const evm = evmActions(config);
-    const stake = evm.stake({
+    const stake = evm.deposit({
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE_FUJI,
@@ -860,7 +860,7 @@ describe('EVM Action Error Handling', () => {
     });
 
     const evm = evmActions(config);
-    const unstake = evm.unstake({
+    const unstake = evm.withdraw({
       assetIn: AssetId.LBTC,
       assetOut: AssetId.BTCb,
       sourceChain: Chain.AVALANCHE_FUJI,
@@ -904,7 +904,7 @@ describe('EVM Action Loading States', () => {
     });
 
     const evm = evmActions(config);
-    const stake = evm.stake({
+    const stake = evm.deposit({
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE_FUJI,
@@ -931,7 +931,7 @@ describe('EVM Action Loading States', () => {
     });
 
     const evm = evmActions(config);
-    const stake = evm.stake({
+    const stake = evm.deposit({
       assetIn: AssetId.BTCb,
       assetOut: AssetId.LBTC,
       sourceChain: Chain.AVALANCHE_FUJI,

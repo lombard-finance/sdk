@@ -5,8 +5,7 @@ import { findStaticDepositAsset, resolveStrategy } from '../config';
 import { StrategyBaseParameters } from '../params';
 import { IStrategyDepositAsset } from '../types';
 
-export interface GetStrategyDepositAssetsParameters
-  extends StrategyBaseParameters {
+export interface GetStrategyDepositAssetsParameters extends StrategyBaseParameters {
   /**
    * Optional set of candidate token addresses to probe. Defaults to the
    * static catalog for the resolved deployment. Useful when callers want to

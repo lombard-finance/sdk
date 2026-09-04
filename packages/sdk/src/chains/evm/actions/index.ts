@@ -9,38 +9,38 @@
 // Stake action
 export {
   createEvmStake,
-  EvmStake,
+  EvmDepositBtcb,
+  type EvmDepositBtcbParams,
+  type EvmDepositBtcbPrepareParams,
+  type EvmDepositBtcbProgress,
+  EvmDepositBtcbStatus,
   evmStake,
-  type EvmStakeParams,
-  type EvmStakePrepareParams,
-  type EvmStakeProgress,
-  EvmStakeStatus,
-  type IEvmStake,
-} from './stake';
+  type IEvmDepositBtcb,
+} from './deposit-btcb';
 
-// Unstake action
+// Withdraw action
 export {
-  createEvmUnstake,
-  EvmUnstake,
-  evmUnstake,
-  type EvmUnstakeParams,
-  type EvmUnstakePrepareParams,
-  type EvmUnstakeProgress,
-  EvmUnstakeStatus,
-  type IEvmUnstake,
-} from './unstake';
+  createEvmWithdrawLbtc,
+  EvmWithdrawLbtc,
+  evmWithdrawLbtc,
+  type EvmWithdrawLbtcParams,
+  type EvmWithdrawLbtcPrepareParams,
+  type EvmWithdrawLbtcProgress,
+  EvmWithdrawLbtcStatus,
+  type IEvmWithdrawLbtc,
+} from './withdraw-lbtc';
 
 // Deposit action
 export {
   createEvmDeposit,
-  EvmDeposit,
+  EvmClaim,
+  type EvmClaimParams,
+  type EvmClaimPrepareParams,
+  type EvmClaimProgress,
+  EvmClaimStatus,
   evmDeposit,
-  type EvmDepositParams,
-  type EvmDepositPrepareParams,
-  type EvmDepositProgress,
-  EvmDepositStatus,
-  type IEvmDeposit,
-} from './deposit';
+  type IEvmClaim,
+} from './claim';
 
 // Deploy action
 export {
@@ -57,14 +57,14 @@ export {
 // Redeem action
 export {
   createEvmRedeem,
-  EvmRedeem,
   evmRedeem,
-  type EvmRedeemParams,
-  type EvmRedeemPrepareParams,
-  type EvmRedeemProgress,
-  EvmRedeemStatus,
-  type IEvmRedeem,
-} from './redeem';
+  EvmWithdrawBtcb,
+  type EvmWithdrawBtcbParams,
+  type EvmWithdrawBtcbPrepareParams,
+  type EvmWithdrawBtcbProgress,
+  EvmWithdrawBtcbStatus,
+  type IEvmWithdrawBtcb,
+} from './withdraw-btcb';
 
 // Withdraw action
 export {
@@ -74,12 +74,12 @@ export {
   evmCancelWithdraw,
   type EvmCancelWithdrawParams,
   type EvmCancelWithdrawProgress,
-  EvmWithdraw,
   evmWithdraw,
-  type EvmWithdrawParams,
-  type EvmWithdrawPrepareParams,
-  type EvmWithdrawProgress,
-  EvmWithdrawStatus,
+  EvmWithdrawVault,
+  type EvmWithdrawVaultParams,
+  type EvmWithdrawVaultPrepareParams,
+  type EvmWithdrawVaultProgress,
+  EvmWithdrawVaultStatus,
   type IEvmCancelWithdraw,
-  type IEvmWithdraw,
-} from './withdraw';
+  type IEvmWithdrawVault,
+} from './withdraw-vault';
