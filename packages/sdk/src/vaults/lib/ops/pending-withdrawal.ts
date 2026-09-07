@@ -27,6 +27,20 @@
  * is open, which is a UX choice with no counterpart in the contract, and is
  * not enforced here.
  *
+ * ## Scoped to the AtomicQueue, on purpose
+ *
+ * Everything above is a property of `AtomicQueue` and of nothing else. The
+ * `BoringOnChainQueue` submits with `requestOnChainWithdraw` and cancels with
+ * `cancelOnChainWithdraw(request)` — a create, and a cancel that addresses one
+ * request out of many — so concurrent requests are representable there and
+ * none of this applies.
+ *
+ * Whoever adds the Boring path must therefore scope this guard to the atomic
+ * queue rather than run it for both. Reading `getUserAtomicRequest` on a
+ * Boring withdrawal would consult the wrong slot: empty, so it would wave
+ * through anything, or stale from an old atomic request, so it would refuse a
+ * withdrawal that has nothing to do with it.
+ *
  * @module vaults/lib/ops/pending-withdrawal
  */
 
