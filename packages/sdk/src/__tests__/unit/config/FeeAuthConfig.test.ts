@@ -1,7 +1,7 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it, vi } from 'vitest';
 
-import { getChainConfig } from '../../../chains/btc/actions/stake/config';
+import { getChainConfig } from '../../../chains/btc/actions/deposit-lbtc/config';
 import { ChainId } from '../../../common/chains';
 import { Chain } from '../../../core';
 import { EvmService } from '../../../services/EvmService';

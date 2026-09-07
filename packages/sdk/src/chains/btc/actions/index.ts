@@ -5,10 +5,10 @@
  */
 
 // Stake action
-export * from './stake';
+export * from './deposit-lbtc';
 
 // Deposit action
-export * from './deposit';
+export * from './deposit-btcb';
 
 // StakeAndDeploy action
-export * from './stakeAndDeploy';
+export * from './deploy-lbtc';

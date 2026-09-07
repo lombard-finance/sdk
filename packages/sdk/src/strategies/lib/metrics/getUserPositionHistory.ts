@@ -7,8 +7,7 @@ import {
   userAuthorizedGet,
 } from './userEndpoints';
 
-export interface GetUserPositionHistoryParameters
-  extends BaseUserStrategyParams {
+export interface GetUserPositionHistoryParameters extends BaseUserStrategyParams {
   /** Inclusive lower bound. Backend defaults to "since first deposit". */
   startTime?: Date;
   /** Inclusive upper bound. Backend defaults to "now". */

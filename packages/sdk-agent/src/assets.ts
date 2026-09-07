@@ -17,7 +17,7 @@ import {
   type ChainId,
   Env,
   getLbtcContractAddresses,
-} from "@lombard.finance/sdk";
+} from '@lombard.finance/sdk';
 
 export interface LombardAsset {
   /** Canonical short symbol (LBTC, BTC.b, BTCe, ...). */
@@ -59,20 +59,20 @@ function mergeLbtcAddresses(): Partial<Record<number, string>> {
  */
 export const LOMBARD_ASSETS: LombardAsset[] = [
   {
-    symbol: "LBTC",
-    aliases: ["Lombard BTC", "Lombard staked Bitcoin", "lbtc"],
-    name: "Lombard BTC",
+    symbol: 'LBTC',
+    aliases: ['Lombard BTC', 'Lombard staked Bitcoin', 'lbtc'],
+    name: 'Lombard BTC',
     description:
-      "Yield-bearing receipt token for native BTC staked via Babylon. 1 LBTC is always worth slightly more than 1 BTC and grows over time as Babylon yield accrues. The exchange rate is never 1:1 — always fetch with get_exchange_rate.",
+      'Yield-bearing receipt token for native BTC staked via Babylon. 1 LBTC is always worth slightly more than 1 BTC and grows over time as Babylon yield accrues. The exchange rate is never 1:1 — always fetch with get_exchange_rate.',
     isLombardIssued: true,
     isYieldBearing: true,
     decimals: 8,
     addresses: mergeLbtcAddresses(),
   },
   {
-    symbol: "BTC.b",
-    aliases: ["BTCb", "BTC dot b", "btc.b", "Lombard cross-chain BTC"],
-    name: "BTC.b",
+    symbol: 'BTC.b',
+    aliases: ['BTCb', 'BTC dot b', 'btc.b', 'Lombard cross-chain BTC'],
+    name: 'BTC.b',
     description:
       "Lombard's cross-chain wrapped Bitcoin token. Bridged BTC, NOT yield-bearing. Use BTC.b when the user wants wrapped BTC on an EVM chain without yield exposure.",
     isLombardIssued: true,
@@ -83,17 +83,17 @@ export const LOMBARD_ASSETS: LombardAsset[] = [
       "Per-chain BTC.b contract addresses are resolved on demand via the SDK's getTokenContractInfo(Token.BTCb, chainId, env). Call get_token_info with chainId+address for verification.",
   },
   {
-    symbol: "BTCe",
-    aliases: ["Bitcoin Earn token", "Bitcoin Earn vault share", "BTCE", "btce"],
-    name: "Bitcoin Earn vault share (BTCe)",
+    symbol: 'BTCe',
+    aliases: ['Bitcoin Earn token', 'Bitcoin Earn vault share', 'BTCE', 'btce'],
+    name: 'Bitcoin Earn vault share (BTCe)',
     description:
-      "ERC4626 wrapper share token for the Bitcoin Earn vault. Holding BTCe is how users participate in Bitcoin Earn yield; deposits via prepare_deploy_to_vault mint BTCe, withdrawals via prepare_vault_withdrawal burn it.",
+      'ERC4626 wrapper share token for the Bitcoin Earn vault. Holding BTCe is how users participate in Bitcoin Earn yield; deposits via prepare_deploy_to_vault mint BTCe, withdrawals via prepare_vault_withdrawal burn it.',
     isLombardIssued: true,
     isYieldBearing: true,
     decimals: 8,
     addresses: { ...BTCE_VAULT_CONTRACTS } as Partial<Record<number, string>>,
     notes:
-      "BTCe wraps the underlying Veda share (LBTCv) 1:1 today; convertToAssets() is the authoritative conversion if the ratio ever changes.",
+      'BTCe wraps the underlying Veda share (LBTCv) 1:1 today; convertToAssets() is the authoritative conversion if the ratio ever changes.',
   },
 ];
 
@@ -135,18 +135,18 @@ export function resolveAssetByAddress(
 export function buildAssetGlossary(): string {
   const lines = LOMBARD_ASSETS.map((a) => {
     const tags = [
-      a.isLombardIssued ? "Lombard-issued" : "third-party",
-      a.isYieldBearing ? "yield-bearing" : "not yield-bearing",
-    ].join(", ");
+      a.isLombardIssued ? 'Lombard-issued' : 'third-party',
+      a.isYieldBearing ? 'yield-bearing' : 'not yield-bearing',
+    ].join(', ');
     return `- **${a.symbol}** (${a.name}; ${tags}; ${a.decimals} decimals) — ${a.description}`;
   });
   return [
-    "# Lombard asset glossary",
-    "",
+    '# Lombard asset glossary',
+    '',
     "These are the canonical Lombard-related assets. Use these names verbatim. If a user asks about an asset not listed here, call get_token_info to look it up before saying you don't know.",
-    "",
+    '',
     ...lines,
-  ].join("\n");
+  ].join('\n');
 }
 
 /** Pre-built glossary string (computed once at module load). */

@@ -33,7 +33,7 @@ const meta = {
     vault: {
       options: Object.values(DefiProtocol),
       control: { type: 'select' },
-      description: 'Vault to stake into (Veda: LBTC/BTC, Silo: BTCb)',
+      description: 'Vault to stake into (Bitcoin Earn: LBTC/BTC, Silo: BTCb)',
     },
     env: {
       options: [Env.prod, Env.testnet, Env.stage, Env.dev],
@@ -56,7 +56,7 @@ export const PermitFlow_LBTC_Ethereum: Story = {
   args: {
     value: '10000',
     token: Token.LBTC,
-    vault: DefiProtocol.Veda,
+    vault: DefiProtocol.BitcoinEarn,
     env: Env.prod,
   },
 };
@@ -66,7 +66,7 @@ export const PermitFlow_BTC_Ethereum: Story = {
   args: {
     value: '10000',
     token: 'BTC',
-    vault: DefiProtocol.Veda,
+    vault: DefiProtocol.BitcoinEarn,
     env: Env.prod,
   },
 };
@@ -103,7 +103,7 @@ export function StoryView(props: SignStakeAndBakeParams) {
       value: props.value,
       expiry: props.expiry,
       token: props.token,
-      vaultKey: props.vault || DefiProtocol.Veda,
+      vaultKey: props.vault || DefiProtocol.BitcoinEarn,
       account: connection.account.address,
       chainId: connection.account.chainId,
       provider: connection.provider,

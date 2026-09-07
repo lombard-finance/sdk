@@ -1,4 +1,3 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { extractChain, PublicClient } from 'viem';
 import * as chains from 'viem/chains';
@@ -12,6 +11,7 @@ import {
   getTokenContractInfo,
   retrieveTokenProperties,
 } from '../../../tokens/tokens';
+import { httpRequest } from '../../../utils/http';
 import { EARN_VAULT, EarnChain } from '../config';
 
 export type GetVaultBtcHolding = {
@@ -82,7 +82,7 @@ type Response = {
   /** The TVL represented us US dollars */
   tvl: BigNumber;
 };
-export async function getEarnTVL({ env }: GetEarnTVLParameters) {
+export async function getEarnTVL({ env, auth }: GetEarnTVLParameters) {
   const { bffApiUrl } = getApiConfig(env);
   if (!bffApiUrl) {
     throw new Error(
@@ -91,7 +91,11 @@ export async function getEarnTVL({ env }: GetEarnTVLParameters) {
   }
 
   const url = `${bffApiUrl}/dune-api/query/vault-tvl`;
-  const { data } = await axios.get<DuneQueryResult>(url);
+  const { data } = await httpRequest<DuneQueryResult>({
+    url: url,
+    scope: 'public',
+    auth,
+  });
 
   const response: Response = {
     btcBalance: BigNumber(data.net_btc_balance),

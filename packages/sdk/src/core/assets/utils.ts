@@ -238,7 +238,7 @@ export function getEvmAssetChains(
 /**
  * Get chains where multiple assets are ALL deployed (intersection)
  *
- * Useful for finding chains that support both LBTC and BTCb for same-chain unstake.
+ * Useful for finding chains that support both LBTC and BTCb for same-chain withdraw.
  *
  * @param assets - Array of Asset IDs that must all be present
  * @param envs - Array of environments to include

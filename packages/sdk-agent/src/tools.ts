@@ -35,17 +35,17 @@ import {
   makePublicClient,
   requiresAutoMintFee,
   Token,
-} from "@lombard.finance/sdk";
-import { type Address, formatUnits } from "viem";
-import type { z } from "zod";
+} from '@lombard.finance/sdk';
+import { type Address, formatUnits } from 'viem';
+import type { z } from 'zod';
 
 import {
   LOMBARD_ASSETS,
   type LombardAsset,
   resolveAssetByAddress,
   resolveAssetByName,
-} from "./assets";
-import { getChainConfig } from "./chains";
+} from './assets';
+import { getChainConfig } from './chains';
 import {
   AddressAndChainSchema,
   AddressAndChainZod,
@@ -83,7 +83,7 @@ import {
   TokenInfoZod,
   VaultWithdrawalSchema,
   VaultWithdrawalZod,
-} from "./schemas";
+} from './schemas';
 import {
   resolvePartnerId,
   validateAmountInputs,
@@ -92,7 +92,7 @@ import {
   validateRedeemBtcbInputs,
   validateStakeInputs,
   type ValidationFailure,
-} from "./validation";
+} from './validation';
 
 export interface ToolDefinition<
   TParams = Record<string, unknown>,
@@ -148,7 +148,7 @@ async function readTokenBalance(
   const tokenInfo = await withTimeout(
     getTokenContractInfo(token, config.chainId, config.env),
     10_000,
-    "getTokenContractInfo",
+    'getTokenContractInfo',
   );
   // Use the SDK's makePublicClient for reliable RPC calls
   const client = makePublicClient({
@@ -161,14 +161,14 @@ async function readTokenBalance(
       address: tokenInfo.address as Address,
       abi: [
         {
-          name: "balanceOf",
-          type: "function",
-          stateMutability: "view",
-          inputs: [{ name: "account", type: "address" }],
-          outputs: [{ name: "", type: "uint256" }],
+          name: 'balanceOf',
+          type: 'function',
+          stateMutability: 'view',
+          inputs: [{ name: 'account', type: 'address' }],
+          outputs: [{ name: '', type: 'uint256' }],
         },
       ] as const,
-      functionName: "balanceOf",
+      functionName: 'balanceOf',
       args: [address as Address],
     }),
     10_000,
@@ -176,7 +176,7 @@ async function readTokenBalance(
   );
 
   const decimals =
-    "decimals" in tokenInfo && typeof tokenInfo.decimals === "number"
+    'decimals' in tokenInfo && typeof tokenInfo.decimals === 'number'
       ? tokenInfo.decimals
       : 8;
   return formatUnits(balance, decimals);
@@ -194,8 +194,8 @@ export const getLbtcBalance: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_lbtc_balance",
-  description: "Check the LBTC balance for a wallet address on a given chain.",
+  name: 'get_lbtc_balance',
+  description: 'Check the LBTC balance for a wallet address on a given chain.',
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
@@ -203,14 +203,15 @@ export const getLbtcBalance: ToolDefinition<
     const { name } = getChainConfig(chainId);
     try {
       const balance = await readTokenBalance(Token.LBTC, address, chainId);
-      return { balance, token: "LBTC", chain: name, address };
+      return { balance, token: 'LBTC', chain: name, address };
     } catch (err) {
       return {
-        balance: "",
-        token: "LBTC",
+        balance: '',
+        token: 'LBTC',
         chain: name,
         address,
-        error: err instanceof Error ? err.message : "Failed to fetch LBTC balance",
+        error:
+          err instanceof Error ? err.message : 'Failed to fetch LBTC balance',
       };
     }
   },
@@ -226,9 +227,9 @@ export const getBtcbBalance: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_btcb_balance",
+  name: 'get_btcb_balance',
   description:
-    "Check the BTC.b (cross-chain Bitcoin) balance for a wallet address on a given chain.",
+    'Check the BTC.b (cross-chain Bitcoin) balance for a wallet address on a given chain.',
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
@@ -236,14 +237,15 @@ export const getBtcbBalance: ToolDefinition<
     const { name } = getChainConfig(chainId);
     try {
       const balance = await readTokenBalance(Token.BTCb, address, chainId);
-      return { balance, token: "BTC.b", chain: name, address };
+      return { balance, token: 'BTC.b', chain: name, address };
     } catch (err) {
       return {
-        balance: "",
-        token: "BTC.b",
+        balance: '',
+        token: 'BTC.b',
         chain: name,
         address,
-        error: err instanceof Error ? err.message : "Failed to fetch BTC.b balance",
+        error:
+          err instanceof Error ? err.message : 'Failed to fetch BTC.b balance',
       };
     }
   },
@@ -259,10 +261,10 @@ export const getExchangeRate: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_exchange_rate",
+  name: 'get_exchange_rate',
   description:
-    "Get the current LBTC/BTC exchange rate and minimum stake amount. " +
-    "LBTC accrues staking yield over time, so 1 LBTC is worth slightly more than 1 BTC.",
+    'Get the current LBTC/BTC exchange rate and minimum stake amount. ' +
+    'LBTC accrues staking yield over time, so 1 LBTC is worth slightly more than 1 BTC.',
   parameters: ExchangeRateSchema as Record<string, unknown>,
   schema: ExchangeRateZod,
   execute: async (params) => {
@@ -278,7 +280,7 @@ export const getExchangeRate: ToolDefinition<
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lbtcData = (ratioResult as any).LBTC;
       if (!lbtcData?.BTCTokenRatio || !lbtcData?.tokenBTCRatio) {
-        throw new Error("Exchange ratio data unavailable");
+        throw new Error('Exchange ratio data unavailable');
       }
       const lbtcToBtc = String(lbtcData.BTCTokenRatio);
       const btcToLbtc = String(lbtcData.tokenBTCRatio);
@@ -291,12 +293,12 @@ export const getExchangeRate: ToolDefinition<
       };
     } catch (err) {
       return {
-        lbtcToBtc: "",
-        btcToLbtc: "",
-        minStakeAmountBtc: "",
-        description: "",
+        lbtcToBtc: '',
+        btcToLbtc: '',
+        minStakeAmountBtc: '',
+        description: '',
         error:
-          err instanceof Error ? err.message : "Failed to fetch exchange rate",
+          err instanceof Error ? err.message : 'Failed to fetch exchange rate',
       };
     }
   },
@@ -306,9 +308,9 @@ export const getDepositStatusTool: ToolDefinition<{
   address: string;
   chainId: number;
 }> = {
-  name: "get_deposit_status",
+  name: 'get_deposit_status',
   description:
-    "Check the status of all deposits for an address. Shows pending, claimable, and claimed deposits.",
+    'Check the status of all deposits for an address. Shows pending, claimable, and claimed deposits.',
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
@@ -320,7 +322,7 @@ export const getDepositStatusTool: ToolDefinition<{
     });
 
     if (deposits.length === 0) {
-      return { deposits: [], message: "No deposits found" };
+      return { deposits: [], message: 'No deposits found' };
     }
 
     return {
@@ -347,9 +349,9 @@ export const getRedemptionStatusTool: ToolDefinition<{
   address: string;
   chainId: number;
 }> = {
-  name: "get_redemption_status",
+  name: 'get_redemption_status',
   description:
-    "Check the status of all unstake/redeem operations for an address.",
+    'Check the status of all unstake/redeem operations for an address.',
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
@@ -361,7 +363,7 @@ export const getRedemptionStatusTool: ToolDefinition<{
     });
 
     if (unstakes.length === 0) {
-      return { unstakes: [], message: "No unstakes found" };
+      return { unstakes: [], message: 'No unstakes found' };
     }
 
     return {
@@ -386,9 +388,9 @@ export const getBalance: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_balance",
+  name: 'get_balance',
   description:
-    "Check both LBTC and BTC.b balances for a wallet on a given chain in a single call.",
+    'Check both LBTC and BTC.b balances for a wallet on a given chain in a single call.',
   parameters: BalanceSchema as Record<string, unknown>,
   schema: BalanceZod,
   execute: async (params) => {
@@ -396,10 +398,10 @@ export const getBalance: ToolDefinition<
     const config = getChainConfig(chainId);
     const [lbtc, btcb] = await Promise.all([
       readTokenBalance(Token.LBTC, address, chainId).catch((e) =>
-        e instanceof Error ? `error: ${e.message}` : "error",
+        e instanceof Error ? `error: ${e.message}` : 'error',
       ),
       readTokenBalance(Token.BTCb, address, chainId).catch((e) =>
-        e instanceof Error ? `error: ${e.message}` : "error",
+        e instanceof Error ? `error: ${e.message}` : 'error',
       ),
     ]);
     return { lbtc, btcb, chain: config.name, address };
@@ -410,25 +412,25 @@ export const getBalance: ToolDefinition<
 
 const erc20BalanceAbi = [
   {
-    name: "balanceOf",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "account", type: "address" }],
-    outputs: [{ name: "", type: "uint256" }],
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'account', type: 'address' }],
+    outputs: [{ name: '', type: 'uint256' }],
   },
   {
-    name: "decimals",
-    type: "function",
-    stateMutability: "view",
+    name: 'decimals',
+    type: 'function',
+    stateMutability: 'view',
     inputs: [],
-    outputs: [{ name: "", type: "uint8" }],
+    outputs: [{ name: '', type: 'uint8' }],
   },
   {
-    name: "symbol",
-    type: "function",
-    stateMutability: "view",
+    name: 'symbol',
+    type: 'function',
+    stateMutability: 'view',
     inputs: [],
-    outputs: [{ name: "", type: "string" }],
+    outputs: [{ name: '', type: 'string' }],
   },
 ] as const;
 
@@ -455,7 +457,7 @@ export const getTokenInfo: ToolDefinition<
     note: string;
   }
 > = {
-  name: "get_token_info",
+  name: 'get_token_info',
   description:
     "Look up a Lombard-related asset by symbol, alias, or contract address. Returns the canonical name, description, decimals, and per-chain contract addresses. Use this whenever the user mentions a token you're not sure about (BTCe, LBTCv, etc.) before telling them you don't recognize it.",
   parameters: TokenInfoSchema as Record<string, unknown>,
@@ -480,7 +482,7 @@ export const getTokenInfo: ToolDefinition<
       };
     };
 
-    if (params.address && typeof params.chainId === "number") {
+    if (params.address && typeof params.chainId === 'number') {
       const found = resolveAssetByAddress(params.chainId, params.address);
       if (found) {
         return {
@@ -508,14 +510,14 @@ export const getTokenInfo: ToolDefinition<
       return {
         found: false,
         suggestions,
-        note: `"${params.query}" is not a known Lombard asset. Known symbols: ${suggestions.join(", ")}.`,
+        note: `"${params.query}" is not a known Lombard asset. Known symbols: ${suggestions.join(', ')}.`,
       };
     }
 
     return {
       found: false,
       suggestions,
-      note: "Provide a `query` (symbol/name) or both `address` and `chainId`.",
+      note: 'Provide a `query` (symbol/name) or both `address` and `chainId`.',
     };
   },
 };
@@ -530,13 +532,13 @@ export const getTokenBalance: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_token_balance",
+  name: 'get_token_balance',
   description:
-    "Check the balance of any ERC-20 token for a wallet address. " +
-    "Requires the token contract address (0x...). Get addresses from other tool results " +
-    "(e.g. loanAsset.address from get_morpho_lbtc_markets). " +
-    "Reads symbol and decimals directly from the contract. " +
-    "Use this for tokens beyond LBTC and BTC.b.",
+    'Check the balance of any ERC-20 token for a wallet address. ' +
+    'Requires the token contract address (0x...). Get addresses from other tool results ' +
+    '(e.g. loanAsset.address from get_morpho_lbtc_markets). ' +
+    'Reads symbol and decimals directly from the contract. ' +
+    'Use this for tokens beyond LBTC and BTC.b.',
   parameters: TokenBalanceSchema as Record<string, unknown>,
   schema: TokenBalanceZod,
   execute: async (params) => {
@@ -552,18 +554,18 @@ export const getTokenBalance: ToolDefinition<
         client.readContract({
           address: tokenAddress as Address,
           abi: erc20BalanceAbi,
-          functionName: "balanceOf",
+          functionName: 'balanceOf',
           args: [address as Address],
         }),
         client.readContract({
           address: tokenAddress as Address,
           abi: erc20BalanceAbi,
-          functionName: "decimals",
+          functionName: 'decimals',
         }),
         client.readContract({
           address: tokenAddress as Address,
           abi: erc20BalanceAbi,
-          functionName: "symbol",
+          functionName: 'symbol',
         }),
       ]);
       return {
@@ -574,12 +576,12 @@ export const getTokenBalance: ToolDefinition<
       };
     } catch (err) {
       return {
-        balance: "",
-        symbol: "",
+        balance: '',
+        symbol: '',
         tokenAddress,
         chain: config.name,
         error:
-          err instanceof Error ? err.message : "Failed to read token balance",
+          err instanceof Error ? err.message : 'Failed to read token balance',
       };
     }
   },
@@ -597,10 +599,10 @@ export const getEarnStrategiesTool: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_earn_strategies",
+  name: 'get_earn_strategies',
   description:
-    "List available yield strategies where LBTC can be deployed for additional yield. " +
-    "Currently includes Bitcoin Earn (passive vault yield). Returns name, chain, APY, and TVL.",
+    'List available yield strategies where LBTC can be deployed for additional yield. ' +
+    'Currently includes Bitcoin Earn (passive vault yield). Returns name, chain, APY, and TVL.',
   parameters: StrategiesSchema as Record<string, unknown>,
   schema: StrategiesZod,
   // Vault data is mainnet-only regardless of chainId
@@ -619,17 +621,17 @@ export const getEarnStrategiesTool: ToolDefinition<
       return {
         strategies: [
           {
-            vault: "Bitcoin Earn",
-            chain: "Ethereum",
+            vault: 'Bitcoin Earn',
+            chain: 'Ethereum',
             apy: latestApy
               ? `${(parseFloat(String(latestApy.apy)) * 100).toFixed(2)}%`
-              : "N/A",
+              : 'N/A',
             tvlBtc: tvlData.btcBalance.toFixed(4),
           },
         ],
       };
     } catch {
-      return { strategies: [], error: "Unable to fetch vault data" };
+      return { strategies: [], error: 'Unable to fetch vault data' };
     }
   },
 };
@@ -637,7 +639,7 @@ export const getEarnStrategiesTool: ToolDefinition<
 // ─── Opportunities Tool ─────────────────────────────────────────────
 
 const BFF_BASE_URL =
-  process.env.LOMBARD_BFF_URL || "https://bff.prod.lombard-fi.com";
+  process.env.LOMBARD_BFF_URL || 'https://bff.prod.lombard-fi.com';
 
 export const getLbtcDefiOpportunitiesTool: ToolDefinition<
   { category?: string; chain?: string; protocol?: string },
@@ -657,11 +659,11 @@ export const getLbtcDefiOpportunitiesTool: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_lbtc_defi_opportunities",
+  name: 'get_lbtc_defi_opportunities',
   description:
-    "List LBTC and BTC.b DeFi opportunities across protocols and chains. " +
-    "Includes borrow-stables, looping, DEX LP, automated strategies, and more. " +
-    "Filter by category (borrow-stables, looping, dex-lp, automated-strategy, other), chain, or protocol.",
+    'List LBTC and BTC.b DeFi opportunities across protocols and chains. ' +
+    'Includes borrow-stables, looping, DEX LP, automated strategies, and more. ' +
+    'Filter by category (borrow-stables, looping, dex-lp, automated-strategy, other), chain, or protocol.',
   parameters: OpportunitiesSchema as Record<string, unknown>,
   schema: OpportunitiesZod,
   execute: async (params) => {
@@ -670,9 +672,8 @@ export const getLbtcDefiOpportunitiesTool: ToolDefinition<
       const queryParts: string[] = [];
       if (category) queryParts.push(`category=${encodeURIComponent(category)}`);
       if (chain) queryParts.push(`chain=${encodeURIComponent(chain)}`);
-      if (protocol)
-        queryParts.push(`protocol=${encodeURIComponent(protocol)}`);
-      const qs = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+      if (protocol) queryParts.push(`protocol=${encodeURIComponent(protocol)}`);
+      const qs = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
 
       const res = await fetch(`${BFF_BASE_URL}/opportunities-api${qs}`);
       if (!res.ok) {
@@ -689,9 +690,7 @@ export const getLbtcDefiOpportunitiesTool: ToolDefinition<
       return {
         opportunities: [],
         error:
-          err instanceof Error
-            ? err.message
-            : "Failed to fetch opportunities",
+          err instanceof Error ? err.message : 'Failed to fetch opportunities',
       };
     }
   },
@@ -701,11 +700,11 @@ export const getDepositBtcAddress: ToolDefinition<
   { address: string; chainId: number },
   { btcAddress: string | null; chain: string; note: string; action?: string }
 > = {
-  name: "get_deposit_btc_address",
+  name: 'get_deposit_btc_address',
   description:
-    "Get or generate a BTC deposit address for a wallet. Users send native BTC to this " +
-    "address to receive LBTC on the specified EVM chain. If no address exists yet, " +
-    "returns instructions to generate one (requires a wallet signature).",
+    'Get or generate a BTC deposit address for a wallet. Users send native BTC to this ' +
+    'address to receive LBTC on the specified EVM chain. If no address exists yet, ' +
+    'returns instructions to generate one (requires a wallet signature).',
   parameters: DepositBtcSchema as Record<string, unknown>,
   schema: DepositBtcZod,
   execute: async (params) => {
@@ -721,14 +720,14 @@ export const getDepositBtcAddress: ToolDefinition<
       return {
         btcAddress,
         chain: config.name,
-        note: "Send BTC to this address. Once confirmed and notarized, use get_deposit_status to track progress and claim your LBTC.",
+        note: 'Send BTC to this address. Once confirmed and notarized, use get_deposit_status to track progress and claim your LBTC.',
       };
     } catch {
       return {
         btcAddress: null,
         chain: config.name,
-        action: "generate_deposit_address",
-        note: "No deposit address exists yet. To generate one, a wallet signature is required. Click the button below to sign and generate your BTC deposit address.",
+        action: 'generate_deposit_address',
+        note: 'No deposit address exists yet. To generate one, a wallet signature is required. Click the button below to sign and generate your BTC deposit address.',
       };
     }
   },
@@ -746,11 +745,11 @@ export const checkFeeAuthorization: ToolDefinition<
     note: string;
   }
 > = {
-  name: "check_fee_authorization",
+  name: 'check_fee_authorization',
   description:
-    "Check if a valid fee authorization signature exists for staking. " +
-    "On Ethereum/Sepolia, fee auth (EIP-712) is required before generating a BTC deposit address. " +
-    "On other chains, an address confirmation is required instead.",
+    'Check if a valid fee authorization signature exists for staking. ' +
+    'On Ethereum/Sepolia, fee auth (EIP-712) is required before generating a BTC deposit address. ' +
+    'On other chains, an address confirmation is required instead.',
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
@@ -767,7 +766,7 @@ export const checkFeeAuthorization: ToolDefinition<
             env: config.env,
           }),
           10_000,
-          "getNetworkFeeSignature",
+          'getNetworkFeeSignature',
         );
         const isValid =
           sig.hasSignature &&
@@ -778,8 +777,8 @@ export const checkFeeAuthorization: ToolDefinition<
           hasValidSignature: isValid,
           expirationDate: sig.hasSignature ? sig.expirationDate : null,
           note: isValid
-            ? "Fee authorization is valid. Ready to generate deposit address."
-            : "Fee authorization is needed before generating a deposit address.",
+            ? 'Fee authorization is valid. Ready to generate deposit address.'
+            : 'Fee authorization is needed before generating a deposit address.',
         };
       } catch {
         return {
@@ -787,7 +786,7 @@ export const checkFeeAuthorization: ToolDefinition<
           requiresFeeAuth: true,
           hasValidSignature: false,
           expirationDate: null,
-          note: "Fee authorization is needed before generating a deposit address.",
+          note: 'Fee authorization is needed before generating a deposit address.',
         };
       }
     }
@@ -797,7 +796,7 @@ export const checkFeeAuthorization: ToolDefinition<
       requiresFeeAuth: false,
       hasValidSignature: false,
       expirationDate: null,
-      note: "This chain requires an address confirmation signature (not fee auth). The signing will happen when generating the deposit address.",
+      note: 'This chain requires an address confirmation signature (not fee auth). The signing will happen when generating the deposit address.',
     };
   },
 };
@@ -811,17 +810,17 @@ export const prepareBtcToLbtcDeposit: ToolDefinition<
     description: string;
   }
 > = {
-  name: "prepare_btc_to_lbtc_deposit",
+  name: 'prepare_btc_to_lbtc_deposit',
   description:
-    "Prepare a native BTC -> LBTC deposit address. Use this when the user wants LBTC (yield-bearing). The wallet will prompt for fee authorization (Ethereum/Sepolia) or an address confirmation (other chains), then a unique BTC deposit address is generated.",
+    'Prepare a native BTC -> LBTC deposit address. Use this when the user wants LBTC (yield-bearing). The wallet will prompt for fee authorization (Ethereum/Sepolia) or an address confirmation (other chains), then a unique BTC deposit address is generated.',
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
     const { address, chainId } = AddressAndChainZod.parse(params);
     const config = getChainConfig(chainId);
     return {
-      action: "sdk_execute",
-      method: "btc.generateLbtcDepositAddress",
+      action: 'sdk_execute',
+      method: 'btc.generateLbtcDepositAddress',
       params: { address, chainId: config.chainId },
       description: `Generate a BTC deposit address for ${address} on ${config.name}. The deposit will mint LBTC. Your wallet will prompt you to sign an authorization.`,
     };
@@ -837,17 +836,17 @@ export const prepareBtcToBtcbDeposit: ToolDefinition<
     description: string;
   }
 > = {
-  name: "prepare_btc_to_btcb_deposit",
+  name: 'prepare_btc_to_btcb_deposit',
   description:
-    "Prepare a native BTC -> BTC.b deposit address. Use this when the user wants BTC.b (cross-chain wrapped Bitcoin, NOT yield-bearing). Distinct flow from prepare_btc_to_lbtc_deposit (which produces LBTC). The wallet will prompt for the required authorization, then a unique BTC deposit address is generated that mints BTC.b on the destination EVM chain.",
+    'Prepare a native BTC -> BTC.b deposit address. Use this when the user wants BTC.b (cross-chain wrapped Bitcoin, NOT yield-bearing). Distinct flow from prepare_btc_to_lbtc_deposit (which produces LBTC). The wallet will prompt for the required authorization, then a unique BTC deposit address is generated that mints BTC.b on the destination EVM chain.',
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
     const { address, chainId } = AddressAndChainZod.parse(params);
     const config = getChainConfig(chainId);
     return {
-      action: "sdk_execute",
-      method: "btc.generateBtcbDepositAddress",
+      action: 'sdk_execute',
+      method: 'btc.generateBtcbDepositAddress',
       params: { address, chainId: config.chainId },
       description: `Generate a BTC -> BTC.b deposit address for ${address} on ${config.name}. The deposit will mint BTC.b on the destination EVM chain. Your wallet will prompt you to sign an authorization.`,
     };
@@ -860,7 +859,7 @@ export const prepareBtcbToLbtcStake: ToolDefinition<
   { amount: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_btcb_to_lbtc_stake",
+  name: 'prepare_btcb_to_lbtc_stake',
   description:
     "Prepare a BTC.b → LBTC stake. Returns transaction parameters for the user's wallet to sign, or a validation failure listing what to ask the user for.",
   parameters: StakeSchema as Record<string, unknown>,
@@ -872,7 +871,7 @@ export const prepareBtcbToLbtcStake: ToolDefinition<
         valid: false,
         missing: [],
         errors: parsed.error.issues.map((i) => i.message),
-        note: "Surface the listed errors to the user and re-prompt with valid input.",
+        note: 'Surface the listed errors to the user and re-prompt with valid input.',
       };
     }
     const v = validateStakeInputs(parsed.data);
@@ -881,13 +880,13 @@ export const prepareBtcbToLbtcStake: ToolDefinition<
     const config = getChainConfig(chainId);
     return {
       valid: true,
-      action: "sdk_execute",
-      method: "evm.btcbToLbtc",
+      action: 'sdk_execute',
+      method: 'evm.btcbToLbtc',
       params: {
         amount,
         chainId: config.chainId,
-        assetIn: "BTCb",
-        assetOut: "LBTC",
+        assetIn: 'BTCb',
+        assetOut: 'LBTC',
       },
       description: `Stake ${amount} BTC.b to receive LBTC on ${config.name}`,
     };
@@ -898,9 +897,9 @@ export const prepareLbtcToBtc: ToolDefinition<
   { amount: string; recipient: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_lbtc_to_btc",
+  name: 'prepare_lbtc_to_btc',
   description:
-    "Prepare a cross-chain LBTC redemption to native Bitcoin. The user MUST supply a Bitcoin destination address — do not infer or fill it from prior context. Returns either prepared transaction parameters or a validation failure listing what to ask the user for. For LBTC → BTC.b on the same EVM chain, use prepare_lbtc_to_btcb instead.",
+    'Prepare a cross-chain LBTC redemption to native Bitcoin. The user MUST supply a Bitcoin destination address — do not infer or fill it from prior context. Returns either prepared transaction parameters or a validation failure listing what to ask the user for. For LBTC → BTC.b on the same EVM chain, use prepare_lbtc_to_btcb instead.',
   parameters: LbtcToBtcSchema as Record<string, unknown>,
   schema: LbtcToBtcZod,
   execute: async (params) => {
@@ -910,7 +909,7 @@ export const prepareLbtcToBtc: ToolDefinition<
         valid: false,
         missing: [],
         errors: parsed.error.issues.map((i) => i.message),
-        note: "Surface the listed errors to the user and re-prompt with valid input.",
+        note: 'Surface the listed errors to the user and re-prompt with valid input.',
       };
     }
     const v = validateLbtcToBtcInputs(parsed.data);
@@ -919,8 +918,8 @@ export const prepareLbtcToBtc: ToolDefinition<
     const config = getChainConfig(chainId);
     return {
       valid: true,
-      action: "sdk_execute",
-      method: "evm.lbtcToBtc",
+      action: 'sdk_execute',
+      method: 'evm.lbtcToBtc',
       params: {
         amount,
         recipient,
@@ -935,7 +934,7 @@ export const prepareLbtcToBtcb: ToolDefinition<
   { amount: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_lbtc_to_btcb",
+  name: 'prepare_lbtc_to_btcb',
   description:
     "Prepare a same-chain LBTC → BTC.b redemption. No Bitcoin recipient address is needed; the BTC.b is credited to the caller's wallet on the same EVM chain. For LBTC → native BTC, use prepare_lbtc_to_btc.",
   parameters: LbtcToBtcbSchema as Record<string, unknown>,
@@ -947,7 +946,7 @@ export const prepareLbtcToBtcb: ToolDefinition<
         valid: false,
         missing: [],
         errors: parsed.error.issues.map((i) => i.message),
-        note: "Surface the listed errors to the user and re-prompt with valid input.",
+        note: 'Surface the listed errors to the user and re-prompt with valid input.',
       };
     }
     const v = validateLbtcToBtcbInputs(parsed.data);
@@ -956,8 +955,8 @@ export const prepareLbtcToBtcb: ToolDefinition<
     const config = getChainConfig(chainId);
     return {
       valid: true,
-      action: "sdk_execute",
-      method: "evm.lbtcToBtcb",
+      action: 'sdk_execute',
+      method: 'evm.lbtcToBtcb',
       params: {
         amount,
         chainId: config.chainId,
@@ -971,9 +970,9 @@ export const prepareRedeemBtcb: ToolDefinition<
   { amount: string; recipient: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_redeem_btcb",
+  name: 'prepare_redeem_btcb',
   description:
-    "Prepare a redemption of BTC.b for native BTC. Distinct from prepare_unstake (which operates on LBTC). The user MUST supply a Bitcoin destination address — do not infer or fill it from prior context. Returns either prepared transaction parameters or a validation failure listing what to ask the user for.",
+    'Prepare a redemption of BTC.b for native BTC. Distinct from prepare_unstake (which operates on LBTC). The user MUST supply a Bitcoin destination address — do not infer or fill it from prior context. Returns either prepared transaction parameters or a validation failure listing what to ask the user for.',
   parameters: RedeemBtcbSchema as Record<string, unknown>,
   schema: RedeemBtcbZod,
   execute: async (params) => {
@@ -983,7 +982,7 @@ export const prepareRedeemBtcb: ToolDefinition<
         valid: false,
         missing: [],
         errors: parsed.error.issues.map((i) => i.message),
-        note: "Surface the listed errors to the user and re-prompt with valid input.",
+        note: 'Surface the listed errors to the user and re-prompt with valid input.',
       };
     }
     const v = validateRedeemBtcbInputs(parsed.data);
@@ -992,8 +991,8 @@ export const prepareRedeemBtcb: ToolDefinition<
     const config = getChainConfig(chainId);
     return {
       valid: true,
-      action: "sdk_execute",
-      method: "evm.btcbToBtc",
+      action: 'sdk_execute',
+      method: 'evm.btcbToBtc',
       params: {
         amount,
         recipient,
@@ -1008,9 +1007,9 @@ export const prepareEarnDeposit: ToolDefinition<
   { amount: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_earn_deposit",
+  name: 'prepare_earn_deposit',
   description:
-    "Prepare a transaction to deploy LBTC into Bitcoin Earn. Returns prepared transaction parameters or a validation failure.",
+    'Prepare a transaction to deploy LBTC into Bitcoin Earn. Returns prepared transaction parameters or a validation failure.',
   parameters: DeployToVaultSchema as Record<string, unknown>,
   schema: DeployToVaultZod,
   execute: async (params) => {
@@ -1020,7 +1019,7 @@ export const prepareEarnDeposit: ToolDefinition<
         valid: false,
         missing: [],
         errors: parsed.error.issues.map((i) => i.message),
-        note: "Surface the listed errors to the user and re-prompt with valid input.",
+        note: 'Surface the listed errors to the user and re-prompt with valid input.',
       };
     }
     const v = validateAmountInputs(parsed.data);
@@ -1029,9 +1028,9 @@ export const prepareEarnDeposit: ToolDefinition<
     const config = getChainConfig(chainId);
     return {
       valid: true,
-      action: "sdk_execute",
-      method: "evm.earnDeposit",
-      params: { amount, chainId: config.chainId, token: "LBTC" },
+      action: 'sdk_execute',
+      method: 'evm.earnDeposit',
+      params: { amount, chainId: config.chainId, token: 'LBTC' },
       description: `Deploy ${amount} LBTC to Bitcoin Earn on ${config.name}`,
     };
   },
@@ -1041,9 +1040,9 @@ export const prepareEarnWithdrawal: ToolDefinition<
   { amount: string; address: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_earn_withdrawal",
+  name: 'prepare_earn_withdrawal',
   description:
-    "Prepare a withdrawal from Bitcoin Earn. Only one active withdrawal is allowed per user per vault — this tool checks first and refuses if one is already queued, returning its details so you can offer the user prepare_cancel_earn_withdrawal. On success, returns prepared transaction parameters.",
+    'Prepare a withdrawal from Bitcoin Earn. Only one active withdrawal is allowed per user per vault — this tool checks first and refuses if one is already queued, returning its details so you can offer the user prepare_cancel_earn_withdrawal. On success, returns prepared transaction parameters.',
   parameters: VaultWithdrawalSchema as Record<string, unknown>,
   schema: VaultWithdrawalZod,
   execute: async (params) => {
@@ -1053,7 +1052,7 @@ export const prepareEarnWithdrawal: ToolDefinition<
         valid: false,
         missing: [],
         errors: parsed.error.issues.map((i) => i.message),
-        note: "Surface the listed errors to the user and re-prompt with valid input.",
+        note: 'Surface the listed errors to the user and re-prompt with valid input.',
       };
     }
     const v = validateAmountInputs(parsed.data);
@@ -1072,7 +1071,7 @@ export const prepareEarnWithdrawal: ToolDefinition<
           env: config.env,
         }),
         15_000,
-        "getEarnWithdrawals",
+        'getEarnWithdrawals',
       )) as EarnWithdrawals;
       const active = data.open[0];
       if (active) {
@@ -1095,16 +1094,16 @@ export const prepareEarnWithdrawal: ToolDefinition<
         errors: [
           err instanceof Error
             ? `Could not verify active withdrawals: ${err.message}`
-            : "Could not verify active withdrawals.",
+            : 'Could not verify active withdrawals.',
         ],
-        note: "The active-withdrawal check failed. Tell the user this is a backend issue, suggest they run get_earn_withdrawals manually to confirm no active withdrawal exists, and only proceed with prepare_earn_withdrawal after they confirm.",
+        note: 'The active-withdrawal check failed. Tell the user this is a backend issue, suggest they run get_earn_withdrawals manually to confirm no active withdrawal exists, and only proceed with prepare_earn_withdrawal after they confirm.',
       };
     }
 
     return {
       valid: true,
-      action: "sdk_execute",
-      method: "evm.earnWithdrawal",
+      action: 'sdk_execute',
+      method: 'evm.earnWithdrawal',
       params: { amount, chainId: config.chainId },
       description: `Withdraw ${amount} shares from Bitcoin Earn on ${config.name}. Withdrawals are queued and may take time to process.`,
     };
@@ -1117,10 +1116,10 @@ export const getLbtcApy: ToolDefinition<
   Record<string, never>,
   { baseApy: string; effectiveApy: string; description: string; error?: string }
 > = {
-  name: "get_lbtc_apy",
+  name: 'get_lbtc_apy',
   description:
-    "Get the current LBTC base staking APY (annual percentage yield). " +
-    "Returns both the base and effective APY for LBTC staking.",
+    'Get the current LBTC base staking APY (annual percentage yield). ' +
+    'Returns both the base and effective APY for LBTC staking.',
   parameters: LbtcApySchema as Record<string, unknown>,
   schema: LbtcApyZod,
   execute: async () => {
@@ -1128,7 +1127,7 @@ export const getLbtcApy: ToolDefinition<
       const apy = await withTimeout(
         getApy({ env: Env.prod }),
         10_000,
-        "getApy",
+        'getApy',
       );
       const basePercent = apy.baseApy.multipliedBy(100).toFixed(2);
       const effectivePercent = apy.effectiveApy.multipliedBy(100).toFixed(2);
@@ -1139,10 +1138,10 @@ export const getLbtcApy: ToolDefinition<
       };
     } catch (err) {
       return {
-        baseApy: "",
-        effectiveApy: "",
-        description: "",
-        error: err instanceof Error ? err.message : "Failed to fetch LBTC APY",
+        baseApy: '',
+        effectiveApy: '',
+        description: '',
+        error: err instanceof Error ? err.message : 'Failed to fetch LBTC APY',
       };
     }
   },
@@ -1159,10 +1158,10 @@ export const getEarnPositions: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_earn_positions",
+  name: 'get_earn_positions',
   description:
     "Get a user's Bitcoin Earn positions including shares held and their estimated LBTC value. " +
-    "Currently supports Bitcoin Earn on Ethereum mainnet.",
+    'Currently supports Bitcoin Earn on Ethereum mainnet.',
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
@@ -1172,26 +1171,26 @@ export const getEarnPositions: ToolDefinition<
       const position = await withTimeout(
         getEarnPosition({ address, chainId: config.chainId }),
         10_000,
-        "getEarnPosition",
+        'getEarnPosition',
       );
       return {
         shares: position.totalShares.toString(),
         shareValue: position.exchangeRate.toString(),
         estimatedLbtcValue: position.position.toString(),
-        vault: "Bitcoin Earn",
+        vault: 'Bitcoin Earn',
         chain: config.name,
       };
     } catch (err) {
       return {
-        shares: "",
-        shareValue: "",
-        estimatedLbtcValue: "",
-        vault: "Bitcoin Earn",
+        shares: '',
+        shareValue: '',
+        estimatedLbtcValue: '',
+        vault: 'Bitcoin Earn',
         chain: config.name,
         error:
           err instanceof Error
             ? err.message
-            : "Failed to fetch vault positions",
+            : 'Failed to fetch vault positions',
       };
     }
   },
@@ -1214,10 +1213,10 @@ export const prepareClaimLbtcDeposit: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "prepare_claim_lbtc_deposit",
+  name: 'prepare_claim_lbtc_deposit',
   description:
-    "Prepare a transaction to claim (mint) LBTC from a notarized BTC deposit. " +
-    "Checks if the deposit is claimable and returns the transaction parameters for wallet signing.",
+    'Prepare a transaction to claim (mint) LBTC from a notarized BTC deposit. ' +
+    'Checks if the deposit is claimable and returns the transaction parameters for wallet signing.',
   parameters: ClaimDepositSchema as Record<string, unknown>,
   schema: ClaimDepositZod,
   execute: async (params) => {
@@ -1232,41 +1231,41 @@ export const prepareClaimLbtcDeposit: ToolDefinition<
 
     if (!deposit) {
       return {
-        action: "error",
-        method: "",
+        action: 'error',
+        method: '',
         params: {
           depositTxHash,
-          rawPayload: "",
-          proofSignature: "",
+          rawPayload: '',
+          proofSignature: '',
           chainId: config.chainId,
         },
-        description: "",
+        description: '',
         error:
-          "Could not find a deposit with this transaction hash for the given address. Use get_deposit_status to verify the transaction hash.",
+          'Could not find a deposit with this transaction hash for the given address. Use get_deposit_status to verify the transaction hash.',
       };
     }
 
     const status = getDepositStatus(deposit);
 
-    if (status !== "claimable") {
+    if (status !== 'claimable') {
       const display = getDepositStatusDisplay(status);
       return {
-        action: "error",
-        method: "",
+        action: 'error',
+        method: '',
         params: {
           depositTxHash,
-          rawPayload: "",
-          proofSignature: "",
+          rawPayload: '',
+          proofSignature: '',
           chainId: config.chainId,
         },
-        description: "",
+        description: '',
         error: `Deposit is not claimable. Current status: ${display.label}. ${display.description}`,
       };
     }
 
     return {
-      action: "sdk_execute",
-      method: "evm.claimLbtcDeposit",
+      action: 'sdk_execute',
+      method: 'evm.claimLbtcDeposit',
       params: {
         depositTxHash,
         rawPayload: deposit.rawPayload!,
@@ -1284,7 +1283,7 @@ export const prepareCancelEarnWithdrawal: ToolDefinition<
   { address: string; chainId: number },
   PreparedTx | ValidationFailure
 > = {
-  name: "prepare_cancel_earn_withdrawal",
+  name: 'prepare_cancel_earn_withdrawal',
   description:
     "Cancel an active Bitcoin Earn withdrawal that has not yet been processed. Looks up the user's active withdrawal first; refuses if none exists, includes its details in the description if one does, then returns the cancel transaction parameters.",
   parameters: CancelWithdrawalSchema as Record<string, unknown>,
@@ -1296,13 +1295,13 @@ export const prepareCancelEarnWithdrawal: ToolDefinition<
         valid: false,
         missing: [],
         errors: parsed.error.issues.map((i) => i.message),
-        note: "Surface the listed errors to the user and re-prompt with valid input.",
+        note: 'Surface the listed errors to the user and re-prompt with valid input.',
       };
     }
     const { address, chainId } = parsed.data;
     const config = getChainConfig(chainId);
 
-    let activeDetails = "";
+    let activeDetails = '';
     try {
       const data = (await withTimeout(
         getEarnWithdrawals({
@@ -1311,7 +1310,7 @@ export const prepareCancelEarnWithdrawal: ToolDefinition<
           env: config.env,
         }),
         15_000,
-        "getEarnWithdrawals",
+        'getEarnWithdrawals',
       )) as EarnWithdrawals;
       const active = data.open[0];
       if (!active) {
@@ -1321,7 +1320,7 @@ export const prepareCancelEarnWithdrawal: ToolDefinition<
           errors: [
             `No active withdrawal found for ${address} on ${config.name}. There is nothing to cancel.`,
           ],
-          note: "Tell the user there is no active withdrawal to cancel. If they think there should be, suggest get_earn_withdrawals to inspect their full withdrawal history.",
+          note: 'Tell the user there is no active withdrawal to cancel. If they think there should be, suggest get_earn_withdrawals to inspect their full withdrawal history.',
         };
       }
       activeDetails = ` Active withdrawal: ${active.shareAmount.toString()} shares (request tx ${active.txHash}, deadline ${active.deadline}).`;
@@ -1332,16 +1331,16 @@ export const prepareCancelEarnWithdrawal: ToolDefinition<
         errors: [
           err instanceof Error
             ? `Could not verify active withdrawals before cancelling: ${err.message}`
-            : "Could not verify active withdrawals before cancelling.",
+            : 'Could not verify active withdrawals before cancelling.',
         ],
-        note: "Backend issue. Ask the user to retry in a moment, or to verify via get_earn_withdrawals first.",
+        note: 'Backend issue. Ask the user to retry in a moment, or to verify via get_earn_withdrawals first.',
       };
     }
 
     return {
       valid: true,
-      action: "sdk_execute",
-      method: "evm.cancelEarnWithdrawal",
+      action: 'sdk_execute',
+      method: 'evm.cancelEarnWithdrawal',
       params: { chainId: config.chainId },
       description: `Cancel pending Bitcoin Earn withdrawal on ${config.name}.${activeDetails} Your wallet will prompt you to sign the cancellation transaction.`,
     };
@@ -1381,9 +1380,9 @@ export const getEarnWithdrawalsTool: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_earn_withdrawals",
+  name: 'get_earn_withdrawals',
   description:
-    "Get all vault withdrawals for an address, including open (pending), fulfilled, cancelled, and expired withdrawals.",
+    'Get all vault withdrawals for an address, including open (pending), fulfilled, cancelled, and expired withdrawals.',
   parameters: AddressAndChainSchema as Record<string, unknown>,
   schema: AddressAndChainZod,
   execute: async (params) => {
@@ -1397,7 +1396,7 @@ export const getEarnWithdrawalsTool: ToolDefinition<
           env: config.env,
         }),
         15_000,
-        "getEarnWithdrawals",
+        'getEarnWithdrawals',
       )) as EarnWithdrawals;
       return {
         withdrawals: {
@@ -1410,7 +1409,7 @@ export const getEarnWithdrawalsTool: ToolDefinition<
           fulfilled: data.fulfilled.map((w: EarnWithdrawal) => ({
             txHash: w.txHash,
             shareAmount: w.shareAmount.toString(),
-            amount: w.amount?.toString() ?? "unknown",
+            amount: w.amount?.toString() ?? 'unknown',
             fulfilledTxHash: w.fulfilledTxHash ?? null,
           })),
           cancelled: data.cancelled.map((w: EarnWithdrawal) => ({
@@ -1433,7 +1432,7 @@ export const getEarnWithdrawalsTool: ToolDefinition<
         error:
           err instanceof Error
             ? err.message
-            : "Failed to fetch vault withdrawals",
+            : 'Failed to fetch vault withdrawals',
       };
     }
   },
@@ -1456,10 +1455,10 @@ export const getLuxPoints: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_lux_points",
+  name: 'get_lux_points',
   description:
     "Get the Lux reward points for a wallet address. Returns the current season's points " +
-    "including holding, protocol, referral, and badge points.",
+    'including holding, protocol, referral, and badge points.',
   parameters: AddressOnlySchema as Record<string, unknown>,
   schema: AddressOnlyZod,
   execute: async (params) => {
@@ -1472,7 +1471,7 @@ export const getLuxPoints: ToolDefinition<
           season: 2,
         }),
         10_000,
-        "getPointsByAddress",
+        'getPointsByAddress',
       );
       return {
         points: {
@@ -1497,7 +1496,7 @@ export const getLuxPoints: ToolDefinition<
         },
         season: 2,
         error:
-          err instanceof Error ? err.message : "Failed to fetch Lux points",
+          err instanceof Error ? err.message : 'Failed to fetch Lux points',
       };
     }
   },
@@ -1523,10 +1522,10 @@ export const getPositionsSummaryTool: ToolDefinition<
     error?: string;
   }
 > = {
-  name: "get_positions_summary",
+  name: 'get_positions_summary',
   description:
-    "Get an aggregated portfolio summary for a wallet address, including total BTC value, " +
-    "profit/loss, and a breakdown of individual positions (holdings and DeFi).",
+    'Get an aggregated portfolio summary for a wallet address, including total BTC value, ' +
+    'profit/loss, and a breakdown of individual positions (holdings and DeFi).',
   parameters: AddressOnlySchema as Record<string, unknown>,
   schema: AddressOnlyZod,
   execute: async (params) => {
@@ -1538,7 +1537,7 @@ export const getPositionsSummaryTool: ToolDefinition<
           env: Env.prod,
         }),
         10_000,
-        "getPositionsSummary",
+        'getPositionsSummary',
       );
       return {
         btcPriceUsd: data.btcPrice.price.toString(),
@@ -1556,16 +1555,16 @@ export const getPositionsSummaryTool: ToolDefinition<
       };
     } catch (err) {
       return {
-        btcPriceUsd: "",
-        btcValue: "",
-        btcPnl: "",
+        btcPriceUsd: '',
+        btcValue: '',
+        btcPnl: '',
         positions: [],
-        lastUpdated: "",
+        lastUpdated: '',
         inProgress: false,
         error:
           err instanceof Error
             ? err.message
-            : "Failed to fetch positions summary",
+            : 'Failed to fetch positions summary',
       };
     }
   },
@@ -1577,7 +1576,7 @@ import {
   prepareMorphoBorrow,
   prepareMorphoRepay,
   prepareMorphoSupplyCollateral,
-} from "./morpho";
+} from './morpho';
 
 export {
   getMorphoLbtcMarkets,

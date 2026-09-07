@@ -31,7 +31,10 @@ import { WalletAuthService } from '../services/WalletAuthService';
  * });
  * ```
  */
-export function walletAuthModule(): SdkModule<'walletAuth', IWalletAuthService> {
+export function walletAuthModule(): SdkModule<
+  'walletAuth',
+  IWalletAuthService
+> {
   return {
     id: 'walletAuth',
     register(ctx) {

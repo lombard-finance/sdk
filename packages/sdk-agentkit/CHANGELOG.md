@@ -1,3 +1,11 @@
+# 0.3.0
+
+## 🚨 BREAKING CHANGES
+
+Requires `@lombard.finance/sdk@6.0.0`, for the same reason as `@lombard.finance/sdk-agent@0.3.0`: the SDK is a dependency rather than a peer, so the published `0.2.0` pins `5.5.0` and cannot be made to run against 6.0.0.
+
+Action names are unchanged from 0.2.0. Only the SDK underneath moves.
+
 # 0.2.0
 
 ## 🚨 BREAKING CHANGES

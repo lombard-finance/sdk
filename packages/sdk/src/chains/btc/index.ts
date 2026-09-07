@@ -9,6 +9,10 @@
 // Main exports
 export { BtcActions, btcActions } from './BtcActions';
 
+// Options accepted by every BTC action's authorize(). Exported by name so a
+// consumer can type a variable holding them rather than inlining the shape.
+export type { BtcAuthorizeOptions } from './actions/shared';
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Unified BTC Action Status
 // ═══════════════════════════════════════════════════════════════════════════
@@ -21,51 +25,59 @@ export { BtcActionStatus } from '../../shared/constants/statusConstants';
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type {
-  BtcStakeParams,
-  BtcStakeProgress,
-  BtcStake as IBtcStake,
-} from './actions/stake';
-export { BtcStake, btcStake, createBtcStake } from './actions/stake';
+  BtcDepositLbtcParams,
+  BtcDepositLbtcProgress,
+  BtcDepositLbtc as IBtcDepositLbtc,
+} from './actions/deposit-lbtc';
+export {
+  BtcDepositLbtc,
+  btcStake,
+  createBtcStake,
+} from './actions/deposit-lbtc';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Deposit Action
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type {
-  BtcDepositParams,
-  BtcDepositPrepareParams,
-  BtcDepositProgress,
-  BtcDeposit as IBtcDeposit,
-} from './actions/deposit';
-export { BtcDeposit, btcDeposit, createBtcDeposit } from './actions/deposit';
+  BtcDepositBtcbParams,
+  BtcDepositBtcbPrepareParams,
+  BtcDepositBtcbProgress,
+  BtcDepositBtcb as IBtcDepositBtcb,
+} from './actions/deposit-btcb';
+export {
+  btcDeposit,
+  BtcDepositBtcb,
+  createBtcDeposit,
+} from './actions/deposit-btcb';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // StakeAndDeploy Action
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type {
-  BtcStakeAndDeployParams,
-  BtcStakeAndDeployPrepareParams,
-  BtcStakeAndDeployProgress,
-  BtcStakeAndDeploy as IBtcStakeAndDeploy,
-} from './actions/stakeAndDeploy';
+  BtcDeployLbtcParams,
+  BtcDeployLbtcPrepareParams,
+  BtcDeployLbtcProgress,
+  BtcDeployLbtc as IBtcDeployLbtc,
+} from './actions/deploy-lbtc';
 export {
-  BtcStakeAndDeploy,
+  BtcDeployLbtc,
   btcStakeAndDeploy,
   createBtcStakeAndDeploy,
-} from './actions/stakeAndDeploy';
+} from './actions/deploy-lbtc';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DepositAndDeploy Action
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type {
-  BtcDepositAndDeployParams,
-  BtcDepositAndDeployPrepareParams,
-  BtcDepositAndDeployProgress,
-  BtcDepositAndDeploy as IBtcDepositAndDeploy,
-} from './actions/depositAndDeploy';
+  BtcDeployBtcbParams,
+  BtcDeployBtcbPrepareParams,
+  BtcDeployBtcbProgress,
+  BtcDeployBtcb as IBtcDeployBtcb,
+} from './actions/deploy-btcb';
 export {
-  BtcDepositAndDeploy,
+  BtcDeployBtcb,
   createBtcDepositAndDeploy,
-} from './actions/depositAndDeploy';
+} from './actions/deploy-btcb';

@@ -1,3 +1,4 @@
+import type { LombardAuth } from '@lombard.finance/sdk-common';
 import { Env } from '@lombard.finance/sdk-common';
 import { Address, EIP1193Provider } from 'viem';
 
@@ -11,6 +12,26 @@ export interface IEnvParam {
    * @default Env.prod
    */
   env?: Env;
+  /**
+   * Reads the caller's current wallet-auth JWT, or `undefined`.
+   *
+   * When supplied and yielding a token, `utils/http` adds an
+   * `Authorization: Bearer <token>` header. When absent, or yielding
+   * `undefined`, no header is sent — which is the behaviour of every endpoint
+   * today, none of which requires one.
+   *
+   * It sits beside `env` because the two travel together: an api-function needs
+   * to know which gateway to call and, soon, who is calling. Action classes pass
+   * `ctx.getAuthToken` straight through.
+   */
+  /**
+   * How to obtain a wallet JWT for this call. Inherited from
+   * `LombardConfig.auth` when the SDK builds the call, and passable directly
+   * by a standalone caller.
+   */
+  auth?: LombardAuth;
+  /** @deprecated Cannot refresh. Prefer {@link auth}. */
+  getAuthToken?: () => string | undefined;
 }
 
 export interface CommonParameters extends IEnvParam {

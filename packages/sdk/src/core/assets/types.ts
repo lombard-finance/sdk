@@ -34,7 +34,7 @@ export const AssetId = {
   /**
    * @deprecated Corn was its only deployment and Corn is retired, so this
    * asset has no catalog entry and no address. Kept only so existing code
-   * keeps compiling; removed in the next major.
+   * keeps compiling; removed in 7.0.0.
    */
   WBTCN: 'wBTCN',
   eBTC: 'eBTC',

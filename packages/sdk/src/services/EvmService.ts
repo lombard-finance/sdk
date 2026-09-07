@@ -82,6 +82,11 @@ export class EvmService implements IEvmService {
     const fee = await getStakeAndBakeFee({
       chainId: chainId as ChainId,
       protocol,
+      // Threaded, like every sibling method here. Omitted, it fell back to
+      // DEFAULT_ENV = prod, and the Silo/BTC.b vault is registered only under
+      // testnet — so the BTC.b deploy route threw `Environment prod is not
+      // supported` on every environment, including testnet.
+      env: this.env,
     });
     return fee.toString();
   }

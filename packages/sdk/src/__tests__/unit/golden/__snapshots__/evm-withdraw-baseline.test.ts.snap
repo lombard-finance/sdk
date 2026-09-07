@@ -1,0 +1,55 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmWithdrawBtcb (BTC.b → BTC) records prepare → execute 1`] = `
+{
+  "progress": [
+    "ready [burning=idle,releasing=idle]",
+    "ready [burning=pending,releasing=idle]",
+    "completed [burning=complete,releasing=pending]",
+  ],
+  "redeemTokenCalls": 1,
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+}
+`;
+
+exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmWithdrawLbtc (LBTC → BTC): terminal releasing is PENDING 1`] = `
+{
+  "progress": [
+    "ready [burning=idle,releasing=idle]",
+    "ready [burning=pending,releasing=idle]",
+    "completed [burning=complete,releasing=pending]",
+  ],
+  "redeemTokenCalls": 1,
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+}
+`;
+
+exports[`golden baseline — the EVM withdraw merge pair on 5.x > EvmWithdrawLbtc (LBTC → BTC.b): terminal releasing is COMPLETE — the other branch 1`] = `
+{
+  "progress": [
+    "ready [burning=idle,releasing=idle]",
+    "ready [burning=pending,releasing=idle]",
+    "completed [burning=complete,releasing=complete]",
+  ],
+  "redeemTokenCalls": 1,
+  "resultKeys": [
+    "txHash",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+}
+`;

@@ -5,9 +5,9 @@ import { DEFI_REGISTRY, DefiProtocol } from '../../../defi/defi-registry';
 import { Token } from '../../../tokens/token-addresses';
 
 describe('DEFI_REGISTRY', () => {
-  it('should have Veda protocol with LBTC support', () => {
-    expect(DEFI_REGISTRY[DefiProtocol.Veda]).toBeDefined();
-    expect(DEFI_REGISTRY[DefiProtocol.Veda][Token.LBTC]).toBeDefined();
+  it('should have Bitcoin Earn protocol with LBTC support', () => {
+    expect(DEFI_REGISTRY[DefiProtocol.BitcoinEarn]).toBeDefined();
+    expect(DEFI_REGISTRY[DefiProtocol.BitcoinEarn][Token.LBTC]).toBeDefined();
   });
 
   it('should have Silo only on testnet for BTCb', () => {

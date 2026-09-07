@@ -4,7 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    # `sdk-release/**` is the base branch that create-sdk-release-branch.yml
+    # opens its version-bump PR into. Without it here that PR — the last change
+    # before an npm publish — runs no CI at all.
+    branches:
+      - main
+      - 'sdk-release/**'
 
 jobs:
   secrets-scan:
@@ -100,3 +105,11 @@ jobs:
 
       - name: Test
         run: yarn test:required
+
+      # The reference docs had never been built in CI, so a broken doc comment
+      # or an unresolvable type could only be discovered at release time.
+      # Warnings are not failures here: most are links into viem's types, which
+      # is a peer dependency and deliberately not bundled, so typedoc cannot
+      # resolve them from this side.
+      - name: Build reference docs
+        run: yarn workspace @lombard.finance/sdk build-docs

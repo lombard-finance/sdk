@@ -5,9 +5,9 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { EvmWalletProvider } from './contexts/EvmWalletContext';
 import { getEnvironment } from './lib/config';
-import { SimpleStakingPage } from './pages/SimpleStakingPage';
-import { StakeAndDeployPage } from './pages/StakeAndDeployPage';
-import { UnstakePage } from './pages/UnstakePage';
+import { SimpleDepositPage } from './pages/SimpleDepositPage';
+import { DeployPage } from './pages/DeployPage';
+import { WithdrawPage } from './pages/WithdrawPage';
 
 function App() {
   const [env, setEnv] = useState<Env>(() => {
@@ -34,11 +34,11 @@ function App() {
             element={<Layout env={env} onEnvChange={handleEnvChange} />}
           >
             <Route index element={<Navigate to="/staking" replace />} />
-            <Route path="staking" element={<SimpleStakingPage env={env} />} />
-            <Route path="unstaking" element={<UnstakePage env={env} />} />
+            <Route path="staking" element={<SimpleDepositPage env={env} />} />
+            <Route path="unstaking" element={<WithdrawPage env={env} />} />
             <Route
               path="stake-and-deploy"
-              element={<StakeAndDeployPage env={env} />}
+              element={<DeployPage env={env} />}
             />
             <Route path="*" element={<Navigate to="/staking" replace />} />
           </Route>

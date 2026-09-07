@@ -5,8 +5,7 @@ import { resolveStrategy } from '../config';
 import { StrategyBaseParameters } from '../params';
 import { IStrategyPendingRedeem } from '../types';
 
-export interface GetStrategyPendingRedeemParameters
-  extends StrategyBaseParameters {
+export interface GetStrategyPendingRedeemParameters extends StrategyBaseParameters {
   /** Request id returned by `requestStrategyRedeem` / emitted in `RedeemRequested`. */
   requestId: bigint;
 }

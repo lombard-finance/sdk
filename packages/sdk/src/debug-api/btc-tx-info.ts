@@ -1,9 +1,9 @@
 import { Env } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 import { Address } from 'viem';
 
 import { getApiConfig } from '../common/api-config';
 import { BlockchainIdentifier } from '../common/blockchain-identifier';
+import { httpRequest } from '../utils/http';
 
 type BtcTxInfoResponse = {
   addresses: [
@@ -22,9 +22,10 @@ type BtcTxInfoResponse = {
 export const fetchBtcTxInfo = async (txHash: string, env?: Env) => {
   const { baseApiUrl } = getApiConfig(env);
   try {
-    const { data } = await axios.get<BtcTxInfoResponse>(
-      `${baseApiUrl}/api/v1/debug/btc-tx-info/${txHash}`,
-    );
+    const { data } = await httpRequest<BtcTxInfoResponse>({
+      url: `${baseApiUrl}/api/v1/debug/btc-tx-info/${txHash}`,
+      scope: 'public',
+    });
     return data;
   } catch {
     return undefined;

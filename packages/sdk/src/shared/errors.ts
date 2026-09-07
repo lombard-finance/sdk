@@ -49,6 +49,16 @@ export enum RegistryErrorCode {
 /**
  * Validation error codes
  */
+/**
+ * Authentication error codes.
+ */
+export enum AuthErrorCode {
+  /** A user-scoped request was made with no token available. */
+  MISSING_TOKEN = 'missing-token',
+  /** The backend rejected the token: expired, revoked, or issued elsewhere. */
+  UNAUTHORIZED = 'unauthorized',
+}
+
 export enum ValidationErrorCode {
   INVALID_ADDRESS = 'invalid-address',
   INVALID_AMOUNT = 'invalid-amount',
@@ -94,6 +104,7 @@ export enum WithdrawErrorCode {
 export type AnyErrorCode =
   | ErrorCode
   | ProviderErrorCode
+  | AuthErrorCode
   | RegistryErrorCode
   | ValidationErrorCode
   | ContractErrorCode
@@ -143,6 +154,29 @@ export class LombardError extends Error {
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, LombardError);
     }
+  }
+
+  /**
+   * A copy of this error carrying extra metadata.
+   *
+   * `metadata` is readonly on purpose — an error that changes after it is
+   * thrown is a poor thing to debug from — so context is added by producing a
+   * new error rather than mutating this one. The original stack is carried
+   * over: the useful frame is where the failure happened, not where the
+   * context was attached.
+   *
+   * Existing keys win. The caller adding context knows less about the failure
+   * than whatever raised it, so it must not overwrite what is already there.
+   */
+  withContext(extra: Record<string, unknown>): LombardError {
+    const enriched = new LombardError(this.code, this.message, {
+      ...extra,
+      ...this.metadata,
+    });
+
+    enriched.stack = this.stack;
+
+    return enriched;
   }
 
   /**

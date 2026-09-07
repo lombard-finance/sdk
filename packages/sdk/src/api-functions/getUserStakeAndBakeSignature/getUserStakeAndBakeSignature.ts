@@ -1,9 +1,8 @@
-import axios from 'axios';
-
 import { getApiConfig } from '../../common/api-config';
 import { ChainId } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpGet } from '../../utils/http';
 
 export interface IGetUserStakeAndBakeSignatureParams extends IEnvParam {
   /**
@@ -66,17 +65,19 @@ export async function getUserStakeAndBakeSignature({
   userDestinationAddress,
   chainId,
   env,
+  getAuthToken,
 }: IGetUserStakeAndBakeSignatureParams): Promise<IGetUserStakeAndBakeSignatureResponse> {
   const { baseApiUrl } = getApiConfig(env);
 
   try {
-    const { data } = await axios.get<IGetUserStakeAndBakeSignatureAPIResponse>(
+    const { data } = await httpGet<IGetUserStakeAndBakeSignatureAPIResponse>(
       `${baseApiUrl}/api/v1/claimer/get-user-stake-and-bake-signature`,
       {
         params: {
           userDestinationAddress,
           chainId: chainId.toString(),
         },
+        getAuthToken,
       },
     );
 

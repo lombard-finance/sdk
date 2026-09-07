@@ -12,6 +12,7 @@
  * @module chains/btc/actions/shared/BaseBtcAction
  */
 
+import { Env } from '@lombard.finance/sdk-common';
 import { z } from 'zod';
 
 import {
@@ -21,6 +22,7 @@ import {
   SuiChain,
 } from '../../../../common/chains';
 import { Chain, StepStatus } from '../../../../core';
+import type { ActionStepKey } from '../../../../core/actions/steps';
 import { BaseAction } from '../../../../shared/actions';
 import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
@@ -37,6 +39,7 @@ import {
 } from '../../../../shared/validation';
 import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctionedAddress';
 import { toSatoshi } from '../../../../utils/satoshi';
+import type { BtcAuthorizeOptions } from './routeConfig';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -70,26 +73,11 @@ export interface BasePrepareParams {
 }
 
 /**
- * Options accepted by the deploy actions' `authorizeDeposit()`.
- *
- * Shared by BtcStakeAndDeploy and BtcDepositAndDeploy so the two signing flows
- * cannot drift apart.
+ * @deprecated Renamed to {@link BtcAuthorizeOptions}, which every BTC action's
+ * `authorize()` takes now that the four ceremony methods collapsed into one per
+ * class. Identical shape; removed in 7.0.0.
  */
-export interface AuthorizeDepositOptions {
-  /**
-   * Signature expiration as an absolute UNIX timestamp in seconds.
-   * Defaults to 24 hours from the time of signing when omitted.
-   *
-   * @example
-   * ```typescript
-   * // Expire in 7 days instead of 24 hours
-   * await action.authorizeDeposit({
-   *   expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-   * });
-   * ```
-   */
-  expiry?: number;
-}
+export type AuthorizeDepositOptions = BtcAuthorizeOptions;
 
 /**
  * Progress step definitions
@@ -122,7 +110,7 @@ export interface StatusConfig<TStatus extends string> {
  *
  * @example
  * ```typescript
- * class BtcStake extends BaseBtcAction<StakeEventMap, BtcActionStatus, BtcStakeParams> {
+ * class BtcDepositLbtc extends BaseBtcAction<ActionEventMap, BtcActionStatus, BtcDepositLbtcParams> {
  *   protected getAddressSchema() { return evmAddressSchema; }
  *   protected getStatusConfig() { return { idle: BtcActionStatus.IDLE, ... }; }
  *   protected getInitialSteps() { return { created: StepStatus.IDLE, ... }; }
@@ -157,6 +145,18 @@ export abstract class BaseBtcAction<
   // ─────────────────────────────────────────────────────────────────────────
 
   /** Get the address validation schema for this action */
+  /**
+   * A Bitcoin-source route uses every step.
+   *
+   * `awaitingFunds` is the state that has no equivalent on a chain-source
+   * route: the deposit address exists and the SDK is waiting for the user to
+   * send Bitcoin, which it cannot do for them. `settling` covers the
+   * notarisation that follows the deposit confirming.
+   */
+  protected override routeSteps(): readonly ActionStepKey[] {
+    return ['awaitingFunds', 'submitting', 'confirming', 'settling'];
+  }
+
   protected abstract getAddressSchema(): z.ZodType<string>;
 
   /** Get the status configuration for template methods */
@@ -222,10 +222,28 @@ export abstract class BaseBtcAction<
     return this._referralCode;
   }
 
+  /**
+   * The Bitcoin chain this action reads from, resolved from the environment
+   * when the caller omitted it.
+   *
+   * `sourceChain` is optional, and reading `this.params.sourceChain` raw meant a
+   * caller who omitted it on `prod` monitored the Bitcoin **testnet** — waiting
+   * for confirmations that could never arrive. Route validation also passed
+   * vacuously in that case. Resolving once, here, keeps every consumer
+   * (validation, monitoring, deposit lookup) on the same answer.
+   */
+  protected get resolvedSourceChain(): Chain {
+    return (
+      this.params.sourceChain ??
+      (this.ctx.env === Env.prod ? Chain.BITCOIN_MAINNET : Chain.BITCOIN_SIGNET)
+    );
+  }
+
   /** Bitcoin network mode for monitoring */
   protected get bitcoinNetwork(): NetworkMode {
-    const source = this.params.sourceChain;
-    return source === Chain.BITCOIN_MAINNET ? 'mainnet' : 'testnet';
+    return this.resolvedSourceChain === Chain.BITCOIN_MAINNET
+      ? 'mainnet'
+      : 'testnet';
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -339,6 +357,20 @@ export abstract class BaseBtcAction<
     }
   }
 
+  /**
+   * The status an authorization ceremony resolves to.
+   *
+   * `ready` means "authorized, address still to be generated". A resumed flow
+   * is already past that: `prepare()` restored the deposit address, and only
+   * the signature had lapsed. Reporting `ready` there put two contradictory
+   * instructions on one screen — here is your address, and also generate your
+   * address — because a consumer reads this status to pick the next step.
+   */
+  protected get authorizedStatus(): TStatus {
+    const { ready, addressReady } = this.getStatusConfig();
+    return this._depositAddress ? addressReady : ready;
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // Common Generate Deposit Address
   // ─────────────────────────────────────────────────────────────────────────
@@ -358,12 +390,15 @@ export abstract class BaseBtcAction<
   ): Promise<string> {
     const statusConfig = this.getStatusConfig();
 
-    this.assertStatus(statusConfig.ready, 'generateDepositAddress');
-    this.ensureAuthorized();
-
+    // Return a held address before asserting status. A resumed flow reaches
+    // `addressReady` while holding one, so asserting `ready` first threw
+    // INVALID_STATE for the returning user this branch exists to serve.
     if (this._depositAddress) {
       return this._depositAddress;
     }
+
+    this.assertStatus(statusConfig.ready, 'generateDepositAddress');
+    this.ensureAuthorized();
 
     return this.act(async () => {
       const apiParams = this.getDepositAddressParams(captchaToken);

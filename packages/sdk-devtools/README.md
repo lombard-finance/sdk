@@ -14,8 +14,8 @@ The SDK DevTools automatically hooks into SDK actions to collect events and stat
 │   ┌─────────────────────┐        ┌─────────────────────┐                    │
 │   │    Lombard SDK      │        │     DevTools        │                    │
 │   │                     │        │                     │                    │
-│   │  const stake = sdk  │───────▶│  Automatically      │                    │
-│   │  .chain.btc.stake() │ events │  collects events,   │                    │
+│   │  const action = sdk │───────▶│  Automatically      │                    │
+│   │  .chain.btc.deposit()│ events │  collects events,   │                    │
 │   │                     │        │  tracks status      │                    │
 │   └─────────────────────┘        └──────────┬──────────┘                    │
 │                                              │                               │
@@ -70,13 +70,13 @@ function StakeComponent() {
         providers: { evm: () => window.ethereum },
       });
 
-      const action = sdk.chain.btc.stake({
+      const action = sdk.chain.btc.deposit({
         destChain: Chain.ETHEREUM,
         assetOut: AssetId.LBTC,
       });
 
       // Register with DevTools - events are now collected automatically!
-      const unregister = registerAction('btc-stake', action, {
+      const unregister = registerAction('btc-deposit', action, {
         category: 'btc',
       });
 
@@ -144,8 +144,8 @@ import { DevToolsBridge, DevToolsPanel } from '@lombard.finance/sdk-devtools';
 const bridge = new DevToolsBridge({ consoleLogging: true });
 
 // Register action
-const stake = sdk.chain.btc.stake({ ... });
-const unregister = bridge.registerAction('stake', stake);
+const deposit = sdk.chain.btc.deposit({ ... });
+const unregister = bridge.registerAction('deposit', deposit);
 
 // Get events for display
 const events = bridge.getEvents();

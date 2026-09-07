@@ -25,9 +25,9 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const VedaDefaultToken: Story = {
+export const BitcoinEarnDefaultToken: Story = {
   args: {
-    protocol: DefiProtocol.Veda,
+    protocol: DefiProtocol.BitcoinEarn,
     chainId: ChainId.ethereum,
     env: Env.prod,
   },
@@ -35,7 +35,7 @@ export const VedaDefaultToken: Story = {
     protocol: {
       options: Object.values(DefiProtocol),
       control: { type: 'select' },
-      description: 'The DeFi protocol (Veda or Silo)',
+      description: 'The DeFi protocol (Bitcoin Earn or Silo)',
     },
     chainId: {
       mapping: ChainId,
@@ -53,9 +53,9 @@ export const VedaDefaultToken: Story = {
   },
 };
 
-export const VedaExplicitToken: Story = {
+export const BitcoinEarnExplicitToken: Story = {
   args: {
-    protocol: DefiProtocol.Veda,
+    protocol: DefiProtocol.BitcoinEarn,
     token: Token.LBTC,
     chainId: ChainId.ethereum,
     env: Env.prod,
@@ -69,7 +69,7 @@ export const VedaExplicitToken: Story = {
     token: {
       options: [Token.LBTC, 'BTC'],
       control: { type: 'select' },
-      description: 'The token (LBTC or BTC for Veda)',
+      description: 'The token (LBTC or BTC for Bitcoin Earn)',
     },
     chainId: {
       mapping: ChainId,
@@ -97,7 +97,7 @@ export const SiloDefaultToken: Story = {
     protocol: {
       options: Object.values(DefiProtocol),
       control: { type: 'select' },
-      description: 'The DeFi protocol (Veda or Silo)',
+      description: 'The DeFi protocol (Bitcoin Earn or Silo)',
     },
     chainId: {
       options: ['avalancheFuji'],

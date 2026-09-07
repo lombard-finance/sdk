@@ -41,6 +41,20 @@ export function validateAndApplyDefaults(
     normalized.partner = options.partner;
   }
 
+  // Carry the auth seam through.
+  //
+  // This function builds a fresh object rather than spreading `options`, which
+  // means every field a caller can set has to be copied deliberately — and both
+  // of these were missed when they were added, so `createConfig` accepted them
+  // and silently dropped them. The facades threaded them correctly, so only
+  // consumers using the documented `createLombardSDK` path were affected.
+  if (options.auth) {
+    normalized.auth = options.auth;
+  }
+  if (options.getAuthToken) {
+    normalized.getAuthToken = options.getAuthToken;
+  }
+
   return normalized;
 }
 

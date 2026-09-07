@@ -12,27 +12,27 @@ import { estimateGasFees } from '../../utils/gas';
 import { ensureHex } from '../../utils/hex';
 
 /**
- * Parameters for claiming BTC.b from unstake redemptions
+ * Parameters for claiming BTC.b from withdraw redemptions
  */
 export interface IClaimUnstakeRedeemParams extends CommonWriteParameters {
-  /** Raw payload from the unstake redemption (`Unstake.rawPayload`) */
+  /** Raw payload from the withdraw redemption (`Withdraw.rawPayload`) */
   data: string;
 
-  /** Signature/proof from the unstake redemption (`Unstake.proof`) */
+  /** Signature/proof from the withdraw redemption (`Withdraw.proof`) */
   proofSignature: string;
 }
 
 /**
- * Claims BTC.b tokens from an unstake redemption (LBTC → BTC.b)
+ * Claims BTC.b tokens from an withdraw redemption (LBTC → BTC.b)
  *
- * This function is specifically for claiming native chain redemptions after the 7-day unstaking period.
- * Unlike deposits which use `adapter.mintV1`, unstake redemptions use `assetRouter.mint`.
+ * This function is specifically for claiming native chain redemptions after the 7-day withdrawing period.
+ * Unlike deposits which use `adapter.mintV1`, withdraw redemptions use `assetRouter.mint`.
  *
  * Business Rules:
  * - Only works for native chain redemptions (LBTC → BTC.b)
  * - Requires notarization status = SESSION_APPROVED
  * - Requires session state = COMPLETED
- * - Must be called after 7 days from unstake
+ * - Must be called after 7 days from withdraw
  *
  * @param params - Parameters for claiming
  * @returns Transaction hash of the claim operation

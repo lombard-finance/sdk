@@ -1,9 +1,9 @@
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useEffect,
   useState,
-  type ReactNode,
 } from 'react';
 
 interface SolanaWalletState {

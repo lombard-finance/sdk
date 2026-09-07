@@ -13,6 +13,7 @@ import { IEnvParam } from '../../common/parameters';
 import {
   AddressKind,
   getTokenByAddress,
+  getTokenByAddressInEnv,
   Token,
 } from '../../tokens/token-addresses';
 import { fromBaseDenomination } from '../../tokens/tokens';
@@ -414,12 +415,20 @@ function mapDirectBtcDeposit(
     isClaimed: !!d.claim_tx,
     sanctioned: d.sanctioned,
     toTokenAddress: d.token_address,
-    toToken: getTokenByAddress(
-      d.token_address,
-      getChainIdByName(d.to_chain, env),
-      env,
-      AddressKind.Adapter,
-    ),
+    // Per-chain first, then the same address across the environment. The
+    // per-chain table only registers a token for the chains it is deployed on,
+    // so a BTC.b deposit whose destination is a chain BTC.b is not registered
+    // for resolved to nothing — and the caller then had no honest way to label
+    // the row. The fallback answers only on an unambiguous match.
+    toToken:
+      getTokenByAddress(
+        d.token_address,
+        getChainIdByName(d.to_chain, env),
+        env,
+        AddressKind.Adapter,
+      ) ??
+      getTokenByAddressInEnv(d.token_address, env, AddressKind.Adapter) ??
+      getTokenByAddressInEnv(d.token_address, env, AddressKind.Token),
     auxVersion: d.aux_version,
     notarizationWaitDur: d.notarization_wait_dur
       ? Number(d.notarization_wait_dur)

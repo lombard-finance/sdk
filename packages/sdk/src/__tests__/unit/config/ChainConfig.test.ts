@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { getChainConfig } from '../../../chains/btc/actions/stake/config';
+import { getChainConfig } from '../../../chains/btc/actions/deposit-lbtc/config';
 import { Chain } from '../../../core';
 
 describe('ChainConfig', () => {

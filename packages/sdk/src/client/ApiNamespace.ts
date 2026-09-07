@@ -13,8 +13,8 @@
  * // Fetch deposits for an address
  * const deposits = await sdk.api.deposits('0x...');
  *
- * // Fetch unstakes with options
- * const unstakes = await sdk.api.unstakes('0x...', { show_redeems: true });
+ * // Fetch withdrawals with options
+ * const withdrawals = await sdk.api.withdrawals('0x...', { show_redeems: true });
  *
  * // Fetch points (defaults to current season)
  * const points = await sdk.api.points('0x...');
@@ -29,7 +29,7 @@
  * @module client/ApiNamespace
  */
 
-import { DEFAULT_ENV, Env } from '@lombard.finance/sdk-common';
+import { DEFAULT_ENV, Env, LombardAuth } from '@lombard.finance/sdk-common';
 import type BigNumber from 'bignumber.js';
 
 import { getDepositBtcAddress } from '../api-functions/getDepositBtcAddress/getDepositBtcAddress';
@@ -67,11 +67,16 @@ import {
 /** Supported API versions (for future v2 migration) */
 export type ApiVersion = 'v1' | 'v2';
 
-/** Options for fetching unstakes */
-export interface UnstakeOptions {
+/**
+ * Options for fetching withdrawals.
+ *
+ * The field names are the query parameters the endpoint takes, so they keep the
+ * wire's vocabulary rather than the SDK's.
+ */
+export interface WithdrawalOptions {
   /** Include redeem operations */
   show_redeems?: boolean;
-  /** Include unstake operations */
+  /** Include withdraw operations */
   show_unstakes?: boolean;
   /** Filter for native chain redemptions */
   to_native?: boolean;
@@ -127,7 +132,20 @@ export class ApiNamespace {
    */
   private readonly apiVersion: ApiVersion = 'v1';
 
-  constructor(private readonly env: Env = DEFAULT_ENV) {}
+  /**
+   * @param env - Which deployment to address.
+   * @param auth - How to obtain a wallet JWT, from `LombardConfig.auth`.
+   *
+   *   Several routes here are user-scoped and refuse to send without a token:
+   *   the vault withdraw and deposit reads, and the strategy user metrics. Until
+   *   this was threaded through, a host that supplied `auth` still saw those
+   *   calls fail, because the namespace was built with `env` alone and had no
+   *   token to offer — signing in changed nothing.
+   */
+  constructor(
+    private readonly env: Env = DEFAULT_ENV,
+    private readonly auth?: LombardAuth,
+  ) {}
 
   /* -------------------------------------------------------------------------- */
   /*                               Deposits                                     */
@@ -156,33 +174,33 @@ export class ApiNamespace {
   }
 
   /* -------------------------------------------------------------------------- */
-  /*                               Unstakes                                     */
+  /*                              Withdrawals                                   */
   /* -------------------------------------------------------------------------- */
 
   /**
-   * Fetch all unstakes/redemptions for an address.
+   * Fetch every withdrawal an address has made.
    *
-   * Returns unstake records for both direct BTC unstakes and
-   * native blockchain redemptions.
+   * Covers both arms: burning an L-asset for native BTC, and redeeming on the
+   * destination chain. The record type is still `Withdraw` — that is the shape
+   * the endpoint returns, and renaming it here would misdescribe the payload.
    *
-   * @param address - The address that initiated the unstakes
+   * @param address - The address that made the withdrawals
    * @param options - Optional filters (show_redeems, show_unstakes, to_native)
-   * @returns Promise resolving to array of Unstake objects
+   * @returns Promise resolving to array of Withdraw objects
    *
    * @example
    * ```ts
-   * // Get all unstakes
-   * const unstakes = await sdk.api.unstakes('0x1234...');
+   * // Every withdrawal
+   * const withdrawals = await sdk.api.withdrawals('0x1234...');
    *
-   * // Get only native chain redemptions
-   * const redeems = await sdk.api.unstakes('0x1234...', { to_native: true });
+   * // Only native chain redemptions
+   * const redeems = await sdk.api.withdrawals('0x1234...', { to_native: true });
    * ```
    */
-  async unstakes(
+  async withdrawals(
     address: string,
-    options?: UnstakeOptions,
+    options?: WithdrawalOptions,
   ): Promise<Unstake[]> {
-    // Future: if (this.apiVersion === 'v2') return this.unstakesV2(address, options);
     return getUnstakesByAddress({ address, env: this.env, options });
   }
 
@@ -349,6 +367,7 @@ export class ApiNamespace {
         chainId: options.chainId,
         rpcUrl: options.rpcUrl,
         env: this.env,
+        auth: this.auth,
       });
     }
 
@@ -357,6 +376,7 @@ export class ApiNamespace {
       account,
       rpcUrl: options?.rpcUrl,
       env: this.env,
+      auth: this.auth,
     });
   }
 

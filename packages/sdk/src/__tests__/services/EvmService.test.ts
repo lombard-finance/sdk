@@ -52,7 +52,7 @@ describe('EvmService', () => {
       account: '0x1111111111111111111111111111111111111111' as const,
       chainId: ChainId.sepolia,
       provider: {} as never,
-      vaultKey: 'veda',
+      vaultKey: 'bitcoinEarn',
       token: 'LBTC',
     };
 

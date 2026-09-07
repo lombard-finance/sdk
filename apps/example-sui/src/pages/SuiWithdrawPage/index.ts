@@ -1,0 +1,1 @@
+export { SuiWithdrawPage } from './SuiWithdrawPage';

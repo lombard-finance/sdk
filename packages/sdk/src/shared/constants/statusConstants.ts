@@ -33,13 +33,13 @@
  *
  * ## Flow Examples
  *
- * **BtcStake/BtcDeposit (to Ethereum):**
+ * **BtcDepositLbtc/BtcDepositBtcb (to Ethereum):**
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → ADDRESS_READY
  *
- * **BtcStake/BtcDeposit (to non-Ethereum):**
+ * **BtcDepositLbtc/BtcDepositBtcb (to non-Ethereum):**
  * IDLE → NEEDS_ADDRESS_CONFIRMATION → READY → ADDRESS_READY
  *
- * **BtcStakeAndDeploy/BtcDepositAndDeploy:**
+ * **BtcDeployLbtc/BtcDeployBtcb:**
  * IDLE → NEEDS_DEPLOY_AUTHORIZATION → READY → ADDRESS_READY
  */
 export const BtcActionStatus = {
@@ -65,16 +65,16 @@ export type BtcActionStatus =
   (typeof BtcActionStatus)[keyof typeof BtcActionStatus];
 
 /**
- * EVM operation statuses (Deposit, Stake, Deploy, Unstake, Redeem)
+ * EVM operation statuses (Deposit, Stake, Deploy, Withdraw, Redeem)
  *
  * Simplified - use isLoading for operation-in-progress.
  *
  * ## Flow Examples
  *
- * **EVM Unstake (LBTC → BTC.b on Ethereum/Sepolia):**
+ * **EVM Withdraw (LBTC → BTC.b on Ethereum/Sepolia):**
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED
  *
- * **EVM Unstake (LBTC → BTC.b on Base/BSC - subsidized):**
+ * **EVM Withdraw (LBTC → BTC.b on Base/BSC - subsidized):**
  * IDLE → READY → COMPLETED
  *
  * **EVM Redeem (BTC.b → BTC on Ethereum/Sepolia):**
@@ -97,8 +97,8 @@ export type EvmOperationStatus =
 /**
  * Non-EVM operation statuses
  *
- * Shared by all non-EVM actions (Solana Stake/Unstake/Redeem, Sui Unstake,
- * Starknet Unstake). Non-EVM flows don't require fee authorization or token
+ * Shared by all non-EVM actions (Solana Stake/Withdraw/Redeem, Sui Withdraw,
+ * Starknet Withdraw). Non-EVM flows don't require fee authorization or token
  * approval, so the state machine is a simple IDLE → READY → CONFIRMING → COMPLETED.
  */
 export const NonEvmOperationStatus = {

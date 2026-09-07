@@ -25,7 +25,7 @@ import { EvmService } from '../services/EvmService';
  *   env: Env.prod,
  *   providers: { evm: () => window.ethereum },
  * });
- * const unstake = sdk.chain.evm.unstake({ ... });
+ * const withdraw = sdk.chain.evm.withdraw({ ... });
  * ```
  */
 export function evmModule(): ChainModule<'evm', IEvmService> {

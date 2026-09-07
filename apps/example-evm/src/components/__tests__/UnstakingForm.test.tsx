@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AssetId, Env } from '@lombard.finance/sdk';
 
 import { useEvmWallet } from '../../hooks/useEvmWallet';
-import { UnstakingForm } from '../UnstakingForm';
+import { WithdrawForm } from '../WithdrawForm';
 
 vi.mock('../../hooks/useEvmWallet', () => ({
   useEvmWallet: vi.fn(),
@@ -25,7 +25,7 @@ function mockWallet(overrides = {}) {
   });
 }
 
-describe('EVM UnstakingForm', () => {
+describe('EVM WithdrawForm', () => {
   let root: Root;
   let container: HTMLDivElement;
 
@@ -36,7 +36,7 @@ describe('EVM UnstakingForm', () => {
   });
 
   function renderForm(
-    props: Partial<React.ComponentProps<typeof UnstakingForm>> = {},
+    props: Partial<React.ComponentProps<typeof WithdrawForm>> = {},
   ) {
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -50,7 +50,7 @@ describe('EVM UnstakingForm', () => {
     };
 
     act(() => {
-      root.render(<UnstakingForm {...defaultProps} />);
+      root.render(<WithdrawForm {...defaultProps} />);
     });
 
     return defaultProps;

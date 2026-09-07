@@ -31,9 +31,9 @@ vi.mock('../../signStakeAndBake/validation', () => ({
         `Token ${token} is not supported for stake and bake on vault Silo`,
       );
     }
-    if (protocol === DefiProtocol.Veda && token === Token.BTCb) {
+    if (protocol === DefiProtocol.BitcoinEarn && token === Token.BTCb) {
       throw new Error(
-        `Token ${token} is not supported for stake and bake on vault Veda`,
+        `Token ${token} is not supported for stake and bake on vault Bitcoin Earn`,
       );
     }
 
@@ -61,9 +61,9 @@ vi.mock('../../signStakeAndBake/validation', () => ({
 
 describe('getStakeAndBakeFee', () => {
   describe('Protocol-aware default tokens', () => {
-    it('should use LBTC as default token for Veda', async () => {
+    it('should use LBTC as default token for Bitcoin Earn', async () => {
       const result = await getStakeAndBakeFee({
-        protocol: DefiProtocol.Veda,
+        protocol: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
         env: Env.prod,
       });
@@ -83,9 +83,9 @@ describe('getStakeAndBakeFee', () => {
   });
 
   describe('Explicit token parameter', () => {
-    it('should use explicitly provided token for Veda (LBTC)', async () => {
+    it('should use explicitly provided token for Bitcoin Earn (LBTC)', async () => {
       const result = await getStakeAndBakeFee({
-        protocol: DefiProtocol.Veda,
+        protocol: DefiProtocol.BitcoinEarn,
         token: Token.LBTC,
         chainId: ChainId.ethereum,
         env: Env.prod,
@@ -105,9 +105,9 @@ describe('getStakeAndBakeFee', () => {
       expect(result.toString()).toBe('0.01');
     });
 
-    it('should use explicitly provided BTC token for Veda', async () => {
+    it('should use explicitly provided BTC token for Bitcoin Earn', async () => {
       const result = await getStakeAndBakeFee({
-        protocol: DefiProtocol.Veda,
+        protocol: DefiProtocol.BitcoinEarn,
         token: 'BTC',
         chainId: ChainId.ethereum,
         env: Env.prod,
@@ -118,16 +118,16 @@ describe('getStakeAndBakeFee', () => {
   });
 
   describe('Error handling - invalid token/protocol combinations', () => {
-    it('should throw error when using BTCb with Veda (explicit)', async () => {
+    it('should throw error when using BTCb with Bitcoin Earn (explicit)', async () => {
       await expect(
         getStakeAndBakeFee({
-          protocol: DefiProtocol.Veda,
+          protocol: DefiProtocol.BitcoinEarn,
           token: Token.BTCb,
           chainId: ChainId.ethereum,
           env: Env.prod,
         }),
       ).rejects.toThrow(
-        'Token BTC.b is not supported for stake and bake on vault Veda',
+        'Token BTC.b is not supported for stake and bake on vault Bitcoin Earn',
       );
     });
 
@@ -146,7 +146,7 @@ describe('getStakeAndBakeFee', () => {
   });
 
   describe('Default protocol behavior', () => {
-    it('should default to Veda protocol when not specified', async () => {
+    it('should default to Bitcoin Earn protocol when not specified', async () => {
       const result = await getStakeAndBakeFee({
         chainId: ChainId.ethereum,
         env: Env.prod,
