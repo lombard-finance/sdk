@@ -15,6 +15,10 @@ import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
 import { DAY } from '../../../utils/time';
 import { EARN_VAULT, isEarnChain } from '../config';
+import {
+  assertNoLiveEarnWithdrawal,
+  readPendingEarnWithdrawal,
+} from './pending-withdrawal';
 
 export type QueueWithdrawParameters = {
   /** The amount to be withdrawn from the DeFi vault. */
@@ -27,6 +31,14 @@ export type QueueWithdrawParameters = {
   approve?: boolean;
   /** The optional deposit asset. */
   token?: Token;
+  /**
+   * Overwrite a withdrawal that is already queued for this account.
+   *
+   * The vault holds one request per account, so filing a second replaces the
+   * first and un-queues its shares. That is refused by default; set this when
+   * replacing an open request is what you meant.
+   */
+  replaceExisting?: boolean;
 } & CommonWriteParameters;
 
 /**
@@ -40,6 +52,7 @@ export async function queueWithdrawInternal({
   amount: amountRaw,
   approve = true,
   token = Token.LBTC,
+  replaceExisting = false,
   account,
   chainId,
   provider,
@@ -63,6 +76,22 @@ export async function queueWithdrawInternal({
 
   const amount = BigNumber(amountRaw);
   const amountBase = toBigInt(toBaseDenomination(amount, vault.decimals));
+
+  // Before anything is sent, including the approval below. The queue keeps one
+  // request per account and a second one replaces it, so writing without
+  // looking would discard whatever was already queued without failing.
+  assertNoLiveEarnWithdrawal(
+    await readPendingEarnWithdrawal({
+      publicClient,
+      queueAddress: vault.withdrawQueueContracts[chainId].address,
+      queueAbi: vault.withdrawQueueContracts[chainId].abi,
+      offer: vault.vaultContract.address,
+      want: withdrawToken.address,
+      account,
+      shareDecimals: vault.decimals,
+    }),
+    { replaceExisting },
+  );
 
   const balanceRaw = await publicClient.readContract({
     address: vault.lensContract.address,

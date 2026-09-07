@@ -74,7 +74,25 @@ interface State {
   btceBalance?: bigint;
   allowance?: bigint;
   maxWithdraw?: bigint;
+  /**
+   * The account's existing atomic request. Defaults to an empty slot, which
+   * is the only shape these cases ever had before the queue was read at all.
+   */
+  pending?: {
+    deadline: bigint;
+    atomicPrice: bigint;
+    offerAmount: bigint;
+    inSolve: boolean;
+  };
 }
+
+/** An untouched queue slot: `offerAmount` zero is how "nothing queued" reads. */
+const EMPTY_REQUEST = {
+  deadline: 0n,
+  atomicPrice: 0n,
+  offerAmount: 0n,
+  inSolve: false,
+};
 
 function setupReads(state: State) {
   mockReadContract.mockImplementation((call: ReadCall) => {
@@ -90,6 +108,12 @@ function setupReads(state: State) {
     }
     if (call.functionName === 'maxWithdraw' && addr === BTCE.toLowerCase()) {
       return Promise.resolve(state.maxWithdraw ?? state.btceBalance ?? 0n);
+    }
+    if (
+      call.functionName === 'getUserAtomicRequest' &&
+      addr === QUEUE.toLowerCase()
+    ) {
+      return Promise.resolve(state.pending ?? EMPTY_REQUEST);
     }
     return Promise.reject(
       new Error(`Unexpected read: ${call.functionName} @ ${call.address}`),
@@ -411,6 +435,149 @@ describe('withdrawEarn', () => {
       expect(request[1]).toBe(0n); // atomicPrice
       expect(request[2]).toBe(50_000_000n); // 0.5 LBTCv
       expect(request[3]).toBe(false); // inSolve
+    });
+  });
+
+  /**
+   * The Earn queue stores one request per account, keyed
+   * `userAtomicRequest[user][offer][want]`, and the only mutating entry point
+   * is an *update*. Filing a second request therefore does not revert — it
+   * replaces the first, and the shares that request had queued are silently no
+   * longer queued.
+   *
+   * `withdrawEarn` is the dangerous path for this, because the unwrap and the
+   * approval both land before the queue write. So the guard has to refuse
+   * before any transaction, not at the queue step.
+   */
+  describe('an existing queued withdrawal', () => {
+    const IN_AN_HOUR = BigInt(Math.floor(Date.now() / 1000) + 3600);
+    const AN_HOUR_AGO = BigInt(Math.floor(Date.now() / 1000) - 3600);
+
+    const live = {
+      deadline: IN_AN_HOUR,
+      atomicPrice: 0n,
+      offerAmount: 30_000_000n, // 0.3 shares
+      inSolve: false,
+    };
+
+    it('is refused, and nothing is sent', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+        pending: live,
+      });
+
+      await expect(
+        withdrawEarn({
+          amount: '0.5',
+          account: ACCOUNT,
+          chainId: ChainId.ethereum,
+          provider: PROVIDER,
+        }),
+      ).rejects.toThrow(/PendingWithdrawalError/);
+
+      // The point of the guard: no approval, no unwrap, no queue write. Before
+      // it existed this call succeeded and dropped the 0.3 already queued.
+      expect(mockWriteContract).not.toHaveBeenCalled();
+      expect(mockSimulateContract).not.toHaveBeenCalled();
+    });
+
+    it('names the amount at risk, so the message says what would be lost', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+        pending: live,
+      });
+
+      await expect(
+        withdrawEarn({
+          amount: '0.5',
+          account: ACCOUNT,
+          chainId: ChainId.ethereum,
+          provider: PROVIDER,
+        }),
+      ).rejects.toThrow(/0\.3 vault shares/);
+    });
+
+    it('is replaced when the caller asks for that explicitly', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+        pending: live,
+      });
+
+      const result = await withdrawEarn({
+        amount: '0.5',
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+        replaceExisting: true,
+      });
+
+      expect(result.queueTxHash).toBeTruthy();
+    });
+
+    /**
+     * An expired request cannot be solved, so overwriting it is the only way
+     * to re-queue — refusing there would strand the account until it cancelled
+     * something that was already dead.
+     */
+    it('does not block on a request that has expired', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+        pending: { ...live, deadline: AN_HOUR_AGO },
+      });
+
+      const result = await withdrawEarn({
+        amount: '0.5',
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+      });
+
+      expect(result.queueTxHash).toBeTruthy();
+    });
+
+    /**
+     * `inSolve` means a solver has already committed to this request.
+     * Overwriting races that, so it is refused even when replacement was
+     * requested — the caller cannot have meant this one.
+     */
+    it('refuses a request mid-fulfilment even with replaceExisting', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+        pending: { ...live, inSolve: true },
+      });
+
+      await expect(
+        withdrawEarn({
+          amount: '0.5',
+          account: ACCOUNT,
+          chainId: ChainId.ethereum,
+          provider: PROVIDER,
+          replaceExisting: true,
+        }),
+      ).rejects.toThrow(/WithdrawalInSolveError/);
+
+      expect(mockWriteContract).not.toHaveBeenCalled();
+    });
+
+    it('proceeds normally when the slot is empty', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+      });
+
+      const result = await withdrawEarn({
+        amount: '0.5',
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+      });
+
+      expect(result.queueTxHash).toBeTruthy();
     });
   });
 });

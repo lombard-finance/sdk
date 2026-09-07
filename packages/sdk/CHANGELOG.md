@@ -30,6 +30,14 @@ migrate once.
 
 ### Fixed
 
+- **A vault withdrawal could silently discard the one already queued.** The Earn withdraw queue is an `AtomicQueue`, and its storage is `userAtomicRequest[user][offer][want]` — a single request struct, no list and no request id. Its only mutating entry points are `updateAtomicRequest` and `safeUpdateAtomicRequest`, and the event they emit is `AtomicRequestUpdated`; cancelling is the same call with a zeroed struct. So a second withdrawal is not refused by the vault, it is _unrepresentable_: filing one replaces the open request, and the shares that request had queued are simply no longer queued. An account with 0.5 shares awaiting fulfilment that filed for 0.1 ended up with 0.1 queued and nothing recording the other 0.4.
+
+  Neither `withdrawEarn` nor the internal queue helper read the slot before writing it, so both could do this with no failure and no warning. `withdrawEarn` was the worse of the two, because an unwrap and an approval land before the queue write — the loss could be preceded by transactions that cannot be taken back.
+
+  Both now read the existing request first and refuse before sending anything, naming the amount at risk. Two cases pass through: an expired request, which no solver can act on and which must be replaceable or the account is stranded; and an empty slot. A caller that means to replace a live request passes `replaceExisting: true`. A request mid-fulfilment (`inSolve`) is refused even then, because a solver has already committed to it.
+
+  This is a property of the queue, not a product rule. The Lombard app separately declines to _deposit_ while a withdrawal is open; nothing in the contract requires that, and the SDK does not enforce it.
+
 - **The all-chains vault reads never forwarded the wallet token, so they could not work at all.** `getEarnWithdrawalsAllChains` and `getEarnDepositsAllChains` did not destructure `auth`, so neither passed it to the per-chain read it fans out to. Those per-chain reads are `userScoped` and refuse before sending without a token, so every chain came back `missing-token` with no request made — the single-chain read worked and the all-chains read failed whatever the caller supplied.
 
   `auth` reaches these functions inside `IEnvParam`, so omitting it from the destructuring was accepted by the type and silently dropped. The namespace had already been repaired to forward the provider; the ops stopped one step short of using it.
