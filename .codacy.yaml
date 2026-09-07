@@ -1,0 +1,37 @@
+---
+# Codacy analysis scope.
+#
+# Test and test-helper files are excluded. They are not published — `files` in
+# each package.json ships `dist` only — and they are already gated locally:
+# every package runs `eslint . --max-warnings=0`, so a lint finding in a test
+# fails the build before it reaches review.
+#
+# The specific findings this excludes are inherent to how the suites work
+# rather than defects in them:
+#
+#   * `security/detect-non-literal-fs-filename` — several suites assert on this
+#     package's own source. They walk `src` and read what they find, so the
+#     path is computed rather than written down. That is the property being
+#     checked: a literal path could only cover the files someone remembered to
+#     list, which is the gap those suites exist to close. No input reaches them
+#     from outside the repository.
+#
+#   * `security/detect-unsafe-regex` — the export scanner's patterns have a
+#     star height above one, which an optional keyword group cannot avoid
+#     without splitting each pattern in two. Their only input is this
+#     package's own source.
+#
+# Inline suppression is not available for either. Both rules come from ESLint
+# plugins that Codacy runs and this repo does not depend on, so a `nosemgrep`
+# comment does not apply, and naming the rule in an `eslint-disable` directive
+# makes the local lint fail with "Definition for rule ... was not found".
+# Recording the exemption here keeps it in the repository, versioned and
+# visible in review, rather than in a dashboard nobody reads.
+exclude_paths:
+  - 'packages/**/__tests__/**'
+  - 'packages/**/*.test.ts'
+  - 'packages/**/*.test.tsx'
+  - 'packages/**/*.spec.ts'
+  - 'apps/**/__tests__/**'
+  - 'apps/**/*.test.ts'
+  - 'apps/**/*.test.tsx'
