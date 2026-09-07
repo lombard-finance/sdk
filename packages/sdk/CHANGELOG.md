@@ -34,7 +34,7 @@ migrate once.
 
   Neither `withdrawEarn` nor the internal queue helper read the slot before writing it, so both could do this with no failure and no warning. `withdrawEarn` was the worse of the two, because an unwrap and an approval land before the queue write — the loss could be preceded by transactions that cannot be taken back.
 
-  Both now read the existing request first and refuse before sending anything, naming the amount at risk. Two cases pass through: an expired request, which no solver can act on and which must be replaceable or the account is stranded; and an empty slot. A caller that means to replace a live request passes `replaceExisting: true`. A request mid-fulfilment (`inSolve`) is refused even then, because a solver has already committed to it.
+  Both now read the existing request first and refuse before sending anything, naming the amount at risk. Two cases pass through: an expired request, which no solver can act on and which must be replaceable or the account is stranded; and an empty slot. A caller that means to replace a live request passes `replaceExisting: true` — on `withdrawEarn`, and on `evm.withdraw().prepare()`, so the escape hatch is reachable from the action API and not only from the function underneath it. A request mid-fulfilment (`inSolve`) is refused even then, because a solver has already committed to it.
 
   This is a property of the queue, not a product rule. The Lombard app separately declines to _deposit_ while a withdrawal is open; nothing in the contract requires that, and the SDK does not enforce it.
 

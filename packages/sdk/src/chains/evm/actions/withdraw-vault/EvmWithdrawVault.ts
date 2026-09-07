@@ -74,6 +74,8 @@ export class EvmWithdrawVault
   implements IEvmWithdrawVault
 {
   private _amount?: string;
+  /** Whether execute() may overwrite a request already on the queue. */
+  private _replaceExisting = false;
   private _protocol?: DeployProtocol;
   private _needsApproval = false;
   private _txHash?: string;
@@ -124,6 +126,7 @@ export class EvmWithdrawVault
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params);
       this._amount = validated.amount;
+      this._replaceExisting = validated.replaceExisting ?? false;
       this._protocol = this.params.protocol;
 
       this.validateProtocol(this.params.protocol);
@@ -388,6 +391,7 @@ export class EvmWithdrawVault
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
           env: this.ctx.env,
+          replaceExisting: this._replaceExisting,
         });
 
         txHash = result.queueTxHash;
@@ -401,6 +405,7 @@ export class EvmWithdrawVault
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
           env: this.ctx.env,
+          replaceExisting: this._replaceExisting,
         });
       }
 
@@ -420,6 +425,7 @@ export class EvmWithdrawVault
   private get prepareSchema() {
     return z.object({
       amount: evmAmountSchema,
+      replaceExisting: z.boolean().optional(),
     });
   }
 

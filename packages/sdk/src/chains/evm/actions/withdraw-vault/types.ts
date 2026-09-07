@@ -35,6 +35,18 @@ export interface EvmWithdrawVaultParams {
 export interface EvmWithdrawVaultPrepareParams {
   /** Amount of vault shares to withdraw */
   amount: string;
+  /**
+   * Replace a withdrawal this account already has queued.
+   *
+   * The Earn queue holds one request per account, so filing a second replaces
+   * the first and un-queues its shares. `execute()` refuses that by default
+   * and names the amount at risk; set this when replacing an open request is
+   * what you meant. A request already being fulfilled is refused either way.
+   *
+   * An expired request needs no flag — it cannot be fulfilled, so replacing it
+   * is the only way to re-queue.
+   */
+  replaceExisting?: boolean;
 }
 
 /**
