@@ -55,6 +55,13 @@ export interface SignNetworkFeeResult {
  * Stake and bake signing parameters
  */
 export interface SignStakeAndBakeParams {
+  /**
+   * The amount to authorise, in **token base units** — satoshis on the BTC
+   * routes, where 0.001 BTC is `100000`.
+   *
+   * Base units rather than the human-readable amount the other write helpers
+   * take, because the value goes into the permit as it stands.
+   */
   value: string;
   account: string;
   chainId: EvmChainId;

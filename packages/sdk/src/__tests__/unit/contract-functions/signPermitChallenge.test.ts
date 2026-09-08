@@ -23,6 +23,13 @@ const mockedPoll = vi.mocked(pollWalletVerification);
 
 const account = '0xde51ec5d10484a21ec0b9d7c60d76a95977da29f' as const;
 
+/**
+ * A deadline to pass explicitly. Relative rather than fixed: a hardcoded
+ * timestamp holds until it does not, and the validation it has to clear is
+ * "in the future".
+ */
+const EXPLICIT_DEADLINE = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+
 /** A permit document shaped exactly as the gateway issues it. */
 const typedData = {
   types: {
@@ -151,11 +158,11 @@ describe('signPermitChallenge', () => {
   });
 
   it('forwards an explicit deadline', async () => {
-    await signPermitChallenge({ ...params, deadline: 1788183126 });
+    await signPermitChallenge({ ...params, deadline: EXPLICIT_DEADLINE });
 
     expect(mockedChallenge.mock.calls[0][0].permit).toEqual({
       value: '99512',
-      deadline: 1788183126,
+      deadline: EXPLICIT_DEADLINE,
     });
   });
 

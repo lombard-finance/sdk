@@ -10,6 +10,7 @@ import { verifyWalletSignature } from '../../api-functions/walletAuth/verifyWall
 import { getLegacyChainNameById } from '../../common/blockchain-identifier';
 import type { ChainId } from '../../common/chains';
 import type { IEnvParam } from '../../common/parameters';
+import { assertValidExpiry } from '../../shared/validation/signing';
 import { ActivePermitExistsError, getErrorMessage } from '../../utils/err';
 import { DAY, now, toUnix } from '../../utils/time';
 
@@ -90,6 +91,12 @@ export async function signPermitChallenge({
   env,
 }: ISignPermitChallengeParams): Promise<ISignPermitChallengeResult> {
   const chain = getLegacyChainNameById(chainId);
+
+  // Checked before the lookup, so a bad deadline does not first cost a request
+  // and then report that request's failure. The server picks the deadline it
+  // will honour, but it is asked for this one, and a millisecond timestamp
+  // reaching it has no symptom on the client at all.
+  assertValidExpiry(deadline, 'deadline');
 
   await assertNoActivePermit(account, chainId, env);
 
