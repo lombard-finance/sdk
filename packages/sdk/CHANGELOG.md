@@ -1,3 +1,24 @@
+# 5.6.1
+
+### Fixed
+
+**A failed JWT revoke logged the error object, and an axios error carries the request headers.**
+
+`revokeWalletToken()` sets `Authorization: Bearer <jwt>` and, on failure, passed the whole error to `console.error`. An axios rejection carries the config it failed with, headers included. The branch runs exactly when revocation did not happen, so the token is still live server-side, and a consumer whose error reporter serialises error properties would take it off the machine. It logs the message only now.
+
+**`getErrorMessage()` returned `undefined` for a response body without a JSON `message`.**
+
+An edge serving an HTML error page, or a 401 with an empty body, is not `{ message: string }`. Reading `.message` off it gave `undefined`, which callers turned into `new Error(undefined)` — message the empty string — and a `null` body threw from inside the helper itself.
+
+The consequence was worse than a blank message. Both deposit-address routes test that string for the sanctions refusal, so `undefined.includes(...)` threw a `TypeError` from inside their own error handling. In `resolveDepositBtcAddress` that meant the 401/403 branch reporting a rejected wallet JWT was never reached, and a consumer watching for `UnauthorizedWalletJwtError` to trigger a re-login saw a `TypeError` instead.
+
+Every branch answers with a string now, falling back to `HTTP error <status> <statusText>` when there is no message to quote.
+
+### Notes
+
+- The order in `resolveDepositBtcAddress`'s error handling is unchanged and load-bearing: the sanctions refusal arrives as a 403, so it is recognised by its message before the status is read. What made that fragile was the `undefined`, not the order.
+- `sdk-common` has its own `extractErrorMessage` covering these cases correctly. Consolidating the two is worth doing separately — it gates the response branch on `isAxiosError`, where this one reads `.response` off any `Error`, and that difference decides what a rejection which crossed a module boundary reports.
+
 # 5.6.0
 
 ### Fixed
