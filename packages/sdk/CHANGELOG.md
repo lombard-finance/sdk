@@ -1,3 +1,25 @@
+# 5.6.1
+
+### Fixed
+
+**A Bitcoin address for a future witness version passed validation and was paid to.**
+
+`isValidBitcoinAddress()` — and so `bitcoinAddressSchema`, the recipient schema for every unstake and redeem action — accepted anything that decoded as bech32. `bc1zxvenxvenxvenxvenxvenxvenxv8al9f3` is witness version 2, valid bech32m, and an output for an undefined witness version is spendable by anyone once mined. Versions above 1 are rejected now, and `getOutputScript()` in `@lombard.finance/sdk-common@4.4.0` refuses to build the script as well.
+
+The reachable case is a redeeming user's own bad input — a typo, a mis-scanned QR, an address pasted from somewhere untrusted — rather than an attacker. Starknet was already covered, because its redeem path also calls `getBtcAddressType`, which throws for anything but version 0 or 1.
+
+**`isValidBitcoinAddress()` rejected the all-uppercase bech32 form.**
+
+It branched on a lowercase `bc1` / `tb1` prefix, so `BC1QZYG3…H8FFKZ` fell through to the base58 check and came back false, while `toOutputScript` pays it happily. Both bech32 cases are decoded now rather than matched on their prefix. Fail-closed before, so no funds were at risk.
+
+**`generateDepositBtcAddress()` returned a missing address as an address.**
+
+A `200` carrying `{}` or `{ address: "" }` became an `undefined` typed as `string`, handed to the caller as the Bitcoin address to send a deposit to, and the failure surfaced later as an unrelated state error. Both sibling routes already refuse a response without one. The check sits outside the request's `catch`, so the sanctions refusal still answers with `SANCTIONED_ADDRESS`.
+
+### Notes
+
+- Nothing here re-derives a server-issued deposit address or checks it against the action's Bitcoin network. That is worth doing and is a separate change: the network an action believes it is on defaults to testnet when `sourceChain` is omitted, so a check keyed on it would reject valid production addresses until that is settled.
+
 # 5.6.0
 
 ### Fixed
