@@ -111,6 +111,10 @@ export {
 // permit challenge would be refused; callers fall back to the plain challenge.
 export { ActivePermitExistsError } from './utils/err';
 
+// Raised when an issued permit challenge does not describe the authorisation
+// that was requested; `field` names what differed.
+export { PermitChallengeMismatchError } from './utils/err';
+
 // One-call permit authorisation: sign a server-issued permit, get a JWT.
 export {
   type ISignPermitChallengeParams,

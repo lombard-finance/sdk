@@ -309,6 +309,227 @@ describe('signPermitChallenge with an active signature on file', () => {
   });
 });
 
+/**
+ * The permit is assembled server-side, which is not the same as its contents
+ * being trustworthy. Every field the caller already holds is compared to the
+ * document before the wallet is asked to sign it.
+ */
+describe('signPermitChallenge payload checks', () => {
+  /** A challenge carrying `overrides` applied to the reference document. */
+  function challengeWith(
+    overrides: {
+      primaryType?: string;
+      types?: Record<string, Array<{ name: string; type: string }>>;
+      domain?: Partial<Record<keyof typeof typedData.domain, string | number>>;
+      message?: Partial<Record<keyof typeof typedData.message, string>>;
+    },
+    options: { withDigest?: boolean } = {},
+  ) {
+    const doc = {
+      ...typedData,
+      ...overrides,
+      domain: { ...typedData.domain, ...overrides.domain },
+      message: { ...typedData.message, ...overrides.message },
+    };
+    const docPayload = JSON.stringify(doc);
+    const { EIP712Domain: _domain, ...docTypes } = doc.types;
+
+    mockedChallenge.mockResolvedValue({
+      nonce: 'abc',
+      payload: docPayload,
+      expiresAt: 'x',
+      challengeType: WALLET_CHALLENGE_TYPE.permit,
+      ...(options.withDigest
+        ? {
+            digest: hashTypedData({
+              domain: doc.domain,
+              types: docTypes,
+              primaryType: doc.primaryType,
+              message: doc.message,
+            } as Parameters<typeof hashTypedData>[0]),
+          }
+        : {}),
+    });
+  }
+
+  // The digest check hashes the server's payload and compares it to the
+  // server's own digest, so the two agreeing says nothing about what the
+  // document authorises. This is the case that check cannot catch.
+  it('refuses a foreign spender even when the reserved digest matches', async () => {
+    challengeWith(
+      { message: { spender: '0x00000000000000000000000000000000000000ff' } },
+      { withDigest: true },
+    );
+
+    await expect(signPermitChallenge(params)).rejects.toMatchObject({
+      name: 'PermitChallengeMismatchError',
+      field: 'message.spender',
+    });
+    expect(request).not.toHaveBeenCalled();
+    expect(mockedVerify).not.toHaveBeenCalled();
+  });
+
+  it('refuses a value above the one that was asked for', async () => {
+    challengeWith({
+      message: {
+        value:
+          '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+      },
+    });
+
+    await expect(signPermitChallenge(params)).rejects.toMatchObject({
+      field: 'message.value',
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it('refuses a deadline beyond the one that was asked for', async () => {
+    challengeWith({ message: { deadline: '99999999999' } });
+
+    await expect(
+      signPermitChallenge({ ...params, deadline: EXPLICIT_DEADLINE }),
+    ).rejects.toMatchObject({ field: 'message.deadline' });
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  // The server is allowed to shorten what it was asked for; only going over is
+  // a mismatch.
+  it('accepts a deadline the server shortened', async () => {
+    challengeWith({ message: { deadline: String(EXPLICIT_DEADLINE - 3600) } });
+
+    await expect(
+      signPermitChallenge({ ...params, deadline: EXPLICIT_DEADLINE }),
+    ).resolves.toMatchObject({ jwt: 'jwt-token' });
+  });
+
+  it('refuses a token other than the one the SDK knows for the chain', async () => {
+    challengeWith({
+      domain: {
+        verifyingContract: '0x00000000000000000000000000000000000000ff',
+      },
+    });
+
+    await expect(signPermitChallenge(params)).rejects.toMatchObject({
+      field: 'domain.verifyingContract',
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it('refuses a domain bound to another chain', async () => {
+    challengeWith({ domain: { chainId: 8453 } });
+
+    await expect(signPermitChallenge(params)).rejects.toMatchObject({
+      field: 'domain.chainId',
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it('refuses an owner other than the account that will sign', async () => {
+    challengeWith({
+      message: { owner: '0x00000000000000000000000000000000000000ff' },
+    });
+
+    await expect(signPermitChallenge(params)).rejects.toMatchObject({
+      field: 'message.owner',
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  // `primaryType` and `types` are as substitutable as any other field: a
+  // Permit2 batch or a Safe transaction would otherwise be signed under the
+  // label of a permit challenge.
+  it('refuses a document that is not an ERC-2612 permit', async () => {
+    challengeWith({ primaryType: 'PermitBatch' });
+
+    await expect(signPermitChallenge(params)).rejects.toMatchObject({
+      field: 'primaryType',
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it('refuses a Permit struct whose fields differ from ERC-2612', async () => {
+    challengeWith({
+      types: {
+        ...typedData.types,
+        Permit: [
+          { name: 'owner', type: 'address' },
+          { name: 'spender', type: 'address' },
+          { name: 'value', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+          { name: 'extra', type: 'address' },
+        ],
+      },
+    });
+
+    await expect(signPermitChallenge(params)).rejects.toMatchObject({
+      field: 'types.Permit',
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it('accepts the checksummed form of an address held in lower case', async () => {
+    // The SDK holds the prod Ethereum LBTC address lower case; the gateway
+    // issues it checksummed. Casing is not part of an address.
+    await expect(signPermitChallenge(params)).resolves.toMatchObject({
+      jwt: 'jwt-token',
+    });
+  });
+
+  it('reports the payload rather than the parse error when it is not JSON', async () => {
+    mockedChallenge.mockResolvedValue({
+      nonce: 'abc',
+      payload: 'not json',
+      expiresAt: 'x',
+      challengeType: WALLET_CHALLENGE_TYPE.permit,
+    });
+
+    await expect(signPermitChallenge(params)).rejects.toMatchObject({
+      field: 'payload',
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The spender comes from the SDK's own vault registry, so a chain the registry
+ * has no entry for leaves nothing to compare the document against.
+ */
+describe('signPermitChallenge on a chain the registry does not carry', () => {
+  const onBase = { ...params, chainId: ChainId.base };
+
+  it('refuses rather than trusting the issued spender', async () => {
+    await expect(signPermitChallenge(onBase)).rejects.toMatchObject({
+      field: 'message.spender',
+    });
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it('proceeds when the caller names the spender to expect', async () => {
+    const spender = '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef' as const;
+    const doc = {
+      ...typedData,
+      domain: {
+        ...typedData.domain,
+        chainId: ChainId.base,
+        verifyingContract: '0xecAc9C5F704e954931349Da37F60E39f515c11c1',
+      },
+      message: { ...typedData.message, spender },
+    };
+
+    mockedChallenge.mockResolvedValue({
+      nonce: 'abc',
+      payload: JSON.stringify(doc),
+      expiresAt: 'x',
+      challengeType: WALLET_CHALLENGE_TYPE.permit,
+    });
+
+    await expect(
+      signPermitChallenge({ ...onBase, expectedSpender: spender }),
+    ).resolves.toMatchObject({ jwt: 'jwt-token' });
+  });
+});
+
 describe('signPermitChallenge wallet rejection', () => {
   // Wallets reject with an EIP-1193 object rather than an Error, so an
   // unwrapped rejection reaches callers as `[object Object]`.

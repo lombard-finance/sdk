@@ -13,6 +13,7 @@ import type { IEnvParam } from '../../common/parameters';
 import { assertValidExpiry } from '../../shared/validation/signing';
 import { ActivePermitExistsError, getErrorMessage } from '../../utils/err';
 import { DAY, now, toUnix } from '../../utils/time';
+import { assertPermitPayloadMatches } from './assert-permit-payload';
 
 /** Seven days, the deadline requested when the caller does not name one. */
 const DEFAULT_PERMIT_DAYS = 7;
@@ -32,6 +33,17 @@ export interface ISignPermitChallengeParams extends IEnvParam {
    * is returned as `signatureExpiresAt`.
    */
   deadline?: number;
+  /**
+   * The spender to expect in the issued permit, for a chain the SDK's vault
+   * registry does not carry yet.
+   *
+   * The spender is normally taken from the registry and the challenge is
+   * checked against it. On a chain the registry has no entry for there is
+   * nothing to check against, and the challenge is refused rather than
+   * trusted; naming the spender here is how a caller on a gateway that runs
+   * ahead of the registry proceeds.
+   */
+  expectedSpender?: Address;
 }
 
 export interface ISignPermitChallengeResult extends WalletVerifyResult {
@@ -61,11 +73,16 @@ export interface ISignPermitChallengeResult extends WalletVerifyResult {
  * are what make a published signature replayable. Do not assemble the typed
  * data locally.
  *
- * Two details this function exists to get right:
+ * Three details this function exists to get right:
  *
  * - The payload is handed to the wallet as the exact string the server
  *   returned. It is the JSON the server hashed, and re-serialising it can
  *   change the digest that was reserved.
+ * - What the document authorises is checked against the caller's own arguments
+ *   and the SDK's contract addresses first. Building it server-side does not
+ *   mean taking its contents on trust: a permit is a spending allowance, so the
+ *   account, chain, token, spender, amount and deadline are all compared to
+ *   locally known values and a mismatch is refused before the wallet is asked.
  * - `challengeType` is sent again on verify, because challenges are stored per
  *   address *and* type.
  *
@@ -76,9 +93,15 @@ export interface ISignPermitChallengeResult extends WalletVerifyResult {
  * @param {string} parameters.value - Amount to permit, in token base units.
  * @param {number} parameters.deadline - Optional requested deadline, UNIX seconds.
  * @param {Env} parameters.env - The optional environment identifier.
+ * @param {Address} parameters.expectedSpender - Optional spender to expect, for
+ * a chain the vault registry does not carry.
  *
  * @returns {Promise<ISignPermitChallengeResult>} The JWT and the signed permit.
  *
+ * @throws {ActivePermitExistsError} when the wallet already holds an active
+ * stake-and-bake signature, so a permit challenge would be refused at verify.
+ * @throws {PermitChallengeMismatchError} when the issued permit does not
+ * describe the authorisation that was asked for.
  * @throws if the server issues a challenge of a different type, if the digest
  * it reserved does not match the payload it returned, or if verification fails.
  */
@@ -89,6 +112,7 @@ export async function signPermitChallenge({
   value,
   deadline = toUnix(now() + DAY * DEFAULT_PERMIT_DAYS),
   env,
+  expectedSpender,
 }: ISignPermitChallengeParams): Promise<ISignPermitChallengeResult> {
   const chain = getLegacyChainNameById(chainId);
 
@@ -119,6 +143,19 @@ export async function signPermitChallenge({
   }
 
   assertDigestMatches(challenge.payload, challenge.digest);
+
+  // The digest check above only proves the payload and the digest agree with
+  // each other — both come from the same response. What the document actually
+  // authorises is checked against the caller's own parameters and the SDK's
+  // contract addresses here, before the wallet sees it.
+  assertPermitPayloadMatches(challenge.payload, {
+    account,
+    chainId,
+    value,
+    deadline,
+    env,
+    ...(expectedSpender ? { expectedSpender } : {}),
+  });
 
   // Signed as the exact string the server returned: viem's signTypedData takes
   // a structured object and re-serialises it, which is the one thing that can
