@@ -24,12 +24,41 @@ import { AgentKit } from "@coinbase/agentkit";
 
 const agentkit = await AgentKit.from({
   walletProvider,
-  actionProviders: [lombardActionProvider()],
+  actionProviders: [
+    lombardActionProvider({
+      confirmWrite: (request) => askTheOperator(request),
+    }),
+  ],
 });
 
 // Agent now has access to all Lombard actions
 const actions = agentkit.getActions();
 ```
+
+### Approving Writes
+
+A tool call **is** the transaction: the write actions sign and send as soon as
+they are invoked, and what invokes them is a model reading text. Not all of
+that text is yours — a token symbol, an address label or an error relayed from
+an upstream service reaches the model too, and a tool call cannot be
+distinguished from an instruction after the fact.
+
+So each write asks first. Give the provider one of:
+
+- `confirmWrite(request)` — called before anything is signed, including the fee
+  authorisation some chains require. Return `false`, or throw, and nothing is
+  sent. `request` carries the action, chain, account, amount, assets and the
+  recipient, which is the field to read twice: on the BTC output route it is a
+  Bitcoin address supplied as a tool argument.
+- `autoApproveWrites: true` — no confirmation at all, for a wallet that is
+  meant to run unattended and is funded accordingly.
+
+With neither set, write actions report that confirmation is unconfigured and
+sign nothing. Read actions are never gated.
+
+Asking the model to confirm in its system prompt is worth doing and is not the
+same thing: that is a request to the model, this is a gate it cannot talk its
+way past.
 
 ### With LangChain
 
@@ -41,7 +70,9 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
 const agentkit = await AgentKit.from({
   walletProvider,
-  actionProviders: [lombardActionProvider()],
+  actionProviders: [
+    lombardActionProvider({ confirmWrite: (request) => askTheOperator(request) }),
+  ],
 });
 
 const tools = getLangChainTools(agentkit);

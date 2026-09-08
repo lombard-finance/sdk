@@ -1,3 +1,37 @@
+# 0.3.0
+
+## BREAKING CHANGES
+
+**Write actions no longer transact without an approval policy.**
+
+A tool call was the transaction. `stake_btcb_to_lbtc`, `unstake_lbtc_to_btc`, `redeem_lbtc_to_btcb`, `deploy_to_earn` and `claim_lbtc_deposit` signed and sent as soon as they were invoked, and what invokes them is a model reading text. Not all of that text belongs to the operator: a token symbol, an address label and any error relayed from an upstream service all reach the model, and a tool call cannot be told apart from an instruction after it has been made. `unstake_lbtc_to_btc` takes its Bitcoin destination straight from a tool argument.
+
+The only thing standing in front of that was a sentence in the example system prompts asking the model to confirm first, which is a request to the model rather than a gate.
+
+`lombardActionProvider()` now takes one of two options, and refuses writes with neither:
+
+```ts
+lombardActionProvider({
+  confirmWrite: (request) => askTheOperator(request),
+});
+
+// or, for a wallet meant to run unattended:
+lombardActionProvider({ autoApproveWrites: true });
+```
+
+`confirmWrite` runs before anything is signed, the fee authorisation included — that signs an EIP-712 approval and stores it, so a write refused after it would still have left one behind. Returning `false` or throwing stops the action, which reports that it was not approved and sends nothing. Read actions are not gated.
+
+### Migration
+
+Existing integrations keep working once they say which they want. `lombardActionProvider()` with no options still constructs, and its read actions still work; its write actions return `{ success: false, error: "… no confirmation is configured …" }` until `confirmWrite` or `autoApproveWrites` is set.
+
+### Added
+
+- `confirmWrite`, `autoApproveWrites` on `lombardActionProvider()` / `new LombardActionProvider()`.
+- `LombardActionProviderOptions`, `ConfirmWrite` and `WriteConfirmationRequest` types. The request carries `action`, `chainId`, `account`, `amount`, `assetIn`, `assetOut`, `recipient` and `details`.
+
+---
+
 # 0.2.0
 
 ## 🚨 BREAKING CHANGES
