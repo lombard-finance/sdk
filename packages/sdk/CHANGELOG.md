@@ -1,3 +1,18 @@
+# 5.6.0
+
+### Fixed
+
+- `signPermitChallenge()` checks the issued permit against the values it was called with before the wallet is prompted: `domain.chainId`, `domain.verifyingContract` against the SDK's LBTC address for that chain, `message.owner`, `message.spender` against the vault spender in the registry, and `message.value` / `message.deadline` as upper bounds on what was requested. `primaryType` has to be `Permit` and the `Permit` struct has to carry the ERC-2612 fields in order.
+
+  The digest check that was already there hashes the returned payload and compares it to the returned digest, so it establishes that the two agree with each other and nothing about what the document authorises. A permit is a spending allowance, and every field above is one the caller passed in or the SDK holds as a constant, so a document that differs is not the one that was asked for.
+
+  `value` and `deadline` are bounds rather than exact matches, since the server is documented to be allowed to shorten the deadline it was asked for. `nonce` stays unchecked — reading `nonces(owner)` would need an RPC round trip, and a wrong nonce yields a permit the token rejects rather than one that authorises something else. `domain.name` and `domain.version` stay unchecked for the same reason, now that `verifyingContract` is pinned.
+
+### Added
+
+- `PermitChallengeMismatchError`, thrown by `signPermitChallenge()` when the issued permit does not describe the requested authorisation. `field` names what differed, e.g. `message.spender`.
+- `signPermitChallenge({ expectedSpender })` names the spender to check against on a chain the vault registry does not carry. Without it such a chain is refused rather than trusted, since there is nothing local to compare the document to.
+
 # 5.5.0
 
 ### One-Signature Permit Authorisation

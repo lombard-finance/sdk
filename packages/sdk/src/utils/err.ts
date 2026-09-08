@@ -106,6 +106,27 @@ export class ActivePermitExistsError extends Error {
   }
 }
 
+/**
+ * Thrown when a server-issued permit challenge does not describe the
+ * authorisation the caller asked for.
+ *
+ * The wallet is not prompted in this case. A permit is a spending allowance, so
+ * the fields the caller already holds — the account, the chain, the token, the
+ * spender, the amount and the deadline — are checked against the document
+ * before it is shown, and a document that differs in any of them is refused
+ * rather than signed. `field` names the one that differed.
+ */
+export class PermitChallengeMismatchError extends Error {
+  constructor(
+    /** Dotted path of the field that did not match, e.g. `message.spender`. */
+    public readonly field: string,
+    detail: string,
+  ) {
+    super(`Permit challenge ${field} ${detail}`);
+    this.name = 'PermitChallengeMismatchError';
+  }
+}
+
 export class UnsupportedTokenFlow extends Error {
   constructor(
     public readonly tokenIn: Token,
