@@ -228,15 +228,24 @@ export class BtcStakeAndDeploy
         validated.recipient,
       );
 
+      // The deposit this signature would have to authorise. A stored permit
+      // is for a fixed amount, so it is a resume only for a deposit that
+      // amount covers.
+      const required = {
+        amount: toSatoshi(validated.amount).toString(),
+        token: this.params.assetIn ?? AssetId.BTC,
+      };
+
       if (hasExistingDeposit) {
         // We have a deposit address - check if stake and bake signature is still valid
         const stored = await stakeAndDeployConfig.restoreStakeAndBakeSignature(
           this.ctx,
           this.chainId,
           validated.recipient,
+          required,
         );
 
-        if (stored?.hasSignature) {
+        if (stored?.hasSignature && stored.coversAmount) {
           // Valid signature exists - skip authorization step
           if (stored.signature) {
             this.authState.signature = stored.signature;
@@ -247,7 +256,8 @@ export class BtcStakeAndDeploy
           return;
         }
 
-        // Deposit exists but signature expired/missing - need re-authorization
+        // Deposit exists but the signature is expired, missing, or was signed
+        // for less than this deposit - need re-authorization
         this.updateStatus(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
         this.emitInitialProgress();
         return;
@@ -260,9 +270,10 @@ export class BtcStakeAndDeploy
           this.ctx,
           this.chainId,
           validated.recipient,
+          required,
         );
 
-      if (existingSignature?.hasSignature) {
+      if (existingSignature?.hasSignature && existingSignature.coversAmount) {
         // Valid signature exists - skip to READY state
         if (existingSignature.signature) {
           this.authState.signature = existingSignature.signature;

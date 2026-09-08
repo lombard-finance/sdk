@@ -11,11 +11,14 @@
 
 import type { EvmService } from '@lombard.finance/sdk-common';
 import { Env } from '@lombard.finance/sdk-common';
+import BigNumber from 'bignumber.js';
 import type { EIP1193Provider } from 'viem';
 
 import { getUserStakeAndBakeSignature } from '../../../../../api-functions/getUserStakeAndBakeSignature';
 import type { ChainId } from '../../../../../common/chains';
+import { getPermitValue } from '../../../../../contract-functions/signStakeAndBake/utils';
 import { AssetId, Chain, evmChainIdToChain } from '../../../../../core';
+import type { StakeAndBakeToken } from '../../../../../defi/defi-registry';
 import { LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
 import { evmAddressSchema } from '../../../../../shared/validation';
@@ -108,7 +111,7 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
     };
   },
 
-  async restoreStakeAndBakeSignature(ctx, chainId, recipient) {
+  async restoreStakeAndBakeSignature(ctx, chainId, recipient, required) {
     try {
       const result = await getUserStakeAndBakeSignature({
         userDestinationAddress: recipient,
@@ -140,6 +143,11 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
         signature: result.signature,
         depositAmount: result.depositAmount,
         expirationDate: result.expirationDate,
+        coversAmount: await storedAmountCovers(
+          result.depositAmount,
+          required,
+          ctx.env,
+        ),
       };
     } catch {
       // API error (e.g., signature not found, network error)
@@ -148,3 +156,41 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
     }
   },
 };
+
+/**
+ * Whether the amount on the stored signature covers the deposit being prepared.
+ *
+ * `deposit_amount` is the permit's own `value`: the store call sends only the
+ * signature and the typed data, so the amount the server records is the one in
+ * `message.value`. That is the ratio-converted figure, not the satoshis the
+ * caller passed, so the new deposit is converted the same way before the two
+ * are compared.
+ *
+ * A record with no amount on it cannot be shown to cover anything. It is
+ * treated as not covering, which costs a signature prompt that may not have
+ * been needed; the other way round skips the prompt for a deposit that is not
+ * authorised.
+ */
+async function storedAmountCovers(
+  depositAmount: string | undefined,
+  required: { amount: string; token: string },
+  env: Env,
+): Promise<boolean> {
+  const stored = new BigNumber(depositAmount ?? '');
+  if (!stored.isFinite()) {
+    return false;
+  }
+
+  const needed = await getPermitValue(
+    required.token as StakeAndBakeToken,
+    required.amount,
+    env,
+  );
+
+  // Compared as the permit is built: the signer rounds the converted value down
+  // to whole base units, so anything below that is what the stored figure has
+  // to reach.
+  return stored.isGreaterThanOrEqualTo(
+    needed.decimalPlaces(0, BigNumber.ROUND_DOWN),
+  );
+}

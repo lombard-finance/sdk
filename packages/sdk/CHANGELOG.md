@@ -1,3 +1,22 @@
+# 5.6.1
+
+### Fixed
+
+**`btc.stakeAndDeploy()` resumed on a stored signature without checking it covered the new deposit.**
+
+`prepare()` looks for an unexpired stake-and-bake signature and, finding one, marks the action authorised and skips the wallet prompt. The permit behind that signature authorises a fixed amount, and the amount being prepared was never compared to it. Since `5.4.0` an expiry may be set up to a year ahead, so a returning user with a live signature is the ordinary path rather than an edge case.
+
+Authorise 0.001 BTC, come back, `prepare({ amount: '0.5' })`: the action reported ready with no prompt, and the BTC was minted against a permit covering roughly a five-hundredth of it. Nothing failed — the vault leg is simply authorised for a fraction of the deposit.
+
+The restore result now carries `coversAmount`, and the resume happens only when it is true. Otherwise the action goes to `NEEDS_DEPLOY_AUTHORIZATION` and the user signs for the deposit they are actually making.
+
+### Notes
+
+- The comparison is against the permit's own `value`. The store call sends only the signature and the typed data, so the amount the server records is `message.value` — the ratio-converted figure, not the satoshis passed in. The deposit being prepared is converted the same way before the two are compared.
+- A record with no amount on it is treated as not covering. That costs a prompt which may not have been needed; the other direction skips the prompt for a deposit that is not authorised.
+- `restoreStakeAndBakeSignature` on the stake-and-deploy chain config takes a fourth argument, `{ amount, token }`, describing the deposit being prepared. `StakeAndBakeRestoreResult` gains `coversAmount`.
+- `btc.depositAndDeploy()` is unaffected: it has no resume branch and always asks for authorisation.
+
 # 5.6.0
 
 ### Fixed
