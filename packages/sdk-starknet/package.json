@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-starknet",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Starknet integration for the Lombard SDK - stake BTC and manage LBTC on Starknet",
   "exports": {
     ".": {
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
-    "starknet": "~6.24.1"
+    "starknet": "~7.6.4"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "1.6.1",

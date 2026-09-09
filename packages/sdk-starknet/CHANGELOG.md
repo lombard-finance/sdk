@@ -5,6 +5,18 @@ All notable changes to `@lombard.finance/sdk-starknet` will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-09-02
+
+### Changed
+
+- **`starknet` moves from 6.24.1 to 7.6.4**, which is a peer-visible change: the version is pinned in the monorepo's root `resolutions`, so a consumer resolves the same copy.
+
+  6.x implements RPC spec channels 0.6 and 0.7 only, and **no deployed endpoint advertises either any more** — the ones this package uses serve 0.8.1, 0.9.0 and 0.10.2. 0.7-shaped requests are still answered correctly by all of them, so nothing was broken by this; what was accumulating is a dependency on backwards compatibility that a provider can drop at any time, and one of them already has for other reasons.
+
+  7.x adds the 0.8 channel while keeping 0.7, so it is a strict superset of what worked before: every endpoint that answered a 0.7 call still does, and the mainnet node's own 0.8.1 spec is now spoken natively. No source change was needed and the full monorepo gate passes unchanged.
+
+  **This is deliberately not the newest.** 8.x moves to channels 0.8 and 0.9 and _drops_ 0.7, which is the compatibility everything currently leans on; it also changes `Contract`'s constructor to a single options object, which is one call site in `tokens/lib/tokens.ts:267`. 9.x and 10.x move to 0.9 and 0.10, which would drop the 0.8 the mainnet endpoint serves. Going further is worth doing, but it needs the Starknet flows driven with a real wallet to be worth anything — a type-check passing across four majors on a package with this little runtime coverage is weak evidence.
+
 ## [0.4.0] - 2026-09-02
 
 ### Added
