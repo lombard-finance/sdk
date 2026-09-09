@@ -1,39 +1,3 @@
-# Unreleased
-
-### Fixed
-
-**A Bitcoin address for a future witness version passed validation and was paid to.**
-
-`isValidBitcoinAddress()` — and so `bitcoinAddressSchema`, the recipient schema for every unstake and redeem action — accepted anything that decoded as bech32. `bc1zxvenxvenxvenxvenxvenxvenxv8al9f3` is witness version 2, valid bech32m, and an output for an undefined witness version is spendable by anyone once mined. Versions above 1 are rejected now, and `getOutputScript()` in `@lombard.finance/sdk-common` refuses to build the script as well.
-
-The reachable case is a redeeming user's own bad input — a typo, a mis-scanned QR, an address pasted from somewhere untrusted — rather than an attacker. Starknet was already covered, because its redeem path also calls `getBtcAddressType`, which throws for anything but version 0 or 1.
-
-**`isValidBitcoinAddress()` rejected the all-uppercase bech32 form.**
-
-It branched on a lowercase `bc1` / `tb1` prefix, so `BC1QZYG3…H8FFKZ` fell through to the base58 check and came back false, while `toOutputScript` pays it happily. Both bech32 cases are decoded now rather than matched on their prefix. Fail-closed before, so no funds were at risk.
-
-**`generateDepositBtcAddress()` returned a missing address as an address.**
-
-A `200` carrying `{}` or `{ address: "" }` became an `undefined` typed as `string`, handed to the caller as the Bitcoin address to send a deposit to, and the failure surfaced later as an unrelated state error. Both sibling routes already refuse a response without one. The check sits outside the request's `catch`, so the sanctions refusal still answers with `SANCTIONED_ADDRESS`.
-
-**A failed JWT revoke logged the error object, and an axios error carries the request headers.**
-
-`revokeWalletToken()` sets `Authorization: Bearer <jwt>` and, on failure, passed the whole error to `console.error`. An axios rejection carries the config it failed with, headers included. The branch runs exactly when revocation did not happen, so the token is still live server-side, and a consumer whose error reporter serialises error properties would take it off the machine. It logs the message only now.
-
-**`getErrorMessage()` returned `undefined` for a response body without a JSON `message`.**
-
-An edge serving an HTML error page, or a 401 with an empty body, is not `{ message: string }`. Reading `.message` off it gave `undefined`, which callers turned into `new Error(undefined)` — message the empty string — and a `null` body threw from inside the helper itself.
-
-The consequence was worse than a blank message. Both deposit-address routes test that string for the sanctions refusal, so `undefined.includes(...)` threw a `TypeError` from inside their own error handling. In `resolveDepositBtcAddress` that meant the 401/403 branch reporting a rejected wallet JWT was never reached, and a consumer watching for `UnauthorizedWalletJwtError` to trigger a re-login saw a `TypeError` instead.
-
-Every branch answers with a string now, falling back to `HTTP error <status> <statusText>` when there is no message to quote.
-
-### Notes
-
-- Nothing here re-derives a server-issued deposit address or checks it against the action's Bitcoin network. That is worth doing and is a separate change: the network an action believes it is on defaults to testnet when `sourceChain` is omitted, so a check keyed on it would reject valid production addresses until that is settled.
-- The order in `resolveDepositBtcAddress`'s error handling is unchanged and load-bearing: the sanctions refusal arrives as a 403, so it is recognised by its message before the status is read. What made that fragile was the `undefined`, not the order.
-- `sdk-common` has its own `extractErrorMessage` covering these cases correctly. Consolidating the two is worth doing separately — it gates the response branch on `isAxiosError`, where this one reads `.response` off any `Error`, and that difference decides what a rejection which crossed a module boundary reports.
-
 # 5.8.0
 
 ### Fixed
@@ -65,6 +29,32 @@ An expired or absent signature is unchanged: nothing is on file server-side, so 
 
 The same state also catches a record that carries no signature. The route reports one as present off an unexpired `expiration_date` alone — its own comment notes the raw signature may be omitted — and `READY` is where `generateDepositAddress()` sends that signature as proof of control over the destination. Going ready without the bytes forwarded `undefined` from a state the action had called ready, so the record has to carry a signature to be resumed from. Waiting for the stored authorisation to lapse is the way out, as it is for one that does not cover the deposit.
 
+**A Bitcoin address for a future witness version passed validation and was paid to.**
+
+`isValidBitcoinAddress()` — and so `bitcoinAddressSchema`, the recipient schema for every unstake and redeem action — accepted anything that decoded as bech32. `bc1zxvenxvenxvenxvenxvenxvenxv8al9f3` is witness version 2, valid bech32m, and an output for an undefined witness version is spendable by anyone once mined. Versions above 1 are rejected now, and `getOutputScript()` in `@lombard.finance/sdk-common@4.4.0` refuses to build the script as well.
+
+The reachable case is a redeeming user's own bad input — a typo, a mis-scanned QR, an address pasted from somewhere untrusted — rather than an attacker. Starknet was already covered, because its redeem path also calls `getBtcAddressType`, which throws for anything but version 0 or 1.
+
+**`isValidBitcoinAddress()` rejected the all-uppercase bech32 form.**
+
+It branched on a lowercase `bc1` / `tb1` prefix, so `BC1QZYG3…H8FFKZ` fell through to the base58 check and came back false, while `toOutputScript` pays it happily. Both bech32 cases are decoded now rather than matched on their prefix. Fail-closed before, so no funds were at risk.
+
+**`generateDepositBtcAddress()` returned a missing address as an address.**
+
+A `200` carrying `{}` or `{ address: "" }` became an `undefined` typed as `string`, handed to the caller as the Bitcoin address to send a deposit to, and the failure surfaced later as an unrelated state error. Both sibling routes already refuse a response without one. The check sits outside the request's `catch`, so the sanctions refusal still answers with `SANCTIONED_ADDRESS`.
+
+**A failed JWT revoke logged the error object, and an axios error carries the request headers.**
+
+`revokeWalletToken()` sets `Authorization: Bearer <jwt>` and, on failure, passed the whole error to `console.error`. An axios rejection carries the config it failed with, headers included. The branch runs exactly when revocation did not happen, so the token is still live server-side, and a consumer whose error reporter serialises error properties would take it off the machine. It logs the message only now.
+
+**`getErrorMessage()` returned `undefined` for a response body without a JSON `message`.**
+
+An edge serving an HTML error page, or a 401 with an empty body, is not `{ message: string }`. Reading `.message` off it gave `undefined`, which callers turned into `new Error(undefined)` — message the empty string — and a `null` body threw from inside the helper itself.
+
+The consequence was worse than a blank message. Both deposit-address routes test that string for the sanctions refusal, so `undefined.includes(...)` threw a `TypeError` from inside their own error handling. In `resolveDepositBtcAddress` that meant the 401/403 branch reporting a rejected wallet JWT was never reached, and a consumer watching for `UnauthorizedWalletJwtError` to trigger a re-login saw a `TypeError` instead.
+
+Every branch answers with a string now, falling back to `HTTP error <status> <statusText>` when there is no message to quote.
+
 ### Added
 
 - `BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION` and `BtcStakeAndDeploy.existingAuthorization` (`depositAmount` in token base units, `expiresAt` as UNIX seconds). Both values come off the record `restoreStakeAndBakeSignature` had already read and was discarding.
@@ -77,6 +67,9 @@ The same state also catches a record that carries no signature. The route report
 - A record with no amount on it is treated as not covering. That costs a prompt which may not have been needed; the other direction skips the prompt for a deposit that is not authorised.
 - `restoreStakeAndBakeSignature` on the stake-and-deploy chain config takes a fourth argument, `{ amount, token }`, describing the deposit being prepared. `StakeAndBakeRestoreResult` gains `coversAmount`.
 - `btc.depositAndDeploy()` is unaffected: it has no resume branch and always asks for authorisation.
+- Nothing here re-derives a server-issued deposit address or checks it against the action's Bitcoin network. That is worth doing and is a separate change: the network an action believes it is on defaults to testnet when `sourceChain` is omitted, so a check keyed on it would reject valid production addresses until that is settled.
+- The order in `resolveDepositBtcAddress`'s error handling is unchanged and load-bearing: the sanctions refusal arrives as a 403, so it is recognised by its message before the status is read. What made that fragile was the `undefined`, not the order.
+- `sdk-common` has its own `extractErrorMessage` covering these cases correctly. Consolidating the two is worth doing separately — it gates the response branch on `isAxiosError`, where this one reads `.response` off any `Error`, and that difference decides what a rejection which crossed a module boundary reports.
 
 # 5.7.0
 
