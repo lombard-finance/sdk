@@ -5,6 +5,20 @@ All notable changes to `@lombard.finance/sdk-common` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `getOutputScript()` refuses an address whose witness version is above 1 instead of building an output for it. bitcoinjs-lib compiles `OP_n <program>` for any version, warns on the console and returns the script; an output for an undefined witness version is spendable by anyone once it is mined. `bc1zxvenxvenxvenxvenxvenxvenxv8al9f3` is valid bech32m and produced `0x521033333333333333333333333333333333`.
+
+  Versions 0 (P2WPKH, P2WSH) and 1 (P2TR) are unaffected, as are base58 addresses — `toOutputScript` decides P2PKH or P2SH from the version byte and has no equivalent open end. The network check is unchanged: an address for the wrong network still throws.
+
+## [4.3.1] - 2026-09-08
+
+### Documentation
+
+- `SignStakeAndBakeParams.value` states its unit: token base units, satoshis on the BTC routes. Every other write helper in the SDK takes a human-readable amount, so the interface carrying no unit invited `'0.001'` where `100000` was meant.
+
 ## [4.3.0] - 2026-08-24
 
 ### Added
