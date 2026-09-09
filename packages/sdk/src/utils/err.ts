@@ -38,12 +38,42 @@ export function getErrorMessage(error: unknown): string {
   return getErrorMessageFromObject(error);
 }
 
+/**
+ * The message for an error that may carry an HTTP response.
+ *
+ * `response.data` is only a `{ message }` object when the gateway answered in
+ * its own JSON. An edge serving an HTML error page, or a 401 with an empty
+ * body, sends something else, and reading `.message` off that returned
+ * `undefined` — which callers turned into `new Error(undefined)`, whose
+ * message is the empty string. Worse, the two deposit-address routes then ran
+ * `errorMsg.includes(...)` on it and threw a TypeError from inside their own
+ * error handling, which in `resolveDepositBtcAddress` meant the 401/403 branch
+ * that reports a rejected JWT was never reached.
+ *
+ * Every branch here returns a string. A `null` body no longer throws.
+ */
 function getAxiosErrorMessage(error: AxiosError): string {
-  if (error.response) {
-    return (error.response.data as { message: string }).message;
+  const response = error.response;
+  if (!response) {
+    return error.message;
   }
 
-  return error.message;
+  const data: unknown = response.data;
+  if (
+    data !== null &&
+    typeof data === 'object' &&
+    'message' in data &&
+    typeof data.message === 'string' &&
+    data.message.length > 0
+  ) {
+    return data.message;
+  }
+
+  // No message to quote, so say what the response was. The status is what a
+  // caller branches on and what makes an outage legible in a log.
+  const status = response.status ? String(response.status) : 'unknown';
+  const statusText = response.statusText ? ` ${response.statusText}` : '';
+  return `HTTP error ${status}${statusText}`;
 }
 
 function getErrorMessageFromObject(error: unknown): string {
