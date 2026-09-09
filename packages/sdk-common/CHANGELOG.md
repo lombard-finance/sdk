@@ -5,6 +5,12 @@ All notable changes to `@lombard.finance/sdk-common` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.1] - 2026-09-08
+
+### Documentation
+
+- `SignStakeAndBakeParams.value` states its unit: token base units, satoshis on the BTC routes. Every other write helper in the SDK takes a human-readable amount, so the interface carrying no unit invited `'0.001'` where `100000` was meant.
+
 ## [4.3.0] - 2026-08-24
 
 ### Added
