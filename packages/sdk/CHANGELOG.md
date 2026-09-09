@@ -27,6 +27,8 @@ if (action.status === BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION) {
 
 An expired or absent signature is unchanged: nothing is on file server-side, so the wallet can sign and the prompt is worth showing.
 
+The same state also catches a record that carries no signature. The route reports one as present off an unexpired `expiration_date` alone — its own comment notes the raw signature may be omitted — and `READY` is where `generateDepositAddress()` sends that signature as proof of control over the destination. Going ready without the bytes forwarded `undefined` from a state the action had called ready, so the record has to carry a signature to be resumed from. Waiting for the stored authorisation to lapse is the way out, as it is for one that does not cover the deposit.
+
 ### Added
 
 - `BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION` and `BtcStakeAndDeploy.existingAuthorization` (`depositAmount` in token base units, `expiresAt` as UNIX seconds). Both values come off the record `restoreStakeAndBakeSignature` had already read and was discarding.

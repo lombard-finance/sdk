@@ -242,6 +242,28 @@ describe('BtcStakeAndDeploy.prepare with a signature on file', () => {
     expect(subject.existingAuthorization).toBeUndefined();
   });
 
+  /**
+   * The route may answer with the record and no signature — the config's own
+   * comment says so, and it reports `hasSignature: true` off an unexpired
+   * `expirationDate` alone. READY is reachable only from this branch, and from
+   * there `generateDepositAddress()` sends the signature as proof of control
+   * over the destination, so without the bytes it would forward `undefined`
+   * from a state the action had called ready.
+   */
+  it('does not go ready on a record that carries no signature', async () => {
+    onFile(SMALL_PERMIT_VALUE, '');
+    const subject = await action();
+
+    await subject.prepare({ amount: '0.001', recipient: RECIPIENT });
+
+    expect(subject.status).toBe(
+      BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
+    );
+    expect(subject.existingAuthorization).toMatchObject({
+      depositAmount: SMALL_PERMIT_VALUE,
+    });
+  });
+
   it('asks for authorisation when nothing is on file at all', async () => {
     mockedStored.mockRejectedValue(new Error('no stored signature'));
     const subject = await action();

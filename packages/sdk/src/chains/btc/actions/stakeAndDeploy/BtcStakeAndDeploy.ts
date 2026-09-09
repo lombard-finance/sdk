@@ -305,11 +305,20 @@ export class BtcStakeAndDeploy
           required,
         );
 
-      if (existingSignature?.hasSignature && existingSignature.coversAmount) {
+      // The signature bytes are required here, not just a record of one. This
+      // branch leads to READY, and from there `generateDepositAddress()` sends
+      // the signature as the proof of control over the destination — the route
+      // may answer with the metadata and no `signature`, which would leave
+      // `getDepositAddressParams` forwarding `undefined` from a state the
+      // action reported as ready. Unlike the resume above, where the address
+      // already exists and nothing reads the signature.
+      if (
+        existingSignature?.hasSignature &&
+        existingSignature.coversAmount &&
+        existingSignature.signature
+      ) {
         // Valid signature exists - skip to READY state
-        if (existingSignature.signature) {
-          this.authState.signature = existingSignature.signature;
-        }
+        this.authState.signature = existingSignature.signature;
         this.authState.authorized = true;
         this.updateStatus(BtcActionStatus.READY);
         this.emitInitialProgress();
