@@ -146,7 +146,11 @@ export function useBtcStakeAndBake(
             phase: 'authorizing',
             message: 'Authorizing vault deposit...',
           });
-          await action.authorizeDeposit();
+          // Forwarded rather than defaulted here: omitting it leaves the
+          // default to the SDK, so the hook does not carry a second copy.
+          await action.authorizeDeposit(
+            params.expiry === undefined ? undefined : { expiry: params.expiry },
+          );
         }
 
         if (

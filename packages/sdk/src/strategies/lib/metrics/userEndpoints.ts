@@ -4,7 +4,14 @@ import { Address } from 'viem';
 import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
+import { UnauthorizedWalletJwtError } from '../../../utils/err';
 import { resolveStrategy, StrategyId } from '../config';
+
+/**
+ * Re-exported from its shared home so the historical
+ * `@lombard.finance/sdk/strategies` import path keeps working.
+ */
+export { UnauthorizedWalletJwtError };
 
 /**
  * Per-user endpoints live behind a wallet-JWT gate. Each parameter object
@@ -100,10 +107,3 @@ export async function userAuthorizedGet<T>(
   }
 }
 
-/** Thrown when the vault-manager rejects the wallet JWT (expired / revoked). */
-export class UnauthorizedWalletJwtError extends Error {
-  constructor(url: string) {
-    super(`Wallet JWT rejected by vault-manager (${url})`);
-    this.name = 'UnauthorizedWalletJwtError';
-  }
-}

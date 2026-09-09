@@ -7,6 +7,7 @@
  */
 
 export type {
+  AuthorizeDepositOptions,
   BaseBtcParams,
   BtcAuthorizationState,
   StatusConfig,

@@ -131,6 +131,51 @@ export function getChainNameById(
   throw new Error(`Unknown chain ID: ${chainId}`);
 }
 
+/**
+ * The `DESTINATION_BLOCKCHAIN_*` name each chain answers to, paired with the
+ * shorter `BLOCKCHAIN_*` form. Some routes only accept the short form, so the
+ * pairing lives next to the identifiers rather than being spelled out again
+ * per call site.
+ */
+const LEGACY_BY_DESTINATION: Partial<
+  Record<BlockchainIdentifier, BlockchainIdentifier>
+> = {
+  [BlockchainIdentifier.eth]: BlockchainIdentifier.ethOld,
+  [BlockchainIdentifier.avalanche]: BlockchainIdentifier.avalancheOld,
+  [BlockchainIdentifier.base]: BlockchainIdentifier.baseOld,
+  [BlockchainIdentifier.bsc]: BlockchainIdentifier.bscOld,
+  [BlockchainIdentifier.katana]: BlockchainIdentifier.katanaOld,
+  [BlockchainIdentifier.sui]: BlockchainIdentifier.suiOld,
+  [BlockchainIdentifier.sonic]: BlockchainIdentifier.sonicOld,
+  [BlockchainIdentifier.solana]: BlockchainIdentifier.solanaOld,
+  [BlockchainIdentifier.starknet]: BlockchainIdentifier.starknetOld,
+  [BlockchainIdentifier.monad]: BlockchainIdentifier.monadOld,
+  [BlockchainIdentifier.stable]: BlockchainIdentifier.stableOld,
+  [BlockchainIdentifier.megaeth]: BlockchainIdentifier.megaethOld,
+  [BlockchainIdentifier.bitcoin]: BlockchainIdentifier.bitcoinOld,
+};
+
+/**
+ * The `BLOCKCHAIN_*` identifier for a chain, for the routes that take the
+ * short form. A testnet deployment answers to its mainnet name, exactly as it
+ * does for {@link getChainNameById}: holesky and sepolia are both
+ * `BLOCKCHAIN_ETHEREUM`.
+ *
+ * @throws if the chain has no identifier at all.
+ */
+export function getLegacyChainNameById(
+  chainId: ChainId | SuiChain | SolanaChain | StarknetChainId,
+): BlockchainIdentifier {
+  const destination = getChainNameById(chainId);
+  const legacy = LEGACY_BY_DESTINATION[destination];
+
+  if (!legacy) {
+    throw new Error(`No legacy blockchain identifier for: ${destination}`);
+  }
+
+  return legacy;
+}
+
 export const getEthNetworkByEnv = (env: Env) =>
   env === Env.prod ? ChainId.ethereum : ChainId.sepolia;
 

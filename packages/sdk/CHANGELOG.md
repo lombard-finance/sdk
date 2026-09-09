@@ -1,3 +1,181 @@
+# 5.7.0
+
+### Fixed
+
+**`signStakeAndBake()` takes `value` in base units and said "BTC value", so a human-readable amount signed a permit for zero.**
+
+Every other public write helper in the SDK — `depositEarn`, `redeemToken`, `bridge`, `depositToken` — takes a human-readable amount and converts it. This one takes satoshis, because the value goes into the permit as it stands, and its doc said "the approved BTC value". The internal callers convert first; a consumer calling the export directly with `'0.001'` did not.
+
+There was no lower bound either. `'0.001'` divides by the ratio to `0.000997`, rounds down to `0`, and signs: a permit authorising nothing, stored server-side and reported as success. `value` is now required to be a positive whole number of base units, and a value that converts to zero is refused with the conversion shown.
+
+```text
+value must be a whole number of base units, received 0.001. It is an amount in
+token base units — satoshis on the BTC routes, not a human-readable amount —
+0.001 BTC is 100000, not 0.001.
+```
+
+**The `expiry` bounds only existed on `signStakeAndBake`.**
+
+`signNetworkFee({ expiry })` and `signPermitChallenge({ deadline })` take the same parameter, in the same unit, and had none of its checks. A millisecond timestamp is a positive safe integer in the future, so it passed. On the fee route that is a fee authorisation `checkFeeAuthorization` then reads as valid forever, so the user is never asked to renew it.
+
+The guard is now shared by all three routes and names the parameter it was given, so the fee route reports `expiry` and the permit-challenge route reports `deadline`. Both are absolute UNIX timestamps in seconds, must be in the future, and must be at most 365 days ahead.
+
+### Notes
+
+- The `expiry` messages are unchanged on `signStakeAndBake`. The two that mentioned "permit deadline" now say "deadline", since the same text is raised for the fee approval.
+- Zero-deadline routes (Silo BTC.b) remain exempt from the expiry checks and are not exempt from the value check: every route reads the value.
+
+# 5.6.0
+
+### Fixed
+
+- `signPermitChallenge()` checks the issued permit against the values it was called with before the wallet is prompted: `domain.chainId`, `domain.verifyingContract` against the SDK's LBTC address for that chain, `message.owner`, `message.spender` against the vault spender in the registry, and `message.value` / `message.deadline` as upper bounds on what was requested. `primaryType` has to be `Permit` and the `Permit` struct has to carry the ERC-2612 fields in order.
+
+  The digest check that was already there hashes the returned payload and compares it to the returned digest, so it establishes that the two agree with each other and nothing about what the document authorises. A permit is a spending allowance, and every field above is one the caller passed in or the SDK holds as a constant, so a document that differs is not the one that was asked for.
+
+  `value` and `deadline` are bounds rather than exact matches, since the server is documented to be allowed to shorten the deadline it was asked for. `nonce` stays unchecked — reading `nonces(owner)` would need an RPC round trip, and a wrong nonce yields a permit the token rejects rather than one that authorises something else. `domain.name` and `domain.version` stay unchecked for the same reason, now that `verifyingContract` is pinned.
+
+### Added
+
+- `PermitChallengeMismatchError`, thrown by `signPermitChallenge()` when the issued permit does not describe the requested authorisation. `field` names what differed, e.g. `message.spender`.
+- `signPermitChallenge({ expectedSpender })` names the spender to check against on a chain the vault registry does not carry. Without it such a chain is refused rather than trusted, since there is nothing local to compare the document to.
+
+# 5.5.0
+
+### One-Signature Permit Authorisation
+
+A stake-and-bake deposit needed two things from the user: an ERC-2612 permit authorising the vault spender, and proof that they control the destination address so a BTC deposit address could be issued for it. The v1 deposit-address route took the permit signature as that proof, but a permit is submitted on chain and readable in the mint calldata, so it is not private and the route now refuses a signature it has already seen. Doing it properly over the v2 route meant a second, separate signature.
+
+The wallet-auth challenge can now carry the permit itself. One signature does both jobs: the server issues the permit as EIP-712 typed data, the wallet signs it, and verification returns a JWT _and_ records the permit for the claimer.
+
+```ts
+import {
+  signPermitChallenge,
+  resolveDepositBtcAddress,
+  Token,
+} from '@lombard.finance/sdk';
+
+const { jwt, signatureExpiresAt } = await signPermitChallenge({
+  account,
+  chainId: ChainId.ethereum,
+  provider,
+  value: '99512', // token base units
+  deadline: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+});
+
+const depositAddress = await resolveDepositBtcAddress({
+  address: account,
+  chainId: ChainId.ethereum,
+  token: Token.LBTC,
+  walletJwt: jwt,
+});
+```
+
+No separate call is needed to store the permit.
+
+### Added
+
+- `signPermitChallenge()` runs the whole ceremony: request a permit challenge, sign it, exchange it for a JWT, polling when the wallet verifies asynchronously. It returns the JWT alongside the signed payload and `signatureExpiresAt`, the permit deadline the server settled on.
+- `requestWalletChallenge()` accepts `challengeType` plus `permit` / `feeApproval` params, and returns `challengeType`, `digest` and `signatureExpiresAt`.
+- `verifyWalletSignature()` accepts `challengeType`.
+- `WALLET_CHALLENGE_TYPE`, `WalletChallengeType`, `PermitChallengeParams` and `FeeApprovalChallengeParams` are re-exported from the package root, so naming a challenge type does not require depending on `@lombard.finance/sdk-common` directly.
+- `ActivePermitExistsError` (`code: 9`, with the existing signature's `expiresAt` when the pre-check raised it) — thrown when a wallet already holds an active stake-and-bake signature, so a permit challenge cannot be redeemed.
+
+### Fixed
+
+**A millisecond `expiry` was accepted by `signStakeAndBake`, and set a permit deadline that never lapses.**
+
+The existing checks reject an `expiry` that is not a whole number of seconds, and one that is not in the future. `Date.now()` passed unconverted is neither: it is a positive safe integer, and it is in the future. It cleared both checks and the deadline landed roughly 56,000 years out.
+
+Nothing failed at any point. The permit signed, the signature was stored, and what the caller had granted was a spending allowance to the vault spender that does not expire — from one missing division. Of the ways an `expiry` can be wrong this is the only one with no downstream symptom: a fractional value throws from `BigInt()`, and a past value fails when the permit is used on chain.
+
+`expiry` must now also be no more than **365 days** ahead. Generous enough that no real authorisation window approaches it, small enough that a millisecond timestamp cannot pass. When the magnitude matches, the error names the mistake rather than just citing the bound:
+
+```text
+expiry looks like milliseconds: 1787588525408 is ~1000x the current time in
+seconds (1787588525), which would set the permit deadline to the year 58616.
+It is an absolute UNIX timestamp in seconds — divide by 1000.
+```
+
+Anyone who called `authorizeDeposit({ expiry })` on `5.4.0` with a millisecond value should treat the resulting permit as an open-ended approval and let it be spent or replaced.
+
+The bound is client-side. A request built without the SDK is unaffected by it.
+
+### Notes
+
+- **The permit is built server-side.** It reads `nonces(owner)` from the token and picks the deadline, because a client-chosen nonce and a predictable deadline are what make a published signature replayable. `deadline` is a request; the server may shorten it. Do not assemble the typed data locally.
+- **The payload reaches the wallet as the exact string the server returned.** It is the JSON the server hashed, and re-serialising it can move the digest off the one it reserved. `signPermitChallenge` recomputes the digest and throws before prompting if it does not match.
+- **`challengeType` is sent again on verify.** Challenges are stored per address and type, so omitting it looks up a plain-text challenge that was never issued.
+- **A wallet that already holds an active signature never reaches the prompt.** The gateway issues a permit challenge regardless of one being on file and only refuses at verify, after the user has signed a real permit that is then discarded. For a returning user that is the default state for the lifetime of their previous permit, so `signPermitChallenge` looks the record up first and throws `ActivePermitExistsError` before prompting. Fall back to the plain wallet challenge on it, which issues a JWT without a second permit. The same error is raised from `verifyWalletSignature` when the API reports code `9`, so the case stays branchable if the pre-check is bypassed. A lookup that itself fails is treated as nothing being on file: blocking a first-time user on an unrelated outage is a worse trade than the wasted prompt this avoids.
+- **A wallet rejection arrives as an `Error`.** Wallets reject with an EIP-1193 object rather than an `Error`, so an unwrapped rejection reached callers as `[object Object]` once stringified. It is normalised the same way as the two API calls in the flow.
+- A challenge requested without the params its type requires is rejected at the call site. The gateway does not refuse it — it answers with the plain-text payload, which a wallet signs happily and the server then rejects.
+- `signStakeAndBake()` is unchanged and still builds the permit locally for the v1 route.
+
+# 5.4.0
+
+### Configurable Stake-And-Bake Signature Expiry
+
+`signStakeAndBake()` has always accepted an expiry and defaulted to 24 hours, but no higher-level caller could set one. `SignStakeAndBakeParams` had no `expiry` field, so `EvmService.signStakeAndBake()` could not forward one; neither deploy config threaded it; and `authorizeDeposit()` took no arguments at all. Every consumer going through `btc.stakeAndDeploy()` or `btc.depositAndDeploy()` was pinned to 24 hours, and a user whose signature lapsed had to come back and sign again.
+
+```ts
+const action = sdk.chain.btc.stakeAndDeploy({
+  assetOut: AssetId.LBTC,
+  destChain: Chain.ETHEREUM,
+  protocol: DefiProtocol.Veda,
+});
+
+await action.prepare({ amount: '0.1', recipient: '0x...' });
+
+// Ten days instead of 24 hours
+await action.authorizeDeposit({
+  expiry: Math.floor(Date.now() / 1000) + 10 * 24 * 60 * 60,
+});
+```
+
+`expiry` is an **absolute UNIX timestamp in seconds**, matching the low-level parameter it forwards to, so no second unit convention enters the SDK. Omitting it passes `undefined` the whole way down rather than computing a default en route, so the 24-hour fallback stays in exactly one place.
+
+On routes with a non-zero deadline, an `expiry` is rejected with an `INVALID_PARAMETER` error before anything reaches the network if it is not a positive whole number of seconds, or if it is not in the future. The first catches a fractional value — what `Date.now() / 1000` produces without a `Math.floor` — which `BigInt()` would otherwise turn into a `RangeError` from inside the permit build. The second catches a relative duration (`7 * 24 * 60 * 60` puts the deadline in 1970) and a stale timestamp; both would otherwise sign and store successfully and only fail when the permit was used on chain.
+
+The override reaches the signer through all four hops — action, config, service, signer — and each is covered by a test that fails if the hop drops it.
+
+`useBtcStakeAndBake()` in `@lombard.finance/sdk-react` accepts `expiry` on its `stakeAndDeploy` params and forwards it, so consumers on the hook are not pinned to the default either.
+
+`authorizeDeposit()` still takes no required arguments, so **every existing call site compiles and behaves as before**.
+
+The BTC.b vault route signs with a zero deadline (`deadlineStrategy: 'zero'`), so the option is accepted there for interface parity and has no effect on that route.
+
+# 5.3.0
+
+### Deposit Address Over The Wallet JWT
+
+The BTC deposit address can now be obtained with a wallet JWT instead of a destination-address signature. The token already proves control of the destination address, so the request that carries it needs no signature of its own.
+
+### Added
+
+- `resolveDepositBtcAddress({ address, chainId, token, walletJwt, partnerId, referrerCode, nonce, destinationAssetAddress, env })` posts to `POST /v2/addresses/deposit` with `Authorization: Bearer <walletJwt>` and returns the BTC deposit address. It is the signature-free counterpart of `generateDepositBtcAddress`: no destination-address signature, no captcha. The JWT comes from the existing `requestWalletChallenge` / `verifyWalletSignature` flow.
+  - The v2 host comes from `getApiConfig(env).baseApiV2Url`, so every environment (dev, stage, testnet, ibc, prod) reaches its own gateway.
+  - A 401, and a 403 for a JWT that does not authorise the requested address, are both raised as `UnauthorizedWalletJwtError`, so consumers already handling an expired vault-manager token handle this route the same way.
+  - A sanctioned destination resolves to `SANCTIONED_ADDRESS`, matching `generateDepositBtcAddress` rather than throwing.
+  - `destinationAssetAddress` names the asset **instead of** `token`, not in addition to it: the two are one field on the wire and a request carrying both is refused. A token with no `ASSET_TYPE_*` identifier is reachable this way.
+  - `env` alone picks the network. A testnet chain id resolves to its mainnet identifier, so the chain id and the environment have to be consistent at the call site.
+- `canResolveDepositBtcAddressWithJwt(chainId, token = Token.LBTC)` reports whether the route has an identifier for that pair. `false` is not an error: it means the caller keeps to `generateDepositBtcAddress`. The route names `LBTC` and `BTCb`; any other token falls back instead of guessing a wire name.
+- `getDepositAssetTypeById(token)` returns the `ASSET_TYPE_*` identifier for a token, and throws when there is none.
+- `getLegacyChainNameById(chainId)` returns the short `BLOCKCHAIN_*` identifier that the v2 address route accepts, derived from the same chain resolution as `getChainNameById`. A testnet deployment answers to its mainnet name (holesky and sepolia are both `BLOCKCHAIN_ETHEREUM`), and non-EVM chains are covered too.
+
+### Changed
+
+- `UnauthorizedWalletJwtError` moved to the shared error module so routes outside the vault-manager can raise it. It is still exported from `@lombard.finance/sdk/strategies` and its `name` is unchanged; only the message text is now route-agnostic (`Wallet JWT rejected (<url>)`).
+
+---
+
+# 5.2.2
+
+### Fixed
+
+The `dev` environment now sends v2 API requests to `https://api.devnet-bft.lombard-fi.com` instead of `https://bft-dev.stage.lombard-fi.com`.
+
+The dev v1 host does not serve the `/v2/*` routes, so every v2 call from that environment returned HTTP 404 — `POST /v2/auth/wallet/challenge` and the rest of the wallet-auth flow (`verify`, `verify/status`, `token/revoke`), plus the strategy metrics endpoints (`nav-history`, `rates-history`, per-user positions). `baseApiUrl` is unchanged, so v1 calls keep hitting the same host as before.
+
 # 5.2.1
 
 ### Fixed

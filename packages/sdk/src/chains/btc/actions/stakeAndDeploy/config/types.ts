@@ -76,6 +76,11 @@ export interface StakeAndDeployChainConfig {
       amount: string;
       vaultKey: string;
       token: string;
+      /**
+       * Signature expiration as an absolute UNIX timestamp in seconds.
+       * Defaults to 24 hours from the time of signing when omitted.
+       */
+      expiry?: number;
       // False while the signature is about to travel with generateDepositAddress,
       // which registers it server-side. Registering it twice reads as a reuse.
       storeSignature?: boolean;

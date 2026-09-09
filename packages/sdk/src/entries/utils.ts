@@ -18,6 +18,7 @@ export {
   getChainIdByName,
   getChainNameById,
   getEthNetworkByEnv,
+  getLegacyChainNameById,
   getSolanaNetworkByEnv,
   getSonicNetworkByEnv,
   getStarknetNetworkByEnv,

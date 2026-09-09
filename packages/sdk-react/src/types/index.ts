@@ -60,6 +60,11 @@ export interface BtcStakeAndBakeParams {
   protocol: DeployProtocol;
   recipient: string;
   referralCode?: string;
+  /**
+   * Signature expiration as an absolute UNIX timestamp in seconds. Omitted, the
+   * SDK's own default applies, so the value is not repeated here.
+   */
+  expiry?: number;
 }
 
 // ─── Unstaking ───────────────────────────────────────────────────────────────

@@ -22,20 +22,99 @@
  */
 export type WalletAuthChain = string;
 
+/**
+ * What the server should put in the challenge payload.
+ *
+ * The default (`unspecified`) is a plain-text terms-of-service message signed
+ * with `personal_sign`. The other two ask the server to issue EIP-712 typed
+ * data instead, so that a single signature both authenticates the wallet and
+ * authorises the on-chain action — the user signs once rather than once per
+ * purpose.
+ *
+ * The typed data is built server-side (it reads `nonces(owner)` from the token
+ * and picks the deadline) because the nonce and the randomised deadline are
+ * what stop a published signature being replayed. Callers sign what they are
+ * given; they do not assemble it.
+ */
+export const WALLET_CHALLENGE_TYPE = {
+  /** Plain-text terms-of-service message, signed with `personal_sign`. */
+  unspecified: 'WALLET_CHALLENGE_TYPE_UNSPECIFIED',
+  /** ERC-2612 permit as EIP-712 typed data. Requires `permit` params. */
+  permit: 'WALLET_CHALLENGE_TYPE_PERMIT',
+  /** Mint-fee approval as EIP-712 typed data. Requires `feeApproval` params. */
+  feeApproval: 'WALLET_CHALLENGE_TYPE_FEE_APPROVAL',
+} as const;
+
+export type WalletChallengeType =
+  (typeof WALLET_CHALLENGE_TYPE)[keyof typeof WALLET_CHALLENGE_TYPE];
+
+/** Params for a `permit` challenge. */
+export interface PermitChallengeParams {
+  /** Amount to permit, in token base units. */
+  value: string;
+  /**
+   * Requested permit deadline, as an absolute UNIX timestamp in seconds. The
+   * server may shorten it, and reports what it chose as `signatureExpiresAt`.
+   */
+  deadline: number;
+}
+
+/** Params for a `feeApproval` challenge. */
+export interface FeeApprovalChallengeParams {
+  /** Maximum mint fee to approve, in token base units. */
+  maxMintFee: string;
+  /**
+   * Requested approval expiry, as an absolute UNIX timestamp in seconds. The
+   * server may shorten it, and reports what it chose as `signatureExpiresAt`.
+   */
+  expiry: number;
+}
+
 export interface WalletChallengeRequest {
   /** Wallet address performing the auth flow. */
   address: string;
   /** Chain the address belongs to. */
   chain: WalletAuthChain;
+  /**
+   * Which payload to issue. Omitted, the server issues the plain-text
+   * terms-of-service message.
+   */
+  challengeType?: WalletChallengeType;
+  /** Required when `challengeType` is `permit`, ignored otherwise. */
+  permit?: PermitChallengeParams;
+  /** Required when `challengeType` is `feeApproval`, ignored otherwise. */
+  feeApproval?: FeeApprovalChallengeParams;
 }
 
 export interface WalletChallengeResponse {
   /** Random nonce embedded in the payload. */
   nonce: string;
-  /** Chain-specific payload the user must sign with their wallet. */
+  /**
+   * The payload the wallet must sign.
+   *
+   * For a plain-text challenge this is the message itself. For a typed-data
+   * challenge it is the EIP-712 document as a JSON string, and it must be
+   * handed to the wallet **exactly as received** — this is the JSON the server
+   * hashed, and re-serialising it can change the digest it reserved.
+   */
   payload: string;
   /** ISO-8601 timestamp when this challenge expires. */
   expiresAt: string;
+  /** The challenge type the server actually issued. */
+  challengeType?: WalletChallengeType;
+  /**
+   * EIP-712 digest the server reserved for a typed-data challenge. Empty for a
+   * plain-text one. Useful to assert a locally computed digest matches before
+   * prompting the wallet.
+   */
+  digest?: string;
+  /**
+   * When the *signed authorisation* expires, as distinct from `expiresAt`,
+   * which is when the unsigned challenge stops being redeemable. Present for
+   * typed-data challenges, and reports the deadline the server chose rather
+   * than the one that was requested.
+   */
+  signatureExpiresAt?: string;
 }
 
 export interface WalletVerifyRequest {
@@ -50,6 +129,12 @@ export interface WalletVerifyRequest {
    * signature (Starknet, Cosmos). Ignored elsewhere.
    */
   publicKey?: string;
+  /**
+   * Must repeat the `challengeType` used to request the challenge: challenges
+   * are stored per address *and* type, so omitting it here looks up a
+   * plain-text challenge that was never issued.
+   */
+  challengeType?: WalletChallengeType;
 }
 
 /**

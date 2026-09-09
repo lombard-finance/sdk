@@ -55,12 +55,27 @@ export interface SignNetworkFeeResult {
  * Stake and bake signing parameters
  */
 export interface SignStakeAndBakeParams {
+  /**
+   * The amount to authorise, in **token base units** — satoshis on the BTC
+   * routes, where 0.001 BTC is `100000`.
+   *
+   * Base units rather than the human-readable amount the other write helpers
+   * take, because the value goes into the permit as it stands.
+   */
   value: string;
   account: string;
   chainId: EvmChainId;
   provider: EvmProvider;
   vaultKey: string;
   token: string;
+  /**
+   * Signature expiration as an absolute UNIX timestamp in seconds.
+   * Defaults to 24 hours from the time of signing when omitted.
+   *
+   * Ignored by protocols whose approval config uses a zero deadline
+   * (e.g. Silo BTC.b, which signs with no expiry).
+   */
+  expiry?: number;
 }
 
 /**
