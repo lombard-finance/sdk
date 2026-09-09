@@ -5,7 +5,7 @@ All notable changes to `@lombard.finance/sdk-common` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [4.3.1] - 2026-09-09
 
 ### Fixed
 
@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   Versions 0 (P2WPKH, P2WSH) and 1 (P2TR) are unaffected, as are base58 addresses — `toOutputScript` decides P2PKH or P2SH from the version byte and has no equivalent open end. The network check is unchanged: an address for the wrong network still throws.
 
-## [4.3.1] - 2026-09-08
+  Note that this tightens what the function accepts, in a patch: a caller passing such an address used to get a script back and now gets a throw. That is the point of the fix — the script was spendable by anyone — but it is a behaviour change rather than a pure addition.
 
 ### Documentation
 

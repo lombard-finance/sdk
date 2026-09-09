@@ -5,6 +5,7 @@ import {
   WALLET_AUTH_REQUEST_TIMEOUT_MS,
 } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
+import { getErrorMessage } from '../../utils/err';
 
 export interface RevokeWalletTokenParams extends IEnvParam {
   /** JWT to invalidate server-side. */
@@ -39,7 +40,12 @@ export async function revokeWalletToken({
     );
   } catch (error) {
     // Best-effort revoke; do not surface to callers.
-     
-    console.error('Failed to revoke wallet JWT:', error);
+    //
+    // The message only, never the error object: on an axios rejection that
+    // carries the request config, and the config carries the
+    // `Authorization: Bearer <jwt>` header set above. This branch runs exactly
+    // when revocation failed, so the token is still live, and a consumer whose
+    // reporter serialises error properties would ship it off the machine.
+    console.error(`Failed to revoke wallet JWT: ${getErrorMessage(error)}`);
   }
 }
