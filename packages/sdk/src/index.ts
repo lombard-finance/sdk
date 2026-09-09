@@ -567,8 +567,12 @@ export {
   storeNetworkFeeSignature,
 } from './api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
 export {
+  // Raised when a live stake-and-bake signature is already on file, so a
+  // second one is refused; branch on it rather than on the server's string.
+  isActiveSignatureError,
   type IStoreStakeAndBakeSignatureParams,
   type IStoreStakeAndBakeSignatureStatus,
+  StakeAndBakeSignatureExistsError,
   storeStakeAndBakeSignature,
 } from './api-functions/storeStakeAndBakeSignature/storeStakeAndBakeSignature';
 

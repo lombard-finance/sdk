@@ -186,13 +186,69 @@ describe('BtcStakeAndDeploy.prepare with a signature on file', () => {
   /**
    * The case with no symptom: the BTC is sent and minted, and the vault leg is
    * authorised for a fraction of it.
+   *
+   * It does not ask for authorisation again, because that request cannot
+   * succeed. One signature is kept per wallet and chain while it is unexpired
+   * and unused, so the API refuses a second one — and re-signing carries the
+   * same nonce anyway, since ERC-2612 advances it only when a permit is spent.
    */
-  it('asks for authorisation again when the deposit outgrows the signature', async () => {
+  it('stops rather than prompting when the deposit outgrows the signature', async () => {
     onFile(SMALL_PERMIT_VALUE);
     const subject = await action();
 
     await subject.prepare({ amount: '0.5', recipient: RECIPIENT });
 
+    expect(subject.status).toBe(
+      BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
+    );
+  });
+
+  it('reports what is on file and until when', async () => {
+    onFile(SMALL_PERMIT_VALUE);
+    const subject = await action();
+
+    await subject.prepare({ amount: '0.5', recipient: RECIPIENT });
+
+    expect(subject.existingAuthorization).toEqual({
+      depositAmount: SMALL_PERMIT_VALUE,
+      expiresAt: expect.stringMatching(/^\d+$/),
+    });
+  });
+
+  it('leaves the action unauthorised, so it cannot generate an address', async () => {
+    onFile(SMALL_PERMIT_VALUE);
+    const subject = await action();
+
+    await subject.prepare({ amount: '0.5', recipient: RECIPIENT });
+
+    await expect(subject.generateDepositAddress()).rejects.toThrow();
+  });
+
+  // An expired signature is a different case: nothing is on file server-side,
+  // so the wallet can sign a new one and the prompt is worth showing.
+  it('still asks for authorisation when the stored signature has expired', async () => {
+    mockedStored.mockResolvedValue({
+      userDestinationAddress: RECIPIENT,
+      signature: '0xstored',
+      expirationDate: String(Math.floor(Date.now() / 1000) - 60),
+      depositAmount: SMALL_PERMIT_VALUE,
+      chainId: String(ChainId.ethereum),
+    });
+    const subject = await action();
+
+    await subject.prepare({ amount: '0.5', recipient: RECIPIENT });
+
     expect(subject.status).toBe(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
+    expect(subject.existingAuthorization).toBeUndefined();
+  });
+
+  it('asks for authorisation when nothing is on file at all', async () => {
+    mockedStored.mockRejectedValue(new Error('no stored signature'));
+    const subject = await action();
+
+    await subject.prepare({ amount: '0.5', recipient: RECIPIENT });
+
+    expect(subject.status).toBe(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
+    expect(subject.existingAuthorization).toBeUndefined();
   });
 });

@@ -1,4 +1,4 @@
-# 5.7.1
+# 5.8.0
 
 ### Fixed
 
@@ -8,7 +8,30 @@
 
 Authorise 0.001 BTC, come back, `prepare({ amount: '0.5' })`: the action reported ready with no prompt, and the BTC was minted against a permit covering roughly a five-hundredth of it. Nothing failed — the vault leg is simply authorised for a fraction of the deposit.
 
-The restore result now carries `coversAmount`, and the resume happens only when it is true. Otherwise the action goes to `NEEDS_DEPLOY_AUTHORIZATION` and the user signs for the deposit they are actually making.
+The restore result now carries `coversAmount`, and the resume happens only when it is true.
+
+**Where the action goes instead is a new state, because asking for authorisation again cannot work.**
+
+One stake-and-bake signature is kept per wallet and chain while it is unexpired and unused, so `save-stake-and-bake-signature` refuses a second one. Signing again does not get around that by carrying a different nonce either: the nonce comes from `nonces(owner)` on the token, and ERC-2612 advances it only when a permit is actually spent, so a permit signed while the stored one is unused carries the same value.
+
+Routing to `NEEDS_DEPLOY_AUTHORIZATION` would therefore have opened the wallet, taken a signature, and shown the user the gateway's own refusal string. `prepare()` stops at `BLOCKED_BY_EXISTING_AUTHORIZATION` instead and reports what is on file:
+
+```ts
+await action.prepare({ amount: '0.5', recipient });
+
+if (action.status === BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION) {
+  const { depositAmount, expiresAt } = action.existingAuthorization ?? {};
+  // Deposit within depositAmount, or wait until expiresAt.
+}
+```
+
+An expired or absent signature is unchanged: nothing is on file server-side, so the wallet can sign and the prompt is worth showing.
+
+### Added
+
+- `BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION` and `BtcStakeAndDeploy.existingAuthorization` (`depositAmount` in token base units, `expiresAt` as UNIX seconds). Both values come off the record `restoreStakeAndBakeSignature` had already read and was discarding.
+- `StakeAndBakeSignatureExistsError`, thrown by `storeStakeAndBakeSignature()` when the API refuses because a signature is already on file, so the paths that still reach the store give callers something to branch on rather than a bare `Error` carrying a server string. It carries the API's `code` when the response had one.
+- `isActiveSignatureError(message)`, the predicate that recognises that refusal. It and the message it matches were written in `ExistingSignatureHandling.test.ts`, declared inside a test next to a comment saying the SDK should be doing this; they are production code now.
 
 ### Notes
 
