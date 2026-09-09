@@ -62,7 +62,7 @@ export interface WithdrawEarnResult {
  *   1. (conditional) Unwrap just enough BTCe to cover the gap between `amount`
  *      and the user's direct underlying-share balance.
  *   2. (conditional) Approve underlying-share token to the withdraw queue with MaxUint256.
- *   3. (always) File an atomic withdrawal request against the underlying vault.
+ *   3. (always) File the withdrawal request against the queue `queue` selects.
  *
  * Unwrap runs before approve so that wallets which cap the displayed approval
  * amount at the user's current token balance (e.g. OKX) see the full
@@ -73,6 +73,8 @@ export interface WithdrawEarnResult {
  *     exceeds `underlyingBalance + btceBalance`.
  *   - Throws `InsufficientUnwrappableError` BEFORE any tx if the BTCe wrapper's
  *     `maxWithdraw` shrank below the gap between read and unwrap.
+ *   - Throws BEFORE any tx when the BoringQueue has withdrawals in
+ *     `withdrawalAsset` disabled, which Veda can do at any time.
  *   - Step-level failures throw with an explicit message; partial state is
  *     retry-safe via the orchestrator's skip logic.
  *
@@ -162,10 +164,28 @@ export async function withdrawEarn({
       functionName: 'allowance',
       args: [account, queueAddress],
     }) as Promise<bigint>,
+    // The BoringQueue accepts a redemption asset only while Veda has it
+    // enabled, and can stop one at any time. Ask, so a disabled asset fails
+    // here with a readable reason instead of as a bare on-chain revert.
+    useBoringQueue
+      ? (publicClient.readContract({
+          address: queueAddress,
+          abi: queueAbi,
+          functionName: 'withdrawAssets',
+          args: [withdrawTokenInfo.address],
+        }) as Promise<readonly [boolean, ...unknown[]]>)
+      : Promise.resolve([true] as readonly [boolean, ...unknown[]]),
   ]);
   const underlyingBalance = reads[0];
   const btceBalance = reads[1];
   const allowance = reads[2];
+  const [isWithdrawalAssetAllowed] = reads[3];
+
+  if (!isWithdrawalAssetAllowed) {
+    throw new Error(
+      `The BoringQueue does not accept ${withdrawalAsset} (${withdrawTokenInfo.address}) as a redemption asset on chain ${chainId}. No transactions sent.`,
+    );
+  }
 
   // --- Coverage check ---
   if (amountBase > underlyingBalance + btceBalance) {
@@ -248,55 +268,56 @@ export async function withdrawEarn({
   }
 
   // --- Step 3: queue (always) ---
+  // BoringOnChainQueue.requestOnChainWithdraw(assetOut, amountOfShares, discount, secondsToDeadline)
+  const simulateBoringRequest = () =>
+    publicClient.simulateContract({
+      account,
+      chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+      address: queueAddress,
+      abi: queueAbi,
+      functionName: 'requestOnChainWithdraw',
+      args: [
+        withdrawTokenInfo.address,
+        amountBase, // uint128 amountOfShares
+        Number(vault.boringQueueDiscountBps), // uint16 discount (bps)
+        Number(
+          BigNumber(vault.boringQueueDaysValid)
+            .multipliedBy(DAY / 1000)
+            .toFixed(0),
+        ), // uint24 secondsToDeadline
+      ],
+    });
+
+  // Legacy AtomicQueue.safeUpdateAtomicRequest(offer, want, request, accountant, discount)
+  const simulateAtomicRequest = () => {
+    const expiry = BigNumber(Date.now())
+      .dividedBy(1000)
+      .plus(BigNumber(vault.queueWithdrawDaysValid).multipliedBy(DAY / 1000))
+      .decimalPlaces(0, BigNumber.ROUND_DOWN);
+    const discount = BigNumber(vault.queueWithdrawDiscountPercent).multipliedBy(
+      10000,
+    );
+
+    return publicClient.simulateContract({
+      account,
+      chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+      address: queueAddress,
+      abi: queueAbi,
+      functionName: 'safeUpdateAtomicRequest',
+      args: [
+        vaultAddress,
+        withdrawTokenInfo.address,
+        [BigInt(expiry.toFixed(0)), 0n, amountBase, false],
+        accountantAddress,
+        BigInt(discount.toFixed(0)),
+      ],
+    });
+  };
+
   try {
     const { request } = useBoringQueue
-      ? await publicClient.simulateContract({
-          account,
-          chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
-          address: queueAddress,
-          abi: queueAbi,
-          // BoringOnChainQueue.requestOnChainWithdraw(assetOut, amountOfShares, discount, secondsToDeadline)
-          functionName: 'requestOnChainWithdraw',
-          args: [
-            withdrawTokenInfo.address,
-            amountBase, // uint128 amountOfShares
-            Number(vault.boringQueueDiscountBps), // uint16 discount (bps)
-            Number(
-              BigNumber(vault.boringQueueDaysValid)
-                .multipliedBy(DAY / 1000)
-                .toFixed(0),
-            ), // uint24 secondsToDeadline
-          ],
-        })
-      : await (() => {
-          // Legacy AtomicQueue.safeUpdateAtomicRequest(offer, want, request, accountant, discount)
-          const expiry = BigNumber(Date.now())
-            .dividedBy(1000)
-            .plus(
-              BigNumber(vault.queueWithdrawDaysValid).multipliedBy(
-                DAY / 1000,
-              ),
-            )
-            .decimalPlaces(0, BigNumber.ROUND_DOWN);
-          const discount = BigNumber(
-            vault.queueWithdrawDiscountPercent,
-          ).multipliedBy(10000);
-
-          return publicClient.simulateContract({
-            account,
-            chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
-            address: queueAddress,
-            abi: queueAbi,
-            functionName: 'safeUpdateAtomicRequest',
-            args: [
-              vaultAddress,
-              withdrawTokenInfo.address,
-              [BigInt(expiry.toFixed(0)), 0n, amountBase, false],
-              accountantAddress,
-              BigInt(discount.toFixed(0)),
-            ],
-          });
-        })();
+      ? await simulateBoringRequest()
+      : await simulateAtomicRequest();
     result.queueTxHash = await walletClient.writeContract(request);
   } catch (err) {
     throw new Error(

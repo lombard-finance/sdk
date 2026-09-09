@@ -1,4 +1,4 @@
-import { Address } from 'viem';
+import { Address, maxUint256 } from 'viem';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
@@ -76,6 +76,8 @@ interface State {
   btceBalance?: bigint;
   allowance?: bigint;
   maxWithdraw?: bigint;
+  /** BoringQueue `withdrawAssets(asset).allowWithdraws`; defaults to enabled. */
+  allowWithdrawsInAsset?: boolean;
 }
 
 function setupReads(state: State) {
@@ -92,6 +94,22 @@ function setupReads(state: State) {
     }
     if (call.functionName === 'maxWithdraw' && addr === BTCE.toLowerCase()) {
       return Promise.resolve(state.maxWithdraw ?? state.btceBalance ?? 0n);
+    }
+    if (
+      call.functionName === 'withdrawAssets' &&
+      addr === BORING_QUEUE.toLowerCase()
+    ) {
+      // [allowWithdraws, secondsToMaturity, minimumSecondsToDeadline,
+      //  minDiscount, maxDiscount, minimumShares, withdrawCapacity]
+      return Promise.resolve([
+        state.allowWithdrawsInAsset ?? true,
+        3600,
+        1728000,
+        0,
+        10,
+        0n,
+        maxUint256,
+      ]);
     }
     return Promise.reject(
       new Error(`Unexpected read: ${call.functionName} @ ${call.address}`),
@@ -447,6 +465,50 @@ describe('withdrawEarn', () => {
       expect(queueCall.args[1]).toBe(50_000_000n); // 0.5 LBTCv shares
       expect(queueCall.args[2]).toBe(1); // discount bps (within LBTC 0-10 bounds)
       expect(queueCall.args[3]).toBe(21 * 86_400); // 21 days, >= 20-day on-chain min
+    });
+
+    it('refuses an asset the queue has stopped, before sending anything', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 0n,
+        allowWithdrawsInAsset: false,
+      });
+
+      await expect(
+        withdrawEarn({
+          amount: '0.5',
+          queue: 'boring',
+          account: ACCOUNT,
+          chainId: ChainId.ethereum,
+          provider: PROVIDER,
+        }),
+      ).rejects.toThrow(/does not accept LBTC/);
+
+      // Notably not even the approval: on-chain this would only surface as
+      // BoringOnChainQueue__WithdrawsNotAllowedForAsset after paying for it.
+      expect(mockSimulateContract).not.toHaveBeenCalled();
+      expect(mockWriteContract).not.toHaveBeenCalled();
+    });
+
+    it('does not ask the AtomicQueue whether the asset is allowed', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+        // Would reject the request if it were consulted on the atomic path.
+        allowWithdrawsInAsset: false,
+      });
+
+      const result = await withdrawEarn({
+        amount: '0.5',
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+      });
+
+      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
+
+      const reads = mockReadContract.mock.calls.map((c) => c[0].functionName);
+      expect(reads).not.toContain('withdrawAssets');
     });
 
     it('approves the BoringQueue address (not AtomicQueue) when allowance is short', async () => {
