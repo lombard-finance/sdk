@@ -6,6 +6,8 @@ import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import * as readline from "readline";
 
+import type { LombardActionProviderOptions } from "@lombard.finance/sdk-agentkit";
+
 import { initAgent } from "./initAgent.js";
 
 const SYSTEM_PROMPT = `You are an AI agent specialized in Bitcoin staking via the Lombard protocol.
@@ -21,9 +23,46 @@ When checking balances, show the token symbol and chain.
 If a user asks about yield or APY, explain that base LBTC yield comes from Babylon staking,
 but higher yields are available by deploying LBTC into DeFi vaults via the deploy_to_defi action.`;
 
+/**
+ * Puts a pending write to the operator and waits for a yes.
+ *
+ * The system prompt above also asks the model to confirm before transacting,
+ * which is worth having and is not this. A prompt is a request to the model;
+ * this is a gate the model cannot talk its way past, and injected text
+ * reaching the model is exactly the case where the two differ.
+ */
+function confirmInTerminal(
+  request: Parameters<NonNullable<LombardActionProviderOptions["confirmWrite"]>>[0],
+): Promise<boolean> {
+  const lines = [
+    `\n  action:    ${request.action}`,
+    `  chain:     ${request.chainId}`,
+    `  account:   ${request.account}`,
+    ...(request.amount ? [`  amount:    ${request.amount}`] : []),
+    ...(request.assetIn ? [`  from:      ${request.assetIn}`] : []),
+    ...(request.assetOut ? [`  to:        ${request.assetOut}`] : []),
+    ...(request.recipient ? [`  recipient: ${request.recipient}`] : []),
+  ];
+  console.log(`\nThis will move funds:${lines.join("\n")}`);
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question("\nApprove? (yes/no): ", (answer) => {
+      rl.close();
+      resolve(answer.trim().toLowerCase() === "yes");
+    });
+  });
+}
+
 async function initializeAgent() {
   const networkId = process.env.NETWORK_ID || "ethereum-sepolia";
-  const { walletProvider, tools } = await initAgent(networkId);
+  const { walletProvider, tools } = await initAgent(networkId, {
+    confirmWrite: confirmInTerminal,
+  });
 
   const llm = new ChatAnthropic({
     model: "claude-sonnet-4-20250514",
