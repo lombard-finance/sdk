@@ -30,7 +30,7 @@ Existing integrations keep working once they say which they want. `lombardAction
 ### Added
 
 - `confirmWrite`, `autoApproveWrites` on `lombardActionProvider()` / `new LombardActionProvider()`.
-- `LombardActionProviderOptions`, `ConfirmWrite` and `WriteConfirmationRequest` types. The request carries `action`, `chainId`, `account`, `amount`, `assetIn`, `assetOut`, `recipient` and `details`.
+- `LombardActionProviderOptions`, `ConfirmWrite` and `WriteConfirmationRequest` types. The request carries `action`, `chainId`, `account`, `amount`, `assetIn`, `assetOut` and `details`, plus `recipient` when the funds land somewhere other than the signing account — absent on `unstake_lbtc_to_btc` with `outputAsset: "BTCb"`, which pays the signer and ignores the argument, so a prompt never names a destination the transaction does not use.
 
 ---
 

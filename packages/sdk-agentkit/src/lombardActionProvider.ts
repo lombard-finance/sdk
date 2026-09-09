@@ -220,16 +220,22 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const account = walletProvider.getAddress() as Address;
       const provider = toEIP1193Provider(walletProvider, chainId);
 
-      // `recipient` on the BTC route is a Bitcoin address taken from a tool
-      // argument, so this is the write whose destination most needs reading.
+      const toNativeBtc = args.outputAsset === "BTC";
+
+      // `recipient` is named only on the native BTC route, where it is a
+      // Bitcoin address taken from a tool argument and is the destination the
+      // operator most needs to read. The BTC.b route pays the signing account
+      // and `redeemToken` is not given a recipient at all, so naming one there
+      // would describe a destination the transaction ignores — the field means
+      // "where the funds land, when it is not the signing account".
       const refused = await this.confirmOrRefuse({
         action: "unstake_lbtc_to_btc",
         chainId,
         account,
         amount: args.amount,
         assetIn: "LBTC",
-        assetOut: args.outputAsset === "BTC" ? "BTC" : "BTC.b",
-        recipient: args.recipient,
+        assetOut: toNativeBtc ? "BTC" : "BTC.b",
+        ...(toNativeBtc ? { recipient: args.recipient } : {}),
       });
       if (refused) return refused;
 
@@ -242,7 +248,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
         provider,
       );
 
-      if (args.outputAsset === "BTC") {
+      if (toNativeBtc) {
         const txHash = await unstakeLBTC({
           amount: args.amount,
           btcAddress: args.recipient,

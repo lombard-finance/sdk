@@ -47,9 +47,12 @@ So each write asks first. Give the provider exactly one of:
 
 - `confirmWrite(request)` — called before anything is signed, including the fee
   authorisation some chains require. Return `false`, or throw, and nothing is
-  sent. `request` carries the action, chain, account, amount, assets and the
-  recipient, which is the field to read twice: on the BTC output route it is a
-  Bitcoin address supplied as a tool argument.
+  sent. `request` carries the action, chain, account, amount and assets, plus
+  `recipient` when the funds land somewhere other than the signing account.
+  That is the field to read twice: on the native BTC output route it is a
+  Bitcoin address supplied as a tool argument. It is absent where the
+  transaction pays the signer, so a prompt never names a destination the
+  transaction does not use.
 - `autoApproveWrites: true` — no confirmation at all, for a wallet that is
   meant to run unattended and is funded accordingly.
 

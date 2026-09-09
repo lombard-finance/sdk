@@ -149,6 +149,32 @@ describe('unstake_lbtc_to_btc confirmation', () => {
       amount: '0.25',
     });
   });
+
+  /**
+   * The BTC.b route pays the signing account: `redeemToken` is not given a
+   * recipient at all, and the action's own success payload says the argument
+   * was ignored. Naming it in the prompt would have the operator approve a
+   * destination the transaction does not use.
+   */
+  it('names no recipient on the BTC.b route, which pays the signer', async () => {
+    const seen: WriteConfirmationRequest[] = [];
+    const provider = new LombardActionProvider({
+      confirmWrite: (request) => {
+        seen.push(request);
+        return false;
+      },
+    });
+
+    await provider.unstakeLbtc(wallet(), {
+      amount: '0.25',
+      recipient: '0x00000000000000000000000000000000000000ff',
+      outputAsset: 'BTCb',
+    });
+
+    expect(seen[0]).toMatchObject({ assetOut: 'BTC.b', amount: '0.25' });
+    expect(seen[0].recipient).toBeUndefined();
+    expect('recipient' in seen[0]).toBe(false);
+  });
 });
 
 /**
