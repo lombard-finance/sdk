@@ -50,6 +50,8 @@ export interface LombardActionProviderOptions {
   /**
    * Called before every write action. Wire it to whatever the operator
    * actually sees — a terminal prompt, a Slack approval, a signing UI.
+   *
+   * Mutually exclusive with `autoApproveWrites`.
    */
   confirmWrite?: ConfirmWrite;
   /**
@@ -59,8 +61,38 @@ export interface LombardActionProviderOptions {
    * accordingly. Prompt-injected text reaching the model is then enough to
    * move whatever the key holds, so it is opt-in and named plainly rather
    * than being the default.
+   *
+   * Mutually exclusive with `confirmWrite`.
    */
   autoApproveWrites?: boolean;
+}
+
+/**
+ * Rejects a configuration that both wires a confirmation and turns
+ * confirmation off.
+ *
+ * The two options contradict each other, and the likely way to arrive here is
+ * adding `confirmWrite` to a config that already carried
+ * `autoApproveWrites: true` — someone connecting an approval UI and leaving
+ * the old flag behind. Either reading of that is a guess, and the permissive
+ * one hands back silent auto-approval to a caller who thinks they just built a
+ * gate. Refusing at construction says so while the config is still in front of
+ * whoever wrote it, rather than at the first transaction.
+ *
+ * @throws when both options are set.
+ */
+export function assertCoherentWritePolicy(
+  options: LombardActionProviderOptions,
+): void {
+  if (options.autoApproveWrites && options.confirmWrite) {
+    throw new Error(
+      'lombardActionProvider: confirmWrite and autoApproveWrites are ' +
+        'mutually exclusive. autoApproveWrites runs writes with no ' +
+        'confirmation, so passing both leaves it ambiguous whether writes are ' +
+        'gated. Drop autoApproveWrites to use the confirmation, or drop ' +
+        'confirmWrite to run unattended.',
+    );
+  }
 }
 
 /** Why a write did not go ahead. */
@@ -71,13 +103,20 @@ export type WriteRefusal =
 /**
  * Applies the configured policy to one pending write.
  *
+ * `confirmWrite` is checked first, so it wins if both options somehow arrive
+ * together. The constructor refuses that combination outright, which is where
+ * a caller should learn about it; this ordering is the second layer, for a
+ * policy object assembled without going through it. Between asking a
+ * confirmation nobody wanted and skipping one somebody wired, the wasted
+ * prompt is the cheaper mistake.
+ *
  * @returns `null` when the write may proceed, otherwise the refusal to report.
  */
 export async function checkWriteAllowed(
   options: LombardActionProviderOptions,
   request: WriteConfirmationRequest,
 ): Promise<WriteRefusal | null> {
-  if (options.autoApproveWrites) {
+  if (!options.confirmWrite && options.autoApproveWrites) {
     return null;
   }
 

@@ -10,7 +10,10 @@
 import type { Network } from '@coinbase/agentkit';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { WriteConfirmationRequest } from '../confirmation';
+import type {
+  LombardActionProviderOptions,
+  WriteConfirmationRequest,
+} from '../confirmation';
 import { checkWriteAllowed } from '../confirmation';
 import { LombardActionProvider } from '../lombardActionProvider';
 
@@ -75,7 +78,9 @@ describe.each(WRITES)('%s', (name, invoke) => {
     const provider = new LombardActionProvider();
     const w = walletOn('ethereum-mainnet');
 
-    const parsed = JSON.parse(await invoke(provider, w as unknown as WalletArg));
+    const parsed = JSON.parse(
+      await invoke(provider, w as unknown as WalletArg),
+    );
 
     expect(parsed).toMatchObject({ success: false, action: name });
     expect(parsed.error).toContain('no confirmation is configured');
@@ -87,7 +92,9 @@ describe.each(WRITES)('%s', (name, invoke) => {
     const provider = new LombardActionProvider({ confirmWrite });
     const w = walletOn('ethereum-mainnet');
 
-    const parsed = JSON.parse(await invoke(provider, w as unknown as WalletArg));
+    const parsed = JSON.parse(
+      await invoke(provider, w as unknown as WalletArg),
+    );
 
     expect(confirmWrite).toHaveBeenCalledTimes(1);
     expect(parsed).toMatchObject({ success: false, action: name });
@@ -145,6 +152,54 @@ describe('unstake_lbtc_to_btc confirmation', () => {
 });
 
 /**
+ * The two options contradict each other, and the way to arrive there is adding
+ * `confirmWrite` to a config that already carried `autoApproveWrites: true`.
+ * Guessing which one was meant is what would hand back silent auto-approval to
+ * someone who thinks they just built a gate.
+ */
+describe('a contradictory write policy', () => {
+  it('is refused at construction rather than at the first transaction', () => {
+    expect(
+      () =>
+        new LombardActionProvider({
+          autoApproveWrites: true,
+          confirmWrite: () => true,
+        }),
+    ).toThrow(/mutually exclusive/);
+  });
+
+  it('names both options and what to drop', () => {
+    let message = '';
+    try {
+      new LombardActionProvider({
+        autoApproveWrites: true,
+        confirmWrite: () => true,
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toContain('confirmWrite');
+    expect(message).toContain('autoApproveWrites');
+    expect(message).toContain('Drop autoApproveWrites');
+  });
+
+  const coherent: Array<[string, LombardActionProviderOptions]> = [
+    ['a confirmation alone', { confirmWrite: (): boolean => true }],
+    ['auto-approval alone', { autoApproveWrites: true }],
+    ['neither', {}],
+    [
+      'auto-approval explicitly off, with a confirmation',
+      { autoApproveWrites: false, confirmWrite: (): boolean => true },
+    ],
+  ];
+
+  it.each(coherent)('accepts %s', (_label, options) => {
+    expect(() => new LombardActionProvider(options)).not.toThrow();
+  });
+});
+
+/**
  * The policy on its own. Driven here rather than through an action because an
  * approved write goes on to reach the network, and the unit tier does not.
  */
@@ -163,12 +218,24 @@ describe('checkWriteAllowed', () => {
   });
 
   it('allows the write under autoApproveWrites without asking', async () => {
-    const confirmWrite = vi.fn();
+    await expect(
+      checkWriteAllowed({ autoApproveWrites: true }, request),
+    ).resolves.toBeNull();
+  });
+
+  /**
+   * The constructor refuses this combination, so it should not reach here.
+   * The ordering is the second layer, for a policy object assembled without
+   * going through it: between asking a confirmation nobody wanted and skipping
+   * one somebody wired, the wasted prompt is the cheaper mistake.
+   */
+  it('prefers the confirmation when both options are set', async () => {
+    const confirmWrite = vi.fn().mockResolvedValue(false);
 
     await expect(
       checkWriteAllowed({ autoApproveWrites: true, confirmWrite }, request),
-    ).resolves.toBeNull();
-    expect(confirmWrite).not.toHaveBeenCalled();
+    ).resolves.toMatchObject({ kind: 'declined' });
+    expect(confirmWrite).toHaveBeenCalledTimes(1);
   });
 
   it('refuses with nothing configured', async () => {
@@ -202,7 +269,10 @@ describe('checkWriteAllowed', () => {
     const confirmWrite = vi
       .fn()
       .mockImplementation(
-        () => new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 5)),
+        () =>
+          new Promise<boolean>((resolve) =>
+            setTimeout(() => resolve(false), 5),
+          ),
       );
 
     await expect(

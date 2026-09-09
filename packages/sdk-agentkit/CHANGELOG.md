@@ -21,6 +21,8 @@ lombardActionProvider({ autoApproveWrites: true });
 
 `confirmWrite` runs before anything is signed, the fee authorisation included — that signs an EIP-712 approval and stores it, so a write refused after it would still have left one behind. Returning `false` or throwing stops the action, which reports that it was not approved and sends nothing. Read actions are not gated.
 
+The two options are mutually exclusive and passing both throws at construction. They contradict each other, and the way to end up with both is adding `confirmWrite` to a config that already carried `autoApproveWrites: true` — connecting an approval flow and leaving the old flag behind. Choosing a winner silently would hand unattended execution back to someone who believes they just built a gate, so it fails while the config is still in front of whoever wrote it. Should a policy object reach the check without passing through the constructor, `confirmWrite` wins there too.
+
 ### Migration
 
 Existing integrations keep working once they say which they want. `lombardActionProvider()` with no options still constructs, and its read actions still work; its write actions return `{ success: false, error: "… no confirmation is configured …" }` until `confirmWrite` or `autoApproveWrites` is set.

@@ -34,6 +34,7 @@ import type { Address, EIP1193Provider } from "viem";
 import { z } from "zod";
 
 import {
+  assertCoherentWritePolicy,
   checkWriteAllowed,
   type LombardActionProviderOptions,
   type WriteConfirmationRequest,
@@ -92,6 +93,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
 
   constructor(options: LombardActionProviderOptions = {}) {
     super("lombard", []);
+    assertCoherentWritePolicy(options);
     this.options = options;
   }
 

@@ -43,7 +43,7 @@ that text is yours — a token symbol, an address label or an error relayed from
 an upstream service reaches the model too, and a tool call cannot be
 distinguished from an instruction after the fact.
 
-So each write asks first. Give the provider one of:
+So each write asks first. Give the provider exactly one of:
 
 - `confirmWrite(request)` — called before anything is signed, including the fee
   authorisation some chains require. Return `false`, or throw, and nothing is
@@ -55,6 +55,14 @@ So each write asks first. Give the provider one of:
 
 With neither set, write actions report that confirmation is unconfigured and
 sign nothing. Read actions are never gated.
+
+The two are mutually exclusive and passing both **throws at construction**.
+They contradict each other, and the way to end up with both is adding
+`confirmWrite` to a config that already carried `autoApproveWrites: true` —
+connecting an approval flow and leaving the old flag behind. Picking a winner
+silently would mean handing back unattended execution to someone who thinks
+they just built a gate, so it fails while the config is still in front of
+whoever wrote it.
 
 Asking the model to confirm in its system prompt is worth doing and is not the
 same thing: that is a request to the model, this is a gate it cannot talk its
