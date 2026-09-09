@@ -19,7 +19,7 @@ import {
 } from '../../vaults/lib/config';
 
 /**
- * Which Veda withdrawal queue to file the request against.
+ * Which withdrawal queue to file the request against.
  *   - `atomic`: legacy AtomicQueue (`safeUpdateAtomicRequest`). Default, so
  *     existing callers are unchanged.
  *   - `boring`: new BoringOnChainQueue (`requestOnChainWithdraw`). Ethereum
@@ -74,7 +74,7 @@ export interface WithdrawEarnResult {
  *   - Throws `InsufficientUnwrappableError` BEFORE any tx if the BTCe wrapper's
  *     `maxWithdraw` shrank below the gap between read and unwrap.
  *   - Throws BEFORE any tx when the BoringQueue has withdrawals in
- *     `withdrawalAsset` disabled, which Veda can do at any time.
+ *     `withdrawalAsset` disabled, which can happen at any time.
  *   - Step-level failures throw with an explicit message; partial state is
  *     retry-safe via the orchestrator's skip logic.
  *
@@ -164,9 +164,10 @@ export async function withdrawEarn({
       functionName: 'allowance',
       args: [account, queueAddress],
     }) as Promise<bigint>,
-    // The BoringQueue accepts a redemption asset only while Veda has it
-    // enabled, and can stop one at any time. Ask, so a disabled asset fails
-    // here with a readable reason instead of as a bare on-chain revert.
+    // The BoringQueue accepts a redemption asset only while that asset is
+    // enabled on the queue, and one can be stopped at any time. Ask, so a
+    // disabled asset fails here with a readable reason instead of as a bare
+    // on-chain revert.
     useBoringQueue
       ? (publicClient.readContract({
           address: queueAddress,

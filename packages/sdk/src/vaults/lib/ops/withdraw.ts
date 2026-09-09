@@ -19,8 +19,8 @@ import { EARN_VAULT, EarnChain, isEarnChain } from '../config';
 
 /**
  * BoringOnChainQueue `OnChainWithdraw` struct required to cancel a request via
- * `cancelOnChainWithdraw`. Comes straight from the SevenSeas boringQueue
- * response (`Request.metadata`). Numerics accept number or bigint.
+ * `cancelOnChainWithdraw`. Sourced from the boringQueue status response
+ * (`Request.metadata`). Numerics accept number or bigint.
  */
 export interface BoringWithdrawRequest {
   nonce: number | bigint;
