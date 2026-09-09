@@ -1,4 +1,9 @@
 export {
+  type ConfirmWrite,
+  type LombardActionProviderOptions,
+  type WriteConfirmationRequest,
+} from "./confirmation";
+export {
   LombardActionProvider,
   lombardActionProvider,
 } from "./lombardActionProvider";
