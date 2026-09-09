@@ -26,6 +26,16 @@ import { MIN_STAKE_AMOUNT_BTC } from '../../common/constants';
 const MAX_WITNESS_VERSION = 1;
 
 /**
+ * The bech32 human-readable parts this SDK can pay to.
+ *
+ * `bc` is mainnet and `tb` is testnet and signet, which are the two networks
+ * `getOutputScript` selects between. `bcrt` (regtest) and another chain's HRP
+ * decode perfectly well and have no network here to be built against, so they
+ * are not Bitcoin addresses as far as this SDK is concerned.
+ */
+const BITCOIN_BECH32_PREFIXES = ['bc', 'tb'];
+
+/**
  * Validate a Bitcoin address using bitcoinjs-lib
  * This validates the checksum for all address types:
  * - Legacy P2PKH (1..., m..., n...)
@@ -35,7 +45,9 @@ const MAX_WITNESS_VERSION = 1;
  *
  * Both bech32 cases are decoded rather than matched on their prefix, so the
  * all-uppercase form BIP-173 also defines is accepted, and a future witness
- * version is rejected instead of passing as valid.
+ * version is rejected instead of passing as valid. The decoded prefix is still
+ * checked: decoding tells you the string is well formed, not that it names a
+ * network this SDK builds outputs for.
  *
  * @param address - The address to validate
  * @returns true if valid, false otherwise
@@ -46,10 +58,15 @@ export function isValidBitcoinAddress(address: string): boolean {
   }
 
   // Bech32/bech32m first: it either decodes or it does not, so there is
-  // nothing for a prefix test to decide.
+  // nothing for a prefix test to decide. The prefix still has to be one of
+  // ours — the uppercase form BIP-173 allows decodes with an uppercase HRP,
+  // hence the fold.
   try {
-    const { version } = bitcoin.address.fromBech32(address);
-    return version <= MAX_WITNESS_VERSION;
+    const { prefix, version } = bitcoin.address.fromBech32(address);
+    return (
+      BITCOIN_BECH32_PREFIXES.includes(prefix.toLowerCase()) &&
+      version <= MAX_WITNESS_VERSION
+    );
   } catch {
     // Not bech32. Fall through to base58check.
   }

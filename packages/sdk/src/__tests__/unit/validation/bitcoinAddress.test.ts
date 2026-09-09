@@ -35,6 +35,18 @@ const TESTNET = {
   p2wpkh: 'tb1qzyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3apj6d3',
 };
 
+/**
+ * Checksum-valid bech32 with a human-readable part that is not Bitcoin's.
+ *
+ * `bcrt` is regtest, which `getOutputScript` never selects, and `ltc` is
+ * another chain entirely. Both decode cleanly at witness version 0, so only
+ * the prefix separates them from an address this SDK can pay.
+ */
+const FOREIGN_HRP = {
+  regtest: 'bcrt1qzyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3lgth6c',
+  litecoin: 'ltc1qzyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3nmndwj',
+};
+
 describe('isValidBitcoinAddress', () => {
   it.each([
     ['P2PKH', MAINNET.p2pkh],
@@ -56,6 +68,21 @@ describe('isValidBitcoinAddress', () => {
   // Not a payable destination, whatever bech32m says about it.
   it('rejects a future witness version', () => {
     expect(isValidBitcoinAddress(MAINNET.witnessV2)).toBe(false);
+  });
+
+  /**
+   * Decoding says the string is well formed, not that it names a network this
+   * SDK builds outputs for. Both of these are checksum-valid at witness
+   * version 0, so the prefix is the only thing that separates them from an
+   * address that can be paid — `getOutputScript` selects between mainnet and
+   * testnet only, and would refuse them later.
+   */
+  it.each([
+    ['a regtest address', FOREIGN_HRP.regtest],
+    ["another chain's address", FOREIGN_HRP.litecoin],
+  ])('rejects %s', (_label, address) => {
+    expect(isValidBitcoinAddress(address)).toBe(false);
+    expect(bitcoinAddressSchema.safeParse(address).success).toBe(false);
   });
 
   it.each([
