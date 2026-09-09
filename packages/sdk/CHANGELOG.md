@@ -1,4 +1,4 @@
-# 5.6.1
+# 5.7.1
 
 ### Fixed
 
@@ -19,6 +19,33 @@ A `200` carrying `{}` or `{ address: "" }` became an `undefined` typed as `strin
 ### Notes
 
 - Nothing here re-derives a server-issued deposit address or checks it against the action's Bitcoin network. That is worth doing and is a separate change: the network an action believes it is on defaults to testnet when `sourceChain` is omitted, so a check keyed on it would reject valid production addresses until that is settled.
+
+# 5.7.0
+
+### Fixed
+
+**`signStakeAndBake()` takes `value` in base units and said "BTC value", so a human-readable amount signed a permit for zero.**
+
+Every other public write helper in the SDK — `depositEarn`, `redeemToken`, `bridge`, `depositToken` — takes a human-readable amount and converts it. This one takes satoshis, because the value goes into the permit as it stands, and its doc said "the approved BTC value". The internal callers convert first; a consumer calling the export directly with `'0.001'` did not.
+
+There was no lower bound either. `'0.001'` divides by the ratio to `0.000997`, rounds down to `0`, and signs: a permit authorising nothing, stored server-side and reported as success. `value` is now required to be a positive whole number of base units, and a value that converts to zero is refused with the conversion shown.
+
+```text
+value must be a whole number of base units, received 0.001. It is an amount in
+token base units — satoshis on the BTC routes, not a human-readable amount —
+0.001 BTC is 100000, not 0.001.
+```
+
+**The `expiry` bounds only existed on `signStakeAndBake`.**
+
+`signNetworkFee({ expiry })` and `signPermitChallenge({ deadline })` take the same parameter, in the same unit, and had none of its checks. A millisecond timestamp is a positive safe integer in the future, so it passed. On the fee route that is a fee authorisation `checkFeeAuthorization` then reads as valid forever, so the user is never asked to renew it.
+
+The guard is now shared by all three routes and names the parameter it was given, so the fee route reports `expiry` and the permit-challenge route reports `deadline`. Both are absolute UNIX timestamps in seconds, must be in the future, and must be at most 365 days ahead.
+
+### Notes
+
+- The `expiry` messages are unchanged on `signStakeAndBake`. The two that mentioned "permit deadline" now say "deadline", since the same text is raised for the fee approval.
+- Zero-deadline routes (Silo BTC.b) remain exempt from the expiry checks and are not exempt from the value check: every route reads the value.
 
 # 5.6.0
 

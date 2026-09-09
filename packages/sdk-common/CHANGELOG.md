@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   Versions 0 (P2WPKH, P2WSH) and 1 (P2TR) are unaffected, as are base58 addresses — `toOutputScript` decides P2PKH or P2SH from the version byte and has no equivalent open end. The network check is unchanged: an address for the wrong network still throws.
 
+## [4.3.1] - 2026-09-08
+
+### Documentation
+
+- `SignStakeAndBakeParams.value` states its unit: token base units, satoshis on the BTC routes. Every other write helper in the SDK takes a human-readable amount, so the interface carrying no unit invited `'0.001'` where `100000` was meant.
+
 ## [4.3.0] - 2026-08-24
 
 ### Added
