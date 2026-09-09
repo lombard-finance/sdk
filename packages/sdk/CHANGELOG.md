@@ -31,7 +31,7 @@ The same state also catches a record that carries no signature. The route report
 
 **A Bitcoin address for a future witness version passed validation and was paid to.**
 
-`isValidBitcoinAddress()` — and so `bitcoinAddressSchema`, the recipient schema for every unstake and redeem action — accepted anything that decoded as bech32. `bc1zxvenxvenxvenxvenxvenxvenxv8al9f3` is witness version 2, valid bech32m, and an output for an undefined witness version is spendable by anyone once mined. Versions above 1 are rejected now, and `getOutputScript()` in `@lombard.finance/sdk-common@4.4.0` refuses to build the script as well.
+`isValidBitcoinAddress()` — and so `bitcoinAddressSchema`, the recipient schema for every unstake and redeem action — accepted anything that decoded as bech32. `bc1zxvenxvenxvenxvenxvenxvenxv8al9f3` is witness version 2, valid bech32m, and an output for an undefined witness version is spendable by anyone once mined. Versions above 1 are rejected now, and `getOutputScript()` in `@lombard.finance/sdk-common@4.3.1` refuses to build the script as well.
 
 The reachable case is a redeeming user's own bad input — a typo, a mis-scanned QR, an address pasted from somewhere untrusted — rather than an attacker. Starknet was already covered, because its redeem path also calls `getBtcAddressType`, which throws for anything but version 0 or 1.
 
