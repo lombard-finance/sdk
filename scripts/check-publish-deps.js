@@ -139,7 +139,14 @@ function readLocalPackageVersions(packagesDir) {
 function rangeAsPublished(depName, range, depType, localVersions) {
   if (!range.startsWith('workspace:')) return range;
   if (depType === 'peerDependencies') return '*';
-  return localVersions[depName] ?? '*';
+
+  // `null`, not `*`, when this monorepo has no version to resolve against.
+  //
+  // `*` means "any published version satisfies this", which is true for a peer
+  // dependency and a lie here: it made the check pass while being unable to
+  // validate the exact version publishing would ship. Failing to resolve is a
+  // reason to stop, not a reason to accept anything.
+  return localVersions[depName] ?? null;
 }
 
 /**
@@ -225,6 +232,22 @@ async function main() {
       depType,
       localVersions,
     );
+    // Resolution failed, so there is nothing to check against. Reported before
+    // the npm lookup, because the lookup cannot answer the question either.
+    if (depRange === null) {
+      console.log(
+        `  Checking ${depName}@${declaredRange}... ❌ NO LOCAL VERSION`,
+      );
+      console.log(
+        `     ${depName} is declared as ${declaredRange} but no package in this`,
+      );
+      console.log(
+        '     repo declares a version for it, so what would ship is unknown.',
+      );
+      hasErrors = true;
+      continue;
+    }
+
     const shown =
       depRange === declaredRange
         ? `${depName}@${depRange}`
