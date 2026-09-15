@@ -121,22 +121,27 @@ function readLocalPackageVersions(packagesDir) {
   // and is skipped rather than joined.
   const isPlainSegment = (name) => /^[A-Za-z0-9._-]+$/.test(name) && name !== '..';
 
-  // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename -- packagesDir is resolve(process.cwd(), 'packages'), not user input
+  // packagesDir is resolve(process.cwd(), 'packages'), not user input.
+  // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename
   for (const entry of readdirSync(packagesDir, { withFileTypes: true })) {
     if (!entry.isDirectory() || !isPlainSegment(entry.name)) continue;
 
-    // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename -- both segments checked above: a plain segment, and a directory
+    // Both segments are checked above: a plain path segment, and a directory.
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename
     const manifest = join(packagesDir, entry.name, 'package.json');
 
     // Defence in depth, matching the containment check `main` applies to the
     // package argument: whatever the name turned out to be, the path it
     // produced has to still sit under the directory being read.
     if (!manifest.startsWith(packagesDir + '/')) continue;
-    // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename -- manifest is containment-checked against packagesDir on the line above
+    // manifest is containment-checked against packagesDir on the line above.
+    // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename
     if (!existsSync(manifest)) continue;
 
     try {
-      // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename -- same containment-checked path
+      // The same containment-checked path.
+      // nosemgrep: javascript.lang.security.detect-non-literal-fs-filename.detect-non-literal-fs-filename
       const pkg = JSON.parse(readFileSync(manifest, 'utf-8'));
       if (pkg.name?.startsWith(LOMBARD_SCOPE)) versions[pkg.name] = pkg.version;
     } catch {
