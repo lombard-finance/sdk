@@ -113,9 +113,25 @@ function versionSatisfies(versions, range) {
  */
 function readLocalPackageVersions(packagesDir) {
   const versions = {};
-  for (const dir of readdirSync(packagesDir)) {
-    const manifest = join(packagesDir, dir, 'package.json');
+
+  // `packagesDir` is built from `process.cwd()` by the caller, not from
+  // anything a user supplies, but each entry read out of it is still checked
+  // before it becomes part of a path. A directory name is a single path
+  // segment here: anything carrying a separator or a dot segment is not one,
+  // and is skipped rather than joined.
+  const isPlainSegment = (name) => /^[A-Za-z0-9._-]+$/.test(name) && name !== '..';
+
+  for (const entry of readdirSync(packagesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || !isPlainSegment(entry.name)) continue;
+
+    const manifest = join(packagesDir, entry.name, 'package.json');
+
+    // Defence in depth, matching the containment check `main` applies to the
+    // package argument: whatever the name turned out to be, the path it
+    // produced has to still sit under the directory being read.
+    if (!manifest.startsWith(packagesDir + '/')) continue;
     if (!existsSync(manifest)) continue;
+
     try {
       const pkg = JSON.parse(readFileSync(manifest, 'utf-8'));
       if (pkg.name?.startsWith(LOMBARD_SCOPE)) versions[pkg.name] = pkg.version;
