@@ -6,7 +6,9 @@ migrate once.
 
 ### Added
 
-- Everything in 5.4.0 and 5.5.0, merged in: the configurable stake-and-bake signature expiry, and `signPermitChallenge` — one signature that both proves control of the destination address and authorises the vault spender, with the permit recorded for the claimer at verify time.
+- Everything in 5.4.0 through 5.8.0, merged in. From 5.4.0 and 5.5.0: the configurable stake-and-bake signature expiry, and `signPermitChallenge` — one signature that both proves control of the destination address and authorises the vault spender, with the permit recorded for the claimer at verify time.
+
+  From 5.6.0 through 5.8.0, the security fixes land as they shipped: an issued permit is checked against what was asked for (`PermitChallengeMismatchError`, `expectedSpender`); the amount and expiry guards are one shared module, `shared/validation/signing`, wired to `signStakeAndBake`, `signNetworkFee` and `signPermitChallenge`, and the copy this branch kept inside `signStakeAndBake` is gone; a stored stake-and-bake signature resumes only a deposit it covers, otherwise `btc.deploy()` stops at `BLOCKED_BY_EXISTING_AUTHORIZATION` and reports `existingAuthorization`; a witness version above 1 is refused; and the bearer token stays out of the revoke log. On this branch those land in `BtcDeployLbtc` rather than `BtcStakeAndDeploy`, and the deposit-address route keeps going through `utils/http` with the wallet token attached.
 
   Two things changed in the fold. `requestWalletChallenge` and `verifyWalletSignature` arrived using `axios` directly; on this branch they go through `utils/http`, which the auth-token boundary test requires of anything resolving a Lombard host, so the new challenge fields were re-applied on top of the wrapper. And `AuthorizeDepositOptions` — 5.4.0's name for the deploy authorize options — is now a deprecated alias of `BtcAuthorizeOptions`, the unified name the collapsed `authorize()` takes.
 
@@ -253,6 +255,121 @@ migrate once.
 - BTC actions that omit the optional `sourceChain` now monitor the Bitcoin network matching their environment. `bitcoinNetwork` read the raw parameter, so a production caller who left `sourceChain` unset monitored the Bitcoin **testnet** and waited for confirmations that could never arrive. Source chain is now resolved once (prod → mainnet, every other environment → signet) and validation, monitoring and deposit lookup all read that single value.
 
 ---
+
+# 5.8.0
+
+### Fixed
+
+**`btc.stakeAndDeploy()` resumed on a stored signature without checking it covered the new deposit.**
+
+`prepare()` looks for an unexpired stake-and-bake signature and, finding one, marks the action authorised and skips the wallet prompt. The permit behind that signature authorises a fixed amount, and the amount being prepared was never compared to it. Since `5.4.0` an expiry may be set up to a year ahead, so a returning user with a live signature is the ordinary path rather than an edge case.
+
+Authorise 0.001 BTC, come back, `prepare({ amount: '0.5' })`: the action reported ready with no prompt, and the BTC was minted against a permit covering roughly a five-hundredth of it. Nothing failed — the vault leg is simply authorised for a fraction of the deposit.
+
+The restore result now carries `coversAmount`, and the resume happens only when it is true.
+
+**Where the action goes instead is a new state, because asking for authorisation again cannot work.**
+
+One stake-and-bake signature is kept per wallet and chain while it is unexpired and unused, so `save-stake-and-bake-signature` refuses a second one. Signing again does not get around that by carrying a different nonce either: the nonce comes from `nonces(owner)` on the token, and ERC-2612 advances it only when a permit is actually spent, so a permit signed while the stored one is unused carries the same value.
+
+Routing to `NEEDS_DEPLOY_AUTHORIZATION` would therefore have opened the wallet, taken a signature, and shown the user the gateway's own refusal string. `prepare()` stops at `BLOCKED_BY_EXISTING_AUTHORIZATION` instead and reports what is on file:
+
+```ts
+await action.prepare({ amount: '0.5', recipient });
+
+if (action.status === BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION) {
+  const { depositAmount, expiresAt } = action.existingAuthorization ?? {};
+  // Deposit within depositAmount, or wait until expiresAt.
+}
+```
+
+An expired or absent signature is unchanged: nothing is on file server-side, so the wallet can sign and the prompt is worth showing.
+
+The same state also catches a record that carries no signature. The route reports one as present off an unexpired `expiration_date` alone — its own comment notes the raw signature may be omitted — and `READY` is where `generateDepositAddress()` sends that signature as proof of control over the destination. Going ready without the bytes forwarded `undefined` from a state the action had called ready, so the record has to carry a signature to be resumed from. Waiting for the stored authorisation to lapse is the way out, as it is for one that does not cover the deposit.
+
+**A Bitcoin address for a future witness version passed validation and was paid to.**
+
+`isValidBitcoinAddress()` — and so `bitcoinAddressSchema`, the recipient schema for every unstake and redeem action — accepted anything that decoded as bech32. `bc1zxvenxvenxvenxvenxvenxvenxv8al9f3` is witness version 2, valid bech32m, and an output for an undefined witness version is spendable by anyone once mined. Versions above 1 are rejected now, and `getOutputScript()` in `@lombard.finance/sdk-common@4.3.1` refuses to build the script as well.
+
+The reachable case is a redeeming user's own bad input — a typo, a mis-scanned QR, an address pasted from somewhere untrusted — rather than an attacker. Starknet was already covered, because its redeem path also calls `getBtcAddressType`, which throws for anything but version 0 or 1.
+
+**`isValidBitcoinAddress()` rejected the all-uppercase bech32 form.**
+
+It branched on a lowercase `bc1` / `tb1` prefix, so `BC1QZYG3…H8FFKZ` fell through to the base58 check and came back false, while `toOutputScript` pays it happily. Both bech32 cases are decoded now rather than matched on their prefix. Fail-closed before, so no funds were at risk.
+
+**`generateDepositBtcAddress()` returned a missing address as an address.**
+
+A `200` carrying `{}` or `{ address: "" }` became an `undefined` typed as `string`, handed to the caller as the Bitcoin address to send a deposit to, and the failure surfaced later as an unrelated state error. Both sibling routes already refuse a response without one. The check sits outside the request's `catch`, so the sanctions refusal still answers with `SANCTIONED_ADDRESS`.
+
+**A failed JWT revoke logged the error object, and an axios error carries the request headers.**
+
+`revokeWalletToken()` sets `Authorization: Bearer <jwt>` and, on failure, passed the whole error to `console.error`. An axios rejection carries the config it failed with, headers included. The branch runs exactly when revocation did not happen, so the token is still live server-side, and a consumer whose error reporter serialises error properties would take it off the machine. It logs the message only now.
+
+**`getErrorMessage()` returned `undefined` for a response body without a JSON `message`.**
+
+An edge serving an HTML error page, or a 401 with an empty body, is not `{ message: string }`. Reading `.message` off it gave `undefined`, which callers turned into `new Error(undefined)` — message the empty string — and a `null` body threw from inside the helper itself.
+
+The consequence was worse than a blank message. Both deposit-address routes test that string for the sanctions refusal, so `undefined.includes(...)` threw a `TypeError` from inside their own error handling. In `resolveDepositBtcAddress` that meant the 401/403 branch reporting a rejected wallet JWT was never reached, and a consumer watching for `UnauthorizedWalletJwtError` to trigger a re-login saw a `TypeError` instead.
+
+Every branch answers with a string now, falling back to `HTTP error <status> <statusText>` when there is no message to quote.
+
+### Added
+
+- `BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION` and `BtcStakeAndDeploy.existingAuthorization` (`depositAmount` in token base units, `expiresAt` as UNIX seconds). Both values come off the record `restoreStakeAndBakeSignature` had already read and was discarding.
+- `StakeAndBakeSignatureExistsError`, thrown by `storeStakeAndBakeSignature()` when the API refuses because a signature is already on file, so the paths that still reach the store give callers something to branch on rather than a bare `Error` carrying a server string. It carries the API's `code` when the response had one.
+- `isActiveSignatureError(message)`, the predicate that recognises that refusal. It and the message it matches were written in `ExistingSignatureHandling.test.ts`, declared inside a test next to a comment saying the SDK should be doing this; they are production code now.
+
+### Notes
+
+- The comparison is against the permit's own `value`. The store call sends only the signature and the typed data, so the amount the server records is `message.value` — the ratio-converted figure, not the satoshis passed in. The deposit being prepared is converted the same way before the two are compared.
+- A record with no amount on it is treated as not covering. That costs a prompt which may not have been needed; the other direction skips the prompt for a deposit that is not authorised.
+- `restoreStakeAndBakeSignature` on the stake-and-deploy chain config takes a fourth argument, `{ amount, token }`, describing the deposit being prepared. `StakeAndBakeRestoreResult` gains `coversAmount`.
+- `btc.depositAndDeploy()` is unaffected: it has no resume branch and always asks for authorisation.
+- Nothing here re-derives a server-issued deposit address or checks it against the action's Bitcoin network. That is worth doing and is a separate change: the network an action believes it is on defaults to testnet when `sourceChain` is omitted, so a check keyed on it would reject valid production addresses until that is settled.
+- The order in `resolveDepositBtcAddress`'s error handling is unchanged and load-bearing: the sanctions refusal arrives as a 403, so it is recognised by its message before the status is read. What made that fragile was the `undefined`, not the order.
+- `sdk-common` has its own `extractErrorMessage` covering these cases correctly. Consolidating the two is worth doing separately — it gates the response branch on `isAxiosError`, where this one reads `.response` off any `Error`, and that difference decides what a rejection which crossed a module boundary reports.
+
+# 5.7.0
+
+### Fixed
+
+**`signStakeAndBake()` takes `value` in base units and said "BTC value", so a human-readable amount signed a permit for zero.**
+
+Every other public write helper in the SDK — `depositEarn`, `redeemToken`, `bridge`, `depositToken` — takes a human-readable amount and converts it. This one takes satoshis, because the value goes into the permit as it stands, and its doc said "the approved BTC value". The internal callers convert first; a consumer calling the export directly with `'0.001'` did not.
+
+There was no lower bound either. `'0.001'` divides by the ratio to `0.000997`, rounds down to `0`, and signs: a permit authorising nothing, stored server-side and reported as success. `value` is now required to be a positive whole number of base units, and a value that converts to zero is refused with the conversion shown.
+
+```text
+value must be a whole number of base units, received 0.001. It is an amount in
+token base units — satoshis on the BTC routes, not a human-readable amount —
+0.001 BTC is 100000, not 0.001.
+```
+
+**The `expiry` bounds only existed on `signStakeAndBake`.**
+
+`signNetworkFee({ expiry })` and `signPermitChallenge({ deadline })` take the same parameter, in the same unit, and had none of its checks. A millisecond timestamp is a positive safe integer in the future, so it passed. On the fee route that is a fee authorisation `checkFeeAuthorization` then reads as valid forever, so the user is never asked to renew it.
+
+The guard is now shared by all three routes and names the parameter it was given, so the fee route reports `expiry` and the permit-challenge route reports `deadline`. Both are absolute UNIX timestamps in seconds, must be in the future, and must be at most 365 days ahead.
+
+### Notes
+
+- The `expiry` messages are unchanged on `signStakeAndBake`. The two that mentioned "permit deadline" now say "deadline", since the same text is raised for the fee approval.
+- Zero-deadline routes (Silo BTC.b) remain exempt from the expiry checks and are not exempt from the value check: every route reads the value.
+
+# 5.6.0
+
+### Fixed
+
+- `signPermitChallenge()` checks the issued permit against the values it was called with before the wallet is prompted: `domain.chainId`, `domain.verifyingContract` against the SDK's LBTC address for that chain, `message.owner`, `message.spender` against the vault spender in the registry, and `message.value` / `message.deadline` as upper bounds on what was requested. `primaryType` has to be `Permit` and the `Permit` struct has to carry the ERC-2612 fields in order.
+
+  The digest check that was already there hashes the returned payload and compares it to the returned digest, so it establishes that the two agree with each other and nothing about what the document authorises. A permit is a spending allowance, and every field above is one the caller passed in or the SDK holds as a constant, so a document that differs is not the one that was asked for.
+
+  `value` and `deadline` are bounds rather than exact matches, since the server is documented to be allowed to shorten the deadline it was asked for. `nonce` stays unchecked — reading `nonces(owner)` would need an RPC round trip, and a wrong nonce yields a permit the token rejects rather than one that authorises something else. `domain.name` and `domain.version` stay unchecked for the same reason, now that `verifyingContract` is pinned.
+
+### Added
+
+- `PermitChallengeMismatchError`, thrown by `signPermitChallenge()` when the issued permit does not describe the requested authorisation. `field` names what differed, e.g. `message.spender`.
+- `signPermitChallenge({ expectedSpender })` names the spender to check against on a chain the vault registry does not carry. Without it such a chain is refused rather than trusted, since there is nothing local to compare the document to.
 
 # 5.5.0
 

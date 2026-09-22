@@ -49,6 +49,20 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * module is the only way to capture the resume branch — a concrete instance of
  * why the harness contract needs module seams and not just service stubs.
  */
+// The resume branch now converts the deposit before comparing it to the stored
+// permit, so the ratio is stubbed to keep this file offline and deterministic.
+vi.mock(
+  '../../../../api-functions/getLBTCExchangeRate/get-exchange-ratio',
+  async () => {
+    const { default: BigNumberCtor } = await import('bignumber.js');
+    return {
+      getExchangeRatio: vi.fn(async () => ({
+        LBTC: { BTCTokenRatio: new BigNumberCtor('1.05') },
+      })),
+    };
+  },
+);
+
 vi.mock('../../../../api-functions/getUserStakeAndBakeSignature', () => ({
   getUserStakeAndBakeSignature: vi.fn(),
 }));
@@ -163,11 +177,17 @@ describe('golden baseline — BTC actions on 5.x', () => {
             'tb1qexistingdeposit0000000000000000000000',
         },
       });
-      // A stored signature that is still valid — the branch that reaches
-      // ADDRESS_READY, which is where the resume bugs live.
+      // A stored signature that is still valid and covers this deposit — the
+      // branch that reaches ADDRESS_READY, which is where the resume bugs live.
+      //
+      // `depositAmount` is the permit's own value, so it is the deposit after
+      // the ratio rather than the satoshis passed in: 100000 over 1.05,
+      // rounded down. A record without it no longer resumes at all, which is
+      // recorded in BtcDeployResumePath.
       mockRestore.mockResolvedValue({
         signature: '0xstoredsignature',
         expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
+        depositAmount: '95238',
       } as Awaited<ReturnType<typeof getUserStakeAndBakeSignature>>);
 
       const action = new BtcDeployLbtc(h.ctx, {

@@ -86,8 +86,10 @@ export {
   storeNetworkFeeSignature,
 } from '../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
 export {
+  isActiveSignatureError,
   type IStoreStakeAndBakeSignatureParams,
   type IStoreStakeAndBakeSignatureStatus,
+  StakeAndBakeSignatureExistsError,
   storeStakeAndBakeSignature,
 } from '../api-functions/storeStakeAndBakeSignature/storeStakeAndBakeSignature';
 

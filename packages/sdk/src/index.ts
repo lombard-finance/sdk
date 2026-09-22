@@ -111,6 +111,10 @@ export {
 // permit challenge would be refused; callers fall back to the plain challenge.
 export { ActivePermitExistsError } from './utils/err';
 
+// Raised when an issued permit challenge does not describe the authorisation
+// that was requested; `field` names what differed.
+export { PermitChallengeMismatchError } from './utils/err';
+
 // One-call permit authorisation: sign a server-issued permit, get a JWT.
 export {
   type ISignPermitChallengeParams,
@@ -554,8 +558,12 @@ export {
   storeNetworkFeeSignature,
 } from './api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
 export {
+  // Raised when a live stake-and-bake signature is already on file, so a
+  // second one is refused; branch on it rather than on the server's string.
+  isActiveSignatureError,
   type IStoreStakeAndBakeSignatureParams,
   type IStoreStakeAndBakeSignatureStatus,
+  StakeAndBakeSignatureExistsError,
   storeStakeAndBakeSignature,
 } from './api-functions/storeStakeAndBakeSignature/storeStakeAndBakeSignature';
 

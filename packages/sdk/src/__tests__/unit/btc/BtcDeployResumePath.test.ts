@@ -121,29 +121,49 @@ describe('BtcDeployLbtc — resume path', () => {
   });
 
   describe('a stored signature with no signature string', () => {
-    it('requires re-authorization instead of posting an empty signature', async () => {
-      // restoreStakeAndBakeSignature reports hasSignature: true when the API
-      // returns only metadata. Treating that as authorized sent
-      // `signature: undefined` to the deposit-address endpoint.
+    // restoreStakeAndBakeSignature reports hasSignature: true when the API
+    // returns only metadata. Treating that as authorized once sent
+    // `signature: undefined` to the deposit-address endpoint. The record is
+    // still a live authorization the API will not let the wallet replace, so
+    // the action must neither post an empty signature nor ask for a new one.
+
+    it('resumes on the held address and never posts the empty signature', async () => {
       mockRestore.mockResolvedValue(storedSignature({ signature: '' }));
 
-      const { action } = makeAction({
+      const { h, action } = makeAction({
         api: { getDepositAddress: async () => EXISTING_ADDRESS },
       });
 
       await action.prepare({ amount: AMOUNT, recipient: RECIPIENT });
 
-      expect(action.status).toBe(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
+      // The address already exists, so nothing downstream reads the signature.
+      expect(action.status).toBe(BtcActionStatus.ADDRESS_READY);
+      await expect(action.generateDepositAddress()).resolves.toBe(
+        EXISTING_ADDRESS,
+      );
+      expect(h.calls.of('api', 'generateDepositAddress')).toHaveLength(0);
+      expect(h.calls.of('evm', 'signStakeAndBake')).toHaveLength(0);
     });
 
-    it('does not advance to READY when no deposit exists either', async () => {
+    it('stops rather than advancing to READY when no deposit exists either', async () => {
       mockRestore.mockResolvedValue(storedSignature({ signature: '' }));
 
-      const { action } = makeAction();
+      const { h, action } = makeAction();
 
       await action.prepare({ amount: AMOUNT, recipient: RECIPIENT });
 
-      expect(action.status).toBe(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
+      // READY would lead to generateDepositAddress() sending the signature as
+      // proof of control. Re-authorizing cannot succeed while this record is
+      // live, so the action reports what is on file instead of prompting.
+      expect(action.status).toBe(
+        BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
+      );
+      expect(action.existingAuthorization).toMatchObject({
+        depositAmount: '100000',
+      });
+      await expect(action.generateDepositAddress()).rejects.toThrow();
+      expect(h.calls.of('api', 'generateDepositAddress')).toHaveLength(0);
+      expect(h.calls.of('evm', 'signStakeAndBake')).toHaveLength(0);
     });
   });
 

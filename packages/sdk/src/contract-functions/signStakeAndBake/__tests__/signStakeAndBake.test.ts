@@ -170,7 +170,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
     it('should generate permit for LBTC on Ethereum', async () => {
       const result = await signStakeAndBake({
         account: MOCK_ACCOUNT,
-        value: new BigNumber('0.5'),
+        value: new BigNumber('50000000'),
         token: Token.LBTC,
         vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
@@ -232,8 +232,10 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
 
   describe('BTC → LBTC Conversion + Permit', () => {
     it('should convert BTC amount to LBTC using exchange ratio', async () => {
-      const btcAmount = new BigNumber('1');
-      const expectedLBTC = new BigNumber('1').dividedBy(new BigNumber('1.05'));
+      // Satoshis, as the parameter takes: one BTC. A bare `1` is one satoshi,
+      // which this ratio divides to nothing and the amount guard now refuses.
+      const btcAmount = new BigNumber('100000000');
+      const expectedLBTC = btcAmount.dividedBy(new BigNumber('1.05'));
 
       const result = await signStakeAndBake({
         account: MOCK_ACCOUNT,
@@ -258,7 +260,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
     it('should default to BTC token when no token specified', async () => {
       const result = await signStakeAndBake({
         account: MOCK_ACCOUNT,
-        value: new BigNumber('1'),
+        value: new BigNumber('100000000'),
         // token not specified - should default to 'BTC'
         vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
@@ -536,7 +538,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
     });
 
     it('should have correct message field values', async () => {
-      const testValue = new BigNumber('1.5');
+      const testValue = new BigNumber('150000000');
 
       const result = await signStakeAndBake({
         account: MOCK_ACCOUNT,
@@ -585,22 +587,24 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
   });
 
   describe('Value Precision Handling', () => {
-    it('should round down value to integer', async () => {
-      const result = await signStakeAndBake({
-        account: MOCK_ACCOUNT,
-        value: new BigNumber('1.123456789'),
-        token: Token.LBTC,
-        vaultKey: DefiProtocol.BitcoinEarn,
-        chainId: ChainId.ethereum,
-        provider: MOCK_PROVIDER,
-        env: Env.prod,
-      });
-
-      const typedData = JSON.parse(result.typedData);
-      const value = typedData.message.value;
-
-      // Should be rounded down, no decimals
-      expect(value).toBe('1');
+    /**
+     * This used to round a fractional value down and sign it. The parameter is
+     * base units, so a fractional one is a caller who passed a human-readable
+     * amount, and rounding it produced a permit for an amount nobody asked
+     * for. It is refused rather than reinterpreted.
+     */
+    it('refuses a fractional value rather than rounding it down', async () => {
+      await expect(
+        signStakeAndBake({
+          account: MOCK_ACCOUNT,
+          value: new BigNumber('1.123456789'),
+          token: Token.LBTC,
+          vaultKey: DefiProtocol.BitcoinEarn,
+          chainId: ChainId.ethereum,
+          provider: MOCK_PROVIDER,
+          env: Env.prod,
+        }),
+      ).rejects.toThrow(/value must be a whole number of base units/);
     });
 
     it('should handle very large values', async () => {
@@ -620,12 +624,29 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
       expect(typedData.message.value).toBe(largeValue.toFixed(0));
     });
 
-    it('should handle very small values', async () => {
-      const smallValue = new BigNumber('0.00000001'); // 1 satoshi
+    /**
+     * `0.00000001` is one satoshi written as a BTC figure, and it used to sign
+     * a permit whose value was `0`: authorising nothing, reported as success.
+     * One satoshi in the unit this parameter takes is `1`, which signs.
+     */
+    it('refuses a BTC figure that would authorise nothing', async () => {
+      await expect(
+        signStakeAndBake({
+          account: MOCK_ACCOUNT,
+          value: new BigNumber('0.00000001'),
+          token: Token.LBTC,
+          vaultKey: DefiProtocol.BitcoinEarn,
+          chainId: ChainId.ethereum,
+          provider: MOCK_PROVIDER,
+          env: Env.prod,
+        }),
+      ).rejects.toThrow(/value must be a whole number of base units/);
+    });
 
+    it('signs the smallest amount that is a whole base unit', async () => {
       const result = await signStakeAndBake({
         account: MOCK_ACCOUNT,
-        value: smallValue,
+        value: new BigNumber('1'),
         token: Token.LBTC,
         vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
@@ -634,8 +655,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
       });
 
       const typedData = JSON.parse(result.typedData);
-      // Should be 0 when rounded down
-      expect(typedData.message.value).toBe('0');
+      expect(typedData.message.value).toBe('1');
     });
   });
 
@@ -730,7 +750,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
 
       await signStakeAndBake({
         account: MOCK_ACCOUNT,
-        value: new BigNumber('1'),
+        value: new BigNumber('100000000'),
         token: 'BTC',
         vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
@@ -826,7 +846,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
     it('should complete full permit flow for LBTC', async () => {
       const result = await signStakeAndBake({
         account: '0xUser123',
-        value: new BigNumber('0.5'),
+        value: new BigNumber('50000000'),
         token: Token.LBTC,
         vaultKey: DefiProtocol.BitcoinEarn,
         chainId: ChainId.ethereum,
@@ -860,7 +880,7 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
     it('should complete full approve flow for BTCb on Avalanche Fuji', async () => {
       const result = await signStakeAndBake({
         account: '0xUser456',
-        value: new BigNumber('1.5'),
+        value: new BigNumber('150000000'),
         token: Token.BTCb,
         vaultKey: DefiProtocol.Silo,
         chainId: ChainId.avalancheFuji,

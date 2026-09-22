@@ -24,12 +24,52 @@ import { AgentKit } from "@coinbase/agentkit";
 
 const agentkit = await AgentKit.from({
   walletProvider,
-  actionProviders: [lombardActionProvider()],
+  actionProviders: [
+    lombardActionProvider({
+      confirmWrite: (request) => askTheOperator(request),
+    }),
+  ],
 });
 
 // Agent now has access to all Lombard actions
 const actions = agentkit.getActions();
 ```
+
+### Approving Writes
+
+A tool call **is** the transaction: the write actions sign and send as soon as
+they are invoked, and what invokes them is a model reading text. Not all of
+that text is yours — a token symbol, an address label or an error relayed from
+an upstream service reaches the model too, and a tool call cannot be
+distinguished from an instruction after the fact.
+
+So each write asks first. Give the provider exactly one of:
+
+- `confirmWrite(request)` — called before anything is signed, including the fee
+  authorisation some chains require. Return `false`, or throw, and nothing is
+  sent. `request` carries the action, chain, account, amount and assets, plus
+  `recipient` when the funds land somewhere other than the signing account.
+  That is the field to read twice: on the native BTC output route it is a
+  Bitcoin address supplied as a tool argument. It is absent where the
+  transaction pays the signer, so a prompt never names a destination the
+  transaction does not use.
+- `autoApproveWrites: true` — no confirmation at all, for a wallet that is
+  meant to run unattended and is funded accordingly.
+
+With neither set, write actions report that confirmation is unconfigured and
+sign nothing. Read actions are never gated.
+
+The two are mutually exclusive and passing both **throws at construction**.
+They contradict each other, and the way to end up with both is adding
+`confirmWrite` to a config that already carried `autoApproveWrites: true` —
+connecting an approval flow and leaving the old flag behind. Picking a winner
+silently would mean handing back unattended execution to someone who thinks
+they just built a gate, so it fails while the config is still in front of
+whoever wrote it.
+
+Asking the model to confirm in its system prompt is worth doing and is not the
+same thing: that is a request to the model, this is a gate it cannot talk its
+way past.
 
 ### With LangChain
 
@@ -41,7 +81,9 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
 const agentkit = await AgentKit.from({
   walletProvider,
-  actionProviders: [lombardActionProvider()],
+  actionProviders: [
+    lombardActionProvider({ confirmWrite: (request) => askTheOperator(request) }),
+  ],
 });
 
 const tools = getLangChainTools(agentkit);

@@ -5,29 +5,35 @@ All notable changes to `@lombard.finance/sdk-starknet` will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0] - 2026-09-02
+## [0.5.0] - Unreleased
 
 ### Added
 
-- `setStarknetRpcEndpoints(chainId, urls)` — replace the RPC endpoint list for a chain, for hosts that need a key or to put a paid node ahead of the public one. It clears the cached provider so the next read uses the new list.
-
-- A `test` script and unit tests. The package had no test script, so `turbo test` skipped it entirely.
+- A `test` script and unit tests for the chain table, the account public-key lookup and the RPC failover. The package had no test script, so `turbo test` skipped it entirely.
 
 ### Fixed
-
-- **A single public RPC node per chain, with no failover, failed misleadingly.** Once its quota was spent the node answered JSON-RPC `-32601` — "the method starknet*call does not exist/is not available" — which reads as a protocol problem and is a rate limit. Every entry in `PUBLIC_KEY_GETTERS` then failed, `getPublicKey` found nothing, and the resulting error named the \_account*: a healthy, correctly deployed account looked broken.
-
-  Endpoints are now a list per chain, tried in order. A request fails over on a non-ok status, a 15-second timeout, a body that is not JSON, or a JSON-RPC code in `-32601 / -32005 / -32603 / 429`. `-32601` is the surprising member: a code that normally means "unsupported" has to be treated as retryable because that is how a throttled node reports a limit.
-
-  Each chain now lists two endpoints, ordered by measured reliability rather than preference. Twelve sequential `starknet_call` requests from a cold client: lava mainnet 12/12, cartridge mainnet 12/12, cartridge Sepolia 12/12, **drpc Sepolia 9/12** — three of them the `-32601` above. Sepolia's sole endpoint was therefore failing about a quarter of the time at trivial volume, and it is now the fallback behind one that did not fail. Mainnet was never the problem; a second endpoint joins it rather than replacing it.
-
-  All four are free and need no key.
 
 - **`getPublicKey` kept asking after it had the answer.** An account contract has exactly one of the four getters, so every call after the one that answers is a certain failure: four requests per signature where one is needed, three of them guaranteed refusals, against the node that may be throttling because of them. It now stops at the first hit.
 
 ### Changed
 
 - Depends on `@lombard.finance/sdk-common@4.4.0`. That dependency is written as `workspace:*` and rewritten to an exact version at publish time, so reaching 4.4.0 requires a release of this package.
+
+- The RPC endpoint list and failover shipped in 0.4.0 with a different endpoint set than this branch had measured; 0.4.0's list and its `lastGoodEndpoint` ordering are what this release carries.
+
+## [0.4.0] - 2026-09-08
+
+### Added
+
+- `setStarknetRpcEndpoints(chainId, urls)` replaces the RPC endpoint list for a chain at runtime, for a host with a key or a paid node. Previously the endpoint was hardcoded with no way to override it, so a retired node could only be worked around by releasing a new version.
+
+### Changed
+
+- Each chain now holds a list of RPC endpoints and fails over to the next one when a node answers with prose, a non-JSON body, or a JSON-RPC code that means the node itself is unavailable (a spent quota, an internal error, or `-32601`, which is how a rate-limited node reports being over its limit). A body carrying any other JSON-RPC error is passed through unchanged, so a real contract error still surfaces as itself. The endpoint that last answered is tried first, so an outage costs one probe rather than one per request, and each request has a 15s deadline so a node that stops answering cannot hang a read.
+
+### Fixed
+
+- Mainnet reads no longer point at `rpc.starknet.lava.build`, which has been retired and answers HTTP 410 to every request, breaking every on-chain read. Mainnet is now `api.cartridge.gg` with `api.zan.top` behind it; Sepolia keeps `api.cartridge.gg` with `starknet-sepolia.drpc.org` behind it. Endpoint order follows twelve sequential `starknet_call` probes per candidate, recorded in `utils/rpc-providers.ts`.
 
 ## [0.3.3] - 2026-08-11
 
