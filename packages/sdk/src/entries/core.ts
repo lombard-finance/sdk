@@ -25,7 +25,7 @@ export type {
   DepositAddressOptions,
   DestinationChain,
   ExchangeRateOptions,
-  UnstakeOptions,
+  WithdrawalOptions,
 } from '../client/ApiNamespace';
 export { ApiNamespace } from '../client/ApiNamespace';
 export { createConfig } from '../client/createConfig';
@@ -141,23 +141,12 @@ export { Env } from '@lombard.finance/sdk-common';
 
 // Event types
 export type {
-  BridgeEventMap,
-  DeployEventMap,
-  DepositEventMap,
-  RedeemEventMap,
-  StakeEventMap,
+  ActionEventMap,
   StrategyEvent,
+  StrategyEventHandlerMap,
   StrategyEventMap,
-  UnstakeEventMap,
 } from '../shared/events';
-export {
-  BridgeEvent,
-  DeployEvent,
-  DepositEvent,
-  RedeemEvent,
-  StakeEvent,
-  UnstakeEvent,
-} from '../shared/events';
+export { ActionEvent } from '../shared/events';
 
 // Error handling
 export {
@@ -210,3 +199,99 @@ export {
 } from '../utils/err';
 export { ensureHex, isHex } from '../utils/hex';
 export { DAY, HOUR, MINUTE, now, SECOND, toUnix } from '../utils/time';
+
+// ── The v6 action contract (§5 of the redesign) ──
+//
+// Exported from the root and from `./core` so a consumer can name a status, a
+// step or a route without reaching into the package. Without this the whole
+// contract compiles, is tested, and is unreachable — which is exactly what
+// happened until the playground tried to import it.
+export type {
+  Action,
+  ActionNamespace,
+  ActionProgress,
+  ActionResult,
+  ActionStepKey,
+  ActionSteps,
+  ActionTxHashes,
+  AuthorizationGroup,
+  AuthorizationStatus,
+  BitcoinSourceAction,
+  BtcDeployStatus,
+  BtcDepositStatus,
+  CancellableAction,
+  ClaimableAction,
+  DeployAsset,
+  DeployNamespace,
+  DeployParams,
+  DepositParams,
+  EvmCancelWithdrawStatus,
+  // EvmClaimStatus and EvmDeployStatus are deliberately absent. Each name is
+  // already taken by a v5 alias of EvmOperationStatus, and the v6 narrowing
+  // describes the same concept with a smaller member set. Exporting both is a
+  // duplicate identifier, and silently swapping which one wins would change what
+  // a consumer's type admits with no error at their call site. They land when
+  // the EVM classes adopt the narrowings, as a named breaking change.
+  //
+  // EvmDepositStatus and EvmWithdrawStatus are here for the first time: those
+  // names used to be taken by the per-action aliases, and the class rename
+  // freed them.
+  EvmDepositStatus,
+  EvmVaultWithdrawStatus,
+  EvmWithdrawStatus,
+  FeeAuthorizedAction,
+  PrepareParams,
+  ReachableActionStatus,
+  RouteLabel,
+  RouteLabelParams,
+  ShareAmount,
+  SolanaDepositStatus,
+  SolanaWithdrawStatus,
+  StarknetWithdrawStatus,
+  SubmitProgress,
+  SuiWithdrawStatus,
+  TerminalStatus,
+  WithdrawParams,
+} from '../core/actions';
+export {
+  ACTION_STEP_KEYS,
+  ActionStatus,
+  AUTHORIZATION_STATUSES,
+  deriveRouteLabel,
+  isAddressResult,
+  isAuthorizationStatus,
+  isTerminalStatus,
+  isTxResult,
+  REGISTRY_TOKEN_ROWS,
+  resolveRegistryToken,
+  shares,
+  TERMINAL_STATUSES,
+  vaultAsset,
+} from '../core/actions';
+
+// ── The wallet-auth transport contract ──
+//
+// Re-exported from `sdk-common` so a consumer can type an `auth` provider
+// without depending on `sdk-common` directly. `LombardConfig.auth` is typed as
+// `LombardAuth`, so a consumer that cannot name the type cannot implement it.
+export type {
+  AuthRequestContext,
+  LombardAuth,
+  RequestScope,
+} from '@lombard.finance/sdk-common';
+
+// ── Wallet-auth chain names ──
+//
+// The auth routes name chains a fourth way (the short `/v2/chains` name), so
+// this derives it rather than leaving each consumer to hand-write the table.
+export {
+  walletAuthChainName,
+  walletAuthChainNames,
+} from '../common/wallet-auth-chain';
+
+// The one-call sign-in ceremony and its parameter types.
+export type {
+  WalletSignInParams,
+  WalletSignInResult,
+  WalletSignResult,
+} from '@lombard.finance/sdk-common';

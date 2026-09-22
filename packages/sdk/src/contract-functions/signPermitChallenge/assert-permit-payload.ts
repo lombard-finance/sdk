@@ -133,7 +133,7 @@ function registrySpender(expected: ExpectedPermit, env: Env): Address {
   // passes `expectedSpender` instead.
   try {
     const { spenderContract } = getStakeAndBakeConfig(
-      DefiProtocol.Veda,
+      DefiProtocol.BitcoinEarn,
       Token.LBTC,
       expected.chainId,
       env,

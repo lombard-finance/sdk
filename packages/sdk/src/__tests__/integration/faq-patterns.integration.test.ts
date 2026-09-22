@@ -11,7 +11,7 @@ import { Env } from '@lombard.finance/sdk-common';
 import type { EIP1193Provider } from 'viem';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { btcStake } from '../../chains/btc/actions/stake';
+import { btcStake } from '../../chains/btc/actions/deposit-lbtc';
 import { AssetId, Chain } from '../../core';
 import { BtcActionStatus } from '../../shared/constants/statusConstants';
 import { createTestConfig as createConfig } from '../helpers/createTestConfig';

@@ -5,9 +5,9 @@
  *
  * Operations:
  * - stake: BTC.b → LBTC (stake wrapped BTC to get LBTC)
- * - unstake: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
+ * - withdraw: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
  * - deposit: BTCb → LBTC (deposit BTC.b to receive LBTC)
- * - deploy: LBTC/BTC.b → DeFi protocols (Veda, Silo)
+ * - deploy: LBTC/BTC.b → DeFi protocols (Bitcoin Earn, Silo)
  * - withdraw: Queue withdrawal from DeFi protocols
  * - cancelWithdraw: Cancel pending withdrawal from DeFi protocols
  * - redeem: BTC.b → BTC (cross-chain redemption to Bitcoin)
@@ -21,55 +21,58 @@
  *   providers: { evm: () => window.ethereum },
  * });
  *
- * const unstake = sdk.chain.evm.unstake({
+ * const withdraw = sdk.chain.evm.withdraw({
  *   sourceChain: Chain.ETHEREUM,
  *   assetOut: AssetId.BTC,
  * });
  *
- * await unstake.prepare({ amount: '0.1', recipient: 'bc1q...' });
- * const { txHash } = await unstake.execute();
+ * await withdraw.prepare({ amount: '0.1', recipient: 'bc1q...' });
+ * const { txHash } = await withdraw.execute();
  * ```
  *
  * @module chains/evm/EvmActions
  */
 
 import type { LombardConfig } from '../../config/types';
+import type { Chain } from '../../core';
+import { AssetId } from '../../core';
 import type { EvmCoreContext } from '../../shared/context';
 import { createEvmCoreContext } from '../../shared/context';
+import { LombardError, ValidationErrorCode } from '../../shared/errors';
+import {
+  createEvmDeposit,
+  type EvmClaimParams,
+  type IEvmClaim,
+} from './actions/claim';
 import {
   createEvmDeploy,
   type EvmDeployParams,
   type IEvmDeploy,
 } from './actions/deploy';
-import {
-  createEvmDeposit,
-  type EvmDepositParams,
-  type IEvmDeposit,
-} from './actions/deposit';
-import {
-  createEvmRedeem,
-  type EvmRedeemParams,
-  type IEvmRedeem,
-} from './actions/redeem';
 // Import action factories
 import {
   createEvmStake,
-  type EvmStakeParams,
-  type IEvmStake,
-} from './actions/stake';
+  type EvmDepositBtcbParams,
+  type IEvmDepositBtcb,
+} from './actions/deposit-btcb';
 import {
-  createEvmUnstake,
-  type EvmUnstakeParams,
-  type IEvmUnstake,
-} from './actions/unstake';
+  createEvmRedeem,
+  type EvmWithdrawBtcbParams,
+  type IEvmWithdrawBtcb,
+} from './actions/withdraw-btcb';
+import {
+  createEvmWithdrawLbtc,
+  type EvmWithdrawLbtcParams,
+  type IEvmWithdrawLbtc,
+} from './actions/withdraw-lbtc';
 import {
   createEvmCancelWithdraw,
   createEvmWithdraw,
   type EvmCancelWithdrawParams,
-  type EvmWithdrawParams,
+  type EvmWithdrawVaultParams,
   type IEvmCancelWithdraw,
-  type IEvmWithdraw,
-} from './actions/withdraw';
+  type IEvmWithdrawVault,
+} from './actions/withdraw-vault';
 
 /**
  * EVM Actions
@@ -77,6 +80,21 @@ import {
  * User-facing class for EVM operations.
  * Created via evmActions(config) factory function.
  */
+/**
+ * An asset withdrawal whose input asset is only known at runtime.
+ *
+ * `EvmWithdrawLbtcParams` and `EvmWithdrawBtcbParams` are structurally identical apart from
+ * the `assetIn` literal that distinguishes them, so this is their shape with
+ * that discriminant widened. It exists for the overload above: without it, a
+ * caller passing a plain `AssetId` matches no signature at all.
+ */
+export interface EvmAssetWithdrawParams {
+  assetIn: AssetId;
+  assetOut: AssetId;
+  sourceChain: Chain;
+  destChain: Chain;
+}
+
 export class EvmActions {
   private readonly ctx: EvmCoreContext;
 
@@ -100,28 +118,8 @@ export class EvmActions {
    * });
    * ```
    */
-  stake(params: EvmStakeParams): IEvmStake {
+  deposit(params: EvmDepositBtcbParams): IEvmDepositBtcb {
     return createEvmStake(this.ctx, params);
-  }
-
-  /**
-   * Unstake LBTC to BTC or BTC.b
-   *
-   * - LBTC → BTC: Cross-chain to Bitcoin mainnet/signet
-   * - LBTC → BTC.b: Same-chain wrapped BTC on EVM
-   *
-   * @example
-   * ```typescript
-   * const unstake = evm.unstake({
-   *   assetIn: AssetId.LBTC,
-   *   assetOut: AssetId.BTC,
-   *   sourceChain: Chain.ETHEREUM,
-   *   destChain: Chain.BITCOIN_MAINNET,
-   * });
-   * ```
-   */
-  unstake(params: EvmUnstakeParams): IEvmUnstake {
-    return createEvmUnstake(this.ctx, params);
   }
 
   /**
@@ -139,21 +137,26 @@ export class EvmActions {
    * });
    * ```
    */
-  deposit(params: EvmDepositParams): IEvmDeposit {
+  /**
+   * Claim an already-notarized mint.
+   *
+   * The new name for what `deposit()` has always done.
+   */
+  claim(params: EvmClaimParams): IEvmClaim {
     return createEvmDeposit(this.ctx, params);
   }
 
   /**
    * Deploy L-Assets to DeFi protocols
    *
-   * Currently supports Veda and Silo protocols.
+   * Currently supports Bitcoin Earn and Silo protocols.
    *
    * @example
    * ```typescript
    * const deploy = evm.deploy({
    *   asset: AssetId.LBTC,
    *   sourceChain: Chain.ETHEREUM,
-   *   protocol: DeployProtocol.Veda,
+   *   protocol: DeployProtocol.BitcoinEarn,
    *   recipient: '0x...',
    * });
    * ```
@@ -165,14 +168,14 @@ export class EvmActions {
   /**
    * Withdraw vault shares from DeFi protocols
    *
-   * Queues a withdrawal request from DeFi protocols (e.g., Veda vault).
+   * Queues a withdrawal request from DeFi protocols (e.g., Bitcoin Earn vault).
    * After the withdrawal is queued, it will be processed within the
    * protocol's withdrawal window.
    *
    * @example
    * ```typescript
    * const withdraw = evm.withdraw({
-   *   protocol: DeployProtocol.Veda,
+   *   protocol: DeployProtocol.BitcoinEarn,
    *   sourceChain: Chain.ETHEREUM,
    *   recipient: '0x...',
    * });
@@ -181,8 +184,54 @@ export class EvmActions {
    * await withdraw.execute();
    * ```
    */
-  withdraw(params: EvmWithdrawParams): IEvmWithdraw {
-    return createEvmWithdraw(this.ctx, params);
+  /**
+   * Withdraw value out: to an asset, or out of a vault.
+   *
+   * Overloaded rather than unioned so the caller gets the precisely-typed
+   * action. That matters because the two arms have different terminals —
+   * `EvmWithdrawVaultStatus` has `completed` and no `queued`, `EvmVaultWithdrawStatus`
+   * has `queued` and no `completed` — so comparing against the wrong one is a
+   * compile error rather than a UI reporting an unsettled request as done.
+   *
+   * The vault arm is what this method already did in 5.x, unchanged, so no
+   * existing call moves. The asset arms are new here and dispatch on `assetIn`:
+   *
+   * - `assetIn: LBTC` burns LBTC for BTC cross-chain or BTC.b same-chain
+   * - `assetIn: BTC.b` redeems BTC.b for BTC
+   *
+   * @throws LombardError if `assetIn` names no withdrawable asset
+   */
+  withdraw(params: EvmWithdrawVaultParams): IEvmWithdrawVault;
+  withdraw(params: EvmWithdrawLbtcParams): IEvmWithdrawLbtc;
+  withdraw(params: EvmWithdrawBtcbParams): IEvmWithdrawBtcb;
+  /**
+   * The arm for a caller holding a runtime asset rather than a literal — a form
+   * picked in a UI, say. The precise interface cannot be known statically, so
+   * the union comes back and the caller narrows.
+   */
+  withdraw(params: EvmAssetWithdrawParams): IEvmWithdrawLbtc | IEvmWithdrawBtcb;
+  withdraw(
+    params: EvmWithdrawVaultParams | EvmAssetWithdrawParams,
+  ): IEvmWithdrawVault | IEvmWithdrawLbtc | IEvmWithdrawBtcb {
+    // A vault exit names a protocol and no input asset: the shares it burns
+    // have no AssetId. That absence is what separates the arms.
+    if (!('assetIn' in params)) {
+      return createEvmWithdraw(this.ctx, params);
+    }
+
+    if (params.assetIn === AssetId.LBTC) {
+      return createEvmWithdrawLbtc(this.ctx, params as EvmWithdrawLbtcParams);
+    }
+
+    if (params.assetIn === AssetId.BTCb) {
+      return createEvmRedeem(this.ctx, params as EvmWithdrawBtcbParams);
+    }
+
+    throw new LombardError(
+      ValidationErrorCode.INVALID_ASSET,
+      `Cannot withdraw ${String(params.assetIn)} on EVM. ` +
+        `Supported: ${AssetId.LBTC}, ${AssetId.BTCb}, or a vault protocol.`,
+    );
   }
 
   /**
@@ -193,7 +242,7 @@ export class EvmActions {
    * @example
    * ```typescript
    * const cancelWithdraw = evm.cancelWithdraw({
-   *   protocol: DeployProtocol.Veda,
+   *   protocol: DeployProtocol.BitcoinEarn,
    *   chain: Chain.ETHEREUM,
    * });
    * await cancelWithdraw.prepare();
@@ -202,34 +251,6 @@ export class EvmActions {
    */
   cancelWithdraw(params: EvmCancelWithdrawParams): IEvmCancelWithdraw {
     return createEvmCancelWithdraw(this.ctx, params);
-  }
-
-  /**
-   * Redeem BTC.b to native BTC (cross-chain to Bitcoin)
-   *
-   * Burns BTC.b on the EVM source chain and releases native BTC to a Bitcoin
-   * recipient address. This is the inverse of BTC Deposit. The destination is
-   * always the Bitcoin network — for LBTC → BTC.b on the same EVM chain, use
-   * {@link unstake} with `assetOut: AssetId.BTCb`.
-   *
-   * @example
-   * ```typescript
-   * const redeem = evm.redeem({
-   *   assetIn: AssetId.BTCb,
-   *   assetOut: AssetId.BTC,
-   *   sourceChain: Chain.AVALANCHE,
-   *   destChain: Chain.BITCOIN_MAINNET,
-   * });
-   *
-   * await redeem.prepare({
-   *   amount: '0.1',
-   *   recipient: 'bc1q...',
-   * });
-   * const { txHash } = await redeem.execute();
-   * ```
-   */
-  redeem(params: EvmRedeemParams): IEvmRedeem {
-    return createEvmRedeem(this.ctx, params);
   }
 }
 

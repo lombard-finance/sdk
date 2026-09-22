@@ -263,7 +263,7 @@ export const ChainId = {
   /**
    * @deprecated Corn is retired and produces no blocks. Nothing in the SDK
    * routes to it: no RPC, no viem chain, no token addresses, no bridge lanes.
-   * Kept only so existing code keeps compiling; removed in the next major.
+   * Kept only so existing code keeps compiling; removed in 7.0.0.
    */
   corn: 21000000,
   etherlink: 42793,
@@ -301,7 +301,7 @@ export const ChainId = {
  * to a chain that produces no blocks, so passing one where a live chain is
  * expected is a type error rather than a runtime failure.
  *
- * @deprecated Removed together with the constants in the next major.
+ * @deprecated Removed together with the constants in 7.0.0.
  */
 export type RetiredChainId = typeof ChainId.corn | typeof ChainId.swell;
 
@@ -317,7 +317,7 @@ export type ChainId = Exclude<
  * check has to exclude them explicitly or it would hand a dead chain to code
  * that expects a live one.
  *
- * @deprecated Removed together with the retired constants in the next major.
+ * @deprecated Removed together with the retired constants in 7.0.0.
  */
 export const RETIRED_CHAIN_IDS: ReadonlySet<number> = new Set<number>([
   ChainId.corn,

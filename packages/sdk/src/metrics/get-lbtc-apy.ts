@@ -1,9 +1,9 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, zeroAddress } from 'viem';
 
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
+import { httpRequest } from '../utils/http';
 
 type Response = {
   lbtc_base_apy: number;
@@ -34,7 +34,7 @@ export async function getApy({
   const { baseApiUrl } = getApiConfig(env);
 
   const url = `${baseApiUrl}/api/v1/analytics/${account || zeroAddress}/apy`;
-  const { data } = await axios.get<Response>(url);
+  const { data } = await httpRequest<Response>({ url: url, scope: 'public' });
 
   const apy: LbtcApy = {
     baseApy: BigNumber(data.lbtc_base_apy),
@@ -64,7 +64,10 @@ export async function getEstimatedApy({
   const { baseApiUrl } = getApiConfig(env);
 
   const url = `${baseApiUrl}/api/v1/analytics/estimated-apy?partner_id=${partnerId || ''}`;
-  const { data } = await axios.get<EstimatedApyResponse>(url);
+  const { data } = await httpRequest<EstimatedApyResponse>({
+    url: url,
+    scope: 'public',
+  });
 
   const apy: LbtcEstimatedApy = {
     estimatedApy: BigNumber(data.lbtc_estimated_apy),

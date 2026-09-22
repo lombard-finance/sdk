@@ -12,11 +12,11 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { BtcDeposit } from '../../../chains/btc/actions/deposit/BtcDeposit';
-import { evmDepositConfig } from '../../../chains/btc/actions/deposit/config/evm';
-import { evmDepositAndDeployConfig } from '../../../chains/btc/actions/depositAndDeploy/config/evm';
-import { evmConfig } from '../../../chains/btc/actions/stake/config/evm';
-import { evmStakeAndDeployConfig } from '../../../chains/btc/actions/stakeAndDeploy/config/evm';
+import { evmDepositAndDeployConfig } from '../../../chains/btc/actions/deploy-btcb/config/evm';
+import { evmStakeAndDeployConfig } from '../../../chains/btc/actions/deploy-lbtc/config/evm';
+import { BtcDepositBtcb } from '../../../chains/btc/actions/deposit-btcb/BtcDepositBtcb';
+import { evmDepositConfig } from '../../../chains/btc/actions/deposit-btcb/config/evm';
+import { evmConfig } from '../../../chains/btc/actions/deposit-lbtc/config/evm';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { ChainId } from '../../../common/chains';
 import { AssetId, Chain } from '../../../core';
@@ -186,7 +186,7 @@ describe('an approval is stored once', () => {
   });
 });
 
-describe('BtcDeposit decides from the address it holds', () => {
+describe('BtcDepositBtcb decides from the address it holds', () => {
   afterEach(() => vi.clearAllMocks());
 
   function buildDepositCtx(existingAddress: string | null): BtcCoreContext {
@@ -207,7 +207,7 @@ describe('BtcDeposit decides from the address it holds', () => {
 
   it('stores the signature itself when the address already exists', async () => {
     const ctx = buildDepositCtx('tb1qexisting');
-    const deposit = new BtcDeposit(ctx, {
+    const deposit = new BtcDepositBtcb(ctx, {
       assetOut: AssetId.BTCb,
       destChain: Chain.ETHEREUM,
     });
@@ -220,7 +220,7 @@ describe('BtcDeposit decides from the address it holds', () => {
 
   it('leaves it to address generation when there is no address yet', async () => {
     const ctx = buildDepositCtx(null);
-    const deposit = new BtcDeposit(ctx, {
+    const deposit = new BtcDepositBtcb(ctx, {
       assetOut: AssetId.BTCb,
       destChain: Chain.ETHEREUM,
     });

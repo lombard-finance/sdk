@@ -16,7 +16,10 @@ import { revokeWalletToken } from '../../../api-functions/walletAuth/revokeWalle
 
 vi.mock('axios');
 
-const mockedPost = vi.mocked(axios.post);
+// The api-functions reach the network through `utils/http`, which calls the
+// axios default export as a function rather than `axios.post`, so the mock
+// sits on that: same boundary, same assertions.
+const mockedPost = vi.mocked(axios);
 
 const JWT = 'header.payload.signature-that-must-not-be-logged';
 

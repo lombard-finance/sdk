@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { isAxiosError } from 'axios';
 import { Address, pad } from 'viem';
 
 import { getApiConfig } from '../../common/api-config';
@@ -6,6 +6,7 @@ import {
   BlockchainIdentifier,
   getChainNameById,
 } from '../../common/blockchain-identifier';
+import { httpGet } from '../../utils/http';
 import {
   IApiError,
   IDepositAddressesResponse,
@@ -44,14 +45,14 @@ export async function makeRequest({
 
   const url = `api/v1/address/destination/${destinationBlockchain}/${address}`;
   try {
-    const { data } = await axios.get<IDepositAddressesResponse>(url, {
+    const { data } = await httpGet<IDepositAddressesResponse>(url, {
       baseURL: baseApiUrl,
       params,
     });
 
     return data.addresses || [];
   } catch (err) {
-    if (axios.isAxiosError<IApiError>(err)) {
+    if (isAxiosError<IApiError>(err)) {
       const message = err.response?.data.message;
       throw new Error(message);
     }

@@ -14,7 +14,7 @@ The DeFi Registry is a **configuration-driven system** that defines which tokens
 
 ```
 DEFI_REGISTRY
-├── Protocol (Veda, Silo, etc.)
+├── Protocol (Bitcoin Earn, Silo, etc.)
 │   └── Token (LBTC, BTC, BTCb, etc.)
 │       └── Environment (prod, testnet, etc.)
 │           └── Chain (Ethereum, BSC, Avalanche, etc.)
@@ -60,7 +60,7 @@ The `getStakeAndBakeConfig()` function queries the registry:
 import { getStakeAndBakeConfig } from './validation';
 
 const { tokenConfig, spenderContract } = getStakeAndBakeConfig(
-  'Veda', // Protocol
+  'bitcoinEarn', // Protocol
   Token.LBTC, // Token
   ChainId.ethereum, // Chain
   Env.prod, // Environment
@@ -101,9 +101,9 @@ export async function signStakeAndBake(params) {
 
 ## 🔧 Adding New Integrations
 
-### Example 1: Add Existing Token to New Chain (Veda Stake & Deploy)
+### Example 1: Add Existing Token to New Chain (Bitcoin Earn Stake & Deploy)
 
-**Scenario:** Add LBTC support on a new chain for Veda protocol Stake & Deploy.
+**Scenario:** Add LBTC support on a new chain for the Bitcoin Earn protocol Stake & Deploy.
 
 **Source of Truth:** `packages/sdk/src/vaults/lib/config.ts`
 
@@ -147,7 +147,7 @@ export const EARN_VAULT_SPENDER_CONTRACTS: Record<
 
 ### Example 2: Add New Token to Existing Protocol
 
-**Scenario:** Add wBTC support for Veda on Ethereum (uses permit).
+**Scenario:** Add wBTC support for Bitcoin Earn on Ethereum (uses permit).
 
 ```typescript
 // In defi-registry.ts
@@ -165,7 +165,7 @@ const WBTC_PERMIT_CONFIG: TokenApprovalConfig = {
 
 // 2. Add to DEFI_REGISTRY
 export const DEFI_REGISTRY = {
-  Veda: {
+  BitcoinEarn: {
     [Token.LBTC]: {
       /* existing */
     },
@@ -196,14 +196,14 @@ export const DEFI_REGISTRY = {
 
 // 1. Add protocol to DefiProtocol enum
 export const DefiProtocol = {
-  Veda: 'Veda',
-  Silo: 'Silo',
-  Aave: 'Aave', // ← ADD THIS
+  BitcoinEarn: 'bitcoinEarn',
+  Silo: 'silo',
+  Aave: 'aave', // ← ADD THIS
 } as const;
 
 // 2. Add protocol metadata
 export const DefiProtocols = {
-  [DefiProtocol.Veda]: {
+  [DefiProtocol.BitcoinEarn]: {
     /* existing */
   },
   [DefiProtocol.Silo]: {
@@ -308,12 +308,12 @@ The registry automatically validates:
 ```typescript
 // Example: Unsupported token
 await signStakeAndBake({
-  vaultKey: 'Veda',
-  token: Token.BTCb, // BTCb not configured for Veda
+  vaultKey: 'bitcoinEarn',
+  token: Token.BTCb, // BTCb not configured for Bitcoin Earn
   chainId: ChainId.ethereum,
 });
 // Throws: StakeAndBakeValidationError
-// "Token BTC.b is not supported for stake and bake on vault Veda.
+// "Token BTC.b is not supported for stake and bake on vault bitcoinEarn.
 //  Supported tokens: LBTC, BTC"
 ```
 

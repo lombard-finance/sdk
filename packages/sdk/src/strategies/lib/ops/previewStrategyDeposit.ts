@@ -10,8 +10,7 @@ import toBigInt from '../../../utils/numbers';
 import { findStaticDepositAsset, resolveStrategy } from '../config';
 import { StrategyBaseParameters } from '../params';
 
-export interface PreviewStrategyDepositParameters
-  extends StrategyBaseParameters {
+export interface PreviewStrategyDepositParameters extends StrategyBaseParameters {
   /** ERC-20 address of the deposit asset. */
   asset: Address;
   /**

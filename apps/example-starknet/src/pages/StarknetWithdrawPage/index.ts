@@ -1,0 +1,1 @@
+export { StarknetWithdrawPage } from './StarknetWithdrawPage';

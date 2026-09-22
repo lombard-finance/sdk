@@ -27,6 +27,8 @@
  * @module shared/actions/BaseAction
  */
 
+import type { ActionStepKey } from '../../core/actions/steps';
+import { ACTION_STEP_KEYS } from '../../core/actions/steps';
 import type { StrategyProgress } from '../../core/types';
 import type { Logger } from '../context/types';
 import { LombardError, ValidationErrorCode, wrapError } from '../errors';
@@ -40,7 +42,7 @@ import {
  * Log metadata for structured logging
  */
 export interface LogMeta {
-  /** Action name (e.g., 'BtcStake', 'EvmUnstake') */
+  /** Action name (e.g., 'BtcDepositLbtc', 'EvmWithdrawLbtc') */
   action?: string;
   /** Current step (e.g., 'prepare', 'authorize', 'execute') */
   step?: string;
@@ -52,6 +54,14 @@ export interface LogMeta {
   errorCode?: string;
   /** Chain identifier */
   chain?: string;
+  /**
+   * Which journey this line belongs to, e.g. `lbtc-to-btc`.
+   *
+   * One action class covers several routes now that the verbs dispatch, so the
+   * class name alone no longer identifies what a line is about. This is the
+   * part that does.
+   */
+  route?: string;
   /** Any additional context */
   [key: string]: unknown;
 }
@@ -161,6 +171,26 @@ export abstract class BaseAction<
    *
    * Uses explicit switch to avoid dynamic property access (security best practice).
    */
+  /**
+   * The route label, when this action can name one.
+   *
+   * Actions expose `route` as a getter, but not uniformly and not always
+   * safely: some derive it from parameters that only exist after `prepare()`,
+   * and a getter that throws while building a log line would replace the real
+   * failure with its own. So this reads defensively and reports nothing rather
+   * than failing.
+   */
+  protected routeLabel(): string | undefined {
+    const self = this as unknown as { route?: unknown };
+
+    try {
+      return typeof self.route === 'string' ? self.route : undefined;
+    } catch {
+      // A route that cannot be derived yet is not worth a broken log line.
+      return undefined;
+    }
+  }
+
   protected log(
     level: 'debug' | 'info' | 'warn' | 'error',
     message: string,
@@ -171,6 +201,10 @@ export abstract class BaseAction<
     const enrichedMeta: LogMeta = {
       action: this.constructor.name,
       status: this._status,
+      // Read off the subclass rather than declared abstract here: not every
+      // action can name a route before `prepare()` has run, and a getter that
+      // throws would take the log line down with it.
+      ...(this.routeLabel() === undefined ? {} : { route: this.routeLabel() }),
       ...meta,
     };
 
@@ -266,6 +300,120 @@ export abstract class BaseAction<
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Applicable steps
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * The steps this route actually uses, beyond `authorizing`.
+   *
+   * The default suits any action whose whole job is one transaction it sends
+   * itself. `BaseBtcAction` widens it: a Bitcoin-source route waits on funds the
+   * SDK cannot send, and settles off-chain afterwards.
+   */
+  protected routeSteps(): readonly ActionStepKey[] {
+    return ['submitting', 'confirming'];
+  }
+
+  /**
+   * The ordered subset of progress steps this route reports.
+   *
+   * `authorizing` is derived from {@link authorizationHandlers} rather than
+   * declared twice: if a route has a ceremony the step applies, and if it does
+   * not the step never appears. That keeps the two from disagreeing.
+   *
+   * Ordered against `ACTION_STEP_KEYS` rather than by insertion, so a subclass
+   * cannot report them out of sequence.
+   *
+   * Not static, and deliberately read after `prepare()`: a route whose
+   * authorization depends on a caller-supplied token can change answer between
+   * construction and preparation.
+   */
+  get applicableSteps(): readonly ActionStepKey[] {
+    const applicable = new Set<ActionStepKey>(this.routeSteps());
+
+    if (Object.keys(this.authorizationHandlers()).length > 0) {
+      applicable.add('authorizing');
+    }
+
+    return ACTION_STEP_KEYS.filter((key) => applicable.has(key));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Authorization
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * The ceremonies this action can run, keyed by the status that calls for them.
+   *
+   * Subclasses that need a signature before `execute()` override this; the
+   * default is empty, which is correct for every action whose only transaction
+   * is the one `execute()` sends.
+   *
+   * Keying on status rather than on a separate flag is deliberate: the status
+   * already *is* the record of which groups are outstanding, so there is no
+   * second piece of state to keep in step. That is also what makes
+   * `authorize()` idempotent — once a ceremony completes the status moves on,
+   * and the entry stops matching.
+   */
+  protected authorizationHandlers(): Partial<
+    Record<TStatus, () => Promise<void>>
+  > {
+    return {};
+  }
+
+  /**
+   * Run whichever authorization ceremony the current status calls for.
+   *
+   * One method replacing the four spellings that existed across the action
+   * classes — `approve()`, `authorizeFee()`, `confirmAddress()` and
+   * `authorizeDeposit()` — each of which threw when called at the wrong point.
+   * Which one applies is a property of the route and the chain, not something
+   * the caller should have to derive.
+   *
+   * A no-op when nothing is outstanding, so a retry after a partial failure and
+   * a double-click both cost one signature rather than N.
+   *
+   * @throws LombardError if called before the action is prepared.
+   */
+  async authorize(): Promise<void> {
+    // A Map rather than an index into the record. The key is an internal status
+    // and never caller input, but a dynamic property read can reach inherited
+    // members like `constructor`, and `Map.get` cannot — so the class of bug is
+    // gone rather than merely unreachable.
+    const handlers = new Map(
+      Object.entries(this.authorizationHandlers()) as Array<
+        [TStatus, () => Promise<void>]
+      >,
+    );
+    const handler = handlers.get(this._status);
+
+    if (handler) {
+      return handler();
+    }
+
+    // Nothing outstanding at this status. Distinguish "already done" from
+    // "not started": the first is a no-op, the second is a caller error.
+    const pending = [...handlers.keys()];
+    if (pending.length > 0 && this.isPreAuthorizationStatus()) {
+      throw new LombardError(
+        ValidationErrorCode.INVALID_STATE,
+        `Cannot authorize while status is ${this._status}, allowed: ${pending.join(', ')}`,
+      );
+    }
+  }
+
+  /**
+   * Whether the action has not yet reached a point where authorization could
+   * have happened.
+   *
+   * Every status vocabulary starts at `idle`, so that is the one value which
+   * unambiguously means "prepare() has not run".
+   */
+  protected isPreAuthorizationStatus(): boolean {
+    return String(this._status) === 'idle';
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Error Handling
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -289,7 +437,15 @@ export abstract class BaseAction<
    * @throws The wrapped LombardError
    */
   protected handleFailure(error: unknown): never {
-    this._error = error instanceof LombardError ? error : wrapError(error);
+    const wrapped = error instanceof LombardError ? error : wrapError(error);
+    const route = this.routeLabel();
+
+    // The route is the one piece of context the action knows and the thrower
+    // does not: one class covers several journeys now that the verbs dispatch,
+    // so without it `toSentryContext()` cannot say which one failed.
+    this._error =
+      route === undefined ? wrapped : wrapped.withContext({ route });
+
     this.emitError(this._error);
     this.emitFailed();
     throw this._error;

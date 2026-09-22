@@ -5,7 +5,7 @@
  *
  * Operations:
  * - stake: BTC.b → LBTC (stake wrapped BTC to get LBTC)
- * - unstake: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
+ * - withdraw: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
  * - redeem: BTC.b → BTC (cross-chain via Asset Router)
  *
  * Note: Solana module must be registered before using these actions.
@@ -24,17 +24,26 @@ import type { SolanaService } from '@lombard.finance/sdk-common';
 import { PartnerConfiguration } from '../../client/PartnerConfiguration';
 import type { LombardConfig } from '../../config/types';
 import { getProviderGetter } from '../../config/types';
+import type { Chain } from '../../core';
+import { AssetId } from '../../core';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { SolanaCoreContext } from '../../shared/context';
-import { SolanaRedeem } from './actions/redeem/SolanaRedeem';
-import type { ISolanaRedeem, SolanaRedeemParams } from './actions/redeem/types';
-import { SolanaStake } from './actions/stake/SolanaStake';
-import type { ISolanaStake, SolanaStakeParams } from './actions/stake/types';
-import { SolanaUnstake } from './actions/unstake/SolanaUnstake';
+import { LombardError, ValidationErrorCode } from '../../shared/errors';
+import { SolanaDepositBtcb } from './actions/deposit-btcb/SolanaDepositBtcb';
 import type {
-  ISolanaUnstake,
-  SolanaUnstakeParams,
-} from './actions/unstake/types';
+  ISolanaDepositBtcb,
+  SolanaDepositBtcbParams,
+} from './actions/deposit-btcb/types';
+import { SolanaWithdrawBtcb } from './actions/withdraw-btcb/SolanaWithdrawBtcb';
+import type {
+  ISolanaWithdrawBtcb,
+  SolanaWithdrawBtcbParams,
+} from './actions/withdraw-btcb/types';
+import { SolanaWithdrawLbtc } from './actions/withdraw-lbtc/SolanaWithdrawLbtc';
+import type {
+  ISolanaWithdrawLbtc,
+  SolanaWithdrawLbtcParams,
+} from './actions/withdraw-lbtc/types';
 
 /**
  * Create Solana core context from config
@@ -47,6 +56,8 @@ function createSolanaCoreContext(config: LombardConfig): SolanaCoreContext {
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
+    auth: config.auth,
+    getAuthToken: config.getAuthToken,
     getProvider: async (key) => {
       const getter = getProviderGetter(config.providers, key);
       if (!getter) return undefined;
@@ -62,6 +73,21 @@ function createSolanaCoreContext(config: LombardConfig): SolanaCoreContext {
  * Actions are lazy-loaded - the solana module is only required when
  * an action is actually called.
  */
+/**
+ * A withdrawal whose input asset is only known at runtime.
+ *
+ * The withdraw and redeem parameter types are structurally identical apart from
+ * the `assetIn` literal that tells them apart, so this is that shape with the
+ * discriminant widened — without it a caller passing a plain `AssetId` matches
+ * no overload.
+ */
+export interface SolanaAssetWithdrawParams {
+  assetIn: AssetId;
+  assetOut: AssetId;
+  sourceChain: Chain;
+  destChain: Chain;
+}
+
 export class SolanaActions {
   private _ctx: SolanaCoreContext | null = null;
 
@@ -82,34 +108,59 @@ export class SolanaActions {
    * @throws LombardError if solana module is not registered
    * @throws LombardError if route is not supported
    */
-  stake(params: SolanaStakeParams): ISolanaStake {
-    return new SolanaStake(this.ctx, params);
+  /**
+   * Deposit BTC.b into LBTC on Solana.
+   *
+   * Named `deposit` under the three-verb model: an asset in, an L-asset out.
+   */
+  deposit(params: SolanaDepositBtcbParams): ISolanaDepositBtcb {
+    return new SolanaDepositBtcb(this.ctx, params);
   }
 
   /**
-   * Unstake LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
+   * Withdraw an L-asset back out.
    *
-   * Burns LBTC on Solana and outputs BTC or BTC.b depending on `assetOut`:
-   * - BTC: via LBTC program directly (cross-chain to Bitcoin)
-   * - BTC.b: via Asset Router redeem (same-chain on Solana)
+   * One method for what were two, dispatching on `assetIn` — which is the only
+   * thing that distinguished them:
    *
-   * @throws LombardError if solana module is not registered
-   * @throws LombardError if route is not supported
+   * - `assetIn: LBTC` burns LBTC, releasing BTC cross-chain or BTC.b same-chain
+   * - `assetIn: BTC.b` burns BTC.b, releasing BTC via the Asset Router
+   *
+   * @throws LombardError if `assetIn` is neither LBTC nor BTC.b
    */
-  unstake(params: SolanaUnstakeParams): ISolanaUnstake {
-    return new SolanaUnstake(this.ctx, params);
-  }
-
+  withdraw(params: SolanaWithdrawLbtcParams): ISolanaWithdrawLbtc;
+  withdraw(params: SolanaWithdrawBtcbParams): ISolanaWithdrawBtcb;
   /**
-   * Redeem BTC.b → BTC (cross-chain)
-   *
-   * Burns BTC.b on Solana and releases BTC to a Bitcoin address via Asset Router.
-   *
-   * @throws LombardError if solana module is not registered
-   * @throws LombardError if route is not supported
+   * The arm for a caller holding a runtime asset rather than a literal. The
+   * precise interface cannot be known statically, so the union comes back.
    */
-  redeem(params: SolanaRedeemParams): ISolanaRedeem {
-    return new SolanaRedeem(this.ctx, params);
+  withdraw(
+    params: SolanaAssetWithdrawParams,
+  ): ISolanaWithdrawLbtc | ISolanaWithdrawBtcb;
+  withdraw(
+    params: SolanaAssetWithdrawParams,
+  ): ISolanaWithdrawLbtc | ISolanaWithdrawBtcb {
+    if (params.assetIn === AssetId.LBTC) {
+      return new SolanaWithdrawLbtc(
+        this.ctx,
+        params as SolanaWithdrawLbtcParams,
+      );
+    }
+
+    if (params.assetIn === AssetId.BTCb) {
+      return new SolanaWithdrawBtcb(
+        this.ctx,
+        params as SolanaWithdrawBtcbParams,
+      );
+    }
+
+    // Dispatching on an asset with no route would otherwise pick a class
+    // arbitrarily and fail later, inside a flow the caller has already started.
+    throw new LombardError(
+      ValidationErrorCode.INVALID_ASSET,
+      `Cannot withdraw ${String(params.assetIn)} on Solana. ` +
+        `Supported: ${AssetId.LBTC}, ${AssetId.BTCb}.`,
+    );
   }
 }
 

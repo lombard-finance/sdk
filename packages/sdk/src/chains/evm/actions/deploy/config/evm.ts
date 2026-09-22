@@ -16,32 +16,32 @@ import type { ChainConfig } from './types';
  * EVM deploy configuration
  *
  * Protocol availability:
- * - Veda: Ethereum, Base, BSC (prod only)
+ * - Bitcoin Earn: Ethereum, Base, BSC (prod only)
  * - Silo: Avalanche (prod only)
  */
 export const evmConfig: ChainConfig = {
   chainType: 'evm',
 
   routes: [
-    // Veda - Ethereum
+    // Bitcoin Earn - Ethereum
     {
       asset: AssetId.LBTC,
       sourceChains: [Chain.ETHEREUM],
-      protocols: [DeployProtocol.Veda],
+      protocols: [DeployProtocol.BitcoinEarn],
       envs: [Env.prod],
     },
-    // Veda - Base
+    // Bitcoin Earn - Base
     {
       asset: AssetId.LBTC,
       sourceChains: [Chain.BASE],
-      protocols: [DeployProtocol.Veda],
+      protocols: [DeployProtocol.BitcoinEarn],
       envs: [Env.prod],
     },
-    // Veda - BSC
+    // Bitcoin Earn - BSC
     {
       asset: AssetId.LBTC,
       sourceChains: [Chain.BSC],
-      protocols: [DeployProtocol.Veda],
+      protocols: [DeployProtocol.BitcoinEarn],
       envs: [Env.prod],
     },
     // Silo - Avalanche

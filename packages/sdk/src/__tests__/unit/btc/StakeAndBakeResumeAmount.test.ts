@@ -23,8 +23,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getExchangeRatio } from '../../../api-functions/getLBTCExchangeRate/get-exchange-ratio';
 import { getUserStakeAndBakeSignature } from '../../../api-functions/getUserStakeAndBakeSignature';
-import { stakeAndDeployConfig } from '../../../chains/btc/actions/stakeAndDeploy/config';
-import { BtcActionStatus } from '../../../chains/btc/actions/stakeAndDeploy/types';
+import { stakeAndDeployConfig } from '../../../chains/btc/actions/deploy-lbtc/config';
+import { BtcActionStatus } from '../../../chains/btc/actions/deploy-lbtc/types';
 import { ChainId } from '../../../common/chains';
 import { AssetId, Chain, type DeployProtocol } from '../../../core';
 import type { BtcCoreContext } from '../../../shared/context';
@@ -145,7 +145,7 @@ describe('restoreStakeAndBakeSignature', () => {
   });
 });
 
-describe('BtcStakeAndDeploy.prepare with a signature on file', () => {
+describe('BtcDeployLbtc.prepare with a signature on file', () => {
   async function action() {
     const ctx = {
       env: Env.prod,
@@ -162,15 +162,14 @@ describe('BtcStakeAndDeploy.prepare with a signature on file', () => {
       partner: { getPartnerId: () => undefined },
     } as unknown as BtcCoreContext;
 
-    const { BtcStakeAndDeploy } = await import(
-      '../../../chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy'
-    );
+    const { BtcDeployLbtc } =
+      await import('../../../chains/btc/actions/deploy-lbtc/BtcDeployLbtc');
 
-    return new BtcStakeAndDeploy(ctx, {
+    return new BtcDeployLbtc(ctx, {
       assetOut: AssetId.LBTC,
       sourceChain: Chain.BITCOIN_MAINNET,
       destChain: Chain.ETHEREUM,
-      protocol: 'veda' as DeployProtocol,
+      protocol: 'bitcoinEarn' as DeployProtocol,
     });
   }
 

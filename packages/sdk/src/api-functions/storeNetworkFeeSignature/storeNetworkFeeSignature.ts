@@ -1,8 +1,9 @@
-import axios from 'axios';
+import { isAxiosError } from 'axios';
 
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 export type IStoreNetworkFeeSignatureStatus = 'success';
 
@@ -63,6 +64,7 @@ export async function storeNetworkFeeSignature({
   address,
   env,
   tokenAddress,
+  getAuthToken,
 }: IStoreNetworkFeeSignatureParams): Promise<IStoreNetworkFeeSignatureStatus> {
   const { baseApiUrl } = getApiConfig(env);
 
@@ -78,16 +80,16 @@ export async function storeNetworkFeeSignature({
       params.token_address = tokenAddress;
     }
 
-    const { data } = await axios.post<IStoreNetworkFeeSignatureResponse>(
+    const { data } = await httpPost<IStoreNetworkFeeSignatureResponse>(
       `${baseApiUrl}/api/v1/claimer/save-user-signature`,
       null,
-      { params },
+      { params, getAuthToken },
     );
 
     return data.status;
   } catch (error) {
     if (
-      axios.isAxiosError(error) &&
+      isAxiosError(error) &&
       (error.response?.data as { code?: number } | undefined)?.code === 6
     ) {
       const message =

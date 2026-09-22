@@ -32,23 +32,22 @@ const sdk = await createLombardSDK({
   },
 });
 
-// Create a BTC Stake action
-const stake = sdk.chain.btc.stake({
+// Create a BTC deposit. `assetOut` picks what gets minted: LBTC or BTC.b.
+const deposit = sdk.chain.btc.deposit({
   assetOut: AssetId.LBTC,
   destChain: Chain.ETHEREUM,
 });
 
 // Listen to events
-stake.on('status-change', (status) => console.log('Status:', status));
-stake.on('progress', (progress) => console.log('Progress:', progress));
+deposit.on('status-change', (status) => console.log('Status:', status));
+deposit.on('progress', (progress) => console.log('Progress:', progress));
 
 // Execute the action lifecycle
-await stake.prepare({ amount: '0.001', recipient: '0x...' });
-await stake.authorize(); // If required
-await stake.generateDepositAddress();
+await deposit.prepare({ amount: '0.001', recipient: '0x...' });
+await deposit.authorize(); // If required
+await deposit.generateDepositAddress();
 
-// User sends BTC to stake.depositAddress
-// Funds auto-mint to LBTC
+// The user sends BTC to deposit.depositAddress, and it mints on confirmation.
 ```
 
 ## Configuration
@@ -67,7 +66,7 @@ const sdk = await createLombardSDK({
 
 ## Architecture
 
-The SDK uses an **action-based architecture** where each operation (stake, unstake, deploy, etc.) is represented as an action object with a consistent lifecycle:
+The SDK uses an **action-based architecture** where each operation is an action object with a consistent lifecycle:
 
 ```
 create → prepare → execute → complete
@@ -75,29 +74,33 @@ create → prepare → execute → complete
 
 ### Available Actions
 
-| Chain    | Action                         | Description                      |
-| -------- | ------------------------------ | -------------------------------- |
-| BTC      | `sdk.chain.btc.stake()`        | Stake BTC → LBTC                 |
-| BTC      | `sdk.chain.btc.deposit()`      | Deposit BTC → BTC.b              |
-| EVM      | `sdk.chain.evm.stake()`        | Stake BTC.b → LBTC               |
-| EVM      | `sdk.chain.evm.unstake()`      | Burn LBTC → BTC or BTC.b         |
-| EVM      | `sdk.chain.evm.deposit()`      | Deposit BTC.b → LBTC             |
-| EVM      | `sdk.chain.evm.redeem()`       | Redeem BTC.b → BTC               |
-| EVM      | `sdk.chain.evm.deploy()`       | Deploy LBTC/BTC.b to DeFi vaults |
-| EVM      | `sdk.chain.evm.withdraw()`     | Withdraw vault shares → LBTC     |
-| Solana   | `sdk.chain.solana.stake()`     | Stake BTC.b → LBTC               |
-| Solana   | `sdk.chain.solana.unstake()`   | Burn LBTC → BTC or BTC.b         |
-| Solana   | `sdk.chain.solana.redeem()`    | Redeem BTC.b → BTC               |
-| Sui      | `sdk.chain.sui.unstake()`      | Burn LBTC on Sui                 |
-| Starknet | `sdk.chain.starknet.unstake()` | Burn LBTC on Starknet            |
+Three verbs carry every route. Where one covers more than a single route, it
+dispatches on the asset in the parameters rather than on the method name.
+
+| Chain    | Action                          | Description                                 |
+| -------- | ------------------------------- | ------------------------------------------- |
+| BTC      | `sdk.chain.btc.deposit()`       | BTC → LBTC or BTC.b (dispatches `assetOut`)  |
+| BTC      | `sdk.chain.btc.deploy()`        | BTC → a DeFi vault position                  |
+| EVM      | `sdk.chain.evm.deposit()`       | BTC.b → LBTC                                 |
+| EVM      | `sdk.chain.evm.withdraw()`      | LBTC or BTC.b → BTC, and vault exits         |
+| EVM      | `sdk.chain.evm.deploy()`        | LBTC or BTC.b → a DeFi vault position        |
+| EVM      | `sdk.chain.evm.claim()`         | Claim a pending BTC.b deposit as LBTC        |
+| EVM      | `sdk.chain.evm.cancelWithdraw()`| Cancel a queued vault withdrawal             |
+| Solana   | `sdk.chain.solana.deposit()`    | BTC.b → LBTC                                 |
+| Solana   | `sdk.chain.solana.withdraw()`   | LBTC or BTC.b → BTC or BTC.b                 |
+| Sui      | `sdk.chain.sui.withdraw()`      | LBTC → BTC                                   |
+| Starknet | `sdk.chain.starknet.withdraw()` | LBTC → BTC                                   |
+
+Upgrading from 5.x? See [MIGRATION_6.md](./MIGRATION_6.md) — the old verbs are
+removed, not deprecated.
 
 ### Data API
 
-Query deposits, unstakes, points, and exchange rates:
+Query deposits, withdrawals, points, and exchange rates:
 
 ```typescript
 const deposits = await sdk.api.deposits(address);
-const unstakes = await sdk.api.unstakes(address);
+const withdrawals = await sdk.api.withdrawals(address);
 const points = await sdk.api.points(address);
 const rate = await sdk.api.exchangeRatio();
 ```

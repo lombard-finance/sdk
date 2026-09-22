@@ -5,8 +5,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { SuiWalletProvider } from './contexts/SuiWalletContext';
 import { getEnvironment } from './lib/config';
-import { SuiStakePage } from './pages/SuiStakePage';
-import { SuiUnstakePage } from './pages/SuiUnstakePage';
+import { SuiDepositPage } from './pages/SuiDepositPage';
+import { SuiWithdrawPage } from './pages/SuiWithdrawPage';
 
 function App() {
   const [env, setEnv] = useState<Env>(() => {
@@ -33,8 +33,8 @@ function App() {
             element={<Layout env={env} onEnvChange={handleEnvChange} />}
           >
             <Route index element={<Navigate to="/staking" replace />} />
-            <Route path="staking" element={<SuiStakePage env={env} />} />
-            <Route path="unstaking" element={<SuiUnstakePage env={env} />} />
+            <Route path="staking" element={<SuiDepositPage env={env} />} />
+            <Route path="unstaking" element={<SuiWithdrawPage env={env} />} />
             <Route path="*" element={<Navigate to="/staking" replace />} />
           </Route>
         </Routes>

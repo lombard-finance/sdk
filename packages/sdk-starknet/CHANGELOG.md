@@ -5,6 +5,22 @@ All notable changes to `@lombard.finance/sdk-starknet` will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - Unreleased
+
+### Added
+
+- A `test` script and unit tests for the chain table, the account public-key lookup and the RPC failover. The package had no test script, so `turbo test` skipped it entirely.
+
+### Fixed
+
+- **`getPublicKey` kept asking after it had the answer.** An account contract has exactly one of the four getters, so every call after the one that answers is a certain failure: four requests per signature where one is needed, three of them guaranteed refusals, against the node that may be throttling because of them. It now stops at the first hit.
+
+### Changed
+
+- Depends on `@lombard.finance/sdk-common@4.4.0`. That dependency is written as `workspace:*` and rewritten to an exact version at publish time, so reaching 4.4.0 requires a release of this package.
+
+- The RPC endpoint list and failover shipped in 0.4.0 with a different endpoint set than this branch had measured; 0.4.0's list and its `lastGoodEndpoint` ordering are what this release carries.
+
 ## [0.4.0] - 2026-09-08
 
 ### Added

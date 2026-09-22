@@ -1,9 +1,8 @@
-import axios from 'axios';
-
 import { getApiConfig } from '../../common/api-config';
 import { ChainId } from '../../common/chains';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpGet } from '../../utils/http';
 
 export interface IGetNetworkFeeSignatureParams extends IEnvParam {
   /**
@@ -81,6 +80,7 @@ export async function getNetworkFeeSignature({
   chainId,
   env,
   tokenAddress,
+  getAuthToken,
 }: IGetNetworkFeeSignatureParams): Promise<IGetNetworkFeeSignatureMappedResponse> {
   const { baseApiUrl } = getApiConfig(env);
 
@@ -94,10 +94,11 @@ export async function getNetworkFeeSignature({
       params.token_address = tokenAddress;
     }
 
-    const { data } = await axios.get<IGetNetworkFeeSignatureResponse>(
+    const { data } = await httpGet<IGetNetworkFeeSignatureResponse>(
       `${baseApiUrl}/api/v1/claimer/get-user-signature`,
       {
         params,
+        getAuthToken,
       },
     );
 

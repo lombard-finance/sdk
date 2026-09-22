@@ -1,8 +1,8 @@
 import type { AssetId, Chain, DeployProtocol } from '@lombard.finance/sdk';
 
-// ─── Staking ─────────────────────────────────────────────────────────────────
+// ─── Deposit ─────────────────────────────────────────────────────────────────
 
-export type StakingPhase =
+export type DepositPhase =
   | 'idle'
   | 'preparing'
   | 'waiting-deposit'
@@ -11,27 +11,28 @@ export type StakingPhase =
   | 'complete'
   | 'error';
 
-export interface StakingStatus {
-  phase: StakingPhase;
+export interface DepositStatus {
+  phase: DepositPhase;
   message: string;
 }
 
-export interface StakingProgressInfo {
+export interface DepositProgressInfo {
   confirmations?: number;
   requiredConfirmations?: number;
 }
 
-export interface BtcStakeParams {
+export interface BtcDepositBtcbParams {
   amount: string;
   destChain: Chain;
   sourceChain: Chain;
+  /** LBTC or BTC.b. `btc.deposit()` dispatches on it. */
   assetOut: AssetId;
   recipient: string;
 }
 
-// ─── Stake-and-Bake ───────────────────────────────────────────────────────────
+// ─── Deploy ──────────────────────────────────────────────────────────────────
 
-export type StakeAndBakePhase =
+export type DeployPhase =
   | 'idle'
   | 'preparing'
   | 'authorizing'
@@ -41,19 +42,19 @@ export type StakeAndBakePhase =
   | 'complete'
   | 'error';
 
-export interface StakeAndBakeStatus {
-  phase: StakeAndBakePhase;
+export interface DeployStatus {
+  phase: DeployPhase;
   message: string;
 }
 
-export interface StakeAndBakeProgressInfo {
+export interface DeployProgressInfo {
   confirmations?: number;
   requiredConfirmations?: number;
   isDeposited?: boolean;
   isClaimed?: boolean;
 }
 
-export interface BtcStakeAndBakeParams {
+export interface BtcDeployParams {
   amount: string;
   destChain: Chain;
   sourceChain: Chain;
@@ -67,9 +68,9 @@ export interface BtcStakeAndBakeParams {
   expiry?: number;
 }
 
-// ─── Unstaking ───────────────────────────────────────────────────────────────
+// ─── Withdraw ────────────────────────────────────────────────────────────────
 
-export type UnstakingPhase =
+export type WithdrawPhase =
   | 'idle'
   | 'preparing'
   | 'ready'
@@ -79,12 +80,12 @@ export type UnstakingPhase =
   | 'complete'
   | 'error';
 
-export interface UnstakingStatus {
-  phase: UnstakingPhase;
+export interface WithdrawStatus {
+  phase: WithdrawPhase;
   message: string;
 }
 
-export interface EvmUnstakeParams {
+export interface EvmWithdrawVaultParams {
   amount: string;
   sourceChain: Chain;
   destChain: Chain;
@@ -92,7 +93,7 @@ export interface EvmUnstakeParams {
   assetOut: AssetId;
 }
 
-export interface NonEvmUnstakeParams {
+export interface NonEvmWithdrawParams {
   amount: string;
   sourceChain: Chain;
   destChain: Chain;

@@ -1,8 +1,7 @@
-import axios from 'axios';
-
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 export type IStoreStakeAndBakeSignatureStatus = 'success';
 
@@ -96,7 +95,7 @@ export async function storeStakeAndBakeSignature({
   const { baseApiUrl } = getApiConfig(env);
 
   try {
-    const { data } = await axios.post<IStoreStakeAndBakeSignatureResponse>(
+    const { data } = await httpPost<IStoreStakeAndBakeSignatureResponse>(
       `${baseApiUrl}/api/v1/claimer/save-stake-and-bake-signature`,
       null,
       {
@@ -112,9 +111,11 @@ export async function storeStakeAndBakeSignature({
     const errorMsg = getErrorMessage(error);
 
     if (isActiveSignatureError(errorMsg)) {
-      const code = axios.isAxiosError(error)
-        ? (error.response?.data as { code?: number } | undefined)?.code
-        : undefined;
+      // `httpPost` rethrows the transport's own rejection, so the API's code
+      // sits on `response.data` when the response carried one.
+      const code = (
+        error as { response?: { data?: { code?: number } } } | undefined
+      )?.response?.data?.code;
       throw new StakeAndBakeSignatureExistsError(errorMsg, code);
     }
 

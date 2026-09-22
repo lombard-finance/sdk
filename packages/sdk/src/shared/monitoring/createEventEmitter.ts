@@ -70,15 +70,15 @@ export interface EventEmitter<
  *
  * @example
  * ```typescript
- * const emitter = createEventEmitter<DepositEventMap>();
+ * const emitter = createEventEmitter<ActionEventMap>();
  *
  * // Register handler
- * const unsubscribe = emitter.on(DepositEvent.Progress, (progress) => {
+ * const unsubscribe = emitter.on(ActionEvent.Progress, (progress) => {
  *   console.log(progress.status);
  * });
  *
  * // Emit event
- * emitter.emit(DepositEvent.Progress, { status: 'ready', steps: {} });
+ * emitter.emit(ActionEvent.Progress, { status: 'ready', steps: {} });
  *
  * // Unsubscribe
  * unsubscribe();

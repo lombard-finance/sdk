@@ -49,13 +49,13 @@ export interface FeatureConfig {
 
   /**
    * @deprecated No-op. Corn is retired, so the flag gates nothing and setting
-   * it to true has no effect. Removed in the next major.
+   * it to true has no effect. Removed in 7.0.0.
    */
   isCornEnabled: boolean;
 
   /**
    * @deprecated No-op. Swellchain is retired, so the flag gates nothing and
-   * setting it to true has no effect. Removed in the next major.
+   * setting it to true has no effect. Removed in 7.0.0.
    */
   isSwellchainEnabled: boolean;
 }
@@ -73,7 +73,7 @@ export const featureConfig: FeatureConfig = {
   isBobEnabled: false,
   isEtherlinkEnabled: false,
 
-  // Retired chains: these flags gate nothing and are removed in the next major
+  // Retired chains: these flags gate nothing and are removed in 7.0.0
   isCornEnabled: false,
   isSwellchainEnabled: false,
 };

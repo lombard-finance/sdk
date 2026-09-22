@@ -5,7 +5,7 @@
  * provider getters, partner configuration, and custom asset registration.
  */
 
-import type { AnyModule, Env } from '@lombard.finance/sdk-common';
+import type { AnyModule, Env, LombardAuth } from '@lombard.finance/sdk-common';
 
 import type { AssetId, Chain } from '../core';
 import type { Logger } from '../shared/context/types';
@@ -109,6 +109,18 @@ export interface CreateConfigOptions {
   partner?: PartnerConfig;
 
   /**
+   * How the SDK obtains a wallet JWT. See `LombardConfig.auth`.
+   *
+   * Present here as well as on `LombardConfig` because `createConfig` is the
+   * documented way to build one, and an option missing from the builder is an
+   * option a consumer cannot set.
+   */
+  auth?: LombardAuth;
+
+  /** @deprecated Cannot refresh. Prefer {@link auth}. */
+  getAuthToken?: () => string | undefined;
+
+  /**
    * Optional logger for SDK operations
    *
    * Provide your own logger to integrate with your logging infrastructure
@@ -154,6 +166,33 @@ export interface LombardConfig {
   modules: readonly AnyModule[];
   partner?: PartnerConfig;
   logger?: Logger;
+  /**
+   * Returns the caller's current wallet-auth JWT, or `undefined` when there is
+   * none.
+   *
+   * The SDK is **stateless** about this token: it never stores or refreshes one.
+   * Acquisition is the consumer's job, through `sdk.walletAuth` — the signing
+   * primitive is chain-specific, so it cannot live here. This accessor is only
+   * how the SDK *reads* whatever the consumer currently holds, and it is read at
+   * call time rather than captured, so a token that appears after the SDK is
+   * constructed is picked up.
+   *
+   * No endpoint requires a token today, so supplying this changes nothing. It
+   * exists so that when one does, the change is one place rather than 23.
+   */
+  /**
+   * How the SDK obtains a wallet JWT.
+   *
+   * Asynchronous, so the host can refresh an expired token rather than
+   * returning the stale one it holds. The SDK asks per request and never
+   * stores the result.
+   */
+  auth?: LombardAuth;
+  /**
+   * @deprecated Synchronous, so it cannot refresh an expired token. Prefer
+   * {@link auth}. Still honoured when `auth` is absent.
+   */
+  getAuthToken?: () => string | undefined;
 }
 
 /**

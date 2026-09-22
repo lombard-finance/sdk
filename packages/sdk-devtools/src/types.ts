@@ -25,7 +25,7 @@ export interface DevToolsEvent {
   /** Event payload data */
   data: unknown;
 
-  /** Source action name (e.g., 'BtcStake', 'EvmUnstake') */
+  /** Source action name (e.g., 'BtcDepositLbtc', 'EvmWithdrawLbtc') */
   source?: string;
 
   /** Whether this event came from the SDK's built-in event emitter */

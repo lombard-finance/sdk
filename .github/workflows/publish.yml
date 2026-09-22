@@ -59,6 +59,17 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      # Gate the artifact that actually ships. Until this was added, only
+      # publish-dev.yaml ran lint/tests — the workflows publishing to the
+      # public registry ran neither, so a release could ship code CI had never
+      # validated. Lint and the licence check run here; tests run after the
+      # build step below, because test:required needs packages/sdk/dist.
+      - name: License policy check
+        run: yarn licenses:check
+
+      - name: Lint
+        run: yarn lint
+
       - name: Check internal dependencies are published
         env:
           PACKAGE_NAME: ${{ github.event.inputs.package }}
@@ -104,6 +115,9 @@ jobs:
 
       - name: Build packages
         run: yarn turbo run build --filter=...@lombard.finance/${{ github.event.inputs.package }}
+
+      - name: Test
+        run: yarn test:required
 
       - name: Configure registry
         working-directory: ./packages/${{ github.event.inputs.package }}/

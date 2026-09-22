@@ -1,0 +1,1 @@
+export { SuiDepositPage } from './SuiDepositPage';

@@ -3,7 +3,7 @@ import type {
   WalletChallengeType,
   WalletVerifyResponse,
 } from '@lombard.finance/sdk-common';
-import axios from 'axios';
+import { isAxiosError } from 'axios';
 
 import {
   getApiConfig,
@@ -11,6 +11,7 @@ import {
 } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { ActivePermitExistsError, getErrorMessage } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 interface WalletVerifyApiResponse {
   /** Present (non-empty) for synchronous verification. */
@@ -64,7 +65,7 @@ export async function verifyWalletSignature({
   const { baseApiV2Url } = getApiConfig(env);
 
   try {
-    const { data } = await axios.post<WalletVerifyApiResponse>(
+    const { data } = await httpPost<WalletVerifyApiResponse>(
       'v2/auth/wallet/verify',
       {
         address,
@@ -102,7 +103,7 @@ export async function verifyWalletSignature({
     // callers need to branch on it and fall back to the plain challenge. A
     // bare string would make them match on message text.
     if (
-      axios.isAxiosError(error) &&
+      isAxiosError(error) &&
       (error.response?.data as { code?: number } | undefined)?.code === 9
     ) {
       const message = (error.response?.data as { message?: string } | undefined)

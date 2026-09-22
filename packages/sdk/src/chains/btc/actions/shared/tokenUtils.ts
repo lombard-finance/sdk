@@ -10,8 +10,8 @@
  *
  * | Action              | Flow               | Token Param   | Strategy    | Reason                     |
  * |---------------------|-------------------|---------------|-------------|----------------------------|
- * | BtcStakeAndDeploy   | BTC → LBTC → Vault | AssetId.BTC  | btcToLbtc   | Apply BTC/LBTC ratio       |
- * | BtcDepositAndDeploy | BTC → BTCb → Vault | Token.BTCb   | identity    | 1:1 ratio, no conversion   |
+ * | BtcDeployLbtc   | BTC → LBTC → Vault | AssetId.BTC  | btcToLbtc   | Apply BTC/LBTC ratio       |
+ * | BtcDeployBtcb | BTC → BTCb → Vault | Token.BTCb   | identity    | 1:1 ratio, no conversion   |
  *
  * **Key Insight:**
  * - LBTC has a variable exchange rate with BTC (~1.00265 BTC = 1 LBTC)

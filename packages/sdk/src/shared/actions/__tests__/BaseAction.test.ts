@@ -6,11 +6,11 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { StrategyProgress } from '../../../core/types';
 import { ErrorCode, LombardError } from '../../errors';
-import { DepositEvent, type DepositEventMap } from '../../events';
+import { ActionEvent, type ActionEventMap } from '../../events';
 import { BaseAction } from '../BaseAction';
 
 // Concrete implementation for testing
-class TestAction extends BaseAction<DepositEventMap, string> {
+class TestAction extends BaseAction<ActionEventMap, string> {
   constructor() {
     super('idle');
   }
@@ -71,7 +71,7 @@ describe('BaseAction', () => {
     const action = new TestAction();
     const handler = vi.fn();
 
-    action.on(DepositEvent.Progress, handler);
+    action.on(ActionEvent.Progress, handler);
     action.testEmitProgress({
       status: 'executing',
       steps: { approval: 'complete' },
@@ -88,7 +88,7 @@ describe('BaseAction', () => {
     const action = new TestAction();
     const handler = vi.fn();
 
-    action.on(DepositEvent.StatusChange, handler);
+    action.on(ActionEvent.StatusChange, handler);
     action.testUpdateStatus('ready');
 
     expect(handler).toHaveBeenCalledOnce();
@@ -99,7 +99,7 @@ describe('BaseAction', () => {
     const action = new TestAction();
     const handler = vi.fn();
 
-    action.on(DepositEvent.Completed, handler);
+    action.on(ActionEvent.Completed, handler);
     action.testEmitCompleted();
 
     expect(handler).toHaveBeenCalledOnce();
@@ -109,7 +109,7 @@ describe('BaseAction', () => {
     const action = new TestAction();
     const handler = vi.fn();
 
-    action.on(DepositEvent.Failed, handler);
+    action.on(ActionEvent.Failed, handler);
     action.testEmitFailed();
 
     expect(handler).toHaveBeenCalledOnce();
@@ -120,7 +120,7 @@ describe('BaseAction', () => {
     const handler = vi.fn();
     const error = new LombardError(ErrorCode.UNKNOWN_ERROR, 'Test error');
 
-    action.on(DepositEvent.Error, handler);
+    action.on(ActionEvent.Error, handler);
     action.testEmitError(error);
 
     expect(handler).toHaveBeenCalledOnce();
@@ -132,7 +132,7 @@ describe('BaseAction', () => {
     const action = new TestAction();
     const handler = vi.fn();
 
-    const unsubscribe = action.on(DepositEvent.Progress, handler);
+    const unsubscribe = action.on(ActionEvent.Progress, handler);
     expect(typeof unsubscribe).toBe('function');
 
     unsubscribe();
@@ -146,8 +146,8 @@ describe('BaseAction', () => {
     const handler1 = vi.fn();
     const handler2 = vi.fn();
 
-    action.on(DepositEvent.Completed, handler1);
-    action.on(DepositEvent.Completed, handler2);
+    action.on(ActionEvent.Completed, handler1);
+    action.on(ActionEvent.Completed, handler2);
     action.testEmitCompleted();
 
     expect(handler1).toHaveBeenCalledOnce();
@@ -160,9 +160,9 @@ describe('BaseAction', () => {
     const statusHandler = vi.fn();
     const completedHandler = vi.fn();
 
-    action.on(DepositEvent.Progress, progressHandler);
-    action.on(DepositEvent.StatusChange, statusHandler);
-    action.on(DepositEvent.Completed, completedHandler);
+    action.on(ActionEvent.Progress, progressHandler);
+    action.on(ActionEvent.StatusChange, statusHandler);
+    action.on(ActionEvent.Completed, completedHandler);
 
     action.testClear();
 
@@ -199,7 +199,7 @@ describe('BaseAction', () => {
     const action = new TestAction();
     const handler = vi.fn();
 
-    action.on(DepositEvent.Progress, handler);
+    action.on(ActionEvent.Progress, handler);
 
     action.testEmitProgress({ status: 'preparing', steps: {} });
     action.testEmitProgress({ status: 'ready', steps: {} });
@@ -237,7 +237,7 @@ describe('BaseAction', () => {
     it('should preserve status on failure and set error', async () => {
       const action = new TestAction();
       const handler = vi.fn();
-      action.on(DepositEvent.Failed, handler);
+      action.on(ActionEvent.Failed, handler);
 
       // Set status to 'preparing' before the failure
       action.testUpdateStatus('preparing');

@@ -1,3 +1,11 @@
+# 0.4.0
+
+## 🚨 BREAKING CHANGES
+
+Requires `@lombard.finance/sdk@6.0.0`, for the same reason as `@lombard.finance/sdk-agent@0.3.0`: the SDK is a dependency rather than a peer, so the published `0.2.0` pins `5.5.0` and cannot be made to run against 6.0.0.
+
+Action names and the approval policy from 0.3.0 are unchanged. Only the SDK underneath moves.
+
 # 0.3.0
 
 ## BREAKING CHANGES
@@ -42,11 +50,11 @@ Action names harmonized with `@lombard.finance/sdk-agent@0.2.0` so the two packa
 
 ### Renamed actions
 
-| Before | After |
-| --- | --- |
-| `unstake_lbtc` | `unstake_lbtc_to_btc` |
-| `deploy_to_defi` | `deploy_to_earn` |
-| `claim_deposit` | `claim_lbtc_deposit` |
+| Before               | After                   |
+| -------------------- | ----------------------- |
+| `unstake_lbtc`       | `unstake_lbtc_to_btc`   |
+| `deploy_to_defi`     | `deploy_to_earn`        |
+| `claim_deposit`      | `claim_lbtc_deposit`    |
 | `get_unstake_status` | `get_redemption_status` |
 
 Names left unchanged because they were already clear: `stake_btcb_to_lbtc`, `redeem_lbtc_to_btcb`, `get_lbtc_balance`, `get_btcb_balance`, `get_lbtc_exchange_rate`, `get_deposit_status`.

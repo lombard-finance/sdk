@@ -105,7 +105,7 @@ export async function signStakeAndBake({
   expiry = toUnix(now() + DAY),
   value,
   // TODO: Rename vaultKey to protocol
-  vaultKey: protocol = DefiProtocol.Veda,
+  vaultKey: protocol = DefiProtocol.BitcoinEarn,
   token = 'BTC',
   chainId,
   provider,
@@ -130,7 +130,11 @@ export async function signStakeAndBake({
 
   const spenderAddress = strategy.spenderContract.address;
 
-  // Calculate permit value (with conversion if needed)
+  // Calculate the permit value, applying the BTC -> LBTC ratio where the route
+  // calls for it. Kept as a BigNumber until the rounding check below, so a
+  // refusal can show what the amount converted to before rounding.
+  // `toStakeAndBakePermitValue` is the same two steps for callers that only
+  // need the integer, and must stay in step with this.
   const permitValue =
     strategy.amountStrategy === 'btcToLbtc'
       ? await calculateStakeAndBakeLBTCAmount(value, env)

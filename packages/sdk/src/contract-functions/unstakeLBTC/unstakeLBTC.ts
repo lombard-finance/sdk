@@ -92,10 +92,10 @@ type RedeemTokenParams =
   | (RedeemTokenParameters & CommonSignerWriteParameters);
 
 /**
- * Parameters required to unstake (redeem) LBTC into BTC.
+ * Parameters required to withdraw (redeem) LBTC into BTC.
  *
  * Overrides {@link RedeemTokenParameters} to make `btcAddress` required,
- * since unstaking always goes to BTC.
+ * since withdrawing always goes to BTC.
  */
 export type IUnstakeLBTCParams =
   | (RedeemTokenParameters & CommonWriteParameters & { btcAddress: string })
@@ -356,7 +356,7 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
  * Convenience wrapper around {@link redeemToken} for redeeming **LBTC → BTC**.
  *
  * @remarks
- * This is a helper for the common "unstake LBTC" flow.
+ * This is a helper for the common "withdraw LBTC" flow.
  * For more flexible redemptions (e.g. LBTC → BTCK), use {@link redeemToken} directly.
  *
  * Supports both provider and signer flows.

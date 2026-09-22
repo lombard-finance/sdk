@@ -151,7 +151,7 @@ describe.skipIf(SKIP)("E2E: sdk-agent-tools on Sepolia", () => {
     it("returns vault deploy transaction params", async () => {
       const result = await prepareDeployToVault.execute({
         amount: "0.001",
-        protocol: "veda",
+        protocol: "bitcoinEarn",
         chainId: SEPOLIA_CHAIN_ID,
       });
       expect(result).toHaveProperty("action", "sdk_execute");

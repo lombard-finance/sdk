@@ -34,6 +34,9 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.prod,
           chains: [
+            ...(featureConfig.isAvalancheMainnetEnabled
+              ? [Chain.AVALANCHE]
+              : []),
             Chain.BASE,
             Chain.BSC,
             Chain.BERACHAIN,

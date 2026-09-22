@@ -1,9 +1,9 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
 
 import { getApiConfig } from '../common/api-config';
 import { IEnvParam } from '../common/parameters';
+import { httpRequest } from '../utils/http';
 
 type Response = {
   btc_distributed: { name: string; amount: number }[];
@@ -49,7 +49,7 @@ export async function getAdditionalRewards({
   const { baseApiUrl } = getApiConfig(env);
 
   const url = `${baseApiUrl}/api/v1/analytics/${account}/additional-rewards`;
-  const { data } = await axios.get<Response>(url);
+  const { data } = await httpRequest<Response>({ url: url, scope: 'public' });
 
   const distribution: RewardsDistribution = {
     distributed: data.btc_distributed.map((d) => ({

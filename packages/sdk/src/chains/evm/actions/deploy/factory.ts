@@ -20,7 +20,7 @@ import type { EvmDeployParams } from './types';
  * const sdk = await createLombardSDK({ env: Env.prod, providers: { evm: () => window.ethereum } });
  * const deploy = sdk.chain.evm.deploy({
  *   sourceChain: Chain.ETHEREUM,
- *   protocol: DeployProtocol.Veda,
+ *   protocol: DeployProtocol.BitcoinEarn,
  * });
  * await deploy.prepare({ amount: '0.1' });
  * ```

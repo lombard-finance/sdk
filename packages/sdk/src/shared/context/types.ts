@@ -14,6 +14,7 @@ import type {
   BtcService,
   Env,
   EvmService,
+  LombardAuth,
   SolanaService,
   StarknetService,
   SuiService,
@@ -67,6 +68,16 @@ export interface CoreContext {
   readonly partner: PartnerConfiguration;
   readonly getProvider: ProviderResolver;
   readonly logger?: Logger;
+  /**
+   * Reads the consumer's current wallet-auth JWT, or `undefined`.
+   *
+   * Supplied from `LombardConfig.getAuthToken`. Every context inherits it,
+   * because the api-functions an action reaches are shared across chains.
+   */
+  /** How to obtain a wallet JWT. See `LombardConfig.auth`. */
+  readonly auth?: LombardAuth;
+  /** @deprecated Prefer {@link auth}. */
+  readonly getAuthToken?: () => string | undefined;
   // TODO (v4.1): readonly catalog: AssetCatalog;
 }
 

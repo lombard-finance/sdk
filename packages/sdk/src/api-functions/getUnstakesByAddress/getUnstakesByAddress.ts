@@ -39,33 +39,33 @@ import {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Status of a payout transaction corresponding to an unstake.
+ * Status of a payout transaction corresponding to an withdraw.
  */
 export enum PayoutTxStatus {
-  /** The payout transaction has been sent; unstake completed */
+  /** The payout transaction has been sent; withdraw completed */
   Completed = 'Completed',
 
-  /** The payout transaction has not been sent; unstake pending */
+  /** The payout transaction has not been sent; withdraw pending */
   Pending = 'Pending',
 }
 
 /**
- * Response object for a single unstake record from the API.
+ * Response object for a single withdraw record from the API.
  */
 interface UnstakeEntry {
-  /** Transaction hash of the unstake on the source blockchain. */
+  /** Transaction hash of the withdraw on the source blockchain. */
   tx_hash: string;
 
   /** Source blockchain identifier (e.g., BLOCKCHAIN_BSC, BLOCKCHAIN_ETHEREUM). */
   blockchain: BlockchainIdentifier;
 
-  /** Block height where the unstake was confirmed. */
+  /** Block height where the withdraw was confirmed. */
   block_height: string;
 
-  /** Block time of the unstake transaction (as a string timestamp). */
+  /** Block time of the withdraw transaction (as a string timestamp). */
   block_time: string;
 
-  /** Address of the initiator of the unstake. */
+  /** Address of the initiator of the withdraw. */
   from_address: string;
 
   /** Destination address for the payout. */
@@ -74,10 +74,10 @@ interface UnstakeEntry {
   /** Destination blockchain identifier for the payout. */
   to_chain?: string;
 
-  /** Output script used to derive BTC address, present for BTC unstakes. */
+  /** Output script used to derive BTC address, present for BTC withdrawals. */
   output_script?: string;
 
-  /** Amount unstaked (string to preserve precision). */
+  /** Amount withdrawn (string to preserve precision). */
   amount: string;
 
   /** Payout transaction hash on the destination chain, if already completed. */
@@ -86,7 +86,7 @@ interface UnstakeEntry {
   /** Index of the payout transaction, if applicable. */
   payout_index?: string;
 
-  /** True if the unstake transaction has been sanctioned or flagged as suspicious. */
+  /** True if the withdraw transaction has been sanctioned or flagged as suspicious. */
   sanctioned?: boolean;
 
   /** Cryptographic proof (hex-encoded) */
@@ -109,25 +109,25 @@ interface UnstakeEntry {
 }
 
 /**
- * Top-level API response for unstakes.
+ * Top-level API response for withdrawals.
  */
 interface UnstakesResponse {
   unstakes?: UnstakeEntry[];
 
-  /** True if there are more unstakes available */
+  /** True if there are more withdrawals available */
   has_more: boolean;
 }
 
 /**
- * Parameters for fetching unstakes by address.
+ * Parameters for fetching withdrawals by address.
  */
 export interface IGetUnstakesByAddressParameters extends IEnvParam {
-  /** Address of the unstake initiator */
+  /** Address of the withdraw initiator */
   address: string;
 
   /** Optional filtering */
   options?: {
-    /** Show only direct BTC unstakes */
+    /** Show only direct BTC withdrawals */
     show_unstakes?: boolean;
     /** Show only native chain redemptions */
     show_redeems?: boolean;
@@ -137,35 +137,35 @@ export interface IGetUnstakesByAddressParameters extends IEnvParam {
 }
 
 /**
- * A unified unstake record returned from either
- * direct BTC unstakes or native blockchain redemptions.
+ * A unified withdraw record returned from either
+ * direct BTC withdrawals or native blockchain redemptions.
  */
 export interface Unstake {
   /** True if the record originates from the native blockchain redemption. */
   isNative: boolean;
 
-  /** Transaction hash of the unstake. */
+  /** Transaction hash of the withdraw. */
   txHash: string;
 
-  /** Source chain identifier (where the unstake originated). */
+  /** Source chain identifier (where the withdraw originated). */
   fromChainId: ChainId | SuiChain | SolanaChain | StarknetChainId;
 
-  /** Destination chain identifier (undefined for BTC unstakes). */
+  /** Destination chain identifier (undefined for BTC withdrawals). */
   toChainId?: ChainId | SuiChain | SolanaChain | StarknetChainId | 'bitcoin';
 
-  /** Block height where the unstake was confirmed. */
+  /** Block height where the withdraw was confirmed. */
   blockHeight: number;
 
-  /** Block time (as epoch seconds) of the unstake. */
+  /** Block time (as epoch seconds) of the withdraw. */
   blockTime: number;
 
-  /** Initiator of the unstake transaction. */
+  /** Initiator of the withdraw transaction. */
   fromAddress: string;
 
   /** Destination address (BTC, EVM, or Solana). */
   toAddress?: string;
 
-  /** Amount unstaked (normalized to satoshis / smallest unit). */
+  /** Amount withdrawn (normalized to satoshis / smallest unit). */
   amount: BigNumber;
 
   /** Payout transaction hash on the destination chain, if claimed. */
@@ -177,7 +177,7 @@ export interface Unstake {
   /** Status of the payout transaction. */
   payoutTxStatus: PayoutTxStatus;
 
-  /** True if the unstake transaction has been sanctioned. */
+  /** True if the withdraw transaction has been sanctioned. */
   sanctioned?: boolean;
 
   /** Raw payload bytes (hex-encoded). */
@@ -210,10 +210,10 @@ export interface Unstake {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Fetches all unstakes initiated by a given address.
+ * Fetches all withdrawals initiated by a given address.
  *
- * @param {IGetUnstakesByAddressParameters} params - Parameters for fetching unstakes.
- * @param {string} params.address - Address of the unstake initiator.
+ * @param {IGetUnstakesByAddressParameters} params - Parameters for fetching withdrawals.
+ * @param {string} params.address - Address of the withdraw initiator.
  * @param {Env} [params.env='prod'] - Environment to use (prod/testnet).
  * @param {object} [params.options] - Optional pagination and filter options.
  *
@@ -255,12 +255,12 @@ export async function fetchUnstakesByAddress({
 /* -------------------------------------------------------------------------- */
 
 /**
- * Maps a raw API unstake response to the unified `Unstake` object.
+ * Maps a raw API withdraw response to the unified `Withdraw` object.
  *
- * @param {UnstakeEntry} d - Raw unstake data from API
+ * @param {UnstakeEntry} d - Raw withdraw data from API
  * @param {Env} env - Environment to use for chain/network resolution
  *
- * @returns {Unstake} - Unified unstake object
+ * @returns {Withdraw} - Unified withdraw object
  */
 function mapUnstakeEntry(
   d: UnstakeEntry,
@@ -348,10 +348,10 @@ function mapUnstakeEntry(
 /* -------------------------------------------------------------------------- */
 
 /**
- * Returns all unstakes (direct BTC or native chain redemptions) for a given address.
+ * Returns all withdrawals (direct BTC or native chain redemptions) for a given address.
  *
- * @param {IGetUnstakesByAddressParameters} params - Parameters for fetching unstakes.
- * @param {string} params.address - Address of the unstake initiator.
+ * @param {IGetUnstakesByAddressParameters} params - Parameters for fetching withdrawals.
+ * @param {string} params.address - Address of the withdraw initiator.
  * @param {Env} [params.env=DEFAULT_ENV] - Environment to use.
  * @param {object} [params.options] - Optional pagination and filter options.
  *

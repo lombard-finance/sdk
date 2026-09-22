@@ -5,8 +5,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { SolanaWalletProvider } from './contexts/SolanaWalletContext';
 import { getEnvironment } from './lib/config';
-import { SolanaStakePage } from './pages/SolanaStakePage';
-import { SolanaUnstakePage } from './pages/SolanaUnstakePage';
+import { SolanaDepositPage } from './pages/SolanaDepositPage';
+import { SolanaWithdrawPage } from './pages/SolanaWithdrawPage';
 
 function App() {
   const [env, setEnv] = useState<Env>(() => {
@@ -38,14 +38,14 @@ function App() {
             element={<Layout env={env} onEnvChange={handleEnvChange} />}
           >
             <Route index element={<Navigate to="/staking" replace />} />
-            <Route path="staking" element={<SolanaStakePage env={env} />} />
+            <Route path="staking" element={<SolanaDepositPage env={env} />} />
             <Route
               path="unstaking"
               element={
                 env === Env.stage ? (
                   <Navigate to="/staking" replace />
                 ) : (
-                  <SolanaUnstakePage env={env} />
+                  <SolanaWithdrawPage env={env} />
                 )
               }
             />

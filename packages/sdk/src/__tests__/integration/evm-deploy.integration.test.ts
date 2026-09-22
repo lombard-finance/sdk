@@ -54,7 +54,7 @@ describe('EVM Deploy Integration', () => {
       const deploy = evm.deploy({
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda', // Use Veda protocol from DefiRegistry
+        protocol: 'bitcoinEarn', // Use Bitcoin Earn protocol from DefiRegistry
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -71,7 +71,7 @@ describe('EVM Deploy Integration', () => {
       const deploy = evmDeploy(config, {
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda', // Use Veda protocol from DefiRegistry
+        protocol: 'bitcoinEarn', // Use Bitcoin Earn protocol from DefiRegistry
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -90,7 +90,7 @@ describe('EVM Deploy Integration', () => {
       const deploy = evmDeploy(config, {
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda', // Use Veda protocol from DefiRegistry
+        protocol: 'bitcoinEarn', // Use Bitcoin Earn protocol from DefiRegistry
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 
@@ -111,7 +111,7 @@ describe('EVM Deploy Integration', () => {
       const deploy = evmDeploy(config, {
         asset: AssetId.LBTC,
         sourceChain: Chain.ETHEREUM,
-        protocol: 'veda', // Use Veda protocol from DefiRegistry
+        protocol: 'bitcoinEarn', // Use Bitcoin Earn protocol from DefiRegistry
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
       });
 

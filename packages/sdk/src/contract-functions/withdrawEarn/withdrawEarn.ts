@@ -16,6 +16,10 @@ import {
   isBtceVaultChain,
   isEarnChain,
 } from '../../vaults/lib/config';
+import {
+  assertNoLiveEarnWithdrawal,
+  readPendingEarnWithdrawal,
+} from '../../vaults/lib/ops/pending-withdrawal';
 
 export type WithdrawEarnParameters = {
   /** Amount to withdraw, in the withdrawal asset's natural decimal units (BTC). */
@@ -25,6 +29,14 @@ export type WithdrawEarnParameters = {
    * Defaults to Token.LBTC. Must be a deposit-side asset accepted by the vault.
    */
   withdrawalAsset?: Token;
+  /**
+   * Overwrite a withdrawal that is already queued for this account.
+   *
+   * The vault holds one request per account, so filing a second replaces the
+   * first and un-queues its shares. That is refused by default; set this when
+   * replacing an open request is what you meant.
+   */
+  replaceExisting?: boolean;
 } & CommonWriteParameters;
 
 export interface WithdrawEarnResult {
@@ -66,6 +78,7 @@ export interface WithdrawEarnResult {
 export async function withdrawEarn({
   amount: amountRaw,
   withdrawalAsset = Token.LBTC,
+  replaceExisting = false,
   account,
   chainId,
   provider,
@@ -143,6 +156,23 @@ export async function withdrawEarn({
       `InsufficientPositionError: requested ${amount.toFixed()} exceeds total position. underlyingBalance=${underlyingBalance.toString()}, btceBalance=${btceBalance.toString()}, amount=${amountBase.toString()}.`,
     );
   }
+
+  // --- Pre-flight: an open request would be replaced, not rejected ---
+  // Ahead of the unwrap and the approval below, because both are irreversible
+  // and the queue write they lead to would silently discard whatever this
+  // account already had queued. The queue holds one request per account.
+  assertNoLiveEarnWithdrawal(
+    await readPendingEarnWithdrawal({
+      publicClient,
+      queueAddress,
+      queueAbi,
+      offer: vaultAddress,
+      want: withdrawTokenInfo.address,
+      account,
+      shareDecimals: vault.decimals,
+    }),
+    { replaceExisting },
+  );
 
   // --- Pre-flight maxWithdraw check (council blocker B2) ---
   // Read maxWithdraw BEFORE any approval so a doomed unwrap never wastes

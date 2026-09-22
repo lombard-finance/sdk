@@ -4,4 +4,4 @@
  * @module chains/sui/actions
  */
 
-export * from './unstake';
+export * from './withdraw';
