@@ -57,9 +57,12 @@ export const getStakeAndBakeTokenContract = async (
  *
  * Rounded down, because that is the integer the permit carries on chain.
  *
- * Exported because more than one caller builds this permit. Anything computing
- * it independently is one ratio step away from a signature the backend will
- * never match.
+ * The public form of the conversion. `signStakeAndBake` applies the same two
+ * steps inline rather than calling this, because it needs the unrounded figure
+ * to say what a refused amount converted to; `getPermitValue` does the same for
+ * the resume check. All three divide by the ratio and round down, and they have
+ * to stay in step: anything computing this differently is one ratio step away
+ * from a signature the backend will never match.
  */
 export async function toStakeAndBakePermitValue(
   depositBaseUnits: BigNumber.Value,

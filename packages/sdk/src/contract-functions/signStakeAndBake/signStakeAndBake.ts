@@ -131,9 +131,10 @@ export async function signStakeAndBake({
   const spenderAddress = strategy.spenderContract.address;
 
   // Calculate the permit value, applying the BTC -> LBTC ratio where the route
-  // calls for it. Kept as a BigNumber until the rounding check below so the
-  // error can show the unrounded conversion; `toStakeAndBakePermitValue`
-  // rounds the same way for callers that only need the integer.
+  // calls for it. Kept as a BigNumber until the rounding check below, so a
+  // refusal can show what the amount converted to before rounding.
+  // `toStakeAndBakePermitValue` is the same two steps for callers that only
+  // need the integer, and must stay in step with this.
   const permitValue =
     strategy.amountStrategy === 'btcToLbtc'
       ? await calculateStakeAndBakeLBTCAmount(value, env)
