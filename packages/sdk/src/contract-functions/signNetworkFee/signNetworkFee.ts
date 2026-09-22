@@ -3,6 +3,7 @@ import { Hex } from 'viem';
 
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
+import { assertValidExpiry } from '../../shared/validation/signing';
 import { Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { DAY, now, toUnix } from '../../utils/time';
@@ -59,6 +60,12 @@ export async function signNetworkFee({
   env,
   token = Token.LBTC,
 }: ISignNetworkFeeParams): Promise<ISignNetworkFeeResponse> {
+  // Checked before the wallet client is built, so the parameter that is wrong
+  // is the one the error names. An unbounded expiry has no symptom anywhere:
+  // the fee approval signs, is stored, and `checkFeeAuthorization` then reads
+  // it as valid forever, so the user is never asked to renew it.
+  assertValidExpiry(expiry);
+
   const tokenContract = await getTokenContractInfo(token, chainId, env);
   const walletClient = makeWalletClient({
     chainId,

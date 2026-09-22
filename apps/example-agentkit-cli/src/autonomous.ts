@@ -34,7 +34,12 @@ async function main() {
   }
 
   const networkId = process.env.NETWORK_ID || "ethereum-sepolia";
-  const { walletProvider, tools } = await initAgent(networkId);
+  // Nobody is at the terminal here, so writes run unapproved. That is only
+  // safe because this runs a fixed task list on a testnet key: the wallet can
+  // move whatever it holds, and the tasks reach the model as text.
+  const { walletProvider, tools } = await initAgent(networkId, {
+    autoApproveWrites: true,
+  });
 
   console.log(`Available tools (${tools.length}):`);
   for (const tool of tools) {

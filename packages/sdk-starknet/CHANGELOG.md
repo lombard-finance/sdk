@@ -5,6 +5,20 @@ All notable changes to `@lombard.finance/sdk-starknet` will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-09-08
+
+### Added
+
+- `setStarknetRpcEndpoints(chainId, urls)` replaces the RPC endpoint list for a chain at runtime, for a host with a key or a paid node. Previously the endpoint was hardcoded with no way to override it, so a retired node could only be worked around by releasing a new version.
+
+### Changed
+
+- Each chain now holds a list of RPC endpoints and fails over to the next one when a node answers with prose, a non-JSON body, or a JSON-RPC code that means the node itself is unavailable (a spent quota, an internal error, or `-32601`, which is how a rate-limited node reports being over its limit). A body carrying any other JSON-RPC error is passed through unchanged, so a real contract error still surfaces as itself. The endpoint that last answered is tried first, so an outage costs one probe rather than one per request, and each request has a 15s deadline so a node that stops answering cannot hang a read.
+
+### Fixed
+
+- Mainnet reads no longer point at `rpc.starknet.lava.build`, which has been retired and answers HTTP 410 to every request, breaking every on-chain read. Mainnet is now `api.cartridge.gg` with `api.zan.top` behind it; Sepolia keeps `api.cartridge.gg` with `starknet-sepolia.drpc.org` behind it. Endpoint order follows twelve sequential `starknet_call` probes per candidate, recorded in `utils/rpc-providers.ts`.
+
 ## [0.3.3] - 2026-08-11
 
 ### Fixed

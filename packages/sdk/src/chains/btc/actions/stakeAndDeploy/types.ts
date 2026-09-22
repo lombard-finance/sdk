@@ -89,6 +89,17 @@ export interface BtcStakeAndDeploy extends MonitorableAction {
   readonly recipient?: string;
   readonly depositAddress?: string;
   readonly referralCode?: string;
+  /**
+   * The authorization already on file, set when `prepare()` stopped at
+   * `BLOCKED_BY_EXISTING_AUTHORIZATION` because a live signature covers less
+   * than the requested deposit.
+   */
+  readonly existingAuthorization?: {
+    /** What the stored permit covers, in token base units. */
+    depositAmount?: string;
+    /** When it lapses, as a UNIX timestamp in seconds. */
+    expiresAt?: string;
+  };
 
   /**
    * Prepare the operation

@@ -41,6 +41,10 @@
  *
  * **BtcStakeAndDeploy/BtcDepositAndDeploy:**
  * IDLE → NEEDS_DEPLOY_AUTHORIZATION → READY → ADDRESS_READY
+ *
+ * `BtcStakeAndDeploy` has one dead end: IDLE →
+ * BLOCKED_BY_EXISTING_AUTHORIZATION, when a live signature is on file for less
+ * than the requested deposit.
  */
 export const BtcActionStatus = {
   /** Initial state - ready for prepare() */
@@ -53,6 +57,17 @@ export const BtcActionStatus = {
   NEEDS_ADDRESS_CONFIRMATION: 'needs_address_confirmation',
   /** User needs to sign vault deploy authorization (stake-and-deploy, deposit-and-deploy) */
   NEEDS_DEPLOY_AUTHORIZATION: 'needs_deploy_authorization',
+  /**
+   * A live vault authorization is on file and it does not cover this deposit.
+   *
+   * Terminal for this attempt: only one stake-and-bake signature is kept per
+   * wallet and chain while it is unexpired and unused, so signing a second one
+   * is refused by the API. Prompting the wallet would achieve nothing, so the
+   * action stops here and reports what is on file — see
+   * `existingAuthorization` for the amount it covers and when it lapses. The
+   * way forward is to deposit within that amount, or to wait for it.
+   */
+  BLOCKED_BY_EXISTING_AUTHORIZATION: 'blocked_by_existing_authorization',
 
   /** Authorization complete - ready to generate address */
   READY: 'ready',

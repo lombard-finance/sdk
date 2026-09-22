@@ -33,6 +33,12 @@ import type { Env } from "@lombard.finance/sdk-common";
 import type { Address, EIP1193Provider } from "viem";
 import { z } from "zod";
 
+import {
+  assertCoherentWritePolicy,
+  checkWriteAllowed,
+  type LombardActionProviderOptions,
+  type WriteConfirmationRequest,
+} from "./confirmation";
 import { isLombardSupportedNetwork, resolveNetwork } from "./networks";
 import {
   ClaimDepositSchema,
@@ -57,9 +63,12 @@ import {
  * LombardActionProvider exposes Lombard protocol operations
  * (stake, unstake, redeem, deploy, claim) as Coinbase AgentKit actions.
  *
- * SECURITY: This provider executes real transactions. Configure your wallet
- * provider with appropriate spending limits. All amounts are validated to be
- * positive numeric strings under 1000 BTC equivalent.
+ * The write actions sign and send real transactions, and the thing that calls
+ * them is a model reading text — some of which is not the operator's, since a
+ * token symbol, an address label or an error relayed from upstream all reach
+ * the model too. So each write asks first, through the `confirmWrite` callback
+ * given here. Amount validation is not that gate: it constrains how much moves,
+ * not whether the operator meant to move it.
  *
  * Usage:
  * ```ts
@@ -67,13 +76,25 @@ import {
  *
  * const agentkit = await AgentKit.from({
  *   walletProvider,
- *   actionProviders: [lombardActionProvider()],
+ *   actionProviders: [
+ *     lombardActionProvider({
+ *       confirmWrite: (request) => askTheOperator(request),
+ *     }),
+ *   ],
  * });
  * ```
+ *
+ * A wallet meant to run unattended takes `autoApproveWrites: true` instead.
+ * There is no default that approves: with no option set, the write actions
+ * report that confirmation is unconfigured and sign nothing.
  */
 export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
-  constructor() {
+  private readonly options: LombardActionProviderOptions;
+
+  constructor(options: LombardActionProviderOptions = {}) {
     super("lombard", []);
+    assertCoherentWritePolicy(options);
+    this.options = options;
   }
 
   supportsNetwork = (network: Network): boolean => {
@@ -106,6 +127,16 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const { chainId, env } = resolved;
       const account = walletProvider.getAddress() as Address;
       const provider = toEIP1193Provider(walletProvider, chainId);
+
+      const refused = await this.confirmOrRefuse({
+        action: "stake_btcb_to_lbtc",
+        chainId,
+        account,
+        amount: args.amount,
+        assetIn: "BTC.b",
+        assetOut: "LBTC",
+      });
+      if (refused) return refused;
 
       // Handle fee authorization for chains that require it
       await this.ensureFeeAuthorization(
@@ -189,6 +220,25 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const account = walletProvider.getAddress() as Address;
       const provider = toEIP1193Provider(walletProvider, chainId);
 
+      const toNativeBtc = args.outputAsset === "BTC";
+
+      // `recipient` is named only on the native BTC route, where it is a
+      // Bitcoin address taken from a tool argument and is the destination the
+      // operator most needs to read. The BTC.b route pays the signing account
+      // and `redeemToken` is not given a recipient at all, so naming one there
+      // would describe a destination the transaction ignores — the field means
+      // "where the funds land, when it is not the signing account".
+      const refused = await this.confirmOrRefuse({
+        action: "unstake_lbtc_to_btc",
+        chainId,
+        account,
+        amount: args.amount,
+        assetIn: "LBTC",
+        assetOut: toNativeBtc ? "BTC" : "BTC.b",
+        ...(toNativeBtc ? { recipient: args.recipient } : {}),
+      });
+      if (refused) return refused;
+
       // Handle fee authorization for chains that require it
       await this.ensureFeeAuthorization(
         walletProvider,
@@ -198,7 +248,7 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
         provider,
       );
 
-      if (args.outputAsset === "BTC") {
+      if (toNativeBtc) {
         const txHash = await unstakeLBTC({
           amount: args.amount,
           btcAddress: args.recipient,
@@ -273,6 +323,16 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const account = walletProvider.getAddress() as Address;
       const provider = toEIP1193Provider(walletProvider, chainId);
 
+      const refused = await this.confirmOrRefuse({
+        action: "redeem_lbtc_to_btcb",
+        chainId,
+        account,
+        amount: args.amount,
+        assetIn: "LBTC",
+        assetOut: "BTC.b",
+      });
+      if (refused) return refused;
+
       await this.ensureFeeAuthorization(
         walletProvider,
         chainId,
@@ -326,6 +386,16 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
       const { chainId } = resolved;
       const account = walletProvider.getAddress() as Address;
       const provider = toEIP1193Provider(walletProvider, chainId);
+
+      const refused = await this.confirmOrRefuse({
+        action: "deploy_to_earn",
+        chainId,
+        account,
+        amount: args.amount,
+        assetIn: "LBTC",
+        details: { vault: "veda" },
+      });
+      if (refused) return refused;
 
       const txHash = await depositEarn({
         amount: args.amount,
@@ -399,6 +469,18 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
           "Deposit proof data is not yet available",
         );
       }
+
+      // Confirmed after the deposit is looked up rather than before, so the
+      // amount being minted can be shown rather than just a hash.
+      const refused = await this.confirmOrRefuse({
+        action: "claim_lbtc_deposit",
+        chainId,
+        account,
+        amount: deposit.amount ? fromSatoshi(deposit.amount).toFixed() : undefined,
+        assetOut: "LBTC",
+        details: { depositTxHash: args.depositTxHash },
+      });
+      if (refused) return refused;
 
       const txHash = await claimLBTC({
         data: deposit.rawPayload,
@@ -647,6 +729,22 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
   // ─── Private Helpers ────────────────────────────────────────────────
 
   /**
+   * Puts one pending write to the configured confirmation.
+   *
+   * Called before the action touches the wallet at all, the fee authorisation
+   * included — that signs an EIP-712 approval and stores it, so a write
+   * declined afterwards would still have left one behind.
+   *
+   * @returns the formatted refusal to return to the caller, or null to proceed.
+   */
+  private async confirmOrRefuse(
+    request: WriteConfirmationRequest,
+  ): Promise<string | null> {
+    const refusal = await checkWriteAllowed(this.options, request);
+    return refusal ? formatError(request.action, refusal.message) : null;
+  }
+
+  /**
    * Ensures fee authorization is in place for chains that require it.
    * On Ethereum and Sepolia, staking/unstaking requires an EIP-712 fee
    * signature stored with the backend before the transaction can proceed.
@@ -697,4 +795,6 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
   }
 }
 
-export const lombardActionProvider = () => new LombardActionProvider();
+export const lombardActionProvider = (
+  options: LombardActionProviderOptions = {},
+) => new LombardActionProvider(options);

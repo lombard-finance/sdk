@@ -7,11 +7,20 @@ import { getLangChainTools } from "@coinbase/agentkit-langchain";
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
-import { lombardActionProvider } from "@lombard.finance/sdk-agentkit";
+import {
+  lombardActionProvider,
+  type LombardActionProviderOptions,
+} from "@lombard.finance/sdk-agentkit";
 
 import { CHAINS } from "./config.js";
 
-export async function initAgent(networkId: string) {
+export async function initAgent(
+  networkId: string,
+  // How writes get approved. The provider signs nothing without one of
+  // `confirmWrite` or `autoApproveWrites`, since a tool call is the
+  // transaction and the model calling it reads text it did not write.
+  writePolicy: LombardActionProviderOptions,
+) {
   const chain = CHAINS[networkId];
   if (!chain) {
     throw new Error(`Unsupported network: ${networkId}. Use one of: ${Object.keys(CHAINS).join(", ")}`);
@@ -32,7 +41,7 @@ export async function initAgent(networkId: string) {
     walletProvider,
     actionProviders: [
       walletActionProvider(),
-      lombardActionProvider(),
+      lombardActionProvider(writePolicy),
     ],
   });
 

@@ -191,6 +191,12 @@ export async function resolveDepositBtcAddress({
       },
     ));
   } catch (error) {
+    // The sanctions refusal comes back as a 403, so it has to be recognised by
+    // its message before the status is read — the order here is load-bearing,
+    // not incidental. What made it fragile was `getErrorMessage` returning
+    // `undefined` for a body without a JSON `message`, which turned this
+    // substring test into a TypeError and meant the branch below was never
+    // reached. That function now always answers with a string.
     const errorMsg = getErrorMessage(error);
 
     if (isSanctionedAddressError(errorMsg)) {

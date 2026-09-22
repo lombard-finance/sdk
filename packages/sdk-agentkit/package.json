@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-agentkit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Lombard Action Provider for Coinbase AgentKit - stake BTC, mint LBTC, and interact with DeFi via AI agents",
   "exports": {
     ".": {

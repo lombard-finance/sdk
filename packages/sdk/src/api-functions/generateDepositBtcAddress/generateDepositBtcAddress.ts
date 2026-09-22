@@ -223,14 +223,14 @@ export async function generateDepositBtcAddress({
     ...additionalParams,
   };
 
+  let data: IGenerateNewAddressResponse;
+
   try {
-    const { data } = await axios.post<IGenerateNewAddressResponse>(
+    ({ data } = await axios.post<IGenerateNewAddressResponse>(
       ADDRESS_URL,
       requestParams,
       { baseURL: baseApiUrl },
-    );
-
-    return data.address;
+    ));
   } catch (error) {
     const errorMsg = getErrorMessage(error);
 
@@ -239,6 +239,17 @@ export async function generateDepositBtcAddress({
     }
     throw new Error(errorMsg);
   }
+
+  // Checked outside the catch so this is not run through the sanctions
+  // matcher. Both sibling routes already refuse a response with no address in
+  // it; this one returned it as-is, so a 200 carrying nothing became an
+  // `undefined` typed as `string`, handed to the caller as the address to send
+  // BTC to. The failure then surfaced later as an unrelated state error.
+  if (!data.address) {
+    throw new Error('BTC deposit address generation returned no address');
+  }
+
+  return data.address;
 }
 
 /**

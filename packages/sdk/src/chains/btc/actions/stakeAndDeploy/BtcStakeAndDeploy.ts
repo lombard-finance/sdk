@@ -53,6 +53,22 @@ interface AuthState {
   signature?: string;
   typedData?: string;
   authorized: boolean;
+  existingAuthorization?: ExistingAuthorization;
+}
+
+/**
+ * The live authorization blocking this attempt.
+ *
+ * `restoreStakeAndBakeSignature` has just read both values off the stored
+ * record, so they are reported rather than dropped: without them a caller can
+ * only say that authorization is needed, which is the one thing that will not
+ * work.
+ */
+export interface ExistingAuthorization {
+  /** What the stored permit covers, in token base units. */
+  depositAmount?: string;
+  /** When it lapses, as a UNIX timestamp in seconds. */
+  expiresAt?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -202,6 +218,17 @@ export class BtcStakeAndDeploy
     return this.authState.fee;
   }
 
+  /**
+   * The authorization already on file, when `prepare()` stopped at
+   * `BLOCKED_BY_EXISTING_AUTHORIZATION`.
+   *
+   * `depositAmount` is what it covers, in token base units; `expiresAt` is
+   * when it lapses and the flow unblocks. Undefined in every other state.
+   */
+  get existingAuthorization(): ExistingAuthorization | undefined {
+    return this.authState.existingAuthorization;
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // Public Methods
   // ─────────────────────────────────────────────────────────────────────────
@@ -228,15 +255,24 @@ export class BtcStakeAndDeploy
         validated.recipient,
       );
 
+      // The deposit this signature would have to authorise. A stored permit
+      // is for a fixed amount, so it is a resume only for a deposit that
+      // amount covers.
+      const required = {
+        amount: toSatoshi(validated.amount).toString(),
+        token: this.params.assetIn ?? AssetId.BTC,
+      };
+
       if (hasExistingDeposit) {
         // We have a deposit address - check if stake and bake signature is still valid
         const stored = await stakeAndDeployConfig.restoreStakeAndBakeSignature(
           this.ctx,
           this.chainId,
           validated.recipient,
+          required,
         );
 
-        if (stored?.hasSignature) {
+        if (stored?.hasSignature && stored.coversAmount) {
           // Valid signature exists - skip authorization step
           if (stored.signature) {
             this.authState.signature = stored.signature;
@@ -247,7 +283,13 @@ export class BtcStakeAndDeploy
           return;
         }
 
-        // Deposit exists but signature expired/missing - need re-authorization
+        if (stored?.hasSignature) {
+          this.blockOnExistingAuthorization(stored);
+          return;
+        }
+
+        // Deposit exists but the signature is expired or missing - the wallet
+        // can sign a new one
         this.updateStatus(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
         this.emitInitialProgress();
         return;
@@ -260,16 +302,31 @@ export class BtcStakeAndDeploy
           this.ctx,
           this.chainId,
           validated.recipient,
+          required,
         );
 
-      if (existingSignature?.hasSignature) {
+      // The signature bytes are required here, not just a record of one. This
+      // branch leads to READY, and from there `generateDepositAddress()` sends
+      // the signature as the proof of control over the destination — the route
+      // may answer with the metadata and no `signature`, which would leave
+      // `getDepositAddressParams` forwarding `undefined` from a state the
+      // action reported as ready. Unlike the resume above, where the address
+      // already exists and nothing reads the signature.
+      if (
+        existingSignature?.hasSignature &&
+        existingSignature.coversAmount &&
+        existingSignature.signature
+      ) {
         // Valid signature exists - skip to READY state
-        if (existingSignature.signature) {
-          this.authState.signature = existingSignature.signature;
-        }
+        this.authState.signature = existingSignature.signature;
         this.authState.authorized = true;
         this.updateStatus(BtcActionStatus.READY);
         this.emitInitialProgress();
+        return;
+      }
+
+      if (existingSignature?.hasSignature) {
+        this.blockOnExistingAuthorization(existingSignature);
         return;
       }
 
@@ -277,6 +334,26 @@ export class BtcStakeAndDeploy
       this.updateStatus(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
       this.emitInitialProgress();
     });
+  }
+
+  /**
+   * Stops on a live authorization that does not cover this deposit.
+   *
+   * Signing again is refused by the API — one signature is kept per wallet and
+   * chain until it expires or is used — so opening the wallet would cost the
+   * user a signature and return the server's refusal string. What is on file
+   * is reported instead.
+   */
+  private blockOnExistingAuthorization(stored: {
+    depositAmount?: string;
+    expirationDate?: string;
+  }): void {
+    this.authState.existingAuthorization = {
+      ...(stored.depositAmount ? { depositAmount: stored.depositAmount } : {}),
+      ...(stored.expirationDate ? { expiresAt: stored.expirationDate } : {}),
+    };
+    this.updateStatus(BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION);
+    this.emitInitialProgress();
   }
 
   async authorizeDeposit(options?: AuthorizeDepositOptions): Promise<void> {
