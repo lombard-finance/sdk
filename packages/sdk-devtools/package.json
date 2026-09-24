@@ -43,7 +43,7 @@
     "react-dom": "^18.3.1",
     "tsup": "^8.3.5",
     "typescript": "^5.5.4",
-    "vitest": "^2.1.4"
+    "vitest": "^3.2.6"
   },
   "homepage": "https://docs.lombard.finance",
   "bugs": {
