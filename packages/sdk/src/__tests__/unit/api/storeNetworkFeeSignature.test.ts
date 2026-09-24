@@ -16,7 +16,7 @@ describe('storeNetworkFeeSignature', () => {
 
   it('resolves to "success" on a successful POST', async () => {
     mockedAxios.post = vi.fn().mockResolvedValue({ data: { status: 'success' } });
-    mockedAxios.isAxiosError = vi.fn(() => false) as unknown as typeof axios.isAxiosError;
+    mockedAxios.isAxiosError = vi.fn(() => false) as unknown as typeof mockedAxios.isAxiosError;
 
     const result = await storeNetworkFeeSignature({
       signature: '0xsig',
@@ -39,7 +39,7 @@ describe('storeNetworkFeeSignature', () => {
       },
     };
     mockedAxios.post = vi.fn().mockRejectedValue(axiosErr);
-    mockedAxios.isAxiosError = vi.fn(() => true) as unknown as typeof axios.isAxiosError;
+    mockedAxios.isAxiosError = vi.fn(() => true) as unknown as typeof mockedAxios.isAxiosError;
 
     await expect(
       storeNetworkFeeSignature({
@@ -61,7 +61,7 @@ describe('storeNetworkFeeSignature', () => {
       },
     };
     mockedAxios.post = vi.fn().mockRejectedValue(axiosErr);
-    mockedAxios.isAxiosError = vi.fn(() => true) as unknown as typeof axios.isAxiosError;
+    mockedAxios.isAxiosError = vi.fn(() => true) as unknown as typeof mockedAxios.isAxiosError;
 
     try {
       await storeNetworkFeeSignature({
@@ -85,7 +85,7 @@ describe('storeNetworkFeeSignature', () => {
       response: { data: { code: 99, message: 'something else' } },
     };
     mockedAxios.post = vi.fn().mockRejectedValue(axiosErr);
-    mockedAxios.isAxiosError = vi.fn(() => true) as unknown as typeof axios.isAxiosError;
+    mockedAxios.isAxiosError = vi.fn(() => true) as unknown as typeof mockedAxios.isAxiosError;
 
     await expect(
       storeNetworkFeeSignature({
