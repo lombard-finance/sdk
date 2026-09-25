@@ -134,8 +134,12 @@ const mockMethods = {
 };
 
 vi.mock('@coral-xyz/anchor', () => ({
-  Program: vi.fn().mockImplementation(() => ({ methods: mockMethods })),
-  BN: vi.fn().mockImplementation((v: string) => ({ toString: () => v })),
+  Program: vi.fn().mockImplementation(function () {
+    return { methods: mockMethods };
+  }),
+  BN: vi.fn().mockImplementation(function (v: string) {
+    return { toString: () => v };
+  }),
 }));
 
 vi.mock('../../utils', async () => {
