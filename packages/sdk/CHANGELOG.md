@@ -1,3 +1,19 @@
+# 5.9.0
+
+### Added
+
+- `withdrawEarn({ queue })` and `cancelEarnWithdrawal({ queue })` select the withdrawal queue: `'atomic'` (the default, unchanged behaviour) or `'boring'` for the BoringOnChainQueue. On the BoringQueue the request is filed with `requestOnChainWithdraw` and the approval goes to that queue's address; the discount and deadline come from the vault config and sit inside the bounds the queue enforces per redemption asset. Ethereum only — a chain without a deployment is refused before any transaction.
+
+  The two queues differ in ways a caller has to plan for. `safeUpdateAtomicRequest` overwrites a single request per (user, vault, asset), while `requestOnChainWithdraw` files a new one each call, so a user can hold several at once. The BoringQueue also takes the shares into its own custody when the request is filed, so they leave the holder's balance until the request is solved or cancelled — a position read from the share balance alone will understate what the user holds by the queued amount.
+
+- `cancelEarnWithdrawal({ queue: 'boring', request })` cancels through `cancelOnChainWithdraw`, which matches on the whole request struct rather than a (user, vault, asset) key. `request` is therefore required on that path, and `BoringWithdrawRequest` is exported to name it.
+
+- `EarnWithdrawQueue`, the union behind the `queue` option.
+
+### Fixed
+
+- `withdrawEarn({ queue: 'boring' })` reads `withdrawAssets(assetOut)` on the queue and refuses a redemption asset the queue has stopped, naming the asset, before it sends anything. Withdrawals are enabled per asset and can be stopped at any time; without the check the request reverts as `BoringOnChainQueue__WithdrawsNotAllowedForAsset` after the caller has already paid for an approval.
+
 # 5.8.0
 
 ### Fixed

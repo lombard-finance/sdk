@@ -108,6 +108,7 @@ export {
   type UnwrapBtceToLbtcvParameters,
 } from '../contract-functions/unwrapBtceToLbtcv/unwrapBtceToLbtcv';
 export {
+  type EarnWithdrawQueue,
   withdrawEarn,
   type WithdrawEarnParameters,
   type WithdrawEarnResult,
@@ -116,3 +117,5 @@ export {
   wrapToBtce,
   type WrapToBtceParameters,
 } from '../contract-functions/wrapToBtce/wrapToBtce';
+// Part of CancelEarnWithdrawalParameters, so consumers need to be able to name it.
+export { type BoringWithdrawRequest } from '../vaults/lib/ops/withdraw';

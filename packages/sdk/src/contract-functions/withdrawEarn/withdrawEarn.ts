@@ -13,9 +13,19 @@ import { DAY } from '../../utils/time';
 import {
   BTCE_VAULT,
   EARN_VAULT,
+  EarnChain,
   isBtceVaultChain,
   isEarnChain,
 } from '../../vaults/lib/config';
+
+/**
+ * Which withdrawal queue to file the request against.
+ *   - `atomic`: legacy AtomicQueue (`safeUpdateAtomicRequest`). Default, so
+ *     existing callers are unchanged.
+ *   - `boring`: new BoringOnChainQueue (`requestOnChainWithdraw`). Ethereum
+ *     only; LBTC is the only redemption asset currently allowed on-chain.
+ */
+export type EarnWithdrawQueue = 'atomic' | 'boring';
 
 export type WithdrawEarnParameters = {
   /** Amount to withdraw, in the withdrawal asset's natural decimal units (BTC). */
@@ -25,6 +35,11 @@ export type WithdrawEarnParameters = {
    * Defaults to Token.LBTC. Must be a deposit-side asset accepted by the vault.
    */
   withdrawalAsset?: Token;
+  /**
+   * Withdrawal queue to route the request to. Defaults to `'atomic'` to
+   * preserve legacy behavior; pass `'boring'` to use the BoringOnChainQueue.
+   */
+  queue?: EarnWithdrawQueue;
 } & CommonWriteParameters;
 
 export interface WithdrawEarnResult {
@@ -47,7 +62,7 @@ export interface WithdrawEarnResult {
  *   1. (conditional) Unwrap just enough BTCe to cover the gap between `amount`
  *      and the user's direct underlying-share balance.
  *   2. (conditional) Approve underlying-share token to the withdraw queue with MaxUint256.
- *   3. (always) File an atomic withdrawal request against the underlying vault.
+ *   3. (always) File the withdrawal request against the queue `queue` selects.
  *
  * Unwrap runs before approve so that wallets which cap the displayed approval
  * amount at the user's current token balance (e.g. OKX) see the full
@@ -58,6 +73,8 @@ export interface WithdrawEarnResult {
  *     exceeds `underlyingBalance + btceBalance`.
  *   - Throws `InsufficientUnwrappableError` BEFORE any tx if the BTCe wrapper's
  *     `maxWithdraw` shrank below the gap between read and unwrap.
+ *   - Throws BEFORE any tx when the BoringQueue has withdrawals in
+ *     `withdrawalAsset` disabled, which can happen at any time.
  *   - Step-level failures throw with an explicit message; partial state is
  *     retry-safe via the orchestrator's skip logic.
  *
@@ -66,6 +83,7 @@ export interface WithdrawEarnResult {
 export async function withdrawEarn({
   amount: amountRaw,
   withdrawalAsset = Token.LBTC,
+  queue = 'atomic',
   account,
   chainId,
   provider,
@@ -78,6 +96,8 @@ export async function withdrawEarn({
     );
   }
 
+  const useBoringQueue = queue === 'boring';
+
   const amount = BigNumber(amountRaw);
   if (!amount.isGreaterThan(0)) {
     throw new Error(
@@ -89,8 +109,20 @@ export async function withdrawEarn({
   const vaultAddress = vault.vaultContract.address as Address;
   const accountantAddress = vault.accountantContract.address as Address;
   const lensAddress = vault.lensContract.address as Address;
-  const queueAddress = vault.withdrawQueueContracts[chainId].address as Address;
-  const queueAbi = vault.withdrawQueueContracts[chainId].abi;
+
+  const boringQueue = vault.boringQueueContracts[chainId as EarnChain];
+  if (useBoringQueue && !boringQueue) {
+    throw new Error(
+      `BoringQueue withdrawals are not available on chain ${chainId}. Supported: ${Object.keys(
+        vault.boringQueueContracts,
+      ).join(', ')}.`,
+    );
+  }
+  const queueContract = useBoringQueue
+    ? boringQueue!
+    : vault.withdrawQueueContracts[chainId];
+  const queueAddress = queueContract.address as Address;
+  const queueAbi = queueContract.abi;
 
   const withdrawTokenInfo = await getTokenInfo(
     withdrawalAsset,
@@ -132,10 +164,29 @@ export async function withdrawEarn({
       functionName: 'allowance',
       args: [account, queueAddress],
     }) as Promise<bigint>,
+    // The BoringQueue accepts a redemption asset only while that asset is
+    // enabled on the queue, and one can be stopped at any time. Ask, so a
+    // disabled asset fails here with a readable reason instead of as a bare
+    // on-chain revert.
+    useBoringQueue
+      ? (publicClient.readContract({
+          address: queueAddress,
+          abi: queueAbi,
+          functionName: 'withdrawAssets',
+          args: [withdrawTokenInfo.address],
+        }) as Promise<readonly [boolean, ...unknown[]]>)
+      : Promise.resolve([true] as readonly [boolean, ...unknown[]]),
   ]);
   const underlyingBalance = reads[0];
   const btceBalance = reads[1];
   const allowance = reads[2];
+  const [isWithdrawalAssetAllowed] = reads[3];
+
+  if (!isWithdrawalAssetAllowed) {
+    throw new Error(
+      `The BoringQueue does not accept ${withdrawalAsset} (${withdrawTokenInfo.address}) as a redemption asset on chain ${chainId}. No transactions sent.`,
+    );
+  }
 
   // --- Coverage check ---
   if (amountBase > underlyingBalance + btceBalance) {
@@ -218,16 +269,37 @@ export async function withdrawEarn({
   }
 
   // --- Step 3: queue (always) ---
-  const expiry = BigNumber(Date.now())
-    .dividedBy(1000)
-    .plus(BigNumber(vault.queueWithdrawDaysValid).multipliedBy(DAY / 1000))
-    .decimalPlaces(0, BigNumber.ROUND_DOWN);
-  const discount = BigNumber(vault.queueWithdrawDiscountPercent).multipliedBy(
-    10000,
-  );
+  // BoringOnChainQueue.requestOnChainWithdraw(assetOut, amountOfShares, discount, secondsToDeadline)
+  const simulateBoringRequest = () =>
+    publicClient.simulateContract({
+      account,
+      chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+      address: queueAddress,
+      abi: queueAbi,
+      functionName: 'requestOnChainWithdraw',
+      args: [
+        withdrawTokenInfo.address,
+        amountBase, // uint128 amountOfShares
+        Number(vault.boringQueueDiscountBps), // uint16 discount (bps)
+        Number(
+          BigNumber(vault.boringQueueDaysValid)
+            .multipliedBy(DAY / 1000)
+            .toFixed(0),
+        ), // uint24 secondsToDeadline
+      ],
+    });
 
-  try {
-    const { request } = await publicClient.simulateContract({
+  // Legacy AtomicQueue.safeUpdateAtomicRequest(offer, want, request, accountant, discount)
+  const simulateAtomicRequest = () => {
+    const expiry = BigNumber(Date.now())
+      .dividedBy(1000)
+      .plus(BigNumber(vault.queueWithdrawDaysValid).multipliedBy(DAY / 1000))
+      .decimalPlaces(0, BigNumber.ROUND_DOWN);
+    const discount = BigNumber(vault.queueWithdrawDiscountPercent).multipliedBy(
+      10000,
+    );
+
+    return publicClient.simulateContract({
       account,
       chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
       address: queueAddress,
@@ -241,6 +313,12 @@ export async function withdrawEarn({
         BigInt(discount.toFixed(0)),
       ],
     });
+  };
+
+  try {
+    const { request } = useBoringQueue
+      ? await simulateBoringRequest()
+      : await simulateAtomicRequest();
     result.queueTxHash = await walletClient.writeContract(request);
   } catch (err) {
     throw new Error(
