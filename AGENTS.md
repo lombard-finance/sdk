@@ -154,6 +154,22 @@ Per-chain test wallets configured via `.env` (see `.env.example`).
 3. Lint, build, type check: `npx turbo lint build --filter=@lombard.finance/sdk && cd packages/sdk && npx tsc --noEmit`
 4. Tests: `cd packages/sdk && npx vitest run`
 5. Stage specific files, commit with conventional format, push
+6. After merge, run the **Publish** workflow (`.github/workflows/publish.yml`) from `main`
+
+### Publishing
+
+All npm releases go through `.github/workflows/publish.yml`, which uses npm trusted publishing (OIDC) and attaches provenance. There is no npm token in the repository.
+
+| `channel`    | Version published                                | dist-tag         | Allowed from            |
+| ------------ | ------------------------------------------------ | ---------------- | ----------------------- |
+| `latest`     | `package.json` version, must be `X.Y.Z`          | `latest`         | `main`                  |
+| `prerelease` | `package.json` version, must be `X.Y.Z-<suffix>` | `dist_tag` input | `main`, `sdk-release/*` |
+| `canary`     | `X.Y.Z-<dist_tag>.<run number>`, not committed   | `dist_tag` input | `main`, `sdk-release/*` |
+
+- `package: all` publishes every package in dependency order and is only allowed with `channel: canary`.
+- Publish internal dependencies first (for example `sdk-common` before `sdk`); the workflow fails if a required version is not on npm.
+- The publish job waits for approval on the `production` environment.
+- Do not rename `publish.yml` or the `production` environment: each package's npm trusted publisher is bound to both names.
 
 ## License Policy
 
