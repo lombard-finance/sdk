@@ -45,8 +45,7 @@ export async function initAgent(
     ],
   });
 
-  // One LangChain tool per AgentKit action. @coinbase/agentkit-langchain does
-  // the same mapping but pins @langchain/core 0.3.
+  // One LangChain tool per AgentKit action.
   const tools = agentkit.getActions().map((action) =>
     tool(async (arg) => action.invoke(arg), {
       name: action.name,

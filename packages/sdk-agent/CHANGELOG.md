@@ -5,7 +5,7 @@
 Both framework adapters move to the current major of their framework. The peers stay optional; install the one you use.
 
 - `ai` peer range is `^5.0.0` (was `^4.0.0`). ai 5 reads a tool's input schema from `inputSchema` and ignores `parameters`, so `toAiTool` and `lombardTools` now set `inputSchema`. Under ai 4 these tools would reach the model without a schema.
-- `@langchain/core` peer range is `^1.0.0` (was `^0.3.0`). `toLangChainTool` and `lombardLangChainTools` keep their shape.
+- `@langchain/core` peer range is `^1.0.0` (was `^0.3.0`). `toLangChainTool` and `lombardLangChainTools` keep their shape. `@langchain/core` 1 requires Node.js 20 or newer; the rest of the package keeps its Node.js 18 floor.
 
 ### Migration
 

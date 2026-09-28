@@ -23,7 +23,7 @@ npm install viem
 # For Vercel AI SDK (v5)
 npm install ai@^5
 
-# For LangChain (v1)
+# For LangChain (v1, Node.js 20 or newer)
 npm install @langchain/core@^1
 ```
 

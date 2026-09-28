@@ -115,7 +115,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!input) return;
+    if (!input || isLoading) return;
     sendMessage({ text: input });
     setInput("");
   };
@@ -138,11 +138,15 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     }
   }, [address, setMessages]);
 
+  // The chat id follows the wallet, and useChat builds a new Chat when the
+  // id changes, so an in-flight agent turn belongs to the previous Chat.
+  // This cleanup still holds that Chat's stop and runs when it is replaced.
+  useEffect(() => () => void stop(), [stop]);
+
   // Track wallet changes: save outgoing session, restore incoming session.
   // We only ever show the MOST RECENT change event so stale "Wallet
   // disconnected / Switched to ..." markers from prior sessions don't pile
-  // up. On a fresh connect after a disconnect, also stop any in-flight
-  // agent turn — the in-flight request belongs to the previous wallet.
+  // up.
   useEffect(() => {
     if (prevAddressRef.current === undefined) {
       prevAddressRef.current = address;
@@ -151,7 +155,6 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     if (address !== prevAddressRef.current) {
       const wasDisconnected = !prevAddressRef.current;
       prevAddressRef.current = address;
-      if (isLoading) stop();
       setMessages(loadMessages(address));
       if (address && wasDisconnected) {
         // Fresh connection - drop any stale events from previous wallets.
@@ -167,7 +170,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         ]);
       }
     }
-  }, [address, chain?.name, isLoading, setMessages, stop]);
+  }, [address, chain?.name, setMessages]);
 
   // Stick-to-bottom: auto-scroll on new content ONLY if the user is
   // already near the bottom. If they've scrolled up to read history, we
