@@ -20,8 +20,8 @@ yarn add @lombard.finance/sdk-agent
 # Required
 npm install viem
 
-# For Vercel AI SDK
-npm install ai
+# For Vercel AI SDK (v5)
+npm install ai@^5
 
 # For LangChain
 npm install @langchain/core
