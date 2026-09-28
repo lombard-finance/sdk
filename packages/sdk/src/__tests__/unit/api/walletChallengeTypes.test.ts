@@ -26,11 +26,11 @@ const permitChallenge = {
 beforeEach(() => {
   vi.resetAllMocks();
   post.mockResolvedValue({ data: permitChallenge });
-  mockedAxios.post = post as unknown as typeof axios.post;
+  mockedAxios.post = post as unknown as typeof mockedAxios.post;
   mockedAxios.isAxiosError = ((e: unknown) =>
     Boolean(
       (e as { isAxiosError?: boolean } | null)?.isAxiosError,
-    )) as unknown as typeof axios.isAxiosError;
+    )) as unknown as typeof mockedAxios.isAxiosError;
 });
 
 describe('requestWalletChallenge', () => {

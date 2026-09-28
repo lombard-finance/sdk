@@ -84,7 +84,9 @@ vi.mock('../../idl/getAssetRouterIdl', () => ({
 
 // Mock Program constructor — needed by redeemForBtc to create assetRouterProgram
 vi.mock('@coral-xyz/anchor', () => ({
-  Program: vi.fn().mockImplementation(() => ({})),
+  Program: vi.fn().mockImplementation(function () {
+    return {};
+  }),
 }));
 
 // Build AR config data: 8 (disc) + 32 (admin) + 32 (pending_admin) + 32 (treasury) + 1 (paused=0)

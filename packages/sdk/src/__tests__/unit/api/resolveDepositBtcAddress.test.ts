@@ -35,7 +35,7 @@ beforeEach(() => {
   post.mockResolvedValue({
     data: { deposit_address: { address: 'bc1qexample' } },
   });
-  mockedAxios.post = post as unknown as typeof axios.post;
+  mockedAxios.post = post as unknown as typeof mockedAxios.post;
 });
 
 describe('resolveDepositBtcAddress', () => {
