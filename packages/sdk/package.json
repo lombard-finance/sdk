@@ -103,7 +103,11 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/lombard-finance/sdk"
+    "url": "https://github.com/lombard-finance/sdk.git",
+    "directory": "packages/sdk"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "homepage": "https://docs.lombard.finance",
   "bugs": {

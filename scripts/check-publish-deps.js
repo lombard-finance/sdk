@@ -31,6 +31,7 @@ const ALLOWED_PACKAGES = [
   'sdk-devtools',
   'sdk-agent',
   'sdk-agentkit',
+  'sdk-react',
 ];
 
 /**
@@ -70,6 +71,10 @@ function getPublishedVersions(packageName) {
  * Simple implementation for common cases
  */
 function versionSatisfies(versions, range) {
+  if (range === '*') {
+    return versions.length > 0;
+  }
+
   // Handle Yarn workspace protocol: workspace:* means "any version"
   if (range.startsWith('workspace:')) {
     const inner = range.slice('workspace:'.length); // e.g. "*", "^1.0.0", "~2.3.0"
