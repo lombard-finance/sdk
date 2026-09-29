@@ -11,12 +11,12 @@
     "test:e2e": "ENABLE_E2E=true vitest run"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.0.0",
-    "@ai-sdk/react": "^1.0.0",
+    "@ai-sdk/anthropic": "^2.0.0",
+    "@ai-sdk/react": "^2.0.0",
     "@lombard.finance/sdk": "workspace:*",
     "@lombard.finance/sdk-agent": "workspace:*",
     "@tanstack/react-query": "^5.50.0",
-    "ai": "^4.0.0",
+    "ai": "^5.0.0",
     "connectkit": "^1.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.0",

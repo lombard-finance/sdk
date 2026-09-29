@@ -1,7 +1,7 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { LOMBARD_SYSTEM_PROMPT } from "@lombard.finance/sdk-agent";
 import { lombardTools } from "@lombard.finance/sdk-agent/vercel";
-import { streamText } from "ai";
+import { convertToModelMessages, stepCountIs, streamText } from "ai";
 
 // Vercel serverless function for /api/chat
 // Runs server-side on Vercel, keeping API keys out of the browser.
@@ -51,10 +51,10 @@ export async function POST(request: Request) {
   const result = streamText({
     model: anthropic(process.env.MODEL_NAME || "claude-sonnet-4-6"),
     system,
-    messages,
+    messages: convertToModelMessages(messages),
     tools: lombardTools,
-    maxSteps: 5,
+    stopWhen: stepCountIs(5),
   });
 
-  return result.toDataStreamResponse();
+  return result.toUIMessageStreamResponse();
 }
