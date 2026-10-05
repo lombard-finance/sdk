@@ -20,7 +20,11 @@
 
 - `getNextStakeAndBakeNonce({ owner, protocol, token, chainId, env, walletJwt, rpcUrl })`: the nonce for the owner's next permit. In permit mode it is `nonces(owner)` on the staked token plus the number of pending permits on that token, since every spender of the token shares the sequence; in approve mode it is one above the highest pending nonce on the token, or 0.
 
+- `btc.stakeAndDeploy().prepare({ walletJwt })`: optional wallet-auth JWT for the recipient. With it, the stored authorisation is restored from the v2 permit route, considering only unexpired, unblocked permits for the protocol's spender and staked token (the lowest nonce that covers the deposit, else the lowest nonce). The signature bytes are taken from the v1 record when it is the same permit (nonce, amount and deadline); otherwise the restore carries none and the action does not go `READY` on it. `BLOCKED_BY_EXISTING_AUTHORIZATION` is then reached only on a permit for the same spender and token. A JWT the route refuses raises `UnauthorizedWalletJwtError`. The restore hook's `required` argument gains optional `protocol` and `walletJwt`.
+
 ### Fixed
+
+- `btc.stakeAndDeploy()` could resume on, or stop at `BLOCKED_BY_EXISTING_AUTHORIZATION` because of, a permit for another stake-and-bake contract. The v1 signature route returns the most recent unexpired, unused permit for the recipient and chain, with no spender or token filter, so once a recipient also holds a permit for another contract on the same chain (an `onChainCredit` permit on Ethereum, for instance) that permit can be the one returned. Pass `walletJwt` to `prepare()` to restore from the filtered v2 route. Without it the v1 record is dropped only when its nonce is below `nonces(owner)` on the strategy's staked token, which proves it is not a pending permit on that token; a record without a nonce, or one whose nonce cannot be ruled out that way, is still used as before. Callers whose recipients may hold permits for several contracts on one chain should pass `walletJwt`.
 
 - The Silo stake-and-bake spender ABI was a JSON module namespace (`{ default: [...] }`) rather than the ABI array in the built package, so contract reads through it — `getStakeAndBakeFee({ protocol: DefiProtocol.Silo })` — could not encode the call. The ABIs in `vaults/abi` are default-imported now.
 

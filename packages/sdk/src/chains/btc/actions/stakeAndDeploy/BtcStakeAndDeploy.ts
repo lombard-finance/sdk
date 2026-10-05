@@ -261,6 +261,8 @@ export class BtcStakeAndDeploy
       const required = {
         amount: toSatoshi(validated.amount).toString(),
         token: this.params.assetIn ?? AssetId.BTC,
+        protocol: this.params.protocol,
+        ...(params.walletJwt ? { walletJwt: params.walletJwt } : {}),
       };
 
       if (hasExistingDeposit) {
