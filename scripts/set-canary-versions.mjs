@@ -2,21 +2,19 @@
 
 // Rewrite X.Y.Z to X.Y.Z-<suffix>.<build> in the CI checkout for a canary publish.
 // Usage: set-canary-versions.mjs --suffix <tag> --build <n> -- <package-dir>...
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve, sep } from 'node:path';
 import process from 'node:process';
 import { parseArgs } from 'node:util';
 
-import { PUBLISHABLE } from './publishable-packages.mjs';
+import {
+  fail,
+  readManifest,
+  runCli,
+  writeManifest,
+} from './publishable-packages.mjs';
 
 const SUFFIX_RE = /^[a-z][a-z0-9-]*$/;
 const BUILD_RE = /^[0-9]+$/;
 const RELEASE_RE = /^[0-9]+\.[0-9]+\.[0-9]+$/;
-
-function fail(message) {
-  process.stderr.write(`error: ${message}\n`);
-  process.exit(1);
-}
 
 function main() {
   const { values, positionals } = parseArgs({
@@ -38,18 +36,8 @@ function main() {
     fail('at least one package directory is required');
   }
 
-  const packagesDir = resolve(process.cwd(), 'packages');
-
   for (const name of positionals) {
-    if (!PUBLISHABLE.has(name)) {
-      fail(`'${name}' is not a publishable package`);
-    }
-    const path = resolve(packagesDir, name, 'package.json');
-    if (!path.startsWith(packagesDir + sep) || !existsSync(path)) {
-      fail(`invalid package path for '${name}'`);
-    }
-
-    const pkg = JSON.parse(readFileSync(path, 'utf8'));
+    const pkg = readManifest(name);
     if (!RELEASE_RE.test(pkg.version)) {
       fail(
         `${pkg.name}: version '${pkg.version}' must be a plain X.Y.Z release version`,
@@ -58,9 +46,8 @@ function main() {
 
     const next = `${pkg.version}-${suffix}.${build}`;
     process.stdout.write(`${pkg.name}: ${pkg.version} -> ${next}\n`);
-    pkg.version = next;
-    writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
+    writeManifest(name, { ...pkg, version: next });
   }
 }
 
-main();
+runCli(main);

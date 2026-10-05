@@ -256,7 +256,11 @@ jobs:
           fail() { echo "::error::$*"; exit 1; }
           cd "$RUNNER_TEMP/npm-dist"
           TAG_ARGS=()
-          [[ "$IN_CHANNEL" == "latest" ]] || TAG_ARGS=(--tag "$IN_DIST_TAG")
+          TAG_LABEL="latest"
+          if [[ "$IN_CHANNEL" != "latest" ]]; then
+            TAG_ARGS=(--tag "$IN_DIST_TAG")
+            TAG_LABEL="$IN_DIST_TAG"
+          fi
           SUMMARY=""
           [[ -s manifest.tsv ]] || fail "manifest.tsv is missing or empty"
           while IFS=$'\t' read -r FILE NAME VERSION; do
@@ -274,7 +278,7 @@ jobs:
             if [[ "$IN_CHANNEL" == "canary" ]] && npm view "$NAME@$VERSION" version > /dev/null 2>&1; then
               echo "::notice::$NAME@$VERSION is already on npm from an earlier attempt of this run; skipping"
             else
-              echo "Publishing $NAME@$VERSION ${TAG_ARGS[*]:-(dist-tag latest)}"
+              echo "Publishing $NAME@$VERSION to dist-tag $TAG_LABEL"
               npm publish "./$FILE" --access public --provenance --registry https://registry.npmjs.org "${TAG_ARGS[@]}"
             fi
             SUMMARY+="${NAME}@${VERSION}\\n"

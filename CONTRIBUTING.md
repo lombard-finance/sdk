@@ -51,7 +51,7 @@ Do not commit these `resolutions` overrides to the consumer repo.
 Pre-release npm channels (`-next.X`) let consumers opt in without
 disrupting the stable line — bump to `next.0` for the first prerelease,
 then `next.1`, `next.2`, etc. Publish them with the Publish workflow using
-`channel: prerelease` and `dist_tag: next`; see "Publishing" in `AGENTS.md`.
+`channel: prerelease` and `dist_tag: next`; see `RELEASING.md`.
 
 ### Pull Request Process
 

@@ -88,6 +88,9 @@ function versionSatisfies(versions, range) {
 
   // Remove ^ or ~ prefix
   const cleanRange = range.replace(/^[\^~]/, '');
+  if (versions.includes(cleanRange)) {
+    return true;
+  }
   const [major, minor, patch] = cleanRange.split('.').map(Number);
 
   return versions.some((v) => {
