@@ -2,6 +2,7 @@
  * Tests that TransactionPrompt cards are correctly detected from
  * tool invocation results in Vercel AI SDK message structures.
  */
+import { isToolUIPart, type UIMessage } from "ai";
 import { describe, expect, it } from "vitest";
 
 interface TxResult {
@@ -14,7 +15,9 @@ interface TxResult {
 /**
  * Mirrors the detection logic in ChatPanel's MessageBubble.
  */
-function extractTxActions(message: Record<string, unknown>): TxResult[] {
+function extractTxActions(message: {
+  parts: Array<Record<string, unknown>>;
+}): TxResult[] {
   const txActions: TxResult[] = [];
   const seen = new Set<string>();
 
@@ -28,22 +31,10 @@ function extractTxActions(message: Record<string, unknown>): TxResult[] {
     }
   }
 
-  // Check parts array (Vercel AI SDK v4 format)
-  const parts = (message.parts || []) as Array<Record<string, unknown>>;
-  for (const part of parts) {
-    if (part.type === "tool-invocation") {
-      const inv = part.toolInvocation as Record<string, unknown> | undefined;
-      if (inv?.state === "result") {
-        tryExtract(inv.result as Record<string, unknown> | undefined);
-      }
-    }
-  }
-  // Check toolInvocations array (Vercel AI SDK v3 / legacy format)
-  for (const inv of (message.toolInvocations || []) as Array<
-    Record<string, unknown>
-  >) {
-    if (inv.state === "result") {
-      tryExtract(inv.result as Record<string, unknown> | undefined);
+  // Tool results arrive as `tool-<name>` parts (Vercel AI SDK v5 format)
+  for (const part of message.parts as UIMessage["parts"]) {
+    if (isToolUIPart(part) && part.state === "output-available") {
+      tryExtract(part.output as Record<string, unknown> | undefined);
     }
   }
 
@@ -80,20 +71,25 @@ const STAKE_TOOL_RESULT = {
   description: "Stake 0.1 BTC.b for LBTC on Ethereum",
 };
 
+const toolPart = (
+  toolName: string,
+  output: unknown,
+  state = "output-available",
+) => ({
+  type: `tool-${toolName}`,
+  toolCallId: `call-${toolName}`,
+  state,
+  input: {},
+  output,
+});
+
 describe("tx action detection", () => {
-  it("detects Morpho supply collateral in v4 parts format", () => {
+  it("detects Morpho supply collateral in a tool part", () => {
     const message = {
       role: "assistant",
-      content: "I prepared the transaction.",
       parts: [
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            toolName: "prepare_morpho_supply_collateral",
-            result: MORPHO_TOOL_RESULT,
-          },
-        },
+        { type: "step-start" },
+        toolPart("prepare_morpho_supply_collateral", MORPHO_TOOL_RESULT),
         { type: "text", text: "I prepared the transaction." },
       ],
     };
@@ -103,46 +99,36 @@ describe("tx action detection", () => {
     expect(actions[0].params.chainId).toBe(1);
   });
 
-  it("detects Morpho supply collateral in legacy toolInvocations format", () => {
+  it("ignores a tool part that ended in an error", () => {
     const message = {
       role: "assistant",
-      content: "I prepared the transaction.",
-      toolInvocations: [
+      parts: [
         {
-          state: "result",
-          toolName: "prepare_morpho_supply_collateral",
-          result: MORPHO_TOOL_RESULT,
+          type: "tool-prepare_morpho_supply_collateral",
+          toolCallId: "call-1",
+          state: "output-error",
+          input: {},
+          errorText: "RPC timed out",
         },
       ],
     };
     const actions = extractTxActions(message);
-    expect(actions).toHaveLength(1);
-    expect(actions[0].method).toBe("morpho.supplyCollateral");
+    expect(actions).toHaveLength(0);
   });
 
   it("detects sdk_execute in multi-step message (read tool then write tool)", () => {
     // Simulates: step 1 = get_morpho_lbtc_markets, step 2 = prepare_morpho_supply_collateral, step 3 = text
     const message = {
       role: "assistant",
-      content: "Here are the markets. I've prepared the transaction.",
       parts: [
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            toolName: "get_morpho_lbtc_markets",
-            result: { markets: [], note: "Found 5 markets" },
-          },
-        },
+        { type: "step-start" },
+        toolPart("get_morpho_lbtc_markets", {
+          markets: [],
+          note: "Found 5 markets",
+        }),
         { type: "text", text: "Here are the markets." },
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            toolName: "prepare_morpho_supply_collateral",
-            result: MORPHO_TOOL_RESULT,
-          },
-        },
+        { type: "step-start" },
+        toolPart("prepare_morpho_supply_collateral", MORPHO_TOOL_RESULT),
         { type: "text", text: "I've prepared the transaction." },
       ],
     };
@@ -154,16 +140,8 @@ describe("tx action detection", () => {
   it("detects existing stake tool", () => {
     const message = {
       role: "assistant",
-      content: "Staking prepared.",
       parts: [
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            toolName: "prepare_stake",
-            result: STAKE_TOOL_RESULT,
-          },
-        },
+        toolPart("prepare_stake", STAKE_TOOL_RESULT),
         { type: "text", text: "Staking prepared." },
       ],
     };
@@ -175,16 +153,8 @@ describe("tx action detection", () => {
   it("ignores read-only tool results (no action field)", () => {
     const message = {
       role: "assistant",
-      content: "Your balance is 1.5 LBTC.",
       parts: [
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            toolName: "get_lbtc_balance",
-            result: { balance: "1.5", token: "LBTC" },
-          },
-        },
+        toolPart("get_lbtc_balance", { balance: "1.5", token: "LBTC" }),
         { type: "text", text: "Your balance is 1.5 LBTC." },
       ],
     };
@@ -192,17 +162,15 @@ describe("tx action detection", () => {
     expect(actions).toHaveLength(0);
   });
 
-  it("ignores tool invocations with state != result", () => {
+  it("ignores tool parts whose output is not available yet", () => {
     const message = {
       role: "assistant",
-      content: "",
       parts: [
         {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "call",
-            toolName: "prepare_morpho_supply_collateral",
-          },
+          type: "tool-prepare_morpho_supply_collateral",
+          toolCallId: "call-1",
+          state: "input-available",
+          input: {},
         },
       ],
     };
@@ -213,22 +181,11 @@ describe("tx action detection", () => {
   it("deduplicates identical tool results", () => {
     const message = {
       role: "assistant",
-      content: "Done.",
       parts: [
+        toolPart("prepare_morpho_supply_collateral", MORPHO_TOOL_RESULT),
         {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            toolName: "prepare_morpho_supply_collateral",
-            result: MORPHO_TOOL_RESULT,
-          },
-        },
-      ],
-      toolInvocations: [
-        {
-          state: "result",
-          toolName: "prepare_morpho_supply_collateral",
-          result: MORPHO_TOOL_RESULT,
+          ...toolPart("prepare_morpho_supply_collateral", MORPHO_TOOL_RESULT),
+          toolCallId: "call-2",
         },
       ],
     };
@@ -239,32 +196,17 @@ describe("tx action detection", () => {
   it("detects multiple different write tools in one message", () => {
     const message = {
       role: "assistant",
-      content: "Both prepared.",
       parts: [
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            toolName: "prepare_stake",
-            result: STAKE_TOOL_RESULT,
-          },
-        },
-        {
-          type: "tool-invocation",
-          toolInvocation: {
-            state: "result",
-            toolName: "prepare_morpho_supply_collateral",
-            result: MORPHO_TOOL_RESULT,
-          },
-        },
+        toolPart("prepare_stake", STAKE_TOOL_RESULT),
+        toolPart("prepare_morpho_supply_collateral", MORPHO_TOOL_RESULT),
       ],
     };
     const actions = extractTxActions(message);
     expect(actions).toHaveLength(2);
   });
 
-  it("handles empty message (no parts or toolInvocations)", () => {
-    const message = { role: "user", content: "Hello" };
+  it("handles a message with only text", () => {
+    const message = { role: "user", parts: [{ type: "text", text: "Hello" }] };
     const actions = extractTxActions(message);
     expect(actions).toHaveLength(0);
   });
