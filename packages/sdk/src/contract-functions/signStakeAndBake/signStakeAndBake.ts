@@ -5,6 +5,7 @@ import { CommonWriteParameters } from '../../common/parameters';
 import {
   ApprovalMode,
   DefiProtocol,
+  getStakeAndBakeStakedToken,
   StakeAndBakeToken,
 } from '../../defi/defi-registry';
 import { LombardError, ValidationErrorCode } from '../../shared/errors';
@@ -51,6 +52,23 @@ export interface ISignStakeAndBakeParams extends CommonWriteParameters {
    * - If **LBTC** is chosen: no conversion is performed.
    */
   token?: StakeAndBakeToken;
+  /**
+   * Explicit permit nonce. When omitted, permit-mode strategies read
+   * `nonces(owner)` from the staked token and approve-mode strategies use 0.
+   *
+   * Pass it to sign the next permit in a sequence while earlier ones are still
+   * pending (see `getNextStakeAndBakeNonce`), or to replace a pending permit by
+   * re-signing its nonce with a new value or deadline.
+   */
+  nonce?: bigint | number | string;
+  /**
+   * Approve mode only: the sum, in token base units, of the spender's other
+   * pending deposits for this owner. The allowance checked and, if short,
+   * approved is `pendingAllowance + value`, so a new deposit does not shrink
+   * the allowance the pending ones rely on. Defaults to 0. Ignored in permit
+   * mode.
+   */
+  pendingAllowance?: BigNumber.Value;
 }
 
 export interface ISignStakeAndBakeResult {
@@ -93,6 +111,8 @@ export interface ISignStakeAndBakeResult {
  * @param {BigNumber.Value} parameters.value - The amount to authorise, in token base units (satoshis on the BTC routes). Converted to LBTC using the current ratio where the route calls for it.
  * @param {number} parameters.expiry = The optional expiration UNIX time of the signature.
  * @param {DefiProtocol} parameters.vaultKey - The optional DeFi vault identifier.
+ * @param {bigint | number | string} parameters.nonce - The optional explicit permit nonce.
+ * @param {BigNumber.Value} parameters.pendingAllowance - Approve mode: base units already owed to the spender by other pending deposits.
  * @param {Address} parameters.account - The EVM account address.
  * @param {ChainId} parameters.chainId - The chain id.
  * @param {EIP1193Provider} parameters.provider - The EIP1193 provider.
@@ -111,6 +131,8 @@ export async function signStakeAndBake({
   provider,
   rpcUrl,
   env = DEFAULT_ENV,
+  nonce: nonceOverride,
+  pendingAllowance,
 }: ISignStakeAndBakeParams): Promise<ISignStakeAndBakeResult> {
   const strategy = getStakeAndBakeConfig(protocol, token, chainId, env);
 
@@ -127,6 +149,12 @@ export async function signStakeAndBake({
   if (strategy.approval.deadlineStrategy !== 'zero') {
     assertValidExpiry(expiry);
   }
+  const explicitNonce =
+    nonceOverride === undefined ? undefined : parseNonce(nonceOverride);
+  const pendingBaseUnits =
+    pendingAllowance === undefined
+      ? 0n
+      : parseNonNegativeBaseUnits(pendingAllowance, 'pendingAllowance');
 
   const spenderAddress = strategy.spenderContract.address;
 
@@ -150,19 +178,35 @@ export async function signStakeAndBake({
     );
   }
 
-  // Get token contract (always use Token address for permits/approves, not adapter)
-  const tokenContract = await getStakeAndBakeTokenContract(token, chainId, env);
+  // The permit is signed over the token the spender actually stakes, which is
+  // not always the registry token: the virtual 'BTC' token stakes LBTC on one
+  // strategy and BTC.b on another. Always the token address, never an adapter.
+  const stakedToken = getStakeAndBakeStakedToken(strategy);
+  const tokenContract = await getStakeAndBakeTokenContract(
+    stakedToken,
+    chainId,
+    env,
+  );
   const tokenAddress = tokenContract.address;
   const tokenAbi = tokenContract.abi;
 
   const deadline =
     strategy.approval.deadlineStrategy === 'zero' ? 0n : BigInt(expiry);
 
-  // Get nonce if required
+  // An explicit nonce wins; otherwise read it from the staked token.
   const nonce =
-    strategy.approval.nonceStrategy === 'chain'
-      ? BigInt(await getPermitNonce({ owner: account, chainId, rpcUrl, env }))
-      : 0n;
+    explicitNonce ??
+    (strategy.approval.nonceStrategy === 'chain'
+      ? BigInt(
+          await getPermitNonce({
+            owner: account,
+            token: stakedToken,
+            chainId,
+            rpcUrl,
+            env,
+          }),
+        )
+      : 0n);
 
   // Build typed data using config
   const typedData = buildTypedData({
@@ -189,10 +233,47 @@ export async function signStakeAndBake({
       tokenAbi,
       spenderAddress,
       typedData,
-      requiredAmount: permitBaseUnits,
+      requiredAmount: pendingBaseUnits + permitBaseUnits,
     });
   }
 
   // Permit mode
   return handlePermitFlow({ chainId, provider, typedData });
+}
+
+function parseNonce(value: bigint | number | string): bigint {
+  let parsed: bigint | undefined;
+  try {
+    if (typeof value === 'bigint') {
+      parsed = value;
+    } else if (typeof value === 'number') {
+      parsed = Number.isSafeInteger(value) ? BigInt(value) : undefined;
+    } else if (/^\d+$/.test(value.trim())) {
+      parsed = BigInt(value.trim());
+    }
+  } catch {
+    parsed = undefined;
+  }
+  if (parsed === undefined || parsed < 0n) {
+    throw new LombardError(
+      ValidationErrorCode.INVALID_PARAMETER,
+      `nonce must be a non-negative integer, received ${String(value)}.`,
+    );
+  }
+  return parsed;
+}
+
+function parseNonNegativeBaseUnits(
+  value: BigNumber.Value,
+  paramName: string,
+): bigint {
+  const amount = new BigNumber(value);
+  if (!amount.isFinite() || amount.isNegative() || !amount.isInteger()) {
+    throw new LombardError(
+      ValidationErrorCode.INVALID_PARAMETER,
+      `${paramName} must be a non-negative whole number of token base ` +
+        `units, received ${String(value)}.`,
+    );
+  }
+  return BigInt(amount.toFixed(0));
 }

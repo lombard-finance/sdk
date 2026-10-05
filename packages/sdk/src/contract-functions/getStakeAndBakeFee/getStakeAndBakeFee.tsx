@@ -21,6 +21,7 @@ import { getStakeAndBakeConfig } from '../signStakeAndBake/validation';
 const PROTOCOL_DEFAULT_TOKENS: Record<DefiProtocol, StakeAndBakeToken> = {
   [DefiProtocol.Veda]: Token.LBTC,
   [DefiProtocol.Silo]: Token.BTCb,
+  [DefiProtocol.OnChainCredit]: Token.BTCb,
 };
 
 export interface IGetStakeAndBakeFeeParams extends CommonParameters {
@@ -33,6 +34,7 @@ export interface IGetStakeAndBakeFeeParams extends CommonParameters {
    * If not provided, defaults to the protocol's primary token:
    * - Veda: LBTC
    * - Silo: BTCb
+   * - OnChainCredit: BTCb
    */
   token?: StakeAndBakeToken;
 }
@@ -43,6 +45,7 @@ export interface IGetStakeAndBakeFeeParams extends CommonParameters {
  * If token is not provided, uses the default token for the protocol:
  * - Veda: LBTC
  * - Silo: BTCb
+ * - OnChainCredit: BTCb
  *
  * @param {IGetStakeAndBakeFeeParams} parameters - The parameters.
  * @param {DefiProtocol} parameters.protocol - The optional DeFi protocol identifier (defaults to Veda).

@@ -2,6 +2,7 @@
 export * from './getBasculeDepositStatus';
 export * from './getLBTCMintingFee';
 export * from './getLBTCTotalSupply';
+export * from './getNextStakeAndBakeNonce';
 export * from './getPermitNonce';
 export * from './getStakeAndBakeFee';
 

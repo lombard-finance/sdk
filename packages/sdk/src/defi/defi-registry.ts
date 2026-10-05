@@ -30,8 +30,19 @@ export type StakeAndBakeAmountStrategy = 'identity' | 'btcToLbtc';
 export type StakeAndBakeDeadlineStrategy = 'expiry' | 'zero';
 export type StakeAndBakeNonceStrategy = 'chain' | 'skip';
 
+/**
+ * The ERC-20 the spender pulls and stakes. The permit is signed over this
+ * token's EIP-712 domain, and its `nonces(owner)` is the permit nonce.
+ */
+export type StakeAndBakeStakedToken = Token.LBTC | Token.BTCb;
+
 export interface StakeAndBakeStrategyConfig {
   amountStrategy: StakeAndBakeAmountStrategy;
+  /**
+   * The token the spender stakes. Optional for backward compatibility: when
+   * absent it is BTC.b for the `BTC.b` registry token and LBTC otherwise.
+   */
+  stakedToken?: StakeAndBakeStakedToken;
   approval: {
     mode: ApprovalMode;
     domainName: string;
@@ -108,6 +119,7 @@ export type DefiRegistryToken =
 export const DefiProtocol = {
   Veda: 'veda',
   Silo: 'silo',
+  OnChainCredit: 'onChainCredit',
 } as const;
 
 export type DefiProtocol = (typeof DefiProtocol)[keyof typeof DefiProtocol];
@@ -120,6 +132,10 @@ export const DefiProtocols = {
   [DefiProtocol.Silo]: {
     name: 'Silo Finance Vault',
     url: 'https://silo.finance',
+  },
+  [DefiProtocol.OnChainCredit]: {
+    name: 'Bitcoin On-Chain Credit',
+    url: 'https://lombard.finance',
   },
 } as const;
 
@@ -139,6 +155,32 @@ const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
   nonceStrategy: 'skip',
 };
 
+const ON_CHAIN_CREDIT_BTCB_PERMIT_APPROVAL: StakeAndBakeStrategyConfig['approval'] =
+  {
+    mode: 'permit',
+    domainName: 'Bitcoin',
+    domainVersion: '1',
+    deadlineStrategy: 'expiry',
+    nonceStrategy: 'chain',
+  };
+
+/** BTC.b stake-and-bake spender on Ethereum mainnet. */
+export const ON_CHAIN_CREDIT_SPENDER_CONTRACT_ETHEREUM: `0x${string}` =
+  '0xCa12BFa58ee1a686aF2437bf1dc7460Df3A59a4d';
+
+// The BTC.b spender exposes the same interface as the Silo spender
+// (`getTokenAndAdapter`, `setGasLimit`, `stakeAndBakeInternal`, ...).
+const onChainCreditStrategy = (chain: ChainId): StakeAndBakeStrategyConfig => ({
+  amountStrategy: 'identity',
+  stakedToken: Token.BTCb,
+  approval: { ...ON_CHAIN_CREDIT_BTCB_PERMIT_APPROVAL },
+  spenderContract: {
+    abi: SILO_VAULT_SPENDER_ABI as Abi,
+    address: ON_CHAIN_CREDIT_SPENDER_CONTRACT_ETHEREUM,
+    chainId: chain,
+  },
+});
+
 /**
  * DeFi Registry: Token approval configurations by vault, token, env, and chain.
  *
@@ -149,6 +191,7 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
     [Token.LBTC]: mapEnvs(ALL_ENVS, () =>
       mapChains(EARN_STAKE_AND_BAKE_CHAINS, (chain) => ({
         amountStrategy: 'identity',
+        stakedToken: Token.LBTC,
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
         spenderContract: getVedaSpenderContract(chain),
       })),
@@ -156,6 +199,7 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
     BTC: mapEnvs(ALL_ENVS, () =>
       mapChains(EARN_STAKE_AND_BAKE_CHAINS, (chain) => ({
         amountStrategy: 'btcToLbtc',
+        stakedToken: Token.LBTC,
         approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
         spenderContract: getVedaSpenderContract(chain),
       })),
@@ -167,6 +211,7 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
       // Stage environment does not support Avalanche Fuji
       [Env.testnet]: mapChains([ChainId.avalancheFuji], (chain) => ({
         amountStrategy: 'identity',
+        stakedToken: Token.BTCb,
         approval: { ...SILO_BTCB_APPROVE_APPROVAL },
         spenderContract: {
           abi: SILO_VAULT_SPENDER_ABI as Abi,
@@ -176,7 +221,30 @@ export const DEFI_REGISTRY: StakeAndBakeRegistry = {
       })),
     },
   },
+  [DefiProtocol.OnChainCredit]: {
+    // BTC.b is 1:1 with BTC, so both the BTC.b and the native BTC routes sign
+    // the satoshi amount as-is.
+    [Token.BTCb]: {
+      [Env.prod]: mapChains([ChainId.ethereum], onChainCreditStrategy),
+    },
+    BTC: {
+      [Env.prod]: mapChains([ChainId.ethereum], onChainCreditStrategy),
+    },
+  },
 };
+
+/**
+ * The token a strategy stakes: the token whose EIP-712 domain the permit is
+ * signed over and whose `nonces(owner)` supplies the permit nonce.
+ */
+export function getStakeAndBakeStakedToken(
+  strategy: Pick<StakeAndBakeStrategyConfig, 'stakedToken'> & {
+    token?: StakeAndBakeToken;
+  },
+): StakeAndBakeStakedToken {
+  if (strategy.stakedToken) return strategy.stakedToken;
+  return strategy.token === Token.BTCb ? Token.BTCb : Token.LBTC;
+}
 
 /**
  * Type for a token that can be used with stake and bake.
@@ -232,7 +300,7 @@ export function getSupportedProtocols(assetId: AssetId): DefiProtocol[] {
  * ```typescript
  * // Get protocols available for LBTC in production
  * const prodProtocols = getAvailableProtocols(AssetId.LBTC, Env.prod);
- * // Returns: ['veda'] - Silo is only on Avalanche which has no mainnet prod config
+ * // Returns: ['veda'] - the BTC route of onChainCredit produces BTC.b, not LBTC
  *
  * // Get protocols available for BTCb in testnet
  * const testnetProtocols = getAvailableProtocols(AssetId.BTCb, Env.testnet);
@@ -253,6 +321,15 @@ export function getAvailableProtocols(
   const tokens = tokenMap[assetId];
   if (!tokens) return [];
 
+  // The virtual 'BTC' token stakes LBTC on some strategies and BTC.b on
+  // others, so a route only counts for an output asset it actually produces.
+  const requiredStakedToken: StakeAndBakeStakedToken | undefined =
+    assetId === AssetId.LBTC
+      ? Token.LBTC
+      : assetId === AssetId.BTCb
+        ? Token.BTCb
+        : undefined;
+
   const availableProtocols: Set<DefiProtocol> = new Set();
 
   for (const [protocol, tokenStrategyMap] of Object.entries(DEFI_REGISTRY)) {
@@ -263,6 +340,18 @@ export function getAvailableProtocols(
 
       const envRegistry = tokenRegistry[env];
       if (!envRegistry || Object.keys(envRegistry).length === 0) continue;
+
+      if (
+        requiredStakedToken &&
+        !Object.values(envRegistry).some(
+          (config) =>
+            config &&
+            getStakeAndBakeStakedToken({ ...config, token }) ===
+              requiredStakedToken,
+        )
+      ) {
+        continue;
+      }
 
       availableProtocols.add(protocol as DefiProtocol);
     }

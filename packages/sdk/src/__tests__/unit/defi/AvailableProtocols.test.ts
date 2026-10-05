@@ -23,6 +23,8 @@ describe('getAvailableProtocols', () => {
       expect(protocols).toContain(DefiProtocol.Veda);
       // Silo is only on Avalanche which has no mainnet prod config in DEFI_REGISTRY
       expect(protocols).not.toContain(DefiProtocol.Silo);
+      // OnChainCredit's BTC route stakes BTC.b, so it does not produce LBTC
+      expect(protocols).not.toContain(DefiProtocol.OnChainCredit);
     });
 
     it('should return Veda for LBTC in testnet', () => {
@@ -57,6 +59,24 @@ describe('getAvailableProtocols', () => {
 
       // DEFI_REGISTRY only has Silo BTCb config for testnet, not stage
       expect(protocols).not.toContain(DefiProtocol.Silo);
+    });
+  });
+
+  describe('BTC protocols', () => {
+    it('should return Veda and OnChainCredit for BTC in prod', () => {
+      const protocols = getAvailableProtocols(AssetId.BTC, Env.prod);
+
+      expect(protocols).toEqual(
+        expect.arrayContaining([DefiProtocol.Veda, DefiProtocol.OnChainCredit]),
+      );
+    });
+
+    it('should not return OnChainCredit outside prod', () => {
+      for (const env of [Env.stage, Env.testnet, Env.dev]) {
+        expect(getAvailableProtocols(AssetId.BTC, env)).not.toContain(
+          DefiProtocol.OnChainCredit,
+        );
+      }
     });
   });
 
@@ -97,9 +117,24 @@ describe('getAvailableProtocolsWithMetadata', () => {
     expect(silo?.url).toBe('https://silo.finance');
   });
 
-  it('should return empty array when no protocols available', () => {
-    // BTCb in prod has no protocols (Silo only on Avalanche, not in prod config)
+  it('should return only OnChainCredit for BTCb in prod', () => {
     const protocols = getAvailableProtocolsWithMetadata(AssetId.BTCb, Env.prod);
+
+    expect(protocols).toEqual([
+      {
+        value: DefiProtocol.OnChainCredit,
+        label: 'Bitcoin On-Chain Credit',
+        url: 'https://lombard.finance',
+      },
+    ]);
+  });
+
+  it('should return empty array when no protocols available', () => {
+    // BTCb in stage has no protocols (Silo is testnet-only, OnChainCredit prod-only)
+    const protocols = getAvailableProtocolsWithMetadata(
+      AssetId.BTCb,
+      Env.stage,
+    );
 
     expect(protocols).toEqual([]);
   });
