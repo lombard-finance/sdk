@@ -93,6 +93,9 @@ jobs:
           if [[ "$IN_PACKAGE" == "all" && "$IN_CHANNEL" != "canary" ]]; then
             fail "package=all is only allowed with channel=canary"
           fi
+          if [[ "$IN_CHANNEL" == "prerelease" && "$IN_DIST_TAG" == "canary" ]]; then
+            fail "channel=prerelease needs its own dist_tag (for example next); 'canary' is the default for canary builds"
+          fi
 
           NODE_VERSION="$(tr -d '[:space:]' < .nvmrc)"
           [[ "$NODE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail ".nvmrc must hold an exact X.Y.Z version"
@@ -100,11 +103,11 @@ jobs:
           echo "packages=$PACKAGES" >> "$GITHUB_OUTPUT"
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
+      # No cache: this job's output ships with provenance, so it installs from a clean state.
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
-          cache: yarn
 
       - name: Install dependencies
         run: yarn install --immutable
@@ -216,6 +219,9 @@ jobs:
           [[ "$IN_DIST_TAG" =~ ^[a-z][a-z0-9-]*$ && "$IN_DIST_TAG" != "latest" ]] || fail "invalid dist_tag"
           if [[ "$IN_CHANNEL" == "latest" && "$GITHUB_REF" != "refs/heads/main" ]]; then
             fail "channel=latest is only allowed from main"
+          fi
+          if [[ "$IN_CHANNEL" == "prerelease" && "$IN_DIST_TAG" == "canary" ]]; then
+            fail "channel=prerelease cannot use dist_tag canary"
           fi
 
       # No registry-url and no cache: an _authToken line in .npmrc blocks OIDC.

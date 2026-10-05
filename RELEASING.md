@@ -12,6 +12,8 @@ All npm releases go through the **Publish** workflow in `.github/workflows/publi
 
 `package: all` publishes every package in dependency order. It is available with `channel: canary` only.
 
+A `prerelease` run needs its own `dist_tag`, such as `next`. The run stops if the tag is left at the default `canary`.
+
 ## Publishing a release
 
 1. Merge the version bump and changelog to `main`.
