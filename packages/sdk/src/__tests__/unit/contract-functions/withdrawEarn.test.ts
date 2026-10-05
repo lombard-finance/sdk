@@ -467,6 +467,32 @@ describe('withdrawEarn', () => {
       expect(queueCall.args[3]).toBe(21 * 86_400); // 21 days, >= 20-day on-chain min
     });
 
+    it.each([
+      ['Base', ChainId.base],
+      ['BSC', ChainId.binanceSmartChain],
+    ])('files against the BoringQueue on %s', async (_, chainId) => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 0n,
+      });
+
+      await withdrawEarn({
+        amount: '0.5',
+        queue: 'boring',
+        account: ACCOUNT,
+        chainId,
+        provider: PROVIDER,
+      });
+
+      const calls = mockSimulateContract.mock.calls.map((c) => c[0]);
+      expect(calls.map((c) => c.functionName)).toEqual([
+        'approve',
+        'requestOnChainWithdraw',
+      ]);
+      expect(calls[0].args[0]).toBe(BORING_QUEUE);
+      expect(calls[1].address).toBe(BORING_QUEUE);
+    });
+
     it('refuses an asset the queue has stopped, before sending anything', async () => {
       setupReads({
         underlyingBalance: 100_000_000n,
