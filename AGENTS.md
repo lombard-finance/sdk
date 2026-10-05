@@ -154,6 +154,7 @@ Per-chain test wallets configured via `.env` (see `.env.example`).
 3. Lint, build, type check: `npx turbo lint build --filter=@lombard.finance/sdk && cd packages/sdk && npx tsc --noEmit`
 4. Tests: `cd packages/sdk && npx vitest run`
 5. Stage specific files, commit with conventional format, push
+6. After merge, run the **Publish** workflow from `main` as described in `RELEASING.md`
 
 ## License Policy
 
