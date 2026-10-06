@@ -22,8 +22,8 @@ import {
  * Which withdrawal queue to file the request against.
  *   - `atomic`: legacy AtomicQueue (`safeUpdateAtomicRequest`). Default, so
  *     existing callers are unchanged.
- *   - `boring`: new BoringOnChainQueue (`requestOnChainWithdraw`). Ethereum
- *     only; LBTC is the only redemption asset currently allowed on-chain.
+ *   - `boring`: new BoringOnChainQueue (`requestOnChainWithdraw`). LBTC is
+ *     the only redemption asset currently allowed on-chain.
  */
 export type EarnWithdrawQueue = 'atomic' | 'boring';
 

@@ -1,3 +1,9 @@
+# 5.10.0
+
+### Added
+
+- `withdrawEarn({ queue: 'boring' })` and `cancelEarnWithdrawal({ queue: 'boring' })` work on Base and BSC. The BoringOnChainQueue is deployed there at the same address as on Ethereum, and `EARN_VAULT_BORING_QUEUE_CONTRACTS` now lists all three Earn chains. Until now a `'boring'` request on either chain was refused before any transaction.
+
 # 5.9.0
 
 ### Added

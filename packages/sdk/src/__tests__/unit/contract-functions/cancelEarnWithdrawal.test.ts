@@ -96,6 +96,23 @@ describe('cancelEarnWithdrawal', () => {
     expect(struct.assetOut).toBe(BORING_REQUEST.assetOut);
   });
 
+  it.each([
+    ['Base', ChainId.base],
+    ['BSC', ChainId.binanceSmartChain],
+  ])('cancels on the BoringQueue on %s', async (_, chainId) => {
+    await cancelEarnWithdrawal({
+      queue: 'boring',
+      request: BORING_REQUEST,
+      account: ACCOUNT,
+      chainId,
+      provider: PROVIDER,
+    });
+
+    const call = mockSimulateContract.mock.calls[0][0];
+    expect(call.functionName).toBe('cancelOnChainWithdraw');
+    expect(call.address).toBe(BORING_QUEUE);
+  });
+
   it('throws when queue is boring but no request struct is provided', async () => {
     await expect(
       cancelEarnWithdrawal({
