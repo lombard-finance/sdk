@@ -13,9 +13,12 @@ export {
   type EarnStakeAndBakeChain,
   getAvailableProtocols,
   getAvailableProtocolsWithMetadata,
+  getStakeAndBakeStakedToken,
   getStakeAndBakeSupportedChains,
   getSupportedProtocols,
   isEarnStakeAndBakeChain,
+  ON_CHAIN_CREDIT_SPENDER_CONTRACT_ETHEREUM,
   type StakeAndBakeRegistry,
+  type StakeAndBakeStakedToken,
   type StakeAndBakeToken,
 } from '../defi';

@@ -20,8 +20,13 @@ export {
 } from '../contract-functions/getLBTCMintingFee/getLBTCMintingFee';
 export { getLBTCTotalSupply } from '../contract-functions/getLBTCTotalSupply/getLBTCTotalSupply';
 export {
+  getNextStakeAndBakeNonce,
+  type IGetNextStakeAndBakeNonceParams,
+} from '../contract-functions/getNextStakeAndBakeNonce/getNextStakeAndBakeNonce';
+export {
   getPermitNonce,
   type IGetPermitNonceParams,
+  type PermitNonceToken,
 } from '../contract-functions/getPermitNonce/getPermitNonce';
 export {
   getStakeAndBakeFee,

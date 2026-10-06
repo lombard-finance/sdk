@@ -81,6 +81,17 @@ export {
   setReferral,
 } from '../api-functions/setReferral/setReferral';
 export {
+  getStakeAndBakeApiChainName,
+  getStakeAndBakePermits,
+  type IGetStakeAndBakePermitsParams,
+  type IGetStakeAndBakePermitsResult,
+  type ISaveStakeAndBakePermitParams,
+  saveStakeAndBakePermit,
+  type StakeAndBakePermit,
+  StakeAndBakePermitError,
+  type StakeAndBakePermitErrorCode,
+} from '../api-functions/stakeAndBakePermits';
+export {
   type IStoreNetworkFeeSignatureParams,
   type IStoreNetworkFeeSignatureStatus,
   storeNetworkFeeSignature,

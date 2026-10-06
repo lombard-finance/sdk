@@ -8,6 +8,7 @@ export * from './getUnstakesByAddress';
 export * from './getUserStakeAndBakeSignature';
 export * from './resolveDepositBtcAddress';
 export * from './setReferral';
+export * from './stakeAndBakePermits';
 export * from './storeNetworkFeeSignature';
 export * from './storeStakeAndBakeSignature';
 export * from './walletAuth';

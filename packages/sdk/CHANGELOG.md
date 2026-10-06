@@ -1,3 +1,35 @@
+# 5.10.0
+
+### Added
+
+- `DefiProtocol.OnChainCredit` (`'onChainCredit'`): stake-and-bake into BTC.b on Ethereum mainnet (`Env.prod`), for the `BTC.b` token and the virtual `'BTC'` token. Both routes sign an EIP-2612 permit over BTC.b (domain `Bitcoin`, version `1`) for spender `0xCa12BFa58ee1a686aF2437bf1dc7460Df3A59a4d`, with the satoshi amount as-is. `getStakeAndBakeFee({ protocol: DefiProtocol.OnChainCredit })` defaults to BTC.b. The protocol is not offered by `btc.stakeAndDeploy()`, which produces LBTC.
+
+- `stakedToken` on a stake-and-bake strategy, and `getStakeAndBakeStakedToken()` to resolve it: the token the spender stakes, whose EIP-712 domain the permit is signed over and whose `nonces(owner)` is the permit nonce. The virtual `'BTC'` token stakes LBTC on `veda` and BTC.b on `onChainCredit`.
+
+- `getPermitNonce({ token })` reads `nonces(owner)` from LBTC (the default, unchanged) or BTC.b. `signStakeAndBake()` now reads the nonce from the strategy's staked token instead of always from LBTC.
+
+- `signStakeAndBake({ nonce })` signs with an explicit nonce instead of reading it from the chain. It is how the next permit in a sequence is signed while earlier ones are pending, and how a pending permit is replaced: re-sign its nonce with a new value or deadline.
+
+- `signStakeAndBake({ pendingAllowance })`, approve mode only: the base units already owed to the spender by other pending deposits. The allowance checked, and approved when short, is `pendingAllowance + value`. Defaults to 0, so the behaviour without it is unchanged.
+
+- v2 stake-and-bake permit routes, authenticated with the wallet-auth JWT. Several unused permits may be pending per owner and token.
+  - `getStakeAndBakePermits({ address, chainId, walletJwt, env })` lists the unused permits (lowest nonce first, expired ones included) as `StakeAndBakePermit` records — `spenderAddress`, `tokenAddress`, `nonce` and `depositAmount` as decimal strings, `expiresAt` in UNIX seconds, `expired`, `blocked` — with `maxPermitsPerToken`.
+  - `saveStakeAndBakePermit({ address, typedData, signature, walletJwt, env })` stores a permit. Saving the same owner, token, chain and nonce again replaces the stored permit.
+  - `StakeAndBakePermitError` carries a `code` (`CAP_REACHED`, `OUT_OF_SEQUENCE` with `expectedNonce`, `NONCE_CONSUMED`, `BEING_CLAIMED`, `UNKNOWN_SPENDER`, `TOKEN_NOT_STAKED`, `ALLOWANCE_TOO_LOW`, `FORBIDDEN`, `UNKNOWN`), the HTTP `status`, and the API's message unchanged. A JWT the route refuses (401, 403) raises `UnauthorizedWalletJwtError`, as on `resolveDepositBtcAddress`. Typed data whose owner is not `address` is refused as `FORBIDDEN` before any request.
+  - `getStakeAndBakeApiChainName(chainId)` is the `?chain=` name these routes take; a testnet answers to its mainnet name.
+
+- `getNextStakeAndBakeNonce({ owner, protocol, token, chainId, env, walletJwt, rpcUrl })`: the nonce for the owner's next permit. In permit mode it is `nonces(owner)` on the staked token plus the number of pending permits on that token, since every spender of the token shares the sequence; in approve mode it is one above the highest pending nonce on the token, or 0.
+
+- `btc.stakeAndDeploy().prepare({ walletJwt })`: optional wallet-auth JWT for the recipient. With it, the stored authorisation is restored from the v2 permit route, considering only unexpired, unblocked permits for the protocol's spender and staked token (the lowest nonce that covers the deposit, else the lowest nonce). The signature bytes are taken from the v1 record when it is the same permit (nonce, amount and deadline); otherwise the restore carries none and the action does not go `READY` on it. `BLOCKED_BY_EXISTING_AUTHORIZATION` is then reached only on a permit for the same spender and token. A JWT the route refuses raises `UnauthorizedWalletJwtError`. The restore hook's `required` argument gains optional `protocol` and `walletJwt`.
+
+### Fixed
+
+- `btc.stakeAndDeploy()` could resume on, or stop at `BLOCKED_BY_EXISTING_AUTHORIZATION` because of, a permit for another stake-and-bake contract. The v1 signature route returns the most recent unexpired, unused permit for the recipient and chain, with no spender or token filter, so once a recipient also holds a permit for another contract on the same chain (an `onChainCredit` permit on Ethereum, for instance) that permit can be the one returned. Pass `walletJwt` to `prepare()` to restore from the filtered v2 route. Without it the v1 record is dropped only when its nonce is below `nonces(owner)` on the strategy's staked token, which proves it is not a pending permit on that token; a record without a nonce, or one whose nonce cannot be ruled out that way, is still used as before. Callers whose recipients may hold permits for several contracts on one chain should pass `walletJwt`.
+
+- The Silo stake-and-bake spender ABI was a JSON module namespace (`{ default: [...] }`) rather than the ABI array in the built package, so contract reads through it — `getStakeAndBakeFee({ protocol: DefiProtocol.Silo })` — could not encode the call. The ABIs in `vaults/abi` are default-imported now.
+
+- `getAvailableProtocols(AssetId.LBTC, env)` counts a `'BTC'` route only when it stakes LBTC, and `getAvailableProtocols(AssetId.BTCb, env)` only when it stakes BTC.b, so a BTC route that produces BTC.b is not offered as an LBTC protocol.
+
 # 5.9.0
 
 ### Added

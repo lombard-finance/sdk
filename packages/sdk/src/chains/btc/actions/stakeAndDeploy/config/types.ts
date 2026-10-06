@@ -117,6 +117,16 @@ export interface StakeAndDeployChainConfig {
       amount: string;
       /** The token the signature is for, as `authorizeStakeAndBake` takes it. */
       token: string;
+      /**
+       * The protocol the deposit is for. When given, only an authorisation
+       * for that protocol's spender and staked token is reported.
+       */
+      protocol?: string;
+      /**
+       * Wallet-auth JWT for the recipient. When given with `protocol`, the
+       * lookup uses the v2 permit route instead of the v1 signature route.
+       */
+      walletJwt?: string;
     },
   ) => Promise<StakeAndBakeRestoreResult | null>;
 }

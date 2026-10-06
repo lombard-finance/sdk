@@ -433,10 +433,13 @@ export {
   type EarnStakeAndBakeChain,
   getAvailableProtocols,
   getAvailableProtocolsWithMetadata,
+  getStakeAndBakeStakedToken,
   getStakeAndBakeSupportedChains,
   getSupportedProtocols,
   isEarnStakeAndBakeChain,
+  ON_CHAIN_CREDIT_SPENDER_CONTRACT_ETHEREUM,
   type StakeAndBakeRegistry,
+  type StakeAndBakeStakedToken,
   type StakeAndBakeToken,
 } from './defi';
 
@@ -561,6 +564,17 @@ export {
   setReferral,
 } from './api-functions/setReferral/setReferral';
 export {
+  getStakeAndBakeApiChainName,
+  getStakeAndBakePermits,
+  type IGetStakeAndBakePermitsParams,
+  type IGetStakeAndBakePermitsResult,
+  type ISaveStakeAndBakePermitParams,
+  saveStakeAndBakePermit,
+  type StakeAndBakePermit,
+  StakeAndBakePermitError,
+  type StakeAndBakePermitErrorCode,
+} from './api-functions/stakeAndBakePermits';
+export {
   FeeSignatureAlreadyExistsError,
   type IStoreNetworkFeeSignatureParams,
   type IStoreNetworkFeeSignatureStatus,
@@ -592,8 +606,13 @@ export {
 } from './contract-functions/getLBTCMintingFee/getLBTCMintingFee';
 export { getLBTCTotalSupply } from './contract-functions/getLBTCTotalSupply/getLBTCTotalSupply';
 export {
+  getNextStakeAndBakeNonce,
+  type IGetNextStakeAndBakeNonceParams,
+} from './contract-functions/getNextStakeAndBakeNonce/getNextStakeAndBakeNonce';
+export {
   getPermitNonce,
   type IGetPermitNonceParams,
+  type PermitNonceToken,
 } from './contract-functions/getPermitNonce/getPermitNonce';
 export {
   getStakeAndBakeFee,
