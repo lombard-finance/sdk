@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 
-const CURRENT_SEASON = 2;
+const DEFAULT_SEASON = 2;
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -17,7 +17,7 @@ const CURRENT_SEASON = 2;
 export interface IGetPointsByAddressParameters extends IEnvParam {
   /** The address of the points earner. */
   address: string;
-  /** The season to fetch (defaults to CURRENT_SEASON). */
+  /** The season to fetch (defaults to 2). */
   season?: number;
 }
 
@@ -244,6 +244,12 @@ async function fetchPointsSeason2({
  *
  * @param parameters - Address and environment parameters.
  * @returns A Season 1 points object.
+ *
+ * @deprecated Reads the live `referral-system/season-{1,2}/points` routes,
+ * which recompute the total on every request instead of returning the
+ * season-end figure, so the result can drift from it. Seasons 1 and 2 have
+ * ended; the season-end total is served by the authenticated
+ * `/v2/lux/points/season-{1,2}/final/{address}` route.
  */
 export async function getPointsByAddress(
   parameters: IGetPointsByAddressParameters & { season: 1 },
@@ -254,6 +260,12 @@ export async function getPointsByAddress(
  *
  * @param parameters - Address and environment parameters.
  * @returns A Season 2 points object.
+ *
+ * @deprecated Reads the live `referral-system/season-{1,2}/points` routes,
+ * which recompute the total on every request instead of returning the
+ * season-end figure, so the result can drift from it. Seasons 1 and 2 have
+ * ended; the season-end total is served by the authenticated
+ * `/v2/lux/points/season-{1,2}/final/{address}` route.
  */
 export async function getPointsByAddress(
   parameters: IGetPointsByAddressParameters & { season: 2 },
@@ -261,10 +273,16 @@ export async function getPointsByAddress(
 
 /**
  * Retrieves points for the given address.
- * Defaults to the current season if none is specified.
+ * Defaults to Season 2 if no season is specified.
  *
  * @param parameters - Address and optional environment/season parameters.
- * @returns A points object matching the requested or current season.
+ * @returns A points object matching the requested season.
+ *
+ * @deprecated Reads the live `referral-system/season-{1,2}/points` routes,
+ * which recompute the total on every request instead of returning the
+ * season-end figure, so the result can drift from it. Seasons 1 and 2 have
+ * ended; the season-end total is served by the authenticated
+ * `/v2/lux/points/season-{1,2}/final/{address}` route.
  */
 export async function getPointsByAddress(
   parameters: IGetPointsByAddressParameters,
@@ -276,7 +294,7 @@ export async function getPointsByAddress(
 export async function getPointsByAddress({
   address,
   env,
-  season = CURRENT_SEASON,
+  season = DEFAULT_SEASON,
 }: IGetPointsByAddressParameters): Promise<
   IPointsByAddressSeason1 | IPointsByAddressSeason2
 > {
@@ -289,6 +307,12 @@ export async function getPointsByAddress({
  * Convenience wrapper for fetching Season 1 points.
  *
  * @param params - Address and environment parameters.
+ *
+ * @deprecated Reads the live `referral-system/season-{1,2}/points` routes,
+ * which recompute the total on every request instead of returning the
+ * season-end figure, so the result can drift from it. Seasons 1 and 2 have
+ * ended; the season-end total is served by the authenticated
+ * `/v2/lux/points/season-{1,2}/final/{address}` route.
  */
 export const getLuxSeason1Points = (
   params: Omit<IGetPointsByAddressParameters, 'season'>,
@@ -298,6 +322,12 @@ export const getLuxSeason1Points = (
  * Convenience wrapper for fetching Season 2 points.
  *
  * @param params - Address and environment parameters.
+ *
+ * @deprecated Reads the live `referral-system/season-{1,2}/points` routes,
+ * which recompute the total on every request instead of returning the
+ * season-end figure, so the result can drift from it. Seasons 1 and 2 have
+ * ended; the season-end total is served by the authenticated
+ * `/v2/lux/points/season-{1,2}/final/{address}` route.
  */
 export const getLuxSeason2Points = (
   params: Omit<IGetPointsByAddressParameters, 'season'>,

@@ -1,3 +1,11 @@
+# Unreleased
+
+### Changed
+
+- `get_lux_points` no longer describes its result as the current season's points. It reads Season 2, which has ended, from a route that recalculates the total on every request, and the tool description and README now say so, so a model relaying the figure does not present it as current or final. The tool's name, parameters and result are unchanged.
+
+---
+
 # 0.3.0
 
 ## Breaking changes

@@ -1,3 +1,9 @@
+# Unreleased
+
+### Deprecated
+
+- `getPointsByAddress`, `getLuxSeason1Points`, `getLuxSeason2Points` and `sdk.api.points()`. They read `/api/v1/referral-system/season-{1,2}/points/{address}`, which recomputes the total on every request instead of returning the season-end figure, so the result can drift from it. Seasons 1 and 2 have ended; the season-end total is served by the authenticated `/v2/lux/points/season-{1,2}/final/{address}` route. Behaviour is unchanged: the default season is still 2 and the same routes are called.
+
 # 5.9.0
 
 ### Added

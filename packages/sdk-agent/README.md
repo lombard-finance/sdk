@@ -120,7 +120,7 @@ import { allTools, toolsByName } from "@lombard.finance/sdk-agent";
 
 | Tool | Description |
 | ---- | ----------- |
-| `get_lux_points` | Current-season Lux reward points (holding, protocol, referral, badge) |
+| `get_lux_points` | Season 2 Lux points (holding, protocol, referral, badge), recalculated per request rather than the final season total |
 | `get_positions_summary` | Aggregated portfolio summary (total BTC value, PnL, holdings and DeFi breakdown) |
 
 ### Morpho Blue (Lending and Borrowing)

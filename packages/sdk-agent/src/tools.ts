@@ -1458,8 +1458,9 @@ export const getLuxPoints: ToolDefinition<
 > = {
   name: "get_lux_points",
   description:
-    "Get the Lux reward points for a wallet address. Returns the current season's points " +
-    "including holding, protocol, referral, and badge points.",
+    "Get a wallet's Season 2 Lux points: holding, protocol, referral, and badge points. " +
+    "Season 2 has ended, and this figure is recalculated on every request, so it can " +
+    "differ from the wallet's final Season 2 total. Later seasons are not available here.",
   parameters: AddressOnlySchema as Record<string, unknown>,
   schema: AddressOnlyZod,
   execute: async (params) => {

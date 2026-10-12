@@ -25,6 +25,7 @@ import {
 } from "../tools";
 
 const mockGetEarnWithdrawals = vi.fn();
+const mockGetPointsByAddress = vi.fn();
 
 vi.mock("@lombard.finance/sdk", async () => {
   const actual = await vi.importActual<Record<string, unknown>>(
@@ -40,6 +41,7 @@ vi.mock("@lombard.finance/sdk", async () => {
       minAmount: 100000,
     }),
     getEarnWithdrawals: (params: unknown) => mockGetEarnWithdrawals(params),
+    getPointsByAddress: (params: unknown) => mockGetPointsByAddress(params),
   };
 });
 
@@ -614,5 +616,45 @@ describe("prepare_redeem_btcb", () => {
     if ("valid" in result && result.valid === false) {
       expect(result.errors.join(" ")).toMatch(/minimum/i);
     }
+  });
+});
+
+describe("get_lux_points", () => {
+  const tool = toolsByName["get_lux_points"];
+
+  it("describes the figure as Season 2 and not final, rather than the current season", () => {
+    expect(tool.description).toContain("Season 2");
+    expect(tool.description).toContain("recalculated on every request");
+    expect(tool.description).not.toMatch(/current season/i);
+  });
+
+  it("still reads Season 2 on prod", async () => {
+    mockGetPointsByAddress.mockResolvedValue({
+      totalPoints: 20,
+      holdingPoints: 10,
+      protocolPoints: 5,
+      referralPoints: 2,
+      badgesPoints: 1.5,
+      protocolPointsBreakdown: { vault: 5 },
+    });
+
+    const result = await tool.execute({
+      address: "0x1234567890123456789012345678901234567890",
+    });
+
+    expect(mockGetPointsByAddress).toHaveBeenCalledWith(
+      expect.objectContaining({ env: "prod", season: 2 }),
+    );
+    expect(result).toEqual({
+      points: {
+        totalPoints: 20,
+        holdingPoints: 10,
+        protocolPoints: 5,
+        referralPoints: 2,
+        badgesPoints: 1.5,
+        protocolPointsBreakdown: { vault: 5 },
+      },
+      season: 2,
+    });
   });
 });
