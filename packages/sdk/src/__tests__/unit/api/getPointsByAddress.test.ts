@@ -8,11 +8,7 @@
  * carries `@deprecated` so an editor flags the call site.
  */
 
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-
 import { Env } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 import ts from 'typescript';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -21,11 +17,14 @@ import {
   getLuxSeason2Points,
   getPointsByAddress,
 } from '../../../api-functions/getPointsByAddress/getPointsByAddress';
+import pointsSource from '../../../api-functions/getPointsByAddress/getPointsByAddress.ts?raw';
+import namespaceSource from '../../../client/ApiNamespace.ts?raw';
 import { getApiConfig } from '../../../common/api-config';
 
-vi.mock('axios');
+// `vi.hoisted` because `vi.mock` is lifted above ordinary declarations.
+const mockedGet = vi.hoisted(() => vi.fn());
 
-const mockedGet = vi.mocked(axios.get);
+vi.mock('axios', () => ({ default: { get: mockedGet } }));
 
 const ADDRESS = '7Pus5u9UhBjBLkNMTbHdDBdpqH5JLnjmwGFTw2D7eiMa';
 const { baseApiUrl } = getApiConfig(Env.prod);
@@ -117,12 +116,11 @@ describe('getPointsByAddress', () => {
   });
 });
 
-/** JSDoc tag names on every declaration of `name` in the file, in order. */
-function tagsOn(file: string, name: string): string[][] {
-  const path = resolve(__dirname, '../../..', file);
+/** JSDoc tag names on every declaration of `name` in the source, in order. */
+function tagsOn(text: string, name: string): string[][] {
   const source = ts.createSourceFile(
-    path,
-    readFileSync(path, 'utf8'),
+    'source.ts',
+    text,
     ts.ScriptTarget.Latest,
     true,
   );
@@ -148,11 +146,12 @@ function tagsOn(file: string, name: string): string[][] {
 }
 
 describe('deprecation', () => {
-  const POINTS = 'api-functions/getPointsByAddress/getPointsByAddress.ts';
-
   it('tags every overload of getPointsByAddress', () => {
     // Three overload signatures; the implementation signature is not visible to callers.
-    const [s1, s2, any, implementation] = tagsOn(POINTS, 'getPointsByAddress');
+    const [s1, s2, any, implementation] = tagsOn(
+      pointsSource,
+      'getPointsByAddress',
+    );
     expect(s1).toContain('deprecated');
     expect(s2).toContain('deprecated');
     expect(any).toContain('deprecated');
@@ -160,12 +159,12 @@ describe('deprecation', () => {
   });
 
   it.each(['getLuxSeason1Points', 'getLuxSeason2Points'])('tags %s', (name) => {
-    const [declaration] = tagsOn(POINTS, name);
+    const [declaration] = tagsOn(pointsSource, name);
     expect(declaration).toContain('deprecated');
   });
 
   it('tags every overload of sdk.api.points', () => {
-    const [s1, s2, any] = tagsOn('client/ApiNamespace.ts', 'points');
+    const [s1, s2, any] = tagsOn(namespaceSource, 'points');
     expect(s1).toContain('deprecated');
     expect(s2).toContain('deprecated');
     expect(any).toContain('deprecated');
