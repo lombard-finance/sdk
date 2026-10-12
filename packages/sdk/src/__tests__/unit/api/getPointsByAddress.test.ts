@@ -96,6 +96,16 @@ describe('getPointsByAddress', () => {
     });
   });
 
+  it('reads Season 1 for any season other than 2', async () => {
+    mockedGet.mockResolvedValue({ data: { total: 1 } });
+
+    await getPointsByAddress({ address: ADDRESS, env: Env.prod, season: 3 });
+
+    expect(mockedGet).toHaveBeenCalledWith(
+      `${baseApiUrl}/api/v1/referral-system/season-1/points/${ADDRESS}`,
+    );
+  });
+
   it('routes the Season 2 wrapper to the Season 2 route', async () => {
     mockedGet.mockResolvedValue({ data: { total: 1 } });
 

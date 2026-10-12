@@ -276,7 +276,7 @@ export async function getPointsByAddress(
  * Defaults to Season 2 if no season is specified.
  *
  * @param parameters - Address and optional environment/season parameters.
- * @returns A points object matching the requested season.
+ * @returns Season 2 points when `season` is 2, otherwise Season 1 points.
  *
  * @deprecated Reads the live `referral-system/season-{1,2}/points` routes,
  * which recompute the total on every request instead of returning the
