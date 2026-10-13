@@ -8,7 +8,7 @@ on:
 
 jobs:
   secrets-scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     concurrency:
@@ -63,7 +63,7 @@ jobs:
             --gitleaks-ignore-path "${{ steps.config.outputs.ignore }}"
 
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: ${{ vars.AWS_ECR_REGISTRY }}/library/alpine-git-node-aws:latest
     concurrency:
