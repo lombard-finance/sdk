@@ -99,6 +99,60 @@ export async function signStakeAndBake(params) {
 
 ---
 
+### 3. **Staked Token**
+
+`stakedToken` names the ERC-20 the spender pulls. The permit is signed over that
+token's EIP-712 domain, and its `nonces(owner)` is the permit nonce. It matters
+for the virtual `'BTC'` token, which stakes LBTC on `veda` and BTC.b on
+`onChainCredit`. `getStakeAndBakeStakedToken(strategy)` resolves it, falling back
+to BTC.b for the `BTC.b` registry token and LBTC otherwise.
+
+### 4. **Several Pending Permits**
+
+The v2 permit routes keep several unused permits per owner and token:
+
+```typescript
+const nonce = await getNextStakeAndBakeNonce({
+  owner,
+  protocol: DefiProtocol.OnChainCredit,
+  token: 'BTC',
+  chainId: ChainId.ethereum,
+  env: Env.prod,
+  walletJwt,
+});
+
+const { signature, typedData } = await signStakeAndBake({
+  account: owner,
+  value: 150_000, // satoshis
+  token: 'BTC',
+  vaultKey: DefiProtocol.OnChainCredit,
+  chainId: ChainId.ethereum,
+  env: Env.prod,
+  provider,
+  nonce,
+});
+
+await saveStakeAndBakePermit({
+  address: owner,
+  typedData,
+  signature,
+  walletJwt,
+  env: Env.prod,
+});
+```
+
+- Permit mode: the next nonce is `nonces(owner)` on the staked token plus the
+  number of listed unused permits on that token. Contracts that stake the same
+  token share the sequence.
+- Approve mode: the nonce only identifies the permit. Pass `pendingAllowance`
+  (the sum of the spender's other pending deposits) so the allowance checked
+  and approved is that sum plus `value`.
+- Re-signing a pending permit's nonce and saving it again replaces it.
+- `getStakeAndBakePermits()` lists the unused permits; refusals from either
+  route raise `StakeAndBakePermitError` with a `code`.
+
+---
+
 ## 🔧 Adding New Integrations
 
 ### Example 1: Add Existing Token to New Chain (Veda Stake & Deploy)

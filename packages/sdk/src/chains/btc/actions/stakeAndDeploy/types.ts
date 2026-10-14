@@ -50,6 +50,18 @@ export interface BtcStakeAndDeployPrepareParams {
   recipient: string;
   /** Optional referral code */
   referralCode?: string;
+  /**
+   * Optional JWT from the wallet-auth flow (`requestWalletChallenge` →
+   * `verifyWalletSignature`) for the recipient.
+   *
+   * When given, the stored authorisation is looked up on the v2 permit route
+   * and only a permit for this protocol's spender and staked token is
+   * considered. Without it the v1 route is used, which answers with the most
+   * recent permit for the recipient and chain whatever its spender, so a
+   * recipient holding permits for several stake-and-bake contracts on one
+   * chain should pass it.
+   */
+  walletJwt?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

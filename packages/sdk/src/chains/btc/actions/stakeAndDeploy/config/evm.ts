@@ -14,17 +14,38 @@ import { Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import type { EIP1193Provider } from 'viem';
 
-import { getUserStakeAndBakeSignature } from '../../../../../api-functions/getUserStakeAndBakeSignature';
+import {
+  getUserStakeAndBakeSignature,
+  type IGetUserStakeAndBakeSignatureResponse,
+} from '../../../../../api-functions/getUserStakeAndBakeSignature';
+import {
+  getStakeAndBakePermits,
+  type StakeAndBakePermit,
+} from '../../../../../api-functions/stakeAndBakePermits/getStakeAndBakePermits';
 import type { ChainId } from '../../../../../common/chains';
-import { getPermitValue } from '../../../../../contract-functions/signStakeAndBake/utils';
+import { getPermitNonce } from '../../../../../contract-functions/getPermitNonce/getPermitNonce';
+import {
+  getPermitValue,
+  getStakeAndBakeTokenContract,
+} from '../../../../../contract-functions/signStakeAndBake/utils';
+import { getStakeAndBakeConfig } from '../../../../../contract-functions/signStakeAndBake/validation';
 import { AssetId, Chain, evmChainIdToChain } from '../../../../../core';
-import type { StakeAndBakeToken } from '../../../../../defi/defi-registry';
+import {
+  type DefiProtocol,
+  getStakeAndBakeStakedToken,
+  type StakeAndBakeStrategy,
+  type StakeAndBakeToken,
+} from '../../../../../defi/defi-registry';
 import { LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
 import { evmAddressSchema } from '../../../../../shared/validation';
+import { UnauthorizedWalletJwtError } from '../../../../../utils/err';
 import { EARN_STAKE_AND_BAKE_CHAINS } from '../../../../../vaults/lib/config';
 import { getSupportedProtocols } from '../../depositAndDeploy/config';
-import type { StakeAndDeployChainConfig } from './types';
+import type {
+  StakeAndBakeRestoreResult,
+  StakeAndDeployChainConfig,
+} from './types';
 
 // Convert chain IDs to Chain enum values (CAIP-2 format)
 // Uses EARN_STAKE_AND_BAKE_CHAINS as source of truth
@@ -112,6 +133,18 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
   },
 
   async restoreStakeAndBakeSignature(ctx, chainId, recipient, required) {
+    const strategy = resolveStrategy(required, chainId as ChainId, ctx.env);
+
+    if (strategy && required.walletJwt) {
+      return restoreFromPermits(
+        strategy,
+        recipient,
+        required,
+        required.walletJwt,
+        ctx.env,
+      );
+    }
+
     try {
       const result = await getUserStakeAndBakeSignature({
         userDestinationAddress: recipient,
@@ -136,6 +169,14 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
           // Signature has expired
           return null;
         }
+      }
+
+      if (
+        strategy &&
+        (await isConsumedForStakedToken(strategy, recipient, result, ctx.env))
+      ) {
+        // Not a pending permit on this strategy's token.
+        return null;
       }
 
       return {
@@ -193,4 +234,158 @@ async function storedAmountCovers(
   return stored.isGreaterThanOrEqualTo(
     needed.decimalPlaces(0, BigNumber.ROUND_DOWN),
   );
+}
+
+function resolveStrategy(
+  required: { token: string; protocol?: string },
+  chainId: ChainId,
+  env: Env,
+): StakeAndBakeStrategy | undefined {
+  if (!required.protocol) return undefined;
+  try {
+    return getStakeAndBakeConfig(
+      required.protocol as DefiProtocol,
+      required.token as StakeAndBakeToken,
+      chainId,
+      env,
+    );
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The v1 route answers with the most recent permit for the recipient and
+ * chain, whatever its spender or token. Its record carries no token, so the
+ * one check available is the nonce: an unused permit on this strategy's token
+ * cannot sit below that token's on-chain `nonces(owner)`. A record that does
+ * is either spent or for another token, and is not a resume here.
+ *
+ * Inconclusive (no nonce on the record, or the read failed) counts as not
+ * consumed, which keeps the previous behaviour.
+ */
+async function isConsumedForStakedToken(
+  strategy: StakeAndBakeStrategy,
+  recipient: string,
+  record: IGetUserStakeAndBakeSignatureResponse,
+  env: Env,
+): Promise<boolean> {
+  if (strategy.approval.nonceStrategy !== 'chain') return false;
+  if (record.nonce === undefined || record.nonce === null) return false;
+  if (!/^\d+$/.test(String(record.nonce))) return false;
+
+  try {
+    const onChain = await getPermitNonce({
+      owner: recipient as `0x${string}`,
+      token: getStakeAndBakeStakedToken(strategy),
+      chainId: strategy.chainId,
+      env,
+    });
+    return BigInt(record.nonce) < BigInt(onChain);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Restores from the v2 permit route: only unexpired, unblocked permits for
+ * this strategy's spender and staked token count. Among them the lowest nonce
+ * that covers the deposit is reported, or the lowest nonce when none does.
+ *
+ * The v2 route returns no signature bytes. They are taken from the v1 record
+ * when it is the same permit (same nonce, amount and deadline); otherwise the
+ * result carries none, which `prepare()` treats as a record it cannot go
+ * ready on.
+ *
+ * A rejected JWT is raised rather than read as "nothing on file": the caller
+ * passed it to get a filtered answer, and an unfiltered guess is what it
+ * replaces.
+ */
+async function restoreFromPermits(
+  strategy: StakeAndBakeStrategy,
+  recipient: string,
+  required: { amount: string; token: string },
+  walletJwt: string,
+  env: Env,
+): Promise<StakeAndBakeRestoreResult | null> {
+  let permits: StakeAndBakePermit[];
+  let tokenAddress: string;
+  try {
+    const stakedToken = getStakeAndBakeStakedToken(strategy);
+    const [tokenContract, listed] = await Promise.all([
+      getStakeAndBakeTokenContract(stakedToken, strategy.chainId, env),
+      getStakeAndBakePermits({
+        address: recipient,
+        chainId: strategy.chainId,
+        walletJwt,
+        env,
+      }),
+    ]);
+    tokenAddress = String(tokenContract.address).toLowerCase();
+    permits = listed.permits;
+  } catch (error) {
+    if (error instanceof UnauthorizedWalletJwtError) throw error;
+    return null;
+  }
+
+  const spender = strategy.spenderContract.address.toLowerCase();
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const candidates = permits
+    .filter(
+      (permit) =>
+        permit.spenderAddress.toLowerCase() === spender &&
+        permit.tokenAddress.toLowerCase() === tokenAddress &&
+        !permit.expired &&
+        !permit.blocked &&
+        permit.expiresAt > nowSeconds,
+    )
+    .sort((a, b) => {
+      const diff = BigInt(a.nonce) - BigInt(b.nonce);
+      return diff < 0n ? -1 : diff > 0n ? 1 : 0;
+    });
+
+  if (candidates.length === 0) return null;
+
+  const covering: Array<[StakeAndBakePermit, boolean]> = await Promise.all(
+    candidates.map(
+      async (permit): Promise<[StakeAndBakePermit, boolean]> => [
+        permit,
+        await storedAmountCovers(permit.depositAmount, required, env),
+      ],
+    ),
+  );
+  const [chosen, coversAmount] =
+    covering.find(([, covers]) => covers) ?? covering[0];
+
+  return {
+    hasSignature: true,
+    signature: await signatureFromV1(chosen, recipient, strategy, env),
+    depositAmount: chosen.depositAmount,
+    expirationDate: String(chosen.expiresAt),
+    coversAmount,
+  };
+}
+
+async function signatureFromV1(
+  permit: StakeAndBakePermit,
+  recipient: string,
+  strategy: StakeAndBakeStrategy,
+  env: Env,
+): Promise<string | undefined> {
+  try {
+    const record = await getUserStakeAndBakeSignature({
+      userDestinationAddress: recipient,
+      chainId: strategy.chainId,
+      env,
+    });
+    const same =
+      record.signature &&
+      record.nonce !== undefined &&
+      String(record.nonce) === permit.nonce &&
+      new BigNumber(record.depositAmount).isEqualTo(permit.depositAmount) &&
+      Number(record.expirationDate) === permit.expiresAt;
+    return same ? record.signature : undefined;
+  } catch {
+    return undefined;
+  }
 }

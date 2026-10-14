@@ -10,8 +10,11 @@ export {
   type DefiRegistryToken,
   getAvailableProtocols,
   getAvailableProtocolsWithMetadata,
+  getStakeAndBakeStakedToken,
   getStakeAndBakeSupportedChains,
   getSupportedProtocols,
+  ON_CHAIN_CREDIT_SPENDER_CONTRACT_ETHEREUM,
   type StakeAndBakeRegistry,
+  type StakeAndBakeStakedToken,
   type StakeAndBakeToken,
 } from './defi-registry';
