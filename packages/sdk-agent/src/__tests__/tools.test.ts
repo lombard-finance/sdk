@@ -133,7 +133,7 @@ describe("prepareClaimLbtcDeposit", () => {
 
 describe("allTools", () => {
   it("has 32 entries", () => {
-    expect(allTools).toHaveLength(32);
+    expect(allTools).toHaveLength(31);
   });
 
   it("contains all expected tools including new ones", () => {
@@ -162,7 +162,6 @@ describe("allTools", () => {
     expect(names).toContain("prepare_redeem_btcb");
     expect(names).toContain("get_redemption_status");
     expect(names).toContain("get_earn_withdrawals");
-    expect(names).toContain("get_lux_points");
     expect(names).toContain("get_positions_summary");
   });
 

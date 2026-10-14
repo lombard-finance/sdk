@@ -3,7 +3,6 @@ export * from './getDepositBtcAddress';
 export * from './getDepositsByAddress';
 export * from './getLBTCExchangeRate';
 export * from './getNetworkFeeSignature';
-export * from './getPointsByAddress';
 export * from './getUnstakesByAddress';
 export * from './getUserStakeAndBakeSignature';
 export * from './resolveDepositBtcAddress';

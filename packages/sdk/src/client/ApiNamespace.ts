@@ -16,9 +16,6 @@
  * // Fetch unstakes with options
  * const unstakes = await sdk.api.unstakes('0x...', { show_redeems: true });
  *
- * // Fetch points (defaults to current season)
- * const points = await sdk.api.points('0x...');
- *
  * // Fetch LBTC exchange rate
  * const rate = await sdk.api.exchangeRatio();
  *
@@ -38,11 +35,6 @@ import {
   getDepositsByAddress,
 } from '../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { getExchangeRatio } from '../api-functions/getLBTCExchangeRate/get-exchange-ratio';
-import {
-  getPointsByAddress,
-  type IPointsByAddressSeason1,
-  type IPointsByAddressSeason2,
-} from '../api-functions/getPointsByAddress/getPointsByAddress';
 import {
   getUnstakesByAddress,
   type Unstake,
@@ -184,58 +176,6 @@ export class ApiNamespace {
   ): Promise<Unstake[]> {
     // Future: if (this.apiVersion === 'v2') return this.unstakesV2(address, options);
     return getUnstakesByAddress({ address, env: this.env, options });
-  }
-
-  /* -------------------------------------------------------------------------- */
-  /*                                Points                                      */
-  /* -------------------------------------------------------------------------- */
-
-  /**
-   * Fetch Lux points for an address (Season 1).
-   *
-   * @param address - The wallet address
-   * @param season - Season number (1)
-   * @returns Promise resolving to Season 1 points breakdown
-   */
-  async points(address: string, season: 1): Promise<IPointsByAddressSeason1>;
-
-  /**
-   * Fetch Lux points for an address (Season 2).
-   *
-   * @param address - The wallet address
-   * @param season - Season number (2)
-   * @returns Promise resolving to Season 2 points breakdown
-   */
-  async points(address: string, season: 2): Promise<IPointsByAddressSeason2>;
-
-  /**
-   * Fetch Lux points for an address (defaults to current season).
-   *
-   * @param address - The wallet address
-   * @param season - Optional season number (defaults to current)
-   * @returns Promise resolving to points breakdown
-   *
-   * @example
-   * ```ts
-   * // Get current season points
-   * const points = await sdk.api.points('0x1234...');
-   * console.log(`Total: ${points.totalPoints}, Holding: ${points.holdingPoints}`);
-   *
-   * // Get Season 1 points
-   * const s1 = await sdk.api.points('0x1234...', 1);
-   * ```
-   */
-  async points(
-    address: string,
-    season?: number,
-  ): Promise<IPointsByAddressSeason1 | IPointsByAddressSeason2>;
-
-  async points(
-    address: string,
-    season?: number,
-  ): Promise<IPointsByAddressSeason1 | IPointsByAddressSeason2> {
-    // Future: if (this.apiVersion === 'v2') return this.pointsV2(address, season);
-    return getPointsByAddress({ address, env: this.env, season });
   }
 
   /* -------------------------------------------------------------------------- */
