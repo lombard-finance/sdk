@@ -132,7 +132,7 @@ describe("prepareClaimLbtcDeposit", () => {
 });
 
 describe("allTools", () => {
-  it("has 32 entries", () => {
+  it("has 31 entries", () => {
     expect(allTools).toHaveLength(31);
   });
 

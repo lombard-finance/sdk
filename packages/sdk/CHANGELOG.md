@@ -10,12 +10,17 @@ They read `/api/v1/referral-system/season-{1,2}/points/{address}`, which recompu
 
 ### Migration
 
-Remove calls to the functions above. To read a season-end total, call the v2 route with the wallet's JWT as a bearer token:
+Remove calls to the functions above. To read a season-end total, call the v2 route with the wallet's JWT as a bearer token. The route is served from `baseApiV2Url`, not the `baseApiUrl` the removed functions used:
 
 ```ts
-const res = await fetch(`${baseUrl}/v2/lux/points/season-1/final/${address}`, {
-  headers: { Authorization: `Bearer ${jwt}` },
-});
+import { getApiConfig } from '@lombard.finance/sdk';
+
+const { baseApiV2Url } = getApiConfig(env);
+const res = await fetch(
+  `${baseApiV2Url}/v2/lux/points/season-1/final/${address}`,
+  { headers: { Authorization: `Bearer ${jwt}` } },
+);
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
 const { total } = await res.json(); // exact decimal string
 ```
 
