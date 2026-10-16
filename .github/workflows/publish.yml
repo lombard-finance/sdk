@@ -297,16 +297,17 @@ jobs:
           fail() { echo "::error::$*"; exit 1; }
           EXPECT_TAG="latest"
           [[ "$IN_CHANNEL" == "latest" ]] || EXPECT_TAG="$IN_DIST_TAG"
+          # The registry can take several minutes to serve a new version. Every
+          # tarball is already published, so all rows share one deadline.
+          DEADLINE=$((SECONDS + 300))
           while IFS=$'\t' read -r _FILE NAME VERSION; do
-            SEEN=""
-            # The registry can take several minutes to serve a new version.
-            for attempt in $(seq 1 30); do
+            while true; do
               SEEN="$(npm view "$NAME@$VERSION" version 2> /dev/null || true)"
               [[ "$SEEN" == "$VERSION" ]] && break
-              echo "waiting for $NAME@$VERSION (attempt $attempt)"
+              (( SECONDS < DEADLINE )) || fail "$NAME@$VERSION is not visible on npm"
+              echo "waiting for $NAME@$VERSION"
               sleep 10
             done
-            [[ "$SEEN" == "$VERSION" ]] || fail "$NAME@$VERSION is not visible on npm"
             TAGGED="$(npm view "$NAME" "dist-tags.$EXPECT_TAG" 2> /dev/null || true)"
             [[ "$TAGGED" == "$VERSION" ]] || fail "$NAME dist-tag $EXPECT_TAG is '$TAGGED', expected $VERSION"
             ATTESTATION="$(npm view "$NAME@$VERSION" dist.attestations.url 2> /dev/null || true)"
