@@ -15,9 +15,10 @@ Remove calls to the functions above. To read a season-end total, call the v2 rou
 ```ts
 import { getApiConfig } from '@lombard.finance/sdk';
 
+const season = 2; // 1 or 2
 const { baseApiV2Url } = getApiConfig(env);
 const res = await fetch(
-  `${baseApiV2Url}/v2/lux/points/season-1/final/${address}`,
+  `${baseApiV2Url}/v2/lux/points/season-${season}/final/${address}`,
   { headers: { Authorization: `Bearer ${jwt}` } },
 );
 if (!res.ok) throw new Error(`HTTP ${res.status}`);
