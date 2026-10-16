@@ -24,6 +24,8 @@ interface WalletVerifyApiResponse {
 }
 
 export interface VerifyWalletSignatureParams extends IEnvParam {
+  /** Optional client secret returned by the wallet challenge. */
+  clientSecret?: string;
   address: string;
   payload: string;
   signature: string;
@@ -59,6 +61,7 @@ export async function verifyWalletSignature({
   chain,
   publicKey,
   challengeType,
+  clientSecret,
   env,
 }: VerifyWalletSignatureParams): Promise<WalletVerifyResponse> {
   const { baseApiV2Url } = getApiConfig(env);
@@ -73,6 +76,7 @@ export async function verifyWalletSignature({
         chain,
         ...(publicKey ? { public_key: publicKey } : {}),
         ...(challengeType ? { challenge_type: challengeType } : {}),
+        ...(clientSecret ? { client_secret: clientSecret } : {}),
       },
       {
         baseURL: baseApiV2Url,
