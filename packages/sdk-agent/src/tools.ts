@@ -28,7 +28,6 @@ import {
   getExchangeRatio,
   getLBTCExchangeRate,
   getNetworkFeeSignature,
-  getPointsByAddress,
   getPositionsSummary,
   getTokenContractInfo,
   getUnstakesByAddress,
@@ -1439,70 +1438,6 @@ export const getEarnWithdrawalsTool: ToolDefinition<
   },
 };
 
-// ─── Lux Points Tool ──────────────────────────────────────────────
-
-export const getLuxPoints: ToolDefinition<
-  { address: string },
-  {
-    points: {
-      totalPoints: number;
-      holdingPoints: number;
-      protocolPoints: number;
-      referralPoints: number;
-      badgesPoints: number;
-      protocolPointsBreakdown: Record<string, number>;
-    };
-    season: number;
-    error?: string;
-  }
-> = {
-  name: "get_lux_points",
-  description:
-    "Get the Lux reward points for a wallet address. Returns the current season's points " +
-    "including holding, protocol, referral, and badge points.",
-  parameters: AddressOnlySchema as Record<string, unknown>,
-  schema: AddressOnlyZod,
-  execute: async (params) => {
-    const { address } = AddressOnlyZod.parse(params);
-    try {
-      const data = await withTimeout(
-        getPointsByAddress({
-          address,
-          env: Env.prod,
-          season: 2,
-        }),
-        10_000,
-        "getPointsByAddress",
-      );
-      return {
-        points: {
-          totalPoints: data.totalPoints,
-          holdingPoints: data.holdingPoints,
-          protocolPoints: data.protocolPoints,
-          referralPoints: data.referralPoints,
-          badgesPoints: data.badgesPoints,
-          protocolPointsBreakdown: data.protocolPointsBreakdown,
-        },
-        season: 2,
-      };
-    } catch (err) {
-      return {
-        points: {
-          totalPoints: 0,
-          holdingPoints: 0,
-          protocolPoints: 0,
-          referralPoints: 0,
-          badgesPoints: 0,
-          protocolPointsBreakdown: {},
-        },
-        season: 2,
-        error:
-          err instanceof Error ? err.message : "Failed to fetch Lux points",
-      };
-    }
-  },
-};
-
 // ─── Positions Summary Tool ───────────────────────────────────────
 
 export const getPositionsSummaryTool: ToolDefinition<
@@ -1621,7 +1556,6 @@ export const allTools: AnyToolDefinition[] = [
   prepareMorphoRepay,
   getMorphoPosition,
   getEarnWithdrawalsTool,
-  getLuxPoints,
   getPositionsSummaryTool,
 ];
 

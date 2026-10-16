@@ -116,11 +116,10 @@ import { allTools, toolsByName } from "@lombard.finance/sdk-agent";
 | `prepare_earn_withdrawal` | Request a Bitcoin Earn withdrawal (one active per user per vault) |
 | `prepare_cancel_earn_withdrawal` | Cancel an active Bitcoin Earn withdrawal |
 
-### Portfolio and rewards
+### Portfolio
 
 | Tool | Description |
 | ---- | ----------- |
-| `get_lux_points` | Current-season Lux reward points (holding, protocol, referral, badge) |
 | `get_positions_summary` | Aggregated portfolio summary (total BTC value, PnL, holdings and DeFi breakdown) |
 
 ### Morpho Blue (Lending and Borrowing)

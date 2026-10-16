@@ -93,12 +93,11 @@ create → prepare → execute → complete
 
 ### Data API
 
-Query deposits, unstakes, points, and exchange rates:
+Query deposits, unstakes, and exchange rates:
 
 ```typescript
 const deposits = await sdk.api.deposits(address);
 const unstakes = await sdk.api.unstakes(address);
-const points = await sdk.api.points(address);
 const rate = await sdk.api.exchangeRatio();
 ```
 

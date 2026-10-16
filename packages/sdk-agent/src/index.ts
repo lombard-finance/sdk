@@ -70,7 +70,6 @@ export {
   getLbtcApy,
   getLbtcBalance,
   getLbtcDefiOpportunitiesTool,
-  getLuxPoints,
   getMorphoLbtcMarkets,
   getMorphoPosition,
   getPositionsSummaryTool,

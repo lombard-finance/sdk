@@ -1,6 +1,31 @@
 # 5.10.0
 
-### Added
+## 🚨 BREAKING CHANGES
+
+### Removed: Season 1 and Season 2 points readers
+
+`getPointsByAddress`, `getLuxSeason1Points`, `getLuxSeason2Points` and `sdk.api.points()` are removed, along with their types (`IGetPointsByAddressParameters`, `IPointsBase`, `IPointsByAddressSeason1`, `IPointsByAddressSeason2`, `IProtocolPointsBreakdown`).
+
+They read `/api/v1/referral-system/season-{1,2}/points/{address}`, which recomputes a total on every request rather than returning the season-end figure, so the result drifted from the final total for both seasons. The SDK has no replacement: the season-end total is served by the authenticated `/v2/lux/points/season-{1,2}/final/{address}` route, which takes a wallet JWT and returns `{ total: string }`.
+
+### Migration
+
+Remove calls to the functions above. To read a season-end total, call the v2 route with the wallet's JWT as a bearer token. The route is served from `baseApiV2Url`, not the `baseApiUrl` the removed functions used:
+
+```ts
+import { getApiConfig } from '@lombard.finance/sdk';
+
+const season = 2; // 1 or 2
+const { baseApiV2Url } = getApiConfig(env);
+const res = await fetch(
+  `${baseApiV2Url}/v2/lux/points/season-${season}/final/${address}`,
+  { headers: { Authorization: `Bearer ${jwt}` } },
+);
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
+const { total } = await res.json(); // exact decimal string
+```
+
+## Added
 
 - Optional wallet challenge `clientSecret`, sent as `client_secret` on verification and status polling, including the permit flow.
 
