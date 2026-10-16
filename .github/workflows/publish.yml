@@ -299,7 +299,8 @@ jobs:
           [[ "$IN_CHANNEL" == "latest" ]] || EXPECT_TAG="$IN_DIST_TAG"
           while IFS=$'\t' read -r _FILE NAME VERSION; do
             SEEN=""
-            for attempt in 1 2 3 4 5 6; do
+            # The registry can take several minutes to serve a new version.
+            for attempt in $(seq 1 30); do
               SEEN="$(npm view "$NAME@$VERSION" version 2> /dev/null || true)"
               [[ "$SEEN" == "$VERSION" ]] && break
               echo "waiting for $NAME@$VERSION (attempt $attempt)"
