@@ -1,4 +1,4 @@
-# 5.11.0
+# 5.10.0
 
 ## 🚨 BREAKING CHANGES
 
@@ -25,7 +25,9 @@ if (!res.ok) throw new Error(`HTTP ${res.status}`);
 const { total } = await res.json(); // exact decimal string
 ```
 
----
+## Added
+
+- Optional wallet challenge `clientSecret`, sent as `client_secret` on verification and status polling, including the permit flow.
 
 # 5.9.0
 
