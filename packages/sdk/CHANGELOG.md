@@ -1,3 +1,9 @@
+# 5.10.0
+
+### Added
+
+- Optional wallet challenge `clientSecret`, sent as `client_secret` on verification and status polling, including the permit flow.
+
 # 5.9.0
 
 ### Added
