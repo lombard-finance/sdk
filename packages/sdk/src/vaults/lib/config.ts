@@ -123,10 +123,10 @@ export const EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS: Record<
  * BoringOnChainQueue — the new withdrawal queue that replaces the legacy
  * AtomicQueue (`EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS`) for LBTCv withdrawals.
  *
- * Deployed on Ethereum only for LBTCv. The withdraw flow routes here when the
- * caller passes `queue: 'boring'` to `withdrawEarn`; otherwise it stays on the
- * AtomicQueue so a rollback needs no code change. Kept a Partial<Record> since
- * only Ethereum has a deployment today.
+ * Deployed for LBTCv at the same address on every Earn chain. The withdraw
+ * flow routes here when the caller passes `queue: 'boring'` to `withdrawEarn`;
+ * otherwise it stays on the AtomicQueue so a rollback needs no code change.
+ * Kept a Partial<Record> so a future Earn chain can ship without a queue.
  */
 export const EARN_VAULT_BORING_QUEUE_CONTRACTS: Partial<
   Record<EarnChain, ContractInfo>
@@ -135,6 +135,16 @@ export const EARN_VAULT_BORING_QUEUE_CONTRACTS: Partial<
     abi: VEDA_VAULT_BORING_ONCHAIN_QUEUE_ABI as Abi,
     address: '0x4a20F4948c435fDA923399F89800CdC373de88cB',
     chainId: ChainId.ethereum,
+  },
+  [ChainId.base]: {
+    abi: VEDA_VAULT_BORING_ONCHAIN_QUEUE_ABI as Abi,
+    address: '0x4a20F4948c435fDA923399F89800CdC373de88cB',
+    chainId: ChainId.base,
+  },
+  [ChainId.binanceSmartChain]: {
+    abi: VEDA_VAULT_BORING_ONCHAIN_QUEUE_ABI as Abi,
+    address: '0x4a20F4948c435fDA923399F89800CdC373de88cB',
+    chainId: ChainId.binanceSmartChain,
   },
 };
 
