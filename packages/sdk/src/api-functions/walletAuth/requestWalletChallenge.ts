@@ -22,6 +22,7 @@ interface WalletChallengeApiResponse {
   challenge_type?: string;
   digest?: string;
   signature_expires_at?: string | null;
+  client_secret?: string;
 }
 
 export interface RequestWalletChallengeParams extends IEnvParam {
@@ -99,6 +100,7 @@ export async function requestWalletChallenge({
     );
 
     return {
+      ...(data.client_secret ? { clientSecret: data.client_secret } : {}),
       nonce: data.nonce,
       payload: data.payload,
       expiresAt: data.expires_at,

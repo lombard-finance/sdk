@@ -1,3 +1,11 @@
+# 0.4.0
+
+## Breaking changes
+
+- The `get_lux_points` tool (`getLuxPoints`) is removed, because the `@lombard.finance/sdk` function it wrapped is removed. It returned Season 2 points from a route that recomputes the total on every request, so the figure it gave a model was neither current nor final. `allTools` and `toolsByName` no longer include it.
+
+---
+
 # 0.3.0
 
 ## Breaking changes
