@@ -4,10 +4,17 @@ import { Commitment, Connection } from '@solana/web3.js';
 import { SolanaNetwork } from '../types/network';
 
 // TODO: Get this from the sdk
-export const BFF_BASE_URL_PROD =
-  'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
+// HTTP moves to /multi-rpc/v2, the narrowed transport that replaces the open
+// /multi-rpc/proxy route. Solana chains are unaffected by its EVM method
+// allowlist — the gateway delegates them to its Solana service, which keeps
+// its own — so this is a path change, not a behaviour change.
+export const BFF_BASE_URL_PROD = 'https://bff.prod.lombard-fi.com/multi-rpc/v2';
 export const BFF_BASE_URL_STAGE =
-  'https://bff.stage.lombard-fi.com/multi-rpc/proxy';
+  'https://bff.stage.lombard-fi.com/multi-rpc/v2';
+// WebSocket deliberately stays on /multi-rpc/proxy: the gateway serves
+// subscriptions on that path only, and there is no v2 socket to move to.
+// confirmTransaction rides this connection via signatureSubscribe, so pointing
+// it at a path the gateway does not listen on would break every deposit.
 export const BFF_WS_URL_PROD = 'wss://bff.prod.lombard-fi.com/multi-rpc/proxy';
 export const BFF_WS_URL_STAGE =
   'wss://bff.stage.lombard-fi.com/multi-rpc/proxy';

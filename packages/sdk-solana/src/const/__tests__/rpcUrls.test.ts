@@ -51,6 +51,38 @@ describe('Solana BFF env propagation', () => {
     });
   });
 
+  // The gateway serves subscriptions on /multi-rpc/proxy only; there is no v2
+  // socket. confirmTransaction rides that connection through
+  // signatureSubscribe, so the two transports move independently.
+  describe('transport paths', () => {
+    it('sends HTTP to the v2 transport', () => {
+      expect(getRpcUrl(SolanaNetwork.mainnet, Env.prod)).toContain(
+        '/multi-rpc/v2/',
+      );
+      expect(getRpcUrl(SolanaNetwork.devnet, Env.stage)).toContain(
+        '/multi-rpc/v2/',
+      );
+    });
+
+    it('keeps the WebSocket on /multi-rpc/proxy', () => {
+      expect(getWsUrl(SolanaNetwork.mainnet, Env.prod)).toContain(
+        '/multi-rpc/proxy?',
+      );
+      expect(getWsUrl(SolanaNetwork.devnet, Env.stage)).toContain(
+        '/multi-rpc/proxy?',
+      );
+    });
+
+    it('leaves the public testnet endpoints alone', () => {
+      expect(getRpcUrl(SolanaNetwork.testnet, Env.prod)).toBe(
+        'https://api.testnet.solana.com',
+      );
+      expect(getWsUrl(SolanaNetwork.testnet, Env.prod)).toBe(
+        'wss://api.testnet.solana.com',
+      );
+    });
+  });
+
   describe('getRpcEndpoint(env)', () => {
     it('routes stage env through stage BFF + devnet segment', () => {
       const url = getRpcEndpoint(Env.stage);
