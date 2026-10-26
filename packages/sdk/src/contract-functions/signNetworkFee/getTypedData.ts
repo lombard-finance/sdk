@@ -1,18 +1,23 @@
+import type { TokenEip712Domain } from '../getTokenEip712Domain/getTokenEip712Domain';
+
 interface IGetTypedData {
   chainId: number;
   verifyingContract: string;
   fee: string;
   expiry: number;
+  domain?: TokenEip712Domain;
 }
 
+/** Pass an on-chain domain for rename-safe signing; the default is legacy LBTC. */
 export function getTypedData({
   chainId,
   verifyingContract,
   fee,
   expiry,
+  domain,
 }: IGetTypedData) {
   return {
-    domain: {
+    domain: domain ?? {
       name: 'Lombard Staked Bitcoin',
       version: '1',
       chainId,

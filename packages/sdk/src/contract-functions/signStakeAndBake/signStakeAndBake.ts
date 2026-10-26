@@ -14,6 +14,7 @@ import {
 } from '../../shared/validation/signing';
 import { DAY, now, toUnix } from '../../utils/time';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
+import { getTokenEip712Domain } from '../getTokenEip712Domain/getTokenEip712Domain';
 import { handleApproveFlow } from './handleApprove';
 import { handlePermitFlow } from './handlePermit';
 import { buildTypedData } from './typed-data-builder';
@@ -164,14 +165,20 @@ export async function signStakeAndBake({
       ? BigInt(await getPermitNonce({ owner: account, chainId, rpcUrl, env }))
       : 0n;
 
-  // Build typed data using config
+  const domain = await getTokenEip712Domain({
+    chainId,
+    tokenAddress,
+    rpcUrl,
+    env,
+  });
+
   const typedData = buildTypedData({
     mode: strategy.approval.mode,
     account,
     chainId,
     verifyingContract: tokenAddress,
-    domainName: strategy.approval.domainName,
-    domainVersion: strategy.approval.domainVersion,
+    domainName: domain.name,
+    domainVersion: domain.version,
     spender: spenderAddress,
     value: permitBaseUnits,
     nonce,
