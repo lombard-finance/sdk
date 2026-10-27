@@ -589,6 +589,11 @@ export {
   getStakeAndBakeFee,
   type IGetStakeAndBakeFeeParams,
 } from './contract-functions/getStakeAndBakeFee/getStakeAndBakeFee';
+export {
+  getTokenEip712Domain,
+  type GetTokenEip712DomainParameters,
+  type TokenEip712Domain,
+} from './contract-functions/getTokenEip712Domain/getTokenEip712Domain';
 
 // Contract functions - WRITE:
 export {

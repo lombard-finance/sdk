@@ -1,3 +1,10 @@
+# 5.11.1
+
+### Fixed
+
+- Fee and stake-and-bake signing read the token's EIP-712 domain on chain, supporting both "Lombard Staked Bitcoin" and "Lombard BTC" without another SDK update. BTC.b uses the same domain lookup. Contracts without EIP-5267 fall back to `name()` and version `1`.
+- Export `getTokenEip712Domain` for callers building their own typed data. Concurrent reads are deduplicated by chain and token address only while in flight. Later calls read the contract again, so an open session sees the renamed domain without reloading.
+
 # 5.11.0
 
 ### Added

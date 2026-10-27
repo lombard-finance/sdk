@@ -42,8 +42,21 @@ vi.mock('../../../clients/wallet-client', () => ({
 }));
 
 vi.mock('../../../clients/public-client', () => ({
-  makePublicClient: vi.fn(() => ({
-    readContract: vi.fn(async ({ functionName }) => {
+  makePublicClient: vi.fn(({ chainId }) => ({
+    readContract: vi.fn(async ({ functionName, address }) => {
+      if (functionName === 'eip712Domain') {
+        return [
+          '0x0f',
+          address === '0xBTCB_CONTRACT_ADDRESS'
+            ? 'Bitcoin'
+            : 'Lombard Staked Bitcoin',
+          '1',
+          BigInt(chainId),
+          address,
+          `0x${'00'.repeat(32)}`,
+          [],
+        ];
+      }
       // Mock nonce response
       if (functionName === 'nonces') {
         return 5n; // Mock nonce value

@@ -73,7 +73,7 @@ const { tokenConfig, spenderContract } = getStakeAndBakeConfig(
 
 ### 2. **Used By `signStakeAndBake()`**
 
-The main function uses the registry to determine behavior:
+The main function uses the registry to determine behavior and reads the signing domain from the token. Registry domain metadata is retained for compatibility, not for signing:
 
 ```typescript
 // packages/sdk/src/contract-functions/signStakeAndBake/signStakeAndBake.ts
@@ -82,10 +82,12 @@ export async function signStakeAndBake(params) {
   // 1. Get config from registry
   const { tokenConfig, spenderContract } = getStakeAndBakeConfig(...);
 
-  // 2. Build typed data based on config
+  // 2. Read the token domain before building typed data
+  const domain = await getTokenEip712Domain({ chainId, tokenAddress, rpcUrl, env });
   const typedData = buildTypedData({
     mode: tokenConfig.mode,              // permit or approve
-    domainName: tokenConfig.eip712Domain.name,
+    domainName: domain.name,
+    domainVersion: domain.version,
     // ...
   });
 
