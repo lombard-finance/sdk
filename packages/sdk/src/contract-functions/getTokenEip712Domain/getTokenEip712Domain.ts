@@ -81,11 +81,11 @@ async function readDomain({
   return { name, version, chainId: Number(chainId), verifyingContract };
 }
 
-/** Reads the token domain, sharing only in-flight requests for the same chain and address. */
+/** Reads the token domain, sharing only in-flight requests for the same chain, address and RPC settings. */
 export async function getTokenEip712Domain(
   parameters: GetTokenEip712DomainParameters,
 ): Promise<TokenEip712Domain> {
-  const key = `${parameters.chainId}:${parameters.tokenAddress.toLowerCase()}`;
+  const key = `${parameters.chainId}:${parameters.tokenAddress.toLowerCase()}:${parameters.rpcUrl ?? ''}:${parameters.env ?? ''}`;
   let domain = inFlightDomains.get(key);
   if (!domain) {
     domain = readDomain(parameters).finally(() => {
