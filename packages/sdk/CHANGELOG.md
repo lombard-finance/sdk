@@ -1,3 +1,9 @@
+# 5.11.2
+
+### Fixed
+
+- Strategy calls with `env: 'dev'` resolve BTCoc's dev deployment on Ethereum Sepolia (`0xAbE7A9F2181E32778C284cD0f56BAC5AFbc91154`), with BTC.b as its only deposit asset. Until now they threw "not deployed in env".
+
 # 5.11.1
 
 ### Fixed
