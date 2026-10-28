@@ -52,8 +52,21 @@ describe('strategies/config', () => {
     expect(symbols).toEqual(['BTC.b', 'LBTC']);
   });
 
+  it('resolves dev → Ethereum Sepolia, BTC.b only', () => {
+    const dep = getStrategyDeployment(Env.dev);
+    expect(dep.chainId).toBe(ChainId.sepolia);
+    expect(dep.contract).toBe('0xAbE7A9F2181E32778C284cD0f56BAC5AFbc91154');
+    expect(dep.depositAssets).toEqual([
+      {
+        token: '0x195219A262423d209E126BD21cf4F4F9AA796927',
+        symbol: 'BTC.b',
+        decimals: 8,
+      },
+    ]);
+  });
+
   it('throws for an environment with no deployment', () => {
-    expect(() => getStrategyDeployment(Env.dev)).toThrow(/not deployed in env/);
+    expect(() => getStrategyDeployment(Env.ibc)).toThrow(/not deployed in env/);
   });
 
   it('throws for an unknown strategy id', () => {

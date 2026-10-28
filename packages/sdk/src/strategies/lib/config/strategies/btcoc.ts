@@ -18,7 +18,7 @@ import { StrategyDefinition } from '../types';
  * there is no synchronous on-chain redeem path.
  *
  * Deployed in `prod` on Ethereum mainnet (BTCoc), in `stage` on Base Sepolia,
- * and in `testnet` on Ethereum Sepolia.
+ * and in `testnet` and `dev` on Ethereum Sepolia.
  */
 export const BTCOC: StrategyDefinition = {
   id: 'btcoc',
@@ -97,6 +97,22 @@ export const BTCOC: StrategyDefinition = {
           {
             token: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
             symbol: 'LBTC',
+            decimals: 8,
+          },
+        ],
+      },
+    ],
+    // Ethereum Sepolia dev, a deployment of its own. BTC.b is the dev token
+    // registry's (EVM_BTCB_ADDRESSES on ChainId.sepolia) and the only deposit
+    // asset: the contract refuses LBTC.
+    [Env.dev]: [
+      {
+        chainId: ChainId.sepolia,
+        contract: '0xAbE7A9F2181E32778C284cD0f56BAC5AFbc91154',
+        depositAssets: [
+          {
+            token: '0x195219A262423d209E126BD21cf4F4F9AA796927',
+            symbol: 'BTC.b',
             decimals: 8,
           },
         ],
