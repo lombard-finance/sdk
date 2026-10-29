@@ -60,6 +60,15 @@ export interface DecodedGmpPayload {
  */
 
 /**
+ * Whether a deposit payload is a GMP mint payload (as opposed to a legacy
+ * pre-GMP deposit payload). Accepts the payload with or without `0x`.
+ */
+export function isGmpMintPayload(payload: string): boolean {
+  const prefixed = payload.startsWith('0x') ? payload : `0x${payload}`;
+  return prefixed.slice(0, 10).toLowerCase() === GMP_V1_SELECTOR.toLowerCase();
+}
+
+/**
  * Decode ABI-encoded GMP Payload hex where msgBody is an ABI-encoded `mint` call.
  */
 export function decodeGmpMintPayload(hexData: string): DecodedGmpPayload {
