@@ -567,10 +567,12 @@ export {
 } from './api-functions/storeStakeAndBakeSignature/storeStakeAndBakeSignature';
 
 // Contract functions - READ:
+export { isGmpMintPayload } from './contract-functions/getBasculeDepositStatus/decodeBasculeDepositStatus';
 export {
   BasculeDepositStatus,
   getBasculeDepositStatus,
   type IGetBasculeDepositStatusParameters,
+  LegacyPayloadNotClaimableError,
 } from './contract-functions/getBasculeDepositStatus/getBasculeDepositStatus';
 export {
   getLBTCBurningFee,

@@ -1,3 +1,14 @@
+# 5.11.3
+
+### Fixed
+
+- `getBasculeDepositStatus` (and so `mintToken` / `claimLBTC`) works on Base, BSC and Avalanche again after the 2026-10-29 upgrade. Whether a chain uses `mintHistory` is now decided by reading the token's Asset Router Bascule, not a hardcoded chain list, and both GMPBasculeV1 (message + status, Avalanche, Katana, Ethereum, MegaETH) and GMPBasculeV2 (status only, Base, BSC) return shapes are read. Until now those chains called the legacy `depositHistory`, which reverts there, so a manual claim failed before any transaction.
+
+### Added
+
+- `isGmpMintPayload(payload)` tells a GMP mint payload from a legacy deposit payload.
+- `LegacyPayloadNotClaimableError` is thrown when a legacy payload is checked against an Asset Router Bascule: such deposits can no longer be minted on that chain.
+
 # 5.11.2
 
 ### Fixed
