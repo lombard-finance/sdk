@@ -175,6 +175,24 @@ const sdk = await createLombardSDK({
 | `testnet`   | Public testnet      | Integration testing |
 | `stage`     | Staging environment | Internal testing    |
 
+## Checking the asset catalog against the registry
+
+The bundled asset catalog can fall out of step with the addresses the API
+publishes at `GET /v2/chains` and `GET /v2/assets`. An opt-in check compares
+the two for `prod`, `stage` and `testnet`. It needs network access and is
+skipped unless asked for:
+
+```bash
+ENABLE_ONLINE_INTEGRATION=true yarn workspace @lombard.finance/sdk \
+  vitest run --config vitest.integration.online.config.ts asset-registry-drift
+```
+
+It fails, with one line per deployment, when the registry lists an LBTC or BTC.b
+deployment on a chain the SDK supports that the catalog lacks or holds at a
+different address. Registry rows on chains the SDK has no entry for, and catalog
+deployments the registry does not list, are printed but do not fail. Only EVM
+chains are compared. The reasoning is in the test file's header.
+
 ## License
 
 MIT © [Lombard Finance](https://lombard.finance)
