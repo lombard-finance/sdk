@@ -767,9 +767,9 @@ export const checkFeeAuthorization: ToolDefinition<
           10_000,
           'getNetworkFeeSignature',
         );
+        // The expiry is in Unix seconds, as a decimal string.
         const isValid =
-          sig.hasSignature &&
-          new Date(sig.expirationDate).getTime() > Date.now();
+          sig.hasSignature && Number(sig.expirationDate) * 1000 > Date.now();
         return {
           chain: config.name,
           requiresFeeAuth: true,
