@@ -16,6 +16,7 @@ import { pollWalletVerification } from '../../../api-functions/walletAuth/pollWa
 
 type Reply =
   | { body: unknown }
+  | { network: true }
   | { status: number; headers?: Record<string, string> };
 
 const originalAdapter = axios.defaults.adapter;
@@ -38,6 +39,9 @@ beforeEach(() => {
   axios.defaults.adapter = async (config) => {
     requests.push(config);
     const reply = replies.shift() ?? pending;
+    if ('network' in reply) {
+      throw new AxiosError('Network Error', AxiosError.ERR_NETWORK, config);
+    }
     if ('body' in reply) {
       return {
         data: reply.body,
@@ -74,20 +78,19 @@ function poll() {
 }
 
 describe('pollWalletVerification pacing', () => {
-  it('backs off from 3 s to a 15 s interval', async () => {
-    replies.push(pending, pending, pending, pending, pending, valid);
+  it('waits before the first poll, then backs off to a 15 s interval', async () => {
+    replies.push(pending, pending, pending, pending, valid);
     const result = poll();
 
-    // Polls go out at 0, 3, 9, 19, 34 and 49 seconds.
+    // Polls go out at 3, 9, 19, 34 and 49 seconds.
     const expected = [
-      [0, 1],
-      [2_999, 1],
-      [1, 2],
-      [6_000, 3],
-      [10_000, 4],
-      [14_999, 4],
-      [1, 5],
-      [15_000, 6],
+      [2_999, 0],
+      [1, 1],
+      [6_000, 2],
+      [10_000, 3],
+      [14_999, 3],
+      [1, 4],
+      [15_000, 5],
     ] as const;
     for (const [advanceMs, count] of expected) {
       await vi.advanceTimersByTimeAsync(advanceMs);
@@ -97,30 +100,32 @@ describe('pollWalletVerification pacing', () => {
     await expect(result).resolves.toEqual({ jwt: 'token', expiresAt: 'later' });
   });
 
-  it('sends six polls in the first minute and ten over its whole budget', async () => {
+  it('sends five polls in the first minute and a last one at the deadline', async () => {
     const result = poll().catch((error: Error) => error);
 
     await vi.advanceTimersByTimeAsync(60_000);
-    expect(requests).toHaveLength(6);
+    expect(requests).toHaveLength(5);
 
-    await vi.advanceTimersByTimeAsync(60_000);
+    // 64, 79, 94 and 109 s, then the wait is cut to land on 120 s.
+    await vi.advanceTimersByTimeAsync(59_999);
+    expect(requests).toHaveLength(9);
+    await vi.advanceTimersByTimeAsync(1);
     expect(requests).toHaveLength(10);
 
-    // The wait after the last poll runs past the budget, then it gives up.
-    await vi.advanceTimersByTimeAsync(15_000);
-    expect(requests).toHaveLength(10);
     await expect(result).resolves.toHaveProperty(
       'message',
       'Wallet verification timed out',
     );
+    expect(requests).toHaveLength(10);
   });
 
-  it('waits out a 429 for Retry-After and keeps polling', async () => {
+  it('holds off for a readable Retry-After after a 429', async () => {
     replies.push({ status: 429, headers: { 'retry-after': '20' } }, valid);
     const result = poll();
 
-    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(3_000);
     expect(requests).toHaveLength(1);
+    // 20 s rather than the 6 s backoff step.
     await vi.advanceTimersByTimeAsync(19_999);
     expect(requests).toHaveLength(1);
     await vi.advanceTimersByTimeAsync(1);
@@ -129,10 +134,30 @@ describe('pollWalletVerification pacing', () => {
     await expect(result).resolves.toEqual({ jwt: 'token', expiresAt: 'later' });
   });
 
-  it('still fails on any other error', async () => {
-    replies.push({ status: 500 });
+  it.each([
+    ['a 429 without Retry-After', { status: 429 }],
+    ['a failure with no response', { network: true }],
+  ] as const)('holds off 15 s after %s', async (_name, failure) => {
+    replies.push(failure as Reply, valid);
+    const result = poll();
 
-    await expect(poll()).rejects.toThrow();
+    await vi.advanceTimersByTimeAsync(3_000);
+    expect(requests).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(14_999);
+    expect(requests).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(requests).toHaveLength(2);
+
+    await expect(result).resolves.toEqual({ jwt: 'token', expiresAt: 'later' });
+  });
+
+  it('still fails at once on any other HTTP error', async () => {
+    replies.push({ status: 404 });
+    const result = poll().catch((error: Error) => error);
+
+    await vi.advanceTimersByTimeAsync(3_000);
+    await expect(result).resolves.toBeInstanceOf(Error);
+    await vi.advanceTimersByTimeAsync(60_000);
     expect(requests).toHaveLength(1);
   });
 });

@@ -48,7 +48,7 @@ migrate once.
 
 ### Fixed
 
-- **Async wallet verification polled fast enough to trip the auth rate limit.** The gateway rate-limits `/v2/auth/*` per source IP, and `pollWalletVerification` asked every 2 s for up to two minutes: thirty requests a minute on top of the challenge and verify, against a budget that users behind one address share. It now backs off (3 s, 6 s, 10 s, then every 15 s): six polls in the first minute and ten over the whole budget. A `429` is waited out for `Retry-After` and polling continues within the same budget, rather than failing a sign-in that may still complete.
+- **Async wallet verification polled fast enough to trip the auth rate limit.** The gateway rate-limits `/v2/auth/*` per source IP, and `pollWalletVerification` asked every 2 s for up to two minutes: thirty requests a minute on top of the challenge and verify, against a budget that users behind one address share. It now waits before the first poll (verify has just answered "pending"), then asks at 3, 9, 19, 34 and 49 s and every 15 s after: five polls in the first minute, and ten over the budget including a last poll on the deadline, so a verification that settles late is not missed. A `429`, or a failure with no response at all (how a browser reports a block that arrives without CORS headers), holds off and polls again within the same budget, rather than failing a sign-in that may still complete. `Retry-After` is honoured where it is readable.
 
 - **`walletAuth.signIn` dropped the challenge's client secret.** It read only the payload from the challenge, so verify and every status poll went out without the `client_secret` the challenge had issued for them. The gateway accepts that only while it does not require the secret. `signIn` now carries it into both.
 

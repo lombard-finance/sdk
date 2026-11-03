@@ -23,33 +23,40 @@ interface WalletVerificationStatusApiResponse {
 
 // Async verification is settled on-chain, so it can take several seconds
 // (Starknet) or longer. The gateway rate-limits `/v2/auth/*` per source IP,
-// and a sign-in has already spent two of those requests (challenge and
-// verify) before it polls. A fixed 2 s interval sent thirty polls a minute,
-// so the poll backs off instead: 3 s, 6 s, 10 s, then every 15 s. That is six
-// polls in the first minute, eight requests with the challenge and verify, and
-// ten polls over the whole budget.
+// and a sign-in has already spent the challenge and verify before it polls,
+// each with a CORS preflight in a browser. A fixed 2 s interval sent thirty
+// polls a minute, so the poll backs off instead. It waits before the first
+// poll, since verify has just answered "pending", then asks at 3, 9, 19, 34
+// and 49 s and every 15 s after: five polls in the first minute, and ten over
+// the budget counting one last poll at the deadline.
 const POLL_BACKOFF_MS = [3_000, 6_000, 10_000];
 const POLL_MAX_INTERVAL_MS = 15_000;
 const POLL_MAX_DURATION_MS = 120_000;
 
-/** The wait before poll `attempt + 1`, `attempt` counting from zero. */
+/** The wait before poll `attempt`, counting from zero. */
 function pollDelayMs(attempt: number): number {
   return POLL_BACKOFF_MS[attempt] ?? POLL_MAX_INTERVAL_MS;
 }
 
 /**
- * How long a rate-limited poll asks to wait, from `Retry-After` in seconds, or
- * `undefined` when the failure is not a rate limit. A 429 here means the
- * shared per-IP budget is spent, not that verification failed, so the poll
- * waits and asks again rather than failing a sign-in that may still complete.
+ * How long to hold off after a poll that failed without an answer, or
+ * `undefined` when the failure is final.
+ *
+ * A 429 means the shared per-IP budget is spent. A request with no response at
+ * all is what a browser reports when such a block arrives without CORS
+ * headers, and also a dropped connection. Neither says verification failed,
+ * so the poll waits and asks again within its deadline. `Retry-After` counts
+ * only where it is readable, which cross-origin it usually is not.
  */
-function rateLimitWaitMs(error: unknown): number | undefined {
-  const response = (
-    error as {
-      response?: { status?: number; headers?: Record<string, unknown> };
-    }
-  )?.response;
-  if (response?.status !== 429) return undefined;
+function transientWaitMs(error: unknown): number | undefined {
+  const failure = error as {
+    isAxiosError?: boolean;
+    response?: { status?: number; headers?: Record<string, unknown> };
+  } | null;
+  if (failure?.isAxiosError !== true) return undefined;
+  const response = failure.response;
+  if (!response) return POLL_MAX_INTERVAL_MS;
+  if (response.status !== 429) return undefined;
   const seconds = Number(response.headers?.['retry-after']);
   return Number.isFinite(seconds) && seconds > 0
     ? seconds * 1_000
@@ -91,7 +98,17 @@ export async function pollWalletVerification({
   const deadline = Date.now() + POLL_MAX_DURATION_MS;
 
   try {
-    for (let attempt = 0; Date.now() < deadline; attempt += 1) {
+    let holdOffMs = 0;
+    for (let attempt = 0; ; attempt += 1) {
+      const remainingMs = deadline - Date.now();
+      if (remainingMs <= 0) break;
+      // Clamped to the deadline, so the last poll lands on it rather than the
+      // budget running out during a wait.
+      await delay(
+        Math.min(Math.max(pollDelayMs(attempt), holdOffMs), remainingMs),
+      );
+      holdOffMs = 0;
+
       const config = {
         baseURL: baseApiV2Url,
         timeout: WALLET_AUTH_REQUEST_TIMEOUT_MS,
@@ -104,9 +121,9 @@ export async function pollWalletVerification({
           config,
         ));
       } catch (error) {
-        const waitMs = rateLimitWaitMs(error);
+        const waitMs = transientWaitMs(error);
         if (waitMs === undefined) throw error;
-        await delay(Math.min(waitMs, Math.max(0, deadline - Date.now())));
+        holdOffMs = waitMs;
         continue;
       }
 
@@ -125,8 +142,6 @@ export async function pollWalletVerification({
             : `Wallet verification failed with status ${data.status}`,
         );
       }
-
-      await delay(pollDelayMs(attempt));
     }
 
     throw new Error('Wallet verification timed out');
