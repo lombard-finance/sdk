@@ -42,13 +42,21 @@ export class WalletAuthService implements IWalletAuthService {
    *
    * Signing stays with the caller: the SDK holds no key material, and each
    * chain's wallets expose a different signing method.
+   *
+   * A client secret the challenge issues is bound to that challenge, so it is
+   * carried into verify and every status poll. Dropping it works only while
+   * the gateway does not require one.
    */
   async signIn({
     address,
     chain,
     sign,
   }: WalletSignInParams): Promise<WalletSignInResult> {
-    const { payload } = await this.requestChallenge({ address, chain });
+    const { payload, clientSecret } = await this.requestChallenge({
+      address,
+      chain,
+    });
+    const secret = clientSecret ? { clientSecret } : {};
     const { signature, publicKey } = await sign(payload);
 
     const verification = await this.verifySignature({
@@ -57,6 +65,7 @@ export class WalletAuthService implements IWalletAuthService {
       payload,
       signature,
       publicKey,
+      ...secret,
     });
 
     const { jwt, expiresAt } =
@@ -65,6 +74,7 @@ export class WalletAuthService implements IWalletAuthService {
         : // Polls to completion internally, on its own budget.
           await this.pollVerification({
             verificationId: verification.verificationId,
+            ...secret,
           });
 
     return { jwt, expiresAt, address };

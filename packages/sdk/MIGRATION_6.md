@@ -135,7 +135,7 @@ const claim = sdk.chain.evm.claim({
 });
 ```
 
-The two take **identical parameters**, so nothing about the call distinguishes them — a `deposit` call left unchanged silently becomes the other action. What saves you is the return type: the claim exposes `needsApproval`, `approve()` and `setClaimData`, and the deposit does not, so any real use of the result fails to compile. A call whose result is discarded is the one to check by hand.
+The two take **identical parameters**, so nothing about the call distinguishes them — a `deposit` call left unchanged silently becomes the other action. What saves you is the return type: only the claim has `setClaimData`, so a claim flow left on `deposit` fails to compile where it hands over the claim data. Both expose `needsApproval` and `approve()`, so code that only approves and executes compiles either way, and so does a call whose result is discarded: check those by hand.
 
 ---
 

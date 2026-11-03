@@ -48,6 +48,8 @@ migrate once.
 
 ### Fixed
 
+- **`walletAuth.signIn` dropped the challenge's client secret.** It read only the payload from the challenge, so verify and every status poll went out without the `client_secret` the challenge had issued for them. The gateway accepts that only while it does not require the secret. `signIn` now carries it into both.
+
 - **Async wallet verification always polls with `POST …/status`.** Without a client secret, `pollWalletVerification` (and so `walletAuth.signIn` for contract wallets and Starknet) polled `GET /v2/auth/wallet/verify/{id}`. The gateway binds that GET to the same call as `POST /v2/auth/wallet/verify/{id}/status`, marks it for removal once client secrets are required, and answers both identically today. The poll now always uses the POST, with the secret in the body only when the challenge issued one, so it keeps working when the GET goes.
 
 - **The asset catalog disagreed with the addresses the actions use.** `ASSET_CATALOG` (read by `getContractInfo`, `sdk.assets` and the chain lists) and `TOKEN_ADDRESSES` (read by the actions) both carry the LBTC and BTC.b deployments, and nothing compared them. On testnet the catalog named a different Sepolia LBTC deployment (`0xc47e…`) from the one the actions use (`0x107F…`), and listed stage's BTC.b token and adapter on Fuji instead of testnet's. On mainnet it omitted LBTC on MegaETH. All three are corrected, and a test now requires every EVM deployment in the address map to be in the catalog at the same address, with the deliberate exceptions named.

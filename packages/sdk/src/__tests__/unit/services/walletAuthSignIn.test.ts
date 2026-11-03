@@ -118,6 +118,30 @@ describe('the asynchronous path', () => {
     expect(result.jwt).toBe('polled-token');
   });
 
+  it('carries the challenge client secret into verify and the poll', async () => {
+    requestChallenge.mockResolvedValue({
+      nonce: 'abc',
+      payload: PAYLOAD,
+      expiresAt: '2026-01-01T00:00:00Z',
+      clientSecret: 'bound-secret',
+    });
+
+    await service().signIn({
+      address: ADDRESS,
+      chain: CHAIN,
+      sign: async () => ({ signature: '0xsig' }),
+    });
+
+    expect(verifySignature).toHaveBeenCalledWith(
+      expect.objectContaining({ clientSecret: 'bound-secret' }),
+    );
+    expect(pollVerification).toHaveBeenCalledWith({
+      verificationId: 'verification-1',
+      clientSecret: 'bound-secret',
+      env: Env.prod,
+    });
+  });
+
   // This is the case a hand-rolled flow drops: the verify call resolved
   // successfully, so a caller reading `jwt` off it gets undefined and no error.
   it('never resolves without a token', async () => {

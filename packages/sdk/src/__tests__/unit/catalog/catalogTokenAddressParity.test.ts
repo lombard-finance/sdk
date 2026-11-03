@@ -15,10 +15,11 @@ import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it } from 'vitest';
 
 import type { ChainId } from '../../../common/chains';
+import { featureConfig } from '../../../common/feature-config';
 import { AssetId } from '../../../core';
 import { getAssetAddress, getBridgeAdapter } from '../../../core/assets/utils';
 import { evmChainIdToChain } from '../../../core/chains/utils';
-import { Token,TOKEN_ADDRESSES } from '../../../tokens/token-addresses';
+import { Token, TOKEN_ADDRESSES } from '../../../tokens/token-addresses';
 
 const ENVS = [Env.prod, Env.stage, Env.testnet, Env.dev] as const;
 
@@ -32,10 +33,14 @@ const ASSETS = [
  * Each needs its reason; a new entry here is a decision, not a fix.
  */
 const MAP_ONLY = new Set([
-  // Gated in the catalog by `isEtherlinkEnabled`, which is off.
-  `${AssetId.LBTC} ${Env.prod} eip155:42793`,
-  // Retired testnets (Holesky, Sonic Blaze, Berachain Bartio). The catalog
-  // dropped them and the gateway's chain registry does not list them.
+  // Gated in the catalog by `isEtherlinkEnabled`, and in the map not at all.
+  ...(featureConfig.isEtherlinkEnabled
+    ? []
+    : [`${AssetId.LBTC} ${Env.prod} eip155:42793`]),
+  // Retired testnets (Holesky, Sonic Blaze, Berachain Bartio), which the
+  // catalog dropped and the map still carries. The map's entries there are not
+  // authoritative either: stage's gateway registry lists Bartio LBTC at a
+  // different address from the map's.
   ...[Env.stage, Env.testnet].flatMap((env) =>
     ['17000', '57054', '80084'].map(
       (chainId) => `${AssetId.LBTC} ${env} eip155:${chainId}`,
