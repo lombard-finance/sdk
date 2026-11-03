@@ -87,7 +87,7 @@ const viaLbtc = sdk.chain.btc.deploy({
 });
 
 const viaBtcb = sdk.chain.btc.deploy({
-  assetOut: AssetId.BTCb, // → IBtcDepositAndDeploy
+  assetOut: AssetId.BTCb, // → IBtcDeployBtcb
   destChain: Chain.AVALANCHE,
   protocol: DeployProtocol.Silo,
 });

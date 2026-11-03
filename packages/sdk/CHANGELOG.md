@@ -48,6 +48,8 @@ migrate once.
 
 ### Fixed
 
+- **`IBtcDepositLbtc`, `IBtcDepositBtcb`, `IBtcDeployLbtc` and `IBtcDeployBtcb` named the action classes, not the interfaces the verbs return.** Each BTC action module exports its class and its interface under one name, and the BTC chain barrel re-aliased the bare name, which there is the class. So `const action: IBtcDepositLbtc = sdk.chain.btc.deposit({ assetOut: AssetId.LBTC, … })` failed to compile, the value lacking the class's internal fields. They now resolve to the interfaces, and a type test pins it. Code that only read the action through these names compiles unchanged.
+
 - **A vault withdrawal could silently discard the one already queued.** The Earn withdraw queue is an `AtomicQueue`, and its storage is `userAtomicRequest[user][offer][want]` — a single request struct, no list and no request id. Its only mutating entry points are `updateAtomicRequest` and `safeUpdateAtomicRequest`, and the event they emit is `AtomicRequestUpdated`; cancelling is the same call with a zeroed struct. So a second withdrawal is not refused by the vault, it is _unrepresentable_: filing one replaces the open request, and the shares that request had queued are simply no longer queued. An account with 0.5 shares awaiting fulfilment that filed for 0.1 ended up with 0.1 queued and nothing recording the other 0.4.
 
   Neither `withdrawEarn` nor the internal queue helper read the slot before writing it, so both could do this with no failure and no warning. `withdrawEarn` was the worse of the two, because an unwrap and an approval land before the queue write — the loss could be preceded by transactions that cannot be taken back.

@@ -27,7 +27,7 @@ export { BtcActionStatus } from '../../shared/constants/statusConstants';
 export type {
   BtcDepositLbtcParams,
   BtcDepositLbtcProgress,
-  BtcDepositLbtc as IBtcDepositLbtc,
+  IBtcDepositLbtc,
 } from './actions/deposit-lbtc';
 export {
   BtcDepositLbtc,
@@ -43,7 +43,7 @@ export type {
   BtcDepositBtcbParams,
   BtcDepositBtcbPrepareParams,
   BtcDepositBtcbProgress,
-  BtcDepositBtcb as IBtcDepositBtcb,
+  IBtcDepositBtcb,
 } from './actions/deposit-btcb';
 export {
   btcDeposit,
@@ -59,7 +59,7 @@ export type {
   BtcDeployLbtcParams,
   BtcDeployLbtcPrepareParams,
   BtcDeployLbtcProgress,
-  BtcDeployLbtc as IBtcDeployLbtc,
+  IBtcDeployLbtc,
 } from './actions/deploy-lbtc';
 export {
   BtcDeployLbtc,
@@ -75,7 +75,7 @@ export type {
   BtcDeployBtcbParams,
   BtcDeployBtcbPrepareParams,
   BtcDeployBtcbProgress,
-  BtcDeployBtcb as IBtcDeployBtcb,
+  IBtcDeployBtcb,
 } from './actions/deploy-btcb';
 export {
   BtcDeployBtcb,

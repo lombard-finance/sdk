@@ -101,17 +101,13 @@ export class SolanaActions {
   }
 
   /**
-   * Stake BTC.b → LBTC
+   * Deposit BTC.b into LBTC on Solana.
    *
    * Burns BTC.b on Solana and mints LBTC to the recipient via Asset Router.
+   * Named `deposit` under the three-verb model: an asset in, an L-asset out.
    *
    * @throws LombardError if solana module is not registered
    * @throws LombardError if route is not supported
-   */
-  /**
-   * Deposit BTC.b into LBTC on Solana.
-   *
-   * Named `deposit` under the three-verb model: an asset in, an L-asset out.
    */
   deposit(params: SolanaDepositBtcbParams): ISolanaDepositBtcb {
     return new SolanaDepositBtcb(this.ctx, params);
