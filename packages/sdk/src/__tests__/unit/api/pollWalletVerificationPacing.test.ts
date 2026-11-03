@@ -134,6 +134,23 @@ describe('pollWalletVerification pacing', () => {
     await expect(result).resolves.toEqual({ jwt: 'token', expiresAt: 'later' });
   });
 
+  it('reads Retry-After given as an HTTP-date', async () => {
+    // HTTP-dates carry whole seconds, so start on one.
+    vi.setSystemTime(new Date('2026-11-03T12:00:00Z'));
+    const retryAt = new Date(Date.now() + 3_000 + 30_000).toUTCString();
+    replies.push({ status: 429, headers: { 'retry-after': retryAt } }, valid);
+    const result = poll();
+
+    await vi.advanceTimersByTimeAsync(3_000);
+    expect(requests).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(29_999);
+    expect(requests).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(requests).toHaveLength(2);
+
+    await expect(result).resolves.toEqual({ jwt: 'token', expiresAt: 'later' });
+  });
+
   it.each([
     ['a 429 without Retry-After', { status: 429 }],
     ['a failure with no response', { network: true }],

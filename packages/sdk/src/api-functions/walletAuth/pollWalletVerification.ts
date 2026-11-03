@@ -57,10 +57,17 @@ function transientWaitMs(error: unknown): number | undefined {
   const response = failure.response;
   if (!response) return POLL_MAX_INTERVAL_MS;
   if (response.status !== 429) return undefined;
-  const seconds = Number(response.headers?.['retry-after']);
-  return Number.isFinite(seconds) && seconds > 0
-    ? seconds * 1_000
-    : POLL_MAX_INTERVAL_MS;
+  return (
+    retryAfterMs(response.headers?.['retry-after']) ?? POLL_MAX_INTERVAL_MS
+  );
+}
+
+/** `Retry-After` as milliseconds, from delta-seconds or an HTTP-date. */
+function retryAfterMs(value: unknown): number | undefined {
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds > 0) return seconds * 1_000;
+  const at = typeof value === 'string' ? Date.parse(value) : Number.NaN;
+  return Number.isFinite(at) && at > Date.now() ? at - Date.now() : undefined;
 }
 
 const delay = (ms: number): Promise<void> =>
