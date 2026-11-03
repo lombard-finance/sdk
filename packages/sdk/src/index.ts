@@ -562,8 +562,9 @@ export {
   storeNetworkFeeSignature,
 } from './api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
 export {
-  // Raised when a live stake-and-bake signature is already on file, so a
-  // second one is refused; branch on it rather than on the server's string.
+  // Raised when the API refuses a stake-and-bake signature because one is
+  // already on file, which the v1 route does for any live one; branch on it
+  // rather than on the server's string.
   isActiveSignatureError,
   type IStoreStakeAndBakeSignatureParams,
   type IStoreStakeAndBakeSignatureStatus,

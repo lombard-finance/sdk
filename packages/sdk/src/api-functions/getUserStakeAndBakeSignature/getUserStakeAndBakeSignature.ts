@@ -4,7 +4,8 @@ import { IEnvParam } from '../../common/parameters';
 import { walletAuthChainName } from '../../common/wallet-auth-chain';
 import { isLombardError } from '../../shared/errors';
 import { getErrorMessage } from '../../utils/err';
-import { httpGet, httpRequest, resolveAuthToken } from '../../utils/http';
+import { httpGet, httpRequest } from '../../utils/http';
+import { v2RouteAuth } from '../../utils/walletToken';
 
 export interface IGetUserStakeAndBakeSignatureParams extends IEnvParam {
   /**
@@ -15,6 +16,13 @@ export interface IGetUserStakeAndBakeSignatureParams extends IEnvParam {
    * Chain ID
    */
   chainId: ChainId;
+  /**
+   * The token the permit is signed against, its `domain.verifyingContract`.
+   * On the v2 route, which lists the permits for every token on the chain,
+   * only that token's are considered; matched regardless of case. Without
+   * one, all are. The v1 route takes no token and ignores it.
+   */
+  tokenAddress?: string;
 }
 
 export interface IGetUserStakeAndBakeSignatureResponse {
@@ -76,21 +84,55 @@ interface IListUnusedPermitsResponse {
   max_permits_per_token?: string;
 }
 
+/** A permit's nonce, or -1 for one the list did not give as an integer. */
+function nonceOf({ nonce }: UnusedPermitResponse): bigint {
+  return nonce && /^\d+$/.test(nonce) ? BigInt(nonce) : -1n;
+}
+
+/**
+ * The permit to report: of those for `tokenAddress`, or all of them without
+ * one, that can still be claimed, meaning neither expired nor blocked behind
+ * an expired lower nonce, the one with the highest nonce.
+ *
+ * Nonces count up per token as permits are signed, so within one token the
+ * highest is the newest, the one v1 reports. They are not comparable across
+ * tokens, which is why a caller that knows its token names it: the lowest
+ * nonce on the chain can belong to another token entirely.
+ */
+function selectPermit(
+  permits: UnusedPermitResponse[],
+  tokenAddress: string | undefined,
+): UnusedPermitResponse | undefined {
+  const wanted = tokenAddress?.toLowerCase();
+  let newest: UnusedPermitResponse | undefined;
+
+  for (const permit of permits) {
+    if (permit.expired || permit.blocked) continue;
+    if (wanted && permit.token_address?.toLowerCase() !== wanted) continue;
+    if (!newest || nonceOf(permit) > nonceOf(newest)) newest = permit;
+  }
+
+  return newest;
+}
+
 /**
  * Get user's stake and bake signature from the API
  *
  * With a wallet token for the address, reads
  * `GET /v2/stake-and-bake/permits/unused/{address}`, which lists every unused
- * permit on the chain, lowest nonce first, expired ones included; this reports
- * the first one that can still be claimed, meaning neither expired nor blocked
- * behind an expired lower nonce. Without a token, reads the v1 route
- * `GET /api/v1/claimer/get-user-stake-and-bake-signature`, which needs none.
- * Only the absence of a token selects v1: a token the v2 route refuses
+ * permit on the chain, for every token, expired ones included. Of those for
+ * `tokenAddress`, or all without one, this reports the newest that can still
+ * be claimed: see {@link selectPermit}. With no token, or a token for another
+ * wallet, reads the v1 route
+ * `GET /api/v1/claimer/get-user-stake-and-bake-signature`, which needs none
+ * and reports the most recently stored live permit. The route is chosen
+ * before sending: a v2 request that fails, including on a refused token,
  * surfaces as an error rather than falling back.
  *
  * @param {IGetUserStakeAndBakeSignatureParams} parameters - Parameters for getting the signature
  * @param {string} parameters.userDestinationAddress - The destination account address.
  * @param {ChainId} parameters.chainId - The chain id.
+ * @param {string} parameters.tokenAddress - The optional token the permit is signed against; v2 only.
  * @param {Env} parameters.env - The optional environment identifier.
  *
  * @returns {Promise<IGetUserStakeAndBakeSignatureResponse>} Promise that resolves to the signature response
@@ -101,24 +143,22 @@ export async function getUserStakeAndBakeSignature(
   const { userDestinationAddress, chainId, env, auth, getAuthToken } = params;
   const url = `${getApiConfig(env).baseApiV2Url}/v2/stake-and-bake/permits/unused/${userDestinationAddress}`;
 
-  const token = await resolveAuthToken(
+  const v2Auth = await v2RouteAuth(
     { auth, getAuthToken },
-    { url, scope: 'userScoped' },
+    url,
+    userDestinationAddress,
   );
-  if (!token) return getUserStakeAndBakeSignatureV1(params);
+  if (!v2Auth) return getUserStakeAndBakeSignatureV1(params);
 
   try {
     const { data } = await httpRequest<IListUnusedPermitsResponse>({
       url,
       params: { chain: walletAuthChainName(chainId) },
       scope: 'userScoped',
-      auth,
-      getAuthToken,
+      ...v2Auth,
     });
 
-    const live = (data?.permits ?? []).find(
-      (permit) => !permit.expired && !permit.blocked,
-    );
+    const live = selectPermit(data?.permits ?? [], params.tokenAddress);
 
     return {
       userDestinationAddress,
@@ -140,7 +180,7 @@ export async function getUserStakeAndBakeSignature(
   }
 }
 
-/** The v1 read, for a caller with no wallet token. */
+/** The v1 read, for a caller with no wallet token for the address. */
 async function getUserStakeAndBakeSignatureV1({
   userDestinationAddress,
   chainId,

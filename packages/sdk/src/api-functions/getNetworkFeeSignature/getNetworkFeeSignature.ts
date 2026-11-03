@@ -4,7 +4,8 @@ import { IEnvParam } from '../../common/parameters';
 import { walletAuthChainName } from '../../common/wallet-auth-chain';
 import { isLombardError } from '../../shared/errors';
 import { getErrorMessage } from '../../utils/err';
-import { httpGet, httpRequest, resolveAuthToken } from '../../utils/http';
+import { httpGet, httpRequest } from '../../utils/http';
+import { v2RouteAuth } from '../../utils/walletToken';
 
 export interface IGetNetworkFeeSignatureParams extends IEnvParam {
   /**
@@ -120,10 +121,11 @@ function toUnixSecondsString(timestamp: string | undefined): string {
  * Returns the expiration date and the flag signature exists
  *
  * With a wallet token for `address`, reads
- * `GET /v2/mint-with-fee/fee-approvals/{address}`. Without one, reads the v1
- * route `GET /api/v1/claimer/get-user-signature`, which needs no token. Only
- * the absence of a token selects v1: a token the v2 route refuses surfaces as
- * an error rather than falling back.
+ * `GET /v2/mint-with-fee/fee-approvals/{address}`. With no token, or a token
+ * for another wallet, reads the v1 route
+ * `GET /api/v1/claimer/get-user-signature`, which needs none. The route is
+ * chosen before sending: a v2 request that fails, including on a refused
+ * token, surfaces as an error rather than falling back.
  *
  * @param {IGetNetworkFeeSignatureParams} parameters - The parameters.
  * @param {string} parameters.address - The account address.
@@ -139,19 +141,15 @@ export async function getNetworkFeeSignature(
   const { address, env, auth, getAuthToken } = params;
   const url = `${getApiConfig(env).baseApiV2Url}/v2/mint-with-fee/fee-approvals/${address}`;
 
-  const token = await resolveAuthToken(
-    { auth, getAuthToken },
-    { url, scope: 'userScoped' },
-  );
-  if (!token) return getNetworkFeeSignatureV1(params);
+  const v2Auth = await v2RouteAuth({ auth, getAuthToken }, url, address);
+  if (!v2Auth) return getNetworkFeeSignatureV1(params);
 
   try {
     const { data } = await httpRequest<IListFeeApprovalsResponse>({
       url,
       params: { chain: walletAuthChainName(params.chainId) },
       scope: 'userScoped',
-      auth,
-      getAuthToken,
+      ...v2Auth,
     });
 
     const approval = selectApproval(
@@ -173,7 +171,7 @@ export async function getNetworkFeeSignature(
   }
 }
 
-/** The v1 read, for a caller with no wallet token. */
+/** The v1 read, for a caller with no wallet token for `address`. */
 async function getNetworkFeeSignatureV1({
   address,
   chainId,

@@ -371,10 +371,13 @@ export class BtcDeployLbtc
   /**
    * Stops on a live authorization that does not cover this deposit.
    *
-   * Signing again is refused by the API — one signature is kept per wallet and
-   * chain until it expires or is used — so opening the wallet would cost the
-   * user a signature and return the server's refusal string. What is on file
-   * is reported instead.
+   * What a second signature would meet depends on the route the store takes.
+   * The v1 route, taken without a wallet token for the recipient, keeps one
+   * signature per wallet and chain until it expires or is used and refuses
+   * another, so opening the wallet would cost the user a signature and return
+   * the server's refusal string. The v2 route, taken with one, replaces the
+   * unused permit that has the same nonce, which a re-sign has. The action
+   * stops on either route and reports what is on file instead of prompting.
    */
   private blockOnExistingAuthorization(stored: {
     depositAmount?: string;

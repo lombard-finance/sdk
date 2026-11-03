@@ -16,7 +16,10 @@ import type { EIP1193Provider } from 'viem';
 
 import { getUserStakeAndBakeSignature } from '../../../../../api-functions/getUserStakeAndBakeSignature';
 import type { ChainId } from '../../../../../common/chains';
-import { getPermitValue } from '../../../../../contract-functions/signStakeAndBake/utils';
+import {
+  getPermitValue,
+  getStakeAndBakeTokenAddress,
+} from '../../../../../contract-functions/signStakeAndBake/utils';
 import { AssetId, Chain, evmChainIdToChain } from '../../../../../core';
 import type { StakeAndBakeToken } from '../../../../../defi/defi-registry';
 import { LombardError } from '../../../../../shared/errors';
@@ -116,6 +119,14 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
       const result = await getUserStakeAndBakeSignature({
         userDestinationAddress: recipient,
         chainId: chainId as ChainId,
+        // The permit this deposit would be signed against. The v2 route lists
+        // the permits for every token on the chain, and one for another token
+        // says nothing about this deposit.
+        tokenAddress: getStakeAndBakeTokenAddress(
+          required.token as StakeAndBakeToken,
+          chainId as ChainId,
+          ctx.env,
+        ),
         env: ctx.env,
         auth: ctx.auth,
         getAuthToken: ctx.getAuthToken,

@@ -112,6 +112,66 @@ export function getSdkHeaders(): Record<string, string> {
 }
 
 /**
+ * The wallet token a request would carry: `auth` when given, otherwise the
+ * deprecated `getAuthToken`.
+ *
+ * Exported for a caller that chooses a route by whether a token is available
+ * before sending anything, so it decides the same way the request will.
+ */
+export async function resolveAuthToken(
+  { auth, getAuthToken }: Pick<HttpRequestOptions, 'auth' | 'getAuthToken'>,
+  context: AuthRequestContext,
+): Promise<string | undefined> {
+  if (auth) return auth.getToken(context);
+  return getAuthToken?.();
+}
+
+/**
+ * The `auth` options for a request whose token the caller has already
+ * resolved with {@link resolveAuthToken}, so the host is not asked twice.
+ *
+ * The first `getToken`, the one the request makes before sending, answers
+ * with `token`. Any later one, the retry after a 401, goes to the host's own
+ * `getToken`, so a refreshed token still replaces a stale one, and
+ * `onUnauthorized` still reaches the host.
+ */
+export function reuseResolvedToken(
+  { auth, getAuthToken }: Pick<HttpRequestOptions, 'auth' | 'getAuthToken'>,
+  token: string,
+): Pick<HttpRequestOptions, 'auth' | 'getAuthToken'> {
+  // The deprecated reader is called once per request and never retried.
+  if (!auth) return getAuthToken ? { getAuthToken: () => token } : {};
+
+  let unused: string | undefined = token;
+  return {
+    auth: {
+      getToken(context) {
+        const first = unused;
+        unused = undefined;
+        return first !== undefined
+          ? Promise.resolve(first)
+          : auth.getToken(context);
+      },
+      // Called through `auth` so a host implementing it as a method keeps its
+      // `this`.
+      onUnauthorized: (context) => auth.onUnauthorized?.(context),
+    },
+  };
+}
+
+/**
+ * The path part of a URL, for a message that names a call without quoting the
+ * whole thing. Tolerates a relative URL, which callers do pass.
+ */
+function pathOf(url: string): string {
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return url.split('?')[0] ?? url;
+  }
+}
+
+/**
  * Make an HTTP request with SDK headers and optional logging
  *
  * @param options - Request options
@@ -133,33 +193,6 @@ export function getSdkHeaders(): Record<string, string> {
  * });
  * ```
  */
-/**
- * The wallet token a request would carry: `auth` when given, otherwise the
- * deprecated `getAuthToken`.
- *
- * Exported for a caller that chooses a route by whether a token is available
- * before sending anything, so it decides the same way the request will.
- */
-export async function resolveAuthToken(
-  { auth, getAuthToken }: Pick<HttpRequestOptions, 'auth' | 'getAuthToken'>,
-  context: AuthRequestContext,
-): Promise<string | undefined> {
-  if (auth) return auth.getToken(context);
-  return getAuthToken?.();
-}
-
-/**
- * The path part of a URL, for a message that names a call without quoting the
- * whole thing. Tolerates a relative URL, which callers do pass.
- */
-function pathOf(url: string): string {
-  try {
-    return new URL(url).pathname;
-  } catch {
-    return url.split('?')[0] ?? url;
-  }
-}
-
 export async function httpRequest<T = unknown>(
   options: HttpRequestOptions,
 ): Promise<HttpResponse<T>> {

@@ -3,7 +3,11 @@ import BigNumber from 'bignumber.js';
 
 import { getExchangeRatio } from '../../api-functions/getLBTCExchangeRate/get-exchange-ratio';
 import { StakeAndBakeToken } from '../../defi/defi-registry';
-import { AddressKind, Token } from '../../tokens/token-addresses';
+import {
+  AddressKind,
+  getTokenAddressForChain,
+  Token,
+} from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { ISignStakeAndBakeParams } from './signStakeAndBake';
 
@@ -21,6 +25,11 @@ export const getPermitValue = async (
   return new BigNumber(value);
 };
 
+/** The token a permit for `token` is signed against: LBTC for native BTC. */
+function permitToken(token: StakeAndBakeToken): Token.LBTC | Token.BTCb {
+  return !token || token === 'BTC' ? Token.LBTC : token;
+}
+
 /**
  * Get the token contract info for the given token.
  * For BTCb, always uses AddressKind.Token (the ERC20 token contract, not the adapter).
@@ -30,12 +39,27 @@ export const getStakeAndBakeTokenContract = async (
   chainId: ISignStakeAndBakeParams['chainId'],
   env: Env,
 ): Promise<Awaited<ReturnType<typeof getTokenContractInfo>>> => {
-  if (!token || token === 'BTC' || token === Token.LBTC) {
-    return await getTokenContractInfo(Token.LBTC, chainId, env);
-  }
   // For BTCb, use AddressKind.Token (ERC20 contract for permit/approve)
-  return await getTokenContractInfo(token, chainId, env, AddressKind.Token);
+  return await getTokenContractInfo(
+    permitToken(token),
+    chainId,
+    env,
+    AddressKind.Token,
+  );
 };
+
+/**
+ * The address of the token a stake-and-bake permit for `token` is signed
+ * against, its `domain.verifyingContract`: the contract
+ * {@link getStakeAndBakeTokenContract} resolves, read from the address book
+ * without a call to the chain. `undefined` where the token has no address.
+ */
+export const getStakeAndBakeTokenAddress = (
+  token: StakeAndBakeToken,
+  chainId: ISignStakeAndBakeParams['chainId'],
+  env: Env,
+): string | undefined =>
+  getTokenAddressForChain(chainId, AddressKind.Token, env, permitToken(token));
 
 /**
  * Helper function to calculate the correct LBTC amount for stake and bake

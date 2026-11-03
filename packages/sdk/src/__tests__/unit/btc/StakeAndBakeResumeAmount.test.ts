@@ -177,6 +177,21 @@ describe('restoreStakeAndBakeSignature and the wallet token', () => {
     );
   });
 
+  // The v2 list holds every token's permits on the chain. A BTC deposit is
+  // signed against LBTC, so only LBTC permits say anything about it.
+  it('asks for the permits of the token the deposit is signed against', async () => {
+    onFile(SMALL_PERMIT_VALUE);
+
+    await restore();
+
+    expect(mockedStored).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // LBTC on Ethereum.
+        tokenAddress: '0x8236a87084f8b84306f72007f36f2618a5634494',
+      }),
+    );
+  });
+
   it('reads a lookup failure as no permit', async () => {
     mockedStored.mockRejectedValue(new Error('gateway unreachable'));
 

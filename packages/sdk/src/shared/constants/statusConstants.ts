@@ -60,12 +60,15 @@ export const BtcActionStatus = {
   /**
    * A live vault authorization is on file and it does not cover this deposit.
    *
-   * Terminal for this attempt: only one stake-and-bake signature is kept per
-   * wallet and chain while it is unexpired and unused, so signing a second one
-   * is refused by the API. Prompting the wallet would achieve nothing, so the
-   * action stops here and reports what is on file — see
-   * `existingAuthorization` for the amount it covers and when it lapses. The
-   * way forward is to deposit within that amount, or to wait for it.
+   * Terminal for this attempt: the action does not prompt for a second
+   * stake-and-bake signature. Without a wallet token for the recipient the
+   * signature goes to the v1 route, which keeps one per wallet and chain while
+   * it is unexpired and unused and refuses another, so a prompt would achieve
+   * nothing. With one it goes to the v2 route, which replaces the unused
+   * permit with the same nonce instead; the action stops there too. It reports
+   * what is on file — see `existingAuthorization` for the amount it covers and
+   * when it lapses. The way forward is to deposit within that amount, or to
+   * wait for it.
    */
   BLOCKED_BY_EXISTING_AUTHORIZATION: 'blocked_by_existing_authorization',
 

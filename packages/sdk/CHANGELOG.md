@@ -28,24 +28,30 @@ migrate once.
 
   Two things changed in the fold. `requestWalletChallenge` and `verifyWalletSignature` arrived using `axios` directly; on this branch they go through `utils/http`, which the auth-token boundary test requires of anything resolving a Lombard host, so the new challenge fields were re-applied on top of the wrapper. And `AuthorizeDepositOptions` — 5.4.0's name for the deploy authorize options — is now a deprecated alias of `BtcAuthorizeOptions`, the unified name the collapsed `authorize()` takes.
 
-- **Fee approvals and stake-and-bake permits use the v2 routes when a wallet token is available**, and the v1 claimer routes otherwise. The fallback goes when v1 is retired.
+- **Fee approvals and stake-and-bake permits use the v2 routes when a wallet token for the address is available**, and the v1 claimer routes otherwise. The fallback goes when v1 is retired.
 
-  | Function                       | With a token                                              | Without one (unchanged)                                 |
+  | Function                       | With a token for `{address}`                              | Otherwise (unchanged)                                   |
   | ------------------------------ | --------------------------------------------------------- | ------------------------------------------------------- |
   | `getNetworkFeeSignature`       | `GET /v2/mint-with-fee/fee-approvals/{address}?chain=…`   | `GET /api/v1/claimer/get-user-signature`                |
   | `storeNetworkFeeSignature`     | `POST /v2/mint-with-fee/fee-approvals/{address}`          | `POST /api/v1/claimer/save-user-signature`              |
   | `getUserStakeAndBakeSignature` | `GET /v2/stake-and-bake/permits/unused/{address}?chain=…` | `GET /api/v1/claimer/get-user-stake-and-bake-signature` |
   | `storeStakeAndBakeSignature`   | `POST /v2/stake-and-bake/permits/{address}`               | `POST /api/v1/claimer/save-stake-and-bake-signature`    |
 
-  The token is resolved per call from `auth`, or the deprecated `getAuthToken`, the same way the request resolves it. Only having no token selects v1: a token the v2 route refuses goes through `onUnauthorized` and surfaces as `AuthErrorCode.UNAUTHORIZED`, never as a quiet answer from v1. The config's `auth` reaches these calls from the actions through the API module and the EVM fee check, and `signPermitChallenge` uses it for its active-permit check when given. A host without `auth` sees no change.
+  The token is resolved per call from `auth`, or the deprecated `getAuthToken`, the same way the request resolves it, and the request reuses it rather than asking the host a second time. The v2 routes answer 403 to a token for any wallet but the one in their path, so v2 is taken only when the token's `sub` is that address, compared ignoring case and, for a `0x` address, leading zeros. With no token, or with a token for another wallet, such as a host signed in as one wallet preparing a deposit for another recipient, or holding a token from before a wallet switch, the call takes v1. A token whose `sub` cannot be read is sent to v2, and the route decides.
+
+  The route is chosen before anything is sent. Once a v2 request is out, none of its failures is answered from v1: not a 403, a 404 or a 500, and not a refused token, which would hide a session that has ended. With `auth`, a refused token is retried once with a fresh one from `getToken`, then goes through `onUnauthorized` and surfaces as `AuthErrorCode.UNAUTHORIZED`. With only the deprecated `getAuthToken`, which has neither a retry nor `onUnauthorized`, it surfaces as a plain `Error`.
+
+  The config's `auth` reaches these calls from the actions through the API module and the EVM fee check, and `signPermitChallenge` uses it for its active-permit check when given. A host without `auth` sees no change.
+
+  The dev gateway (`Env.dev`) does not serve `/v2/mint-with-fee/fee-approvals` and answers 404, so there a host holding a token for the address fails to read or store a fee approval rather than using v1.
 
   On the v2 path:
   - `getNetworkFeeSignature` picks the approval for `tokenAddress` from the route's per-token list, or LBTC's when none is given, as v1 does, with the expiry still in Unix seconds. With nothing in force it returns `hasSignature: false`, `isDelayed: false` and an empty `expirationDate`, where v1 leaves them undefined. `signature` and `typedData` are never set.
-  - `getUserStakeAndBakeSignature` reports the first permit, lowest nonce first, that is neither expired nor blocked behind an expired lower nonce, in the same record shape. With none it returns an empty `expirationDate` and `depositAmount`.
+  - `getUserStakeAndBakeSignature` reports, in the same record shape, the claimable permit with the highest nonce, claimable meaning neither expired nor blocked behind an expired lower nonce. The route lists every token's permits on the chain, so the new optional `tokenAddress` narrows them to the permits signed against that token, matched ignoring case; nonces count up per token, so within one token the highest is the newest. That is close to v1, which reports the most recently stored live permit, but not the same: v1 takes no token and ignores `tokenAddress`, and without one, v2's highest nonce across tokens need not be the newest. `btc.deploy()` passes the token its deposit is signed against. With nothing claimable it returns an empty `expirationDate` and `depositAmount`.
   - `storeNetworkFeeSignature` reads the chain from the typed data's `message.chainId`, which the route requires it to match, and refuses typed data without one before sending. `tokenAddress` is not sent; the route reads the token from `domain.verifyingContract`.
-  - `storeStakeAndBakeSignature` posts to its new optional `address`, or the typed data's `message.owner` without one. An unused permit with the same nonce is replaced rather than refused, so re-signing before the stored permit expires succeeds.
+  - `storeStakeAndBakeSignature` chooses and posts to its new optional `address`, or the typed data's `message.owner` without one; with neither it takes v1, which reads the owner from the typed data itself. An unused permit with the same nonce is replaced rather than refused, so a re-sign before the stored permit expires succeeds on v2, where v1 refuses it with `StakeAndBakeSignatureExistsError`. `btc.deploy()` does not re-sign on either route: it stops at `BLOCKED_BY_EXISTING_AUTHORIZATION` as before.
   - The chain is sent as the family name from `/v2/chains` (`ethereum` for Sepolia too), the only form both the testnet and mainnet hosts accept on both routes.
-  - A refused token reaches the caller as that `LombardError`, with its code; other failures are a plain `Error`, as on v1.
+  - With `auth`, a refused token reaches the caller as that `LombardError`, with its code. Every other failure, and a refused token with only `getAuthToken`, is a plain `Error`, as on v1.
 
 - **`BtcAuthorizeOptions` is exported from the package root.** The type every BTC action's `authorize()` accepts was only reachable through a deep import, so a consumer holding those options in a variable had to re-declare the shape inline and lost the documentation attached to it.
 
