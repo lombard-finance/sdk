@@ -189,6 +189,7 @@ export class EvmDepositBtcb
         account,
         this.ctx.env,
         Token.LBTC,
+        { auth: this.ctx.auth, getAuthToken: this.ctx.getAuthToken },
       );
 
       // Update fee auth state
@@ -307,6 +308,8 @@ export class EvmDepositBtcb
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
         token: Token.LBTC, // BTC.b → LBTC uses LBTC token for fee signature
+        auth: this.ctx.auth,
+        getAuthToken: this.ctx.getAuthToken,
       });
 
       // Update fee auth state

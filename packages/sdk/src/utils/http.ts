@@ -10,7 +10,11 @@
  * @module utils/http
  */
 
-import type { LombardAuth, RequestScope } from '@lombard.finance/sdk-common';
+import type {
+  AuthRequestContext,
+  LombardAuth,
+  RequestScope,
+} from '@lombard.finance/sdk-common';
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
 import type { Logger } from '../shared/context/types';
@@ -130,6 +134,21 @@ export function getSdkHeaders(): Record<string, string> {
  * ```
  */
 /**
+ * The wallet token a request would carry: `auth` when given, otherwise the
+ * deprecated `getAuthToken`.
+ *
+ * Exported for a caller that chooses a route by whether a token is available
+ * before sending anything, so it decides the same way the request will.
+ */
+export async function resolveAuthToken(
+  { auth, getAuthToken }: Pick<HttpRequestOptions, 'auth' | 'getAuthToken'>,
+  context: AuthRequestContext,
+): Promise<string | undefined> {
+  if (auth) return auth.getToken(context);
+  return getAuthToken?.();
+}
+
+/**
  * The path part of a URL, for a message that names a call without quoting the
  * whole thing. Tolerates a relative URL, which callers do pass.
  */
@@ -169,8 +188,7 @@ export async function httpRequest<T = unknown>(
 
   async function resolveToken(): Promise<string | undefined> {
     if (callerSuppliedAuth) return undefined;
-    if (auth) return auth.getToken(authContext);
-    return getAuthToken?.();
+    return resolveAuthToken({ auth, getAuthToken }, authContext);
   }
 
   let authToken = await resolveToken();

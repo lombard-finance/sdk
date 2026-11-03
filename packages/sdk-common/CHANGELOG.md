@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   A required member on an exported interface is technically breaking for an external implementor. In practice this interface is one the SDK implements and consumers call — it arrived in 4.1.0 saying exactly that — so this is a minor.
 
+- Optional `auth` and `getAuthToken` on `RegisterContext`, carried from the SDK config. A module whose service calls user-scoped routes for the caller, such as storing a fee approval, needs the config's way of getting a token, and registration had no way to hand it over.
+
 ## [4.4.0] - 2026-10-13
 
 ### Added

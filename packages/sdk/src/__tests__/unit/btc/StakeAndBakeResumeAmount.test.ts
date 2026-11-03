@@ -145,6 +145,45 @@ describe('restoreStakeAndBakeSignature', () => {
   });
 });
 
+/**
+ * The lookup takes the v2 route when a wallet token is available, so the
+ * action's way of getting one has to reach it.
+ */
+describe('restoreStakeAndBakeSignature and the wallet token', () => {
+  const auth = { getToken: async () => 'jwt' };
+  const getAuthToken = () => 'sync-jwt';
+  const ctx = {
+    env: Env.prod,
+    auth,
+    getAuthToken,
+  } as unknown as BtcCoreContext;
+
+  function restore() {
+    return stakeAndDeployConfig.restoreStakeAndBakeSignature(
+      ctx,
+      ChainId.ethereum,
+      RECIPIENT,
+      { amount: SMALL_SATS, token: AssetId.BTC },
+    );
+  }
+
+  it("passes the context's wallet auth to the lookup", async () => {
+    onFile(SMALL_PERMIT_VALUE);
+
+    await restore();
+
+    expect(mockedStored).toHaveBeenCalledWith(
+      expect.objectContaining({ auth, getAuthToken }),
+    );
+  });
+
+  it('reads a lookup failure as no permit', async () => {
+    mockedStored.mockRejectedValue(new Error('gateway unreachable'));
+
+    await expect(restore()).resolves.toBeNull();
+  });
+});
+
 describe('BtcDeployLbtc.prepare with a signature on file', () => {
   async function action() {
     const ctx = {

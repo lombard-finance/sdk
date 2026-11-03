@@ -20,6 +20,22 @@ import { AssetId, Chain } from '../../core';
 import { BtcActionStatus } from '../../shared/constants/statusConstants';
 import { createTestConfig as createConfig } from '../helpers/createTestConfig';
 
+// The fee approval read went out over the network: the `fetch` spies below
+// never applied, since the SDK sends through axios. What is under test here is
+// the action lifecycle once the read has answered "nothing in force"; the
+// routes themselves are covered by getNetworkFeeSignature.test.ts and
+// btcDepositFeeApprovalToken.test.ts.
+vi.mock(
+  '../../api-functions/getNetworkFeeSignature/getNetworkFeeSignature',
+  () => ({
+    getNetworkFeeSignature: vi.fn().mockResolvedValue({
+      hasSignature: false,
+      expirationDate: '',
+      isDelayed: false,
+    }),
+  }),
+);
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Mock Provider Setup
 // ═══════════════════════════════════════════════════════════════════════════

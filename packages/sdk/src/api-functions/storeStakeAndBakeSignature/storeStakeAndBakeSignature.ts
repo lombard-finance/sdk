@@ -1,7 +1,8 @@
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
+import { isLombardError } from '../../shared/errors';
 import { getErrorMessage } from '../../utils/err';
-import { httpPost } from '../../utils/http';
+import { httpPost, httpRequest, resolveAuthToken } from '../../utils/http';
 
 export type IStoreStakeAndBakeSignatureStatus = 'success';
 
@@ -14,11 +15,11 @@ const EMPTY_SIGNATURE = '0x00';
 /**
  * Message fragments the API uses to say a live signature is already on file.
  *
- * Matched on the message rather than a numeric code because the code this
- * route answers with is not established here — the neighbouring routes use 6
- * (`save-user-signature`) and 9 (`auth/wallet/verify`) for the same condition,
- * and assuming either for this one would misclassify whatever it does use.
- * Whatever code did arrive is carried on the error instead.
+ * Matched on the message rather than a numeric code because the code alone
+ * does not say which case it is: 6, `AlreadyExists`, is also what the v2 route
+ * answers for a permit whose nonce the token has already consumed, which no
+ * amount of waiting unblocks. Whatever code did arrive is carried on the error
+ * instead.
  */
 const ACTIVE_SIGNATURE_PATTERNS = [
   'stake and bake signature already exists',
@@ -43,12 +44,16 @@ export function isActiveSignatureError(message: string): boolean {
  * Thrown when the API refuses to store a stake-and-bake signature because one
  * is already on file for this wallet and chain.
  *
- * One live signature is kept per user and chain while it is unexpired and
- * unused, so signing again does not replace it — and it cannot get around it
- * by carrying a different nonce either, since the nonce comes from
- * `nonces(owner)` on the token and ERC-2612 advances it only when a permit is
- * actually spent. A permit signed while the stored one is unused therefore
- * carries the same value.
+ * On the v1 route, one live signature is kept per user and chain while it is
+ * unexpired and unused, so signing again does not replace it — and it cannot
+ * get around it by carrying a different nonce either, since the nonce comes
+ * from `nonces(owner)` on the token and ERC-2612 advances it only when a
+ * permit is actually spent. A permit signed while the stored one is unused
+ * therefore carries the same value.
+ *
+ * The v2 route, used when a wallet token is available, replaces an unused
+ * permit carrying the same nonce instead, so there this is left for the
+ * refusals that remain, such as two saves for one nonce racing each other.
  *
  * Typed so a caller can tell this apart from a transport failure and say what
  * is actually wrong, instead of surfacing the server's own string to a user
@@ -72,22 +77,108 @@ export interface IStoreStakeAndBakeSignatureParams extends IEnvParam {
    */
   signature: string;
   /**
-   * JSON typed data used for the signature
+   * JSON typed data used for the signature, exactly as signed
    */
   typedData: string;
+  /**
+   * The permit's owner, the address that signed it. Used by the v2 route
+   * only, and read from the typed data's `message.owner` when omitted.
+   */
+  address?: string;
+}
+
+/** The permit's owner from the typed data, when it names one. */
+function ownerOfPermit(typedData: string): string | undefined {
+  try {
+    const owner = (JSON.parse(typedData) as { message?: { owner?: unknown } })
+      ?.message?.owner;
+    return typeof owner === 'string' && owner ? owner : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Reports the API's "already on file" refusal as its own type. */
+function toStoreError(error: unknown): Error {
+  const errorMsg = getErrorMessage(error);
+
+  if (isActiveSignatureError(errorMsg)) {
+    // The transport's own rejection is rethrown, so the API's code sits on
+    // `response.data` when the response carried one.
+    const code = (
+      error as { response?: { data?: { code?: number } } } | undefined
+    )?.response?.data?.code;
+    return new StakeAndBakeSignatureExistsError(errorMsg, code);
+  }
+
+  return new Error(errorMsg);
 }
 
 /**
  * Store stake and bake signature
  *
+ * With a wallet token for the permit's owner, posts to
+ * `POST /v2/stake-and-bake/permits/{address}`, which replaces an unused permit
+ * on file with the same nonce. Without one, posts to the v1 route
+ * `POST /api/v1/claimer/save-stake-and-bake-signature`, which needs no token
+ * and refuses while a live permit is on file. Only the absence of a token
+ * selects v1: a token the v2 route refuses surfaces as an error rather than
+ * falling back.
+ *
  * @param {IStoreStakeAndBakeSignatureParams} parameters - The parameters for storing stake and bake signature
  * @param {string} parameters.signature - The signature.
  * @param {string} parameters.typedData - The serialized typed data.
+ * @param {string} parameters.address - The optional owner address; read from the typed data when omitted.
  * @param {Env} parameters.env - The optional environment identifier.
  *
  * @returns {Promise<IStoreStakeAndBakeSignatureStatus>}
  */
-export async function storeStakeAndBakeSignature({
+export async function storeStakeAndBakeSignature(
+  params: IStoreStakeAndBakeSignatureParams,
+): Promise<IStoreStakeAndBakeSignatureStatus> {
+  const { signature, typedData, address, env, auth, getAuthToken } = params;
+  const owner = address || ownerOfPermit(typedData);
+  const url = `${getApiConfig(env).baseApiV2Url}/v2/stake-and-bake/permits/${owner ?? ''}`;
+
+  const token = await resolveAuthToken(
+    { auth, getAuthToken },
+    { url, scope: 'userScoped' },
+  );
+  if (!token) return storeStakeAndBakeSignatureV1(params);
+
+  if (!owner) {
+    throw new Error(
+      'The stake and bake typed data has no message.owner, so the address to store it under is unknown. Pass `address`.',
+    );
+  }
+
+  try {
+    await httpRequest({
+      url,
+      method: 'POST',
+      body: {
+        typed_data: typedData,
+        // The approve flow sets the allowance on chain and signs nothing, and
+        // the route refuses an empty signature.
+        signature: signature || EMPTY_SIGNATURE,
+      },
+      scope: 'userScoped',
+      auth,
+      getAuthToken,
+    });
+
+    return 'success';
+  } catch (error) {
+    // A rejected token is the caller's to act on, and the code says so;
+    // flattening it into a plain Error would drop that.
+    if (isLombardError(error)) throw error;
+
+    throw toStoreError(error);
+  }
+}
+
+/** The v1 store, for a caller with no wallet token. */
+async function storeStakeAndBakeSignatureV1({
   signature,
   typedData,
   env,
@@ -108,17 +199,6 @@ export async function storeStakeAndBakeSignature({
 
     return data.status;
   } catch (error) {
-    const errorMsg = getErrorMessage(error);
-
-    if (isActiveSignatureError(errorMsg)) {
-      // `httpPost` rethrows the transport's own rejection, so the API's code
-      // sits on `response.data` when the response carried one.
-      const code = (
-        error as { response?: { data?: { code?: number } } } | undefined
-      )?.response?.data?.code;
-      throw new StakeAndBakeSignatureExistsError(errorMsg, code);
-    }
-
-    throw new Error(errorMsg);
+    throw toStoreError(error);
   }
 }

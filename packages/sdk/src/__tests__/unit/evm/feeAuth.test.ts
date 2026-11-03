@@ -14,6 +14,7 @@ import BigNumber from 'bignumber.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ChainId } from '../../../common/chains';
+import { AuthErrorCode, LombardError } from '../../../shared/errors';
 import { Token } from '../../../tokens/token-addresses';
 
 const TOKEN_ADDRESS = '0x1234567890123456789012345678901234567890' as const;
@@ -176,6 +177,24 @@ describe('checkFeeAuthorization on an unsubsidized chain', () => {
     expect(result.expirationDate).toBeNull();
   });
 
+  // The v2 read reports "nothing in force" with an empty expiry.
+  it('reports no expiry when no approval is in force', async () => {
+    getNetworkFeeSignature.mockResolvedValue({
+      hasSignature: false,
+      expirationDate: '',
+    });
+
+    const result = await checkFeeAuthorization(
+      ChainId.ethereum,
+      ACCOUNT,
+      Env.prod,
+      Token.LBTC,
+    );
+
+    expect(result.hasValidSignature).toBe(false);
+    expect(result.expirationDate).toBeNull();
+  });
+
   it('does not treat a missing signature as valid just because it cannot expire', async () => {
     getNetworkFeeSignature.mockResolvedValue({
       hasSignature: false,
@@ -309,6 +328,64 @@ describe('authorizeFee', () => {
     storeNetworkFeeSignature.mockRejectedValue(new Error('server down'));
 
     await expect(authorizeFee(params)).rejects.toThrow('server down');
+  });
+});
+
+/**
+ * Reading and storing an approval take the v2 routes when a wallet token is
+ * available, so the action's way of getting one has to reach both.
+ */
+describe('wallet auth', () => {
+  const auth = { getToken: async () => 'jwt' };
+  const getAuthToken = () => 'sync-jwt';
+
+  it('passes it to the approval lookup', async () => {
+    await checkFeeAuthorization(
+      ChainId.ethereum,
+      ACCOUNT,
+      Env.prod,
+      Token.LBTC,
+      {
+        auth,
+        getAuthToken,
+      },
+    );
+
+    expect(getNetworkFeeSignature).toHaveBeenCalledWith(
+      expect.objectContaining({ auth, getAuthToken }),
+    );
+  });
+
+  it('passes it to the approval store', async () => {
+    await authorizeFee({
+      chainId: ChainId.ethereum,
+      account: ACCOUNT,
+      feeInSatoshis: 10_000n,
+      provider: {} as never,
+      env: Env.prod,
+      token: Token.LBTC,
+      auth,
+      getAuthToken,
+    });
+
+    expect(storeNetworkFeeSignature).toHaveBeenCalledWith(
+      expect.objectContaining({ auth, getAuthToken }),
+    );
+  });
+
+  // A refused token is a session that is gone, not "no approval": reading it
+  // as the latter would ask the user to sign an approval for nothing.
+  it('surfaces a refused token rather than reading it as "not authorized"', async () => {
+    getNetworkFeeSignature.mockRejectedValue(
+      new LombardError(AuthErrorCode.UNAUTHORIZED, 'token refused'),
+    );
+
+    await expect(
+      checkFeeAuthorization(ChainId.ethereum, ACCOUNT, Env.prod, Token.LBTC, {
+        auth,
+      }),
+    ).rejects.toMatchObject({ code: AuthErrorCode.UNAUTHORIZED });
+    expect(getMintingFee).not.toHaveBeenCalled();
   });
 });
 

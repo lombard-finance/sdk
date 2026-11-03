@@ -150,6 +150,8 @@ They were previously sent anonymously and the gateway allowed it. That allowance
 
 Aggregate reads — APY, TVL, points, per-vault performance — are unaffected.
 
+Fee approvals and stake-and-bake permits need nothing from you. `getNetworkFeeSignature`, `storeNetworkFeeSignature`, `getUserStakeAndBakeSignature` and `storeStakeAndBakeSignature`, and the actions that call them, use the v2 routes when `auth` yields a token for the address and the v1 routes when it does not. On v2, nothing on file reads as `hasSignature: false` and an empty `expirationDate` rather than undefined, so check `hasSignature` rather than `expirationDate === undefined`, and re-signing a stake-and-bake permit while one is on file replaces it rather than raising `StakeAndBakeSignatureExistsError`. The [CHANGELOG](./CHANGELOG.md) has the rest.
+
 ### Supply the token
 
 ```ts

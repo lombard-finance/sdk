@@ -24,6 +24,7 @@ import {
   storeNetworkFeeSignature,
   getNetworkFeeSignature,
   toSatoshi,
+  WalletAuthService,
 } from "@lombard.finance/sdk";
 import { createWalletClient, http, type EIP1193Provider, type WalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -214,6 +215,22 @@ describe.skipIf(SKIP || !TEST_PRIVATE_KEY)(
     // Shared state across sequential tests in this flow
     let storedSignature: string;
     let storedTypedData: string;
+    let walletJwt: string;
+
+    // The fee approval routes are user-scoped: the token must belong to the
+    // address the approval is read or stored for.
+    it("signs in with the test wallet", async () => {
+      const account = privateKeyToAccount(TEST_PRIVATE_KEY!);
+      const { jwt } = await new WalletAuthService(Env.testnet).signIn({
+        address: account.address,
+        chain: "ethereum",
+        sign: async (payload) => ({
+          signature: await account.signMessage({ message: payload }),
+        }),
+      });
+      expect(jwt).toBeTruthy();
+      walletJwt = jwt;
+    });
 
     it("gets the current minting fee on Sepolia", async () => {
       const fee = await getLBTCMintingFee({
@@ -281,6 +298,7 @@ describe.skipIf(SKIP || !TEST_PRIVATE_KEY)(
           typedData: storedTypedData,
           address: account.address,
           env: Env.testnet,
+          getAuthToken: () => walletJwt,
         });
         expect(status).toBe("success");
       } catch (err) {
@@ -298,6 +316,7 @@ describe.skipIf(SKIP || !TEST_PRIVATE_KEY)(
         address: account.address,
         chainId: ChainId.sepolia,
         env: Env.testnet,
+        getAuthToken: () => walletJwt,
       });
 
       expect(result).toHaveProperty("hasSignature");

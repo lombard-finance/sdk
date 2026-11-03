@@ -132,6 +132,7 @@ export class EvmWithdrawLbtc
           account,
           this.ctx.env,
           Token.BTCb,
+          { auth: this.ctx.auth, getAuthToken: this.ctx.getAuthToken },
         );
 
         // Update fee auth state
@@ -215,6 +216,8 @@ export class EvmWithdrawLbtc
         provider: provider as EIP1193Provider,
         env: this.ctx.env,
         token: Token.BTCb,
+        auth: this.ctx.auth,
+        getAuthToken: this.ctx.getAuthToken,
       });
 
       // Update state

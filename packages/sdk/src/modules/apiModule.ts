@@ -36,7 +36,10 @@ export function apiModule(): SdkModule<'api', IApiService> {
   return {
     id: 'api',
     register(ctx) {
-      return new ApiService(ctx.env);
+      return new ApiService(ctx.env, {
+        auth: ctx.auth,
+        getAuthToken: ctx.getAuthToken,
+      });
     },
   };
 }

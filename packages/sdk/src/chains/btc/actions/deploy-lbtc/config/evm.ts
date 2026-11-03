@@ -117,6 +117,8 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
         userDestinationAddress: recipient,
         chainId: chainId as ChainId,
         env: ctx.env,
+        auth: ctx.auth,
+        getAuthToken: ctx.getAuthToken,
       });
 
       // Check if signature exists by looking at metadata, not just the signature string.

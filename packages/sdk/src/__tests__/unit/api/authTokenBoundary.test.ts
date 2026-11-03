@@ -3,8 +3,8 @@
  *
  * Two things are asserted, and the second is the one that matters over time:
  *
- * 1. When `getAuthToken` yields a token, the four endpoints that break the day
- *    the BFF requires one send `Authorization: Bearer <token>`.
+ * 1. When `getAuthToken` yields a token, the endpoints that need one send
+ *    `Authorization: Bearer <token>`, and without one they send no header.
  * 2. **No api-function reaches the network except through `utils/http`.** That
  *    is what keeps the header logic in one place. Before this stage there were
  *    16 raw `axios.get`/`axios.post` calls across 15 files and the wrapper had
@@ -31,6 +31,7 @@ vi.mock('axios', () => ({ default: axiosFn, isAxiosError: isAxiosErrorFn }));
 import { getNetworkFeeSignature } from '../../../api-functions/getNetworkFeeSignature/getNetworkFeeSignature';
 import { getUserStakeAndBakeSignature } from '../../../api-functions/getUserStakeAndBakeSignature/getUserStakeAndBakeSignature';
 import { storeNetworkFeeSignature } from '../../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
+import { storeStakeAndBakeSignature } from '../../../api-functions/storeStakeAndBakeSignature/storeStakeAndBakeSignature';
 import { ChainId } from '../../../common/chains';
 
 const TOKEN = 'jwt-for-the-boundary';
@@ -67,7 +68,7 @@ describe('every api-function attaches the token through one place', () => {
       (getAuthToken) =>
         storeNetworkFeeSignature({
           signature: '0xsig',
-          typedData: '{}',
+          typedData: '{"message":{"chainId":1}}',
           address: '0xabc',
           env: Env.prod,
           getAuthToken,
@@ -83,6 +84,16 @@ describe('every api-function attaches the token through one place', () => {
           getAuthToken,
         }),
     ],
+    [
+      'storeStakeAndBakeSignature',
+      (getAuthToken) =>
+        storeStakeAndBakeSignature({
+          signature: '0xsig',
+          typedData: '{"message":{"owner":"0xabc"}}',
+          env: Env.prod,
+          getAuthToken,
+        }),
+    ],
   ];
 
   it.each(cases)(
@@ -93,10 +104,12 @@ describe('every api-function attaches the token through one place', () => {
     },
   );
 
+  // Without a token these take the v1 routes, which need none.
   it.each(cases)(
     '%s sends no header when none is configured',
     async (_n, call) => {
       await call(undefined).catch(() => undefined);
+      expect(axiosFn).toHaveBeenCalled();
       expect(authHeader()).toBeUndefined();
     },
   );

@@ -9,6 +9,10 @@
  * Fee authorization is only required on unsubsidized chains (Ethereum, Sepolia).
  * Other chains (Base, BSC, Avalanche) are subsidized by Lombard.
  *
+ * Reading and storing an approval go through the v2 routes when a wallet token
+ * for the account is available, and the v1 routes otherwise, so the action's
+ * `auth` is passed through to both.
+ *
  * @module chains/evm/shared/feeAuth
  */
 
@@ -19,6 +23,7 @@ import { getNetworkFeeSignature } from '../../../api-functions';
 import { storeNetworkFeeSignature } from '../../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
 import type { ChainId } from '../../../common/chains';
 import { requiresAutoMintFee } from '../../../common/fee-requirements';
+import type { IEnvParam } from '../../../common/parameters';
 import { getMintingFee } from '../../../contract-functions';
 import { signNetworkFee } from '../../../contract-functions/signNetworkFee/signNetworkFee';
 import { Token } from '../../../tokens/token-addresses';
@@ -61,9 +66,15 @@ export interface FeeAuthCheckResult {
 }
 
 /**
+ * How the fee approval routes obtain a wallet token for the account. Actions
+ * pass their context's `auth` and `getAuthToken` straight through.
+ */
+export type FeeAuthCredentials = Pick<IEnvParam, 'auth' | 'getAuthToken'>;
+
+/**
  * Parameters for fee authorization
  */
-export interface AuthorizeFeeParams {
+export interface AuthorizeFeeParams extends FeeAuthCredentials {
   chainId: ChainId;
   account: `0x${string}`;
   feeInSatoshis: bigint;
@@ -86,6 +97,7 @@ export interface AuthorizeFeeParams {
  * @param account - The user's EVM account address
  * @param env - The environment (prod, stage, testnet)
  * @param token - The token type (BTCb or LBTC)
+ * @param credentials - How to obtain the account's wallet token
  * @returns Fee authorization check result
  */
 export async function checkFeeAuthorization(
@@ -93,6 +105,7 @@ export async function checkFeeAuthorization(
   account: `0x${string}`,
   env: Env,
   token: Token,
+  credentials: FeeAuthCredentials = {},
 ): Promise<FeeAuthCheckResult> {
   // Check if this chain requires fee authorization
   if (!requiresAutoMintFee(chainId)) {
@@ -114,6 +127,7 @@ export async function checkFeeAuthorization(
     chainId,
     env,
     tokenAddress: tokenInfo.address,
+    ...credentials,
   });
 
   // Check if signature exists and is not expired
@@ -142,7 +156,8 @@ export async function checkFeeAuthorization(
     hasValidSignature,
     feeInSatoshis,
     feeFormatted,
-    expirationDate: existingSignature.expirationDate ?? null,
+    // Empty on the v2 route and absent on v1 when no approval is in force.
+    expirationDate: existingSignature.expirationDate || null,
   };
 }
 
@@ -157,7 +172,16 @@ export async function checkFeeAuthorization(
 export async function authorizeFee(
   params: AuthorizeFeeParams,
 ): Promise<{ signature: `0x${string}`; typedData: string }> {
-  const { chainId, account, feeInSatoshis, provider, env, token } = params;
+  const {
+    chainId,
+    account,
+    feeInSatoshis,
+    provider,
+    env,
+    token,
+    auth,
+    getAuthToken,
+  } = params;
 
   // Get token address for storing signature
   const tokenInfo = await getTokenContractInfo(token, chainId, env);
@@ -179,6 +203,8 @@ export async function authorizeFee(
     address: account,
     env,
     tokenAddress: tokenInfo.address,
+    auth,
+    getAuthToken,
   });
 
   return signResult;

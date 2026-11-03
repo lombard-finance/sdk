@@ -770,8 +770,8 @@ export class LombardActionProvider extends ActionProvider<EvmWalletProvider> {
     });
 
     if (existing.hasSignature) {
-      // Check expiration
-      const expirationMs = new Date(existing.expirationDate).getTime();
+      // Check expiration. The date is in Unix seconds.
+      const expirationMs = Number(existing.expirationDate) * 1000;
       const bufferMs = 60 * 60 * 1000; // 1 hour buffer
       if (expirationMs > Date.now() + bufferMs) {
         return; // Existing signature is still valid

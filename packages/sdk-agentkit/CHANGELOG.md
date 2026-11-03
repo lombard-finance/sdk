@@ -6,6 +6,10 @@ Requires `@lombard.finance/sdk@6.0.0`, for the same reason as `@lombard.finance/
 
 Action names and the approval policy from 0.3.0 are unchanged. Only the SDK underneath moves.
 
+### Fixed
+
+- **A valid fee approval was signed again on every write.** On Ethereum and Sepolia, `stake_btcb_to_lbtc`, `unstake_lbtc_to_btc` and `redeem_lbtc_to_btcb` check for a fee approval first. Its expiry is in Unix seconds and was read as a date string, which never parses, so the existing approval always looked expired and the store that followed was refused as a duplicate. It is now read as seconds.
+
 # 0.3.0
 
 ## BREAKING CHANGES
