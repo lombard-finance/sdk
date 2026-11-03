@@ -89,14 +89,23 @@ export default defineConfig({
       //                                  which went from under 20% to 100%
       //   68.04 / 84.50 / 69.75 / 68.04  after the stage B contract and the
       //                                  BTC.b vault availability fix
-      // Branches sit a point below the measured 84.09-84.12 because that
-      // figure moves slightly between runs, and a gate that fails on its own
-      // jitter teaches people to ignore it. Statements and functions are
-      // stable, so they carry the ratchet.
+      //   68.17 / 60.12 / 65.03 / 68.29  on vitest 4 and @vitest/coverage-v8
+      //                                  4. The merge that brought vitest 4
+      //                                  changed no file under the included
+      //                                  paths. v4's V8 provider counts
+      //                                  differently (statements no longer
+      //                                  equal lines); statements and lines
+      //                                  land where they were, branches and
+      //                                  functions do not, so those two
+      //                                  floors are re-measured, not lowered.
+      // Branches sit a point below the measured figure because it moves
+      // slightly between runs, and a gate that fails on its own jitter teaches
+      // people to ignore it. Statements and functions are stable, so they
+      // carry the ratchet.
       thresholds: {
         statements: 68,
-        branches: 83,
-        functions: 69,
+        branches: 59,
+        functions: 65,
         lines: 68,
       },
     },
