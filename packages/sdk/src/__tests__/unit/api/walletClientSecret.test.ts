@@ -155,7 +155,7 @@ describe('wallet challenge clientSecret', () => {
       verificationId: 'ticket',
       clientSecret: challenge.clientSecret,
     });
-    await vi.advanceTimersByTimeAsync(2_000);
+    await vi.advanceTimersByTimeAsync(3_000);
     await expect(result).resolves.toEqual({ jwt: 'token', expiresAt: 'later' });
     expect(requests).toHaveLength(4);
     for (const request of requests.slice(2)) {

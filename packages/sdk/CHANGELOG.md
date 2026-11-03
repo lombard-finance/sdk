@@ -48,6 +48,8 @@ migrate once.
 
 ### Fixed
 
+- **Async wallet verification polled fast enough to trip the auth rate limit.** The gateway rate-limits `/v2/auth/*` per source IP, and `pollWalletVerification` asked every 2 s for up to two minutes: thirty requests a minute on top of the challenge and verify, against a budget that users behind one address share. It now backs off (3 s, 6 s, 10 s, then every 15 s): six polls in the first minute and ten over the whole budget. A `429` is waited out for `Retry-After` and polling continues within the same budget, rather than failing a sign-in that may still complete.
+
 - **`walletAuth.signIn` dropped the challenge's client secret.** It read only the payload from the challenge, so verify and every status poll went out without the `client_secret` the challenge had issued for them. The gateway accepts that only while it does not require the secret. `signIn` now carries it into both.
 
 - **Async wallet verification always polls with `POST …/status`.** Without a client secret, `pollWalletVerification` (and so `walletAuth.signIn` for contract wallets and Starknet) polled `GET /v2/auth/wallet/verify/{id}`. The gateway binds that GET to the same call as `POST /v2/auth/wallet/verify/{id}/status`, marks it for removal once client secrets are required, and answers both identically today. The poll now always uses the POST, with the secret in the body only when the challenge issued one, so it keeps working when the GET goes.
