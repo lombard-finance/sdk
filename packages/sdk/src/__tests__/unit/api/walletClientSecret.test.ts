@@ -105,7 +105,7 @@ describe('wallet challenge clientSecret', () => {
   );
 
   it.each([undefined, ''])(
-    'preserves the GET poll without a nonempty secret (%j)',
+    'polls by POST, with no secret in the body, without a nonempty secret (%j)',
     async (clientSecret) => {
       responses.push(token);
       await expect(
@@ -116,12 +116,12 @@ describe('wallet challenge clientSecret', () => {
         }),
       ).resolves.toEqual({ jwt: 'token', expiresAt: 'later' });
       expect(requests[0]).toMatchObject({
-        method: 'get',
-        url: 'v2/auth/wallet/verify/ticket',
+        method: 'post',
+        url: 'v2/auth/wallet/verify/ticket/status',
         baseURL: getApiConfig(base.env).baseApiV2Url,
         timeout: WALLET_AUTH_REQUEST_TIMEOUT_MS,
       });
-      expect(requests[0].data).toBeUndefined();
+      expect(requests[0].data).toBe('{}');
       expect(requests[0].params).toBeUndefined();
     },
   );

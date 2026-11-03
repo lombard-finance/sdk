@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * const sdk = new LombardSDK({ env: Env.prod, providers: {...} });
+ * const sdk = await createLombardSDK({ env: Env.prod, providers: {...} });
  *
  * // Fetch deposits for an address
  * const deposits = await sdk.api.deposits('0x...');
@@ -183,12 +183,13 @@ export class ApiNamespace {
    *
    * Covers both arms: burning an L-asset for native BTC, and redeeming on the
    * destination chain. Read from the public v1 route, or from the v2 portfolio
-   * list with `apiVersion: 'v2'` and a wallet token for `address`. The record type is still `Withdraw` — that is the shape
-   * the endpoint returns, and renaming it here would misdescribe the payload.
+   * list with `apiVersion: 'v2'` and a wallet token for `address`. The record
+   * type is still `Unstake`: that is the shape the endpoint returns, and
+   * renaming it here would misdescribe the payload.
    *
    * @param address - The address that made the withdrawals
    * @param options - Optional filters (show_redeems, show_unstakes, to_native)
-   * @returns Promise resolving to array of Withdraw objects
+   * @returns Promise resolving to the address's `Unstake` records
    *
    * @example
    * ```ts

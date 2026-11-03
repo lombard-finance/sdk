@@ -9,7 +9,7 @@ import {
 } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
-import { httpGet, httpPost } from '../../utils/http';
+import { httpPost } from '../../utils/http';
 
 interface WalletVerificationStatusApiResponse {
   /** e.g. VERIFICATION_STATUS_PENDING | VERIFICATION_STATUS_COMPLETE_VALID. */
@@ -41,8 +41,11 @@ export interface PollWalletVerificationParams extends IEnvParam {
  * Poll the async wallet-verification endpoint until the signature is verified
  * on-chain and a JWT is issued.
  *
- * GET /v2/auth/wallet/verify/{verification_id} without a client secret.
- * POST /v2/auth/wallet/verify/{verification_id}/status with a client secret.
+ * Always `POST /v2/auth/wallet/verify/{verification_id}/status`, with the
+ * client secret in the body when the challenge issued one. The gateway also
+ * binds the same call to `GET /v2/auth/wallet/verify/{verification_id}`, but
+ * that binding is deprecated and goes once client secrets are required, so it
+ * is not used even when there is no secret to send.
  *
  * Resolves with the token pair on `VERIFICATION_STATUS_COMPLETE_VALID`, and
  * throws if verification fails, returns an unexpected terminal status, or the
@@ -63,13 +66,11 @@ export async function pollWalletVerification({
         baseURL: baseApiV2Url,
         timeout: WALLET_AUTH_REQUEST_TIMEOUT_MS,
       };
-      const { data } = clientSecret
-        ? await httpPost<WalletVerificationStatusApiResponse>(
-            `${url}/status`,
-            { client_secret: clientSecret },
-            config,
-          )
-        : await httpGet<WalletVerificationStatusApiResponse>(url, config);
+      const { data } = await httpPost<WalletVerificationStatusApiResponse>(
+        `${url}/status`,
+        clientSecret ? { client_secret: clientSecret } : {},
+        config,
+      );
 
       if (data.status === VERIFICATION_STATUS.completeValid) {
         if (!data.jwt) {
