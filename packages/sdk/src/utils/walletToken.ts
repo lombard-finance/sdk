@@ -39,17 +39,14 @@ export function walletTokenSubject(token: string): string | undefined {
 }
 
 /** An address in the one spelling {@link isSameWalletAddress} compares. */
+// Lowercased only, which is how the gateway compares a token's wallet with the
+// route's address. Stripping more (say, a Starknet address's leading zeros)
+// would call two addresses the same that the gateway answers with a 403.
 function normaliseAddress(address: string): string {
-  const lower = address.trim().toLowerCase();
-  if (!lower.startsWith('0x')) return lower;
-  // Starknet addresses are written both padded to 64 hex digits and not.
-  return `0x${lower.slice(2).replace(/^0+/, '')}`;
+  return address.trim().toLowerCase();
 }
 
-/**
- * Whether two addresses name the same wallet: regardless of letter case, and
- * for a `0x` address regardless of leading zeros.
- */
+/** Whether two addresses name the same wallet, regardless of letter case. */
 export function isSameWalletAddress(a: string, b: string): boolean {
   return normaliseAddress(a) === normaliseAddress(b);
 }

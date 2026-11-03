@@ -71,18 +71,15 @@ describe('isSameWalletAddress', () => {
     expect(isSameWalletAddress(ACCOUNT, OTHER)).toBe(false);
   });
 
-  // Starknet addresses are written both padded to 64 hex digits and not.
-  it('ignores leading zeros on a 0x address', () => {
+  // The gateway compares lowercased addresses and nothing more, so a padding
+  // difference is a different wallet to it, and to this check.
+  it('does not treat a padding difference as the same wallet', () => {
     expect(
       isSameWalletAddress(
         '0x036834a40984312f7f7de8d31e3f6305b325389eaeea5b1c0664b2fb936461a4',
         '0x36834A40984312F7F7DE8D31E3F6305B325389EAEEA5B1C0664B2FB936461A4',
       ),
-    ).toBe(true);
-  });
-
-  it('keeps zeros that are not leading', () => {
-    expect(isSameWalletAddress('0x10', '0x1')).toBe(false);
+    ).toBe(false);
   });
 });
 
