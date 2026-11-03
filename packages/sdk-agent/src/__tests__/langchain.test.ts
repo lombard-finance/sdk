@@ -22,6 +22,37 @@ describe("toLangChainTool", () => {
     expect(tool.description).toBe("A test tool");
     expect(typeof tool.invoke).toBe("function");
   });
+
+  it("invokes the definition and returns its result as JSON", async () => {
+    const tool = toLangChainTool({
+      name: "test_tool",
+      description: "A test tool",
+      parameters: {},
+      schema: z.object({ x: z.string() }),
+      execute: async ({ x }: { x: string }) => ({ result: x }),
+    });
+
+    await expect(tool.invoke({ x: "hello" })).resolves.toBe(
+      JSON.stringify({ result: "hello" }),
+    );
+  });
+
+  it("rejects input that fails the schema without executing", async () => {
+    const calls: unknown[] = [];
+    const tool = toLangChainTool({
+      name: "test_tool",
+      description: "A test tool",
+      parameters: {},
+      schema: z.object({ x: z.string() }),
+      execute: async (input: { x: string }) => {
+        calls.push(input);
+        return {};
+      },
+    });
+
+    await expect(tool.invoke({ x: 42 })).rejects.toThrow();
+    expect(calls).toEqual([]);
+  });
 });
 
 describe("lombardLangChainTools", () => {

@@ -13,7 +13,7 @@ on:
 
 jobs:
   secrets-scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     concurrency:
@@ -68,9 +68,9 @@ jobs:
             --gitleaks-ignore-path "${{ steps.config.outputs.ignore }}"
 
   build-and-test:
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ vars.AWS_ECR_REGISTRY }}/library/alpine-git-node-aws:latest
+    # Runs directly on the hosted runner: git, tar and jq ship with the image,
+    # Node comes from setup-node and Yarn 4 is vendored in .yarn/releases.
+    runs-on: ubuntu-24.04
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-ci
       cancel-in-progress: true
@@ -81,9 +81,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.ref || github.sha }}
-
-      - name: Allow Git to access repo
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

@@ -34,7 +34,9 @@ export interface StakeAndBakeStrategyConfig {
   amountStrategy: StakeAndBakeAmountStrategy;
   approval: {
     mode: ApprovalMode;
+    /** @deprecated Legacy metadata; read getTokenEip712Domain before signing. */
     domainName: string;
+    /** @deprecated Legacy metadata; read getTokenEip712Domain before signing. */
     domainVersion: string;
     deadlineStrategy: StakeAndBakeDeadlineStrategy;
     nonceStrategy: StakeAndBakeNonceStrategy;

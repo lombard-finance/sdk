@@ -22,13 +22,13 @@ function toAiTool(def: ToolDefinition<any, any>): any {
   const createTool = aiTool as unknown as (opts: {
     name: string;
     description: string;
-    parameters: unknown;
+    inputSchema: unknown;
     execute: (...args: unknown[]) => Promise<unknown>;
   }) => unknown;
   return createTool({
     name: def.name,
     description: def.description,
-    parameters: def.schema,
+    inputSchema: def.schema,
     execute: def.execute,
   });
 }

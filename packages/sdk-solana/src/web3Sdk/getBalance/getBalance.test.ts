@@ -10,29 +10,31 @@ vi.mock('@solana/web3.js', async () => {
   const actual = await vi.importActual('@solana/web3.js');
   return {
     ...actual,
-    Connection: vi.fn().mockImplementation(() => ({
-      getBalance: vi.fn().mockResolvedValue(1000000000), // 1 SOL in lamports
-      getTokenAccountsByOwner: vi.fn().mockResolvedValue({
-        value: [
-          {
-            pubkey: 'token-account-pubkey',
-          },
-        ],
-      }),
-      getParsedAccountInfo: vi.fn().mockResolvedValue({
-        value: {
-          data: {
-            parsed: {
-              info: {
-                amount: '1000000', // 1 token with 6 decimals
-                decimals: 6,
+    Connection: vi.fn().mockImplementation(function () {
+      return {
+        getBalance: vi.fn().mockResolvedValue(1000000000), // 1 SOL in lamports
+        getTokenAccountsByOwner: vi.fn().mockResolvedValue({
+          value: [
+            {
+              pubkey: 'token-account-pubkey',
+            },
+          ],
+        }),
+        getParsedAccountInfo: vi.fn().mockResolvedValue({
+          value: {
+            data: {
+              parsed: {
+                info: {
+                  amount: '1000000', // 1 token with 6 decimals
+                  decimals: 6,
+                },
               },
             },
           },
-        },
-      }),
-    })),
-    PublicKey: vi.fn().mockImplementation((key) => {
+        }),
+      };
+    }),
+    PublicKey: vi.fn().mockImplementation(function (key) {
       if (key === 'invalid-key') {
         throw new Error('Invalid public key');
       }
@@ -78,9 +80,9 @@ describe('getBalance', () => {
         value: [], // No token accounts
       }),
     };
-    vi.mocked(Connection).mockImplementationOnce(
-      () => connectionMock as Connection,
-    );
+    vi.mocked(Connection).mockImplementationOnce(function () {
+      return connectionMock as Connection;
+    });
 
     const result = await getBalance({
       publicKey: 'valid-public-key',

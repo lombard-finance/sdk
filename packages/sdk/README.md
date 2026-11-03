@@ -50,6 +50,14 @@ await deposit.generateDepositAddress();
 // The user sends BTC to deposit.depositAddress, and it mints on confirmation.
 ```
 
+## EIP-712 signing domains
+
+`signNetworkFee` and `signStakeAndBake` read the token's `eip712Domain()` before building typed data. This supports both LBTC names, "Lombard Staked Bitcoin" and "Lombard BTC", and also applies to BTC.b. Contracts without that getter use `name()` and version `1`. RPC failures propagate without asking the wallet to sign.
+
+Custom typed-data builders can call `getTokenEip712Domain({ chainId, tokenAddress, rpcUrl, env })`, exported from the root and `/contracts` entries. The existing synchronous `getTypedData` source helper accepts an optional `domain`; without it, its legacy LBTC default remains. The synchronous stake-and-bake builder still accepts `domainName` and `domainVersion`; pass the values read on chain. Registry `approval.domainName` and `domainVersion` remain as deprecated metadata for compatibility, and signing no longer uses them.
+
+Concurrent domain reads for the same chain ID and token address share one in-flight request. The entry is removed when the request settles, on success or failure. Each later call reads the domain again, so an open session sees an on-chain rename without reloading. Domains with salt/extensions or mismatched chain/token are rejected because these signing flows use the four-field token domain.
+
 ## Configuration
 
 The SDK provides two approaches:
@@ -96,12 +104,11 @@ removed, not deprecated.
 
 ### Data API
 
-Query deposits, withdrawals, points, and exchange rates:
+Query deposits, withdrawals, and exchange rates:
 
 ```typescript
 const deposits = await sdk.api.deposits(address);
 const withdrawals = await sdk.api.withdrawals(address);
-const points = await sdk.api.points(address);
 const rate = await sdk.api.exchangeRatio();
 ```
 

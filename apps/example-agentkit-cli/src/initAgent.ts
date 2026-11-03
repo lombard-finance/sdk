@@ -3,7 +3,7 @@ import {
   ViemWalletProvider,
   walletActionProvider,
 } from "@coinbase/agentkit";
-import { getLangChainTools } from "@coinbase/agentkit-langchain";
+import { tool } from "@langchain/core/tools";
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
@@ -45,7 +45,14 @@ export async function initAgent(
     ],
   });
 
-  const tools = await getLangChainTools(agentkit);
+  // One LangChain tool per AgentKit action.
+  const tools = agentkit.getActions().map((action) =>
+    tool(async (arg) => action.invoke(arg), {
+      name: action.name,
+      description: action.description,
+      schema: action.schema,
+    }),
+  );
 
   return { walletProvider, tools };
 }

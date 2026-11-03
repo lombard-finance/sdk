@@ -51,16 +51,6 @@ export {
   type IGetNetworkFeeSignatureParams,
 } from '../api-functions/getNetworkFeeSignature/getNetworkFeeSignature';
 export {
-  getLuxSeason1Points,
-  getLuxSeason2Points,
-  getPointsByAddress,
-  type IGetPointsByAddressParameters,
-  type IPointsBase,
-  type IPointsByAddressSeason1,
-  type IPointsByAddressSeason2,
-  type IProtocolPointsBreakdown,
-} from '../api-functions/getPointsByAddress/getPointsByAddress';
-export {
   fetchUnstakesByAddress,
   getUnstakesByAddress,
   type IGetUnstakesByAddressParameters,

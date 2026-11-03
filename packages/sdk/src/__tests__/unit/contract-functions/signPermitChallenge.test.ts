@@ -229,6 +229,46 @@ describe('signPermitChallenge', () => {
     expect(result.jwt).toBe('polled-token');
   });
 
+  it.each([undefined, '', 'example-client-secret'])(
+    'carries an optional challenge secret through the permit flow (%j)',
+    async (clientSecret) => {
+      mockedChallenge.mockResolvedValue({
+        nonce: 'abc',
+        payload,
+        expiresAt: 'later',
+        challengeType: WALLET_CHALLENGE_TYPE.permit,
+        digest,
+        clientSecret,
+      });
+      mockedVerify.mockResolvedValue({
+        kind: 'pending',
+        verificationId: 'ticket',
+      });
+      mockedPoll.mockResolvedValue({ jwt: 'token', expiresAt: 'later' });
+
+      await signPermitChallenge(params);
+
+      expect(mockedVerify).toHaveBeenCalledWith({
+        address: account,
+        payload,
+        signature: '0xsignature',
+        chain: 'BLOCKCHAIN_ETHEREUM',
+        challengeType: WALLET_CHALLENGE_TYPE.permit,
+        env: params.env,
+        ...(clientSecret ? { clientSecret } : {}),
+      });
+      expect(mockedPoll).toHaveBeenCalledWith({
+        verificationId: 'ticket',
+        env: params.env,
+        ...(clientSecret ? { clientSecret } : {}),
+      });
+      expect(request).toHaveBeenCalledWith({
+        method: 'eth_signTypedData_v4',
+        params: [account, payload],
+      });
+    },
+  );
+
   it('rejects a wallet that answers with something other than a signature', async () => {
     request.mockResolvedValue(null);
 

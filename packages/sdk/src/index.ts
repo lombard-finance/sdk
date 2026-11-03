@@ -522,16 +522,6 @@ export {
   type IGetNetworkFeeSignatureParams,
 } from './api-functions/getNetworkFeeSignature/getNetworkFeeSignature';
 export {
-  getLuxSeason1Points,
-  getLuxSeason2Points,
-  getPointsByAddress,
-  type IGetPointsByAddressParameters,
-  type IPointsBase,
-  type IPointsByAddressSeason1,
-  type IPointsByAddressSeason2,
-  type IProtocolPointsBreakdown,
-} from './api-functions/getPointsByAddress/getPointsByAddress';
-export {
   fetchUnstakesByAddress,
   getUnstakesByAddress,
   type IGetUnstakesByAddressParameters,
@@ -590,6 +580,11 @@ export {
   getStakeAndBakeFee,
   type IGetStakeAndBakeFeeParams,
 } from './contract-functions/getStakeAndBakeFee/getStakeAndBakeFee';
+export {
+  getTokenEip712Domain,
+  type GetTokenEip712DomainParameters,
+  type TokenEip712Domain,
+} from './contract-functions/getTokenEip712Domain/getTokenEip712Domain';
 
 // Contract functions - WRITE:
 export {
@@ -670,6 +665,7 @@ export {
   type UnwrapBtceToLbtcvParameters,
 } from './contract-functions/unwrapBtceToLbtcv/unwrapBtceToLbtcv';
 export {
+  type EarnWithdrawQueue,
   withdrawEarn,
   type WithdrawEarnParameters,
   type WithdrawEarnResult,
@@ -678,6 +674,8 @@ export {
   wrapToBtce,
   type WrapToBtceParameters,
 } from './contract-functions/wrapToBtce/wrapToBtce';
+// Part of CancelEarnWithdrawalParameters, so consumers need to be able to name it.
+export { type BoringWithdrawRequest } from './vaults/lib/ops/withdraw';
 
 // Vault:
 // Note: `cancelWithdraw`, `deposit`, `queueWithdraw` and their parameter types

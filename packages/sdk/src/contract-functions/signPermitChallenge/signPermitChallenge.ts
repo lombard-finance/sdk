@@ -182,6 +182,7 @@ export async function signPermitChallenge({
   const verified = await verifyWalletSignature({
     address: account,
     payload: challenge.payload,
+    ...(challenge.clientSecret ? { clientSecret: challenge.clientSecret } : {}),
     signature,
     chain,
     // Required: challenges are keyed by address and type together.
@@ -194,6 +195,9 @@ export async function signPermitChallenge({
       ? { jwt: verified.jwt, expiresAt: verified.expiresAt }
       : await pollWalletVerification({
           verificationId: verified.verificationId,
+          ...(challenge.clientSecret
+            ? { clientSecret: challenge.clientSecret }
+            : {}),
           env,
         });
 

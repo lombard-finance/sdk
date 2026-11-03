@@ -95,7 +95,6 @@ export class LombardSDK<E extends Env = Env> {
    * Provides convenient access to Lombard API read operations:
    * - deposits: Fetch deposit history
    * - withdrawals: Fetch withdrawal history
-   * - points: Fetch Lux points
    * - exchangeRatio: Get exchange ratios for all supported tokens
    * - depositAddress: Get existing BTC deposit address
    */

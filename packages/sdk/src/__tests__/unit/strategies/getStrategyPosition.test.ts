@@ -48,7 +48,7 @@ describe('getStrategyPosition', () => {
   it('rejects an environment the strategy is not deployed in', async () => {
     await expect(
       getStrategyPosition({
-        env: Env.dev,
+        env: Env.ibc,
         account: ACCOUNT,
       }),
     ).rejects.toThrow(/not deployed in env/);

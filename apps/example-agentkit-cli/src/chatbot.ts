@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 import { ChatAnthropic } from "@langchain/anthropic";
-import { HumanMessage } from "@langchain/core/messages";
+import { type BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import * as readline from "readline";
@@ -132,14 +132,14 @@ async function main() {
         let response = "";
         for await (const chunk of stream) {
           if ("agent" in chunk) {
-            for (const msg of chunk.agent.messages) {
+            for (const msg of (chunk.agent.messages ?? []) as BaseMessage[]) {
               if (typeof msg.content === "string" && msg.content.length > 0) {
                 response = msg.content;
               }
             }
           }
           if ("tools" in chunk) {
-            for (const msg of chunk.tools.messages) {
+            for (const msg of (chunk.tools.messages ?? []) as BaseMessage[]) {
               console.log(`  [tool: ${msg.name}] ${String(msg.content).slice(0, 200)}`);
             }
           }

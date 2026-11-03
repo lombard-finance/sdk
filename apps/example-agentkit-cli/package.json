@@ -11,10 +11,9 @@
   },
   "dependencies": {
     "@coinbase/agentkit": "^0.2.0",
-    "@coinbase/agentkit-langchain": "^0.2.0",
-    "@langchain/anthropic": "^0.3.0",
-    "@langchain/core": "^0.3.0",
-    "@langchain/langgraph": "^0.2.0",
+    "@langchain/anthropic": "^1.0.0",
+    "@langchain/core": "^1.0.0",
+    "@langchain/langgraph": "^1.0.0",
     "@lombard.finance/sdk-agentkit": "workspace:*",
     "dotenv": "^16.4.0",
     "viem": "^2.23.0",

@@ -1,6 +1,13 @@
-import type { Message } from "@ai-sdk/react";
+import type { UIMessage } from "@ai-sdk/react";
 import { useChat } from "@ai-sdk/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { DefaultChatTransport, isToolUIPart } from "ai";
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAccount } from "wagmi";
@@ -36,27 +43,35 @@ function storageKey(addr: string): string {
   return `${STORAGE_PREFIX}${addr.toLowerCase()}`;
 }
 
-function loadMessages(addr: string | undefined): Message[] {
+function messageText(message: UIMessage): string {
+  return message.parts
+    .map((part) => (part.type === "text" ? part.text : ""))
+    .join("");
+}
+
+function loadMessages(addr: string | undefined): UIMessage[] {
   if (!addr) return [];
   try {
     const raw = localStorage.getItem(storageKey(addr));
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    // Sessions saved before the parts format carry only `content`; drop them.
+    return Array.isArray(parsed)
+      ? parsed.filter((m) => Array.isArray(m?.parts))
+      : [];
   } catch {
     return [];
   }
 }
 
-function saveMessages(addr: string | undefined, messages: Message[]): void {
+function saveMessages(addr: string | undefined, messages: UIMessage[]): void {
   if (!addr) return;
   try {
     // Only persist user and assistant text messages (skip tool invocations with large data)
     const serializable = messages.map((m) => ({
       id: m.id,
       role: m.role,
-      content: m.content,
-      createdAt: m.createdAt,
+      parts: [{ type: "text", text: messageText(m) }],
     }));
     localStorage.setItem(storageKey(addr), JSON.stringify(serializable));
   } catch {
@@ -85,24 +100,25 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     ? { address, chainId: chain?.id, chainName: chain?.name }
     : null;
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    isLoading,
-    append,
-    setMessages,
-    stop,
-  } = useChat({
-    api: "/api/chat",
+  const [input, setInput] = useState("");
+  const { messages, sendMessage, status, setMessages, stop } = useChat({
     id: address ? `chat-${address.toLowerCase()}` : "chat-anonymous",
-    initialMessages: loadMessages(address),
-    experimental_prepareRequestBody: ({ messages: msgs }) => ({
-      messages: msgs,
-      walletContext: walletContextRef.current,
+    messages: loadMessages(address),
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      prepareSendMessagesRequest: ({ messages: msgs }) => ({
+        body: { messages: msgs, walletContext: walletContextRef.current },
+      }),
     }),
   });
+  const isLoading = status === "submitted" || status === "streaming";
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!input || isLoading) return;
+    sendMessage({ text: input });
+    setInput("");
+  };
 
   // Persist messages to localStorage on change
   const saveRef = useRef(saveMessages);
@@ -122,11 +138,15 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     }
   }, [address, setMessages]);
 
+  // The chat id follows the wallet, and useChat builds a new Chat when the
+  // id changes, so an in-flight agent turn belongs to the previous Chat.
+  // This cleanup still holds that Chat's stop and runs when it is replaced.
+  useEffect(() => () => void stop(), [stop]);
+
   // Track wallet changes: save outgoing session, restore incoming session.
   // We only ever show the MOST RECENT change event so stale "Wallet
   // disconnected / Switched to ..." markers from prior sessions don't pile
-  // up. On a fresh connect after a disconnect, also stop any in-flight
-  // agent turn — the in-flight request belongs to the previous wallet.
+  // up.
   useEffect(() => {
     if (prevAddressRef.current === undefined) {
       prevAddressRef.current = address;
@@ -135,7 +155,6 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     if (address !== prevAddressRef.current) {
       const wasDisconnected = !prevAddressRef.current;
       prevAddressRef.current = address;
-      if (isLoading) stop();
       setMessages(loadMessages(address));
       if (address && wasDisconnected) {
         // Fresh connection - drop any stale events from previous wallets.
@@ -151,7 +170,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         ]);
       }
     }
-  }, [address, chain?.name, isLoading, setMessages, stop]);
+  }, [address, chain?.name, setMessages]);
 
   // Stick-to-bottom: auto-scroll on new content ONLY if the user is
   // already near the bottom. If they've scrolled up to read history, we
@@ -254,7 +273,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         {suggestions.map((s) => (
           <button
             key={s}
-            onClick={() => append({ role: "user", content: s })}
+            onClick={() => sendMessage({ text: s })}
             disabled={isLoading}
             className="rounded-[60px] border border-[var(--color-border-strong)] bg-[var(--color-bg)] px-3 py-1 text-xs text-[var(--color-text-secondary)] hover:border-[var(--color-teal)] hover:text-[var(--color-teal)] disabled:opacity-40 transition-colors"
           >
@@ -293,15 +312,14 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         {messages.map((msg) => (
           <MessageBubble
             key={msg.id}
-            message={msg as unknown as Record<string, unknown>}
+            message={msg}
             chainId={chain?.id}
             onTxError={(err) =>
-              append({
-                role: "user",
-                content: `Transaction failed with error: "${err}". What should I do?`,
+              sendMessage({
+                text: `Transaction failed with error: "${err}". What should I do?`,
               })
             }
-            onTxSuccess={(msg) => append({ role: "user", content: msg })}
+            onTxSuccess={(msg) => sendMessage({ text: msg })}
           />
         ))}
 
@@ -313,7 +331,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               .reverse()
               .find((m) => m.role === "assistant");
             if (!lastAssistant) return null;
-            const text = (lastAssistant.content || "").toLowerCase();
+            const text = messageText(lastAssistant).toLowerCase();
             const followUps: string[] = [];
 
             if (
@@ -347,7 +365,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
                 {followUps.map((s) => (
                   <button
                     key={s}
-                    onClick={() => append({ role: "user", content: s })}
+                    onClick={() => sendMessage({ text: s })}
                     className="rounded-[60px] border border-[var(--color-teal)]/30 bg-[var(--color-teal)]/5 px-3 py-1 text-xs text-[var(--color-teal)] hover:bg-[var(--color-teal)]/15 transition-colors"
                   >
                     {s}
@@ -386,7 +404,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         <div className="flex items-center gap-2">
           <input
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             placeholder={
               address
                 ? "Ask about your balances, staking..."
@@ -447,14 +465,13 @@ function formatAddresses(text: string): string {
   return text.replace(/(?<!`)(?<!\w)(0x[a-fA-F0-9]{40,})(?!`)(?!\w)/g, "`$1`");
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function MessageBubble({
   message,
   chainId,
   onTxError,
   onTxSuccess,
 }: {
-  message: Record<string, any>;
+  message: UIMessage;
   chainId?: number;
   onTxError?: (error: string) => void;
   onTxSuccess?: (msg: string) => void;
@@ -475,22 +492,10 @@ function MessageBubble({
     }
   }
 
-  // Check parts array (Vercel AI SDK v4 format)
-  const parts = (message.parts || []) as Array<Record<string, unknown>>;
-  for (const part of parts) {
-    if (part.type === "tool-invocation") {
-      const inv = part.toolInvocation as Record<string, unknown> | undefined;
-      if (inv?.state === "result") {
-        tryExtract(inv.result as Record<string, unknown> | undefined);
-      }
-    }
-  }
-  // Check toolInvocations array (Vercel AI SDK v3 / legacy format)
-  for (const inv of (message.toolInvocations || []) as Array<
-    Record<string, unknown>
-  >) {
-    if (inv.state === "result") {
-      tryExtract(inv.result as Record<string, unknown> | undefined);
+  // Tool results arrive as `tool-<name>` parts (Vercel AI SDK v5 format)
+  for (const part of message.parts) {
+    if (isToolUIPart(part) && part.state === "output-available") {
+      tryExtract(part.output as Record<string, unknown> | undefined);
     }
   }
 
@@ -586,7 +591,7 @@ function MessageBubble({
             ),
           }}
         >
-          {formatAddresses(message.content as string)}
+          {formatAddresses(messageText(message))}
         </Markdown>
 
         {txActions.map((tx, i) => (

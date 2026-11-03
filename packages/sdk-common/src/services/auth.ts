@@ -115,9 +115,13 @@ export interface WalletChallengeResponse {
    * than the one that was requested.
    */
   signatureExpiresAt?: string;
+  /** Optional client secret to send on verification and status polling. */
+  clientSecret?: string;
 }
 
 export interface WalletVerifyRequest {
+  /** Optional client secret returned by the wallet challenge. */
+  clientSecret?: string;
   address: string;
   /** The payload returned by `requestChallenge`. */
   payload: string;
@@ -175,6 +179,8 @@ export interface RevokeWalletTokenRequest {
 }
 
 export interface PollWalletVerificationRequest {
+  /** Optional client secret returned by the wallet challenge. */
+  clientSecret?: string;
   /** Id returned by `verifySignature` when the result is `pending`. */
   verificationId: string;
 }

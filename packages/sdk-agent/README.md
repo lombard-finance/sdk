@@ -20,11 +20,11 @@ yarn add @lombard.finance/sdk-agent
 # Required
 npm install viem
 
-# For Vercel AI SDK
-npm install ai
+# For Vercel AI SDK (v5)
+npm install ai@^5
 
-# For LangChain
-npm install @langchain/core
+# For LangChain (v1, Node.js 20 or newer)
+npm install @langchain/core@^1
 ```
 
 ## Quick Start
@@ -116,11 +116,10 @@ import { allTools, toolsByName } from "@lombard.finance/sdk-agent";
 | `prepare_earn_withdrawal` | Request a Bitcoin Earn withdrawal (one active per user per vault) |
 | `prepare_cancel_earn_withdrawal` | Cancel an active Bitcoin Earn withdrawal |
 
-### Portfolio and rewards
+### Portfolio
 
 | Tool | Description |
 | ---- | ----------- |
-| `get_lux_points` | Current-season Lux reward points (holding, protocol, referral, badge) |
 | `get_positions_summary` | Aggregated portfolio summary (total BTC value, PnL, holdings and DeFi breakdown) |
 
 ### Morpho Blue (Lending and Borrowing)
