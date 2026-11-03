@@ -159,7 +159,11 @@ export class LombardSDK<E extends Env = Env> {
 
     // Initialize API namespace
     // `config.auth` reaches the user-scoped API routes only through here.
-    this.api = new ApiNamespace(this.env, this.config.auth);
+    this.api = new ApiNamespace(
+      this.env,
+      this.config.auth,
+      this.config.apiVersion,
+    );
   }
 
   /**

@@ -6,6 +6,22 @@ migrate once.
 
 ### Added
 
+- **Deposits, withdrawals and bridges from the v2 portfolio lists.** `getPortfolioDeposits`, `getPortfolioWithdrawals` and `getPortfolioBridges` read `/v2/portfolio/{address}/{deposits,withdrawals,bridges}` and return the shapes the v1 readers return: `Deposit`, `Unstake`, and a new `PortfolioBridge`. The routes are user-scoped, so each call needs `auth` and a wallet token for `address`, and fails with `AuthErrorCode.MISSING_TOKEN` before sending without one.
+
+  `sdk.api.deposits()` and `sdk.api.withdrawals()` keep reading v1 by default. With `apiVersion: 'v2'` on the config they read v2 when `auth` yields a token and v1 when it does not; only a missing token falls back, and any other v2 failure is thrown. `sdk.api.bridges()` is new and reads v2 only.
+
+  What the readers handle on the wire:
+  - Enums arrive as short lowercase names (`completed`, `deposit_native`); the full schema names are accepted too.
+  - Chains arrive as `base`, `base_sepolia` or `BLOCKCHAIN_BASE_SEPOLIA`, and resolve to the env's chain id. A chain the SDK has no name for takes its numeric id from `/v2/chains` rather than defaulting to Ethereum.
+  - Pages are read by limit until `total`, at most 2,000 movements. A page shorter than the limit is not taken as the end, since the gateway may leave out a row it cannot map while still counting it, and a row repeated across pages is kept once.
+  - Withdrawals keep v1's split: `isNative` marks the redeems (BTC.b paid out in BTC, with `toChainId: 'bitcoin'`, and LBTC to BTC.b on chain), and `show_unstakes`, `show_redeems` and `to_native` filter as the v1 route does. Two differences: an LBTC to BTC.b redeem reports `payoutTxStatus: Completed` once it completes, where v1 left it `Pending` for want of a payout, and its `toTokenAddress` is the address the gateway reports.
+  - A `FAILED` movement reports `NOTARIZATION_STATUS_FAILED`, including an approved notarization whose session expired (`SESSION_STATE_EXPIRED`), so it is never offered for claim.
+  - `rawPayload` and `proof` are bare hex, as the v1 BTC deposit route returned them.
+
+  What v2 does not carry: `notarizationWaitDur` and `auxVersion` are never set. `Deposit.blockHeight` is set only where the gateway sends a height, and `Unstake.blockHeight` reads `0` where it does not.
+
+- Everything in 5.9.0 through 5.11.2, merged in: Earn withdrawals through the BoringQueue on Base and BSC (`queue: 'boring'`), token EIP-712 domains read from the contracts, wallet-challenge client secrets, and the removal of the Season 1 and Season 2 points readers. The queued-withdrawal guard below applies to the atomic queue only, since the BoringQueue keeps each request separately.
+
 - Everything in 5.4.0 through 5.8.0, merged in. From 5.4.0 and 5.5.0: the configurable stake-and-bake signature expiry, and `signPermitChallenge` — one signature that both proves control of the destination address and authorises the vault spender, with the permit recorded for the claimer at verify time.
 
   From 5.6.0 through 5.8.0, the security fixes land as they shipped: an issued permit is checked against what was asked for (`PermitChallengeMismatchError`, `expectedSpender`); the amount and expiry guards are one shared module, `shared/validation/signing`, wired to `signStakeAndBake`, `signNetworkFee` and `signPermitChallenge`, and the copy this branch kept inside `signStakeAndBake` is gone; a stored stake-and-bake signature resumes only a deposit it covers, otherwise `btc.deploy()` stops at `BLOCKED_BY_EXISTING_AUTHORIZATION` and reports `existingAuthorization`; a witness version above 1 is refused; and the bearer token stays out of the revoke log. On this branch those land in `BtcDeployLbtc` rather than `BtcStakeAndDeploy`, and the deposit-address route keeps going through `utils/http` with the wallet token attached.
@@ -18,7 +34,7 @@ migrate once.
 
 - **Two per-account vault routes now require a wallet token.** `getEarnDeposits` and `getEarnWithdrawals` hit `sevenseas-api/{deposits,withdraw-requests}/<network>/<vault>/<account>` — a path keyed by an address — so they are `userScoped` and fail before sending when no token is available, with a `missing-token` error naming the config field that fixes it.
 
-  Previously they were sent anonymously and the gateway allowed it. That allowance is being withdrawn: BFF enforcement is merged behind a flag, so the alternative to failing locally is a 401 from the gateway later. Aggregate routes — `dune-api/query/*` and per-vault performance — stay `public` and are unaffected.
+  Previously they were sent anonymously and the gateway allowed it. That allowance is being withdrawn on the gateway, so the alternative to failing locally is a 401 later. Aggregate routes — `dune-api/query/*` and per-vault performance — stay `public` and are unaffected.
 
 - **`DeployProtocol.Veda` is `DeployProtocol.BitcoinEarn`**, and its value is `'bitcoinEarn'` rather than `'veda'`. `DefiProtocol`, which `DeployProtocol` aliases, moves with it, and the metadata label is `'Bitcoin Earn'` instead of `'Lombard DeFi Vault'`. Both the member and the value are public, so a hardcoded `protocol: 'veda'` needs updating too, and `getAvailableProtocolsWithMetadata()` returns the new value and label.
 

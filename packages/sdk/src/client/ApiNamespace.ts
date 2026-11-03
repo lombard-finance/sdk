@@ -36,6 +36,12 @@ import {
 } from '../api-functions/getDepositsByAddress/getDepositsByAddress';
 import { getExchangeRatio } from '../api-functions/getLBTCExchangeRate/get-exchange-ratio';
 import {
+  getPortfolioBridges,
+  getPortfolioDeposits,
+  getPortfolioWithdrawals,
+} from '../api-functions/getPortfolioMovements/getPortfolioMovements';
+import type { PortfolioBridge } from '../api-functions/getPortfolioMovements/movements';
+import {
   getUnstakesByAddress,
   type Unstake,
 } from '../api-functions/getUnstakesByAddress/getUnstakesByAddress';
@@ -45,6 +51,8 @@ import type {
   StarknetChainId,
   SuiChain,
 } from '../common/chains';
+import type { ApiVersion } from '../config/types';
+import { AuthErrorCode, LombardError } from '../shared/errors';
 import type { Token } from '../tokens/token-addresses';
 import {
   type EarnWithdrawals,
@@ -56,8 +64,7 @@ import {
 /*                                   Types                                    */
 /* -------------------------------------------------------------------------- */
 
-/** Supported API versions (for future v2 migration) */
-export type ApiVersion = 'v1' | 'v2';
+export type { ApiVersion } from '../config/types';
 
 /**
  * Options for fetching withdrawals.
@@ -115,18 +122,15 @@ export interface VaultWithdrawalsOptions {
  * Provides convenient wrappers around Lombard API functions with
  * environment pre-bound from SDK configuration.
  *
- * Designed for easy migration to API v2 when available (January 2025).
+ * Deposits and withdrawals read the public v1 routes, or the v2 portfolio
+ * lists when the config sets `apiVersion: 'v2'` and `auth` yields a token.
  */
 export class ApiNamespace {
   /**
-   * Internal API version flag for future v2 migration.
-   * When v2 is ready, we can switch implementations transparently.
-   */
-  private readonly apiVersion: ApiVersion = 'v1';
-
-  /**
    * @param env - Which deployment to address.
    * @param auth - How to obtain a wallet JWT, from `LombardConfig.auth`.
+   * @param apiVersion - Which API deposits and withdrawals read, from
+   *   `LombardConfig.apiVersion`.
    *
    *   Several routes here are user-scoped and refuse to send without a token:
    *   the vault withdraw and deposit reads, and the strategy user metrics. Until
@@ -137,6 +141,7 @@ export class ApiNamespace {
   constructor(
     private readonly env: Env = DEFAULT_ENV,
     private readonly auth?: LombardAuth,
+    private readonly apiVersion: ApiVersion = 'v1',
   ) {}
 
   /* -------------------------------------------------------------------------- */
@@ -146,8 +151,10 @@ export class ApiNamespace {
   /**
    * Fetch all deposits for an address.
    *
-   * Returns deposits from both Direct BTC Deposits and Native Deposits APIs,
-   * unified into a single list sorted by block time (newest first).
+   * BTC and BTC.b deposits whose destination is `address`, in one list,
+   * newest first. Read from the public v1 routes, or from the v2 portfolio
+   * list with `apiVersion: 'v2'` and a wallet token for `address`; both return
+   * the same `Deposit` shape.
    *
    * @param address - The EVM/BTC address to fetch deposits for
    * @returns Promise resolving to array of Deposit objects
@@ -161,8 +168,10 @@ export class ApiNamespace {
    * ```
    */
   async deposits(address: string): Promise<Deposit[]> {
-    // Future: if (this.apiVersion === 'v2') return this.depositsV2(address);
-    return getDepositsByAddress({ address, env: this.env });
+    return this.preferV2(
+      () => getPortfolioDeposits({ address, env: this.env, auth: this.auth }),
+      () => getDepositsByAddress({ address, env: this.env }),
+    );
   }
 
   /* -------------------------------------------------------------------------- */
@@ -173,7 +182,8 @@ export class ApiNamespace {
    * Fetch every withdrawal an address has made.
    *
    * Covers both arms: burning an L-asset for native BTC, and redeeming on the
-   * destination chain. The record type is still `Withdraw` — that is the shape
+   * destination chain. Read from the public v1 route, or from the v2 portfolio
+   * list with `apiVersion: 'v2'` and a wallet token for `address`. The record type is still `Withdraw` — that is the shape
    * the endpoint returns, and renaming it here would misdescribe the payload.
    *
    * @param address - The address that made the withdrawals
@@ -193,7 +203,60 @@ export class ApiNamespace {
     address: string,
     options?: WithdrawalOptions,
   ): Promise<Unstake[]> {
-    return getUnstakesByAddress({ address, env: this.env, options });
+    return this.preferV2(
+      () =>
+        getPortfolioWithdrawals({
+          address,
+          env: this.env,
+          auth: this.auth,
+          options,
+        }),
+      () => getUnstakesByAddress({ address, env: this.env, options }),
+    );
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                                 Bridges                                    */
+  /* -------------------------------------------------------------------------- */
+
+  /**
+   * Fetch every bridge transfer an address has sent between chains.
+   *
+   * Reads `/v2/portfolio/{address}/bridges`, which is user-scoped: it needs
+   * `auth` on the SDK config and a wallet token for this address. There is no
+   * public fallback.
+   *
+   * @param address - The address that sent the transfers
+   * @returns Promise resolving to the transfers, newest first
+   * @throws `LombardError` with `AuthErrorCode.MISSING_TOKEN` when no wallet
+   *   token is available
+   */
+  async bridges(address: string): Promise<PortfolioBridge[]> {
+    return getPortfolioBridges({ address, env: this.env, auth: this.auth });
+  }
+
+  /**
+   * With `apiVersion: 'v2'`, reads v2 when a wallet token is available and the
+   * public v1 route otherwise, so a caller that has not signed in keeps
+   * working. Only a missing token falls back: any other v2 failure is the
+   * caller's to see.
+   */
+  private async preferV2<T>(
+    readV2: () => Promise<T>,
+    readV1: () => Promise<T>,
+  ): Promise<T> {
+    if (this.apiVersion !== 'v2' || !this.auth) return readV1();
+    try {
+      return await readV2();
+    } catch (error) {
+      if (
+        error instanceof LombardError &&
+        error.code === AuthErrorCode.MISSING_TOKEN
+      ) {
+        return readV1();
+      }
+      throw error;
+    }
   }
 
   /* -------------------------------------------------------------------------- */
@@ -325,7 +388,8 @@ export class ApiNamespace {
   /* -------------------------------------------------------------------------- */
 
   /**
-   * Get the current API version being used.
+   * The API version deposits and withdrawals are read from, as configured.
+   * With `v2`, a call that has no wallet token still reads v1.
    *
    * @returns The API version string ('v1' or 'v2')
    */

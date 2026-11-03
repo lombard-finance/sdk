@@ -28,6 +28,7 @@ const SETTABLE_FIELDS = {
   partner: { partnerId: 'partner-under-test' },
   auth: { getToken: async () => 'token-under-test' },
   getAuthToken: () => 'legacy-token-under-test',
+  apiVersion: 'v2' as const,
 } as const;
 
 describe('createConfig', () => {
@@ -64,6 +65,13 @@ describe('createConfig', () => {
 
     expect(config.auth).toBeUndefined();
     expect(config.getAuthToken).toBeUndefined();
+    expect(config.apiVersion).toBeUndefined();
+  });
+
+  it('refuses an api version it does not know', () => {
+    expect(() =>
+      createConfig({ env: Env.prod, apiVersion: 'v3' as never }),
+    ).toThrow(/apiVersion/);
   });
 
   it('still applies its defaults', () => {
@@ -81,6 +89,7 @@ describe('createConfig', () => {
       'partner',
       'auth',
       'getAuthToken',
+      'apiVersion',
     ]);
   });
 });

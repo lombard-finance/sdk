@@ -54,6 +54,15 @@ export function validateAndApplyDefaults(
   if (options.getAuthToken) {
     normalized.getAuthToken = options.getAuthToken;
   }
+  if (options.apiVersion !== undefined) {
+    if (options.apiVersion !== 'v1' && options.apiVersion !== 'v2') {
+      throw LombardError.invalidParameter(
+        'apiVersion',
+        `apiVersion must be 'v1' or 'v2', received '${String(options.apiVersion)}'`,
+      );
+    }
+    normalized.apiVersion = options.apiVersion;
+  }
 
   return normalized;
 }

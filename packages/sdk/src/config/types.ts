@@ -120,6 +120,9 @@ export interface CreateConfigOptions {
   /** @deprecated Cannot refresh. Prefer {@link auth}. */
   getAuthToken?: () => string | undefined;
 
+  /** Which API the deposit and withdrawal reads use. See `LombardConfig.apiVersion`. */
+  apiVersion?: ApiVersion;
+
   /**
    * Optional logger for SDK operations
    *
@@ -193,7 +196,21 @@ export interface LombardConfig {
    * {@link auth}. Still honoured when `auth` is absent.
    */
   getAuthToken?: () => string | undefined;
+  /**
+   * Which API `sdk.api.deposits()` and `sdk.api.withdrawals()` read.
+   *
+   * - `'v1'` (default): the public v1 routes.
+   * - `'v2'`: the user-scoped v2 portfolio lists, when {@link auth} yields a
+   *   token; the v1 routes for a call without one.
+   *
+   * The standalone `getPortfolioDeposits` / `getPortfolioWithdrawals` /
+   * `getPortfolioBridges` read v2 regardless of this setting.
+   */
+  apiVersion?: ApiVersion;
 }
+
+/** The API the deposit and withdrawal reads use. */
+export type ApiVersion = 'v1' | 'v2';
 
 /**
  * Resolved SDK configuration (internal)
