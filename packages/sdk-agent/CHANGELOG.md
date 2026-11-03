@@ -2,9 +2,9 @@
 
 ## 🚨 BREAKING CHANGES
 
-Requires `@lombard.finance/sdk@6.0.0`. The SDK is a dependency here rather than a peer, and the publish step rewrites `workspace:*` dependencies to the exact version — so `0.2.0` on the registry pins `5.5.0` and installs the pre-6.0.0 API no matter what the consumer asks for. A new version is the only way to ship an agent that runs against 6.0.0.
+Requires `@lombard.finance/sdk@6.0.0`. The SDK is a dependency here rather than a peer, and the publish step rewrites `workspace:*` dependencies to the exact version — so each release on the registry pins the 5.x SDK it was built with (`0.4.0` pins `5.10.0`) and installs the pre-6.0.0 API no matter what the consumer asks for. A new version is the only way to ship an agent that runs against 6.0.0.
 
-No tool names, dispatch methods or schemas change in this release. The eleven `btc.*` / `evm.*` dispatch methods and the three `morpho.*` methods are exactly as in 0.2.0, so an app layer that routes on `method` needs no edit. What changed is which SDK the prepared calls are dispatched against: see the SDK's own 6.0.0 entry, and the migration guide at https://docs.lombard.finance/build/sdk/migrating-to-v6.
+No tool names, dispatch methods or schemas change in this release. The eleven `btc.*` / `evm.*` dispatch methods and the three `morpho.*` methods are exactly as in 0.4.0, so an app layer that routes on `method` needs no edit. What changed is which SDK the prepared calls are dispatched against: see the SDK's own 6.0.0 entry, and the migration guide at https://docs.lombard.finance/build/sdk/migrating-to-v6.
 
 ---
 
