@@ -157,7 +157,13 @@ describe('nothing Lombard-bound bypasses utils/http', () => {
 
   const lombardBound = tsFilesUnder(SRC).filter((f) => {
     const src = readFileSync(f, 'utf8');
-    return /getApiConfig\s*\(/.test(src) && !f.endsWith('api-config.ts');
+    // `utils/http` is the wrapper itself: it reads the config for the gateway
+    // hosts a token may go to, and is the one place that calls axios.
+    return (
+      /getApiConfig\s*\(/.test(src) &&
+      !f.endsWith('api-config.ts') &&
+      !f.endsWith(join('utils', 'http.ts'))
+    );
   });
 
   it('finds the Lombard-bound files, so an empty sweep cannot pass', () => {

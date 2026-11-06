@@ -10,15 +10,17 @@
  * @module utils/http
  */
 
-import type {
-  AuthRequestContext,
-  LombardAuth,
-  RequestScope,
+import {
+  type AuthRequestContext,
+  Env,
+  type LombardAuth,
+  type RequestScope,
 } from '@lombard.finance/sdk-common';
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
+import { getApiConfig } from '../common/api-config';
 import type { Logger } from '../shared/context/types';
-import { AuthErrorCode, LombardError } from '../shared/errors';
+import { AuthErrorCode, ErrorCode, LombardError } from '../shared/errors';
 import { SDK_RUNTIME, SDK_VERSION } from '../version';
 
 /**
@@ -52,7 +54,8 @@ export interface HttpRequestOptions {
   /**
    * Reads the caller's current wallet-auth JWT, or `undefined`.
    *
-   * When it yields a token, an `Authorization: Bearer <token>` header is added.
+   * When it yields a token, and the request goes to an API gateway host (see
+   * {@link mayCarryToken}), an `Authorization: Bearer <token>` header is added.
    * When it yields `undefined`, or is itself absent, **no header is sent** —
    * which is today's behaviour on every endpoint, none of which requires one.
    *
@@ -74,9 +77,87 @@ export interface HttpRequestOptions {
   /**
    * Whether this request needs a caller identity. Defaults to `public`, which
    * is the safe default: an unlabelled request attaches a token when one
-   * happens to be available and never fails for want of one.
+   * happens to be available and never fails for want of one. Either way a
+   * token is attached only on a request to an API gateway host.
    */
   scope?: RequestScope;
+}
+
+/**
+ * The hosts a wallet token may be sent to: every environment's API gateway,
+ * v1 and v2.
+ */
+const TOKEN_HOSTS: ReadonlySet<string> = new Set(
+  Object.values(Env).flatMap((env) => {
+    const { baseApiUrl, baseApiV2Url } = getApiConfig(env);
+    return [new URL(baseApiUrl).host, new URL(baseApiV2Url).host];
+  }),
+);
+
+/**
+ * Whether a wallet token may go to `url`: https, on an API gateway host.
+ *
+ * The token is the user's session with the gateway, and nothing else checks
+ * it. A route elsewhere (the BFF, an explorer, a node) has no use for it, and
+ * every host it reaches is one more place it can be logged or leaked from. A
+ * relative URL is never one: in a browser it resolves against the page.
+ */
+function mayCarryToken(url: string): boolean {
+  try {
+    const { protocol, host } = new URL(url);
+    return protocol === 'https:' && TOKEN_HOSTS.has(host);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The URL a request goes to, joined as axios joins it: an absolute `url`
+ * stands alone, and a relative one meets `baseURL` at exactly one slash.
+ * Concatenating them as they are gives a different host whenever `url` has
+ * no leading slash, which is no basis for deciding where a token may go.
+ */
+function requestUrl(baseURL: string | undefined, url: string): string {
+  if (!baseURL || /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url)) return url;
+  return `${baseURL.replace(/\/+$/, '')}/${url.replace(/^\/+/, '')}`;
+}
+
+/**
+ * Takes the bearer out of an error about to leave the SDK.
+ *
+ * axios hangs the request config, headers included, on its error, and its
+ * `toJSON()` writes that out, so an error a host logs, stores or reports
+ * would carry the wallet token. In Node the sent request's raw header block
+ * hangs off it as well.
+ */
+function redactAuthorization(error: unknown): void {
+  if (typeof error !== 'object' || error === null) return;
+
+  const { config, response, request } = error as {
+    config?: { headers?: unknown };
+    response?: { config?: { headers?: unknown } };
+    request?: { _header?: unknown };
+  };
+
+  for (const headers of [config?.headers, response?.config?.headers]) {
+    if (!headers || typeof headers !== 'object') continue;
+    // AxiosHeaders matches case-insensitively; a plain object does not.
+    (headers as { delete?: (name: string) => unknown }).delete?.(
+      'Authorization',
+    );
+    for (const name of Object.keys(headers)) {
+      if (name.toLowerCase() === 'authorization') {
+        delete (headers as Record<string, unknown>)[name];
+      }
+    }
+  }
+
+  if (request && typeof request._header === 'string') {
+    request._header = request._header.replace(
+      /^authorization:.*$/gim,
+      'Authorization: [redacted]',
+    );
+  }
 }
 
 /**
@@ -211,16 +292,31 @@ export async function httpRequest<T = unknown>(
   } = options;
 
   const startTime = performance.now();
-  const fullUrl = baseURL ? `${baseURL}${url}` : url;
+  const fullUrl = requestUrl(baseURL, url);
   const authContext = { url: fullUrl, scope };
 
   // An explicit Authorization header wins over anything resolved here, so a
   // low-level caller that already holds a token — `revokeWalletToken` sending
   // the token it is revoking, or a caller passing `walletJwt` — is unaffected.
-  const callerSuppliedAuth = 'Authorization' in headers;
+  const callerSuppliedAuth = Object.keys(headers).some(
+    (name) => name.toLowerCase() === 'authorization',
+  );
+
+  // Off the gateway a public request goes without a token, and one that
+  // needs a token, or carries one, is not sent: that is a route wired to the
+  // wrong host, not a session to repair.
+  const tokenAllowed = mayCarryToken(fullUrl);
+  if (!tokenAllowed && (callerSuppliedAuth || scope === 'userScoped')) {
+    throw new LombardError(
+      ErrorCode.INVALID_CONFIGURATION,
+      `A wallet token is sent only to the Lombard API gateway, which ` +
+        `${pathOf(fullUrl)} is not on, so it was not sent.`,
+      { url: fullUrl, scope },
+    );
+  }
 
   async function resolveToken(): Promise<string | undefined> {
-    if (callerSuppliedAuth) return undefined;
+    if (callerSuppliedAuth || !tokenAllowed) return undefined;
     return resolveAuthToken({ auth, getAuthToken }, authContext);
   }
 
@@ -262,7 +358,7 @@ export async function httpRequest<T = unknown>(
   if (logger) {
     logger.debug('HTTP Request', {
       method,
-      url: baseURL ? `${baseURL}${url}` : url,
+      url: fullUrl,
       params,
       hasBody: !!body,
     });
@@ -340,7 +436,7 @@ export async function httpRequest<T = unknown>(
     if (logger) {
       logger.debug('HTTP Response', {
         method,
-        url: baseURL ? `${baseURL}${url}` : url,
+        url: fullUrl,
         status: response.status,
         duration: Math.round(duration),
       });
@@ -360,13 +456,14 @@ export async function httpRequest<T = unknown>(
       const axiosError = axios.isAxiosError(error) ? error : null;
       logger.error('HTTP Error', {
         method,
-        url: baseURL ? `${baseURL}${url}` : url,
+        url: fullUrl,
         status: axiosError?.response?.status,
         duration: Math.round(duration),
         message: axiosError?.message || String(error),
       });
     }
 
+    redactAuthorization(error);
     throw error;
   }
 }

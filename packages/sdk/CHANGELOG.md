@@ -4,6 +4,14 @@ Everything in the BTC action consolidation and the action-vocabulary unification
 ships in this one major. There is no intermediate 5.x or 6.x release — consumers
 migrate once.
 
+### Security
+
+- **A wallet token is sent only to the API gateway.** `utils/http` attaches the token from `auth` (or the deprecated `getAuthToken`) only to an https request to one of the environments' gateway hosts, `baseApiUrl` or `baseApiV2Url`. A public request anywhere else goes without one, and the host is not asked for it; a user-scoped request, or one carrying its own `Authorization` header, to any other host is refused before sending with `ErrorCode.INVALID_CONFIGURATION`.
+
+- **A failed request no longer carries the token out in its error.** axios attaches the request config, headers included, to its rejection, and rethrowing it as it came put `Authorization: Bearer <token>` in front of anything that logs, stores or serialises the error. The header is removed from the error's request config, and from the raw request header block Node keeps, before it is rethrown.
+
+- **The Earn vault history reads stay public, as in 5.x.** `getEarnDeposits`, `getEarnWithdrawals`, their all-chains forms and `sdk.api.vaultWithdrawals` send no token and need no `auth`. Their routes are on the BFF, serve any address's history, and do not read a token, so marking them user-scoped refused 5.x callers without `auth` and sent the gateway session to a host that has no use for it. `getLBTCStats`, `getEarnTVL` and `getEarnApy` no longer pass `auth` on either.
+
 ### Added
 
 - **Deposits, withdrawals and bridges from the v2 portfolio lists.** `getPortfolioDeposits`, `getPortfolioWithdrawals` and `getPortfolioBridges` read `/v2/portfolio/{address}/{deposits,withdrawals,bridges}` and return the shapes the v1 readers return: `Deposit`, `Unstake`, and a new `PortfolioBridge`. The routes are user-scoped, so each call needs `auth` and a wallet token for `address`, and fails with `AuthErrorCode.MISSING_TOKEN` before sending without one.
@@ -57,10 +65,6 @@ migrate once.
 
 ### Breaking
 
-- **Two per-account vault routes now require a wallet token.** `getEarnDeposits` and `getEarnWithdrawals` hit `sevenseas-api/{deposits,withdraw-requests}/<network>/<vault>/<account>` — a path keyed by an address — so they are `userScoped` and fail before sending when no token is available, with a `missing-token` error naming the config field that fixes it.
-
-  Previously they were sent anonymously and the gateway allowed it. That allowance is being withdrawn on the gateway, so the alternative to failing locally is a 401 later. Aggregate routes — `dune-api/query/*` and per-vault performance — stay `public` and are unaffected.
-
 - **`DeployProtocol.Veda` is `DeployProtocol.BitcoinEarn`**, and its value is `'bitcoinEarn'` rather than `'veda'`. `DefiProtocol`, which `DeployProtocol` aliases, moves with it, and the metadata label is `'Bitcoin Earn'` instead of `'Lombard DeFi Vault'`. Both the member and the value are public, so a hardcoded `protocol: 'veda'` needs updating too, and `getAvailableProtocolsWithMetadata()` returns the new value and label.
 
   No compatibility alias: a missed call site should be a compile error, and an alias would keep `'veda'` working, which is the thing being removed. 5.x kept this member deliberately, on the grounds that it named a third-party protocol — but its label had always been `'Lombard DeFi Vault'`, so the key named the vendor while the value shown to users named the product. This settles it on the product. `Silo` is unchanged, because there the vendor is what is being selected.
@@ -90,12 +94,6 @@ migrate once.
   Both now read the existing request first and refuse before sending anything, naming the amount at risk. Two cases pass through: an expired request, which no solver can act on and which must be replaceable or the account is stranded; and an empty slot. A caller that means to replace a live request passes `replaceExisting: true` — on `withdrawEarn`, and on `evm.withdraw().prepare()`, so the escape hatch is reachable from the action API and not only from the function underneath it. A request mid-fulfilment (`inSolve`) is refused even then, because a solver has already committed to it.
 
   This is a property of the queue, not a product rule. The Lombard app separately declines to _deposit_ while a withdrawal is open; nothing in the contract requires that, and the SDK does not enforce it.
-
-- **The all-chains vault reads never forwarded the wallet token, so they could not work at all.** `getEarnWithdrawalsAllChains` and `getEarnDepositsAllChains` did not destructure `auth`, so neither passed it to the per-chain read it fans out to. Those per-chain reads are `userScoped` and refuse before sending without a token, so every chain came back `missing-token` with no request made — the single-chain read worked and the all-chains read failed whatever the caller supplied.
-
-  `auth` reaches these functions inside `IEnvParam`, so omitting it from the destructuring was accepted by the type and silently dropped. The namespace had already been repaired to forward the provider; the ops stopped one step short of using it.
-
-  Nothing caught it because the test that covers the boundary mocks the ops module, so it asserts the provider is _sent_ to each op rather than that it arrives anywhere — the real function never runs and its dropped parameter is invisible. A second test now drives the real ops against a mocked HTTP boundary and asserts the token reaches each chain's request; stubbing the sibling export would not have worked either, since the op calls its module-local binding rather than the module object.
 
 - **`authorize()` reported `READY` on a resumed flow that already held a deposit address.** `READY` means "authorized, address still to be generated". A resume is past that: `prepare()` restores the deposit address and only the signature has lapsed, so re-signing it leaves the action address-ready. It now resolves to `ADDRESS_READY` when an address is held, and to `READY` when one is not.
 

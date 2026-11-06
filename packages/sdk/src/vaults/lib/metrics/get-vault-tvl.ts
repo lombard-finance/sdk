@@ -82,7 +82,7 @@ type Response = {
   /** The TVL represented us US dollars */
   tvl: BigNumber;
 };
-export async function getEarnTVL({ env, auth }: GetEarnTVLParameters) {
+export async function getEarnTVL({ env }: GetEarnTVLParameters) {
   const { bffApiUrl } = getApiConfig(env);
   if (!bffApiUrl) {
     throw new Error(
@@ -94,7 +94,6 @@ export async function getEarnTVL({ env, auth }: GetEarnTVLParameters) {
   const { data } = await httpRequest<DuneQueryResult>({
     url: url,
     scope: 'public',
-    auth,
   });
 
   const response: Response = {

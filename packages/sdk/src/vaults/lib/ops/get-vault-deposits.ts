@@ -10,6 +10,7 @@ import {
   TokenInfo,
 } from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
+import { getErrorMessage } from '../../../utils/err';
 import { ensureHex } from '../../../utils/hex';
 import { httpRequest } from '../../../utils/http';
 import {
@@ -87,6 +88,10 @@ export type EarnDeposit = {
 
 /**
  * Retrieves the deposits made by specified address.
+ *
+ * A public read: the route serves any address's vault history and takes no
+ * wallet token, so none is sent and `auth` is not used.
+ *
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
  * @param parameters.chainId - The chain id.
@@ -95,7 +100,6 @@ export type EarnDeposit = {
  * @returns {Promise<EarnDeposit[]>}
  */
 export async function getEarnDeposits({
-  auth,
   account,
   chainId,
   rpcUrl,
@@ -119,8 +123,7 @@ export async function getEarnDeposits({
 
   const { data } = await httpRequest<SevenSeasDepositsPayload>({
     url: url,
-    scope: 'userScoped',
-    auth,
+    scope: 'public',
   });
   const entries = normalizeSevenSeasDeposits(data);
 
@@ -183,17 +186,17 @@ export async function getEarnDepositsAllChains({
   account,
   rpcUrl,
   env,
-  // Same as the withdrawals op beside this one: the per-chain read is
-  // user-scoped and refuses before sending without a token, and `auth` arrives
-  // inside `IEnvParam` so dropping it type-checks.
-  auth,
 }: GetEarnDepositsAllChainsParameters): Promise<EarnDeposit[]> {
   const vault = EARN_VAULT;
   // Fetch deposits from all supported chains in parallel
   const depositsPromises = vault.chains.map((chainId: EarnChain) =>
-    getEarnDeposits({ account, chainId, rpcUrl, env, auth }).catch(
+    getEarnDeposits({ account, chainId, rpcUrl, env }).catch(
       (error: unknown) => {
-        console.error(`Failed to fetch deposits for chain ${chainId}:`, error);
+        // The message only: a request error carries its config, headers
+        // included, and a console is somewhere errors get collected.
+        console.error(
+          `Failed to fetch deposits for chain ${chainId}: ${getErrorMessage(error)}`,
+        );
         return []; // Return empty array on error to not break the entire query
       },
     ),

@@ -27,7 +27,6 @@ export async function getLBTCStats(
 ) {
   const env = parameters?.env;
   const partnerId = parameters?.partnerId;
-  const auth = parameters?.auth;
 
   const { bffApiUrl } = getApiConfig(env);
   if (!bffApiUrl) {
@@ -39,19 +38,16 @@ export async function getLBTCStats(
   const { data } = await httpRequest<LBTCStatsResponse>({
     url: `${bffApiUrl}/dune-api/query/getLBTCStats?partnerId=${partnerId || ''}`,
     scope: 'public',
-    auth,
   });
 
   const { data: holders } = await httpRequest<LBTCHoldersResponse>({
     url: `${bffApiUrl}/dune-api/query/lbtc-holders?partnerId=${partnerId || ''}`,
     scope: 'public',
-    auth,
   });
 
   const { data: historicalHolders } = await httpRequest<LBTCHoldersResponse>({
     url: `${bffApiUrl}/dune-api/query/getTotalLBTCUsers?partnerId=${partnerId || ''}`,
     scope: 'public',
-    auth,
   });
 
   const stats: Stats = {

@@ -60,7 +60,6 @@ export type GetEarnApyParameters = IEnvParam & {
 
 /** Gets the trailing APY performance history. */
 export async function getEarnApy({
-  auth,
   aggregationPeriod = 7,
   chainId = ChainId.ethereum,
   env,
@@ -69,7 +68,6 @@ export async function getEarnApy({
     aggregationPeriod,
     chainId,
     env,
-    auth,
   });
 
   const apys = response.map((r) => {
@@ -130,7 +128,6 @@ const NETWORK_TO_CHAIN_ID_MAP: Record<string, EarnChain> = {
  * Gets the raw response of the performance apy api for the provided vault.
  */
 async function getVaultPerformance({
-  auth,
   aggregationPeriod = 7,
   chainId,
   env,
@@ -165,7 +162,6 @@ async function getVaultPerformance({
   const { data } = await httpRequest<PerformancePayload>({
     url: url,
     scope: 'public',
-    auth,
   });
 
   return normalizeSevenSeasPerformance(data);

@@ -1,18 +1,10 @@
 /**
- * `config.auth` reaches the user-scoped API routes.
+ * The vault withdrawal reads on this namespace send no wallet token.
  *
- * Several routes on this namespace refuse to send without a wallet token: the
- * vault withdraw and deposit reads, and the strategy user metrics. The ops
- * themselves accepted and forwarded `auth` all along, but the namespace was
- * built with `env` alone, so a host that supplied `auth` still saw those calls
- * fail — signing in changed nothing, which is what QA hit on APP-2583.
- *
- * Scope, because it has been over-read once already: these tests mock the ops
- * module, so they assert that the namespace **sends** `auth` to each op — not
- * that it arrives anywhere useful. Both `*AllChains` ops accepted it and then
- * failed to forward it to their per-chain reads, which this file cannot see
- * and did not catch. `unit/vaults/allChainsAuth.test.ts` runs the real ops
- * against a mocked HTTP boundary and covers that half.
+ * Their route is on the BFF and serves any address's history without one, so
+ * the namespace does not hand the ops its `auth`: with or without a provider,
+ * they are called with none. `unit/vaults/allChainsAuth.test.ts` runs the real
+ * ops against a mocked HTTP boundary and asserts nothing reaches the wire.
  *
  * @module __tests__/unit/api/apiNamespaceAuth.test
  */
@@ -47,37 +39,26 @@ const auth: LombardAuth = {
   getToken: async () => 'a-token',
 };
 
-describe('ApiNamespace forwards auth', () => {
-  it('hands the provider to the all-chains withdrawals read', async () => {
+describe('ApiNamespace vault withdrawals', () => {
+  it('hands no provider to the all-chains read', async () => {
     const ops = await import('../../../vaults/lib/ops/get-vault-withdrawals');
 
     await new ApiNamespace(Env.prod, auth).vaultWithdrawals(ADDRESS);
 
-    expect(ops.getEarnWithdrawalsAllChains).toHaveBeenCalledWith(
-      expect.objectContaining({ auth }),
-    );
+    const [params] = vi.mocked(ops.getEarnWithdrawalsAllChains).mock.calls[0];
+    expect(params).not.toHaveProperty('auth');
+    expect(params).toMatchObject({ account: ADDRESS, env: Env.prod });
   });
 
-  it('hands it to the single-chain read too', async () => {
+  it('hands none to the single-chain read either', async () => {
     const ops = await import('../../../vaults/lib/ops/get-vault-withdrawals');
 
     await new ApiNamespace(Env.prod, auth).vaultWithdrawals(ADDRESS, {
       chainId: 1,
     });
 
-    expect(ops.getEarnWithdrawals).toHaveBeenCalledWith(
-      expect.objectContaining({ auth }),
-    );
-  });
-
-  it('passes undefined when the host supplied no provider', async () => {
-    const ops = await import('../../../vaults/lib/ops/get-vault-withdrawals');
-    vi.mocked(ops.getEarnWithdrawalsAllChains).mockClear();
-
-    await new ApiNamespace(Env.prod).vaultWithdrawals(ADDRESS);
-
-    expect(ops.getEarnWithdrawalsAllChains).toHaveBeenCalledWith(
-      expect.objectContaining({ auth: undefined }),
-    );
+    const [params] = vi.mocked(ops.getEarnWithdrawals).mock.calls[0];
+    expect(params).not.toHaveProperty('auth');
+    expect(params).toMatchObject({ account: ADDRESS, chainId: 1 });
   });
 });

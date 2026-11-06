@@ -13,6 +13,9 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+/** A wallet token is only ever sent to an API gateway host. */
+const GATEWAY = 'https://api.lombard.finance';
+
 const axiosFn = vi.hoisted(() => vi.fn());
 vi.mock('axios', () => ({
   default: axiosFn,
@@ -45,7 +48,7 @@ beforeEach(() => {
 describe('scope: public', () => {
   it('attaches a token when one is available', async () => {
     await httpRequest({
-      url: '/x',
+      url: `${GATEWAY}/x`,
       auth: { getToken: async () => 'tok' },
     });
 
@@ -56,7 +59,7 @@ describe('scope: public', () => {
   // wallet is connected, so requiring a token everywhere would break first paint.
   it('sends anyway when no token is available', async () => {
     await httpRequest({
-      url: '/x',
+      url: `${GATEWAY}/x`,
       auth: { getToken: async () => undefined },
     });
 
@@ -66,7 +69,10 @@ describe('scope: public', () => {
 
   it('is the default, so an unlabelled request never fails for want of a token', async () => {
     await expect(
-      httpRequest({ url: '/x', auth: { getToken: async () => undefined } }),
+      httpRequest({
+        url: `${GATEWAY}/x`,
+        auth: { getToken: async () => undefined },
+      }),
     ).resolves.toMatchObject({ status: 200 });
   });
 });
@@ -75,7 +81,7 @@ describe('scope: userScoped', () => {
   it('fails before sending when no token is available', async () => {
     await expect(
       httpRequest({
-        url: '/positions',
+        url: `${GATEWAY}/positions`,
         scope: 'userScoped',
         auth: { getToken: async () => undefined },
       }),
@@ -89,7 +95,7 @@ describe('scope: userScoped', () => {
   it('names the config field that fixes it', async () => {
     await expect(
       httpRequest({
-        url: '/positions',
+        url: `${GATEWAY}/positions`,
         scope: 'userScoped',
         auth: { getToken: async () => undefined },
       }),
@@ -99,7 +105,7 @@ describe('scope: userScoped', () => {
   it('carries a machine-readable code', async () => {
     try {
       await httpRequest({
-        url: '/positions',
+        url: `${GATEWAY}/positions`,
         scope: 'userScoped',
         auth: { getToken: async () => undefined },
       });
@@ -113,7 +119,7 @@ describe('scope: userScoped', () => {
 
   it('sends with the token when one is available', async () => {
     await httpRequest({
-      url: '/positions',
+      url: `${GATEWAY}/positions`,
       scope: 'userScoped',
       auth: { getToken: async () => 'tok' },
     });
@@ -131,7 +137,7 @@ describe('retrying a 401 once', () => {
       .mockResolvedValueOnce('fresh');
 
     const res = await httpRequest({
-      url: '/positions',
+      url: `${GATEWAY}/positions`,
       scope: 'userScoped',
       auth: { getToken },
     });
@@ -149,7 +155,7 @@ describe('retrying a 401 once', () => {
 
     await expect(
       httpRequest({
-        url: '/positions',
+        url: `${GATEWAY}/positions`,
         scope: 'userScoped',
         auth: {
           getToken: vi
@@ -171,7 +177,7 @@ describe('retrying a 401 once', () => {
 
     await expect(
       httpRequest({
-        url: '/positions',
+        url: `${GATEWAY}/positions`,
         scope: 'userScoped',
         auth: { getToken: async () => 'same', onUnauthorized },
       }),
@@ -186,7 +192,10 @@ describe('retrying a 401 once', () => {
     axiosFn.mockRejectedValue(httpError(401));
 
     await expect(
-      httpRequest({ url: '/x', auth: { getToken: async () => 'tok' } }),
+      httpRequest({
+        url: `${GATEWAY}/x`,
+        auth: { getToken: async () => 'tok' },
+      }),
     ).rejects.toThrow();
 
     expect(axiosFn).toHaveBeenCalledTimes(1);
@@ -197,7 +206,7 @@ describe('retrying a 401 once', () => {
 
     await expect(
       httpRequest({
-        url: '/positions',
+        url: `${GATEWAY}/positions`,
         scope: 'userScoped',
         auth: { getToken: async () => 'tok' },
       }),
@@ -214,7 +223,7 @@ describe('what still works unchanged', () => {
 
     await expect(
       httpRequest({
-        url: '/v2/auth/token/revoke',
+        url: `${GATEWAY}/v2/auth/token/revoke`,
         scope: 'userScoped',
         headers: { Authorization: 'Bearer the-one-being-revoked' },
         auth: { getToken },
@@ -228,14 +237,14 @@ describe('what still works unchanged', () => {
   });
 
   it('honours the deprecated synchronous accessor when auth is absent', async () => {
-    await httpRequest({ url: '/x', getAuthToken: () => 'legacy' });
+    await httpRequest({ url: `${GATEWAY}/x`, getAuthToken: () => 'legacy' });
 
     expect(authHeaderOf()).toBe('Bearer legacy');
   });
 
   it('prefers auth over the deprecated accessor', async () => {
     await httpRequest({
-      url: '/x',
+      url: `${GATEWAY}/x`,
       getAuthToken: () => 'legacy',
       auth: { getToken: async () => 'modern' },
     });
@@ -244,7 +253,7 @@ describe('what still works unchanged', () => {
   });
 
   it('sends no header when neither is configured', async () => {
-    await httpRequest({ url: '/x' });
+    await httpRequest({ url: `${GATEWAY}/x` });
 
     expect(authHeaderOf()).toBeUndefined();
   });
@@ -253,14 +262,14 @@ describe('what still works unchanged', () => {
     const getToken = vi.fn().mockResolvedValue('tok');
 
     await httpRequest({
-      url: '/positions',
-      baseURL: 'https://api.example',
+      url: `${GATEWAY}/positions`,
+      baseURL: GATEWAY,
       scope: 'userScoped',
       auth: { getToken },
     });
 
     expect(getToken).toHaveBeenCalledWith({
-      url: 'https://api.example/positions',
+      url: `${GATEWAY}/positions`,
       scope: 'userScoped',
     });
   });

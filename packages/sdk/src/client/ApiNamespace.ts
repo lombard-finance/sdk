@@ -132,11 +132,9 @@ export class ApiNamespace {
    * @param apiVersion - Which API deposits and withdrawals read, from
    *   `LombardConfig.apiVersion`.
    *
-   *   Several routes here are user-scoped and refuse to send without a token:
-   *   the vault withdraw and deposit reads, and the strategy user metrics. Until
-   *   this was threaded through, a host that supplied `auth` still saw those
-   *   calls fail, because the namespace was built with `env` alone and had no
-   *   token to offer — signing in changed nothing.
+   *   The v2 portfolio lists are user-scoped and refuse to send without a
+   *   token. The vault withdrawal reads are public: their route takes no
+   *   token, so none is sent there.
    */
   constructor(
     private readonly env: Env = DEFAULT_ENV,
@@ -371,7 +369,6 @@ export class ApiNamespace {
         chainId: options.chainId,
         rpcUrl: options.rpcUrl,
         env: this.env,
-        auth: this.auth,
       });
     }
 
@@ -380,7 +377,6 @@ export class ApiNamespace {
       account,
       rpcUrl: options?.rpcUrl,
       env: this.env,
-      auth: this.auth,
     });
   }
 

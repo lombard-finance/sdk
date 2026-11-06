@@ -1,37 +1,59 @@
 /**
- * The wallet token survives the whole all-chains read.
+ * The Earn vault history reads and the public metrics send no wallet token.
  *
- * The existing namespace test asserts that `ApiNamespace` *sends* `auth` to
- * these ops, against a stub of the ops module — so the real function never
- * runs and a parameter it fails to forward is invisible. Both `*AllChains`
- * functions did exactly that: `auth` arrives inside `IEnvParam`, so leaving it
- * out of the destructuring type-checks, and the per-chain read then refused
- * before sending. Every chain came back `MISSING_TOKEN` with an empty network
- * log, so the single-chain read worked and the all-chains read could not work
- * at any session state.
+ * Their routes sit on the BFF, not the API gateway. They serve any address's
+ * vault history, and nothing behind them reads a token, so labelling them
+ * user-scoped bought nothing: a caller without `auth` failed before sending,
+ * and a caller with it sent the user's gateway session to a host that has no
+ * use for it, where a 401 from anything in between would end that session.
  *
- * These tests therefore run the real op and the real per-chain function, and
- * mock only the HTTP boundary. Stubbing the sibling export would not have
- * caught it either: the op calls its module-local binding, not the module
- * object, so a spy on the export is never consulted.
+ * These run the real ops and the real `httpRequest`, with only axios mocked,
+ * so what is asserted is what would have gone on the wire.
  */
 
 import type { LombardAuth } from '@lombard.finance/sdk-common';
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-/**
- * An empty-but-well-shaped payload per route, so the ops parse it without
- * complaint. A bare `{}` also passes these assertions — the request has
- * already been made by the time parsing fails — but the deposits normalizer
- * treats an unrecognised object as a single entry and then throws on its
- * missing fields, which logs a parse failure per chain and reads as a broken
- * test rather than a deliberately empty account.
- */
-vi.mock('../../../utils/http', () => ({
-  httpRequest: vi.fn(async ({ url }: { url: string }) => ({
-    // The deposits route returns a bare array; the withdrawals route an object
-    // keyed by request state.
+const { axiosFn } = vi.hoisted(() => ({ axiosFn: vi.fn() }));
+vi.mock('axios', () => ({ default: axiosFn, isAxiosError: () => false }));
+
+import { getLBTCStats } from '../../../metrics/get-lbtc-stats';
+import { EARN_CHAINS } from '../../../vaults/lib/config';
+import { getEarnApy } from '../../../vaults/lib/metrics/get-vault-apy';
+import { getEarnTVL } from '../../../vaults/lib/metrics/get-vault-tvl';
+import {
+  getEarnDeposits,
+  getEarnDepositsAllChains,
+} from '../../../vaults/lib/ops/get-vault-deposits';
+import {
+  getEarnWithdrawals,
+  getEarnWithdrawalsAllChains,
+} from '../../../vaults/lib/ops/get-vault-withdrawals';
+
+const ACCOUNT = '0x0F90793a54E809bf708bd0FbCC63d311E3bb1BE1';
+
+const getToken = vi.fn(async () => 'a-token');
+const auth: LombardAuth = { getToken };
+
+/** What each request carried, by URL. */
+function sent() {
+  return axiosFn.mock.calls.map(([config]) => {
+    const { url, headers } = config as {
+      url: string;
+      headers: Record<string, string>;
+    };
+    return { url, authorization: headers.Authorization };
+  });
+}
+
+beforeEach(() => {
+  axiosFn.mockReset();
+  getToken.mockClear();
+  // An empty but well-shaped answer per route, so the ops parse it.
+  axiosFn.mockImplementation(async ({ url }: { url: string }) => ({
+    status: 200,
+    headers: {},
     data: url.includes('/deposits/')
       ? []
       : {
@@ -40,65 +62,78 @@ vi.mock('../../../utils/http', () => ({
           fulfilled_requests: [],
           open_requests: [],
         },
-  })),
-  httpGet: vi.fn(async () => ({ data: {} })),
-}));
+  }));
+});
 
-import { httpRequest } from '../../../utils/http';
-import { EARN_CHAINS } from '../../../vaults/lib/config';
-import { getEarnDepositsAllChains } from '../../../vaults/lib/ops/get-vault-deposits';
-import { getEarnWithdrawalsAllChains } from '../../../vaults/lib/ops/get-vault-withdrawals';
+describe('the Earn vault history reads', () => {
+  it.each([
+    [
+      'getEarnDeposits',
+      () =>
+        getEarnDeposits({ account: ACCOUNT, chainId: 1, env: Env.prod, auth }),
+    ],
+    [
+      'getEarnWithdrawals',
+      () =>
+        getEarnWithdrawals({
+          account: ACCOUNT,
+          chainId: 1,
+          env: Env.prod,
+          auth,
+        }),
+    ],
+  ])('%s sends no token, even given auth', async (_name, read) => {
+    await read();
 
-const ACCOUNT = '0x0F90793a54E809bf708bd0FbCC63d311E3bb1BE1';
-
-/** Identity is all these assertions need; the token value is never inspected. */
-const auth: LombardAuth = {
-  getToken: async () => 'a-token',
-};
-
-describe('the all-chains vault reads forward the auth provider', () => {
-  beforeEach(() => {
-    vi.mocked(httpRequest).mockClear();
+    expect(sent()).toEqual([
+      {
+        url: expect.stringMatching(/^https:\/\/bff\.prod\.lombard-fi\.com\//),
+        authorization: undefined,
+      },
+    ]);
+    expect(getToken).not.toHaveBeenCalled();
   });
 
-  it('reaches the withdrawals request once per Earn chain', async () => {
-    // prod, because Earn is configured for mainnet only and every other
-    // environment short-circuits to a failure per chain before any request.
+  // A 5.x caller has no `auth`; the read worked for it then and works now.
+  it.each([
+    [
+      'getEarnDeposits',
+      () => getEarnDeposits({ account: ACCOUNT, chainId: 1, env: Env.prod }),
+    ],
+    [
+      'getEarnWithdrawals',
+      () => getEarnWithdrawals({ account: ACCOUNT, chainId: 1, env: Env.prod }),
+    ],
+  ])('%s is sent without auth', async (_name, read) => {
+    await expect(read()).resolves.toBeDefined();
+    expect(axiosFn).toHaveBeenCalledTimes(1);
+  });
+
+  it('the all-chains reads send one tokenless request per Earn chain', async () => {
     await getEarnWithdrawalsAllChains({
       account: ACCOUNT,
       env: Env.prod,
       auth,
     });
+    await getEarnDepositsAllChains({ account: ACCOUNT, env: Env.prod, auth });
 
-    expect(httpRequest).toHaveBeenCalledTimes(EARN_CHAINS.length);
-    for (const call of vi.mocked(httpRequest).mock.calls) {
-      expect(call[0]).toMatchObject({ auth, scope: 'userScoped' });
-    }
+    expect(sent()).toHaveLength(2 * EARN_CHAINS.length);
+    expect(sent().every((r) => r.authorization === undefined)).toBe(true);
   });
+});
 
-  it('reaches the deposits request once per Earn chain', async () => {
-    await getEarnDepositsAllChains({
-      account: ACCOUNT,
-      env: Env.prod,
-      auth,
-    });
+describe('the public metrics', () => {
+  it.each([
+    ['getLBTCStats', () => getLBTCStats({ env: Env.prod, auth })],
+    ['getEarnTVL', () => getEarnTVL({ env: Env.prod, auth })],
+    ['getEarnApy', () => getEarnApy({ env: Env.prod, auth })],
+  ])('%s sends no token, even given auth', async (_name, read) => {
+    // The answers are not shaped for these parsers; what was sent is the
+    // assertion, and it is made before parsing.
+    await read().catch(() => undefined);
 
-    expect(httpRequest).toHaveBeenCalledTimes(EARN_CHAINS.length);
-    for (const call of vi.mocked(httpRequest).mock.calls) {
-      expect(call[0]).toMatchObject({ auth, scope: 'userScoped' });
-    }
-  });
-
-  it('sends the request as user-scoped even with no provider', async () => {
-    // Without `auth` the scope still has to be `userScoped`: that is what makes
-    // the HTTP layer refuse before sending rather than send anonymously and
-    // collect a 401 from the gateway.
-    await getEarnWithdrawalsAllChains({ account: ACCOUNT, env: Env.prod });
-
-    expect(httpRequest).toHaveBeenCalledTimes(EARN_CHAINS.length);
-    for (const call of vi.mocked(httpRequest).mock.calls) {
-      expect(call[0]).toMatchObject({ scope: 'userScoped' });
-      expect((call[0] as { auth?: unknown }).auth).toBeUndefined();
-    }
+    expect(sent().length).toBeGreaterThan(0);
+    expect(sent().every((r) => r.authorization === undefined)).toBe(true);
+    expect(getToken).not.toHaveBeenCalled();
   });
 });
