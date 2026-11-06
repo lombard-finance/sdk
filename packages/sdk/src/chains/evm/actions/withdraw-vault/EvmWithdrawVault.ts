@@ -145,6 +145,17 @@ export class EvmWithdrawVault
         throw LombardError.providerMissing(this.params.sourceChain, 'evm');
       }
 
+      // The queue pays the requesting account; a recipient that is anyone
+      // else would be ignored, so it is refused instead.
+      const { recipient } = this.params;
+      if (recipient && recipient.toLowerCase() !== account.toLowerCase()) {
+        throw LombardError.invalidParameter(
+          'recipient',
+          `A vault withdrawal pays the account that requests it, ${account}, ` +
+            `and cannot pay ${recipient}.`,
+        );
+      }
+
       this._account = account;
       this._chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 

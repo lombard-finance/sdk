@@ -46,12 +46,15 @@ import { redeemToken } from '../../../contract-functions';
 import { AssetId, Chain } from '../../../core';
 import {
   createChainActionHarness,
+  MOCK_EVM_ACCOUNT,
   MOCK_TX_HASH,
 } from '../../harness/createChainActionHarness';
 
 const AMOUNT = '0.001';
 const BTC_RECIPIENT = 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4';
-const EVM_RECIPIENT = '0x2222222222222222222222222222222222222222';
+// The harness's connected account. A withdrawal pays the account that sends
+// it, and the BTC.b and vault arms refuse a recipient that is anyone else.
+const EVM_RECIPIENT = MOCK_EVM_ACCOUNT;
 
 function progressShape(payloads: unknown[]): string[] {
   return payloads.map((p) => {

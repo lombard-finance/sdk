@@ -25,8 +25,13 @@ export interface EvmWithdrawVaultParams {
   protocol: DeployProtocol;
   /** Source chain where vault shares are held */
   sourceChain: Chain;
-  /** Recipient address for withdrawn assets */
-  recipient: string;
+  /**
+   * The queue pays the account that files the request and cannot pay anyone
+   * else, so this is not a destination. Optional; when given it must be the
+   * connected account, and `prepare()` refuses any other address rather than
+   * ignore it.
+   */
+  recipient?: string;
 }
 
 /**

@@ -58,7 +58,11 @@ export interface EvmWithdrawLbtcParams {
 export interface EvmWithdrawLbtcPrepareParams {
   /** Amount to withdraw (in LBTC) */
   amount: string;
-  /** Recipient address (BTC address or EVM address) */
+  /**
+   * Recipient address: a BTC address on the BTC route. On the BTC.b route the
+   * BTC.b is minted to the account that burns the LBTC, so this must be the
+   * connected account, and any other address is refused.
+   */
   recipient: string;
 }
 

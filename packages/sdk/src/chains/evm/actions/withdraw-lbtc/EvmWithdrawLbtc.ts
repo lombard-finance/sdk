@@ -104,6 +104,28 @@ export class EvmWithdrawLbtc
     return this.params.assetOut === AssetId.BTCb;
   }
 
+  /**
+   * On the BTC.b arm the redeem mints BTC.b to the account that burns the
+   * LBTC, so the recipient can only be the connected account. It used to be
+   * sent as the transaction's `from`: a wallet that honours another `from`
+   * would burn that account's LBTC instead.
+   */
+  private assertRecipientIsAccount(account: string | undefined): void {
+    const recipient = this._recipient;
+    if (
+      !account ||
+      !recipient ||
+      recipient.toLowerCase() !== account.toLowerCase()
+    ) {
+      throw LombardError.invalidParameter(
+        'recipient',
+        `On the BTC.b route the BTC.b goes to the account that burns the ` +
+          `LBTC, so the recipient must be the connected account ` +
+          `${String(account)}, not ${String(recipient)}.`,
+      );
+    }
+  }
+
   async prepare(params: EvmWithdrawLbtcPrepareParams): Promise<void> {
     this.assertStatus(EvmOperationStatus.IDLE, 'prepare');
 
@@ -127,6 +149,7 @@ export class EvmWithdrawLbtc
           method: 'eth_accounts',
         });
         const account = accounts[0] as `0x${string}`;
+        this.assertRecipientIsAccount(account);
 
         // Check fee authorization status (use Token.BTCb for LBTC → BTC.b)
         const feeAuthResult = await checkFeeAuthorization(
@@ -263,13 +286,14 @@ export class EvmWithdrawLbtc
         steps: { burning: StepStatus.PENDING, releasing: StepStatus.IDLE },
       });
 
-      // For BTC output: account = EVM wallet (executing burn), btcAddress = recipient (Bitcoin)
-      // For BTCb output: account = recipient (same EVM address receives BTCb)
+      // Checked again here: the wallet's account can change after prepare().
+      if (isBtcbOutput) this.assertRecipientIsAccount(evmAccount);
+
+      // For BTC output: btcAddress = recipient (Bitcoin). For BTC.b output the
+      // BTC.b is minted to the account that burns, which is the recipient.
       const txHash = await redeemToken({
         provider: provider as EIP1193Provider,
-        account: isBtcbOutput
-          ? (this._recipient! as `0x${string}`)
-          : evmAccount,
+        account: evmAccount,
         amount: this._amount!,
         btcAddress: isBtcbOutput ? undefined : this._recipient!,
         chainId,

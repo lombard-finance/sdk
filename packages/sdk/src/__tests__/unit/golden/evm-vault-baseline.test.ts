@@ -50,10 +50,15 @@ vi.mock('../../../clients/wallet-client', () => ({
 import { EvmDeploy } from '../../../chains/evm/actions/deploy/EvmDeploy';
 import { EvmWithdrawVault } from '../../../chains/evm/actions/withdraw-vault/EvmWithdrawVault';
 import { AssetId, Chain, DeployProtocol } from '../../../core';
-import { createChainActionHarness } from '../../harness/createChainActionHarness';
+import {
+  createChainActionHarness,
+  MOCK_EVM_ACCOUNT,
+} from '../../harness/createChainActionHarness';
 
 const AMOUNT = '0.001';
-const EVM_RECIPIENT = '0x2222222222222222222222222222222222222222';
+// The harness's connected account. A withdrawal pays the account that sends
+// it, and the BTC.b and vault arms refuse a recipient that is anyone else.
+const EVM_RECIPIENT = MOCK_EVM_ACCOUNT;
 
 function progressShape(payloads: unknown[]): string[] {
   return payloads.map((p) => {
