@@ -9,6 +9,15 @@ import {
 import { determineEnv } from '../utils/env';
 import { getRpcUrlConfig } from './rpc-url-config';
 
+/**
+ * Chains with no public RPC to fall back on: the SDK configures none, and the
+ * viem chain's default host no longer resolves. A client for one of these
+ * needs `rpcUrl`.
+ */
+const CHAINS_WITHOUT_PUBLIC_RPC: ReadonlySet<number> = new Set([
+  ChainId.sonicBlazeTestnet,
+]);
+
 type MakePublicClientParameters = {
   chainId: ChainId;
   rpcUrl?: string;
@@ -20,6 +29,7 @@ type MakePublicClientParameters = {
  * @param chainId - The chain id
  * @param rpcUrl - The overridden RPC url for specified chain id.
  * @returns The public client instance
+ * @throws if the chain has no public RPC and `rpcUrl` is not given.
  */
 export function makePublicClient({
   chainId,
@@ -38,7 +48,14 @@ export function makePublicClient({
     chain = getChain(chainId);
   }
 
-  const transport = http(rpcUrls[chainId]);
+  const url = rpcUrls[chainId];
+  if (!url && CHAINS_WITHOUT_PUBLIC_RPC.has(chainId)) {
+    throw new Error(
+      `No RPC URL is configured for ${chain?.name ?? 'this chain'} (chain ${chainId}). Pass \`rpcUrl\` to create a client for it.`,
+    );
+  }
+
+  const transport = http(url);
 
   const publicClient = createPublicClient({
     chain,

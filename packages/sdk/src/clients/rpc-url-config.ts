@@ -24,8 +24,7 @@ export const rpcUrlConfig: TRpcUrlConfig = {
     'https://bsc-testnet-dataseed.bnbchain.org',
   [ChainId.holesky]: `${RPC_URL}/eth_holesky`,
   [ChainId.sepolia]: `${RPC_URL}/eth_sepolia`,
-  // Use direct Sonic Labs RPC for testnet (proxy returns 403)
-  [ChainId.sonicBlazeTestnet]: 'https://rpc.blaze.soniclabs.com',
+  // Sonic Blaze testnet has no entry: see `makePublicClient`.
 };
 
 export function getRpcUrlConfig(env: Env) {
@@ -49,8 +48,7 @@ export function getRpcUrlConfig(env: Env) {
       'https://bsc-testnet-dataseed.bnbchain.org',
     [ChainId.holesky]: `${proxy}/eth_holesky`,
     [ChainId.sepolia]: `${proxy}/eth_sepolia`,
-    // Use direct Sonic Labs RPC for testnet (proxy returns 403)
-    [ChainId.sonicBlazeTestnet]: 'https://rpc.blaze.soniclabs.com',
+    // Sonic Blaze testnet has no entry: see `makePublicClient`.
     [ChainId.stable]: 'https://rpc.stable.xyz',
   } as TRpcUrlConfig;
 }

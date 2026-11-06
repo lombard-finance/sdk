@@ -1,5 +1,6 @@
 import { Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
+import { getAddress } from 'viem';
 
 import { getChainIdByName } from '../../common/blockchain-identifier';
 import {
@@ -75,8 +76,8 @@ export interface MovementLeg {
   transaction_index?: number | string;
   /** 64-bit integers arrive as JSON strings. Unset until the tx is mined. */
   block_height?: number | string;
-  /** ISO 8601. */
-  block_time?: string;
+  /** ISO 8601 in the schema. Epoch seconds, as a number or a string, are read too. */
+  block_time?: number | string;
 }
 
 export interface Movement {
@@ -215,10 +216,61 @@ export function parseMovementAmount(leg?: MovementLeg): BigNumber {
   return fromBaseDenomination(raw, decimals);
 }
 
-function toEpochSeconds(isoTime?: string): number | undefined {
-  if (!isoTime) return undefined;
-  const ms = new Date(isoTime).getTime();
+/** Above this an epoch value cannot be seconds (year 33658), so it is milliseconds. */
+const MAX_EPOCH_SECONDS = 1e12;
+
+/**
+ * Unix seconds for a leg's `block_time`. The schema gives ISO 8601; epoch
+ * seconds are read too, as a number or a numeric string, and epoch
+ * milliseconds where the value is too large to be seconds. Anything else is
+ * dropped.
+ */
+export function toEpochSeconds(time?: number | string): number | undefined {
+  if (typeof time === 'number') return fromEpoch(time);
+  // A JSON `null`, or anything else that is not a string, is dropped too.
+  if (typeof time !== 'string') return undefined;
+  if (/^\d+(\.\d+)?$/.test(time.trim())) return fromEpoch(Number(time));
+  const ms = new Date(time).getTime();
   return Number.isFinite(ms) ? Math.floor(ms / 1000) : undefined;
+}
+
+function fromEpoch(epoch: number): number | undefined {
+  if (!Number.isFinite(epoch) || epoch < 0) return undefined;
+  return Math.floor(epoch > MAX_EPOCH_SECONDS ? epoch / 1000 : epoch);
+}
+
+const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
+/** A 20-byte address left-padded to a 32-byte word. */
+const PADDED_EVM_ADDRESS = /^0x0{24}([0-9a-fA-F]{40})$/;
+
+/**
+ * An EVM address in the form the v1 readers return: 20 bytes, EIP-55
+ * checksummed. `/withdrawals` can send an EVM destination as a 32-byte word,
+ * the address left-padded with zeros, which v1 trimmed. A value that is
+ * neither form is returned as it came.
+ *
+ * Only for addresses on an EVM chain: Starknet and Sui addresses are 32-byte
+ * values that may legitimately start with zeros.
+ */
+export function toEvmAddress(value: string): string {
+  const unpadded = PADDED_EVM_ADDRESS.exec(value);
+  const address = unpadded ? `0x${unpadded[1]}` : value;
+  return EVM_ADDRESS.test(address) ? getAddress(address) : value;
+}
+
+/**
+ * A leg's address, reduced to {@link toEvmAddress}'s form when the leg's
+ * chain resolved to an EVM chain id. Every other leg, Bitcoin, Sui, Solana,
+ * Starknet or a chain that did not resolve, keeps the address it was sent.
+ */
+function getLegAddress(
+  leg: MovementLeg | undefined,
+  chainId: AnyChainId | 'bitcoin' | undefined,
+): string | undefined {
+  const address = leg?.address;
+  return address && typeof chainId === 'number'
+    ? toEvmAddress(address)
+    : address;
 }
 
 function toNumber(value?: number | string): number | undefined {
@@ -369,20 +421,36 @@ export function mapMovementToDeposit(
       : undefined);
   // The mint amount reads "0" until it is known; v1 left it unset, and a set
   // value is read as the notarized amount.
+  const sourceAmount = parseMovementAmount(source);
   const destinationAmount = parseMovementAmount(destination);
-  const fromChainId = isNative
-    ? getMovementChainId(source?.chain, env, chainIdsByFamily)
-    : undefined;
+  // A BTC.b deposit's LBTC leg can carry the BTC.b amount itself rather than
+  // a minted figure. v1 never set `tokenAmount` for these deposits, so an
+  // amount equal to the source is left unset and only a differing one is
+  // reported as minted.
+  const echoesSourceAmount =
+    isNative &&
+    (destination?.amount === source?.amount ||
+      destinationAmount.isEqualTo(sourceAmount));
+  const sourceChainId = getMovementChainId(
+    source?.chain,
+    env,
+    chainIdsByFamily,
+  );
+  const fromChainId = isNative ? sourceChainId : undefined;
+  const sourceAddress = getLegAddress(source, sourceChainId);
 
   return {
     isNative,
     txHash: source?.transaction_id ?? '',
     eventIndex: toNumber(source?.transaction_index) ?? 0,
-    amount: parseMovementAmount(source),
-    tokenAmount: destinationAmount.isZero() ? undefined : destinationAmount,
-    depositAddress: isNative ? undefined : source?.address,
-    fromAddress: isNative ? source?.address : undefined,
-    toAddress: destination?.address,
+    amount: sourceAmount,
+    tokenAmount:
+      destinationAmount.isZero() || echoesSourceAmount
+        ? undefined
+        : destinationAmount,
+    depositAddress: isNative ? undefined : sourceAddress,
+    fromAddress: isNative ? sourceAddress : undefined,
+    toAddress: getLegAddress(destination, resolvedToChainId),
     toTokenAddress: destination?.asset?.address,
     toToken: getLegToken(destination, toChainId, env),
     toChainId: toChainId as AnyChainId,
@@ -455,8 +523,8 @@ export function mapMovementToUnstake(
     toChainId: isNative ? (payout ? 'bitcoin' : toChainId) : undefined,
     blockHeight: toNumber(source?.block_height) ?? 0,
     blockTime: toEpochSeconds(source?.block_time) ?? 0,
-    fromAddress: source?.address ?? '',
-    toAddress: destination?.address,
+    fromAddress: getLegAddress(source, resolvedFromChainId) ?? '',
+    toAddress: getLegAddress(destination, toChainId),
     amount: parseMovementAmount(source),
     payoutTxHash,
     payoutTxIndex: payout
@@ -495,8 +563,8 @@ export function mapMovementToBridge(
     txHash: source?.transaction_id ?? '',
     blockTime: toEpochSeconds(source?.block_time),
     amount: parseMovementAmount(source),
-    fromAddress: source?.address,
-    toAddress: destination?.address,
+    fromAddress: getLegAddress(source, fromChainId),
+    toAddress: getLegAddress(destination, toChainId),
     fromChainId: fromChainId === 'bitcoin' ? undefined : fromChainId,
     toChainId: toChainId === 'bitcoin' ? undefined : toChainId,
     tokenAddress: source?.asset?.address,
