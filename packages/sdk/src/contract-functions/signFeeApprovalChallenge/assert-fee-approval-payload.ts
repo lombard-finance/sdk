@@ -16,6 +16,18 @@ const FEE_APPROVAL_TYPES = [
   { name: 'expiry', type: 'uint256' },
 ] as const;
 
+/**
+ * The domain struct `signNetworkFee` signs. A declared domain type that left
+ * out `verifyingContract` would hash a domain with no contract in it, so the
+ * contract checked below would not be the one signed for.
+ */
+const EIP712_DOMAIN_TYPES = [
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' },
+] as const;
+
 /** The tokens a fee approval can be signed against. */
 export type FeeApprovalToken = typeof Token.LBTC | typeof Token.BTCb;
 
@@ -80,6 +92,7 @@ export function assertFeeApprovalPayloadMatches(
   }
 
   assertFeeApprovalTypes(typedData.types);
+  assertDomainTypes(typedData.types);
 
   const { domain = {}, message = {} } = typedData;
 
@@ -168,6 +181,32 @@ function assertFeeApprovalTypes(
       'types.feeApproval',
       `expected the fields ` +
         `${FEE_APPROVAL_TYPES.map((f) => `${f.name}:${f.type}`).join(', ')}, ` +
+        `got ${describe(declared)}`,
+    );
+  }
+}
+
+/**
+ * The domain type, when declared, field for field. Left out, the hasher
+ * derives it from the domain object, whose contract is pinned above.
+ */
+function assertDomainTypes(types: Record<string, unknown> | undefined): void {
+  const declared = types?.EIP712Domain;
+  if (declared === undefined) return;
+
+  const matches =
+    Array.isArray(declared) &&
+    declared.length === EIP712_DOMAIN_TYPES.length &&
+    EIP712_DOMAIN_TYPES.every((field, index) => {
+      const entry = declared[index] as { name?: unknown; type?: unknown };
+      return entry?.name === field.name && entry?.type === field.type;
+    });
+
+  if (!matches) {
+    throw new FeeApprovalChallengeMismatchError(
+      'types.EIP712Domain',
+      `expected the fields ` +
+        `${EIP712_DOMAIN_TYPES.map((f) => `${f.name}:${f.type}`).join(', ')}, ` +
         `got ${describe(declared)}`,
     );
   }

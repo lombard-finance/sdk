@@ -26,7 +26,7 @@ import type {
   DefiProtocol,
   StakeAndBakeToken,
 } from '../../../../../defi/defi-registry';
-import { LombardError } from '../../../../../shared/errors';
+import { isLombardError, LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
 import { evmAddressSchema } from '../../../../../shared/validation';
 import { EARN_STAKE_AND_BAKE_CHAINS } from '../../../../../vaults/lib/config';
@@ -122,9 +122,8 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
     try {
       // The permit this deposit would be signed against, and the contract it
       // would let spend. The v2 route lists the permits for every token and
-      // spender on the chain; one for another token, or for the same token
-      // and another spender, belongs to another product and says nothing
-      // about this deposit.
+      // spender on the chain; one for another token belongs to another
+      // product and says nothing about this deposit.
       const token = required.token as StakeAndBakeToken;
       const tokenAddress = getStakeAndBakeTokenAddress(
         token,
@@ -138,32 +137,36 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
         ctx.env,
       ).spenderContract.address;
 
-      const result = await getUserStakeAndBakeSignature({
-        userDestinationAddress: recipient,
-        chainId: chainId as ChainId,
-        tokenAddress,
-        spenderAddress,
-        env: ctx.env,
-        auth: ctx.auth,
-        getAuthToken: ctx.getAuthToken,
-      });
+      const read = (spender?: string) =>
+        getUserStakeAndBakeSignature({
+          userDestinationAddress: recipient,
+          chainId: chainId as ChainId,
+          tokenAddress,
+          ...(spender ? { spenderAddress: spender } : {}),
+          env: ctx.env,
+          auth: ctx.auth,
+          getAuthToken: ctx.getAuthToken,
+        });
 
-      // Check if signature exists by looking at metadata, not just the signature string.
-      // The API may return metadata (expiration, amount, nonce) even if the raw
-      // signature string is not included in the response.
-      // If we have an expiration date, that means a valid signature exists on the server.
-      const hasSignatureData = result.signature || result.expirationDate;
-      if (!hasSignatureData) {
+      // Any live permit on this token first, whoever it lets spend. One for
+      // another spender still has to stop the flow: a new permit is signed at
+      // the token's next nonce, which an unused permit still holds, and the
+      // v2 store replaces an unused permit that has the same nonce. Signing
+      // here would overwrite another product's authorisation.
+      let result = await read();
+      if (!isLive(result)) {
         return null;
       }
 
-      // Check expiration - expirationDate is Unix timestamp in seconds
-      // Convert to milliseconds for Date comparison
-      if (result.expirationDate) {
-        const expirationMs = Number(result.expirationDate) * 1000;
-        if (expirationMs < Date.now()) {
-          // Signature has expired
-          return null;
+      // The newest permit on the token is another spender's. This route's own
+      // can still be on file at a lower nonce, and is the one to resume on.
+      if (
+        result.spenderAddress &&
+        !sameAddress(result.spenderAddress, spenderAddress)
+      ) {
+        const own = await read(spenderAddress);
+        if (isLive(own)) {
+          result = own;
         }
       }
 
@@ -184,13 +187,37 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
           ctx.env,
         ),
       };
-    } catch {
+    } catch (error) {
+      // A refusal the SDK raised itself, a ratio out of band or a refused
+      // wallet token, is not "nothing on file": read that way, the action
+      // would ask for a signature the store then refuses or uses to replace a
+      // live permit.
+      if (isLombardError(error)) {
+        throw error;
+      }
       // API error (e.g., signature not found, network error)
       // Return null to indicate no valid signature exists
       return null;
     }
   },
 };
+
+/**
+ * Whether a record is a permit still on file. The API may return the metadata
+ * (expiration, amount, nonce) without the signature string, so an expiry is
+ * enough; an expiry in the past is not. `expirationDate` is in Unix seconds.
+ */
+function isLive(record: {
+  signature?: string;
+  expirationDate?: string;
+}): boolean {
+  if (!record.signature && !record.expirationDate) {
+    return false;
+  }
+  return (
+    !record.expirationDate || Number(record.expirationDate) * 1000 >= Date.now()
+  );
+}
 
 /** Two addresses are the same when both are given and equal regardless of case. */
 function sameAddress(a: string | undefined, b: string | undefined): boolean {

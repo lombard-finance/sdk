@@ -264,16 +264,66 @@ describe('restoreStakeAndBakeSignature and the wallet token', () => {
     );
   });
 
-  // Two products can hold LBTC permits on one chain; the vault's spender is
-  // what picks this route's out of the v2 list.
-  it("asks for the permits of the vault's spender", async () => {
-    onFile(SMALL_PERMIT_VALUE);
+  // Two products can hold LBTC permits on one chain, and the token's list
+  // reports the newest. When that is another spender's, this route's own is
+  // looked up by its spender, since it can sit at a lower nonce.
+  it("looks up the vault's own permit when the newest is another spender's", async () => {
+    const live = String(Math.floor(Date.now() / 1000) + 3600);
+    mockedStored
+      .mockResolvedValueOnce({
+        userDestinationAddress: RECIPIENT,
+        signature: '',
+        expirationDate: live,
+        depositAmount: '50000',
+        chainId: String(ChainId.ethereum),
+        tokenAddress: LBTC,
+        spenderAddress: '0x000000000000000000000000000000000000dEaD',
+      })
+      .mockResolvedValueOnce({
+        userDestinationAddress: RECIPIENT,
+        signature: '',
+        expirationDate: live,
+        depositAmount: SMALL_PERMIT_VALUE,
+        chainId: String(ChainId.ethereum),
+        tokenAddress: LBTC,
+        spenderAddress: EARN_SPENDER,
+      });
 
-    await restore();
+    await expect(restore()).resolves.toMatchObject({
+      matchesRoute: true,
+      coversAmount: true,
+      depositAmount: SMALL_PERMIT_VALUE,
+    });
+    expect(mockedStored).toHaveBeenCalledTimes(2);
+    expect(mockedStored.mock.calls[0][0]).not.toHaveProperty('spenderAddress');
+    expect(mockedStored.mock.calls[1][0]).toMatchObject({
+      spenderAddress: EARN_SPENDER,
+    });
+  });
 
-    expect(mockedStored).toHaveBeenCalledWith(
-      expect.objectContaining({ spenderAddress: EARN_SPENDER }),
-    );
+  it("reports another spender's permit, when the vault has none, as not this route", async () => {
+    const foreign = {
+      userDestinationAddress: RECIPIENT,
+      signature: '',
+      expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
+      depositAmount: '500000',
+      chainId: String(ChainId.ethereum),
+      tokenAddress: LBTC,
+      spenderAddress: '0x000000000000000000000000000000000000dEaD',
+    };
+    mockedStored.mockResolvedValueOnce(foreign).mockResolvedValueOnce({
+      ...foreign,
+      expirationDate: '',
+      depositAmount: '',
+      tokenAddress: undefined,
+      spenderAddress: undefined,
+    });
+
+    await expect(restore()).resolves.toMatchObject({
+      hasSignature: true,
+      matchesRoute: false,
+      depositAmount: '500000',
+    });
   });
 
   it('reads a lookup failure as no permit', async () => {

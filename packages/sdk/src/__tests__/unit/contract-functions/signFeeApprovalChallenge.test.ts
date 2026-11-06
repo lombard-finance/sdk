@@ -252,6 +252,25 @@ describe('signFeeApprovalChallenge', () => {
       'message.expiry',
     ],
     [
+      // The contract pinned above would not be in the hashed domain.
+      'a domain type without verifyingContract',
+      feeApproval({
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+          ],
+          feeApproval: [
+            { name: 'chainId', type: 'uint256' },
+            { name: 'fee', type: 'uint256' },
+            { name: 'expiry', type: 'uint256' },
+          ],
+        },
+      }),
+      'types.EIP712Domain',
+    ],
+    [
       'the struct fields reordered',
       feeApproval({
         types: {

@@ -241,6 +241,19 @@ export class BtcDeployLbtc
     });
   }
 
+  /**
+   * The deposit address, once the action is authorised to use it.
+   *
+   * `prepare()` restores an address the recipient already holds before it
+   * has looked at the permit, and stops short of authorised when the permit
+   * on file is not a resume. BTC sent to the address then is not deposited
+   * into the vault, so the address is withheld until `authorize()` or a
+   * resume has authorised it.
+   */
+  override get depositAddress(): string | undefined {
+    return this.authState.authorized ? this._depositAddress : undefined;
+  }
+
   /** Get stake and bake fee (available after prepare()) */
   get fee(): string | undefined {
     return this.authState.fee;
