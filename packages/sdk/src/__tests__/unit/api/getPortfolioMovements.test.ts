@@ -40,7 +40,7 @@ import { Token } from '../../../tokens/token-addresses';
 import { httpRequest } from '../../../utils/http';
 
 const ENV = Env.stage;
-const ACCOUNT = '0x00000000000000000000000000000000000000aa';
+const ACCOUNT = '0x00000000000000000000000000000000000000AA';
 /** Stage LBTC on Sepolia, as the SDK's address table lists it. */
 const STAGE_LBTC = '0x731eFa688F3679688cf60A3993b8658138953ED6';
 

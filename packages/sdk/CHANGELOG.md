@@ -17,6 +17,8 @@ migrate once.
   - Withdrawals keep v1's split: `isNative` marks the redeems (BTC.b paid out in BTC, with `toChainId: 'bitcoin'`, and LBTC to BTC.b on chain), and `show_unstakes`, `show_redeems` and `to_native` filter as the v1 route does. Two differences: an LBTC to BTC.b redeem reports `payoutTxStatus: Completed` once it completes, where v1 left it `Pending` for want of a payout, and its `toTokenAddress` is the address the gateway reports.
   - A `FAILED` movement reports `NOTARIZATION_STATUS_FAILED`, including an approved notarization whose session expired (`SESSION_STATE_EXPIRED`), so it is never offered for claim.
   - `rawPayload` and `proof` are bare hex, as the v1 BTC deposit route returned them.
+  - EVM addresses come back as v1 returns them: 20 bytes, EIP-55 checksummed. `/withdrawals` sends some EVM destinations, such as an LBTC to BTC.b redeem's, as a 32-byte word with the address left-padded with zeros, and that word is reduced to the address. This covers `fromAddress`, `toAddress` and `depositAddress` on any leg whose chain resolves to an EVM chain id. Bitcoin, Sui, Solana and Starknet addresses are returned as sent, since Sui and Starknet addresses are 32-byte values that may start with zeros, and so is a value on an EVM leg that is not an address in either form.
+  - `blockTime` is Unix seconds whether `block_time` arrives as ISO 8601 or as epoch seconds, a number or a numeric string; a value too large to be seconds is read as milliseconds. Anything else leaves it unset, or `0` on `Unstake`.
 
   What v2 does not carry: `notarizationWaitDur` and `auxVersion` are never set. `Deposit.blockHeight` is set only where the gateway sends a height, and `Unstake.blockHeight` reads `0` where it does not.
 
