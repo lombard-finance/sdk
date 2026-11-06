@@ -17,7 +17,11 @@ import type { ChainConfig } from './types';
  *
  * Protocol availability:
  * - Bitcoin Earn: Ethereum, Base, BSC (prod only)
- * - Silo: Avalanche (prod only)
+ *
+ * Every route here is one `EvmDeploy` can deposit, because the action refuses
+ * anything this table does not list. Silo is not one: its deposits go
+ * through stake and bake, and this class approves and deposits into the Earn
+ * vault, which has no deployment on Avalanche.
  */
 export const evmConfig: ChainConfig = {
   chainType: 'evm',
@@ -42,13 +46,6 @@ export const evmConfig: ChainConfig = {
       asset: AssetId.LBTC,
       sourceChains: [Chain.BSC],
       protocols: [DeployProtocol.BitcoinEarn],
-      envs: [Env.prod],
-    },
-    // Silo - Avalanche
-    {
-      asset: AssetId.LBTC,
-      sourceChains: [Chain.AVALANCHE],
-      protocols: [DeployProtocol.Silo],
       envs: [Env.prod],
     },
   ],

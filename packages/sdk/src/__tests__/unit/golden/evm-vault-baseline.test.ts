@@ -88,11 +88,11 @@ describe('golden baseline — the EVM vault actions on 5.x', () => {
   it('EvmDeploy: prepare with a covering allowance, and the ignored asset param', async () => {
     const h = createChainActionHarness('evm', { env: Env.prod });
     const action = new EvmDeploy(h.ctx, {
-      // BTC.b is deliberate. Before the A2 fix the class accepted it and then
-      // deposited LBTC, because params.asset was read zero times. The observable
-      // action behaviour is unchanged by the fix, which is why the dedicated
-      // test in unit/evm/EvmDeployAssetParam covers the token lookup instead.
-      asset: AssetId.BTCb,
+      // This used to pass BTC.b, which the class accepted and deposited as
+      // LBTC. No deploy route lists BTC.b, so it is now refused when the
+      // action is built; unit/evm/EvmDeployAssetParam covers that. LBTC
+      // records the same prepare() path.
+      asset: AssetId.LBTC,
       sourceChain: Chain.ETHEREUM,
       protocol: DeployProtocol.BitcoinEarn,
       recipient: EVM_RECIPIENT,
@@ -105,7 +105,7 @@ describe('golden baseline — the EVM vault actions on 5.x', () => {
 
     expect({
       outcome,
-      assetPassed: AssetId.BTCb,
+      assetPassed: AssetId.LBTC,
       needsApproval: action.needsApproval,
       statuses: h.statuses,
       progress: progressShape(h.progress),

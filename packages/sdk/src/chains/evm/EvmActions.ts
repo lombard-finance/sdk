@@ -7,7 +7,7 @@
  * - stake: BTC.b → LBTC (stake wrapped BTC to get LBTC)
  * - withdraw: LBTC → BTC (cross-chain) or LBTC → BTC.b (same-chain)
  * - deposit: BTCb → LBTC (deposit BTC.b to receive LBTC)
- * - deploy: LBTC/BTC.b → DeFi protocols (Bitcoin Earn, Silo)
+ * - deploy: LBTC → Bitcoin Earn
  * - withdraw: Queue withdrawal from DeFi protocols
  * - cancelWithdraw: Cancel pending withdrawal from DeFi protocols
  * - redeem: BTC.b → BTC (cross-chain redemption to Bitcoin)
@@ -147,9 +147,9 @@ export class EvmActions {
   }
 
   /**
-   * Deploy L-Assets to DeFi protocols
+   * Deploy LBTC to Bitcoin Earn
    *
-   * Currently supports Bitcoin Earn and Silo protocols.
+   * Throws for an asset, chain or protocol the deploy routes do not list.
    *
    * @example
    * ```typescript

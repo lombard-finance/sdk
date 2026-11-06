@@ -551,19 +551,16 @@ describe('EVM Deploy Action', () => {
       });
 
       const evm = evmActions(config);
-      const deploy = evm.deploy({
-        asset: AssetId.LBTC,
-        sourceChain: Chain.SEPOLIA,
-        protocol: DeployProtocol.BitcoinEarn,
-        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      });
 
-      await expect(
-        deploy.prepare({
-          amount: '0.01',
+      // Refused when the action is built, before any read or approval.
+      expect(() =>
+        evm.deploy({
+          asset: AssetId.LBTC,
+          sourceChain: Chain.SEPOLIA,
           protocol: DeployProtocol.BitcoinEarn,
+          recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
         }),
-      ).rejects.toThrow(/not supported/i);
+      ).toThrow(/No route found/i);
     });
   });
 });

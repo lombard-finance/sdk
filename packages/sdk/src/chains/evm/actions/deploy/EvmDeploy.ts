@@ -1,7 +1,9 @@
 /**
  * EVM Deploy Action
  *
- * Deploys L-Assets to DeFi protocols (Bitcoin Earn, Silo).
+ * Deploys LBTC to Bitcoin Earn, on the routes `deploy/config/evm.ts` lists.
+ * Any other asset, chain, protocol or environment is refused when the action
+ * is built, before a read or an approval.
  *
  * Protocol routing:
  * - Bitcoin Earn on ETH/Base/BSC → deposits through the BTCe ERC-4626 wrapper
@@ -27,7 +29,7 @@ import {
   type ChainId,
 } from '../../../../common/chains';
 import { depositEarn } from '../../../../contract-functions/depositEarn';
-import { DeployProtocol } from '../../../../core';
+import { AssetId, DeployProtocol } from '../../../../core';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
 import type { RouteLabel } from '../../../../core/actions';
 import { deriveRouteLabel } from '../../../../core/actions';
@@ -51,7 +53,7 @@ import {
 } from '../../../../vaults/lib/config';
 import { depositInternal } from '../../../../vaults/lib/ops/deposit';
 import { assetIdToToken } from '../../../btc/actions/shared/tokenUtils';
-import { evmConfig } from './config';
+import { isDeploySupported } from './config';
 import type {
   EvmDeployParams,
   EvmDeployPrepareParams,
@@ -74,6 +76,26 @@ export class EvmDeploy
     private readonly params: EvmDeployParams,
   ) {
     super(EvmOperationStatus.IDLE);
+
+    // The route table is what this class can deposit. Anything else used to
+    // run anyway: an asset other than LBTC or BTC.b was swapped for LBTC, and
+    // a protocol this class cannot deposit into had its approval sent first
+    // and failed after.
+    if (
+      !isDeploySupported(
+        params.asset,
+        params.sourceChain,
+        params.protocol,
+        ctx.env,
+      )
+    ) {
+      throw LombardError.routeNotFound({
+        asset: params.asset,
+        sourceChain: params.sourceChain,
+        protocol: params.protocol,
+        env: ctx.env,
+      });
+    }
   }
 
   get amount(): string | undefined {
@@ -98,7 +120,17 @@ export class EvmDeploy
    * belongs to the route table, not here.
    */
   private get depositTokenId(): Token {
-    return assetIdToToken(this.params.asset, Token.LBTC);
+    // No fallback: an asset with no token of its own is not deposited as LBTC.
+    if (
+      this.params.asset !== AssetId.LBTC &&
+      this.params.asset !== AssetId.BTCb
+    ) {
+      throw LombardError.invalidParameter(
+        'asset',
+        `Asset ${this.params.asset} cannot be deployed.`,
+      );
+    }
+    return assetIdToToken(this.params.asset);
   }
 
   get needsApproval(): boolean {
@@ -368,15 +400,24 @@ export class EvmDeploy
     });
   }
 
+  /**
+   * The protocol `prepare()` names has to be a route for this action's asset
+   * and chain too, not just one the environment lists somewhere: it picks the
+   * spender the approval goes to.
+   */
   private validateProtocol(protocol: DeployProtocol): void {
-    const isSupported = evmConfig.routes.some(
-      (route) =>
-        route.protocols.includes(protocol) && route.envs.includes(this.ctx.env),
-    );
-    if (!isSupported) {
+    if (
+      !isDeploySupported(
+        this.params.asset,
+        this.params.sourceChain,
+        protocol,
+        this.ctx.env,
+      )
+    ) {
       throw LombardError.invalidParameter(
         'protocol',
-        `Protocol ${protocol} is not supported in ${this.ctx.env} environment`,
+        `Protocol ${protocol} is not supported for ${this.params.asset} on ` +
+          `${this.params.sourceChain} in ${this.ctx.env} environment`,
       );
     }
   }
