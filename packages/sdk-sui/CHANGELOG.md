@@ -5,6 +5,12 @@ All notable changes to `@lombard.finance/sdk-sui` will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+
+- `vite` is no longer a runtime dependency. Nothing in the package imports it; it was only needed for a type reference at build time and stays a dev dependency, so consumers no longer install a build toolchain with it.
+
 ## [2.0.0] - 2026-08-06
 
 The package now talks gRPC-Web instead of JSON-RPC. Sui is removing JSON-RPC from the node binary in mid-October 2026, and the official fullnodes already answer every JSON-RPC method with `-32601 Method not found`; gRPC is what they kept serving. The third-party JSON-RPC nodes the 1.3.0 failover leaned on are on the same clock.
