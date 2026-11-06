@@ -43,8 +43,8 @@
  * IDLE → NEEDS_DEPLOY_AUTHORIZATION → READY → ADDRESS_READY
  *
  * `BtcDeployLbtc` has one dead end: IDLE →
- * BLOCKED_BY_EXISTING_AUTHORIZATION, when a live signature is on file for less
- * than the requested deposit.
+ * BLOCKED_BY_EXISTING_AUTHORIZATION, when a live signature is on file that is
+ * not a resume for the requested deposit.
  */
 export const BtcActionStatus = {
   /** Initial state - ready for prepare() */
@@ -58,7 +58,11 @@ export const BtcActionStatus = {
   /** User needs to sign vault deploy authorization (stake-and-deploy, deposit-and-deploy) */
   NEEDS_DEPLOY_AUTHORIZATION: 'needs_deploy_authorization',
   /**
-   * A live vault authorization is on file and it does not cover this deposit.
+   * A live vault authorization is on file and it is not a resume for this
+   * deposit: it covers less, it cannot be shown to be for this vault (a v1
+   * record, read without a wallet token, names no token or spender, so
+   * another product's permit looks the same), or there is no deposit address
+   * yet to resume onto.
    *
    * Terminal for this attempt: the action does not prompt for a second
    * stake-and-bake signature. Without a wallet token for the recipient the

@@ -50,11 +50,15 @@ function lastRequest() {
 const LBTC = '0x731eFa688F3679688cf60A3993b8658138953ED6';
 const BTCB = '0x0000000000000000000000000000000000000b7C';
 
+/** The stage Earn spender on Sepolia, and any other contract. */
+const SPENDER = '0x77ed6a84fef665156e81247ecbd43a847b8a6398';
+const OTHER_SPENDER = '0x000000000000000000000000000000000000dEaD';
+
 /** A permit as the gateway writes it: 64-bit integers as strings. */
 function permit(
   nonce: string,
   depositAmount: string,
-  { expired = false, blocked = false, token = LBTC } = {},
+  { expired = false, blocked = false, token = LBTC, spender = SPENDER } = {},
 ) {
   return {
     blocked,
@@ -62,7 +66,7 @@ function permit(
     expiration_date: String(1893456000 + Number(nonce)),
     expired,
     nonce,
-    spender_address: '0x77ed6a84fef665156e81247ecbd43a847b8a6398',
+    spender_address: spender,
     token_address: token,
   };
 }
@@ -136,7 +140,7 @@ describe('getUserStakeAndBakeSignature', () => {
     expect(v1Calls()).toHaveLength(0);
   });
 
-  it('reports a live permit in the v1 record shape', async () => {
+  it('reports a live permit in the v1 record shape, with its token and spender', async () => {
     respond([permit('0', '100000')]);
 
     await expect(getUserStakeAndBakeSignature(params)).resolves.toEqual({
@@ -146,6 +150,8 @@ describe('getUserStakeAndBakeSignature', () => {
       depositAmount: '100000',
       chainId: String(ChainId.sepolia),
       nonce: '0',
+      tokenAddress: LBTC,
+      spenderAddress: SPENDER,
     });
   });
 
@@ -258,6 +264,89 @@ describe('getUserStakeAndBakeSignature', () => {
     });
   });
 
+  describe('for one spender', () => {
+    // Two products can hold permits for the same token on the same chain; the
+    // spender is all that tells them apart. Nonces count up per token, so
+    // without this filter the newest permit wins whoever it lets spend.
+    it("reports that spender's permit, not a newer one for another", async () => {
+      respond([
+        permit('0', '100000', { spender: SPENDER }),
+        permit('1', '900000', { spender: OTHER_SPENDER }),
+      ]);
+
+      await expect(
+        getUserStakeAndBakeSignature({
+          ...params,
+          tokenAddress: LBTC,
+          spenderAddress: SPENDER,
+        }),
+      ).resolves.toMatchObject({
+        nonce: '0',
+        depositAmount: '100000',
+        spenderAddress: SPENDER,
+      });
+    });
+
+    it('reports an empty record when only another spender has a permit', async () => {
+      respond([permit('3', '500000', { spender: OTHER_SPENDER })]);
+
+      await expect(
+        getUserStakeAndBakeSignature({
+          ...params,
+          tokenAddress: LBTC,
+          spenderAddress: SPENDER,
+        }),
+      ).resolves.toMatchObject({
+        expirationDate: '',
+        depositAmount: '',
+        nonce: undefined,
+        spenderAddress: undefined,
+      });
+    });
+
+    it('matches the spender address regardless of case', async () => {
+      respond([permit('3', '333', { spender: OTHER_SPENDER })]);
+
+      await expect(
+        getUserStakeAndBakeSignature({
+          ...params,
+          spenderAddress: OTHER_SPENDER.toUpperCase().replace('0X', '0x'),
+        }),
+      ).resolves.toMatchObject({ nonce: '3' });
+    });
+
+    // Without a spender the newest claimable permit is reported, as before,
+    // and the record says whose it is.
+    it('names the spender of the permit it reports when given none', async () => {
+      respond([
+        permit('0', '100000', { spender: SPENDER }),
+        permit('1', '900000', { spender: OTHER_SPENDER }),
+      ]);
+
+      await expect(
+        getUserStakeAndBakeSignature({ ...params, tokenAddress: LBTC }),
+      ).resolves.toMatchObject({ nonce: '1', spenderAddress: OTHER_SPENDER });
+    });
+
+    it('sends no spender to either route', async () => {
+      await getUserStakeAndBakeSignature({
+        ...params,
+        spenderAddress: SPENDER,
+      });
+      expect(lastRequest().params).toEqual({ chain: 'ethereum' });
+
+      await getUserStakeAndBakeSignature({
+        ...params,
+        auth: undefined,
+        spenderAddress: SPENDER,
+      });
+      expect(lastRequest().params).toEqual({
+        userDestinationAddress: ACCOUNT,
+        chainId: '11155111',
+      });
+    });
+  });
+
   it('reports an empty record when nothing on file can be claimed', async () => {
     respond([permit('0', '100000', { expired: true })]);
 
@@ -334,6 +423,20 @@ describe('getUserStakeAndBakeSignature without a wallet token', () => {
       chainId: '11155111',
       nonce: undefined,
     });
+  });
+
+  // The v1 record is whichever permit was stored last for the wallet and
+  // chain. It names no token or spender, so it cannot be tied to a product,
+  // and the record says so by leaving both out.
+  it('names no token or spender, even when asked for them', async () => {
+    const result = await getUserStakeAndBakeSignature({
+      ...params,
+      tokenAddress: LBTC,
+      spenderAddress: SPENDER,
+    });
+
+    expect(result.tokenAddress).toBeUndefined();
+    expect(result.spenderAddress).toBeUndefined();
   });
 });
 

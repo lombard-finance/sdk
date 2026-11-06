@@ -91,8 +91,8 @@ export interface BtcDeployLbtc extends MonitorableAction {
   readonly referralCode?: string;
   /**
    * The authorization already on file, set when `prepare()` stopped at
-   * `BLOCKED_BY_EXISTING_AUTHORIZATION` because a live signature covers less
-   * than the requested deposit.
+   * `BLOCKED_BY_EXISTING_AUTHORIZATION` because a live signature is not a
+   * resume for the requested deposit.
    */
   readonly existingAuthorization?: {
     /** What the stored permit covers, in token base units. */

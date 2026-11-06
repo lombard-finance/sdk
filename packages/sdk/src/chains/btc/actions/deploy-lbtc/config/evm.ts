@@ -20,8 +20,12 @@ import {
   getPermitValue,
   getStakeAndBakeTokenAddress,
 } from '../../../../../contract-functions/signStakeAndBake/utils';
+import { getStakeAndBakeConfig } from '../../../../../contract-functions/signStakeAndBake/validation';
 import { AssetId, Chain, evmChainIdToChain } from '../../../../../core';
-import type { StakeAndBakeToken } from '../../../../../defi/defi-registry';
+import type {
+  DefiProtocol,
+  StakeAndBakeToken,
+} from '../../../../../defi/defi-registry';
 import { LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
 import { evmAddressSchema } from '../../../../../shared/validation';
@@ -116,17 +120,29 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
 
   async restoreStakeAndBakeSignature(ctx, chainId, recipient, required) {
     try {
+      // The permit this deposit would be signed against, and the contract it
+      // would let spend. The v2 route lists the permits for every token and
+      // spender on the chain; one for another token, or for the same token
+      // and another spender, belongs to another product and says nothing
+      // about this deposit.
+      const token = required.token as StakeAndBakeToken;
+      const tokenAddress = getStakeAndBakeTokenAddress(
+        token,
+        chainId as ChainId,
+        ctx.env,
+      );
+      const spenderAddress = getStakeAndBakeConfig(
+        required.protocol as DefiProtocol,
+        token,
+        chainId as ChainId,
+        ctx.env,
+      ).spenderContract.address;
+
       const result = await getUserStakeAndBakeSignature({
         userDestinationAddress: recipient,
         chainId: chainId as ChainId,
-        // The permit this deposit would be signed against. The v2 route lists
-        // the permits for every token on the chain, and one for another token
-        // says nothing about this deposit.
-        tokenAddress: getStakeAndBakeTokenAddress(
-          required.token as StakeAndBakeToken,
-          chainId as ChainId,
-          ctx.env,
-        ),
+        tokenAddress,
+        spenderAddress,
         env: ctx.env,
         auth: ctx.auth,
         getAuthToken: ctx.getAuthToken,
@@ -156,6 +172,12 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
         signature: result.signature,
         depositAmount: result.depositAmount,
         expirationDate: result.expirationDate,
+        // Only a record that names both can be shown to be this route's. The
+        // v1 route names neither, so its record, which is whatever permit was
+        // stored last for the wallet and chain, never is.
+        matchesRoute:
+          sameAddress(result.tokenAddress, tokenAddress) &&
+          sameAddress(result.spenderAddress, spenderAddress),
         coversAmount: await storedAmountCovers(
           result.depositAmount,
           required,
@@ -169,6 +191,11 @@ export const evmStakeAndDeployConfig: StakeAndDeployChainConfig = {
     }
   },
 };
+
+/** Two addresses are the same when both are given and equal regardless of case. */
+function sameAddress(a: string | undefined, b: string | undefined): boolean {
+  return !!a && !!b && a.toLowerCase() === b.toLowerCase();
+}
 
 /**
  * Whether the amount on the stored signature covers the deposit being prepared.

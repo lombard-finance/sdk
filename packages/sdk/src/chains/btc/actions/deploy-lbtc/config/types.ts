@@ -41,6 +41,18 @@ export interface StakeAndBakeRestoreResult {
   /** Expiration date (Unix timestamp) */
   expirationDate?: string;
   /**
+   * Whether the stored permit is shown to be this route's: signed against
+   * the token this deposit would be, for the spender this deposit's vault
+   * uses.
+   *
+   * Only the v2 route, read with a wallet token, names the token and spender
+   * on the record. The v1 record is whatever permit was stored last for the
+   * wallet and chain, by any product, so it is never shown to be this
+   * route's: a live one blocks the flow, and the wallet cannot replace it,
+   * but it is not a resume.
+   */
+  matchesRoute: boolean;
+  /**
    * Whether the stored authorisation covers the amount being prepared.
    *
    * A stored signature is only a resume for the deposit it was signed for. It
@@ -117,6 +129,12 @@ export interface StakeAndDeployChainConfig {
       amount: string;
       /** The token the signature is for, as `authorizeStakeAndBake` takes it. */
       token: string;
+      /**
+       * The vault the deposit goes to, as `authorizeStakeAndBake` takes it.
+       * It decides the spender, which tells this route's permit apart from
+       * another product's for the same token.
+       */
+      protocol: string;
     },
   ) => Promise<StakeAndBakeRestoreResult | null>;
 }

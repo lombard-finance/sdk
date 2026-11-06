@@ -184,10 +184,16 @@ describe('golden baseline — BTC actions on 5.x', () => {
       // the ratio rather than the satoshis passed in: 100000 over 1.05,
       // rounded down. A record without it no longer resumes at all, which is
       // recorded in BtcDeployResumePath.
+      //
+      // It is the v2 record of this route's own permit, which names the token
+      // and spender: a v1 record names neither and is never a resume.
       mockRestore.mockResolvedValue({
         signature: '0xstoredsignature',
         expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
         depositAmount: '95238',
+        // Prod LBTC on Ethereum, and the vault's stake-and-bake spender there.
+        tokenAddress: '0x8236a87084f8b84306f72007f36f2618a5634494',
+        spenderAddress: '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef',
       } as Awaited<ReturnType<typeof getUserStakeAndBakeSignature>>);
 
       const action = new BtcDeployLbtc(h.ctx, {

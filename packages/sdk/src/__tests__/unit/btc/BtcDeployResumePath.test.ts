@@ -28,6 +28,10 @@ const RECIPIENT = '0x1111111111111111111111111111111111111111';
 const EXISTING_ADDRESS = 'tb1qexistingdeposit0000000000000000000000';
 const AMOUNT = '0.001';
 
+/** Prod LBTC on Ethereum, and the vault's stake-and-bake spender there. */
+const LBTC = '0x8236a87084f8b84306f72007f36f2618a5634494';
+const EARN_SPENDER = '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef';
+
 const mockRestore = vi.mocked(getUserStakeAndBakeSignature);
 
 function futureExpiry(): string {
@@ -35,7 +39,8 @@ function futureExpiry(): string {
 }
 
 /**
- * A complete stored-signature response. `signature` is deliberately
+ * A complete stored-signature response, as the v2 route reports this route's
+ * own permit: for LBTC, for the vault's spender. `signature` is deliberately
  * overridable: the API returns an empty string when a signature exists on the
  * server but is not included in the response body, which is the case the
  * restore logic has to treat as "not authorized".
@@ -51,6 +56,8 @@ function storedSignature(
     expirationDate: futureExpiry(),
     depositAmount: '100000',
     chainId: '1',
+    tokenAddress: LBTC,
+    spenderAddress: EARN_SPENDER,
     ...overrides,
   };
 }
@@ -164,6 +171,49 @@ describe('BtcDeployLbtc — resume path', () => {
       await expect(action.generateDepositAddress()).rejects.toThrow();
       expect(h.calls.of('api', 'generateDepositAddress')).toHaveLength(0);
       expect(h.calls.of('evm', 'signStakeAndBake')).toHaveLength(0);
+    });
+  });
+
+  describe('a stored signature that is not a resume', () => {
+    it('blocks on a held address rather than handing it out unauthorised', async () => {
+      // Covers less than this deposit, so not a resume.
+      mockRestore.mockResolvedValue(storedSignature({ depositAmount: '1' }));
+
+      const { h, action } = makeAction({
+        api: { getDepositAddress: async () => EXISTING_ADDRESS },
+      });
+
+      await action.prepare({ amount: AMOUNT, recipient: RECIPIENT });
+
+      expect(action.status).toBe(
+        BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
+      );
+      // Sending BTC to the held address now mints plain LBTC, so the address
+      // is not offered as the next step.
+      await expect(action.generateDepositAddress()).rejects.toThrow(
+        /authorization required/i,
+      );
+      expect(h.calls.of('api', 'generateDepositAddress')).toHaveLength(0);
+      expect(h.calls.of('evm', 'signStakeAndBake')).toHaveLength(0);
+    });
+
+    it('never reaches READY from a stored signature, whose typed data no route returns', async () => {
+      // A v1 record carries the signature bytes. READY would send them as the
+      // address request's proof with no typed data, and that address carries
+      // no permit.
+      mockRestore.mockResolvedValue(
+        storedSignature({ tokenAddress: undefined, spenderAddress: undefined }),
+      );
+
+      const { h, action } = makeAction();
+
+      await action.prepare({ amount: AMOUNT, recipient: RECIPIENT });
+
+      expect(action.status).toBe(
+        BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
+      );
+      await expect(action.generateDepositAddress()).rejects.toThrow();
+      expect(h.calls.of('api', 'generateDepositAddress')).toHaveLength(0);
     });
   });
 

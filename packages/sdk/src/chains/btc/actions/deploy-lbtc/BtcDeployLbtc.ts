@@ -284,92 +284,69 @@ export class BtcDeployLbtc
       );
 
       // The deposit this signature would have to authorise. A stored permit
-      // is for a fixed amount, so it is a resume only for a deposit that
-      // amount covers.
+      // is for a fixed amount and one vault, so it is a resume only for a
+      // deposit that amount covers, into the vault it was signed for.
       const required = {
         amount: toSatoshi(validated.amount).toString(),
         token: this.params.assetIn ?? AssetId.BTC,
+        protocol: getVaultKey(this.params.protocol),
       };
 
-      if (hasExistingDeposit) {
-        // We have a deposit address - check if stake and bake signature is still valid
-        const stored = await stakeAndDeployConfig.restoreStakeAndBakeSignature(
-          this.ctx,
-          this.chainId,
-          validated.recipient,
-          required,
-        );
+      const stored = await stakeAndDeployConfig.restoreStakeAndBakeSignature(
+        this.ctx,
+        this.chainId,
+        validated.recipient,
+        required,
+      );
 
-        // A resume only for the deposit the stored permit covers: it is for a
-        // fixed amount, so a permit signed for a smaller deposit does not
-        // authorise a larger one. The signature string itself is optional on
-        // this branch — the address is already held, `generateDepositAddress()`
-        // returns it without a request, and nothing else reads the signature.
-        if (stored?.hasSignature && stored.coversAmount) {
-          if (stored.signature) {
-            this.authState.signature = stored.signature;
-          }
-          this.authState.authorized = true;
-          this.updateStatus(BtcActionStatus.ADDRESS_READY);
-          this.emitInitialProgress();
-          return;
-        }
-
-        if (stored?.hasSignature) {
-          this.blockOnExistingAuthorization(stored);
-          return;
-        }
-
-        // Deposit exists but the signature is expired or missing - the wallet
-        // can sign a new one
-        this.updateStatus(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
-        this.emitInitialProgress();
-        return;
-      }
-
-      // No existing deposit - check if there's a valid signature anyway
-      // (signature was created but deposit address not yet generated)
-      const existingSignature =
-        await stakeAndDeployConfig.restoreStakeAndBakeSignature(
-          this.ctx,
-          this.chainId,
-          validated.recipient,
-          required,
-        );
-
-      // The signature bytes are required here, not just a record of one. This
-      // branch leads to READY, and from there `generateDepositAddress()` sends
-      // the signature as the proof of control over the destination — the route
-      // may answer with the metadata and no `signature`, which would leave
-      // `getDepositAddressParams` forwarding `undefined` from a state the
-      // action reported as ready. Unlike the resume above, where the address
-      // already exists and nothing reads the signature. The amount check is
-      // the same as above: a stored permit covers one fixed amount.
+      // A resume needs the address already held: `generateDepositAddress()`
+      // then returns it without a request, and nothing reads the signature.
+      // It needs the permit shown to be this route's, which only the v2
+      // record can be: on v1 a permit another product stored for the wallet
+      // and chain looks the same as this one, and adopting it reports a
+      // deposit as headed for the vault when nothing will move it there. And
+      // it needs the permit to cover this deposit: it is for a fixed amount,
+      // so a permit signed for a smaller deposit does not authorise a larger
+      // one.
       if (
-        existingSignature?.hasSignature &&
-        existingSignature.coversAmount &&
-        existingSignature.signature
+        hasExistingDeposit &&
+        stored?.hasSignature &&
+        stored.matchesRoute &&
+        stored.coversAmount
       ) {
-        this.authState.signature = existingSignature.signature;
+        if (stored.signature) {
+          this.authState.signature = stored.signature;
+        }
         this.authState.authorized = true;
-        this.updateStatus(BtcActionStatus.READY);
+        this.updateStatus(BtcActionStatus.ADDRESS_READY);
         this.emitInitialProgress();
         return;
       }
 
-      if (existingSignature?.hasSignature) {
-        this.blockOnExistingAuthorization(existingSignature);
+      // Without an address there is no resume: READY leads to
+      // `generateDepositAddress()`, which sends the signature with the typed
+      // data it signs as the permit, and no route returns the typed data. The
+      // v2 route does not return the signature either. An address requested
+      // with the signature alone carries no permit, so it would not deposit
+      // into the vault.
+      //
+      // Any other live record blocks: the wallet cannot replace it (see
+      // `blockOnExistingAuthorization`), and what is on file is reported.
+      if (stored?.hasSignature) {
+        this.blockOnExistingAuthorization(stored);
         return;
       }
 
-      // No existing signature - require authorization
+      // Nothing live on file - the wallet can sign a new one
       this.updateStatus(BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
       this.emitInitialProgress();
     });
   }
 
   /**
-   * Stops on a live authorization that does not cover this deposit.
+   * Stops on a live authorization that is not a resume for this deposit: one
+   * that does not cover it, one that cannot be shown to be this route's, or
+   * one with no address to resume onto.
    *
    * What a second signature would meet depends on the route the store takes.
    * The v1 route, taken without a wallet token for the recipient, keeps one
@@ -469,8 +446,12 @@ export class BtcDeployLbtc
     // Return an address we already hold before asserting status. The resume
     // path leaves the action in ADDRESS_READY with the address in hand, so
     // asserting READY first made this throw instead of returning it — the
-    // second half of the same defect fixed in authorizeDeposit above.
+    // second half of the same defect fixed in authorizeDeposit above. Held is
+    // not authorised, though: `prepare()` restores the address before it has
+    // looked at the permit, and stops short of authorised when the permit on
+    // file is not a resume. BTC sent to the address then lands as plain LBTC.
     if (this._depositAddress) {
+      this.ensureAuthorized();
       return this._depositAddress;
     }
 

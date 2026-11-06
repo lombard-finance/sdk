@@ -23,6 +23,14 @@ export interface IGetUserStakeAndBakeSignatureParams extends IEnvParam {
    * one, all are. The v1 route takes no token and ignores it.
    */
   tokenAddress?: string;
+  /**
+   * The contract the permit lets spend, its `message.spender`. On the v2
+   * route only that spender's permits are considered, matched regardless of
+   * case; without one, all are. Two products can hold permits for the same
+   * token on the same chain, and only the spender tells them apart. The v1
+   * route takes no spender and ignores it.
+   */
+  spenderAddress?: string;
 }
 
 export interface IGetUserStakeAndBakeSignatureResponse {
@@ -52,6 +60,17 @@ export interface IGetUserStakeAndBakeSignatureResponse {
    * The nonce (increments with each new signature)
    */
   nonce?: string;
+  /**
+   * The token the reported permit is signed against, as the v2 route names
+   * it. The v1 route does not name one, so a v1 record cannot be tied to a
+   * token: it is whichever permit was stored last for the wallet and chain.
+   */
+  tokenAddress?: string;
+  /**
+   * The spender the reported permit is for, as the v2 route names it. Absent
+   * on a v1 record, which therefore cannot be tied to a product either.
+   */
+  spenderAddress?: string;
 }
 
 interface IGetUserStakeAndBakeSignatureAPIResponse {
@@ -90,25 +109,39 @@ function nonceOf({ nonce }: UnusedPermitResponse): bigint {
 }
 
 /**
- * The permit to report: of those for `tokenAddress`, or all of them without
- * one, that can still be claimed, meaning neither expired nor blocked behind
- * an expired lower nonce, the one with the highest nonce.
+ * The permit to report: of those for `tokenAddress` and `spenderAddress`, or
+ * all of them where either is not given, that can still be claimed, meaning
+ * neither expired nor blocked behind an expired lower nonce, the one with the
+ * highest nonce.
  *
  * Nonces count up per token as permits are signed, so within one token the
  * highest is the newest, the one v1 reports. They are not comparable across
  * tokens, which is why a caller that knows its token names it: the lowest
- * nonce on the chain can belong to another token entirely.
+ * nonce on the chain can belong to another token entirely. The spender is
+ * what tells two permits for the same token apart, so a caller resuming its
+ * own permit names that too: without it, a newer permit for another spender
+ * is reported in place of its own.
  */
 function selectPermit(
   permits: UnusedPermitResponse[],
   tokenAddress: string | undefined,
+  spenderAddress: string | undefined,
 ): UnusedPermitResponse | undefined {
-  const wanted = tokenAddress?.toLowerCase();
+  const wantedToken = tokenAddress?.toLowerCase();
+  const wantedSpender = spenderAddress?.toLowerCase();
   let newest: UnusedPermitResponse | undefined;
 
   for (const permit of permits) {
     if (permit.expired || permit.blocked) continue;
-    if (wanted && permit.token_address?.toLowerCase() !== wanted) continue;
+    if (wantedToken && permit.token_address?.toLowerCase() !== wantedToken) {
+      continue;
+    }
+    if (
+      wantedSpender &&
+      permit.spender_address?.toLowerCase() !== wantedSpender
+    ) {
+      continue;
+    }
     if (!newest || nonceOf(permit) > nonceOf(newest)) newest = permit;
   }
 
@@ -133,6 +166,7 @@ function selectPermit(
  * @param {string} parameters.userDestinationAddress - The destination account address.
  * @param {ChainId} parameters.chainId - The chain id.
  * @param {string} parameters.tokenAddress - The optional token the permit is signed against; v2 only.
+ * @param {string} parameters.spenderAddress - The optional spender the permit is for; v2 only.
  * @param {Env} parameters.env - The optional environment identifier.
  *
  * @returns {Promise<IGetUserStakeAndBakeSignatureResponse>} Promise that resolves to the signature response
@@ -158,7 +192,11 @@ export async function getUserStakeAndBakeSignature(
       ...v2Auth,
     });
 
-    const live = selectPermit(data?.permits ?? [], params.tokenAddress);
+    const live = selectPermit(
+      data?.permits ?? [],
+      params.tokenAddress,
+      params.spenderAddress,
+    );
 
     return {
       userDestinationAddress,
@@ -167,6 +205,8 @@ export async function getUserStakeAndBakeSignature(
       depositAmount: live?.deposit_amount ?? '',
       chainId: String(chainId),
       nonce: live?.nonce,
+      tokenAddress: live?.token_address,
+      spenderAddress: live?.spender_address,
     };
   } catch (error) {
     // A rejected token is the caller's to act on, and the code says so;

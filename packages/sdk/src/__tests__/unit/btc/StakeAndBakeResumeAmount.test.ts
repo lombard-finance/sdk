@@ -47,6 +47,11 @@ const SMALL_PERMIT_VALUE = '99735';
 /** 0.5 BTC in satoshis. */
 const LARGE_SATS = '50000000';
 
+/** Prod LBTC on Ethereum, and the vault's stake-and-bake spender there. */
+const LBTC = '0x8236a87084f8b84306f72007f36f2618a5634494';
+const EARN_SPENDER = '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef';
+
+/** This route's own permit, as the v2 route reports it: token and spender named. */
 function onFile(depositAmount: string, signature = '0xstored') {
   mockedStored.mockResolvedValue({
     userDestinationAddress: RECIPIENT,
@@ -55,6 +60,8 @@ function onFile(depositAmount: string, signature = '0xstored') {
     expirationDate: String(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60),
     depositAmount,
     chainId: String(ChainId.ethereum),
+    tokenAddress: LBTC,
+    spenderAddress: EARN_SPENDER,
   });
 }
 
@@ -70,7 +77,11 @@ beforeEach(() => {
 
 describe('restoreStakeAndBakeSignature', () => {
   const ctx = { env: Env.prod } as unknown as BtcCoreContext;
-  const required = { amount: SMALL_SATS, token: AssetId.BTC };
+  const required = {
+    amount: SMALL_SATS,
+    token: AssetId.BTC,
+    protocol: 'bitcoinEarn',
+  };
 
   async function restore(amount: string) {
     return stakeAndDeployConfig.restoreStakeAndBakeSignature(
@@ -86,7 +97,68 @@ describe('restoreStakeAndBakeSignature', () => {
 
     await expect(restore(SMALL_SATS)).resolves.toMatchObject({
       hasSignature: true,
+      matchesRoute: true,
       coversAmount: true,
+    });
+  });
+
+  it('matches the token and spender regardless of case', async () => {
+    mockedStored.mockResolvedValue({
+      userDestinationAddress: RECIPIENT,
+      signature: '',
+      expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
+      depositAmount: SMALL_PERMIT_VALUE,
+      chainId: String(ChainId.ethereum),
+      tokenAddress: LBTC.toUpperCase().replace('0X', '0x'),
+      spenderAddress: EARN_SPENDER.toLowerCase(),
+    });
+
+    await expect(restore(SMALL_SATS)).resolves.toMatchObject({
+      matchesRoute: true,
+    });
+  });
+
+  // The v1 record is whichever permit was stored last for the wallet and
+  // chain, by any product; it names no token or spender.
+  it('reports a v1 record as not shown to be this route', async () => {
+    mockedStored.mockResolvedValue({
+      userDestinationAddress: RECIPIENT,
+      signature: '0xstored',
+      expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
+      depositAmount: SMALL_PERMIT_VALUE,
+      chainId: String(ChainId.ethereum),
+    });
+
+    await expect(restore(SMALL_SATS)).resolves.toMatchObject({
+      hasSignature: true,
+      matchesRoute: false,
+      coversAmount: true,
+    });
+  });
+
+  it.each([
+    [
+      'another spender',
+      { spenderAddress: '0x000000000000000000000000000000000000dEaD' },
+    ],
+    [
+      'another token',
+      { tokenAddress: '0x0000000000000000000000000000000000000b7C' },
+    ],
+  ])('reports a permit for %s as not this route', async (_label, overrides) => {
+    mockedStored.mockResolvedValue({
+      userDestinationAddress: RECIPIENT,
+      signature: '',
+      expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
+      depositAmount: SMALL_PERMIT_VALUE,
+      chainId: String(ChainId.ethereum),
+      tokenAddress: LBTC,
+      spenderAddress: EARN_SPENDER,
+      ...overrides,
+    });
+
+    await expect(restore(SMALL_SATS)).resolves.toMatchObject({
+      matchesRoute: false,
     });
   });
 
@@ -163,7 +235,7 @@ describe('restoreStakeAndBakeSignature and the wallet token', () => {
       ctx,
       ChainId.ethereum,
       RECIPIENT,
-      { amount: SMALL_SATS, token: AssetId.BTC },
+      { amount: SMALL_SATS, token: AssetId.BTC, protocol: 'bitcoinEarn' },
     );
   }
 
@@ -192,6 +264,18 @@ describe('restoreStakeAndBakeSignature and the wallet token', () => {
     );
   });
 
+  // Two products can hold LBTC permits on one chain; the vault's spender is
+  // what picks this route's out of the v2 list.
+  it("asks for the permits of the vault's spender", async () => {
+    onFile(SMALL_PERMIT_VALUE);
+
+    await restore();
+
+    expect(mockedStored).toHaveBeenCalledWith(
+      expect.objectContaining({ spenderAddress: EARN_SPENDER }),
+    );
+  });
+
   it('reads a lookup failure as no permit', async () => {
     mockedStored.mockRejectedValue(new Error('gateway unreachable'));
 
@@ -200,7 +284,9 @@ describe('restoreStakeAndBakeSignature and the wallet token', () => {
 });
 
 describe('BtcDeployLbtc.prepare with a signature on file', () => {
-  async function action() {
+  const HELD_ADDRESS = 'bc1qexistingdeposit000000000000000000000';
+
+  async function action({ heldAddress }: { heldAddress?: string } = {}) {
     const ctx = {
       env: Env.prod,
       capabilities: {
@@ -212,7 +298,7 @@ describe('BtcDeployLbtc.prepare with a signature on file', () => {
         },
         has: () => true,
       },
-      api: { getDepositAddress: vi.fn().mockResolvedValue(undefined) },
+      api: { getDepositAddress: vi.fn().mockResolvedValue(heldAddress) },
       partner: { getPartnerId: () => undefined },
     } as unknown as BtcCoreContext;
 
@@ -229,11 +315,24 @@ describe('BtcDeployLbtc.prepare with a signature on file', () => {
 
   it('skips the prompt for the deposit the signature was signed for', async () => {
     onFile(SMALL_PERMIT_VALUE);
+    const subject = await action({ heldAddress: HELD_ADDRESS });
+
+    await subject.prepare({ amount: '0.001', recipient: RECIPIENT });
+
+    expect(subject.status).toBe(BtcActionStatus.ADDRESS_READY);
+  });
+
+  // With no address to resume onto, the signature would have to go out with
+  // an address request, and with it the typed data no route returns.
+  it('stops rather than going ready when no address is held', async () => {
+    onFile(SMALL_PERMIT_VALUE);
     const subject = await action();
 
     await subject.prepare({ amount: '0.001', recipient: RECIPIENT });
 
-    expect(subject.status).toBe(BtcActionStatus.READY);
+    expect(subject.status).toBe(
+      BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
+    );
   });
 
   /**
