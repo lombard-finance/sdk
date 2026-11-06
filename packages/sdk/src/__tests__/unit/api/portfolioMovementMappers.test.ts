@@ -1,11 +1,15 @@
 /**
- * The address and block time forms the v2 portfolio mappers return.
+ * The address and block time forms the v2 portfolio mappers return, and the
+ * minted amount a deposit reports.
  *
  * `/v2/portfolio/{address}/withdrawals` can send an EVM destination as a
  * 32-byte word, the 20-byte address left-padded with zeros. The mappers return
  * EVM addresses as the v1 readers did, 20 bytes and EIP-55 checksummed, and
  * leave every other chain's address as it came: Starknet and Sui addresses are
  * 32-byte values that may start with zeros themselves.
+ *
+ * A BTC.b deposit's LBTC leg can carry the BTC.b amount itself. v1 never set
+ * `tokenAmount` for these deposits, so that echo is not reported as minted.
  */
 import { Env } from '@lombard.finance/sdk-common';
 import { describe, expect, it } from 'vitest';
@@ -286,5 +290,61 @@ describe('block times in the mapped movements', () => {
   it('keeps fractional seconds out of the result', () => {
     expect(toEpochSeconds('1793620800.75')).toBe(SECONDS);
     expect(toEpochSeconds(' 1793620800 ')).toBe(SECONDS);
+  });
+});
+
+describe('tokenAmount on deposits', () => {
+  const BTCB_LEG: MovementLeg = {
+    chain: 'base_sepolia',
+    address: ADDRESS,
+    amount: '100000',
+    asset: { decimals: 8, asset_type: 'btcb' },
+    transaction_id: '0xdeposit',
+  };
+
+  it('leaves it unset when a BTC.b deposit echoes the source amount', () => {
+    const deposit = mapMovementToDeposit(
+      {
+        type: 'deposit_btcb',
+        status: 'completed',
+        source: BTCB_LEG,
+        destination: { ...SEPOLIA_LEG, amount: '100000' },
+      },
+      ENV,
+    );
+
+    expect(deposit.isNative).toBe(true);
+    expect(deposit.amount.toString()).toBe('0.001');
+    expect(deposit.tokenAmount).toBeUndefined();
+  });
+
+  it('keeps a BTC.b deposit amount that differs from the source', () => {
+    const deposit = mapMovementToDeposit(
+      {
+        type: 'deposit_btcb',
+        status: 'completed',
+        source: BTCB_LEG,
+        destination: { ...SEPOLIA_LEG, amount: '99500' },
+      },
+      ENV,
+    );
+
+    expect(deposit.isNative).toBe(true);
+    expect(deposit.tokenAmount?.toString()).toBe('0.000995');
+  });
+
+  it('keeps a BTC deposit amount even when it equals the source', () => {
+    const deposit = mapMovementToDeposit(
+      {
+        type: 'deposit_native',
+        status: 'completed',
+        source: { ...BTC_LEG, amount: '100000' },
+        destination: { ...SEPOLIA_LEG, amount: '100000' },
+      },
+      ENV,
+    );
+
+    expect(deposit.isNative).toBe(false);
+    expect(deposit.tokenAmount?.toString()).toBe('0.001');
   });
 });

@@ -19,6 +19,7 @@ migrate once.
   - `rawPayload` and `proof` are bare hex, as the v1 BTC deposit route returned them.
   - EVM addresses come back as v1 returns them: 20 bytes, EIP-55 checksummed. `/withdrawals` sends some EVM destinations, such as an LBTC to BTC.b redeem's, as a 32-byte word with the address left-padded with zeros, and that word is reduced to the address. This covers `fromAddress`, `toAddress` and `depositAddress` on any leg whose chain resolves to an EVM chain id. Bitcoin, Sui, Solana and Starknet addresses are returned as sent, since Sui and Starknet addresses are 32-byte values that may start with zeros, and so is a value on an EVM leg that is not an address in either form.
   - `blockTime` is Unix seconds whether `block_time` arrives as ISO 8601 or as epoch seconds, a number or a numeric string; a value too large to be seconds is read as milliseconds. Anything else leaves it unset, or `0` on `Unstake`.
+  - A BTC.b deposit's LBTC leg can carry the BTC.b amount itself. `tokenAmount` is left unset when that amount equals the source amount, as v1 never set it for BTC.b deposits, and is reported only when it differs. BTC deposits are unchanged.
 
   What v2 does not carry: `notarizationWaitDur` and `auxVersion` are never set. `Deposit.blockHeight` is set only where the gateway sends a height, and `Unstake.blockHeight` reads `0` where it does not.
 

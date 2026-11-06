@@ -421,7 +421,16 @@ export function mapMovementToDeposit(
       : undefined);
   // The mint amount reads "0" until it is known; v1 left it unset, and a set
   // value is read as the notarized amount.
+  const sourceAmount = parseMovementAmount(source);
   const destinationAmount = parseMovementAmount(destination);
+  // A BTC.b deposit's LBTC leg can carry the BTC.b amount itself rather than
+  // a minted figure. v1 never set `tokenAmount` for these deposits, so an
+  // amount equal to the source is left unset and only a differing one is
+  // reported as minted.
+  const echoesSourceAmount =
+    isNative &&
+    (destination?.amount === source?.amount ||
+      destinationAmount.isEqualTo(sourceAmount));
   const sourceChainId = getMovementChainId(
     source?.chain,
     env,
@@ -434,8 +443,11 @@ export function mapMovementToDeposit(
     isNative,
     txHash: source?.transaction_id ?? '',
     eventIndex: toNumber(source?.transaction_index) ?? 0,
-    amount: parseMovementAmount(source),
-    tokenAmount: destinationAmount.isZero() ? undefined : destinationAmount,
+    amount: sourceAmount,
+    tokenAmount:
+      destinationAmount.isZero() || echoesSourceAmount
+        ? undefined
+        : destinationAmount,
     depositAddress: isNative ? undefined : sourceAddress,
     fromAddress: isNative ? sourceAddress : undefined,
     toAddress: getLegAddress(destination, resolvedToChainId),
