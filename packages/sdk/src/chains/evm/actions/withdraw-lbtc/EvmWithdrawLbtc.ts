@@ -35,7 +35,9 @@ import {
   evmAmountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
+import { assertMintingFeeWithinBounds } from '../../../../shared/validation/signing';
 import { Token } from '../../../../tokens/token-addresses';
+import { toSatoshi } from '../../../../utils/satoshi';
 import {
   authorizeFee as authorizeFeeShared,
   checkFeeAuthorization,
@@ -194,8 +196,13 @@ export class EvmWithdrawLbtc
     if (!this._feeAuth.feeInSatoshis) {
       throw LombardError.missingParameter('feeInSatoshis');
     }
+    const feeInSatoshis = this._feeAuth.feeInSatoshis;
 
     return this.act(async () => {
+      assertMintingFeeWithinBounds(
+        feeInSatoshis,
+        toSatoshi(this._amount!).toFixed(),
+      );
       const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
       const provider = await this.ctx.getProvider('evm');

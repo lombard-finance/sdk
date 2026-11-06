@@ -29,8 +29,10 @@ import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 import type { ActionEventMap } from '../../../../shared/events';
 import type { MonitorProgress } from '../../../../shared/monitoring';
+import { assertMintingFeeWithinBounds } from '../../../../shared/validation/signing';
 import { Token } from '../../../../tokens/token-addresses';
 import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctionedAddress';
+import { toSatoshi } from '../../../../utils/satoshi';
 import {
   assetIdToToken,
   BaseBtcAction,
@@ -366,6 +368,10 @@ export class BtcDepositLbtc
       if (needsFeeAuth) {
         // Fee authorization flow
         const fee = this.ensureMintingFee();
+        assertMintingFeeWithinBounds(
+          toSatoshi(fee).toFixed(),
+          toSatoshi(this.ensureAmount()).toFixed(),
+        );
         const result = await this.feeAuthConfig!.authorizeFee(this.ctx, {
           chainId: this.chainId,
           recipient,

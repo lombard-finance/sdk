@@ -48,8 +48,10 @@ import {
   evmAmountSchema,
   validatePrepareParams,
 } from '../../../../shared/validation';
+import { assertMintingFeeWithinBounds } from '../../../../shared/validation/signing';
 import { AddressKind, Token } from '../../../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../../../tokens/tokens';
+import { toSatoshi } from '../../../../utils/satoshi';
 import { waitForTransactionReceipt } from '../../../../utils/transaction-executor';
 import {
   authorizeFee as authorizeFeeShared,
@@ -292,6 +294,10 @@ export class EvmDepositBtcb
       if (!this._feeAuth.feeInSatoshis) {
         throw LombardError.missingParameter('feeInSatoshis');
       }
+      assertMintingFeeWithinBounds(
+        this._feeAuth.feeInSatoshis,
+        toSatoshi(this._amount!).toFixed(),
+      );
 
       const provider = await this.ctx.getProvider('evm');
       if (!provider) {

@@ -54,12 +54,12 @@ describe('toStakeAndBakePermitValue', () => {
   });
 
   it('rounds down, matching the integer the permit carries on chain', async () => {
-    // A ratio of 2 on an odd amount lands exactly on .5, which is where
-    // round-down and round-half-up disagree. Anything that rounds up authorises
-    // one base unit more than the deposit produces.
-    ratio.value = '2';
+    // 13 over 1.04 lands exactly on 12.5, which is where round-down and
+    // round-half-up disagree. Anything that rounds up authorises one base unit
+    // more than the deposit produces.
+    ratio.value = '1.04';
 
-    await expect(toStakeAndBakePermitValue('3')).resolves.toBe('1');
+    await expect(toStakeAndBakePermitValue('13')).resolves.toBe('12');
   });
 
   it('is a no-op at parity, so the conversion cannot be inferred from one case', async () => {

@@ -116,7 +116,9 @@ function defaultBtc() {
 /** Total EvmService surface, reached via capabilities.require('evm'). */
 function defaultEvm() {
   return {
-    getMintingFee: async () => '1000',
+    // In BTC, as the service returns it: the mainnet asset router's charge.
+    // The SDK refuses to sign a fee that is zero or implausibly large.
+    getMintingFee: async () => '0.00000473',
     signNetworkFee: async () => ({
       signature: MOCK_SIGNATURE,
       typedData: MOCK_TYPED_DATA,

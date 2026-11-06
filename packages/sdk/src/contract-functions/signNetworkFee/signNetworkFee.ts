@@ -3,7 +3,10 @@ import { Hex } from 'viem';
 
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
-import { assertValidExpiry } from '../../shared/validation/signing';
+import {
+  assertMintingFeeWithinBounds,
+  assertValidExpiry,
+} from '../../shared/validation/signing';
 import { Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { DAY, now, toUnix } from '../../utils/time';
@@ -43,7 +46,7 @@ export interface ISignNetworkFeeResponse {
  * Signing is necessary for the auto-mint.
  *
  * @param {ISignNetworkFeeParams} parameters - The parameters for signing network fee
- * @param {BigNumber.Value} parameters.fee - The fee amount (in satoshis).
+ * @param {BigNumber.Value} parameters.fee - The fee amount (in satoshis): a whole number above zero and at most 100000 (0.001 BTC).
  * @param {number} parameters.expiry = The optional expiration UNIX time of the signature.
  * @param {Address} parameters.account - The EVM account address.
  * @param {ChainId} parameters.chainId - The chain id.
@@ -67,6 +70,11 @@ export async function signNetworkFee({
   // the fee approval signs, is stored, and `checkFeeAuthorization` then reads
   // it as valid forever, so the user is never asked to renew it.
   assertValidExpiry(expiry);
+  // The fee is a contract read the caller was told, and the approval lets the
+  // claimer take it per mint while it is live: refuse zero and a figure no
+  // real fee reaches before the wallet is asked. Callers that know the
+  // deposit also bound it against that.
+  assertMintingFeeWithinBounds(fee);
 
   const tokenContract = await getTokenContractInfo(token, chainId, env);
   const walletClient = makeWalletClient({

@@ -836,7 +836,9 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
       ).rejects.toThrow('Failed to get exchange ratio');
     });
 
-    it('should use ratio of 1 if BTCTokenRatio is missing', async () => {
+    // A ratio of 1 signs the raw deposit, a permit for an amount that will
+    // never be minted, so a missing ratio is refused rather than assumed.
+    it('should refuse to convert if BTCTokenRatio is missing', async () => {
       const { getExchangeRatio } =
         await import('../../../api-functions/getLBTCExchangeRate/get-exchange-ratio');
 
@@ -845,13 +847,9 @@ describe('signStakeAndBake - Current Behavior Tests', () => {
         LBTC: {},
       });
 
-      const result = await calculateStakeAndBakeLBTCAmount(
-        new BigNumber('2'),
-        Env.prod,
-      );
-
-      // Should use 1:1 ratio
-      expect(result.toString()).toBe('2');
+      await expect(
+        calculateStakeAndBakeLBTCAmount(new BigNumber('2'), Env.prod),
+      ).rejects.toMatchObject({ code: 'invalid-amount' });
     });
   });
 

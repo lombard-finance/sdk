@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 
 import { getExchangeRatio } from '../../api-functions/getLBTCExchangeRate/get-exchange-ratio';
 import { StakeAndBakeToken } from '../../defi/defi-registry';
+import { LombardError, ValidationErrorCode } from '../../shared/errors';
 import {
   AddressKind,
   getTokenAddressForChain,
@@ -62,13 +63,19 @@ export const getStakeAndBakeTokenAddress = (
   getTokenAddressForChain(chainId, AddressKind.Token, env, permitToken(token));
 
 /**
- * Helper function to calculate the correct LBTC amount for stake and bake
- * based on the current BTC to LBTC ratio.
+ * The band the BTC:LBTC price the permit value is divided by must sit in.
  *
- * @param btcAmount - The original BTC amount entered by the user
- * @param env - The environment for fetching the exchange ratio
- * @returns The calculated LBTC amount that should be used in the permit signature
+ * The price is how much BTC one LBTC is worth: a little over 1, rising as
+ * LBTC accrues. It comes from the gateway, so a missing or substituted figure
+ * reaches the permit the user signs: a price of 0.001 asks for a permit a
+ * thousand times the deposit, and the 1 the conversion used to fall back to
+ * signs the raw satoshis, which the claimer never matches. A tenth either
+ * side of par is years of accrual away from today's figure, so a real price
+ * does not leave it and anything outside it is refused.
  */
+const MIN_BTC_TOKEN_RATIO = new BigNumber('0.9');
+const MAX_BTC_TOKEN_RATIO = new BigNumber('1.1');
+
 /**
  * The value a BTC-funded vault permit must carry, in LBTC base units.
  *
@@ -99,17 +106,53 @@ export async function toStakeAndBakePermitValue(
   return lbtcAmount.toFixed(0, BigNumber.ROUND_DOWN);
 }
 
+/**
+ * Helper function to calculate the correct LBTC amount for stake and bake
+ * based on the current BTC to LBTC ratio.
+ *
+ * @param btcAmount - The original BTC amount entered by the user
+ * @param env - The environment for fetching the exchange ratio
+ * @returns The calculated LBTC amount that should be used in the permit signature
+ * @throws {LombardError} When the ratio is missing, not a finite number, or
+ * outside {@link MIN_BTC_TOKEN_RATIO} to {@link MAX_BTC_TOKEN_RATIO}.
+ */
 export async function calculateStakeAndBakeLBTCAmount(
   btcAmount: BigNumber.Value,
   env?: Env,
 ): Promise<BigNumber> {
+  let ratios: Awaited<ReturnType<typeof getExchangeRatio>>;
   try {
-    const ratios = await getExchangeRatio({ env });
-    const btcTokenRatio = ratios.LBTC?.BTCTokenRatio || new BigNumber(1);
-    const lbtcAmount = new BigNumber(btcAmount).dividedBy(btcTokenRatio);
-
-    return lbtcAmount;
+    ratios = await getExchangeRatio({ env });
   } catch {
     throw new Error('Failed to get exchange ratio for stake and bake');
   }
+
+  // No fallback: a ratio the conversion cannot trust is a permit it cannot
+  // build. Substituting 1 signed the raw deposit, which nothing settles.
+  const btcTokenRatio = ratios?.LBTC?.BTCTokenRatio;
+  if (
+    !btcTokenRatio ||
+    !BigNumber.isBigNumber(btcTokenRatio) ||
+    !btcTokenRatio.isFinite() ||
+    btcTokenRatio.isLessThan(MIN_BTC_TOKEN_RATIO) ||
+    btcTokenRatio.isGreaterThan(MAX_BTC_TOKEN_RATIO)
+  ) {
+    throw new LombardError(
+      ValidationErrorCode.INVALID_AMOUNT,
+      `The BTC:LBTC exchange ratio ${String(btcTokenRatio)} is missing or ` +
+        `outside ${MIN_BTC_TOKEN_RATIO.toFixed()} to ` +
+        `${MAX_BTC_TOKEN_RATIO.toFixed()}, so the deposit cannot be converted ` +
+        `into a permit value. Nothing was signed.`,
+    );
+  }
+
+  const lbtcAmount = new BigNumber(btcAmount).dividedBy(btcTokenRatio);
+  if (!lbtcAmount.isFinite()) {
+    throw new LombardError(
+      ValidationErrorCode.INVALID_AMOUNT,
+      `${String(btcAmount)} does not convert to a finite permit value.`,
+    );
+  }
+
+  return lbtcAmount;
 }
