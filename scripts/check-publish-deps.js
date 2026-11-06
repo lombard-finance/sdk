@@ -75,17 +75,6 @@ function versionSatisfies(versions, range) {
     return versions.length > 0;
   }
 
-  // Handle Yarn workspace protocol: workspace:* means "any version"
-  if (range.startsWith('workspace:')) {
-    const inner = range.slice('workspace:'.length); // e.g. "*", "^1.0.0", "~2.3.0"
-    if (inner === '*') {
-      // workspace:* — any published version is fine
-      return versions.length > 0;
-    }
-    // workspace:^x.y.z or workspace:~x.y.z — strip prefix and check normally
-    return versionSatisfies(versions, inner);
-  }
-
   // Remove ^ or ~ prefix
   const cleanRange = range.replace(/^[\^~]/, '');
   if (versions.includes(cleanRange)) {
@@ -97,7 +86,14 @@ function versionSatisfies(versions, range) {
     const [vMajor, vMinor, vPatch] = v.split('.').map(Number);
 
     if (range.startsWith('^')) {
-      // ^x.y.z means >=x.y.z and <(x+1).0.0
+      // ^x.y.z means >=x.y.z and <(x+1).0.0, but the caret pins the first
+      // non-zero part: ^0.y.z means <0.(y+1).0 and ^0.0.z means exactly 0.0.z
+      if (major === 0 && minor === 0) {
+        return vMajor === 0 && vMinor === 0 && vPatch === patch;
+      }
+      if (major === 0) {
+        return vMajor === 0 && vMinor === minor && vPatch >= patch;
+      }
       return (
         vMajor === major &&
         (vMinor > minor || (vMinor === minor && vPatch >= patch))
@@ -185,6 +181,17 @@ async function main() {
   for (const [depName, depRange] of lombardDeps) {
     process.stdout.write(`  Checking ${depName}@${depRange}... `);
 
+    // A workspace: range names no npm version, so nothing can be checked
+    // against it. It must be resolved to the sibling's version first.
+    if (depRange.startsWith('workspace:')) {
+      console.log('❌ UNRESOLVED WORKSPACE RANGE');
+      console.log(
+        `     Run node scripts/resolve-workspace-deps.mjs -- ${packageName} first`,
+      );
+      hasErrors = true;
+      continue;
+    }
+
     const publishedVersions = getPublishedVersions(depName);
 
     if (publishedVersions.length === 0) {
@@ -210,7 +217,9 @@ async function main() {
   if (hasErrors) {
     console.error('❌ Pre-publish check FAILED!');
     console.error('');
-    console.error('   Some internal dependencies are not published to npm.');
+    console.error(
+      '   Some internal dependencies are unresolved or not published to npm.',
+    );
     console.error('   Please publish them first using the publish workflow:');
     console.error(
       '   https://github.com/lombard-finance/sdk/actions/workflows/publish.yml',
