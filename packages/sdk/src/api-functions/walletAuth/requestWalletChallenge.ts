@@ -49,6 +49,11 @@ export interface RequestWalletChallengeParams extends IEnvParam {
  * are requests rather than instructions. What the server settled on comes back
  * as `signatureExpiresAt`.
  *
+ * The payload is returned as received and nothing here checks what it
+ * authorises. Check it against the request before the wallet signs it, with
+ * `assertPermitPayloadMatches` or `assertFeeApprovalPayloadMatches`, or use
+ * `signPermitChallenge` or `signFeeApprovalChallenge`, which do.
+ *
  * POST /v2/auth/wallet/challenge
  *
  * @throws if the params required by the requested `challengeType` are missing.
@@ -89,6 +94,7 @@ export async function requestWalletChallenge({
               fee_approval: {
                 max_mint_fee: feeApproval.maxMintFee,
                 expiry: feeApproval.expiry,
+                ...(feeApproval.token ? { token: feeApproval.token } : {}),
               },
             }
           : {}),

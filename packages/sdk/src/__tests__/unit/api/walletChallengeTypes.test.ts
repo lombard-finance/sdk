@@ -90,6 +90,35 @@ describe('requestWalletChallenge', () => {
     });
   });
 
+  // Without a token the gateway issues an LBTC approval, so naming one is the
+  // only way to ask for a BTC.b approval.
+  it('sends the token a fee approval is for when given', async () => {
+    post.mockResolvedValue({
+      data: {
+        ...permitChallenge,
+        challenge_type: 'WALLET_CHALLENGE_TYPE_FEE_APPROVAL',
+      },
+    });
+
+    await requestWalletChallenge({
+      ...base,
+      challengeType: WALLET_CHALLENGE_TYPE.feeApproval,
+      feeApproval: {
+        maxMintFee: '1000',
+        expiry: 1788184394,
+        token: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
+      },
+    });
+
+    expect(post.mock.calls[0][1]).toMatchObject({
+      fee_approval: {
+        max_mint_fee: '1000',
+        expiry: 1788184394,
+        token: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
+      },
+    });
+  });
+
   it('maps digest, challengeType and signatureExpiresAt back to camelCase', async () => {
     const challenge = await requestWalletChallenge({
       ...base,

@@ -57,6 +57,14 @@ export {
   getAssetRouterAddress,
 } from '../contract-functions/deposit/depositToken';
 export {
+  assertFeeApprovalPayloadMatches,
+  type ExpectedFeeApproval,
+  type FeeApprovalToken,
+  type ISignFeeApprovalChallengeParams,
+  type ISignFeeApprovalChallengeResult,
+  signFeeApprovalChallenge,
+} from '../contract-functions/signFeeApprovalChallenge';
+export {
   getAddressConfirmationMessage,
   signLbtcDestinationAddr,
   type SignLbtcDestinationAddrParams,
@@ -71,6 +79,10 @@ export {
   type ISignPermitChallengeResult,
   signPermitChallenge,
 } from '../contract-functions/signPermitChallenge';
+export {
+  assertPermitPayloadMatches,
+  type ExpectedPermit,
+} from '../contract-functions/signPermitChallenge/assert-permit-payload';
 export {
   type ISignStakeAndBakeParams,
   type ISignStakeAndBakeResult,

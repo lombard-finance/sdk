@@ -157,6 +157,26 @@ export class PermitChallengeMismatchError extends Error {
   }
 }
 
+/**
+ * Thrown when a server-issued fee-approval challenge does not describe the
+ * approval the caller asked for.
+ *
+ * The wallet is not prompted. A fee approval lets the claimer take its fee on
+ * every mint while it is live, so the chain, the token, the struct, the fee
+ * and the expiry are checked against the request before the document is
+ * shown. `field` names the one that differed.
+ */
+export class FeeApprovalChallengeMismatchError extends Error {
+  constructor(
+    /** Dotted path of the field that did not match, e.g. `message.fee`. */
+    public readonly field: string,
+    detail: string,
+  ) {
+    super(`Fee approval challenge ${field} ${detail}`);
+    this.name = 'FeeApprovalChallengeMismatchError';
+  }
+}
+
 export class UnsupportedTokenFlow extends Error {
   constructor(
     public readonly tokenIn: Token,

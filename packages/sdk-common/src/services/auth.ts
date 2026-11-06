@@ -33,8 +33,14 @@ export type WalletAuthChain = string;
  *
  * The typed data is built server-side (it reads `nonces(owner)` from the token
  * and picks the deadline) because the nonce and the randomised deadline are
- * what stop a published signature being replayed. Callers sign what they are
- * given; they do not assemble it.
+ * what stop a published signature being replayed. Callers do not assemble it,
+ * and they sign the payload string exactly as received, but they do not take
+ * its contents on trust: before the wallet is asked, check that the document
+ * authorises what was requested (chain, token, spender, amount or fee, and
+ * deadline or expiry), since the response is the only thing that says so.
+ * `signPermitChallenge` and `signFeeApprovalChallenge` in `@lombard.finance/sdk`
+ * do this, and `assertPermitPayloadMatches` and
+ * `assertFeeApprovalPayloadMatches` check a payload requested by hand.
  */
 export const WALLET_CHALLENGE_TYPE = {
   /** Plain-text terms-of-service message, signed with `personal_sign`. */
@@ -63,6 +69,12 @@ export interface PermitChallengeParams {
 export interface FeeApprovalChallengeParams {
   /** Maximum mint fee to approve, in token base units. */
   maxMintFee: string;
+  /**
+   * The token contract the approval is signed against, its
+   * `domain.verifyingContract`. Without one the server issues an LBTC
+   * approval.
+   */
+  token?: string;
   /**
    * Requested approval expiry, as an absolute UNIX timestamp in seconds. The
    * server may shorten it, and reports what it chose as `signatureExpiresAt`.

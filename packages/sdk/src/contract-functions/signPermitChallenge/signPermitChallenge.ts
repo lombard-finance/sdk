@@ -279,8 +279,15 @@ async function assertNoActivePermit(
  * user had already approved it. Better to fail before the prompt.
  *
  * Skipped when the server sends no digest, so an older gateway still works.
+ *
+ * @param kind - What the challenge is, for the message: `permit` or
+ * `fee approval`.
  */
-function assertDigestMatches(payload: string, digest?: string): void {
+export function assertDigestMatches(
+  payload: string,
+  digest?: string,
+  kind = 'permit',
+): void {
   if (!digest) {
     return;
   }
@@ -306,7 +313,7 @@ function assertDigestMatches(payload: string, digest?: string): void {
     } as Parameters<typeof hashTypedData>[0]);
   } catch (error) {
     throw new Error(
-      `Could not read the permit challenge payload: ${
+      `Could not read the ${kind} challenge payload: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
@@ -314,7 +321,8 @@ function assertDigestMatches(payload: string, digest?: string): void {
 
   if (local.toLowerCase() !== digest.toLowerCase()) {
     throw new Error(
-      `Permit challenge digest mismatch: server reserved ${digest}, payload hashes to ${local}`,
+      `${kind[0].toUpperCase()}${kind.slice(1)} challenge digest mismatch: ` +
+        `server reserved ${digest}, payload hashes to ${local}`,
     );
   }
 }

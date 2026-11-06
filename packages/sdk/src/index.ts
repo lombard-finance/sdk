@@ -111,9 +111,12 @@ export {
 // permit challenge would be refused; callers fall back to the plain challenge.
 export { ActivePermitExistsError } from './utils/err';
 
-// Raised when an issued permit challenge does not describe the authorisation
-// that was requested; `field` names what differed.
-export { PermitChallengeMismatchError } from './utils/err';
+// Raised when an issued permit or fee-approval challenge does not describe the
+// authorisation that was requested; `field` names what differed.
+export {
+  FeeApprovalChallengeMismatchError,
+  PermitChallengeMismatchError,
+} from './utils/err';
 
 // One-call permit authorisation: sign a server-issued permit, get a JWT.
 export {
@@ -121,6 +124,21 @@ export {
   type ISignPermitChallengeResult,
   signPermitChallenge,
 } from './contract-functions/signPermitChallenge';
+export {
+  assertPermitPayloadMatches,
+  type ExpectedPermit,
+} from './contract-functions/signPermitChallenge/assert-permit-payload';
+
+// The same for a server-issued mint-fee approval, and the check on its own for
+// a challenge requested through `requestWalletChallenge`.
+export {
+  assertFeeApprovalPayloadMatches,
+  type ExpectedFeeApproval,
+  type FeeApprovalToken,
+  type ISignFeeApprovalChallengeParams,
+  type ISignFeeApprovalChallengeResult,
+  signFeeApprovalChallenge,
+} from './contract-functions/signFeeApprovalChallenge';
 
 // Context types
 export type {
