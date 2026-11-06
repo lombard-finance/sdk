@@ -109,8 +109,10 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      # .yarnrc.yml already disables dependency build scripts; skip-build keeps
+      # them off here even if that setting changes.
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install --immutable --mode=skip-build
 
       - name: Check package names and versions
         env:
@@ -300,7 +302,7 @@ jobs:
           # The registry can take several minutes to serve a new version. Every
           # tarball is already published, so all rows share one deadline.
           DEADLINE=$((SECONDS + 300))
-          while IFS=$'\t' read -r _FILE NAME VERSION; do
+          while IFS=$'\t' read -r FILE NAME VERSION; do
             while true; do
               SEEN="$(npm view "$NAME@$VERSION" version 2> /dev/null || true)"
               [[ "$SEEN" == "$VERSION" ]] && break
@@ -312,7 +314,15 @@ jobs:
             [[ "$TAGGED" == "$VERSION" ]] || fail "$NAME dist-tag $EXPECT_TAG is '$TAGGED', expected $VERSION"
             ATTESTATION="$(npm view "$NAME@$VERSION" dist.attestations.url 2> /dev/null || true)"
             [[ -n "$ATTESTATION" ]] || fail "$NAME@$VERSION has no provenance attestation"
-            echo "- \`$NAME@$VERSION\` on dist-tag \`$EXPECT_TAG\` with provenance" >> "$GITHUB_STEP_SUMMARY"
+            # Presence is not enough: the registry must serve the bytes packed above.
+            PACKED="sha512-$(openssl dgst -sha512 -binary "$RUNNER_TEMP/npm-dist/$FILE" | base64 -w0)"
+            REGISTRY="$(npm view "$NAME@$VERSION" dist.integrity 2> /dev/null || true)"
+            {
+              echo "- \`$NAME@$VERSION\` on dist-tag \`$EXPECT_TAG\` with provenance"
+              echo "  - packed: \`$PACKED\`"
+              echo "  - registry: \`${REGISTRY:-missing}\`"
+            } >> "$GITHUB_STEP_SUMMARY"
+            [[ "$REGISTRY" == "$PACKED" ]] || fail "$NAME@$VERSION integrity on npm ($REGISTRY) does not match the packed tarball ($PACKED)"
           done < "$RUNNER_TEMP/npm-dist/manifest.tsv"
 
       - name: Notify Slack
