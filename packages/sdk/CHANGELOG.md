@@ -113,6 +113,8 @@ migrate once.
 
   Declarations now emit to `dist/types`, where no bundle can shadow them, and the `exports` map points there. Subpaths are unchanged, so nothing about how the package is imported moves; only the location of the declaration files inside it. `yarn check-types-resolve` type-checks every entry in the `exports` map with `skipLibCheck` off and runs as the last step of the build, so a declaration tree that does not resolve fails the build instead of shipping. The build also cleans `dist` first, since a stale layout otherwise survives.
 
+- **Sonic Blaze testnet (chain 57054) was configured with an RPC host that no longer resolves.** `rpcUrlConfig` and `getRpcUrlConfig()` pointed the chain at its public RPC, whose host no longer resolves in DNS, so every read on the chain failed with a name-resolution error. Both maps drop the entry. viem's default RPC for the chain is the same host, so `makePublicClient` now refuses Sonic Blaze testnet without `rpcUrl`, with an error naming the chain, instead of building a client that cannot connect. The check runs only when a client for that chain is requested: loading the config is unchanged, as is building a client for any other chain, or for Sonic Blaze testnet with `rpcUrl`.
+
 ### Breaking
 
 - **`stake` is gone, and with it every other old verb.** No deprecated delegators: `btc.stake`, `btc.stakeAndDeploy`, `btc.depositAndDeploy`, `evm.stake`, `evm.unstake`, `evm.redeem`, `solana.stake`, `solana.unstake`, `solana.redeem`, `sui.unstake` and `starknet.unstake` are removed. A three-verb design that still shipped two `stake` methods was not the design.
