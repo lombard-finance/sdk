@@ -667,4 +667,90 @@ describe('the readers', () => {
     expect(bridge.fromChainId).toBe(80069);
     expect(bridge.toChainId).toBe(ChainId.ethereum);
   });
+
+  /**
+   * One record the mappers cannot read is left out, not the list. The
+   * mappers tolerate missing fields but throw on mistyped ones, and a throw
+   * inside one row used to reject the whole read, so every screen built from
+   * it showed nothing.
+   */
+  describe('a record that cannot be read', () => {
+    const good = (id: string): Movement => ({
+      id,
+      type: 'deposit_native',
+      status: 'pending',
+      source: BTC_LEG,
+      destination: EVM_LEG,
+    });
+
+    function answers(list: string, rows: unknown) {
+      mockedHttp.mockImplementation((async ({ url }: { url: string }) => {
+        if (url.endsWith('/v2/chains')) return { data: { chains: [] } };
+        return { data: { [list]: rows, page_info: { total: 3 } } };
+      }) as never);
+    }
+
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    afterEach(() => warn.mockClear());
+
+    it.each([
+      ['a status sent as a number', { status: 7 }],
+      ['a type sent as a number', { type: 2 }],
+      [
+        'an amount sent as a JSON number',
+        { source: { ...BTC_LEG, amount: 1 } },
+      ],
+      ['a chain sent as a number', { destination: { ...EVM_LEG, chain: 1 } }],
+      ['a proof sent as a number', { claim_data: { proof: 123 } }],
+    ])('is left out of the deposits when it has %s', async (_label, bad) => {
+      answers('deposits', [good('a'), { ...good('bad'), ...bad }, good('b')]);
+
+      const deposits = await getPortfolioDeposits({
+        address: ACCOUNT,
+        env: ENV,
+        auth,
+      });
+
+      expect(deposits).toHaveLength(2);
+      // Named by id, never by contents.
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('(bad)'));
+    });
+
+    it('is left out of the withdrawals and the bridges too', async () => {
+      answers('withdrawals', [
+        { ...good('w1'), type: 'redeem_native' },
+        { ...good('w2'), type: 'redeem_native', status: 7 },
+      ]);
+      await expect(
+        getPortfolioWithdrawals({ address: ACCOUNT, env: ENV, auth }),
+      ).resolves.toHaveLength(1);
+
+      answers('bridges', [good('b1'), { ...good('b2'), status: 7 }]);
+      await expect(
+        getPortfolioBridges({ address: ACCOUNT, env: ENV, auth }),
+      ).resolves.toHaveLength(1);
+    });
+
+    it.each([
+      ['null', null],
+      ['a string', 'row'],
+      ['a number', 7],
+    ])('skips a row that is %s', async (_label, row) => {
+      answers('deposits', [good('a'), row, good('b')]);
+
+      await expect(
+        getPortfolioDeposits({ address: ACCOUNT, env: ENV, auth }),
+      ).resolves.toHaveLength(2);
+    });
+
+    // Not an empty list: the response could not be read, and an empty list
+    // would say the account has no deposits.
+    it('rejects a list that is not an array, with a reason', async () => {
+      answers('deposits', { not: 'an array' });
+
+      await expect(
+        getPortfolioDeposits({ address: ACCOUNT, env: ENV, auth }),
+      ).rejects.toThrow(/deposits list .* is not an array/);
+    });
+  });
 });

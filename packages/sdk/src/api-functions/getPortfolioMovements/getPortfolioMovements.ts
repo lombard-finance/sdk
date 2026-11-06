@@ -2,6 +2,7 @@ import { DEFAULT_ENV } from '@lombard.finance/sdk-common';
 
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
+import { getErrorMessage } from '../../utils/err';
 import { httpRequest } from '../../utils/http';
 import type { Deposit } from '../getDepositsByAddress/getDepositsByAddress';
 import type {
@@ -77,10 +78,22 @@ async function fetchMovements(
       getAuthToken,
     });
 
+    // A list that is there and not an array is a response that cannot be
+    // read at all, which is not the same answer as an empty list.
+    const listed: unknown = data?.[list];
+    if (listed !== undefined && listed !== null && !Array.isArray(listed)) {
+      throw new Error(
+        `The ${list} list for ${address} is not an array, so it cannot be read.`,
+      );
+    }
+    const rows = (listed ?? []) as unknown[];
+
     // A movement recorded between two reads shifts the newest-first order by
     // one row, so the next page can repeat the last one. Keep the first copy.
-    const rows = data?.[list] ?? [];
-    for (const row of rows) {
+    for (const entry of rows) {
+      // A null or scalar row is no movement; the mappers would throw on it.
+      if (!entry || typeof entry !== 'object') continue;
+      const row = entry as Movement;
       if (row.id && seenIds.has(row.id)) continue;
       if (row.id) seenIds.add(row.id);
       movements.push(row);
@@ -97,6 +110,34 @@ async function fetchMovements(
   }
 
   return movements;
+}
+
+/**
+ * Maps each movement on its own, leaving out one the mapper cannot read.
+ *
+ * The mappers tolerate a missing field but throw on a mistyped one, and one
+ * record that threw used to reject the whole read: every list built from it
+ * showed nothing. A record left out is named on the console by list and id,
+ * with the reason, and never with its contents.
+ */
+function mapEach<T>(
+  list: ListKey,
+  movements: Movement[],
+  map: (movement: Movement) => T,
+): T[] {
+  const mapped: T[] = [];
+  for (const movement of movements) {
+    try {
+      mapped.push(map(movement));
+    } catch (error) {
+      const id = typeof movement.id === 'string' ? movement.id : 'with no id';
+      console.warn(
+        `Left out a ${list} movement that could not be read (${id}): ` +
+          getErrorMessage(error),
+      );
+    }
+  }
+  return mapped;
 }
 
 const chainIdRequests = new Map<string, Promise<ChainIdsByFamily>>();
@@ -143,9 +184,9 @@ export async function getPortfolioDeposits(
 ): Promise<Deposit[]> {
   const movements = await fetchMovements('deposits', params);
   const chainIds = await getChainIdsByFamily(params.env);
-  return movements
-    .map((movement) => mapMovementToDeposit(movement, params.env, chainIds))
-    .sort((a, b) => (b.blockTime ?? 0) - (a.blockTime ?? 0));
+  return mapEach('deposits', movements, (movement) =>
+    mapMovementToDeposit(movement, params.env, chainIds),
+  ).sort((a, b) => (b.blockTime ?? 0) - (a.blockTime ?? 0));
 }
 
 /**
@@ -162,9 +203,9 @@ export async function getPortfolioWithdrawals({
 }: IGetPortfolioWithdrawalsParams): Promise<Unstake[]> {
   const movements = await fetchMovements('withdrawals', params);
   const chainIds = await getChainIdsByFamily(params.env);
-  return movements
-    .map((movement) => mapMovementToUnstake(movement, params.env, chainIds))
-    .filter(matchesV1Options(options));
+  return mapEach('withdrawals', movements, (movement) =>
+    mapMovementToUnstake(movement, params.env, chainIds),
+  ).filter(matchesV1Options(options));
 }
 
 /**
@@ -198,7 +239,7 @@ export async function getPortfolioBridges(
 ): Promise<PortfolioBridge[]> {
   const movements = await fetchMovements('bridges', params);
   const chainIds = await getChainIdsByFamily(params.env);
-  return movements.map((movement) =>
+  return mapEach('bridges', movements, (movement) =>
     mapMovementToBridge(movement, params.env, chainIds),
   );
 }
