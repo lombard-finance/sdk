@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-react",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "React hooks for the Lombard SDK",
   "type": "module",
   "main": "./dist/index.js",
@@ -19,10 +19,11 @@
   ],
   "scripts": {
     "build": "yarn types && vite build",
-    "types": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
     "test": "vitest run",
     "test:watch": "vitest",
-    "clean": "rm -rf dist"
+    "types": "tsc --noEmit"
   },
   "peerDependencies": {
     "@lombard.finance/sdk": "workspace:*",

@@ -1,0 +1,54 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`v5 to v6 interface conformance > reports the remaining gap per class 1`] = `
+{
+  "BtcDeployBtcb": [
+    "monitor",
+  ],
+  "BtcDeployLbtc": [
+    "monitor",
+  ],
+  "BtcDepositBtcb": [
+    "monitor",
+  ],
+  "BtcDepositLbtc": [
+    "monitor",
+  ],
+  "EvmCancelWithdraw": [
+    "monitor",
+  ],
+  "EvmClaim": [
+    "monitor",
+  ],
+  "EvmDeploy": [
+    "monitor",
+  ],
+  "EvmDepositBtcb": [
+    "monitor",
+  ],
+  "EvmWithdrawBtcb": [
+    "monitor",
+  ],
+  "EvmWithdrawLbtc": [
+    "monitor",
+  ],
+  "EvmWithdrawVault": [
+    "monitor",
+  ],
+  "SolanaDepositBtcb": [
+    "monitor",
+  ],
+  "SolanaWithdrawBtcb": [
+    "monitor",
+  ],
+  "SolanaWithdrawLbtc": [
+    "monitor",
+  ],
+  "StarknetWithdraw": [
+    "monitor",
+  ],
+  "SuiWithdraw": [
+    "monitor",
+  ],
+}
+`;

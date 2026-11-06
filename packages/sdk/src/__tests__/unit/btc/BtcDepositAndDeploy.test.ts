@@ -6,7 +6,7 @@
  * - Protocol/vault selection
  * - Silo vault integration
  *
- * @module __tests__/unit/btc/BtcDepositAndDeploy.test.ts
+ * @module __tests__/unit/btc/BtcDeployBtcb.test.ts
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -14,8 +14,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { AssetId, Chain } from '../../../core';
 import { LombardError, ValidationErrorCode } from '../../../shared/errors';
 
-describe('BtcDepositAndDeploy Interface', () => {
-  describe('BtcDepositAndDeployParams', () => {
+describe('BtcDeployBtcb Interface', () => {
+  describe('BtcDeployBtcbParams', () => {
     it('should require BTCb as output asset', () => {
       const params = {
         assetOut: AssetId.BTCb,
@@ -53,7 +53,7 @@ describe('BtcDepositAndDeploy Interface', () => {
     });
   });
 
-  describe('BtcDepositAndDeployPrepareParams', () => {
+  describe('BtcDeployBtcbPrepareParams', () => {
     it('should accept valid prepare parameters', () => {
       const params = {
         amount: '0.1',
@@ -107,7 +107,7 @@ describe('BtcDepositAndDeploy Interface', () => {
     it('should reject LBTC as output asset', () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_ASSET,
-        `Asset LBTC is not supported for deposit and deploy. Use BtcStakeAndDeploy instead.`,
+        `Asset LBTC is not supported for deposit and deploy. Use BtcDeployLbtc instead.`,
       );
 
       expect(error.code).toBe(ValidationErrorCode.INVALID_ASSET);

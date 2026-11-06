@@ -33,18 +33,18 @@
  *
  * ## Flow Examples
  *
- * **BtcStake/BtcDeposit (to Ethereum):**
+ * **BtcDepositLbtc/BtcDepositBtcb (to Ethereum):**
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → ADDRESS_READY
  *
- * **BtcStake/BtcDeposit (to non-Ethereum):**
+ * **BtcDepositLbtc/BtcDepositBtcb (to non-Ethereum):**
  * IDLE → NEEDS_ADDRESS_CONFIRMATION → READY → ADDRESS_READY
  *
- * **BtcStakeAndDeploy/BtcDepositAndDeploy:**
+ * **BtcDeployLbtc/BtcDeployBtcb:**
  * IDLE → NEEDS_DEPLOY_AUTHORIZATION → READY → ADDRESS_READY
  *
- * `BtcStakeAndDeploy` has one dead end: IDLE →
- * BLOCKED_BY_EXISTING_AUTHORIZATION, when a live signature is on file for less
- * than the requested deposit.
+ * `BtcDeployLbtc` has one dead end: IDLE →
+ * BLOCKED_BY_EXISTING_AUTHORIZATION, when a live signature is on file that is
+ * not a resume for the requested deposit.
  */
 export const BtcActionStatus = {
   /** Initial state - ready for prepare() */
@@ -58,14 +58,21 @@ export const BtcActionStatus = {
   /** User needs to sign vault deploy authorization (stake-and-deploy, deposit-and-deploy) */
   NEEDS_DEPLOY_AUTHORIZATION: 'needs_deploy_authorization',
   /**
-   * A live vault authorization is on file and it does not cover this deposit.
+   * A live vault authorization is on file and it is not a resume for this
+   * deposit: it covers less, it cannot be shown to be for this vault (a v1
+   * record, read without a wallet token, names no token or spender, so
+   * another product's permit looks the same), or there is no deposit address
+   * yet to resume onto.
    *
-   * Terminal for this attempt: only one stake-and-bake signature is kept per
-   * wallet and chain while it is unexpired and unused, so signing a second one
-   * is refused by the API. Prompting the wallet would achieve nothing, so the
-   * action stops here and reports what is on file — see
-   * `existingAuthorization` for the amount it covers and when it lapses. The
-   * way forward is to deposit within that amount, or to wait for it.
+   * Terminal for this attempt: the action does not prompt for a second
+   * stake-and-bake signature. Without a wallet token for the recipient the
+   * signature goes to the v1 route, which keeps one per wallet and chain while
+   * it is unexpired and unused and refuses another, so a prompt would achieve
+   * nothing. With one it goes to the v2 route, which replaces the unused
+   * permit with the same nonce instead; the action stops there too. It reports
+   * what is on file — see `existingAuthorization` for the amount it covers and
+   * when it lapses. The way forward is to deposit within that amount, or to
+   * wait for it.
    */
   BLOCKED_BY_EXISTING_AUTHORIZATION: 'blocked_by_existing_authorization',
 
@@ -80,16 +87,16 @@ export type BtcActionStatus =
   (typeof BtcActionStatus)[keyof typeof BtcActionStatus];
 
 /**
- * EVM operation statuses (Deposit, Stake, Deploy, Unstake, Redeem)
+ * EVM operation statuses (Deposit, Stake, Deploy, Withdraw, Redeem)
  *
  * Simplified - use isLoading for operation-in-progress.
  *
  * ## Flow Examples
  *
- * **EVM Unstake (LBTC → BTC.b on Ethereum/Sepolia):**
+ * **EVM Withdraw (LBTC → BTC.b on Ethereum/Sepolia):**
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED
  *
- * **EVM Unstake (LBTC → BTC.b on Base/BSC - subsidized):**
+ * **EVM Withdraw (LBTC → BTC.b on Base/BSC - subsidized):**
  * IDLE → READY → COMPLETED
  *
  * **EVM Redeem (BTC.b → BTC on Ethereum/Sepolia):**
@@ -112,8 +119,8 @@ export type EvmOperationStatus =
 /**
  * Non-EVM operation statuses
  *
- * Shared by all non-EVM actions (Solana Stake/Unstake/Redeem, Sui Unstake,
- * Starknet Unstake). Non-EVM flows don't require fee authorization or token
+ * Shared by all non-EVM actions (Solana Stake/Withdraw/Redeem, Sui Withdraw,
+ * Starknet Withdraw). Non-EVM flows don't require fee authorization or token
  * approval, so the state machine is a simple IDLE → READY → CONFIRMING → COMPLETED.
  */
 export const NonEvmOperationStatus = {

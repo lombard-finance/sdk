@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden baseline — the remaining EVM actions on 5.x > EvmCancelWithdraw keeps its name, so this is a pure regression net 1`] = `
+{
+  "outcome": "resolved",
+  "progress": [
+    "ready [cancelling=pending]",
+  ],
+  "statuses": [
+    "ready",
+  ],
+}
+`;
+
+exports[`golden baseline — the remaining EVM actions on 5.x > EvmClaim — the CLAIM action, which 6.0.0 renames to EvmClaim 1`] = `
+{
+  "claimLBTCCalls": 1,
+  "progress": [
+    "ready [approval=complete,bridging=idle,execution=idle]",
+    "ready [approval=complete,bridging=idle,execution=pending]",
+    "completed [approval=complete,bridging=idle,execution=complete]",
+  ],
+  "statuses": [
+    "ready",
+    "completed",
+  ],
+  "withClaimData": "resolved",
+  "withoutClaimData": "threw: Required parameter "claimData" is missing",
+}
+`;
+
+exports[`golden baseline — the remaining EVM actions on 5.x > EvmDepositBtcb (BTC.b → LBTC) records its prepare lifecycle 1`] = `
+{
+  "calls": [],
+  "feeAuthRequiresAuth": false,
+  "needsApproval": true,
+  "outcome": "resolved",
+  "progress": [
+    "needs-approval [approval=pending,staking=idle]",
+  ],
+  "statuses": [
+    "needs-approval",
+  ],
+}
+`;

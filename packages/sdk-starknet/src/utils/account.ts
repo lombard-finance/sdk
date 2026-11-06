@@ -35,6 +35,11 @@ export async function getPublicKey(
 
       if (num.isHex(res[0])) {
         pubkey = res[0];
+        // Stop here. An account contract has exactly one of these getters, so
+        // every call after the one that answers is a certain failure — four
+        // requests where one is needed, three of them guaranteed refusals,
+        // against a node that may well be rate limiting because of them.
+        break;
       }
     } catch {
       // NOOP

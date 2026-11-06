@@ -34,9 +34,13 @@ import type {
   StarknetChainId,
   SuiChain,
 } from '../common/chains';
+import type { IEnvParam } from '../common/parameters';
 import { Token } from '../tokens/token-addresses';
 
 type DestChainId = ChainId | SolanaChain | SuiChain | StarknetChainId;
+
+/** How the service obtains a wallet token for the user-scoped routes. */
+export type ApiServiceAuth = Pick<IEnvParam, 'auth' | 'getAuthToken'>;
 
 /**
  * API Service
@@ -47,9 +51,16 @@ type DestChainId = ChainId | SolanaChain | SuiChain | StarknetChainId;
  * @remarks
  * This service returns minimal types (DepositInfo) suitable for internal use.
  * For full deposit details, use getDepositsByAddress() directly.
+ *
+ * The fee approval and stake-and-bake permit calls carry `auth`, which moves
+ * them onto the v2 routes when it yields a token; without one they use the v1
+ * routes. The deposit-address calls are unchanged.
  */
 export class ApiService implements IApiService {
-  constructor(private readonly env: Env) {}
+  constructor(
+    private readonly env: Env,
+    private readonly credentials: ApiServiceAuth = {},
+  ) {}
 
   /**
    * Generate a new BTC deposit address
@@ -121,6 +132,7 @@ export class ApiService implements IApiService {
       typedData: params.typedData,
       env: this.env,
       tokenAddress: params.tokenAddress,
+      ...this.credentials,
     });
   }
 
@@ -135,6 +147,7 @@ export class ApiService implements IApiService {
       chainId: params.chainId as ChainId,
       env: this.env,
       tokenAddress: params.tokenAddress,
+      ...this.credentials,
     });
   }
 
@@ -148,6 +161,7 @@ export class ApiService implements IApiService {
       signature: params.signature,
       typedData: params.typedData,
       env: this.env,
+      ...this.credentials,
     });
   }
 }

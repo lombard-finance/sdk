@@ -31,18 +31,18 @@ const sdk = await createLombardSDK({
   },
 });
 
-// Create a BTC Stake action
-const stake = sdk.chain.btc.stake({
+// Create a BTC deposit. `assetOut` picks what gets minted: LBTC or BTC.b.
+const deposit = sdk.chain.btc.deposit({
   assetOut: AssetId.LBTC,
   destChain: Chain.ETHEREUM,
 });
 
-// Execute the staking flow
-await stake.prepare({ amount: '0.001', recipient: '0x...' });
-await stake.authorize();
-await stake.generateDepositAddress();
+// Execute the deposit flow
+await deposit.prepare({ amount: '0.001', recipient: '0x...' });
+await deposit.authorize();
+await deposit.generateDepositAddress();
 
-console.log('Deposit BTC to:', stake.depositAddress);
+console.log('Send BTC to:', deposit.depositAddress);
 ```
 
 ## Documentation

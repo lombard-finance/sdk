@@ -1,8 +1,7 @@
-import axios from 'axios';
-
 import { getApiConfig } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 const URL = 'api/v1/referral-system/referrer/';
 
@@ -55,7 +54,7 @@ export async function setReferral({
   };
 
   try {
-    await axios.post(`${URL}${address}`, requestParams, {
+    await httpPost(`${URL}${address}`, requestParams, {
       baseURL: baseApiUrl,
     });
 

@@ -1,11 +1,10 @@
-import axios from 'axios';
-
 import {
   getApiConfig,
   WALLET_AUTH_REQUEST_TIMEOUT_MS,
 } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 export interface RevokeWalletTokenParams extends IEnvParam {
   /** JWT to invalidate server-side. */
@@ -29,7 +28,7 @@ export async function revokeWalletToken({
   const { baseApiV2Url } = getApiConfig(env);
 
   try {
-    await axios.post(
+    await httpPost(
       'v2/auth/token/revoke',
       {},
       {

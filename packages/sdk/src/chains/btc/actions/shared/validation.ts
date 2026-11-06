@@ -45,6 +45,11 @@ export interface ValidationContext {
   env: Env;
   actionName: string;
   expectedAssets: AssetId[];
+  /**
+   * What to do instead, named in the error. Since 6.0.0 the routes are reached
+   * by asset rather than by class, so this reads best as the parameter to
+   * change — `assetOut: AssetId.BTCb` — not as another action to construct.
+   */
   alternativeAction?: string;
 }
 
@@ -111,13 +116,13 @@ export function isRouteAvailable(
  * @example
  * ```typescript
  * validateBtcActionParams(
- *   stakeConfig,
+ *   depositConfig,
  *   { assetOut: AssetId.LBTC, destChain: Chain.ETHEREUM },
  *   {
  *     env: 'prod',
- *     actionName: 'BTC Stake',
- *     expectedAssets: [AssetId.LBTC],
- *     alternativeAction: 'BtcDeposit',
+ *     actionName: 'BTC deposit',
+ *     expectedAssets: [AssetId.BTCb],
+ *     alternativeAction: 'assetOut: AssetId.BTCb',
  *   }
  * );
  * ```

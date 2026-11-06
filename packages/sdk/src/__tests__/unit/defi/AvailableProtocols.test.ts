@@ -17,24 +17,24 @@ import {
 
 describe('getAvailableProtocols', () => {
   describe('LBTC protocols', () => {
-    it('should return Veda for LBTC in prod', () => {
+    it('should return Bitcoin Earn for LBTC in prod', () => {
       const protocols = getAvailableProtocols(AssetId.LBTC, Env.prod);
 
-      expect(protocols).toContain(DefiProtocol.Veda);
+      expect(protocols).toContain(DefiProtocol.BitcoinEarn);
       // Silo is only on Avalanche which has no mainnet prod config in DEFI_REGISTRY
       expect(protocols).not.toContain(DefiProtocol.Silo);
     });
 
-    it('should return Veda for LBTC in testnet', () => {
+    it('should return Bitcoin Earn for LBTC in testnet', () => {
       const protocols = getAvailableProtocols(AssetId.LBTC, Env.testnet);
 
-      expect(protocols).toContain(DefiProtocol.Veda);
+      expect(protocols).toContain(DefiProtocol.BitcoinEarn);
     });
 
-    it('should return Veda for LBTC in stage', () => {
+    it('should return Bitcoin Earn for LBTC in stage', () => {
       const protocols = getAvailableProtocols(AssetId.LBTC, Env.stage);
 
-      expect(protocols).toContain(DefiProtocol.Veda);
+      expect(protocols).toContain(DefiProtocol.BitcoinEarn);
     });
   });
 
@@ -79,10 +79,12 @@ describe('getAvailableProtocolsWithMetadata', () => {
 
     expect(protocols.length).toBeGreaterThan(0);
 
-    const veda = protocols.find((p) => p.value === DefiProtocol.Veda);
-    expect(veda).toBeDefined();
-    expect(veda?.label).toBe('Lombard DeFi Vault');
-    expect(veda?.url).toBe('https://lombard.finance');
+    const bitcoinEarn = protocols.find(
+      (p) => p.value === DefiProtocol.BitcoinEarn,
+    );
+    expect(bitcoinEarn).toBeDefined();
+    expect(bitcoinEarn?.label).toBe('Bitcoin Earn');
+    expect(bitcoinEarn?.url).toBe('https://lombard.finance');
   });
 
   it('should return Silo metadata for BTCb in testnet', () => {

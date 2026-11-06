@@ -1,10 +1,10 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 
 import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
 import { orderBy } from '../../../utils/array';
+import { httpRequest } from '../../../utils/http';
 import { EARN_VAULT, EarnChain, isEarnChain } from '../config';
 
 type PerformanceEntry = {
@@ -159,7 +159,10 @@ async function getVaultPerformance({
   });
   const url = `${bffApiUrl}/sevenseas-api/performance/${network}/${vault.vaultContract.address}?${params.toString()}`;
 
-  const { data } = await axios.get<PerformancePayload>(url);
+  const { data } = await httpRequest<PerformancePayload>({
+    url: url,
+    scope: 'public',
+  });
 
   return normalizeSevenSeasPerformance(data);
 }

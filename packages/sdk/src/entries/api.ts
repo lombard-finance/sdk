@@ -51,6 +51,20 @@ export {
   type IGetNetworkFeeSignatureParams,
 } from '../api-functions/getNetworkFeeSignature/getNetworkFeeSignature';
 export {
+  getPortfolioBridges,
+  getPortfolioDeposits,
+  getPortfolioWithdrawals,
+  type IGetPortfolioMovementsParams,
+  type IGetPortfolioWithdrawalsParams,
+} from '../api-functions/getPortfolioMovements/getPortfolioMovements';
+export type {
+  Movement,
+  MovementLeg,
+  MovementStatus,
+  MovementType,
+  PortfolioBridge,
+} from '../api-functions/getPortfolioMovements/movements';
+export {
   fetchUnstakesByAddress,
   getUnstakesByAddress,
   type IGetUnstakesByAddressParameters,

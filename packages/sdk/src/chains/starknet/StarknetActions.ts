@@ -1,7 +1,7 @@
 /**
  * Starknet Actions
  *
- * Provides factory methods for Starknet operations (unstake).
+ * Provides factory methods for Starknet operations (withdraw).
  *
  * Note: Starknet module must be registered before using these actions.
  *
@@ -21,11 +21,11 @@ import type { LombardConfig } from '../../config/types';
 import { getProviderGetter } from '../../config/types';
 import { CapabilityRegistry } from '../../modules/CapabilityRegistry';
 import type { StarknetCoreContext } from '../../shared/context';
-import { StarknetUnstake } from './actions/unstake/StarknetUnstake';
+import { StarknetWithdraw } from './actions/withdraw/StarknetWithdraw';
 import type {
-  IStarknetUnstake,
-  StarknetUnstakeParams,
-} from './actions/unstake/types';
+  IStarknetWithdraw,
+  StarknetWithdrawParams,
+} from './actions/withdraw/types';
 
 /**
  * Create Starknet core context from config
@@ -38,6 +38,8 @@ function createStarknetCoreContext(config: LombardConfig): StarknetCoreContext {
   return {
     env: config.env,
     partner: new PartnerConfiguration(config.partner),
+    auth: config.auth,
+    getAuthToken: config.getAuthToken,
     getProvider: async (key) => {
       const getter = getProviderGetter(config.providers, key);
       if (!getter) return undefined;
@@ -66,14 +68,20 @@ export class StarknetActions {
   }
 
   /**
-   * Unstake LBTC → BTC
+   * Withdraw LBTC → BTC
    *
    * Burns LBTC on Starknet and releases BTC on Bitcoin.
    *
    * @throws LombardError if starknet module is not registered
    */
-  unstake(params: StarknetUnstakeParams): IStarknetUnstake {
-    return new StarknetUnstake(this.ctx, params);
+  /**
+   * Withdraw LBTC to BTC.
+   *
+   * Burns LBTC on Starknet and releases BTC on Bitcoin. Named `withdraw` under the
+   * three-verb model: an L-asset in, an asset out.
+   */
+  withdraw(params: StarknetWithdrawParams): IStarknetWithdraw {
+    return new StarknetWithdraw(this.ctx, params);
   }
 }
 

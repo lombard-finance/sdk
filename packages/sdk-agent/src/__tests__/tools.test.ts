@@ -25,6 +25,7 @@ import {
 } from "../tools";
 
 const mockGetEarnWithdrawals = vi.fn();
+const mockGetNetworkFeeSignature = vi.fn();
 
 vi.mock("@lombard.finance/sdk", async () => {
   const actual = await vi.importActual<Record<string, unknown>>(
@@ -40,6 +41,8 @@ vi.mock("@lombard.finance/sdk", async () => {
       minAmount: 100000,
     }),
     getEarnWithdrawals: (params: unknown) => mockGetEarnWithdrawals(params),
+    getNetworkFeeSignature: (params: unknown) =>
+      mockGetNetworkFeeSignature(params),
   };
 });
 
@@ -85,6 +88,66 @@ describe("checkFeeAuthorization", () => {
     expect(checkFeeAuthorization.name).toBe("check_fee_authorization");
     expect(checkFeeAuthorization.parameters).toHaveProperty("properties");
     expect(typeof checkFeeAuthorization.execute).toBe("function");
+  });
+
+  /**
+   * The approval's expiry comes back in Unix seconds, as a decimal string.
+   * Read as a date string it never parses, so an approval in force was
+   * reported as missing.
+   */
+  describe("reading the expiry", () => {
+    const address = "0x1234567890abcdef1234567890abcdef12345678";
+
+    /** An approval on file on Sepolia lapsing `hours` from now. */
+    function onFile(hours: number) {
+      mockGetNetworkFeeSignature.mockResolvedValue({
+        hasSignature: true,
+        expirationDate: String(Math.floor(Date.now() / 1000) + hours * 3600),
+        isDelayed: false,
+      });
+    }
+
+    beforeEach(() => mockGetNetworkFeeSignature.mockReset());
+
+    it("reports an approval in force as valid", async () => {
+      onFile(24);
+
+      const result = await checkFeeAuthorization.execute({
+        address,
+        chainId: 11155111,
+      });
+
+      expect(result.requiresFeeAuth).toBe(true);
+      expect(result.hasValidSignature).toBe(true);
+    });
+
+    it("reports a lapsed approval as not valid", async () => {
+      onFile(-1);
+
+      const result = await checkFeeAuthorization.execute({
+        address,
+        chainId: 11155111,
+      });
+
+      expect(result.hasValidSignature).toBe(false);
+      expect(result.expirationDate).not.toBeNull();
+    });
+
+    it("reports no approval as not valid", async () => {
+      mockGetNetworkFeeSignature.mockResolvedValue({
+        hasSignature: false,
+        expirationDate: "",
+        isDelayed: false,
+      });
+
+      const result = await checkFeeAuthorization.execute({
+        address,
+        chainId: 11155111,
+      });
+
+      expect(result.hasValidSignature).toBe(false);
+      expect(result.expirationDate).toBeNull();
+    });
   });
 });
 

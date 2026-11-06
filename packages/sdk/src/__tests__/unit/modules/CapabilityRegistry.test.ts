@@ -51,4 +51,22 @@ describe('CapabilityRegistry', () => {
 
     expect(mockModule.register).toHaveBeenCalledTimes(1);
   });
+
+  // A service that calls user-scoped routes needs the config's way of getting
+  // a token; without it those calls fail for want of one.
+  it("hands modules the config's wallet auth", () => {
+    const auth = { getToken: async () => 'jwt' };
+    const getAuthToken = () => 'sync-jwt';
+    const registry = new CapabilityRegistry([mockModule], {
+      ...mockConfig,
+      auth,
+      getAuthToken,
+    });
+
+    registry.require('test-module');
+
+    expect(mockModule.register).toHaveBeenCalledWith(
+      expect.objectContaining({ env: Env.testnet, auth, getAuthToken }),
+    );
+  });
 });

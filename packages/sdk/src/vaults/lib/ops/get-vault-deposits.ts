@@ -1,4 +1,3 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
 
@@ -11,7 +10,9 @@ import {
   TokenInfo,
 } from '../../../tokens/tokens';
 import { orderBy, unique } from '../../../utils/array';
+import { getErrorMessage } from '../../../utils/err';
 import { ensureHex } from '../../../utils/hex';
+import { httpRequest } from '../../../utils/http';
 import {
   EARN_CHAIN_TO_NETWORK_MAP,
   EARN_VAULT,
@@ -87,6 +88,10 @@ export type EarnDeposit = {
 
 /**
  * Retrieves the deposits made by specified address.
+ *
+ * A public read: the route serves any address's vault history and takes no
+ * wallet token, so none is sent and `auth` is not used.
+ *
  * @param parameters - The parameters.
  * @param parameters.account - The account address.
  * @param parameters.chainId - The chain id.
@@ -116,7 +121,10 @@ export async function getEarnDeposits({
   }
   const url = `${bffApiUrl}/sevenseas-api/deposits/${network}/${vault.vaultContract.address}/${account}`;
 
-  const { data } = await axios.get<SevenSeasDepositsPayload>(url);
+  const { data } = await httpRequest<SevenSeasDepositsPayload>({
+    url: url,
+    scope: 'public',
+  });
   const entries = normalizeSevenSeasDeposits(data);
 
   const depositAssetsAddresses = unique(
@@ -184,7 +192,11 @@ export async function getEarnDepositsAllChains({
   const depositsPromises = vault.chains.map((chainId: EarnChain) =>
     getEarnDeposits({ account, chainId, rpcUrl, env }).catch(
       (error: unknown) => {
-        console.error(`Failed to fetch deposits for chain ${chainId}:`, error);
+        // The message only: a request error carries its config, headers
+        // included, and a console is somewhere errors get collected.
+        console.error(
+          `Failed to fetch deposits for chain ${chainId}: ${getErrorMessage(error)}`,
+        );
         return []; // Return empty array on error to not break the entire query
       },
     ),

@@ -1,14 +1,28 @@
 import { Env, WALLET_CHALLENGE_TYPE } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { requestWalletChallenge } from '../../../api-functions/walletAuth/requestWalletChallenge';
-import { verifyWalletSignature } from '../../../api-functions/walletAuth/verifyWalletSignature';
-import { ActivePermitExistsError } from '../../../utils/err';
+/**
+ * Mocked at the `utils/http` boundary, not at axios.
+ *
+ * These api-functions post through the wrapper on this branch — the auth-token
+ * boundary test requires it of anything resolving a Lombard host — so mocking
+ * `axios.post` would leave the wrapper calling a mock that was never set up and
+ * assert nothing about the request. The argument positions are the same,
+ * `httpPost(url, body, config)`, so the assertions below are unchanged.
+ */
+const { post } = vi.hoisted(() => ({ post: vi.fn() }));
+vi.mock('../../../utils/http', () => ({ httpPost: post }));
+vi.mock('axios', () => ({
+  default: vi.fn(),
+  isAxiosError: (e: unknown) =>
+    Boolean((e as { isAxiosError?: boolean } | null)?.isAxiosError),
+}));
 
-vi.mock('axios');
-const mockedAxios = vi.mocked(axios);
-const post = vi.fn();
+const { requestWalletChallenge } =
+  await import('../../../api-functions/walletAuth/requestWalletChallenge');
+const { verifyWalletSignature } =
+  await import('../../../api-functions/walletAuth/verifyWalletSignature');
+const { ActivePermitExistsError } = await import('../../../utils/err');
 
 const address = '0xC1A0000000000000000000000000000000000000';
 const base = { address, chain: 'BLOCKCHAIN_ETHEREUM', env: Env.stage };
@@ -24,13 +38,8 @@ const permitChallenge = {
 };
 
 beforeEach(() => {
-  vi.resetAllMocks();
+  post.mockReset();
   post.mockResolvedValue({ data: permitChallenge });
-  mockedAxios.post = post as unknown as typeof mockedAxios.post;
-  mockedAxios.isAxiosError = ((e: unknown) =>
-    Boolean(
-      (e as { isAxiosError?: boolean } | null)?.isAxiosError,
-    )) as unknown as typeof mockedAxios.isAxiosError;
 });
 
 describe('requestWalletChallenge', () => {
@@ -78,6 +87,35 @@ describe('requestWalletChallenge', () => {
       chain: base.chain,
       challenge_type: 'WALLET_CHALLENGE_TYPE_FEE_APPROVAL',
       fee_approval: { max_mint_fee: '1000', expiry: 1788184394 },
+    });
+  });
+
+  // Without a token the gateway issues an LBTC approval, so naming one is the
+  // only way to ask for a BTC.b approval.
+  it('sends the token a fee approval is for when given', async () => {
+    post.mockResolvedValue({
+      data: {
+        ...permitChallenge,
+        challenge_type: 'WALLET_CHALLENGE_TYPE_FEE_APPROVAL',
+      },
+    });
+
+    await requestWalletChallenge({
+      ...base,
+      challengeType: WALLET_CHALLENGE_TYPE.feeApproval,
+      feeApproval: {
+        maxMintFee: '1000',
+        expiry: 1788184394,
+        token: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
+      },
+    });
+
+    expect(post.mock.calls[0][1]).toMatchObject({
+      fee_approval: {
+        max_mint_fee: '1000',
+        expiry: 1788184394,
+        token: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
+      },
     });
   });
 

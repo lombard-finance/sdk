@@ -1,7 +1,10 @@
 import BigNumber from 'bignumber.js';
 import { Address, Hash } from 'viem';
 
-import { IStrategyUserActivityEntry, IStrategyUserActivityFeed } from '../types';
+import {
+  IStrategyUserActivityEntry,
+  IStrategyUserActivityFeed,
+} from '../types';
 import {
   BaseUserStrategyParams,
   resolveUserStrategyEndpoint,

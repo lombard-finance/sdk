@@ -81,7 +81,7 @@ export const Chain = {
   BOB: caip2(CHAIN_PREFIXES.EIP155, 60808),
   /**
    * @deprecated Corn is retired. Its catalog entry is kept for labelling
-   * historical activity only; see RETIRED_CHAINS. Removed in the next major.
+   * historical activity only; see RETIRED_CHAINS. Removed in 7.0.0.
    */
   CORN: caip2(CHAIN_PREFIXES.EIP155, 21000000),
   ETHERLINK: caip2(CHAIN_PREFIXES.EIP155, 42793),
@@ -92,7 +92,7 @@ export const Chain = {
   SONIC_BLAZE_TESTNET: caip2(CHAIN_PREFIXES.EIP155, 57054), // Alias
   /**
    * @deprecated Swellchain is retired. Its catalog entry is kept for labelling
-   * historical activity only; see RETIRED_CHAINS. Removed in the next major.
+   * historical activity only; see RETIRED_CHAINS. Removed in 7.0.0.
    */
   SWELL: caip2(CHAIN_PREFIXES.EIP155, 1923),
   TAC: caip2(CHAIN_PREFIXES.EIP155, 239),

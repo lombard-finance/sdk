@@ -4,6 +4,6 @@
  * @module chains/solana/actions
  */
 
-export * from './redeem';
-export * from './stake';
-export * from './unstake';
+export * from './deposit-btcb';
+export * from './withdraw-btcb';
+export * from './withdraw-lbtc';

@@ -33,8 +33,8 @@ export type {
   DepositAddressOptions,
   DestinationChain,
   ExchangeRateOptions,
-  UnstakeOptions,
   VaultWithdrawalsOptions,
+  WithdrawalOptions,
 } from './client/ApiNamespace';
 export { ApiNamespace } from './client/ApiNamespace';
 // EarnWithdrawal, EarnWithdrawals exported via './vaults'
@@ -111,9 +111,12 @@ export {
 // permit challenge would be refused; callers fall back to the plain challenge.
 export { ActivePermitExistsError } from './utils/err';
 
-// Raised when an issued permit challenge does not describe the authorisation
-// that was requested; `field` names what differed.
-export { PermitChallengeMismatchError } from './utils/err';
+// Raised when an issued permit or fee-approval challenge does not describe the
+// authorisation that was requested; `field` names what differed.
+export {
+  FeeApprovalChallengeMismatchError,
+  PermitChallengeMismatchError,
+} from './utils/err';
 
 // One-call permit authorisation: sign a server-issued permit, get a JWT.
 export {
@@ -121,6 +124,21 @@ export {
   type ISignPermitChallengeResult,
   signPermitChallenge,
 } from './contract-functions/signPermitChallenge';
+export {
+  assertPermitPayloadMatches,
+  type ExpectedPermit,
+} from './contract-functions/signPermitChallenge/assert-permit-payload';
+
+// The same for a server-issued mint-fee approval, and the check on its own for
+// a challenge requested through `requestWalletChallenge`.
+export {
+  assertFeeApprovalPayloadMatches,
+  type ExpectedFeeApproval,
+  type FeeApprovalToken,
+  type ISignFeeApprovalChallengeParams,
+  type ISignFeeApprovalChallengeResult,
+  signFeeApprovalChallenge,
+} from './contract-functions/signFeeApprovalChallenge';
 
 // Context types
 export type {
@@ -202,26 +220,16 @@ export {
 
 // Event types
 export type {
-  BridgeEventMap,
-  DeployEventMap,
-  DepositEventMap,
-  RedeemEventMap,
-  StakeEventMap,
+  ActionEventMap,
   StrategyEvent,
+  StrategyEventHandlerMap,
   StrategyEventMap,
-  UnstakeEventMap,
 } from './shared/events';
-export {
-  BridgeEvent,
-  DeployEvent,
-  DepositEvent,
-  RedeemEvent,
-  StakeEvent,
-  UnstakeEvent,
-} from './shared/events';
+export { ActionEvent } from './shared/events';
 
 // Error handling
 export {
+  AuthErrorCode,
   ContractErrorCode,
   ErrorCode,
   isLombardError,
@@ -237,81 +245,82 @@ export type { LogMeta, MonitorableAction } from './shared/actions/BaseAction';
 
 // BTC types and direct actions
 export type {
-  BtcDepositAndDeployParams,
-  BtcDepositAndDeployPrepareParams,
-  BtcDepositAndDeployProgress,
-  BtcDepositParams,
-  BtcDepositPrepareParams,
-  BtcDepositProgress,
-  BtcStakeAndDeployParams,
-  BtcStakeAndDeployPrepareParams,
-  BtcStakeAndDeployProgress,
-  BtcStakeParams,
-  BtcStakeProgress,
-  IBtcDeposit,
-  IBtcDepositAndDeploy,
-  IBtcStake,
-  IBtcStakeAndDeploy,
+  BtcAuthorizeOptions,
+  BtcDeployBtcbParams,
+  BtcDeployBtcbPrepareParams,
+  BtcDeployBtcbProgress,
+  BtcDeployLbtcParams,
+  BtcDeployLbtcPrepareParams,
+  BtcDeployLbtcProgress,
+  BtcDepositBtcbParams,
+  BtcDepositBtcbPrepareParams,
+  BtcDepositBtcbProgress,
+  BtcDepositLbtcParams,
+  BtcDepositLbtcProgress,
+  IBtcDeployBtcb,
+  IBtcDeployLbtc,
+  IBtcDepositBtcb,
+  IBtcDepositLbtc,
 } from './chains/btc';
 export {
-  BtcDeposit,
-  BtcDepositAndDeploy,
-  BtcStake,
-  BtcStakeAndDeploy,
+  BtcDeployBtcb,
+  BtcDeployLbtc,
+  BtcDepositBtcb,
+  BtcDepositLbtc,
 } from './chains/btc';
 
-// Note: Sync factory functions (btcStake, btcDeposit, etc.) are intentionally
-// not exported. Use createLombardSDK() instead:
+// Note: Sync factory functions are intentionally not exported. Use
+// createLombardSDK() instead:
 //
 //   const sdk = await createLombardSDK({ env: Env.prod, ... });
-//   const stake = sdk.chain.btc.stake({ ... });
+//   const deposit = sdk.chain.btc.deposit({ assetOut: AssetId.LBTC, ... });
 //
-// This ensures consistent behavior when remote catalog fetching is added in v4.1.
+// This ensures consistent behavior when remote catalog fetching is added.
 
 // EVM types and direct actions
 export type {
   EvmCancelWithdrawParams,
   EvmCancelWithdrawProgress,
+  EvmClaimParams,
+  EvmClaimPrepareParams,
+  EvmClaimProgress,
   EvmDeployParams,
   EvmDeployPrepareParams,
   EvmDeployProgress,
-  EvmDepositParams,
-  EvmDepositPrepareParams,
-  EvmDepositProgress,
-  EvmRedeemParams,
-  EvmRedeemPrepareParams,
-  EvmRedeemProgress,
-  EvmStakeParams,
-  EvmStakePrepareParams,
-  EvmStakeProgress,
-  EvmUnstakeParams,
-  EvmUnstakePrepareParams,
-  EvmUnstakeProgress,
-  EvmWithdrawParams,
-  EvmWithdrawPrepareParams,
-  EvmWithdrawProgress,
+  EvmDepositBtcbParams,
+  EvmDepositBtcbPrepareParams,
+  EvmDepositBtcbProgress,
+  EvmWithdrawBtcbParams,
+  EvmWithdrawBtcbPrepareParams,
+  EvmWithdrawBtcbProgress,
+  EvmWithdrawLbtcParams,
+  EvmWithdrawLbtcPrepareParams,
+  EvmWithdrawLbtcProgress,
+  EvmWithdrawVaultParams,
+  EvmWithdrawVaultPrepareParams,
+  EvmWithdrawVaultProgress,
   IEvmCancelWithdraw,
+  IEvmClaim,
   IEvmDeploy,
-  IEvmDeposit,
-  IEvmRedeem,
-  IEvmStake,
-  IEvmUnstake,
-  IEvmWithdraw,
+  IEvmDepositBtcb,
+  IEvmWithdrawBtcb,
+  IEvmWithdrawLbtc,
+  IEvmWithdrawVault,
 } from './chains/evm';
 export {
+  EvmClaimStatus,
   EvmDeployStatus,
-  EvmDepositStatus,
-  EvmRedeemStatus,
-  EvmStakeStatus,
-  EvmUnstakeStatus,
-  EvmWithdrawStatus,
+  EvmDepositBtcbStatus,
+  EvmWithdrawBtcbStatus,
+  EvmWithdrawLbtcStatus,
+  EvmWithdrawVaultStatus,
 } from './chains/evm';
 
-// Note: Sync factory functions (evmStake, evmUnstake, etc.) are intentionally
+// Note: Sync factory functions are intentionally
 // not exported. Use createLombardSDK() instead:
 //
 //   const sdk = await createLombardSDK({ env: Env.prod, ... });
-//   const unstake = sdk.chain.evm.unstake({ ... });
+//   const withdraw = sdk.chain.evm.withdraw({ ... });
 
 // Utils - API Config:
 export { getApiConfig, type IApiConfig } from './common/api-config';
@@ -531,6 +540,20 @@ export {
   type IGetNetworkFeeSignatureParams,
 } from './api-functions/getNetworkFeeSignature/getNetworkFeeSignature';
 export {
+  getPortfolioBridges,
+  getPortfolioDeposits,
+  getPortfolioWithdrawals,
+  type IGetPortfolioMovementsParams,
+  type IGetPortfolioWithdrawalsParams,
+} from './api-functions/getPortfolioMovements/getPortfolioMovements';
+export type {
+  Movement,
+  MovementLeg,
+  MovementStatus,
+  MovementType,
+  PortfolioBridge,
+} from './api-functions/getPortfolioMovements/movements';
+export {
   fetchUnstakesByAddress,
   getUnstakesByAddress,
   type IGetUnstakesByAddressParameters,
@@ -557,8 +580,9 @@ export {
   storeNetworkFeeSignature,
 } from './api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
 export {
-  // Raised when a live stake-and-bake signature is already on file, so a
-  // second one is refused; branch on it rather than on the server's string.
+  // Raised when the API refuses a stake-and-bake signature because one is
+  // already on file, which the v1 route does for any live one; branch on it
+  // rather than on the server's string.
   isActiveSignatureError,
   type IStoreStakeAndBakeSignatureParams,
   type IStoreStakeAndBakeSignatureStatus,
@@ -633,6 +657,10 @@ export {
   type ISignStakeAndBakeResult,
   signStakeAndBake,
 } from './contract-functions/signStakeAndBake/signStakeAndBake';
+export {
+  calculateStakeAndBakeLBTCAmount,
+  toStakeAndBakePermitValue,
+} from './contract-functions/signStakeAndBake/utils';
 export { getStakeAndBakeConfig } from './contract-functions/signStakeAndBake/validation';
 export {
   type IUnstakeLBTCParams,
@@ -761,3 +789,100 @@ export {
 } from './utils/err';
 export { ensureHex, isHex } from './utils/hex';
 export { DAY, HOUR, MINUTE, now, SECOND, toUnix } from './utils/time';
+
+// ── The v6 action contract (§5 of the redesign) ──
+//
+// Exported from the root and from `./core` so a consumer can name a status, a
+// step or a route without reaching into the package. Without this the whole
+// contract compiles, is tested, and is unreachable — which is exactly what
+// happened until the playground tried to import it.
+export type {
+  Action,
+  ActionNamespace,
+  ActionProgress,
+  ActionResult,
+  ActionStepKey,
+  ActionSteps,
+  ActionTxHashes,
+  AuthorizationGroup,
+  AuthorizationStatus,
+  BitcoinSourceAction,
+  BtcDeployStatus,
+  BtcDepositStatus,
+  CancellableAction,
+  ClaimableAction,
+  DeployAsset,
+  DeployNamespace,
+  DeployParams,
+  DepositParams,
+  EvmCancelWithdrawStatus,
+  // EvmClaimStatus and EvmDeployStatus are deliberately absent. The claim
+  // action's own enum carries the `EvmClaimStatus` name now — it was
+  // `EvmDepositStatus`, which named the verb this action stopped being — and the
+  // core narrowing describes the same concept with a smaller member set.
+  // Exporting both is a duplicate identifier, and silently swapping which one
+  // wins would change what a consumer's type admits with no error at their call
+  // site. Both land when the EVM classes adopt the narrowings.
+  //
+  // EvmDepositStatus and EvmWithdrawStatus are reachable for the first time
+  // here: the per-action aliases used to own those names, and the class rename
+  // freed them.
+  EvmDepositStatus,
+  EvmVaultWithdrawStatus,
+  EvmWithdrawStatus,
+  FeeAuthorizedAction,
+  PrepareParams,
+  ReachableActionStatus,
+  RouteLabel,
+  RouteLabelParams,
+  ShareAmount,
+  SolanaDepositStatus,
+  SolanaWithdrawStatus,
+  StarknetWithdrawStatus,
+  SubmitProgress,
+  SuiWithdrawStatus,
+  TerminalStatus,
+  WithdrawParams,
+} from './core/actions';
+export {
+  ACTION_STEP_KEYS,
+  ActionStatus,
+  AUTHORIZATION_STATUSES,
+  deriveRouteLabel,
+  isAddressResult,
+  isAuthorizationStatus,
+  isTerminalStatus,
+  isTxResult,
+  REGISTRY_TOKEN_ROWS,
+  resolveRegistryToken,
+  shares,
+  TERMINAL_STATUSES,
+  vaultAsset,
+} from './core/actions';
+
+// ── The wallet-auth transport contract ──
+//
+// Re-exported from `sdk-common` so a consumer can type an `auth` provider
+// without depending on `sdk-common` directly. `LombardConfig.auth` is typed as
+// `LombardAuth`, so a consumer that cannot name the type cannot implement it.
+export type {
+  AuthRequestContext,
+  LombardAuth,
+  RequestScope,
+} from '@lombard.finance/sdk-common';
+
+// ── Wallet-auth chain names ──
+//
+// The auth routes name chains a fourth way (the short `/v2/chains` name), so
+// this derives it rather than leaving each consumer to hand-write the table.
+export {
+  walletAuthChainName,
+  walletAuthChainNames,
+} from './common/wallet-auth-chain';
+
+// The one-call sign-in ceremony and its parameter types.
+export type {
+  WalletSignInParams,
+  WalletSignInResult,
+  WalletSignResult,
+} from '@lombard.finance/sdk-common';

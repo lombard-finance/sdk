@@ -136,6 +136,9 @@ jobs:
             echo "${NAME}@${VERSION} ok"
           done
 
+      - name: License policy check
+        run: yarn licenses:check
+
       - name: Lint
         run: yarn lint
 

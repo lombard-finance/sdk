@@ -5,8 +5,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { StarknetWalletProvider } from './contexts/StarknetWalletContext';
 import { getEnvironment } from './lib/config';
-import { StarknetStakePage } from './pages/StarknetStakePage';
-import { StarknetUnstakePage } from './pages/StarknetUnstakePage';
+import { StarknetDepositPage } from './pages/StarknetDepositPage';
+import { StarknetWithdrawPage } from './pages/StarknetWithdrawPage';
 
 function App() {
   const [env, setEnv] = useState<Env>(() => {
@@ -38,10 +38,10 @@ function App() {
             element={<Layout env={env} onEnvChange={handleEnvChange} />}
           >
             <Route index element={<Navigate to="/staking" replace />} />
-            <Route path="staking" element={<StarknetStakePage env={env} />} />
+            <Route path="staking" element={<StarknetDepositPage env={env} />} />
             <Route
               path="unstaking"
-              element={<StarknetUnstakePage env={env} />}
+              element={<StarknetWithdrawPage env={env} />}
             />
             <Route path="*" element={<Navigate to="/staking" replace />} />
           </Route>

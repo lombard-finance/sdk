@@ -32,7 +32,9 @@ describe('AssetNamespace', () => {
       );
 
       expect(prodAddress).toBe('0x8236a87084f8b84306f72007f36f2618a5634494');
-      expect(testnetAddress).toBe('0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30');
+      // The deployment the actions transact with on testnet, and the one the
+      // gateway's testnet registry lists.
+      expect(testnetAddress).toBe('0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5');
     });
   });
 

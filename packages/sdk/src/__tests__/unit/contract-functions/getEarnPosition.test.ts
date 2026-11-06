@@ -302,6 +302,5 @@ describe('getEarnPosition', () => {
       expect(result.btceShares).toEqual(BigNumber('1'));
       expect(result.btceSharesInUnderlying).toEqual(BigNumber('1'));
     });
-
   });
 });

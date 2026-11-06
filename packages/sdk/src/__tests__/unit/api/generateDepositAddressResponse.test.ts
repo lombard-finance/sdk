@@ -27,7 +27,10 @@ vi.mock('../../../tokens/tokens', () => ({
   }),
 }));
 
-const mockedPost = vi.mocked(axios.post);
+// The api-functions reach the network through `utils/http`, which calls the
+// axios default export as a function rather than `axios.post`, so the mock
+// sits on that: same boundary, same assertions.
+const mockedPost = vi.mocked(axios);
 
 const params = {
   address: '0x1111111111111111111111111111111111111111',

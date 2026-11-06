@@ -1,10 +1,11 @@
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { Address } from 'viem';
 
 import { getApiConfig } from '../../../common/api-config';
 import { ChainId } from '../../../common/chains';
 import { IEnvParam } from '../../../common/parameters';
 import { UnauthorizedWalletJwtError } from '../../../utils/err';
+import { httpRequest } from '../../../utils/http';
 import { resolveStrategy, StrategyId } from '../config';
 
 /**
@@ -60,11 +61,18 @@ export function getVaultBlockchainParam(chainId: ChainId): string {
 /**
  * Resolves the per-user endpoint root: `${baseApiV2Url}/v2/vaults/strategies/{address}/users/{owner}`.
  */
-export function resolveUserStrategyEndpoint(
-  params: BaseUserStrategyParams,
-): { root: string; address: Address; blockchain: string } {
-  const { owner, strategy, strategyId, env, chainId: requestedChainId } =
-    params;
+export function resolveUserStrategyEndpoint(params: BaseUserStrategyParams): {
+  root: string;
+  address: Address;
+  blockchain: string;
+} {
+  const {
+    owner,
+    strategy,
+    strategyId,
+    env,
+    chainId: requestedChainId,
+  } = params;
   const { chainId, address } = resolveStrategy({
     env,
     strategyId,
@@ -81,17 +89,23 @@ export function resolveUserStrategyEndpoint(
 const USER_STRATEGY_REQUEST_TIMEOUT_MS = 20_000;
 
 /**
- * Thin axios.get wrapper that injects the wallet JWT as
+ * Thin wrapper over `utils/http` that injects the wallet JWT as
  * `Authorization: Bearer …` (the v2 API standard) and surfaces 401s as a
  * tagged `UnauthorizedWalletJwtError` so consumers can trigger a re-login
- * without inspecting raw axios error shapes.
+ * without inspecting raw transport error shapes.
  */
 export async function userAuthorizedGet<T>(
   url: string,
   walletJwt: string,
 ): Promise<T> {
   try {
-    const { data } = await axios.get<T>(url, {
+    // Through the wrapper: it adds the SDK version headers, and `userScoped`
+    // means a call with no token fails here rather than at the gateway. The
+    // explicit Authorization header still wins, so passing `walletJwt` behaves
+    // exactly as before.
+    const { data } = await httpRequest<T>({
+      url,
+      scope: 'userScoped',
       headers: {
         Authorization: `Bearer ${walletJwt}`,
         Accept: 'application/json',
@@ -106,4 +120,3 @@ export async function userAuthorizedGet<T>(
     throw err;
   }
 }
-

@@ -105,23 +105,27 @@ describe('wallet challenge clientSecret', () => {
   );
 
   it.each([undefined, ''])(
-    'preserves the GET poll without a nonempty secret (%j)',
+    'polls by POST, with no secret in the body, without a nonempty secret (%j)',
     async (clientSecret) => {
+      vi.useFakeTimers();
       responses.push(token);
-      await expect(
-        pollWalletVerification({
-          verificationId: 'ticket',
-          env: base.env,
-          clientSecret,
-        }),
-      ).resolves.toEqual({ jwt: 'token', expiresAt: 'later' });
+      const result = pollWalletVerification({
+        verificationId: 'ticket',
+        env: base.env,
+        clientSecret,
+      });
+      await vi.advanceTimersByTimeAsync(3_000);
+      await expect(result).resolves.toEqual({
+        jwt: 'token',
+        expiresAt: 'later',
+      });
       expect(requests[0]).toMatchObject({
-        method: 'get',
-        url: 'v2/auth/wallet/verify/ticket',
+        method: 'post',
+        url: 'v2/auth/wallet/verify/ticket/status',
         baseURL: getApiConfig(base.env).baseApiV2Url,
         timeout: WALLET_AUTH_REQUEST_TIMEOUT_MS,
       });
-      expect(requests[0].data).toBeUndefined();
+      expect(requests[0].data).toBe('{}');
       expect(requests[0].params).toBeUndefined();
     },
   );
@@ -155,7 +159,8 @@ describe('wallet challenge clientSecret', () => {
       verificationId: 'ticket',
       clientSecret: challenge.clientSecret,
     });
-    await vi.advanceTimersByTimeAsync(2_000);
+    // Polls at 3 s (pending) and 9 s (the token).
+    await vi.advanceTimersByTimeAsync(9_000);
     await expect(result).resolves.toEqual({ jwt: 'token', expiresAt: 'later' });
     expect(requests).toHaveLength(4);
     for (const request of requests.slice(2)) {
@@ -187,17 +192,21 @@ describe('wallet challenge clientSecret', () => {
   });
 
   it('keeps status failures on the POST path', async () => {
+    vi.useFakeTimers();
     responses.push({
       status: 'VERIFICATION_STATUS_FAILED',
       error_code: 'invalid_signature',
     });
-    await expect(
-      pollWalletVerification({
-        verificationId: 'ticket',
-        env: base.env,
-        clientSecret: 'example-client-secret',
-      }),
-    ).rejects.toThrow('Wallet verification failed: invalid_signature');
+    const result = pollWalletVerification({
+      verificationId: 'ticket',
+      env: base.env,
+      clientSecret: 'example-client-secret',
+    }).catch((error: Error) => error);
+    await vi.advanceTimersByTimeAsync(3_000);
+    await expect(result).resolves.toHaveProperty(
+      'message',
+      'Wallet verification failed: invalid_signature',
+    );
     expect(requests).toHaveLength(1);
     expect(requests[0].method).toBe('post');
   });

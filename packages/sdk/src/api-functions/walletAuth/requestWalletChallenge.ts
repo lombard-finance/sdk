@@ -6,7 +6,6 @@ import type {
   WalletChallengeType,
 } from '@lombard.finance/sdk-common';
 import { WALLET_CHALLENGE_TYPE } from '@lombard.finance/sdk-common';
-import axios from 'axios';
 
 import {
   getApiConfig,
@@ -14,6 +13,7 @@ import {
 } from '../../common/api-config';
 import { IEnvParam } from '../../common/parameters';
 import { getErrorMessage } from '../../utils/err';
+import { httpPost } from '../../utils/http';
 
 interface WalletChallengeApiResponse {
   nonce: string;
@@ -49,6 +49,11 @@ export interface RequestWalletChallengeParams extends IEnvParam {
  * are requests rather than instructions. What the server settled on comes back
  * as `signatureExpiresAt`.
  *
+ * The payload is returned as received and nothing here checks what it
+ * authorises. Check it against the request before the wallet signs it, with
+ * `assertPermitPayloadMatches` or `assertFeeApprovalPayloadMatches`, or use
+ * `signPermitChallenge` or `signFeeApprovalChallenge`, which do.
+ *
  * POST /v2/auth/wallet/challenge
  *
  * @throws if the params required by the requested `challengeType` are missing.
@@ -75,7 +80,7 @@ export async function requestWalletChallenge({
   }
 
   try {
-    const { data } = await axios.post<WalletChallengeApiResponse>(
+    const { data } = await httpPost<WalletChallengeApiResponse>(
       'v2/auth/wallet/challenge',
       {
         address,
@@ -89,6 +94,7 @@ export async function requestWalletChallenge({
               fee_approval: {
                 max_mint_fee: feeApproval.maxMintFee,
                 expiry: feeApproval.expiry,
+                ...(feeApproval.token ? { token: feeApproval.token } : {}),
               },
             }
           : {}),

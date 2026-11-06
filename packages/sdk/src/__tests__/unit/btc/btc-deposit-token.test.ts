@@ -48,7 +48,7 @@ describe('BTC Deposit Token Resolution', () => {
 
     describe('BTC Deposit specific behavior', () => {
       /**
-       * The BtcDeposit.getExpectedToken() method correctly calls
+       * The BtcDepositBtcb.getExpectedToken() method correctly calls
        * assetIdToToken(this.params.assetOut, Token.BTCb)
        *
        * If assetOut is not properly passed (e.g., undefined or wrong value),
@@ -56,7 +56,7 @@ describe('BTC Deposit Token Resolution', () => {
        */
 
       it('should return BTCb when assetOut is BTCb (BTC Deposit)', () => {
-        // This simulates what BtcDeposit.getExpectedToken() does
+        // This simulates what BtcDepositBtcb.getExpectedToken() does
         const assetOut = AssetId.BTCb;
         const defaultToken = Token.BTCb;
 
@@ -65,7 +65,7 @@ describe('BTC Deposit Token Resolution', () => {
       });
 
       it('should still return BTCb as default even for non-mapped assets in deposit', () => {
-        // BtcDeposit uses Token.BTCb as default
+        // BtcDepositBtcb uses Token.BTCb as default
         const defaultToken = Token.BTCb;
 
         // Even if assetOut is somehow invalid, it should fall back to BTCb for deposit
@@ -76,7 +76,7 @@ describe('BTC Deposit Token Resolution', () => {
 
     describe('BTC Stake specific behavior', () => {
       it('should return LBTC when assetOut is LBTC (BTC Stake)', () => {
-        // This simulates what BtcStake.getExpectedToken() does
+        // This simulates what BtcDepositLbtc.getExpectedToken() does
         const assetOut = AssetId.LBTC;
         const defaultToken = Token.LBTC;
 
@@ -128,7 +128,7 @@ describe('BTC Deposit Token Resolution', () => {
      *
      * This means if token is not explicitly passed, it defaults to LBTC.
      *
-     * The BtcDeposit and BtcStake actions must always pass the token explicitly.
+     * The BtcDepositBtcb and BtcDepositLbtc actions must always pass the token explicitly.
      */
 
     it('should use BTCb token for BTC Deposit actions', () => {
