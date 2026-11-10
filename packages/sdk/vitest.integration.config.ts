@@ -11,6 +11,7 @@ export default defineConfig({
       'src/__tests__/integration/automint-fee.integration.test.ts',
       'src/__tests__/integration/getLBTCMintingFee.integration.test.ts',
       'src/__tests__/integration/faq-patterns.integration.test.ts',
+      'src/__tests__/integration/asset-registry-drift.integration.test.ts',
     ],
     testTimeout: 30000, // 30s for integration tests
   },

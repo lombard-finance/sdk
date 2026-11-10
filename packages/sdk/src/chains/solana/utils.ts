@@ -13,8 +13,8 @@ import { SOLANA_DEVNET_CHAIN, SOLANA_MAINNET_CHAIN } from '../../common/chains';
  * Map a Lombard environment to the Solana network string expected by
  * sdk-solana functions (e.g. SolanaNetwork enum values).
  *
- * NOTE: SolanaUnstake.ts contains an identical copy pending a follow-up
- * cleanup PR (unstake was not part of this branch).
+ * NOTE: SolanaWithdrawLbtc.ts contains an identical copy pending a follow-up
+ * cleanup PR (withdraw was not part of this branch).
  */
 export function envToSolanaNetwork(env: Env): string {
   switch (env) {

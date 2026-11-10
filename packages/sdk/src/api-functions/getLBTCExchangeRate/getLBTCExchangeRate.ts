@@ -1,4 +1,3 @@
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 
 import { getApiConfig } from '../../common/api-config';
@@ -6,6 +5,7 @@ import { getChainNameById } from '../../common/blockchain-identifier';
 import { ChainId } from '../../common/chains';
 import { MIN_STAKE_AMOUNT_BTC } from '../../common/constants';
 import { IEnvParam } from '../../common/parameters';
+import { httpGet } from '../../utils/http';
 import { toSatoshi } from '../../utils/satoshi';
 
 type ExchangeRateResponse = {
@@ -62,7 +62,7 @@ export async function getLBTCExchangeRate({
   const { baseApiUrl } = getApiConfig(env);
   const chainIdName = getChainNameById(chainId);
 
-  const { data } = await axios.get<ExchangeRateResponse>(
+  const { data } = await httpGet<ExchangeRateResponse>(
     `api/v1/exchange/rate/${chainIdName}`,
     { baseURL: baseApiUrl, params: { amount } },
   );

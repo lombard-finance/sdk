@@ -1,13 +1,15 @@
 /**
  * EVM Deploy Action
  *
- * Deploys L-Assets to DeFi protocols (Veda, Silo).
+ * Deploys LBTC to Bitcoin Earn, on the routes `deploy/config/evm.ts` lists.
+ * Any other asset, chain, protocol or environment is refused when the action
+ * is built, before a read or an approval.
  *
  * Protocol routing:
- * - Veda on ETH/Base/BSC → deposits through the BTCe ERC-4626 wrapper
+ * - Bitcoin Earn on ETH/Base/BSC → deposits through the BTCe ERC-4626 wrapper
  *   (`depositEarn`), giving the user BTCe shares. The `recipient` param
  *   is forwarded as the BTCe share receiver.
- * - Veda on a chain without a BTCe deployment → deposits directly into the
+ * - Bitcoin Earn on a chain without a BTCe deployment → deposits directly into the
  *   LBTCv BoringVault teller
  *   (BTCe wrapper is not deployed there).
  * - Silo → separate stake-and-bake mechanism; not handled by this class.
@@ -27,13 +29,15 @@ import {
   type ChainId,
 } from '../../../../common/chains';
 import { depositEarn } from '../../../../contract-functions/depositEarn';
-import { DeployProtocol } from '../../../../core';
+import { AssetId, DeployProtocol } from '../../../../core';
 import { parseChainIdentifier, StepStatus } from '../../../../core';
+import type { RouteLabel } from '../../../../core/actions';
+import { deriveRouteLabel } from '../../../../core/actions';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { EvmCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';
-import type { DeployEventMap } from '../../../../shared/events';
+import type { ActionEventMap } from '../../../../shared/events';
 import {
   evmAmountSchema,
   validatePrepareParams,
@@ -48,7 +52,8 @@ import {
   isBtceVaultChain,
 } from '../../../../vaults/lib/config';
 import { depositInternal } from '../../../../vaults/lib/ops/deposit';
-import { evmConfig } from './config';
+import { assetIdToToken } from '../../../btc/actions/shared/tokenUtils';
+import { isDeploySupported } from './config';
 import type {
   EvmDeployParams,
   EvmDeployPrepareParams,
@@ -56,7 +61,7 @@ import type {
 } from './types';
 
 export class EvmDeploy
-  extends BaseAction<DeployEventMap, EvmOperationStatus>
+  extends BaseAction<ActionEventMap, EvmOperationStatus>
   implements IEvmDeploy
 {
   private _amount?: string;
@@ -71,6 +76,26 @@ export class EvmDeploy
     private readonly params: EvmDeployParams,
   ) {
     super(EvmOperationStatus.IDLE);
+
+    // The route table is what this class can deposit. Anything else used to
+    // run anyway: an asset other than LBTC or BTC.b was swapped for LBTC, and
+    // a protocol this class cannot deposit into had its approval sent first
+    // and failed after.
+    if (
+      !isDeploySupported(
+        params.asset,
+        params.sourceChain,
+        params.protocol,
+        ctx.env,
+      )
+    ) {
+      throw LombardError.routeNotFound({
+        asset: params.asset,
+        sourceChain: params.sourceChain,
+        protocol: params.protocol,
+        env: ctx.env,
+      });
+    }
   }
 
   get amount(): string | undefined {
@@ -79,6 +104,33 @@ export class EvmDeploy
 
   get protocol(): DeployProtocol | undefined {
     return this._protocol;
+  }
+
+  /**
+   * The token this deploy actually moves.
+   *
+   * `params.asset` was accepted and never read: all four call sites below
+   * hardcoded `Token.LBTC`, so `deploy({ asset: BTCb })` silently deposited
+   * LBTC. One accessor rather than four literals, so the sites cannot drift
+   * apart again.
+   *
+   * Note this is the *input* token, which is what `DEFI_REGISTRY` keys off.
+   * `AssetId.LBTC` and `Token.LBTC` are the same string, so a BTC-source route
+   * must not reach this path expecting the virtual `'BTC'` key — that resolution
+   * belongs to the route table, not here.
+   */
+  private get depositTokenId(): Token {
+    // No fallback: an asset with no token of its own is not deposited as LBTC.
+    if (
+      this.params.asset !== AssetId.LBTC &&
+      this.params.asset !== AssetId.BTCb
+    ) {
+      throw LombardError.invalidParameter(
+        'asset',
+        `Asset ${this.params.asset} cannot be deployed.`,
+      );
+    }
+    return assetIdToToken(this.params.asset);
   }
 
   get needsApproval(): boolean {
@@ -91,23 +143,51 @@ export class EvmDeploy
 
   /**
    * Returns true when the deposit should go through the BTCe ERC-4626 wrapper:
-   * Veda protocol on a chain that has the BTCe contract deployed.
+   * Bitcoin Earn protocol on a chain that has the BTCe contract deployed.
    */
-  private isVedaBtcePath(): boolean {
+  private isBitcoinEarnBtcePath(): boolean {
     return (
-      this._protocol === DeployProtocol.Veda &&
+      this._protocol === DeployProtocol.BitcoinEarn &&
       this._chainId !== undefined &&
       isBtceVaultChain(this._chainId)
     );
   }
 
   /**
+   * The ceremonies this route can need, mapped from the status that calls for
+   * them. `authorize()` on the base class dispatches through this, so
+   * `approve()` keep working while callers move to the one method.
+   */
+  protected override authorizationHandlers(): Partial<
+    Record<EvmOperationStatus, () => Promise<void>>
+  > {
+    return {
+      [EvmOperationStatus.NEEDS_APPROVAL]: () => this.approve(),
+    };
+  }
+
+  /**
+   * Which journey this instance is running.
+   *
+   * Derived from the parameters rather than hardcoded, so the label cannot
+   * drift from the route it describes. `LogMeta` carries it into
+   * `toSentryContext()`, which is what lets a log line say which journey
+   * failed now that one class can cover several.
+   */
+  get route(): RouteLabel {
+    return deriveRouteLabel({
+      assetIn: this.params.asset,
+      protocol: this.params.protocol,
+    });
+  }
+
+  /**
    * Returns the ERC-20 spender address for LBTC approval:
-   * - BTCe wrapper address for Veda on BTCe-supported chains
+   * - BTCe wrapper address for Bitcoin Earn on BTCe-supported chains
    * - LBTCv BoringVault address for all other cases
    */
   private getSpenderAddress(): Address {
-    if (this.isVedaBtcePath()) {
+    if (this.isBitcoinEarnBtcePath()) {
       return BTCE_VAULT.contracts[
         this._chainId as keyof typeof BTCE_VAULT.contracts
       ];
@@ -143,7 +223,7 @@ export class EvmDeploy
       this._chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
       const depositToken = await getTokenInfo(
-        Token.LBTC,
+        this.depositTokenId,
         this._chainId,
         this.ctx.env,
       );
@@ -202,7 +282,7 @@ export class EvmDeploy
       }
 
       const depositToken = await getTokenInfo(
-        Token.LBTC,
+        this.depositTokenId,
         this._chainId,
         this.ctx.env,
       );
@@ -269,11 +349,11 @@ export class EvmDeploy
 
       let txHash: string;
 
-      if (this.isVedaBtcePath()) {
+      if (this.isBitcoinEarnBtcePath()) {
         // Route through BTCe ERC-4626 wrapper: user receives BTCe shares.
         // Approval was already done in approve(), so pass approve: false.
         txHash = await depositEarn({
-          token: Token.LBTC,
+          token: this.depositTokenId,
           amount: this._amount!,
           receiver: this.params.recipient as Address,
           approve: false,
@@ -283,13 +363,13 @@ export class EvmDeploy
           env: this.ctx.env,
         });
       } else {
-        // Veda on a chain without the BTCe wrapper, or other protocols:
+        // Bitcoin Earn on a chain without the BTCe wrapper, or other protocols:
         // deposit directly into the LBTCv BoringVault teller.
         // Approval was already done in approve(), so pass approve: false.
         txHash = await depositInternal({
           amount: this._amount!,
           approve: false,
-          token: Token.LBTC,
+          token: this.depositTokenId,
           account: this._account,
           chainId: this._chainId,
           provider: provider as EIP1193Provider,
@@ -320,15 +400,24 @@ export class EvmDeploy
     });
   }
 
+  /**
+   * The protocol `prepare()` names has to be a route for this action's asset
+   * and chain too, not just one the environment lists somewhere: it picks the
+   * spender the approval goes to.
+   */
   private validateProtocol(protocol: DeployProtocol): void {
-    const isSupported = evmConfig.routes.some(
-      (route) =>
-        route.protocols.includes(protocol) && route.envs.includes(this.ctx.env),
-    );
-    if (!isSupported) {
+    if (
+      !isDeploySupported(
+        this.params.asset,
+        this.params.sourceChain,
+        protocol,
+        this.ctx.env,
+      )
+    ) {
       throw LombardError.invalidParameter(
         'protocol',
-        `Protocol ${protocol} is not supported in ${this.ctx.env} environment`,
+        `Protocol ${protocol} is not supported for ${this.params.asset} on ` +
+          `${this.params.sourceChain} in ${this.ctx.env} environment`,
       );
     }
   }

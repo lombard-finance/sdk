@@ -1,8 +1,10 @@
 /**
- * How the store route reports a signature that already exists.
+ * How the store routes report a signature that already exists.
  *
- * One live stake-and-bake signature is kept per wallet and chain while it is
- * unexpired and unused, so a second one is refused. That refusal reached
+ * The v1 route, used without a wallet token, keeps one live signature per
+ * wallet and chain and refuses a second. The v2 route replaces an unused permit
+ * with the same nonce, so there it is the exception, but the refusal still
+ * exists — two saves for one nonce racing each other. Either way it reached
  * callers as a bare `Error` carrying the server's own string, which a UI can
  * only show verbatim to someone who has just signed in their wallet.
  *
@@ -24,13 +26,22 @@ import {
 
 vi.mock('axios');
 
-const mockedPost = vi.mocked(axios.post);
+// The api-functions reach the network through `utils/http`, which calls the
+// axios default export as a function rather than `axios.post`, so the mock
+// sits on that: same boundary, same assertions.
+const mockedPost = vi.mocked(axios);
 const mockedIsAxiosError = vi.mocked(axios.isAxiosError);
 
-const params = {
+const v1Params = {
   signature: '0xsignature',
-  typedData: '{"primaryType":"Permit"}',
+  typedData:
+    '{"primaryType":"Permit","message":{"owner":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"}}',
   env: Env.prod,
+};
+
+const v2Params = {
+  ...v1Params,
+  auth: { getToken: async () => 'wallet-jwt' },
 };
 
 /** An axios rejection carrying the gateway's JSON body. */
@@ -73,8 +84,12 @@ describe('isActiveSignatureError', () => {
   });
 });
 
-describe('storeStakeAndBakeSignature', () => {
+describe.each([
+  ['the v1 route, without a token', v1Params],
+  ['the v2 route, with a token', v2Params],
+])('storeStakeAndBakeSignature through %s', (_route, params) => {
   it('returns the status on success', async () => {
+    // v1 answers with the status, v2 with an empty body.
     mockedPost.mockResolvedValue({ data: { status: 'success' } });
 
     await expect(storeStakeAndBakeSignature(params)).resolves.toBe('success');
@@ -126,6 +141,21 @@ describe('storeStakeAndBakeSignature', () => {
     expect(caught).toBeInstanceOf(Error);
     expect(caught).not.toBeInstanceOf(StakeAndBakeSignatureExistsError);
     expect(String(caught)).toContain('destination chain not supported');
+  });
+
+  // Same code as the refusal above, different meaning: the token has spent
+  // this nonce, so waiting for an expiry would never unblock it.
+  it('does not mistake a consumed nonce for a permit on file', async () => {
+    mockedPost.mockRejectedValue(
+      refusal('permit nonce 0 is already consumed on-chain, nonce is 1', 6),
+    );
+
+    const caught = await storeStakeAndBakeSignature(params).catch(
+      (error: unknown) => error,
+    );
+
+    expect(caught).not.toBeInstanceOf(StakeAndBakeSignatureExistsError);
+    expect(String(caught)).toContain('already consumed');
   });
 
   it('leaves a transport failure as an ordinary error', async () => {

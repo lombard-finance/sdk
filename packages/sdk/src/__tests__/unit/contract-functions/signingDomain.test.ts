@@ -81,7 +81,7 @@ describe('on-chain signing domains', () => {
     const result = await signStakeAndBake({
       ...parameters,
       token: Token.LBTC,
-      vaultKey: DefiProtocol.Veda,
+      vaultKey: DefiProtocol.BitcoinEarn,
       value: '100000',
     });
     expect(signTypedData).toHaveBeenCalledWith(

@@ -104,7 +104,7 @@ describe('StakeAndBake Signature Restoration Logic', () => {
 
   describe('Status Flow Documentation', () => {
     /**
-     * Documents the expected status transitions for BtcStakeAndDeploy.prepare()
+     * Documents the expected status transitions for BtcDeployLbtc.prepare()
      *
      * Scenario 1: No existing deposit, no existing signature
      * IDLE → prepare() → NEEDS_DEPLOY_AUTHORIZATION

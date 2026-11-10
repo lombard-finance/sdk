@@ -347,6 +347,23 @@ describe('signPermitChallenge with an active signature on file', () => {
       jwt: 'jwt-token',
     });
   });
+
+  it("looks up with the caller's wallet auth when it has one", async () => {
+    const auth = { getToken: async () => 'held-jwt' };
+    onFile(future());
+
+    await expect(signPermitChallenge({ ...params, auth })).rejects.toThrow(
+      ActivePermitExistsError,
+    );
+    expect(mockedStored).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userDestinationAddress: account,
+        chainId: ChainId.ethereum,
+        env: Env.prod,
+        auth,
+      }),
+    );
+  });
 });
 
 /**

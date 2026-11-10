@@ -17,6 +17,10 @@ import {
   isBtceVaultChain,
   isEarnChain,
 } from '../../vaults/lib/config';
+import {
+  assertNoLiveEarnWithdrawal,
+  readPendingEarnWithdrawal,
+} from '../../vaults/lib/ops/pending-withdrawal';
 
 /**
  * Which withdrawal queue to file the request against.
@@ -35,6 +39,15 @@ export type WithdrawEarnParameters = {
    * Defaults to Token.LBTC. Must be a deposit-side asset accepted by the vault.
    */
   withdrawalAsset?: Token;
+  /**
+   * Overwrite a withdrawal that is already queued for this account.
+   *
+   * The atomic queue holds one request per account, so filing a second
+   * replaces the first and un-queues its shares. That is refused by default;
+   * set this when replacing an open request is what you meant. Ignored for
+   * `queue: 'boring'`, which keeps each request separately.
+   */
+  replaceExisting?: boolean;
   /**
    * Withdrawal queue to route the request to. Defaults to `'atomic'` to
    * preserve legacy behavior; pass `'boring'` to use the BoringOnChainQueue.
@@ -83,6 +96,7 @@ export interface WithdrawEarnResult {
 export async function withdrawEarn({
   amount: amountRaw,
   withdrawalAsset = Token.LBTC,
+  replaceExisting = false,
   queue = 'atomic',
   account,
   chainId,
@@ -192,6 +206,27 @@ export async function withdrawEarn({
   if (amountBase > underlyingBalance + btceBalance) {
     throw new Error(
       `InsufficientPositionError: requested ${amount.toFixed()} exceeds total position. underlyingBalance=${underlyingBalance.toString()}, btceBalance=${btceBalance.toString()}, amount=${amountBase.toString()}.`,
+    );
+  }
+
+  // --- Pre-flight: an open request would be replaced, not rejected ---
+  // Ahead of the unwrap and the approval below, because both are irreversible
+  // and the queue write they lead to would silently discard whatever this
+  // account already had queued. Only the atomic queue holds one request per
+  // account; the BoringQueue files each request separately and has no slot
+  // to read.
+  if (!useBoringQueue) {
+    assertNoLiveEarnWithdrawal(
+      await readPendingEarnWithdrawal({
+        publicClient,
+        queueAddress,
+        queueAbi,
+        offer: vaultAddress,
+        want: withdrawTokenInfo.address,
+        account,
+        shareDecimals: vault.decimals,
+      }),
+      { replaceExisting },
     );
   }
 

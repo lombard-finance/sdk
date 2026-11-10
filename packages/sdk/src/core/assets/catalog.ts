@@ -34,11 +34,15 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.prod,
           chains: [
+            ...(featureConfig.isAvalancheMainnetEnabled
+              ? [Chain.AVALANCHE]
+              : []),
             Chain.BASE,
             Chain.BSC,
             Chain.BERACHAIN,
             ...(featureConfig.isEtherlinkEnabled ? [Chain.ETHERLINK] : []),
             Chain.KATANA,
+            Chain.MEGAETH,
             Chain.MORPH,
             Chain.SONIC,
             Chain.TAC,
@@ -75,12 +79,12 @@ export const ASSET_CATALOG: AssetCatalog = {
         // Testnet
         {
           env: Env.testnet,
-          chain: Chain.SEPOLIA,
-          address: '0xc47e4b3124597fdf8dd07843d4a7052f2ee80c30',
-        },
-        {
-          env: Env.testnet,
-          chains: [Chain.AVALANCHE_FUJI, Chain.BASE_SEPOLIA, Chain.BSC_TESTNET],
+          chains: [
+            Chain.SEPOLIA,
+            Chain.AVALANCHE_FUJI,
+            Chain.BASE_SEPOLIA,
+            Chain.BSC_TESTNET,
+          ],
           address: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
         },
         {
@@ -203,8 +207,8 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.testnet,
           chain: Chain.AVALANCHE_FUJI,
-          address: '0x7FbdC44BfEBDe80C970ba622B678daB36cee31f6',
-          bridgeAdapter: '0x0A65C37d07c32E5eA8ea40495b7f249cdE26935e',
+          address: '0xB14f240714Bd23Bda103A7189D512A90326E4D01',
+          bridgeAdapter: '0x41BCd71e7C92b1c8dDe53037F9b2c4AA2058b1cB',
         },
         {
           env: Env.testnet,

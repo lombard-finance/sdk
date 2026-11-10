@@ -48,10 +48,7 @@ const MAX_EXPIRY_HORIZON_SECONDS = MAX_EXPIRY_HORIZON_DAYS * 24 * 60 * 60;
  * @param expiry - The timestamp to check.
  * @param paramName - The caller-facing name to use in the message.
  */
-export function assertValidExpiry(
-  expiry: number,
-  paramName = 'expiry',
-): void {
+export function assertValidExpiry(expiry: number, paramName = 'expiry'): void {
   if (!Number.isSafeInteger(expiry) || expiry <= 0) {
     throw new LombardError(
       ValidationErrorCode.INVALID_PARAMETER,
@@ -130,6 +127,81 @@ export function assertPositiveBaseUnits(
       `${paramName} must be a whole number of base units, received ` +
         `${String(value)}. It is ${unitHint}, not a human-readable amount — ` +
         `0.001 BTC is 100000, not 0.001.`,
+    );
+  }
+}
+
+/**
+ * The most a minting-fee approval may authorise, in satoshis: 0.001 BTC.
+ *
+ * The fee is a contract read the SDK is told rather than one it can check,
+ * and the approval it becomes lets the claimer take that much per mint for as
+ * long as it is live. The asset router charges a few hundred satoshis on
+ * mainnet and a few thousand on the test networks; this sits two orders of
+ * magnitude above the first and well over ten times the second, so a real
+ * fee does not reach it and a misconfigured or substituted one is refused
+ * before the wallet is asked. A fixed number rather than one derived from a
+ * live rate, so that what moves the fee cannot also move the ceiling.
+ */
+export const MAX_MINTING_FEE_SATOSHIS = 100_000n;
+
+/**
+ * The largest share of a deposit a minting fee may take: half.
+ *
+ * A fee the size of the deposit mints nothing, and one approaching it is not
+ * a price anyone would choose to pay. Half leaves room for the test
+ * networks' fee against the smallest redemption the SDK accepts, about a
+ * quarter of it, while refusing a fee that would take most of a deposit.
+ */
+export const MAX_MINTING_FEE_DEPOSIT_DIVISOR = 2n;
+
+/**
+ * Rejects a minting fee that should not be signed.
+ *
+ * Zero first: an approval for a zero fee signs and stores like any other, and
+ * a chain that charges a fee then mints nothing against it while it is live.
+ * Then the ceilings: above {@link MAX_MINTING_FEE_SATOSHIS} outright, and,
+ * when the deposit is known, above {@link MAX_MINTING_FEE_DEPOSIT_DIVISOR}
+ * of it.
+ *
+ * @param feeSatoshis - The fee about to be signed, in satoshis.
+ * @param depositSatoshis - The deposit the approval is for, in satoshis, when
+ * the caller knows it.
+ */
+export function assertMintingFeeWithinBounds(
+  feeSatoshis: BigNumber.Value | bigint,
+  depositSatoshis?: BigNumber.Value | bigint,
+): void {
+  const fee = new BigNumber(String(feeSatoshis));
+
+  if (!fee.isFinite() || !fee.isInteger() || fee.isLessThanOrEqualTo(0)) {
+    throw new LombardError(
+      ValidationErrorCode.INVALID_AMOUNT,
+      `The minting fee must be a whole number of satoshis greater than ` +
+        `zero, received ${String(feeSatoshis)}. A zero fee approval ` +
+        `authorises nothing the claimer can mint against, so it is not signed.`,
+    );
+  }
+
+  const cap = new BigNumber(MAX_MINTING_FEE_SATOSHIS.toString());
+  if (fee.isGreaterThan(cap)) {
+    throw new LombardError(
+      ValidationErrorCode.AMOUNT_TOO_LARGE,
+      `The minting fee of ${fee.toFixed()} satoshis is above the ` +
+        `${cap.toFixed()} satoshis the SDK will sign. A fee that high is a ` +
+        `misconfigured or substituted read, not a price.`,
+    );
+  }
+
+  if (depositSatoshis === undefined) return;
+
+  const deposit = new BigNumber(String(depositSatoshis));
+  const share = deposit.dividedBy(MAX_MINTING_FEE_DEPOSIT_DIVISOR.toString());
+  if (!deposit.isFinite() || fee.isGreaterThan(share)) {
+    throw new LombardError(
+      ValidationErrorCode.AMOUNT_TOO_LARGE,
+      `The minting fee of ${fee.toFixed()} satoshis is more than half of the ` +
+        `${deposit.toFixed()} satoshi deposit, which the SDK will not sign.`,
     );
   }
 }

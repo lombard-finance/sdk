@@ -10,7 +10,7 @@
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "test:required": "yarn workspace @lombard.finance/sdk test:unit && yarn workspace @lombard.finance/sdk test:integration:mocked && yarn workspace @lombard.finance/sdk-react test && yarn workspace @lombard.finance/sdk-devtools test && yarn workspace @lombard.finance/sdk-solana test && yarn workspace @lombard.finance/sdk-sui test && yarn workspace @lombard.finance/example-evm test && yarn workspace @lombard.finance/example-solana test && yarn workspace @lombard.finance/example-starknet test && yarn workspace @lombard.finance/example-sui test",
+    "test:required": "yarn workspace @lombard.finance/sdk test:coverage && yarn workspace @lombard.finance/sdk test:integration:mocked && yarn workspace @lombard.finance/sdk-common test && yarn workspace @lombard.finance/sdk-starknet test && yarn workspace @lombard.finance/sdk-react test && yarn workspace @lombard.finance/sdk-devtools test && yarn workspace @lombard.finance/sdk-solana test && yarn workspace @lombard.finance/sdk-sui test && yarn workspace @lombard.finance/example-evm test && yarn workspace @lombard.finance/example-solana test && yarn workspace @lombard.finance/example-starknet test && yarn workspace @lombard.finance/example-sui test && yarn workspace @lombard.finance/sdk-agent test && yarn workspace @lombard.finance/sdk-agentkit test && yarn workspace @lombard.finance/example-agent-chat test",
     "test:online": "ENABLE_ONLINE_INTEGRATION=true yarn workspace @lombard.finance/sdk test:integration:online",
     "test:e2e:local": "echo 'No local e2e workspace configured yet (planned: apps/e2e)'",
     "test:unit": "turbo run test:unit",

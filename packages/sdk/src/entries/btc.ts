@@ -9,27 +9,27 @@ export { BtcActions, btcActions } from '../chains/btc/BtcActions';
 
 // BTC types and direct actions
 export type {
-  BtcDepositAndDeployParams,
-  BtcDepositAndDeployPrepareParams,
-  BtcDepositAndDeployProgress,
-  BtcDepositParams,
-  BtcDepositPrepareParams,
-  BtcDepositProgress,
-  BtcStakeAndDeployParams,
-  BtcStakeAndDeployPrepareParams,
-  BtcStakeAndDeployProgress,
-  BtcStakeParams,
-  BtcStakeProgress,
-  IBtcDeposit,
-  IBtcDepositAndDeploy,
-  IBtcStake,
-  IBtcStakeAndDeploy,
+  BtcDeployBtcbParams,
+  BtcDeployBtcbPrepareParams,
+  BtcDeployBtcbProgress,
+  BtcDeployLbtcParams,
+  BtcDeployLbtcPrepareParams,
+  BtcDeployLbtcProgress,
+  BtcDepositBtcbParams,
+  BtcDepositBtcbPrepareParams,
+  BtcDepositBtcbProgress,
+  BtcDepositLbtcParams,
+  BtcDepositLbtcProgress,
+  IBtcDeployBtcb,
+  IBtcDeployLbtc,
+  IBtcDepositBtcb,
+  IBtcDepositLbtc,
 } from '../chains/btc';
 export {
-  BtcDeposit,
-  BtcDepositAndDeploy,
-  BtcStake,
-  BtcStakeAndDeploy,
+  BtcDeployBtcb,
+  BtcDeployLbtc,
+  BtcDepositBtcb,
+  BtcDepositLbtc,
 } from '../chains/btc';
 
 // BTC status

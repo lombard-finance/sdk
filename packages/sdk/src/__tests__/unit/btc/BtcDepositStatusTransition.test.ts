@@ -7,7 +7,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 
-import { BtcActionStatus } from '../../../chains/btc/actions/deposit/types';
+import { BtcActionStatus } from '../../../chains/btc/actions/deposit-btcb/types';
 
 describe('BTC Deposit Status Transition Issue', () => {
   describe('Resume with expired fee auth', () => {

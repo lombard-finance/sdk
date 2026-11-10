@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk-devtools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Developer tools for the Lombard SDK - debugging, inspection, and testing utilities",
   "type": "module",
   "main": "./dist/index.js",

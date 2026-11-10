@@ -23,8 +23,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getExchangeRatio } from '../../../api-functions/getLBTCExchangeRate/get-exchange-ratio';
 import { getUserStakeAndBakeSignature } from '../../../api-functions/getUserStakeAndBakeSignature';
-import { stakeAndDeployConfig } from '../../../chains/btc/actions/stakeAndDeploy/config';
-import { BtcActionStatus } from '../../../chains/btc/actions/stakeAndDeploy/types';
+import { stakeAndDeployConfig } from '../../../chains/btc/actions/deploy-lbtc/config';
+import { BtcActionStatus } from '../../../chains/btc/actions/deploy-lbtc/types';
 import { ChainId } from '../../../common/chains';
 import { AssetId, Chain, type DeployProtocol } from '../../../core';
 import type { BtcCoreContext } from '../../../shared/context';
@@ -47,6 +47,11 @@ const SMALL_PERMIT_VALUE = '99735';
 /** 0.5 BTC in satoshis. */
 const LARGE_SATS = '50000000';
 
+/** Prod LBTC on Ethereum, and the vault's stake-and-bake spender there. */
+const LBTC = '0x8236a87084f8b84306f72007f36f2618a5634494';
+const EARN_SPENDER = '0xC8bbF6153D7Ba105f1399D992ebd32B0541996ef';
+
+/** This route's own permit, as the v2 route reports it: token and spender named. */
 function onFile(depositAmount: string, signature = '0xstored') {
   mockedStored.mockResolvedValue({
     userDestinationAddress: RECIPIENT,
@@ -55,6 +60,8 @@ function onFile(depositAmount: string, signature = '0xstored') {
     expirationDate: String(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60),
     depositAmount,
     chainId: String(ChainId.ethereum),
+    tokenAddress: LBTC,
+    spenderAddress: EARN_SPENDER,
   });
 }
 
@@ -70,7 +77,11 @@ beforeEach(() => {
 
 describe('restoreStakeAndBakeSignature', () => {
   const ctx = { env: Env.prod } as unknown as BtcCoreContext;
-  const required = { amount: SMALL_SATS, token: AssetId.BTC };
+  const required = {
+    amount: SMALL_SATS,
+    token: AssetId.BTC,
+    protocol: 'bitcoinEarn',
+  };
 
   async function restore(amount: string) {
     return stakeAndDeployConfig.restoreStakeAndBakeSignature(
@@ -86,7 +97,68 @@ describe('restoreStakeAndBakeSignature', () => {
 
     await expect(restore(SMALL_SATS)).resolves.toMatchObject({
       hasSignature: true,
+      matchesRoute: true,
       coversAmount: true,
+    });
+  });
+
+  it('matches the token and spender regardless of case', async () => {
+    mockedStored.mockResolvedValue({
+      userDestinationAddress: RECIPIENT,
+      signature: '',
+      expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
+      depositAmount: SMALL_PERMIT_VALUE,
+      chainId: String(ChainId.ethereum),
+      tokenAddress: LBTC.toUpperCase().replace('0X', '0x'),
+      spenderAddress: EARN_SPENDER.toLowerCase(),
+    });
+
+    await expect(restore(SMALL_SATS)).resolves.toMatchObject({
+      matchesRoute: true,
+    });
+  });
+
+  // The v1 record is whichever permit was stored last for the wallet and
+  // chain, by any product; it names no token or spender.
+  it('reports a v1 record as not shown to be this route', async () => {
+    mockedStored.mockResolvedValue({
+      userDestinationAddress: RECIPIENT,
+      signature: '0xstored',
+      expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
+      depositAmount: SMALL_PERMIT_VALUE,
+      chainId: String(ChainId.ethereum),
+    });
+
+    await expect(restore(SMALL_SATS)).resolves.toMatchObject({
+      hasSignature: true,
+      matchesRoute: false,
+      coversAmount: true,
+    });
+  });
+
+  it.each([
+    [
+      'another spender',
+      { spenderAddress: '0x000000000000000000000000000000000000dEaD' },
+    ],
+    [
+      'another token',
+      { tokenAddress: '0x0000000000000000000000000000000000000b7C' },
+    ],
+  ])('reports a permit for %s as not this route', async (_label, overrides) => {
+    mockedStored.mockResolvedValue({
+      userDestinationAddress: RECIPIENT,
+      signature: '',
+      expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
+      depositAmount: SMALL_PERMIT_VALUE,
+      chainId: String(ChainId.ethereum),
+      tokenAddress: LBTC,
+      spenderAddress: EARN_SPENDER,
+      ...overrides,
+    });
+
+    await expect(restore(SMALL_SATS)).resolves.toMatchObject({
+      matchesRoute: false,
     });
   });
 
@@ -145,8 +217,126 @@ describe('restoreStakeAndBakeSignature', () => {
   });
 });
 
-describe('BtcStakeAndDeploy.prepare with a signature on file', () => {
-  async function action() {
+/**
+ * The lookup takes the v2 route when a wallet token is available, so the
+ * action's way of getting one has to reach it.
+ */
+describe('restoreStakeAndBakeSignature and the wallet token', () => {
+  const auth = { getToken: async () => 'jwt' };
+  const getAuthToken = () => 'sync-jwt';
+  const ctx = {
+    env: Env.prod,
+    auth,
+    getAuthToken,
+  } as unknown as BtcCoreContext;
+
+  function restore() {
+    return stakeAndDeployConfig.restoreStakeAndBakeSignature(
+      ctx,
+      ChainId.ethereum,
+      RECIPIENT,
+      { amount: SMALL_SATS, token: AssetId.BTC, protocol: 'bitcoinEarn' },
+    );
+  }
+
+  it("passes the context's wallet auth to the lookup", async () => {
+    onFile(SMALL_PERMIT_VALUE);
+
+    await restore();
+
+    expect(mockedStored).toHaveBeenCalledWith(
+      expect.objectContaining({ auth, getAuthToken }),
+    );
+  });
+
+  // The v2 list holds every token's permits on the chain. A BTC deposit is
+  // signed against LBTC, so only LBTC permits say anything about it.
+  it('asks for the permits of the token the deposit is signed against', async () => {
+    onFile(SMALL_PERMIT_VALUE);
+
+    await restore();
+
+    expect(mockedStored).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // LBTC on Ethereum.
+        tokenAddress: '0x8236a87084f8b84306f72007f36f2618a5634494',
+      }),
+    );
+  });
+
+  // Two products can hold LBTC permits on one chain, and the token's list
+  // reports the newest. When that is another spender's, this route's own is
+  // looked up by its spender, since it can sit at a lower nonce.
+  it("looks up the vault's own permit when the newest is another spender's", async () => {
+    const live = String(Math.floor(Date.now() / 1000) + 3600);
+    mockedStored
+      .mockResolvedValueOnce({
+        userDestinationAddress: RECIPIENT,
+        signature: '',
+        expirationDate: live,
+        depositAmount: '50000',
+        chainId: String(ChainId.ethereum),
+        tokenAddress: LBTC,
+        spenderAddress: '0x000000000000000000000000000000000000dEaD',
+      })
+      .mockResolvedValueOnce({
+        userDestinationAddress: RECIPIENT,
+        signature: '',
+        expirationDate: live,
+        depositAmount: SMALL_PERMIT_VALUE,
+        chainId: String(ChainId.ethereum),
+        tokenAddress: LBTC,
+        spenderAddress: EARN_SPENDER,
+      });
+
+    await expect(restore()).resolves.toMatchObject({
+      matchesRoute: true,
+      coversAmount: true,
+      depositAmount: SMALL_PERMIT_VALUE,
+    });
+    expect(mockedStored).toHaveBeenCalledTimes(2);
+    expect(mockedStored.mock.calls[0][0]).not.toHaveProperty('spenderAddress');
+    expect(mockedStored.mock.calls[1][0]).toMatchObject({
+      spenderAddress: EARN_SPENDER,
+    });
+  });
+
+  it("reports another spender's permit, when the vault has none, as not this route", async () => {
+    const foreign = {
+      userDestinationAddress: RECIPIENT,
+      signature: '',
+      expirationDate: String(Math.floor(Date.now() / 1000) + 3600),
+      depositAmount: '500000',
+      chainId: String(ChainId.ethereum),
+      tokenAddress: LBTC,
+      spenderAddress: '0x000000000000000000000000000000000000dEaD',
+    };
+    mockedStored.mockResolvedValueOnce(foreign).mockResolvedValueOnce({
+      ...foreign,
+      expirationDate: '',
+      depositAmount: '',
+      tokenAddress: undefined,
+      spenderAddress: undefined,
+    });
+
+    await expect(restore()).resolves.toMatchObject({
+      hasSignature: true,
+      matchesRoute: false,
+      depositAmount: '500000',
+    });
+  });
+
+  it('reads a lookup failure as no permit', async () => {
+    mockedStored.mockRejectedValue(new Error('gateway unreachable'));
+
+    await expect(restore()).resolves.toBeNull();
+  });
+});
+
+describe('BtcDeployLbtc.prepare with a signature on file', () => {
+  const HELD_ADDRESS = 'bc1qexistingdeposit000000000000000000000';
+
+  async function action({ heldAddress }: { heldAddress?: string } = {}) {
     const ctx = {
       env: Env.prod,
       capabilities: {
@@ -158,29 +348,41 @@ describe('BtcStakeAndDeploy.prepare with a signature on file', () => {
         },
         has: () => true,
       },
-      api: { getDepositAddress: vi.fn().mockResolvedValue(undefined) },
+      api: { getDepositAddress: vi.fn().mockResolvedValue(heldAddress) },
       partner: { getPartnerId: () => undefined },
     } as unknown as BtcCoreContext;
 
-    const { BtcStakeAndDeploy } = await import(
-      '../../../chains/btc/actions/stakeAndDeploy/BtcStakeAndDeploy'
-    );
+    const { BtcDeployLbtc } =
+      await import('../../../chains/btc/actions/deploy-lbtc/BtcDeployLbtc');
 
-    return new BtcStakeAndDeploy(ctx, {
+    return new BtcDeployLbtc(ctx, {
       assetOut: AssetId.LBTC,
       sourceChain: Chain.BITCOIN_MAINNET,
       destChain: Chain.ETHEREUM,
-      protocol: 'veda' as DeployProtocol,
+      protocol: 'bitcoinEarn' as DeployProtocol,
     });
   }
 
   it('skips the prompt for the deposit the signature was signed for', async () => {
     onFile(SMALL_PERMIT_VALUE);
+    const subject = await action({ heldAddress: HELD_ADDRESS });
+
+    await subject.prepare({ amount: '0.001', recipient: RECIPIENT });
+
+    expect(subject.status).toBe(BtcActionStatus.ADDRESS_READY);
+  });
+
+  // With no address to resume onto, the signature would have to go out with
+  // an address request, and with it the typed data no route returns.
+  it('stops rather than going ready when no address is held', async () => {
+    onFile(SMALL_PERMIT_VALUE);
     const subject = await action();
 
     await subject.prepare({ amount: '0.001', recipient: RECIPIENT });
 
-    expect(subject.status).toBe(BtcActionStatus.READY);
+    expect(subject.status).toBe(
+      BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
+    );
   });
 
   /**

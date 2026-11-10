@@ -251,15 +251,29 @@ describe('Token Addresses', () => {
         expect(address).toBeDefined();
       });
 
-      it('should return LBTC address for Solana testnet', () => {
+      it('should return LBTC address for Solana devnet in testnet env', () => {
+        // Env.testnet maps to the devnet cluster, not the testnet cluster —
+        // see SOLANA_TOKEN_ADDRESSES[Token.LBTC][Env.testnet].
         const address = getTokenAddressForChain(
-          SOLANA_TESTNET_CHAIN,
+          SOLANA_DEVNET_CHAIN,
           AddressKind.Token,
           Env.testnet,
         );
 
-        expect(address).toBe('79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6');
-        expect(address).toBeDefined();
+        expect(address).toBe('1BTCPX3qyFtBvhQvJaHntfzZfB8qcJmJXfoRnD3vAgh');
+      });
+
+      it('should have no LBTC deployment on the Solana testnet cluster', () => {
+        // Solana's public testnet cluster carries no LBTC in any environment;
+        // testnet-env consumers use devnet. Asserted explicitly so a future
+        // deployment has to update this test deliberately.
+        expect(
+          getTokenAddressForChain(
+            SOLANA_TESTNET_CHAIN,
+            AddressKind.Token,
+            Env.testnet,
+          ),
+        ).toBeUndefined();
       });
 
       it('should return LBTC address for Solana devnet in stage', () => {

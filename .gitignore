@@ -70,3 +70,5 @@ docs/
 
 .agents
 skills-lock.json
+# typedoc output (yarn build-docs)
+sdk-docs/

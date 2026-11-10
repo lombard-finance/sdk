@@ -84,10 +84,14 @@ function mapEnvs<const E extends readonly Env[]>(
   }, {} as EnvStrategyMap);
 }
 
-function getVedaSpenderContract(chainId: EarnStakeAndBakeChain): ContractInfo {
+function getBitcoinEarnSpenderContract(
+  chainId: EarnStakeAndBakeChain,
+): ContractInfo {
   const contract = EARN_VAULT_SPENDER_CONTRACTS[chainId];
   if (!contract) {
-    throw new Error(`Missing Veda spender contract for chain ${chainId}`);
+    throw new Error(
+      `Missing Bitcoin Earn spender contract for chain ${chainId}`,
+    );
   }
   return contract;
 }
@@ -108,15 +112,15 @@ export type DefiRegistryToken =
  * All other protocol references should use these values.
  */
 export const DefiProtocol = {
-  Veda: 'veda',
+  BitcoinEarn: 'bitcoinEarn',
   Silo: 'silo',
 } as const;
 
 export type DefiProtocol = (typeof DefiProtocol)[keyof typeof DefiProtocol];
 
 export const DefiProtocols = {
-  [DefiProtocol.Veda]: {
-    name: 'Lombard DeFi Vault',
+  [DefiProtocol.BitcoinEarn]: {
+    name: 'Bitcoin Earn',
     url: 'https://lombard.finance',
   },
   [DefiProtocol.Silo]: {
@@ -125,13 +129,14 @@ export const DefiProtocols = {
   },
 } as const;
 
-const VEDA_LBTC_PERMIT_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
-  mode: 'permit',
-  domainName: 'Lombard Staked Bitcoin',
-  domainVersion: '1',
-  deadlineStrategy: 'expiry',
-  nonceStrategy: 'chain',
-};
+const BITCOIN_EARN_LBTC_PERMIT_APPROVAL: StakeAndBakeStrategyConfig['approval'] =
+  {
+    mode: 'permit',
+    domainName: 'Lombard Staked Bitcoin',
+    domainVersion: '1',
+    deadlineStrategy: 'expiry',
+    nonceStrategy: 'chain',
+  };
 
 const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
   mode: 'approve',
@@ -147,19 +152,19 @@ const SILO_BTCB_APPROVE_APPROVAL: StakeAndBakeStrategyConfig['approval'] = {
  * TODO: Update the format of this registry to match asset catalog and chain catalog
  */
 export const DEFI_REGISTRY: StakeAndBakeRegistry = {
-  [DefiProtocol.Veda]: {
+  [DefiProtocol.BitcoinEarn]: {
     [Token.LBTC]: mapEnvs(ALL_ENVS, () =>
       mapChains(EARN_STAKE_AND_BAKE_CHAINS, (chain) => ({
         amountStrategy: 'identity',
-        approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
-        spenderContract: getVedaSpenderContract(chain),
+        approval: { ...BITCOIN_EARN_LBTC_PERMIT_APPROVAL },
+        spenderContract: getBitcoinEarnSpenderContract(chain),
       })),
     ),
     BTC: mapEnvs(ALL_ENVS, () =>
       mapChains(EARN_STAKE_AND_BAKE_CHAINS, (chain) => ({
         amountStrategy: 'btcToLbtc',
-        approval: { ...VEDA_LBTC_PERMIT_APPROVAL },
-        spenderContract: getVedaSpenderContract(chain),
+        approval: { ...BITCOIN_EARN_LBTC_PERMIT_APPROVAL },
+        spenderContract: getBitcoinEarnSpenderContract(chain),
       })),
     ),
   },
@@ -191,8 +196,8 @@ export type StakeAndBakeToken = DefiRegistryToken;
  *
  * @example
  * ```typescript
- * // Get chains supporting Veda with BTC token on testnet
- * const chains = getStakeAndBakeSupportedChains(DefiProtocol.Veda, 'BTC', Env.testnet);
+ * // Get chains supporting Bitcoin Earn with BTC token on testnet
+ * const chains = getStakeAndBakeSupportedChains(DefiProtocol.BitcoinEarn, 'BTC', Env.testnet);
  * // Returns: [ChainId.binanceSmartChainTestnet, ChainId.holesky]
  * ```
  */
@@ -234,7 +239,7 @@ export function getSupportedProtocols(assetId: AssetId): DefiProtocol[] {
  * ```typescript
  * // Get protocols available for LBTC in production
  * const prodProtocols = getAvailableProtocols(AssetId.LBTC, Env.prod);
- * // Returns: ['veda'] - Silo is only on Avalanche which has no mainnet prod config
+ * // Returns: ['bitcoinEarn'] - Silo is only on Avalanche which has no mainnet prod config
  *
  * // Get protocols available for BTCb in testnet
  * const testnetProtocols = getAvailableProtocols(AssetId.BTCb, Env.testnet);
@@ -279,7 +284,7 @@ export function getAvailableProtocols(
  * @example
  * ```typescript
  * const protocols = getAvailableProtocolsWithMetadata(AssetId.LBTC, Env.prod);
- * // Returns: [{ value: 'veda', label: 'Lombard DeFi Vault', url: '...' }]
+ * // Returns: [{ value: 'bitcoinEarn', label: 'Bitcoin Earn', url: '...' }]
  * ```
  */
 export function getAvailableProtocolsWithMetadata(

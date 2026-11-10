@@ -1,5 +1,6 @@
 import type { Env } from './env';
 import type { ProviderFor, ProviderKey } from './providers';
+import type { LombardAuth } from './services/auth';
 
 /**
  * Shared token for cross-module state
@@ -14,6 +15,13 @@ export interface RegisterContext {
   getProvider<TKey extends ProviderKey>(key: TKey): Promise<ProviderFor<TKey>>;
   getShared<T>(token: SharedToken<T>): T | undefined;
   setShared<T>(token: SharedToken<T>, value: T): void;
+  /**
+   * How to obtain a wallet JWT, from `LombardConfig.auth`. For a service that
+   * calls user-scoped routes on the caller's behalf.
+   */
+  auth?: LombardAuth;
+  /** @deprecated Prefer {@link auth}. From `LombardConfig.getAuthToken`. */
+  getAuthToken?: () => string | undefined;
 }
 
 /**

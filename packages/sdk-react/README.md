@@ -31,65 +31,64 @@ const { sdk, isInitializing, error } = useLombardSDK(
 );
 ```
 
-### `useBtcStake(sdk)`
+### `useBtcDeposit(sdk)`
 
-BTC → LBTC staking. Manages the full lifecycle: `prepare → authorize (if needed) → generateDepositAddress`. Subscribes to `status-change` and `progress` events for real-time confirmation tracking.
+BTC → LBTC or BTC.b. `btc.deposit()` dispatches on `assetOut`, so one hook covers both. Manages the full lifecycle: `prepare → authorize (if needed) → generateDepositAddress`, and subscribes to `status-change` and `progress` for confirmation tracking.
 
 ```ts
 const {
-  stake,
+  deposit,
   reset,
   depositAddress,
-  stakeAmount,
+  depositAmount,
   status,
   progress,
   error,
   isLoading,
-} = useBtcStake(sdk);
+} = useBtcDeposit(sdk);
 
-await stake({ amount, destChain, sourceChain, assetOut, recipient });
+await deposit({ amount, destChain, sourceChain, assetOut, recipient });
 ```
 
-### `useBtcStakeAndBake(sdk)`
+### `useBtcDeploy(sdk)`
 
-BTC → LBTC → Vault (stake-and-deploy). Lifecycle: `prepare → authorizeDeposit (if needed) → generateDepositAddress`.
+BTC straight into a DeFi vault position. Lifecycle: `prepare → authorizeDeposit (if needed) → generateDepositAddress`.
 
 ```ts
 const {
-  stakeAndDeploy,
+  deploy,
   reset,
   depositAddress,
-  stakeAmount,
+  depositAmount,
   status,
   progress,
   error,
   isLoading,
-} = useBtcStakeAndBake(sdk);
+} = useBtcDeploy(sdk);
 
-await stakeAndDeploy({ amount, destChain, sourceChain, protocol, recipient });
+await deploy({ amount, destChain, sourceChain, protocol, recipient });
 ```
 
-### `useEvmUnstake(sdk)`
+### `useEvmWithdraw(sdk)`
 
-LBTC burn on EVM chains. Lifecycle: `prepare → authorizeFee (if needed) → execute`. Returns `txHash` on completion.
+Burns LBTC or BTC.b on an EVM chain. Lifecycle: `prepare → authorizeFee (if needed) → execute`. Returns `txHash` on completion.
 
 ```ts
-const { unstake, reset, txHash, status, error, isLoading } = useEvmUnstake(sdk);
+const { withdraw, reset, txHash, status, error, isLoading } =
+  useEvmWithdraw(sdk);
 
-await unstake({ amount, sourceChain, destChain, assetOut, recipient });
+await withdraw({ amount, sourceChain, destChain, assetOut, recipient });
 ```
 
-### `useNonEvmUnstake(sdk, chainNamespace)`
+### `useNonEvmWithdraw(sdk, chainNamespace)`
 
-LBTC burn on Solana, Starknet, or Sui. Lifecycle: `prepare → execute`.
+Burns LBTC on Solana, Starknet, or Sui. Lifecycle: `prepare → execute`.
 
 ```ts
-const { unstake, reset, txHash, status, error, isLoading } = useNonEvmUnstake(
-  sdk,
-  'solana',
-);
+const { withdraw, reset, txHash, status, error, isLoading } =
+  useNonEvmWithdraw(sdk, 'solana');
 
-await unstake({ amount, sourceChain, destChain, recipient });
+await withdraw({ amount, sourceChain, destChain, recipient });
 ```
 
 ## License

@@ -120,6 +120,8 @@ export class CapabilityRegistry<
       setShared: <T>(token: SharedToken<T>, value: T) => {
         this.shared.set(token as SharedToken<unknown>, value);
       },
+      auth: this.config.auth,
+      getAuthToken: this.config.getAuthToken,
     };
   }
 }

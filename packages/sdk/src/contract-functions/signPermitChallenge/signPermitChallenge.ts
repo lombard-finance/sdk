@@ -113,6 +113,8 @@ export async function signPermitChallenge({
   deadline = toUnix(now() + DAY * DEFAULT_PERMIT_DAYS),
   env,
   expectedSpender,
+  auth,
+  getAuthToken,
 }: ISignPermitChallengeParams): Promise<ISignPermitChallengeResult> {
   const chain = getLegacyChainNameById(chainId);
 
@@ -122,7 +124,7 @@ export async function signPermitChallenge({
   // reaching it has no symptom on the client at all.
   assertValidExpiry(deadline, 'deadline');
 
-  await assertNoActivePermit(account, chainId, env);
+  await assertNoActivePermit(account, chainId, { env, auth, getAuthToken });
 
   const challenge = await requestWalletChallenge({
     address: account,
@@ -225,11 +227,15 @@ export async function signPermitChallenge({
  * direction: if the endpoint is unreachable this proceeds, because blocking a
  * first-time user on an unrelated outage is worse than the wasted prompt this
  * avoids.
+ *
+ * This function is how a caller obtains a token in the first place, so it
+ * often runs without one, and the lookup then reads the v1 route. A caller
+ * already holding a token for the account passes it through `auth`.
  */
 async function assertNoActivePermit(
   account: Address,
   chainId: ChainId,
-  env: IEnvParam['env'],
+  { env, auth, getAuthToken }: IEnvParam,
 ): Promise<void> {
   let stored: Awaited<ReturnType<typeof getUserStakeAndBakeSignature>>;
   try {
@@ -237,12 +243,14 @@ async function assertNoActivePermit(
       userDestinationAddress: account,
       chainId,
       env,
+      auth,
+      getAuthToken,
     });
   } catch {
     return;
   }
 
-  // The route answers 200 with an empty record when nothing is on file.
+  // The record comes back with no expiry when nothing is on file.
   const expiresAt = Number(stored?.expirationDate);
   if (!Number.isFinite(expiresAt) || expiresAt <= 0) {
     return;
@@ -271,8 +279,15 @@ async function assertNoActivePermit(
  * user had already approved it. Better to fail before the prompt.
  *
  * Skipped when the server sends no digest, so an older gateway still works.
+ *
+ * @param kind - What the challenge is, for the message: `permit` or
+ * `fee approval`.
  */
-function assertDigestMatches(payload: string, digest?: string): void {
+export function assertDigestMatches(
+  payload: string,
+  digest?: string,
+  kind = 'permit',
+): void {
   if (!digest) {
     return;
   }
@@ -298,7 +313,7 @@ function assertDigestMatches(payload: string, digest?: string): void {
     } as Parameters<typeof hashTypedData>[0]);
   } catch (error) {
     throw new Error(
-      `Could not read the permit challenge payload: ${
+      `Could not read the ${kind} challenge payload: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
@@ -306,7 +321,8 @@ function assertDigestMatches(payload: string, digest?: string): void {
 
   if (local.toLowerCase() !== digest.toLowerCase()) {
     throw new Error(
-      `Permit challenge digest mismatch: server reserved ${digest}, payload hashes to ${local}`,
+      `${kind[0].toUpperCase()}${kind.slice(1)} challenge digest mismatch: ` +
+        `server reserved ${digest}, payload hashes to ${local}`,
     );
   }
 }
