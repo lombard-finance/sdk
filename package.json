@@ -10,7 +10,7 @@
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "test:required": "yarn workspace @lombard.finance/sdk test:unit && yarn workspace @lombard.finance/sdk test:integration:mocked && yarn workspace @lombard.finance/sdk-react test && yarn workspace @lombard.finance/sdk-devtools test && yarn workspace @lombard.finance/sdk-solana test && yarn workspace @lombard.finance/sdk-sui test && yarn workspace @lombard.finance/example-evm test && yarn workspace @lombard.finance/example-solana test && yarn workspace @lombard.finance/example-starknet test && yarn workspace @lombard.finance/example-sui test",
+    "test:required": "yarn test:dependencies && yarn workspace @lombard.finance/sdk test:unit && yarn workspace @lombard.finance/sdk test:integration:mocked && yarn workspace @lombard.finance/sdk-react test && yarn workspace @lombard.finance/sdk-devtools test && yarn workspace @lombard.finance/sdk-solana test && yarn workspace @lombard.finance/sdk-sui test && yarn workspace @lombard.finance/example-evm test && yarn workspace @lombard.finance/example-solana test && yarn workspace @lombard.finance/example-starknet test && yarn workspace @lombard.finance/example-sui test",
     "test:online": "ENABLE_ONLINE_INTEGRATION=true yarn workspace @lombard.finance/sdk test:integration:online",
     "test:e2e:local": "echo 'No local e2e workspace configured yet (planned: apps/e2e)'",
     "test:unit": "turbo run test:unit",
@@ -19,7 +19,8 @@
     "licenses:check": "node scripts/check-licenses.mjs",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "postinstall": "husky || echo 'warning: husky setup failed; git hooks are inactive'"
+    "postinstall": "husky || echo 'warning: husky setup failed; git hooks are inactive'",
+    "test:dependencies": "node --test scripts/dependency-security.test.mjs"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",
@@ -54,6 +55,15 @@
     "minimatch@~3.0.3": "^3.1.4",
     "minimatch@10.2.1": "^10.2.3",
     "toml@^3.0.0": "^4.2.0",
-    "undici@^5.29.0": "^6.28.0"
+    "undici@^5.29.0": "^6.29.1",
+    "shell-quote@1.9.0": "1.11.0",
+    "proxy-addr@~2.0.7": "~2.0.8",
+    "storybook": "^8.6.19",
+    "follow-redirects": "^1.16.2",
+    "body-parser@~1.20.3": "~1.20.9",
+    "source-map-js": "^1.2.2",
+    "markdown-it": "^14.3.3",
+    "vite@^6.3.5": "^6.4.4",
+    "vite@^6.0.0 || ^7.0.0 || ^8.0.0": "^8.3.3"
   }
 }
