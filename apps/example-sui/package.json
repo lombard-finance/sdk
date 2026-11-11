@@ -20,7 +20,7 @@
     "@mysten/wallet-standard": "^0.21.17",
     "@tanstack/react-query": "^5.50.1",
     "bignumber.js": "^9",
-    "bitcoinjs-lib": "6.1.5",
+    "bitcoinjs-lib": "6.1.10",
     "buffer": "^6.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
