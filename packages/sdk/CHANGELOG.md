@@ -1,3 +1,9 @@
+# 5.11.3
+
+### Fixed
+
+- Refresh patched HTTP, command-quoting, documentation and development-server dependencies while preserving their existing major versions.
+
 # 5.11.2
 
 ### Fixed
