@@ -9,23 +9,29 @@ on:
       - 'fix/**'
       - 'dev/**'
 
+env:
+  HUSKY: '0'
+
 jobs:
   build-and-test:
     # Runs directly on the hosted runner: git, tar and jq ship with the image,
     # Node comes from setup-node and Yarn 4 is vendored in .yarn/releases.
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-ci
       cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           ref: ${{ github.ref || github.sha }}
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
@@ -56,10 +62,14 @@ jobs:
       PUBLISH_ORDER: "sdk-common sdk sdk-solana sdk-sui sdk-starknet sdk-devtools sdk-agent sdk-agentkit"
 
     steps:
-      - uses: actions/checkout@v4
+      # No token in .git/config: the build below runs third-party code while
+      # this job holds packages: write.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: '.nvmrc'
           cache: yarn
@@ -74,21 +84,22 @@ jobs:
 
       - name: Compute prerelease version
         id: version
+        env:
+          BRANCH: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
         run: |
-          BRANCH="${{ github.ref_name }}"
-          SHA="${{ github.sha }}"
           SLUG=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
           SHORT_SHA="${SHA:0:7}"
           VERSION="0.0.0-${SLUG}.${SHORT_SHA}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Computed version: $VERSION"
 
       - name: Publish all packages to GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
-          VERSION="${{ steps.version.outputs.version }}"
           FAILED=""
 
           for pkg in $PUBLISH_ORDER; do
@@ -121,7 +132,7 @@ jobs:
             "
 
             cd "$PKG_DIR"
-            if npm publish --tag dev; then
+            if npm publish --tag dev --ignore-scripts; then
               echo "  Published"
             else
               echo "  FAILED"
