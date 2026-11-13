@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Require the patched BitcoinJS 6.1.10 peer dependency.
+- Require the patched BitcoinJS 6.1.10 or a later 6.x release as the peer dependency, matching `sdk` and `sdk-common`.
 
 ## [2.0.0] - 2026-08-06
 
