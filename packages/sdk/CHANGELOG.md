@@ -1,3 +1,9 @@
+# Unreleased
+
+### Fixed
+
+- `isValidBitcoinAddress()`, and so `bitcoinAddressSchema`, the recipient schema for every unstake and redeem action, accepted any checksum-valid base58check string. A Litecoin `L…`/`M…`, Dogecoin `D…` or Dash `X…` address passed validation and only failed later in `getOutputScript()` with `… has no matching Script`. The version byte is now checked against Bitcoin mainnet and testnet P2PKH/P2SH, the base58 counterpart of the bech32 prefix check. Fail-closed before, so no funds were at risk.
+
 # 5.11.3
 
 ### Fixed
