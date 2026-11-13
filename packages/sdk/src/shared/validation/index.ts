@@ -36,6 +36,21 @@ const MAX_WITNESS_VERSION = 1;
 const BITCOIN_BECH32_PREFIXES = ['bc', 'tb'];
 
 /**
+ * The base58check version bytes this SDK can pay to: P2PKH and P2SH on the
+ * same two networks.
+ *
+ * Every base58 coin shares the checksum, so a Litecoin `L…` or Dogecoin `D…`
+ * address decodes as cleanly as a Bitcoin one. Only the version byte tells
+ * them apart, and `toOutputScript` would refuse anything else later.
+ */
+const BITCOIN_BASE58_VERSIONS = [
+  bitcoin.networks.bitcoin.pubKeyHash,
+  bitcoin.networks.bitcoin.scriptHash,
+  bitcoin.networks.testnet.pubKeyHash,
+  bitcoin.networks.testnet.scriptHash,
+];
+
+/**
  * Validate a Bitcoin address using bitcoinjs-lib
  * This validates the checksum for all address types:
  * - Legacy P2PKH (1..., m..., n...)
@@ -47,7 +62,8 @@ const BITCOIN_BECH32_PREFIXES = ['bc', 'tb'];
  * all-uppercase form BIP-173 also defines is accepted, and a future witness
  * version is rejected instead of passing as valid. The decoded prefix is still
  * checked: decoding tells you the string is well formed, not that it names a
- * network this SDK builds outputs for.
+ * network this SDK builds outputs for. Base58 addresses are held to the same
+ * rule through their version byte.
  *
  * @param address - The address to validate
  * @returns true if valid, false otherwise
@@ -71,10 +87,12 @@ export function isValidBitcoinAddress(address: string): boolean {
     // Not bech32. Fall through to base58check.
   }
 
-  // Legacy and P2SH addresses (base58check)
+  // Legacy and P2SH addresses (base58check). The checksum says the string is
+  // well formed; the version byte says which chain it is for, the base58
+  // counterpart of the bech32 prefix above.
   try {
-    bitcoin.address.fromBase58Check(address);
-    return true;
+    const { version } = bitcoin.address.fromBase58Check(address);
+    return BITCOIN_BASE58_VERSIONS.includes(version);
   } catch {
     return false;
   }
