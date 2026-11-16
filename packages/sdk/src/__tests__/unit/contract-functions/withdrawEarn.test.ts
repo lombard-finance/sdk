@@ -533,7 +533,7 @@ describe('withdrawEarn', () => {
       ).not.toContain('safeUpdateAtomicRequest');
     });
 
-    it('ignores a queue option a 5.x caller still passes', async () => {
+    it("accepts the deprecated queue: 'boring' and files on the BoringQueue", async () => {
       setupReads({
         underlyingBalance: 100_000_000n,
         allowance: 200_000_000n,
@@ -541,14 +541,49 @@ describe('withdrawEarn', () => {
 
       const result = await withdrawEarn({
         amount: '0.5',
+        queue: 'boring',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
         provider: PROVIDER,
-        // Untyped JavaScript, or a cast, can still send it.
-        ...({ queue: 'atomic' } as object),
       });
 
       expect(result.queueTxHash).toMatch(/requestOnChainWithdraw/);
+      const [queueCall] = mockSimulateContract.mock.calls.map((c) => c[0]);
+      expect(queueCall.address).toBe(BORING_QUEUE);
+    });
+
+    it("refuses queue: 'atomic' from an untyped caller before reading or sending anything", async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 200_000_000n,
+      });
+
+      await expect(
+        withdrawEarn({
+          amount: '0.5',
+          account: ACCOUNT,
+          chainId: ChainId.ethereum,
+          provider: PROVIDER,
+          // Untyped JavaScript, or a cast, can still send it.
+          ...({ queue: 'atomic' } as object),
+        }),
+      ).rejects.toThrow(/Unsupported withdrawal queue: atomic/);
+
+      expect(mockReadContract).not.toHaveBeenCalled();
+      expect(mockSimulateContract).not.toHaveBeenCalled();
+      expect(mockWriteContract).not.toHaveBeenCalled();
+    });
+
+    it("keeps queue: 'atomic' a type error", () => {
+      const params: Parameters<typeof withdrawEarn>[0] = {
+        amount: '0.5',
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+        // @ts-expect-error only 'boring' is accepted
+        queue: 'atomic',
+      };
+      expect(params.queue).toBe('atomic');
     });
   });
 });

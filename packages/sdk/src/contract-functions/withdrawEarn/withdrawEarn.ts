@@ -35,6 +35,12 @@ export type WithdrawEarnParameters = {
    * Defaults to Token.LBTC. Must be a deposit-side asset accepted by the vault.
    */
   withdrawalAsset?: Token;
+  /**
+   * @deprecated BoringQueue is the only queue; the option will be removed.
+   * Accepted so code written for 5.x that passes `queue: 'boring'` keeps
+   * compiling. Any other value throws before anything is read or sent.
+   */
+  queue?: 'boring';
 } & CommonWriteParameters;
 
 export interface WithdrawEarnResult {
@@ -80,12 +86,21 @@ export interface WithdrawEarnResult {
 export async function withdrawEarn({
   amount: amountRaw,
   withdrawalAsset = Token.LBTC,
+  queue,
   account,
   chainId,
   provider,
   rpcUrl,
   env,
 }: WithdrawEarnParameters): Promise<WithdrawEarnResult> {
+  // Typed as 'boring' only, but a JavaScript caller can send anything. Asking
+  // for another queue must not quietly file on this one.
+  if (queue !== undefined && queue !== 'boring') {
+    throw new Error(
+      `Unsupported withdrawal queue: ${String(queue)}. Earn withdrawals are filed on the BoringQueue only; omit \`queue\`. No transactions sent.`,
+    );
+  }
+
   if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain ${chainId}. Earn withdrawals are supported on: ${EARN_VAULT.chains.join(', ')}.`,

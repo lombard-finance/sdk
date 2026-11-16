@@ -339,12 +339,12 @@ Every Earn withdrawal is now filed on the BoringOnChainQueue. The AtomicQueue th
 
 ### `withdrawEarn` and `evm.withdraw()`
 
-`withdrawEarn` lost its `queue` and `replaceExisting` options, and `evm.withdraw().prepare()` lost `replaceExisting`. The BoringQueue keeps each request apart, so a new one never replaces an open one and there is nothing to override.
+`withdrawEarn` lost `replaceExisting`, and `evm.withdraw().prepare()` lost it too. The BoringQueue keeps each request apart, so a new one never replaces an open one and there is nothing to override. `queue` narrows to `'boring'`: it still compiles and is ignored, but it is deprecated because the BoringQueue is the only queue, and the option will be removed. `queue: 'atomic'` no longer compiles, and throws if passed from untyped code.
 
 ```diff
   await withdrawEarn({
     amount: '0.5',
--   queue: 'boring',
+-   queue: 'atomic',
 -   replaceExisting: true,
     account,
     chainId,
