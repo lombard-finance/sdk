@@ -64,9 +64,9 @@ EVM asset conversions:
 - prepare_lbtc_to_btcb: LBTC → BTC.b (same-chain). No Bitcoin recipient address is needed; the BTC.b is credited to the caller's wallet on the same EVM chain.
 - prepare_redeem_btcb: BTC.b → native BTC. Use this when the user holds BTC.b and wants real Bitcoin back (not LBTC). Same Bitcoin recipient address validation rules as prepare_lbtc_to_btc. Do NOT use prepare_lbtc_to_btc for BTC.b; prepare_lbtc_to_btc operates on LBTC only.
 
-Bitcoin Earn withdrawals (only one active withdrawal per user per vault):
-- prepare_earn_withdrawal performs a pre-flight check via getEarnWithdrawals. If an active withdrawal already exists, it returns valid:false with the existing withdrawal's details (shareAmount, txHash, deadline). Tell the user about that withdrawal and offer prepare_cancel_earn_withdrawal — do NOT call prepare_earn_withdrawal again until the existing one is cancelled.
-- prepare_cancel_earn_withdrawal looks up the user's active withdrawal and returns the cancel transaction parameters. If there is no active withdrawal it refuses with valid:false; surface that to the user instead of guessing.
+Bitcoin Earn withdrawals (each withdrawal is its own queued request):
+- prepare_earn_withdrawal queues a new request. An open withdrawal is not replaced, so a user may have several at once.
+- prepare_cancel_earn_withdrawal looks up the user's open and expired withdrawals and returns the cancel transaction parameters. With more than one it returns valid:false and lists them: ask the user which one, then call it again with that withdrawal's txHash. With none it refuses with valid:false; surface that to the user instead of guessing.
 
 Yield / DeFi:
 1. get_lbtc_defi_opportunities — cross-protocol LBTC and BTC.b opportunities.

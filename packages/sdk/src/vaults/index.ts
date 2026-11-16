@@ -13,13 +13,6 @@ export {
 // Use `depositEarn` from the contracts entry instead.
 
 export {
-  type EarnDeposit,
-  getEarnDeposits,
-  getEarnDepositsAllChains,
-  type GetEarnDepositsAllChainsParameters,
-  type GetEarnDepositsParameters,
-} from './lib/ops/get-vault-deposits';
-export {
   getEarnMinimumDeposit,
   type GetEarnMinimumDepositParameters,
 } from './lib/ops/get-vault-minimum-deposit';
@@ -47,10 +40,6 @@ export {
   getEarnApy,
   type GetEarnApyParameters,
 } from './lib/metrics/get-vault-apy';
-export {
-  getEarnPoints,
-  type GetEarnPointsParameters,
-} from './lib/metrics/get-vault-points';
 export {
   getEarnTVL,
   type GetEarnTVLParameters,

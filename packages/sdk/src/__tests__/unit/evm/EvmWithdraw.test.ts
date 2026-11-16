@@ -14,6 +14,7 @@ import {
   ValidationErrorCode,
   WithdrawErrorCode,
 } from '../../../shared/errors';
+import { EARN_VAULT_BORING_QUEUE_CONTRACTS } from '../../../vaults/lib/config';
 
 describe('EvmWithdrawVault Interface', () => {
   describe('EvmWithdrawVaultParams', () => {
@@ -114,7 +115,8 @@ describe('EvmWithdrawVault Interface', () => {
     });
 
     it('should approve to withdraw queue contract address', () => {
-      const withdrawQueueAddress = '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8';
+      const withdrawQueueAddress =
+        EARN_VAULT_BORING_QUEUE_CONTRACTS[1]!.address;
       expect(withdrawQueueAddress).toMatch(/^0x/);
     });
   });

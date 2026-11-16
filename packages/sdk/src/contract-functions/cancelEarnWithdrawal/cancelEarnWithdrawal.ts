@@ -9,16 +9,20 @@ import {
 import { EarnWithdrawQueue } from '../withdrawEarn/withdrawEarn';
 
 export type CancelEarnWithdrawalParameters = {
-  /** The withdrawal asset originally queued. Defaults to Token.LBTC. */
+  /**
+   * The withdrawal asset of an AtomicQueue request. Defaults to Token.LBTC.
+   * Not read for the BoringQueue, whose request names its own asset.
+   */
   withdrawalAsset?: Token;
   /**
-   * Which queue the request lives on. Defaults to `'atomic'`; pass `'boring'`
-   * to cancel a BoringOnChainQueue request.
+   * Which queue the request lives on. Defaults to `'boring'`, where
+   * `withdrawEarn` files every request. Pass `'atomic'` only to cancel a
+   * request filed before 6.0.0.
    */
   queue?: EarnWithdrawQueue;
   /**
-   * BoringQueue request struct — REQUIRED when `queue` is `'boring'`. Sourced
-   * from the boringQueue status response (`Request.metadata`).
+   * The request to cancel, required for the BoringQueue: the `request` of an
+   * open or expired withdrawal from `getEarnWithdrawals`.
    */
   request?: BoringWithdrawRequest;
 } & CommonWriteParameters;
@@ -26,19 +30,20 @@ export type CancelEarnWithdrawalParameters = {
 /**
  * Cancels a pending Earn withdrawal request filed via `withdrawEarn`.
  *
- * AtomicQueue (default): cancellation zeroes the request, indexed per
- * (user, vault, withdrawalAsset) tuple, so the asset must match what was
- * queued.
+ * BoringQueue (default): calls `cancelOnChainWithdraw(request)`, which
+ * matches on the full request struct, so pass the `request` that
+ * `getEarnWithdrawals` reports on the withdrawal.
  *
- * BoringQueue (`queue: 'boring'`): calls `cancelOnChainWithdraw(request)`,
- * which matches on the full request struct — pass the `request` from the
- * status response.
+ * AtomicQueue (`queue: 'atomic'`): for a request filed before 6.0.0, which
+ * `getEarnWithdrawals` does not report. Cancellation zeroes the request,
+ * indexed per (user, vault, withdrawalAsset), so the asset must match what
+ * was queued.
  *
  * @returns {Promise<Hash>} The cancel transaction hash.
  */
 export async function cancelEarnWithdrawal({
   withdrawalAsset = Token.LBTC,
-  queue = 'atomic',
+  queue = 'boring',
   request,
   account,
   chainId,

@@ -19,7 +19,7 @@ Nine verbs described the same three journeys. Which one you called depended on t
 | `deploy`   | An asset becomes a protocol position          | `stakeAndDeploy`, `depositAndDeploy` (BTC)           |
 | `claim`    | A pending BTC.b deposit is claimed as LBTC    | `deposit` (EVM) — see [the double move](#evmdeposit) |
 
-`cancelWithdraw` is unchanged.
+`cancelWithdraw` keeps its name, and now takes the request it cancels: see [Bitcoin Earn withdrawals](#bitcoin-earn-withdrawals-go-through-the-boringqueue).
 
 ### `unstake` / `redeem` → `withdraw`
 
@@ -141,14 +141,9 @@ The two take **identical parameters**, so nothing about the call distinguishes t
 
 ## Reads now need a wallet token
 
-Two per-account routes are keyed by an address and now require a wallet-signature JWT:
+Per-account routes on the API gateway are keyed by an address and require a wallet-signature JWT. The v2 portfolio lists (`getPortfolioDeposits`, `getPortfolioWithdrawals`, `getPortfolioBridges`) fail before sending without one, with a `missing-token` error naming the config field that fixes it.
 
-- `getEarnDeposits`
-- `getEarnWithdrawals`
-
-They were previously sent anonymously and the gateway allowed it. That allowance is being withdrawn, so the alternative to failing locally is a 401 later. They now fail before sending, with a `missing-token` error naming the config field that fixes it.
-
-Aggregate reads — APY, TVL, points, per-vault performance — are unaffected.
+The Bitcoin Earn withdrawal history, `getEarnWithdrawals`, is not on the gateway: it stays public, as in 5.x, and needs no token. Aggregate reads (APY, TVL, per-vault performance) are unaffected.
 
 Fee approvals and stake-and-bake permits need nothing from you. `getNetworkFeeSignature`, `storeNetworkFeeSignature`, `getUserStakeAndBakeSignature` and `storeStakeAndBakeSignature`, and the actions that call them, use the v2 routes when `auth` yields a token whose wallet is the address the route is for: the destination address, or the permit's owner when storing a permit. They use the v1 routes when there is no token, or when it is another wallet's, since the v2 routes refuse a token for any other address. On v2, nothing on file reads as `hasSignature: false` and an empty `expirationDate` rather than undefined, so check `hasSignature` rather than `expirationDate === undefined`; the permit list spans every token on the chain, so pass `tokenAddress` to `getUserStakeAndBakeSignature` when you know the token; and re-signing a stake-and-bake permit while one is on file replaces it rather than raising `StakeAndBakeSignatureExistsError`. The [CHANGELOG](./CHANGELOG.md) has the rest.
 
@@ -326,15 +321,80 @@ its vendor name because there the vendor _is_ the product being selected.
 
 Two names that look like they should have moved and did not:
 
-- The `VEDA_VAULT_*` ABIs, `api.veda.tech`, and response fields such as
-  `userTotalVedaPointsSum` name a third party's contracts, host, and payload.
-  They are external identifiers, and renaming them would misdescribe what they
-  address.
+- The `VEDA_VAULT_*` ABIs name a third party's contracts. They are external
+  identifiers, and renaming them would misdescribe what they address.
 - The "Lombard DeFi Vault Strategy" under `@lombard.finance/sdk/strategies`
   (BTCoc) is a different product from the Bitcoin Earn vault under
   `@lombard.finance/sdk/vaults`. It keeps its name.
 
 The EIP-712 `domainName` used when signing a deposit permit is unchanged.
+
+---
+
+## Bitcoin Earn withdrawals go through the BoringQueue
+
+**Needs a decision** if you cancel withdrawals, or read Earn deposit history or points.
+
+Every Earn withdrawal is now filed on the BoringOnChainQueue. The AtomicQueue that `withdrawEarn` defaulted to no longer fills Bitcoin Earn requests, so a request filed there waited unfilled until its deadline.
+
+### `withdrawEarn` and `evm.withdraw()`
+
+`withdrawEarn` lost `replaceExisting`, and `evm.withdraw().prepare()` lost it too. The BoringQueue keeps each request apart, so a new one never replaces an open one and there is nothing to override. `queue` narrows to `'boring'`: it still compiles and is ignored, but it is deprecated because the BoringQueue is the only queue, and the option will be removed. `queue: 'atomic'` no longer compiles, and throws if passed from untyped code.
+
+```diff
+  await withdrawEarn({
+    amount: '0.5',
+-   queue: 'atomic',
+-   replaceExisting: true,
+    account,
+    chainId,
+    provider,
+  });
+```
+
+On the vault route, `evm.withdraw()` now asks for an approval to the BoringQueue. A wallet that approved the AtomicQueue under 5.x is asked once more.
+
+### Cancelling
+
+A BoringQueue request is cancelled by its full on-chain struct, which `getEarnWithdrawals` now reports as `request` on each open and expired withdrawal. `cancelEarnWithdrawal` defaults to the BoringQueue and throws before sending without it:
+
+```ts
+// Before (5.x): cancelled the AtomicQueue request by default
+await cancelEarnWithdrawal({ account, chainId, provider });
+
+// After (6.0.0)
+const { open, expired } = await getEarnWithdrawals({ account, chainId });
+const withdrawal = open[0] ?? expired[0];
+await cancelEarnWithdrawal({
+  request: withdrawal.request,
+  account,
+  chainId,
+  provider,
+});
+```
+
+`evm.cancelWithdraw()` takes the same `request`, and `prepare()` refuses a request filed by another account:
+
+```ts
+const cancel = sdk.chain.evm.cancelWithdraw({
+  protocol: DeployProtocol.BitcoinEarn,
+  chain: Chain.ETHEREUM,
+  request: withdrawal.request,
+});
+```
+
+A request filed on the AtomicQueue before 6.0.0 can still be cancelled with `cancelEarnWithdrawal({ queue: 'atomic', withdrawalAsset, account, chainId, provider })`. Nothing else in the SDK reads that queue: `getEarnWithdrawals` does not report its requests, so check the queue's `getUserAtomicRequest` on chain if you need to know whether one is open.
+
+### `getEarnWithdrawals`
+
+Same `EarnWithdrawals` shape, read from the BoringQueue history. AtomicQueue requests are not reported. `minPrice` is the asset amount locked when the request was filed over its shares, `amount` on a fulfilled request is that locked amount, and `deadline` is when the request stops being solvable. Each withdrawal carries `request`, and a cancelled one carries `cancelledTimestamp`, `cancelledTxHash` and `cancelledBlockNumber`.
+
+### Removed reads
+
+| Removed                                                                                | Why                                                                         | Instead                                                                                        |
+| -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `getEarnDeposits`, `getEarnDepositsAllChains`, `EarnDeposit` and their parameter types | The deposit-history route is retired with no replacement                    | Read the BTCe wrapper's `Deposit` events on each Earn chain; `depositEarn` deposits through it |
+| `getEarnPoints`, `GetEarnPointsParameters`                                             | The points route answers 401 to every request; the points program has ended | Nothing: remove the call and any points UI                                                     |
 
 ---
 

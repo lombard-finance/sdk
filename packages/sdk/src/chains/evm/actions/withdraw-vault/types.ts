@@ -13,6 +13,7 @@ import type {
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';
 import type { LombardError } from '../../../../shared/errors';
+import type { BoringWithdrawRequest } from '../../../../vaults/lib/ops/withdraw';
 
 // Re-export status for convenience
 export { EvmOperationStatus as EvmWithdrawVaultStatus } from '../../../../shared/constants/statusConstants';
@@ -40,18 +41,6 @@ export interface EvmWithdrawVaultParams {
 export interface EvmWithdrawVaultPrepareParams {
   /** Amount of vault shares to withdraw */
   amount: string;
-  /**
-   * Replace a withdrawal this account already has queued.
-   *
-   * The Earn queue holds one request per account, so filing a second replaces
-   * the first and un-queues its shares. `execute()` refuses that by default
-   * and names the amount at risk; set this when replacing an open request is
-   * what you meant. A request already being fulfilled is refused either way.
-   *
-   * An expired request needs no flag — it cannot be fulfilled, so replacing it
-   * is the only way to re-queue.
-   */
-  replaceExisting?: boolean;
 }
 
 /**
@@ -90,6 +79,12 @@ export interface EvmCancelWithdrawParams {
   protocol: DeployProtocol;
   /** Chain where the pending withdrawal exists */
   chain: Chain;
+  /**
+   * The request to cancel: the `request` of an open or expired withdrawal
+   * from `getEarnWithdrawals`. The queue keeps each request separately and
+   * matches on every field, so it names which one.
+   */
+  request: BoringWithdrawRequest;
 }
 
 /**

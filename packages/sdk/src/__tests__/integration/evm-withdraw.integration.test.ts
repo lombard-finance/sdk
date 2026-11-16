@@ -71,6 +71,18 @@ const createMockProvider = (overrides?: {
   }),
 });
 
+/** An open BoringQueue request, as `getEarnWithdrawals` reports it. */
+const CANCEL_REQUEST = {
+  nonce: 402,
+  user: '0x000000000000000000000000000000000000dEaD',
+  assetOut: '0x8236a87084f8B84306f72007F36F2618A5634494',
+  amountOfShares: 117839,
+  amountOfAssets: 120345,
+  creationTime: 1794141491,
+  secondsToMaturity: 3600,
+  secondsToDeadline: 1728000,
+};
+
 describe('EVM Withdraw Integration', () => {
   let mockProvider: ReturnType<typeof createMockProvider>;
 
@@ -123,6 +135,7 @@ describe('EVM Withdraw Integration', () => {
       const cancel = evm.cancelWithdraw({
         chain: Chain.ETHEREUM,
         protocol: 'bitcoinEarn',
+        request: CANCEL_REQUEST,
       });
 
       expect(cancel).toBeDefined();
@@ -138,6 +151,7 @@ describe('EVM Withdraw Integration', () => {
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
         protocol: 'bitcoinEarn',
+        request: CANCEL_REQUEST,
       });
 
       expect(cancel).toBeDefined();
@@ -321,6 +335,7 @@ describe('EVM CancelWithdraw Integration', () => {
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
         protocol: 'bitcoinEarn',
+        request: CANCEL_REQUEST,
       });
 
       expect(cancel).toBeDefined();
@@ -338,6 +353,7 @@ describe('EVM CancelWithdraw Integration', () => {
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
         protocol: 'bitcoinEarn',
+        request: CANCEL_REQUEST,
       });
 
       expect(cancel.status).toBe(EvmOperationStatus.IDLE);
@@ -358,6 +374,7 @@ describe('EVM CancelWithdraw Integration', () => {
         const cancel = evmCancelWithdraw(config, {
           chain,
           protocol: 'bitcoinEarn',
+          request: CANCEL_REQUEST,
         });
 
         expect(cancel).toBeDefined();
@@ -375,6 +392,7 @@ describe('EVM CancelWithdraw Integration', () => {
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
         protocol: 'bitcoinEarn',
+        request: CANCEL_REQUEST,
       });
 
       // txHash is undefined before execute
@@ -485,6 +503,7 @@ describe('Withdraw Flow Scenarios', () => {
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
         protocol: 'bitcoinEarn',
+        request: CANCEL_REQUEST,
       });
 
       expect(typeof cancel.prepare).toBe('function');
@@ -499,6 +518,7 @@ describe('Withdraw Flow Scenarios', () => {
       const cancel = evmCancelWithdraw(config, {
         chain: Chain.ETHEREUM,
         protocol: 'bitcoinEarn',
+        request: CANCEL_REQUEST,
       });
 
       expect(typeof cancel.execute).toBe('function');

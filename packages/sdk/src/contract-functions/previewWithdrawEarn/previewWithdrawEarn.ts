@@ -9,6 +9,7 @@ import { fromSatoshi } from '../../utils/satoshi';
 import {
   BTCE_VAULT,
   EARN_VAULT,
+  EarnChain,
   isBtceVaultChain,
   isEarnChain,
 } from '../../vaults/lib/config';
@@ -70,7 +71,13 @@ export async function previewWithdrawEarn({
   const vault = EARN_VAULT;
   const vaultAddress = vault.vaultContract.address as Address;
   const lensAddress = vault.lensContract.address as Address;
-  const queueAddress = vault.withdrawQueueContracts[chainId].address as Address;
+  const queueContract = vault.boringQueueContracts[chainId as EarnChain];
+  if (!queueContract) {
+    throw new Error(
+      `BoringQueue withdrawals are not available on chain ${chainId}.`,
+    );
+  }
+  const queueAddress = queueContract.address as Address;
   const amountBase = toBigInt(toBaseDenomination(amount, vault.decimals));
 
   const publicClient = makePublicClient({ chainId, rpcUrl });

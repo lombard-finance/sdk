@@ -54,6 +54,16 @@ function withdrawalsResponse(open: number) {
       timestamp: 1_800_000_000 + i,
       txHash: `0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${i.toString().padStart(4, "0")}`,
       blockNumber: 12_000_000 + i,
+      request: {
+        nonce: 400 + i,
+        user: "0x1234567890abcdef1234567890abcdef12345678",
+        assetOut: "0x8236a87084f8B84306f72007F36F2618A5634494",
+        amountOfShares: 100 * (i + 1),
+        amountOfAssets: 102 * (i + 1),
+        creationTime: 1_800_000_000 + i,
+        secondsToMaturity: 3600,
+        secondsToDeadline: 1_728_000,
+      },
     })),
     fulfilled: [],
     cancelled: [],
@@ -433,17 +443,19 @@ describe("prepareBtcToBtcbDeposit", () => {
   });
 });
 
-// ─── Withdrawal pre-flight (one active per user per vault) ─────────
+// ─── prepare_earn_withdrawal ──────────────────────────────────────────
 
 const TEST_ADDR = "0x1234567890abcdef1234567890abcdef12345678";
 
-describe("prepare_earn_withdrawal active-withdrawal pre-flight", () => {
+describe("prepare_earn_withdrawal", () => {
   beforeEach(() => {
     mockGetEarnWithdrawals.mockReset();
   });
 
-  it("returns valid:true when there is no active withdrawal", async () => {
-    mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(0));
+  // The BoringQueue keeps each request apart, so an open one is no reason
+  // to refuse another, and there is nothing to look up first.
+  it("prepares a withdrawal while another is open, without looking it up", async () => {
+    mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(1));
 
     const result = await prepareEarnWithdrawal.execute({
       amount: "0.5",
@@ -454,42 +466,9 @@ describe("prepare_earn_withdrawal active-withdrawal pre-flight", () => {
     expect(result).toMatchObject({
       valid: true,
       method: "evm.earnWithdrawal",
+      params: { amount: "0.5", chainId: 1 },
     });
-    expect(mockGetEarnWithdrawals).toHaveBeenCalledOnce();
-  });
-
-  it("refuses with valid:false and surfaces existing withdrawal details when one is already queued", async () => {
-    mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(1));
-
-    const result = await prepareEarnWithdrawal.execute({
-      amount: "0.5",
-      address: TEST_ADDR,
-      chainId: 1,
-    });
-
-    expect(result).toMatchObject({ valid: false });
-    if ("valid" in result && result.valid === false) {
-      expect(result.errors.join(" ")).toMatch(/active withdrawal already exists/i);
-      expect(result.note).toMatch(/prepare_cancel_earn_withdrawal/);
-      // Existing withdrawal details surfaced verbatim
-      expect(result.errors.join(" ")).toContain("100"); // shareAmount
-      expect(result.note).toMatch(/0xaaaaaaaa/); // txHash prefix
-    }
-  });
-
-  it("surfaces the error when the pre-flight check itself fails (does not silently queue)", async () => {
-    mockGetEarnWithdrawals.mockRejectedValue(new Error("BFF timeout"));
-
-    const result = await prepareEarnWithdrawal.execute({
-      amount: "0.5",
-      address: TEST_ADDR,
-      chainId: 1,
-    });
-
-    expect(result).toMatchObject({ valid: false });
-    if ("valid" in result && result.valid === false) {
-      expect(result.errors.join(" ")).toMatch(/Could not verify/i);
-    }
+    expect(mockGetEarnWithdrawals).not.toHaveBeenCalled();
   });
 });
 
@@ -514,7 +493,7 @@ describe("prepare_cancel_earn_withdrawal", () => {
     }
   });
 
-  it("returns the cancel tx with active withdrawal details in the description", async () => {
+  it("returns the cancel tx with the request the queue needs", async () => {
     mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(1));
 
     const result = await prepareCancelEarnWithdrawal.execute({
@@ -526,12 +505,56 @@ describe("prepare_cancel_earn_withdrawal", () => {
       valid: true,
       action: "sdk_execute",
       method: "evm.cancelEarnWithdrawal",
+      params: { chainId: 1, request: { nonce: 400 } },
     });
     if ("valid" in result && result.valid === true) {
       expect(result.description).toContain("100"); // shareAmount
       expect(result.description).toMatch(/0xaaaaaaaa/); // txHash prefix
       expect(result.description).toMatch(/Cancel pending Bitcoin Earn/i);
     }
+  });
+
+  it("asks which one when several are cancellable", async () => {
+    mockGetEarnWithdrawals.mockResolvedValue(withdrawalsResponse(2));
+
+    const result = await prepareCancelEarnWithdrawal.execute({
+      address: TEST_ADDR,
+      chainId: 1,
+    });
+
+    expect(result).toMatchObject({ valid: false, missing: ["txHash"] });
+  });
+
+  it("cancels the one named by txHash", async () => {
+    const data = withdrawalsResponse(2);
+    mockGetEarnWithdrawals.mockResolvedValue(data);
+
+    const result = await prepareCancelEarnWithdrawal.execute({
+      address: TEST_ADDR,
+      chainId: 1,
+      txHash: data.open[1].txHash,
+    });
+
+    expect(result).toMatchObject({
+      valid: true,
+      params: { request: { nonce: 401 } },
+    });
+  });
+
+  it("counts an expired withdrawal as cancellable, since its shares wait in the queue", async () => {
+    const data = withdrawalsResponse(1);
+    mockGetEarnWithdrawals.mockResolvedValue({
+      ...data,
+      open: [],
+      expired: data.open,
+    });
+
+    const result = await prepareCancelEarnWithdrawal.execute({
+      address: TEST_ADDR,
+      chainId: 1,
+    });
+
+    expect(result).toMatchObject({ valid: true });
   });
 
   it("surfaces the error if the lookup itself fails", async () => {

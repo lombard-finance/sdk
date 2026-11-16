@@ -3,9 +3,9 @@
 exports[`ABI method names > calls a stable set of contract methods, the same number of times 1`] = `
 [
   "Bascule: 1",
-  "allowance: 13",
-  "approve: 11",
-  "balanceOf: 15",
+  "allowance: 12",
+  "approve: 10",
+  "balanceOf: 14",
   "bascule: 1",
   "cancelOnChainWithdraw: 1",
   "ccipSend: 1",
@@ -20,7 +20,6 @@ exports[`ABI method names > calls a stable set of contract methods, the same num
   "getFee: 1",
   "getMintFee: 1",
   "getRateInQuote: 1",
-  "getUserAtomicRequest: 1",
   "isDepositAsset: 1",
   "maxMintCommission: 1",
   "maxWithdraw: 4",
@@ -37,7 +36,6 @@ exports[`ABI method names > calls a stable set of contract methods, the same num
   "redeemForBtc: 1",
   "requestOnChainWithdraw: 1",
   "requestRedeem: 1",
-  "safeUpdateAtomicRequest: 2",
   "send: 1",
   "shards: 1",
   "symbol: 1",

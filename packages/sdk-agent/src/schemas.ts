@@ -131,6 +131,13 @@ export const CancelWithdrawalZod = z.object({
     "EVM wallet address that owns the active withdrawal being cancelled.",
   ),
   chainId: chainId,
+  txHash: z
+    .string()
+    .regex(/^0x[0-9a-fA-F]{64}$/, "txHash must be 0x + 64 hex chars")
+    .optional()
+    .describe(
+      "Request transaction hash of the withdrawal to cancel, from get_earn_withdrawals. Required when the user has more than one open or expired withdrawal.",
+    ),
 });
 
 // ─── Address-Only Schema ───────────────────────────────────────────
