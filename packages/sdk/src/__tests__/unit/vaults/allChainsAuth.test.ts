@@ -23,10 +23,6 @@ import { EARN_CHAINS } from '../../../vaults/lib/config';
 import { getEarnApy } from '../../../vaults/lib/metrics/get-vault-apy';
 import { getEarnTVL } from '../../../vaults/lib/metrics/get-vault-tvl';
 import {
-  getEarnDeposits,
-  getEarnDepositsAllChains,
-} from '../../../vaults/lib/ops/get-vault-deposits';
-import {
   getEarnWithdrawals,
   getEarnWithdrawalsAllChains,
 } from '../../../vaults/lib/ops/get-vault-withdrawals';
@@ -54,24 +50,19 @@ beforeEach(() => {
   axiosFn.mockImplementation(async ({ url }: { url: string }) => ({
     status: 200,
     headers: {},
-    data: url.includes('/deposits/')
-      ? []
-      : {
+    data: url.includes('/boring-queue/')
+      ? {
           cancelled_requests: [],
           expired_requests: [],
           fulfilled_requests: [],
           open_requests: [],
-        },
+        }
+      : {},
   }));
 });
 
 describe('the Earn vault history reads', () => {
   it.each([
-    [
-      'getEarnDeposits',
-      () =>
-        getEarnDeposits({ account: ACCOUNT, chainId: 1, env: Env.prod, auth }),
-    ],
     [
       'getEarnWithdrawals',
       () =>
@@ -97,10 +88,6 @@ describe('the Earn vault history reads', () => {
   // A 5.x caller has no `auth`; the read worked for it then and works now.
   it.each([
     [
-      'getEarnDeposits',
-      () => getEarnDeposits({ account: ACCOUNT, chainId: 1, env: Env.prod }),
-    ],
-    [
       'getEarnWithdrawals',
       () => getEarnWithdrawals({ account: ACCOUNT, chainId: 1, env: Env.prod }),
     ],
@@ -115,9 +102,8 @@ describe('the Earn vault history reads', () => {
       env: Env.prod,
       auth,
     });
-    await getEarnDepositsAllChains({ account: ACCOUNT, env: Env.prod, auth });
 
-    expect(sent()).toHaveLength(2 * EARN_CHAINS.length);
+    expect(sent()).toHaveLength(EARN_CHAINS.length);
     expect(sent().every((r) => r.authorization === undefined)).toBe(true);
   });
 });

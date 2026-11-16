@@ -60,8 +60,34 @@ describe('cancelEarnWithdrawal', () => {
     );
   });
 
-  it('defaults to AtomicQueue (updateAtomicRequest)', async () => {
+  it('defaults to the BoringQueue (cancelOnChainWithdraw)', async () => {
     await cancelEarnWithdrawal({
+      request: BORING_REQUEST,
+      account: ACCOUNT,
+      chainId: ChainId.ethereum,
+      provider: PROVIDER,
+    });
+
+    const call = mockSimulateContract.mock.calls[0][0];
+    expect(call.functionName).toBe('cancelOnChainWithdraw');
+    expect(call.address).toBe(BORING_QUEUE);
+  });
+
+  it('refuses a default cancel without the request, rather than reaching for the AtomicQueue', async () => {
+    await expect(
+      cancelEarnWithdrawal({
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+      }),
+    ).rejects.toThrow(/requires the original request struct/);
+
+    expect(mockSimulateContract).not.toHaveBeenCalled();
+  });
+
+  it('still cancels a request filed on the AtomicQueue when asked to', async () => {
+    await cancelEarnWithdrawal({
+      queue: 'atomic',
       account: ACCOUNT,
       chainId: ChainId.ethereum,
       provider: PROVIDER,

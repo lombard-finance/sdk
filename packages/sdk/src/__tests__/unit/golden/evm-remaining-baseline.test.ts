@@ -60,6 +60,7 @@ import { claimLBTC } from '../../../contract-functions';
 import { AssetId, Chain, DeployProtocol } from '../../../core';
 import {
   createChainActionHarness,
+  MOCK_EVM_ACCOUNT,
   MOCK_TX_HASH,
 } from '../../harness/createChainActionHarness';
 
@@ -161,6 +162,17 @@ describe('golden baseline — the remaining EVM actions on 5.x', () => {
     const action = new EvmCancelWithdraw(h.ctx, {
       protocol: DeployProtocol.BitcoinEarn,
       chain: Chain.ETHEREUM,
+      // The queue keeps each request apart, so the cancel names which one.
+      request: {
+        nonce: 1,
+        user: MOCK_EVM_ACCOUNT,
+        assetOut: '0x8236a87084f8B84306f72007F36F2618A5634494',
+        amountOfShares: 1,
+        amountOfAssets: 1,
+        creationTime: 1,
+        secondsToMaturity: 1,
+        secondsToDeadline: 1,
+      },
     });
     h.observe(action);
 

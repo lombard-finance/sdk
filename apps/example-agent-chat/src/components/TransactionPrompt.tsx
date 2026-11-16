@@ -1,4 +1,4 @@
-import { ChainId } from "@lombard.finance/sdk";
+import { type BoringWithdrawRequest, ChainId } from "@lombard.finance/sdk";
 import { useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 
@@ -337,6 +337,7 @@ export function TransactionPrompt({
             "@lombard.finance/sdk"
           );
           hash = await cancelEarnWithdrawal({
+            request: params.request as BoringWithdrawRequest,
             account: address,
             chainId: sdkChainId,
             provider,

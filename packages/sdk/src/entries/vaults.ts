@@ -8,19 +8,12 @@
 // were removed in 5.0.0. Use `cancelEarnWithdrawal`, `depositEarn`, and
 // `withdrawEarn` from the `@lombard.finance/sdk/contracts` entry instead.
 export {
-  type EarnDeposit,
   type EarnWithdrawal,
   type EarnWithdrawals,
   getEarnApy,
   type GetEarnApyParameters,
-  getEarnDeposits,
-  getEarnDepositsAllChains,
-  type GetEarnDepositsAllChainsParameters,
-  type GetEarnDepositsParameters,
   getEarnMinimumDeposit,
   type GetEarnMinimumDepositParameters,
-  getEarnPoints,
-  type GetEarnPointsParameters,
   getEarnTVL,
   type GetEarnTVLParameters,
   getEarnWithdrawals,

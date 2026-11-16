@@ -9,7 +9,8 @@ import VEDA_VAULT_ACCOUNTANT_ABI from '../abi/VEDA_VAULT_ACCOUNTANT_ABI.json';
 import VEDA_VAULT_BASE_ASSET_ABI from '../abi/VEDA_VAULT_BASE_ASSET_ABI.json';
 // The BoringOnChainQueue (requestOnChainWithdraw flow).
 import VEDA_VAULT_BORING_ONCHAIN_QUEUE_ABI from '../abi/VEDA_VAULT_BORING_ONCHAIN_QUEUE_ABI.json';
-// NOTE: despite the name, this is the legacy AtomicQueue ABI (safeUpdateAtomicRequest).
+// NOTE: despite the name, this is the AtomicQueue ABI. Nothing new is filed on
+// that queue; it is kept so a request filed there before 6.0.0 can be cancelled.
 import VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI from '../abi/VEDA_VAULT_BORING_WITHDRAW_QUEUE_ABI.json';
 import VEDA_VAULT_LENS_ABI from '../abi/VEDA_VAULT_LENS_ABI.json';
 import VEDA_VAULT_SPENDER_ABI from '../abi/VEDA_VAULT_SPENDER_ABI.json';
@@ -121,13 +122,13 @@ export const EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS: Record<
 };
 
 /**
- * BoringOnChainQueue — the new withdrawal queue that replaces the legacy
- * AtomicQueue (`EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS`) for LBTCv withdrawals.
+ * BoringOnChainQueue, the queue every LBTCv withdrawal is filed on. It replaces
+ * the AtomicQueue (`EARN_VAULT_WITHDRAW_QUEUE_CONTRACTS`), which is kept only so
+ * `cancelEarnWithdrawal({ queue: 'atomic' })` can cancel a request filed there
+ * before 6.0.0.
  *
- * Deployed for LBTCv at the same address on every Earn chain. The withdraw
- * flow routes here when the caller passes `queue: 'boring'` to `withdrawEarn`;
- * otherwise it stays on the AtomicQueue so a rollback needs no code change.
- * Kept a Partial<Record> so a future Earn chain can ship without a queue.
+ * Deployed for LBTCv at the same address on every Earn chain. Kept a
+ * Partial<Record> so a future Earn chain can ship without a queue.
  */
 export const EARN_VAULT_BORING_QUEUE_CONTRACTS: Partial<
   Record<EarnChain, ContractInfo>

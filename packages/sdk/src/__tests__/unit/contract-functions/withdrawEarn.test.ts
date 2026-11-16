@@ -56,9 +56,9 @@ vi.mock('../../../tokens/tokens', async (importOriginal) => {
 
 const ACCOUNT = '0x000000000000000000000000000000000000dEaD';
 const LENS = '0x5232bc0F5999f8dA604c42E1748A13a170F94A1B';
-const VAULT = '0x5401b8620E5FB570064CA9114fd1e135fd77D57c';
 const BTCE = '0x3a4baaBf4DC9910596821615e848f0e6545762F3';
-const QUEUE = '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8';
+/** The older AtomicQueue, which nothing may file against any more. */
+const ATOMIC_QUEUE = '0x3b4aCd8879fb60586cCd74bC2F831A4C5E7DbBf8';
 const BORING_QUEUE = '0x4a20F4948c435fDA923399F89800CdC373de88cB';
 const LBTC = '0x8236a87084f8B84306f72007F36F2618A5634494';
 const PROVIDER = {
@@ -76,27 +76,9 @@ interface State {
   btceBalance?: bigint;
   allowance?: bigint;
   maxWithdraw?: bigint;
-  /**
-   * The account's existing atomic request. Defaults to an empty slot, which
-   * is the only shape these cases ever had before the queue was read at all.
-   */
-  pending?: {
-    deadline: bigint;
-    atomicPrice: bigint;
-    offerAmount: bigint;
-    inSolve: boolean;
-  };
   /** BoringQueue `withdrawAssets(asset).allowWithdraws`; defaults to enabled. */
   allowWithdrawsInAsset?: boolean;
 }
-
-/** An untouched queue slot: `offerAmount` zero is how "nothing queued" reads. */
-const EMPTY_REQUEST = {
-  deadline: 0n,
-  atomicPrice: 0n,
-  offerAmount: 0n,
-  inSolve: false,
-};
 
 function setupReads(state: State) {
   mockReadContract.mockImplementation((call: ReadCall) => {
@@ -112,12 +94,6 @@ function setupReads(state: State) {
     }
     if (call.functionName === 'maxWithdraw' && addr === BTCE.toLowerCase()) {
       return Promise.resolve(state.maxWithdraw ?? state.btceBalance ?? 0n);
-    }
-    if (
-      call.functionName === 'getUserAtomicRequest' &&
-      addr === QUEUE.toLowerCase()
-    ) {
-      return Promise.resolve(state.pending ?? EMPTY_REQUEST);
     }
     if (
       call.functionName === 'withdrawAssets' &&
@@ -177,7 +153,7 @@ describe('withdrawEarn', () => {
 
       expect(result.approveTxHash).toBeUndefined();
       expect(result.unwrapTxHash).toBeUndefined();
-      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
+      expect(result.queueTxHash).toMatch(/requestOnChainWithdraw/);
       expect(mockSimulateContract).toHaveBeenCalledTimes(1);
       expect(mockWriteContract).toHaveBeenCalledTimes(1);
     });
@@ -200,12 +176,12 @@ describe('withdrawEarn', () => {
 
       expect(result.approveTxHash).toMatch(/approve/);
       expect(result.unwrapTxHash).toBeUndefined();
-      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
+      expect(result.queueTxHash).toMatch(/requestOnChainWithdraw/);
 
       const fnNames = mockSimulateContract.mock.calls.map(
         (c) => c[0].functionName,
       );
-      expect(fnNames).toEqual(['approve', 'safeUpdateAtomicRequest']);
+      expect(fnNames).toEqual(['approve', 'requestOnChainWithdraw']);
       expect(mockWaitForReceipt).toHaveBeenCalledTimes(1); // approval receipt
     });
   });
@@ -228,7 +204,7 @@ describe('withdrawEarn', () => {
 
       expect(result.approveTxHash).toMatch(/approve/);
       expect(result.unwrapTxHash).toMatch(/withdraw_/);
-      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
+      expect(result.queueTxHash).toMatch(/requestOnChainWithdraw/);
 
       // Unwrap MUST happen before approve so wallets that cap approve at
       // current balance see the post-unwrap LBTCv balance.
@@ -238,7 +214,7 @@ describe('withdrawEarn', () => {
       expect(fnNames).toEqual([
         'withdraw',
         'approve',
-        'safeUpdateAtomicRequest',
+        'requestOnChainWithdraw',
       ]);
       // 2 receipts: unwrap + approval
       expect(mockWaitForReceipt).toHaveBeenCalledTimes(2);
@@ -262,7 +238,7 @@ describe('withdrawEarn', () => {
       });
 
       expect(result.unwrapTxHash).toBeUndefined();
-      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
+      expect(result.queueTxHash).toMatch(/requestOnChainWithdraw/);
     });
   });
 
@@ -314,7 +290,7 @@ describe('withdrawEarn', () => {
 
       expect(result.unwrapTxHash).toMatch(/withdraw_/);
       expect(result.approveTxHash).toMatch(/approve/);
-      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
+      expect(result.queueTxHash).toMatch(/requestOnChainWithdraw/);
 
       const fnNames = mockSimulateContract.mock.calls.map(
         (c) => c[0].functionName,
@@ -322,7 +298,7 @@ describe('withdrawEarn', () => {
       expect(fnNames).toEqual([
         'withdraw',
         'approve',
-        'safeUpdateAtomicRequest',
+        'requestOnChainWithdraw',
       ]);
     });
   });
@@ -429,179 +405,7 @@ describe('withdrawEarn', () => {
     });
   });
 
-  describe('queue request shape', () => {
-    it('files atomic request against the LBTCv vault and chosen withdrawal asset', async () => {
-      setupReads({
-        underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-      });
-
-      await withdrawEarn({
-        amount: '0.5',
-        account: ACCOUNT,
-        chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
-
-      const queueCall = mockSimulateContract.mock.calls.find(
-        (c) => c[0].functionName === 'safeUpdateAtomicRequest',
-      )?.[0];
-
-      expect(queueCall.address).toBe(QUEUE);
-      // [vault, withdrawToken, request, accountant, discount]
-      expect(queueCall.args[0]).toBe(VAULT);
-      // request: [deadline, atomicPrice, offerAmount, inSolve]
-      const request = queueCall.args[2];
-      expect(request[1]).toBe(0n); // atomicPrice
-      expect(request[2]).toBe(50_000_000n); // 0.5 LBTCv
-      expect(request[3]).toBe(false); // inSolve
-    });
-  });
-
-  /**
-   * The Earn queue stores one request per account, keyed
-   * `userAtomicRequest[user][offer][want]`, and the only mutating entry point
-   * is an *update*. Filing a second request therefore does not revert — it
-   * replaces the first, and the shares that request had queued are silently no
-   * longer queued.
-   *
-   * `withdrawEarn` is the dangerous path for this, because the unwrap and the
-   * approval both land before the queue write. So the guard has to refuse
-   * before any transaction, not at the queue step.
-   */
-  describe('an existing queued withdrawal', () => {
-    const IN_AN_HOUR = BigInt(Math.floor(Date.now() / 1000) + 3600);
-    const AN_HOUR_AGO = BigInt(Math.floor(Date.now() / 1000) - 3600);
-
-    const live = {
-      deadline: IN_AN_HOUR,
-      atomicPrice: 0n,
-      offerAmount: 30_000_000n, // 0.3 shares
-      inSolve: false,
-    };
-
-    it('is refused, and nothing is sent', async () => {
-      setupReads({
-        underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-        pending: live,
-      });
-
-      await expect(
-        withdrawEarn({
-          amount: '0.5',
-          account: ACCOUNT,
-          chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
-      ).rejects.toThrow(/PendingWithdrawalError/);
-
-      // The point of the guard: no approval, no unwrap, no queue write. Before
-      // it existed this call succeeded and dropped the 0.3 already queued.
-      expect(mockWriteContract).not.toHaveBeenCalled();
-      expect(mockSimulateContract).not.toHaveBeenCalled();
-    });
-
-    it('names the amount at risk, so the message says what would be lost', async () => {
-      setupReads({
-        underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-        pending: live,
-      });
-
-      await expect(
-        withdrawEarn({
-          amount: '0.5',
-          account: ACCOUNT,
-          chainId: ChainId.ethereum,
-          provider: PROVIDER,
-        }),
-      ).rejects.toThrow(/0\.3 vault shares/);
-    });
-
-    it('is replaced when the caller asks for that explicitly', async () => {
-      setupReads({
-        underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-        pending: live,
-      });
-
-      const result = await withdrawEarn({
-        amount: '0.5',
-        account: ACCOUNT,
-        chainId: ChainId.ethereum,
-        provider: PROVIDER,
-        replaceExisting: true,
-      });
-
-      expect(result.queueTxHash).toBeTruthy();
-    });
-
-    /**
-     * An expired request cannot be solved, so overwriting it is the only way
-     * to re-queue — refusing there would strand the account until it cancelled
-     * something that was already dead.
-     */
-    it('does not block on a request that has expired', async () => {
-      setupReads({
-        underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-        pending: { ...live, deadline: AN_HOUR_AGO },
-      });
-
-      const result = await withdrawEarn({
-        amount: '0.5',
-        account: ACCOUNT,
-        chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
-
-      expect(result.queueTxHash).toBeTruthy();
-    });
-
-    /**
-     * `inSolve` means a solver has already committed to this request.
-     * Overwriting races that, so it is refused even when replacement was
-     * requested — the caller cannot have meant this one.
-     */
-    it('refuses a request mid-fulfilment even with replaceExisting', async () => {
-      setupReads({
-        underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-        pending: { ...live, inSolve: true },
-      });
-
-      await expect(
-        withdrawEarn({
-          amount: '0.5',
-          account: ACCOUNT,
-          chainId: ChainId.ethereum,
-          provider: PROVIDER,
-          replaceExisting: true,
-        }),
-      ).rejects.toThrow(/WithdrawalInSolveError/);
-
-      expect(mockWriteContract).not.toHaveBeenCalled();
-    });
-
-    it('proceeds normally when the slot is empty', async () => {
-      setupReads({
-        underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-      });
-
-      const result = await withdrawEarn({
-        amount: '0.5',
-        account: ACCOUNT,
-        chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
-
-      expect(result.queueTxHash).toBeTruthy();
-    });
-  });
-
-  describe('BoringQueue path (queue: "boring")', () => {
+  describe('BoringQueue request', () => {
     it('files requestOnChainWithdraw against the BoringQueue with LBTC/discount/deadline', async () => {
       setupReads({
         underlyingBalance: 100_000_000n,
@@ -610,7 +414,6 @@ describe('withdrawEarn', () => {
 
       const result = await withdrawEarn({
         amount: '0.5',
-        queue: 'boring',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
         provider: PROVIDER,
@@ -645,7 +448,6 @@ describe('withdrawEarn', () => {
 
       await withdrawEarn({
         amount: '0.5',
-        queue: 'boring',
         account: ACCOUNT,
         chainId,
         provider: PROVIDER,
@@ -670,7 +472,6 @@ describe('withdrawEarn', () => {
       await expect(
         withdrawEarn({
           amount: '0.5',
-          queue: 'boring',
           account: ACCOUNT,
           chainId: ChainId.ethereum,
           provider: PROVIDER,
@@ -683,27 +484,6 @@ describe('withdrawEarn', () => {
       expect(mockWriteContract).not.toHaveBeenCalled();
     });
 
-    it('does not ask the AtomicQueue whether the asset is allowed', async () => {
-      setupReads({
-        underlyingBalance: 100_000_000n,
-        allowance: 200_000_000n,
-        // Would reject the request if it were consulted on the atomic path.
-        allowWithdrawsInAsset: false,
-      });
-
-      const result = await withdrawEarn({
-        amount: '0.5',
-        account: ACCOUNT,
-        chainId: ChainId.ethereum,
-        provider: PROVIDER,
-      });
-
-      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
-
-      const reads = mockReadContract.mock.calls.map((c) => c[0].functionName);
-      expect(reads).not.toContain('withdrawAssets');
-    });
-
     it('approves the BoringQueue address (not AtomicQueue) when allowance is short', async () => {
       setupReads({
         underlyingBalance: 100_000_000n,
@@ -712,7 +492,6 @@ describe('withdrawEarn', () => {
 
       await withdrawEarn({
         amount: '0.5',
-        queue: 'boring',
         account: ACCOUNT,
         chainId: ChainId.ethereum,
         provider: PROVIDER,
@@ -729,7 +508,32 @@ describe('withdrawEarn', () => {
       expect(approveCall.args[0]).toBe(BORING_QUEUE); // spender = BoringQueue
     });
 
-    it('defaults to the AtomicQueue when queue is omitted', async () => {
+    it('files on the BoringQueue without being asked, and never touches the AtomicQueue', async () => {
+      setupReads({
+        underlyingBalance: 100_000_000n,
+        allowance: 0n,
+      });
+
+      const result = await withdrawEarn({
+        amount: '0.5',
+        account: ACCOUNT,
+        chainId: ChainId.ethereum,
+        provider: PROVIDER,
+      });
+
+      expect(result.queueTxHash).toMatch(/requestOnChainWithdraw/);
+      const touched = [
+        ...mockReadContract.mock.calls.map((c) => c[0].address),
+        ...mockSimulateContract.mock.calls.map((c) => c[0].address),
+        ...mockSimulateContract.mock.calls.flatMap((c) => c[0].args ?? []),
+      ].map((value) => String(value).toLowerCase());
+      expect(touched).not.toContain(ATOMIC_QUEUE.toLowerCase());
+      expect(
+        mockSimulateContract.mock.calls.map((c) => c[0].functionName),
+      ).not.toContain('safeUpdateAtomicRequest');
+    });
+
+    it('ignores a queue option a 5.x caller still passes', async () => {
       setupReads({
         underlyingBalance: 100_000_000n,
         allowance: 200_000_000n,
@@ -740,9 +544,11 @@ describe('withdrawEarn', () => {
         account: ACCOUNT,
         chainId: ChainId.ethereum,
         provider: PROVIDER,
+        // Untyped JavaScript, or a cast, can still send it.
+        ...({ queue: 'atomic' } as object),
       });
 
-      expect(result.queueTxHash).toMatch(/safeUpdateAtomicRequest/);
+      expect(result.queueTxHash).toMatch(/requestOnChainWithdraw/);
     });
   });
 });

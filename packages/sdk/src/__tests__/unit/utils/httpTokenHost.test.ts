@@ -65,7 +65,7 @@ describe('a wallet token goes only to an API gateway host', () => {
   it('refuses a user-scoped request off the gateway without sending it', async () => {
     await expect(
       httpRequest({
-        url: 'https://bff.prod.lombard-fi.com/sevenseas-api/deposits/x',
+        url: 'https://bff.prod.lombard-fi.com/sevenseas-api/boring-queue/x',
         scope: 'userScoped',
         auth,
       }),

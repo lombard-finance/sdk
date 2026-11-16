@@ -71,6 +71,19 @@ export class EvmCancelWithdraw
       this._account = account;
       this._chainId = parseChainIdentifier(this.params.chain) as ChainId;
 
+      // The queue lets only the requester cancel. Saying so here beats a
+      // bare revert from the simulation in execute().
+      const request = this.params.request;
+      if (!request) {
+        throw LombardError.missingParameter('request');
+      }
+      if (request.user.toLowerCase() !== account.toLowerCase()) {
+        throw LombardError.invalidParameter(
+          'request',
+          `The request was filed by ${request.user}, not the connected account ${account}`,
+        );
+      }
+
       // Validate chain supports Bitcoin Earn vault
       if (!isEarnChain(this._chainId)) {
         throw new LombardError(
@@ -108,6 +121,7 @@ export class EvmCancelWithdraw
 
       // Execute vault cancel withdraw
       const txHash = await cancelWithdrawInternal({
+        request: this.params.request,
         account: this._account,
         chainId: this._chainId,
         provider: provider as EIP1193Provider,

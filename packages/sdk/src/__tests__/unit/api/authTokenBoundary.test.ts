@@ -122,8 +122,8 @@ describe('every api-function attaches the token through one place', () => {
  * while five files under `metrics/`, `vaults/` and `strategies/` called axios
  * directly against a Lombard host, which is exactly the traffic that needs a
  * token once the gateway enforces one. Scoping it to *all* axios would be too
- * wide — mempool.space, coins.llama.fi and api.veda.tech are third parties and
- * must not receive our token.
+ * wide — mempool.space and coins.llama.fi are third parties and must not
+ * receive our token.
  *
  * So the rule is: a file that resolves a Lombard host through `getApiConfig`
  * goes through `utils/http`. That is self-maintaining — a new file inherits it

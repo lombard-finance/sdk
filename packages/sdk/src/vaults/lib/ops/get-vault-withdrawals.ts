@@ -20,6 +20,7 @@ import {
   isEarnAvailable,
   isEarnChain,
 } from '../config';
+import type { BoringWithdrawRequest } from './withdraw';
 
 export type GetEarnWithdrawalsParameters = IEnvParam & {
   account: Address;
@@ -31,9 +32,9 @@ export type EarnWithdrawal = {
   token?: Omit<TokenInfo, 'abi'>;
   /** The amount of shares withdrawn */
   shareAmount: BigNumber;
-  /** The amount of funds withdrawn */
+  /** The amount of the withdrawal asset paid out. Set on a fulfilled request. */
   amount?: BigNumber;
-  /** The min price of a share */
+  /** The price of a share locked in when the request was filed, in the withdrawal asset. */
   minPrice?: BigNumber;
   /** The expiration timestamp */
   deadline: number;
@@ -53,6 +54,17 @@ export type EarnWithdrawal = {
   chainId?: EarnChain;
   /** The user wallet address that made the withdrawal */
   toAddress?: Address;
+  /** The cancellation timestamp, set on a cancelled request. */
+  cancelledTimestamp?: number;
+  /** The cancellation transaction hash, set on a cancelled request. */
+  cancelledTxHash?: Hash;
+  /** The cancellation block number, set on a cancelled request. */
+  cancelledBlockNumber?: number;
+  /**
+   * The request as the queue stores it. Pass it to `cancelEarnWithdrawal` to
+   * cancel an open or expired request; the queue matches on every field.
+   */
+  request?: BoringWithdrawRequest;
 };
 
 /** A chain that could not be read, and why. */
@@ -79,68 +91,188 @@ export type EarnWithdrawals = {
   failures: EarnWithdrawalFailure[];
 };
 
-type WithdrawRequest = {
-  amount: number;
-  blockNumber: number;
-  deadline: number;
-  minPrice: number;
-  timestamp: number;
-  transactionHash: string;
-  wantToken: string;
+/**
+ * The on-chain request struct, as the queue stores it and as
+ * `cancelEarnWithdrawal` needs it back. Every numeric field arrives as a
+ * JSON number.
+ */
+type BoringRequestMetadata = {
+  amountOfAssets: number;
+  amountOfShares: number;
+  assetOut: string;
+  creationTime: number;
+  nonce: number;
+  secondsToDeadline: number;
+  secondsToMaturity: number;
+  user: string;
 };
 
-type FulfilledRequest = {
-  // Yup, there's a typo in the response, double L is expected.
-  Fulfillment: {
-    blockNumber: number;
-    offerAmountSpent: number;
-    timestamp: number;
-    transactionHash: string;
-    wantAmountReceived: number;
-    wantToken: string;
-  };
-  Request: WithdrawRequest;
+type BoringRequestFields = {
+  /** Shares requested, in the vault's base units. */
+  amount?: number;
+  blockNumber?: number;
+  metadata?: BoringRequestMetadata;
+  offerToken?: string;
+  timestamp?: number;
+  /** The request transaction, without the `0x` prefix. */
+  transaction_hash?: string;
+  user?: string;
+  wantToken?: string;
+  wantTokenDecimals?: number;
+  wantTokenSymbol?: string;
 };
 
-type SevenSeasWithdrawRequests = {
-  cancelled_requests?: WithdrawRequest[];
-  expired_requests?: WithdrawRequest[];
-  fulfilled_requests?: FulfilledRequest[];
-  open_requests?: WithdrawRequest[];
+/** When the request left the queue: a fulfilment or a cancellation. */
+type BoringRequestOutcome = {
+  block_number?: number;
+  timestamp?: number;
+  transaction_hash?: string;
 };
 
-type WithdrawalsPayload =
-  | SevenSeasWithdrawRequests
-  | { Response: SevenSeasWithdrawRequests };
-
-const EMPTY_WITHDRAW_REQUESTS: SevenSeasWithdrawRequests = {
-  cancelled_requests: [],
-  expired_requests: [],
-  fulfilled_requests: [],
-  open_requests: [],
+/**
+ * One item of the boring-queue route. Open and expired items carry the request
+ * fields at the top level; fulfilled and cancelled items nest them under
+ * `Request`, beside a `Fulfillment` or `Cancellation` block.
+ */
+type BoringRequestItem = BoringRequestFields & {
+  Request?: BoringRequestFields;
+  Fulfillment?: BoringRequestOutcome;
+  Cancellation?: BoringRequestOutcome;
 };
 
-const normalizeSevenSeasWithdrawRequests = (
-  payload?: WithdrawalsPayload,
-): SevenSeasWithdrawRequests => {
-  if (!payload) {
-    return EMPTY_WITHDRAW_REQUESTS;
+type BoringQueueRequests = {
+  cancelled_requests: BoringRequestItem[];
+  expired_requests: BoringRequestItem[];
+  fulfilled_requests: BoringRequestItem[];
+  open_requests: BoringRequestItem[];
+};
+
+type BoringQueuePayload =
+  | Partial<BoringQueueRequests>
+  | { Response: Partial<BoringQueueRequests> };
+
+const normalizeBoringQueueRequests = (
+  payload?: BoringQueuePayload | null,
+): BoringQueueRequests => {
+  if (!payload || typeof payload !== 'object') {
+    return {
+      cancelled_requests: [],
+      expired_requests: [],
+      fulfilled_requests: [],
+      open_requests: [],
+    };
   }
 
   if ('Response' in payload) {
-    return normalizeSevenSeasWithdrawRequests(payload.Response);
+    return normalizeBoringQueueRequests(payload.Response);
   }
 
+  const list = (value: unknown): BoringRequestItem[] =>
+    Array.isArray(value) ? (value as BoringRequestItem[]) : [];
+
   return {
-    cancelled_requests: payload.cancelled_requests ?? [],
-    expired_requests: payload.expired_requests ?? [],
-    fulfilled_requests: payload.fulfilled_requests ?? [],
-    open_requests: payload.open_requests ?? [],
+    cancelled_requests: list(payload.cancelled_requests),
+    expired_requests: list(payload.expired_requests),
+    fulfilled_requests: list(payload.fulfilled_requests),
+    open_requests: list(payload.open_requests),
   };
+};
+
+const requestFields = (item: BoringRequestItem): BoringRequestFields =>
+  item.Request ?? item;
+
+const toCancelRequest = (
+  metadata: BoringRequestMetadata | undefined,
+): BoringWithdrawRequest | undefined =>
+  metadata
+    ? {
+        nonce: metadata.nonce,
+        user: metadata.user,
+        assetOut: metadata.assetOut,
+        amountOfShares: metadata.amountOfShares,
+        amountOfAssets: metadata.amountOfAssets,
+        creationTime: metadata.creationTime,
+        secondsToMaturity: metadata.secondsToMaturity,
+        secondsToDeadline: metadata.secondsToDeadline,
+      }
+    : undefined;
+
+type TokenLookup = Record<Address, Omit<TokenInfo, 'abi'> | undefined>;
+
+/**
+ * Maps one boring-queue item onto `EarnWithdrawal`.
+ *
+ * The queue locks the asset amount when the request is filed, so `minPrice`
+ * is that amount over the shares, in the withdrawal asset's units per share.
+ * `amount` is reported for a fulfilled request only, as it was before: it is
+ * what was paid, and an open request has paid nothing yet.
+ */
+const mapBoringRequestItem = (
+  item: BoringRequestItem,
+  tokens: TokenLookup,
+  chainId: EarnChain,
+  account: Address,
+): EarnWithdrawal => {
+  const request = requestFields(item);
+  const metadata = request.metadata;
+  const token = request.wantToken
+    ? tokens[ensureHex(request.wantToken)]
+    : undefined;
+  const assetDecimals = token?.decimals ?? request.wantTokenDecimals ?? 0;
+
+  const shares = fromBaseDenomination(
+    request.amount ?? metadata?.amountOfShares ?? 0,
+    EARN_VAULT.decimals,
+  );
+  const assets = metadata
+    ? fromBaseDenomination(metadata.amountOfAssets, assetDecimals)
+    : undefined;
+
+  const withdrawal: EarnWithdrawal = {
+    shareAmount: shares,
+    amount: item.Fulfillment ? assets : undefined,
+    minPrice:
+      assets && shares.isGreaterThan(0) ? assets.dividedBy(shares) : undefined,
+    // The request can be solved from creationTime + secondsToMaturity, and
+    // stays solvable for secondsToDeadline after that.
+    deadline: metadata
+      ? metadata.creationTime +
+        metadata.secondsToMaturity +
+        metadata.secondsToDeadline
+      : 0,
+    timestamp: request.timestamp ?? metadata?.creationTime ?? 0,
+    txHash: ensureHex(request.transaction_hash ?? ''),
+    blockNumber: request.blockNumber ?? 0,
+    token,
+    chainId,
+    toAddress: account,
+    request: toCancelRequest(metadata),
+  };
+
+  if (item.Fulfillment) {
+    withdrawal.fulfilledTimestamp = item.Fulfillment.timestamp;
+    withdrawal.fulfilledBlockNumber = item.Fulfillment.block_number;
+    withdrawal.fulfilledTxHash = item.Fulfillment.transaction_hash
+      ? ensureHex(item.Fulfillment.transaction_hash)
+      : undefined;
+  }
+
+  if (item.Cancellation) {
+    withdrawal.cancelledTimestamp = item.Cancellation.timestamp;
+    withdrawal.cancelledBlockNumber = item.Cancellation.block_number;
+    withdrawal.cancelledTxHash = item.Cancellation.transaction_hash
+      ? ensureHex(item.Cancellation.transaction_hash)
+      : undefined;
+  }
+
+  return withdrawal;
 };
 
 /**
  * Retrieves the withdrawals made by specified address.
+ *
+ * Reads the BoringQueue requests filed from `account` on `chainId`. Requests
+ * filed against the older AtomicQueue are not part of this history.
  *
  * A public read: the route serves any address's vault history and takes no
  * wallet token, so none is sent and `auth` is not used.
@@ -157,7 +289,7 @@ export async function getEarnWithdrawals({
   chainId,
   rpcUrl,
   env,
-}: GetEarnWithdrawalsParameters) {
+}: GetEarnWithdrawalsParameters): Promise<EarnWithdrawals> {
   const vault = EARN_VAULT;
   if (!isEarnChain(chainId)) {
     throw new Error(
@@ -173,131 +305,81 @@ export async function getEarnWithdrawals({
     );
   }
 
-  const endpoint = `${bffApiUrl}/sevenseas-api/withdraw-requests/${network}/${vault.vaultContract.address}/${account}`;
-  const searchParams = new URLSearchParams({
-    historical: 'true',
-  });
-  const url = `${endpoint}?${searchParams.toString()}`;
+  const url = `${bffApiUrl}/sevenseas-api/boring-queue/${network}/${vault.vaultContract.address}/${account}`;
 
-  const { data } = await httpRequest<WithdrawalsPayload>({
-    url: url,
+  const { data } = await httpRequest<BoringQueuePayload>({
+    url,
     scope: 'public',
   });
-  const response = normalizeSevenSeasWithdrawRequests(data);
+  const response = normalizeBoringQueueRequests(data);
 
-  const cancelledRequests = response.cancelled_requests ?? [];
-  const expiredRequests = response.expired_requests ?? [];
-  const fulfilledRequests = response.fulfilled_requests ?? [];
-  const openRequests = response.open_requests ?? [];
+  const allItems = [
+    ...response.cancelled_requests,
+    ...response.expired_requests,
+    ...response.fulfilled_requests,
+    ...response.open_requests,
+  ];
 
-  const withdrawAssetsAddresses = unique([
-    ...cancelledRequests.map((a) => ensureHex(a.wantToken)),
-    ...expiredRequests.map((a) => ensureHex(a.wantToken)),
-    ...fulfilledRequests.map((a) => ensureHex(a.Request.wantToken)),
-    ...openRequests.map((a) => ensureHex(a.wantToken)),
-  ]);
-
-  const withdrawAssets: Record<Address, Omit<TokenInfo, 'abi'> | undefined> =
-    {};
-  for (const asset of withdrawAssetsAddresses) {
-    const assetInfo = await getAssetInfo(asset, chainId, rpcUrl, env);
-    if (assetInfo) {
-      withdrawAssets[asset] = {
-        address: assetInfo.address,
-        decimals: assetInfo.decimals,
-        symbol: assetInfo.symbol,
+  // The route names each request's asset, its symbol and its decimals, so the
+  // chain is asked only about an asset it describes incompletely.
+  const tokens: TokenLookup = {};
+  for (const item of allItems) {
+    const request = requestFields(item);
+    if (!request.wantToken) continue;
+    const address = ensureHex(request.wantToken);
+    if (address in tokens) continue;
+    if (
+      request.wantTokenSymbol !== undefined &&
+      request.wantTokenDecimals !== undefined
+    ) {
+      tokens[address] = {
+        address,
+        decimals: request.wantTokenDecimals,
+        symbol: request.wantTokenSymbol,
       };
-    } else {
-      withdrawAssets[asset] = undefined;
     }
   }
+  const unresolved = unique(
+    allItems
+      .map((item) => requestFields(item).wantToken)
+      .filter((address): address is string => !!address)
+      .map((address) => ensureHex(address))
+      .filter((address) => !(address in tokens)),
+  );
+  for (const asset of unresolved) {
+    const assetInfo = await getAssetInfo(asset, chainId, rpcUrl, env);
+    tokens[asset] = assetInfo
+      ? {
+          address: assetInfo.address,
+          decimals: assetInfo.decimals,
+          symbol: assetInfo.symbol,
+        }
+      : undefined;
+  }
 
-  const cancelled = cancelledRequests.map((w) => {
-    const token = withdrawAssets[ensureHex(w.wantToken)];
-    const withdrawal: EarnWithdrawal = {
-      amount: undefined,
-      blockNumber: w.blockNumber,
-      deadline: w.deadline,
-      shareAmount: fromBaseDenomination(w.amount, vault.decimals),
-      timestamp: w.timestamp,
-      txHash: ensureHex(w.transactionHash),
-      token,
-      chainId,
-      toAddress: account,
-    };
-    return withdrawal;
-  });
-  const expired = expiredRequests.map((w) => {
-    const token = withdrawAssets[ensureHex(w.wantToken)];
-    const withdrawal: EarnWithdrawal = {
-      amount: undefined,
-      blockNumber: w.blockNumber,
-      deadline: w.deadline,
-      shareAmount: fromBaseDenomination(w.amount, vault.decimals),
-      timestamp: w.timestamp,
-      txHash: ensureHex(w.transactionHash),
-      token,
-      chainId,
-      toAddress: account,
-    };
-    return withdrawal;
-  });
-  const fulfilled = fulfilledRequests.map((w) => {
-    const token = withdrawAssets[ensureHex(w.Request.wantToken)];
-    const withdrawal: EarnWithdrawal = {
-      amount: fromBaseDenomination(
-        w.Fulfillment.wantAmountReceived,
-        token?.decimals || 0,
-      ),
-      blockNumber: w.Request.blockNumber,
-      deadline: w.Request.deadline,
-      shareAmount: fromBaseDenomination(
-        w.Fulfillment.offerAmountSpent,
-        vault.decimals,
-      ),
-      timestamp: w.Request.timestamp,
-      txHash: ensureHex(w.Request.transactionHash),
-      token,
-      fulfilledBlockNumber: w.Fulfillment.blockNumber,
-      fulfilledTimestamp: w.Fulfillment.timestamp,
-      fulfilledTxHash: ensureHex(w.Fulfillment.transactionHash),
-      minPrice: fromBaseDenomination(w.Request.minPrice, token?.decimals || 0),
-      chainId,
-      toAddress: account,
-    };
-    return withdrawal;
-  });
-  const open = openRequests.map((w) => {
-    const token = withdrawAssets[ensureHex(w.wantToken)];
-    const withdrawal: EarnWithdrawal = {
-      amount: undefined,
-      blockNumber: w.blockNumber,
-      deadline: w.deadline,
-      shareAmount: fromBaseDenomination(w.amount, vault.decimals),
-      timestamp: w.timestamp,
-      txHash: ensureHex(w.transactionHash),
-      token,
-      minPrice: fromBaseDenomination(w.minPrice, token?.decimals || 0),
-      chainId,
-      toAddress: account,
-    };
-    return withdrawal;
-  });
+  const map = (items: BoringRequestItem[]) =>
+    items.map((item) => mapBoringRequestItem(item, tokens, chainId, account));
 
-  const wihdrawals: EarnWithdrawals = {
-    cancelled: orderBy(cancelled, (a) => a.timestamp, 'desc'),
-    expired: orderBy(expired, (a) => a.timestamp, 'desc'),
+  return {
+    cancelled: orderBy(
+      map(response.cancelled_requests),
+      (a) => a.timestamp,
+      'desc',
+    ),
+    expired: orderBy(
+      map(response.expired_requests),
+      (a) => a.timestamp,
+      'desc',
+    ),
     fulfilled: orderBy(
-      fulfilled,
+      map(response.fulfilled_requests),
       (a) => a.fulfilledTimestamp || a.timestamp,
       'desc',
     ),
-    open: orderBy(open, (a) => a.timestamp, 'desc'),
+    open: orderBy(map(response.open_requests), (a) => a.timestamp, 'desc'),
     // This function throws on failure, so a value returned here is a clean read.
     failures: [],
   };
-
-  return wihdrawals;
 }
 
 export type GetEarnWithdrawalsAllChainsParameters = IEnvParam & {

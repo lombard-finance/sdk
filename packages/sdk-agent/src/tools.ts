@@ -1041,7 +1041,7 @@ export const prepareEarnWithdrawal: ToolDefinition<
 > = {
   name: 'prepare_earn_withdrawal',
   description:
-    'Prepare a withdrawal from Bitcoin Earn. Only one active withdrawal is allowed per user per vault — this tool checks first and refuses if one is already queued, returning its details so you can offer the user prepare_cancel_earn_withdrawal. On success, returns prepared transaction parameters.',
+    'Prepare a withdrawal from Bitcoin Earn. Each withdrawal is queued as its own request, so an open one is never replaced. On success, returns prepared transaction parameters.',
   parameters: VaultWithdrawalSchema as Record<string, unknown>,
   schema: VaultWithdrawalZod,
   execute: async (params) => {
@@ -1056,48 +1056,8 @@ export const prepareEarnWithdrawal: ToolDefinition<
     }
     const v = validateAmountInputs(parsed.data);
     if (!v.valid) return v;
-    const { amount, address, chainId } = parsed.data;
+    const { amount, chainId } = parsed.data;
     const config = getChainConfig(chainId);
-
-    // Pre-flight: only one active withdrawal allowed per user per vault.
-    // If one already exists, refuse with its details so the LLM can offer
-    // prepare_cancel_earn_withdrawal instead of stacking a second request.
-    try {
-      const data = (await withTimeout(
-        getEarnWithdrawals({
-          account: address as Address,
-          chainId: config.chainId,
-          env: config.env,
-        }),
-        15_000,
-        'getEarnWithdrawals',
-      )) as EarnWithdrawals;
-      const active = data.open[0];
-      if (active) {
-        return {
-          valid: false,
-          missing: [],
-          errors: [
-            `An active withdrawal already exists for ${address} on ${config.name}: ${active.shareAmount.toString()} shares queued (request tx ${active.txHash}). Only one active withdrawal is allowed per vault.`,
-          ],
-          note: `Tell the user about the existing withdrawal (shareAmount=${active.shareAmount.toString()}, txHash=${active.txHash}, deadline=${active.deadline}) and ask whether they want to cancel it via prepare_cancel_earn_withdrawal before queuing a new one. Do not retry prepare_earn_withdrawal until they confirm.`,
-        };
-      }
-    } catch (err) {
-      // If the check itself fails, don't block the user — surface the
-      // error in the note but proceed. A backend stall here would
-      // otherwise lock the user out of withdrawing entirely.
-      return {
-        valid: false,
-        missing: [],
-        errors: [
-          err instanceof Error
-            ? `Could not verify active withdrawals: ${err.message}`
-            : 'Could not verify active withdrawals.',
-        ],
-        note: 'The active-withdrawal check failed. Tell the user this is a backend issue, suggest they run get_earn_withdrawals manually to confirm no active withdrawal exists, and only proceed with prepare_earn_withdrawal after they confirm.',
-      };
-    }
 
     return {
       valid: true,
@@ -1279,12 +1239,12 @@ export const prepareClaimLbtcDeposit: ToolDefinition<
 // ─── Cancel Withdrawal Tool ────────────────────────────────────────
 
 export const prepareCancelEarnWithdrawal: ToolDefinition<
-  { address: string; chainId: number },
+  { address: string; chainId: number; txHash?: string },
   PreparedTx | ValidationFailure
 > = {
   name: 'prepare_cancel_earn_withdrawal',
   description:
-    "Cancel an active Bitcoin Earn withdrawal that has not yet been processed. Looks up the user's active withdrawal first; refuses if none exists, includes its details in the description if one does, then returns the cancel transaction parameters.",
+    "Cancel a Bitcoin Earn withdrawal that has not been fulfilled, open or expired. Looks up the user's cancellable withdrawals first; refuses if there are none, and asks for txHash when there is more than one. Returns the cancel transaction parameters, including the request the queue needs.",
   parameters: CancelWithdrawalSchema as Record<string, unknown>,
   schema: CancelWithdrawalZod,
   execute: async (params) => {
@@ -1297,12 +1257,12 @@ export const prepareCancelEarnWithdrawal: ToolDefinition<
         note: 'Surface the listed errors to the user and re-prompt with valid input.',
       };
     }
-    const { address, chainId } = parsed.data;
+    const { address, chainId, txHash } = parsed.data;
     const config = getChainConfig(chainId);
 
-    let activeDetails = '';
+    let data: EarnWithdrawals;
     try {
-      const data = (await withTimeout(
+      data = (await withTimeout(
         getEarnWithdrawals({
           account: address as Address,
           chainId: config.chainId,
@@ -1311,18 +1271,6 @@ export const prepareCancelEarnWithdrawal: ToolDefinition<
         15_000,
         'getEarnWithdrawals',
       )) as EarnWithdrawals;
-      const active = data.open[0];
-      if (!active) {
-        return {
-          valid: false,
-          missing: [],
-          errors: [
-            `No active withdrawal found for ${address} on ${config.name}. There is nothing to cancel.`,
-          ],
-          note: 'Tell the user there is no active withdrawal to cancel. If they think there should be, suggest get_earn_withdrawals to inspect their full withdrawal history.',
-        };
-      }
-      activeDetails = ` Active withdrawal: ${active.shareAmount.toString()} shares (request tx ${active.txHash}, deadline ${active.deadline}).`;
     } catch (err) {
       return {
         valid: false,
@@ -1336,12 +1284,64 @@ export const prepareCancelEarnWithdrawal: ToolDefinition<
       };
     }
 
+    // An expired request still holds its shares until it is cancelled.
+    const cancellable = [...data.open, ...data.expired];
+    if (cancellable.length === 0) {
+      return {
+        valid: false,
+        missing: [],
+        errors: [
+          `No active withdrawal found for ${address} on ${config.name}. There is nothing to cancel.`,
+        ],
+        note: 'Tell the user there is no active withdrawal to cancel. If they think there should be, suggest get_earn_withdrawals to inspect their full withdrawal history.',
+      };
+    }
+
+    let target: EarnWithdrawal | undefined;
+    if (txHash) {
+      target = cancellable.find(
+        (w) => w.txHash.toLowerCase() === txHash.toLowerCase(),
+      );
+      if (!target) {
+        return {
+          valid: false,
+          missing: [],
+          errors: [
+            `No open or expired withdrawal with request tx ${txHash} for ${address} on ${config.name}.`,
+          ],
+          note: `Cancellable withdrawals: ${cancellable.map((w) => `${w.txHash} (${w.shareAmount.toString()} shares)`).join(', ')}. Ask the user which one to cancel.`,
+        };
+      }
+    } else if (cancellable.length > 1) {
+      return {
+        valid: false,
+        missing: ['txHash'],
+        errors: [
+          `${address} has ${cancellable.length} cancellable withdrawals on ${config.name}; say which one to cancel.`,
+        ],
+        note: `Cancellable withdrawals: ${cancellable.map((w) => `${w.txHash} (${w.shareAmount.toString()} shares, deadline ${w.deadline})`).join(', ')}. Ask the user which one, then call prepare_cancel_earn_withdrawal again with its txHash.`,
+      };
+    } else {
+      target = cancellable[0];
+    }
+
+    if (!target.request) {
+      return {
+        valid: false,
+        missing: [],
+        errors: [
+          `The withdrawal ${target.txHash} was reported without the request the queue needs to cancel it.`,
+        ],
+        note: 'Tell the user this withdrawal cannot be cancelled from here right now, and to retry in a moment.',
+      };
+    }
+
     return {
       valid: true,
       action: 'sdk_execute',
       method: 'evm.cancelEarnWithdrawal',
-      params: { chainId: config.chainId },
-      description: `Cancel pending Bitcoin Earn withdrawal on ${config.name}.${activeDetails} Your wallet will prompt you to sign the cancellation transaction.`,
+      params: { chainId: config.chainId, request: target.request },
+      description: `Cancel pending Bitcoin Earn withdrawal on ${config.name}. Withdrawal: ${target.shareAmount.toString()} shares (request tx ${target.txHash}, deadline ${target.deadline}). Your wallet will prompt you to sign the cancellation transaction.`,
     };
   },
 };

@@ -17,9 +17,9 @@
  *    (set in step 1) and direct LBTCv ≥ amount (after step 1's unwrap), so
  *    it skips its own approve + unwrap and just queues.
  *
- * Protocol routing in execute():
- * - Bitcoin Earn on ETH/Base/BSC (BTCe chains): calls `withdrawEarn`.
- * - Bitcoin Earn without a BTCe deployment: calls `queueWithdrawInternal` directly.
+ * `execute()` delegates to `withdrawEarn`, which files the request on the
+ * BoringOnChainQueue. Each request is kept separately, so filing one never
+ * replaces another already open.
  *
  * @module chains/evm/actions/withdraw-vault/EvmWithdrawVault
  */
@@ -61,7 +61,6 @@ import {
   isBtceVaultChain,
   isEarnChain,
 } from '../../../../vaults/lib/config';
-import { queueWithdrawInternal } from '../../../../vaults/lib/ops/withdraw';
 import { evmWithdrawConfig } from './config';
 import type {
   EvmWithdrawVaultParams,
@@ -74,8 +73,6 @@ export class EvmWithdrawVault
   implements IEvmWithdrawVault
 {
   private _amount?: string;
-  /** Whether execute() may overwrite a request already on the queue. */
-  private _replaceExisting = false;
   private _protocol?: DeployProtocol;
   private _needsApproval = false;
   private _txHash?: string;
@@ -126,7 +123,6 @@ export class EvmWithdrawVault
     return this.act(async () => {
       const validated = validatePrepareParams(this.prepareSchema, params);
       this._amount = validated.amount;
-      this._replaceExisting = validated.replaceExisting ?? false;
       this._protocol = this.params.protocol;
 
       this.validateProtocol(this.params.protocol);
@@ -209,12 +205,20 @@ export class EvmWithdrawVault
         );
       }
 
-      // Check LBTCv allowance to withdraw queue contract
+      // Check LBTCv allowance to the BoringQueue, which pulls the shares
+      const queue = vault.boringQueueContracts[this._chainId];
+      if (!queue) {
+        throw new LombardError(
+          WithdrawErrorCode.PROTOCOL_NOT_SUPPORTED,
+          `Chain ${this.params.sourceChain} has no Bitcoin Earn withdrawal queue`,
+          { chain: this.params.sourceChain, protocol: this.params.protocol },
+        );
+      }
       const allowanceRaw = await publicClient.readContract({
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
         functionName: 'allowance',
-        args: [account, vault.withdrawQueueContracts[this._chainId].address],
+        args: [account, queue.address],
       });
       const allowance = fromBaseDenomination(
         String(allowanceRaw),
@@ -352,7 +356,7 @@ export class EvmWithdrawVault
         address: vault.vaultContract.address,
         abi: vault.vaultContract.abi,
         functionName: 'approve',
-        args: [vault.withdrawQueueContracts[vedaChainId].address, amountBase],
+        args: [vault.boringQueueContracts[vedaChainId]!.address, amountBase],
       });
 
       const txHash = await walletClient.writeContract(request);
@@ -388,37 +392,18 @@ export class EvmWithdrawVault
         steps: { approval: StepStatus.COMPLETE, queueing: StepStatus.PENDING },
       });
 
-      let txHash: string;
-
-      if (isBtceVaultChain(this._chainId)) {
-        // On BTCe chains (ETH/Base/BSC) use the Earn-native orchestrator.
-        // It reads the user's combined LBTCv + BTCe position, automatically
-        // unwraps just enough BTCe to cover any shortfall in direct LBTCv,
-        // then queues the withdrawal. The LBTCv allowance was already set in
-        // approve(), so withdrawEarn will skip re-approval.
-        const result = await withdrawEarn({
-          amount: this._amount,
-          account: this._account,
-          chainId: this._chainId,
-          provider: provider as EIP1193Provider,
-          env: this.ctx.env,
-          replaceExisting: this._replaceExisting,
-        });
-
-        txHash = result.queueTxHash;
-      } else {
-        // Without the BTCe wrapper, queue the withdrawal directly from LBTCv.
-        // Approval was already done in approve(), so pass approve: false.
-        txHash = await queueWithdrawInternal({
-          amount: this._amount,
-          approve: false,
-          account: this._account,
-          chainId: this._chainId,
-          provider: provider as EIP1193Provider,
-          env: this.ctx.env,
-          replaceExisting: this._replaceExisting,
-        });
-      }
+      // withdrawEarn reads the combined LBTCv + BTCe position, unwraps just
+      // enough BTCe to cover any shortfall in direct LBTCv (none on a chain
+      // without the wrapper), then files the request. The allowance was set
+      // in approve(), so it skips re-approval.
+      const result = await withdrawEarn({
+        amount: this._amount,
+        account: this._account,
+        chainId: this._chainId,
+        provider: provider as EIP1193Provider,
+        env: this.ctx.env,
+      });
+      const txHash = result.queueTxHash;
 
       this._txHash = txHash;
 
@@ -436,7 +421,6 @@ export class EvmWithdrawVault
   private get prepareSchema() {
     return z.object({
       amount: evmAmountSchema,
-      replaceExisting: z.boolean().optional(),
     });
   }
 
