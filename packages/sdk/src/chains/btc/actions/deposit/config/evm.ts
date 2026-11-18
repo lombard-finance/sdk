@@ -32,10 +32,11 @@ import { toSatoshi } from '../../../../../utils/satoshi';
 import type { DepositChainConfig, DepositFeeAuthConfig } from './types';
 
 /**
- * Chains that require fee authorization (unsubsidized chains).
+ * Chains that can require fee authorization (unsubsidized chains).
  *
- * Ethereum mainnet and Sepolia require EIP-712 network fee signing.
- * Other chains are subsidized by Lombard.
+ * On subsidized chains, Lombard covers the fees. On these, the action asks
+ * for the signed fee approval only while the BTC.b contract predates the
+ * deposit fee (see `isMintFeeApprovalRequired`).
  */
 const UNSUBSIDIZED_CHAINS = [Chain.ETHEREUM, Chain.SEPOLIA] as const;
 
