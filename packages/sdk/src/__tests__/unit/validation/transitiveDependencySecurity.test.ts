@@ -100,7 +100,7 @@ const PATCHED_FLOORS: Record<string, Record<number, string>> = {
 describe('patched dependency advisories (medium and low severity)', () => {
   for (const [name, floors] of Object.entries(PATCHED_FLOORS)) {
     it(`locks no vulnerable release of ${name}`, () => {
-      const versions = lockedVersions(name.replace(/[.]/g, '\\.'));
+      const versions = lockedVersions(name);
       for (const version of versions) {
         const floor = floors[Number(version.split('.')[0])];
         if (floor === undefined) continue;
