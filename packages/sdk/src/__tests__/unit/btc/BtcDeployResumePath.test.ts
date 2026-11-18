@@ -17,6 +17,26 @@ vi.mock('../../../api-functions/getUserStakeAndBakeSignature', () => ({
   getUserStakeAndBakeSignature: vi.fn(),
 }));
 
+/**
+ * A fixed LBTC ratio, so the permit value a deposit converts to is known here
+ * rather than read from the live rate: a stored permit resumes only a deposit
+ * of exactly its value.
+ */
+vi.mock(
+  '../../../api-functions/getLBTCExchangeRate/get-exchange-ratio',
+  async () => {
+    const { default: BigNumber } = await import('bignumber.js');
+    return {
+      getExchangeRatio: vi.fn(async () => ({
+        LBTC: {
+          tokenBTCRatio: new BigNumber(1).dividedBy('1.00265'),
+          BTCTokenRatio: new BigNumber('1.00265'),
+        },
+      })),
+    };
+  },
+);
+
 import { getUserStakeAndBakeSignature } from '../../../api-functions/getUserStakeAndBakeSignature';
 import { BtcDeployLbtc } from '../../../chains/btc/actions/deploy-lbtc/BtcDeployLbtc';
 import { AssetId, Chain } from '../../../core';
@@ -27,6 +47,11 @@ import { createBtcActionHarness } from '../../harness/createBtcActionHarness';
 const RECIPIENT = '0x1111111111111111111111111111111111111111';
 const EXISTING_ADDRESS = 'tb1qexistingdeposit0000000000000000000000';
 const AMOUNT = '0.001';
+/**
+ * What a permit for AMOUNT carries: the satoshis divided by the ratio above,
+ * rounded down to whole base units, as the signer builds it.
+ */
+const PERMIT_VALUE = '99735';
 
 /** Prod LBTC on Ethereum, and the vault's stake-and-bake spender there. */
 const LBTC = '0x8236a87084f8b84306f72007f36f2618a5634494';
@@ -54,7 +79,7 @@ function storedSignature(
     userDestinationAddress: RECIPIENT,
     signature: '0xstoredsignature',
     expirationDate: futureExpiry(),
-    depositAmount: '100000',
+    depositAmount: PERMIT_VALUE,
     chainId: '1',
     tokenAddress: LBTC,
     spenderAddress: EARN_SPENDER,
@@ -166,7 +191,7 @@ describe('BtcDeployLbtc — resume path', () => {
         BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
       );
       expect(action.existingAuthorization).toMatchObject({
-        depositAmount: '100000',
+        depositAmount: PERMIT_VALUE,
       });
       await expect(action.generateDepositAddress()).rejects.toThrow();
       expect(h.calls.of('api', 'generateDepositAddress')).toHaveLength(0);
