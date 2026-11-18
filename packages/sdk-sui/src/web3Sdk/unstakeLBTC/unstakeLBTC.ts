@@ -119,8 +119,8 @@ export async function unstakeLBTC({
     );
   }
 
-  // V1 wallets serialize with `Transaction.serialize()`, which throws
-  // `Invalid input` on a FundsWithdrawal input.
+  // Reject FundsWithdrawal inputs on the V1 signing path:
+  // `Transaction.serialize()` throws `Invalid input` on them.
   if (
     transaction
       .getData()
