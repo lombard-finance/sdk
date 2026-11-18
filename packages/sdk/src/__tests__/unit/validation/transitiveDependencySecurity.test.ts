@@ -12,10 +12,9 @@ const lockfile = readFileSync(
 
 function lockedVersions(name: string): string[] {
   const versions: string[] = [];
-  const header = new RegExp(`^"?${name}@`);
   const lines = lockfile.split('\n');
   lines.forEach((line, i) => {
-    if (header.test(line)) {
+    if (line.startsWith(`${name}@`) || line.startsWith(`"${name}@`)) {
       const match = /^ {2}version: (.+)$/.exec(lines[i + 1] ?? '');
       if (match) versions.push(match[1]);
     }
