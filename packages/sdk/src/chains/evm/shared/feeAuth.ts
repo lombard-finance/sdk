@@ -6,8 +6,10 @@
  * - EvmWithdrawBtcb (BTC.b → BTC on Ethereum/Sepolia)
  * - EvmWithdrawLbtc (LBTC → BTC.b on Ethereum/Sepolia)
  *
- * Fee authorization is only required on unsubsidized chains (Ethereum, Sepolia).
- * Other chains (Base, BSC, Avalanche) are subsidized by Lombard.
+ * Fee authorization is only required on unsubsidized chains (Ethereum, Sepolia),
+ * and there only while the token contract predates the deposit fee: a contract
+ * with `getDepositFee()` takes its fee inside the mint. Other chains (Base, BSC,
+ * Avalanche) are subsidized by Lombard.
  *
  * Reading and storing an approval go through the v2 routes when a wallet token
  * for the account is available, and the v1 routes otherwise, so the action's
@@ -22,9 +24,9 @@ import type { EIP1193Provider } from 'viem';
 import { getNetworkFeeSignature } from '../../../api-functions';
 import { storeNetworkFeeSignature } from '../../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
 import type { ChainId } from '../../../common/chains';
-import { requiresAutoMintFee } from '../../../common/fee-requirements';
 import type { IEnvParam } from '../../../common/parameters';
 import { getMintingFee } from '../../../contract-functions';
+import { isMintFeeApprovalRequired } from '../../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired';
 import { signNetworkFee } from '../../../contract-functions/signNetworkFee/signNetworkFee';
 import { Token } from '../../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../../tokens/tokens';
@@ -107,8 +109,9 @@ export async function checkFeeAuthorization(
   token: Token,
   credentials: FeeAuthCredentials = {},
 ): Promise<FeeAuthCheckResult> {
-  // Check if this chain requires fee authorization
-  if (!requiresAutoMintFee(chainId)) {
+  // Only unsubsidized chains ask for it, and there only the token contracts
+  // that predate the deposit fee
+  if (!(await isMintFeeApprovalRequired({ chainId, token, env }))) {
     return {
       requiresAuth: false,
       hasValidSignature: false,

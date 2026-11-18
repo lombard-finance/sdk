@@ -53,6 +53,24 @@ import {
 import type { EvmCoreContext } from '../../../shared/context/types';
 import { createBtcActionHarness } from '../../harness/createBtcActionHarness';
 
+// These cover the flow with a fee approval: on the chains that can ask for it,
+// a token contract from before the deposit fee, which is what Ethereum ran when
+// they were written.
+vi.mock(
+  '../../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired',
+  async () => {
+    const { requiresAutoMintFee } =
+      await import('../../../common/fee-requirements');
+    return {
+      isMintFeeApprovalRequired: async ({
+        chainId,
+      }: {
+        chainId: Parameters<typeof requiresAutoMintFee>[0];
+      }) => requiresAutoMintFee(chainId),
+    };
+  },
+);
+
 const RECIPIENT = '0x1111111111111111111111111111111111111111';
 
 describe.each([

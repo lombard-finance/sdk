@@ -17,6 +17,24 @@ import { ChainId } from '../../../common/chains';
 import { AuthErrorCode, LombardError } from '../../../shared/errors';
 import { Token } from '../../../tokens/token-addresses';
 
+// These cover the flow with a fee approval: on the chains that can ask for it,
+// a token contract from before the deposit fee, which is what Ethereum ran when
+// they were written.
+vi.mock(
+  '../../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired',
+  async () => {
+    const { requiresAutoMintFee } =
+      await import('../../../common/fee-requirements');
+    return {
+      isMintFeeApprovalRequired: async ({
+        chainId,
+      }: {
+        chainId: Parameters<typeof requiresAutoMintFee>[0];
+      }) => requiresAutoMintFee(chainId),
+    };
+  },
+);
+
 const TOKEN_ADDRESS = '0x1234567890123456789012345678901234567890' as const;
 const ACCOUNT = '0xabcdef0123456789abcdef0123456789abcdef01' as const;
 

@@ -22,6 +22,24 @@ import { ChainId } from '../../../common/chains';
 import { AssetId, Chain } from '../../../core';
 import type { BtcCoreContext } from '../../../shared/context';
 
+// These cover the flow with a fee approval: on the chains that can ask for it,
+// a token contract from before the deposit fee, which is what Ethereum ran when
+// they were written.
+vi.mock(
+  '../../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired',
+  async () => {
+    const { requiresAutoMintFee } =
+      await import('../../../common/fee-requirements');
+    return {
+      isMintFeeApprovalRequired: async ({
+        chainId,
+      }: {
+        chainId: Parameters<typeof requiresAutoMintFee>[0];
+      }) => requiresAutoMintFee(chainId),
+    };
+  },
+);
+
 const RECIPIENT = '0x000000000000000000000000000000000000aBcD';
 const SIGNATURE = '0xfresh';
 const TYPED_DATA = '{"fresh":true}';
