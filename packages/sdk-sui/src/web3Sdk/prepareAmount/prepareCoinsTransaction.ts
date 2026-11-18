@@ -20,9 +20,9 @@ interface IPrepareCoinsTransactionParams {
  *
  * Funds received through `0x2::coin::send_funds` / `0x2::balance::send_funds`
  * sit in the address balance and have no Coin object, so `listCoins` misses
- * them. Coin objects are spent first, keeping the transaction free of a
- * `FundsWithdrawal` input when they cover the amount, since not every wallet
- * can sign one; only the shortfall is redeemed from the address balance.
+ * them. Coin objects are spent first, so a transaction they cover has no
+ * `FundsWithdrawal` input; only the shortfall is redeemed from the address
+ * balance.
  */
 export async function prepareCoinsTransaction({
   walletAccount,
@@ -30,16 +30,14 @@ export async function prepareCoinsTransaction({
   amount,
   coinType,
 }: IPrepareCoinsTransactionParams) {
-  const [coins, { balance }, decimals] = await Promise.all([
+  const [coins, decimals] = await Promise.all([
     getAllCoinsOfType({ walletAccount, client, coinType }),
-    client.core.getBalance({ owner: walletAccount.address, coinType }),
     resolveSuiCoinDecimals(client, coinType),
   ]);
-  const addressBalance = BigInt(balance.addressBalance);
 
   const transaction = new Transaction();
 
-  const preparedCoins = (() => {
+  const preparedCoins = await (async () => {
     const unstakeAmount = BigInt(
       amount.multipliedBy(new BigNumber(10).pow(decimals)).toString(10),
     );
@@ -87,7 +85,15 @@ export async function prepareCoinsTransaction({
 
     // Every Coin object is selected and still short of the amount.
     const shortfall = unstakeAmount - selectedAmount;
-    if (shortfall <= 0n || addressBalance < shortfall) {
+    if (shortfall <= 0n) {
+      throw ERROR_NOT_ENOUGH_BALANCE;
+    }
+
+    const { balance } = await client.core.getBalance({
+      owner: walletAccount.address,
+      coinType,
+    });
+    if (BigInt(balance.addressBalance) < shortfall) {
       throw ERROR_NOT_ENOUGH_BALANCE;
     }
 

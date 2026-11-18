@@ -5,7 +5,10 @@ import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
-import { getConfig } from '../../const';
+import {
+  ERROR_ADDRESS_BALANCE_NEEDS_SIGN_TRANSACTION,
+  getConfig,
+} from '../../const';
 import {
   executeSignedTransaction,
   type ISuiExecutedTransaction,
@@ -114,6 +117,16 @@ export async function unstakeLBTC({
     throw new Error(
       'Wallet does not support transaction signing (sui:signTransactionBlock not available)',
     );
+  }
+
+  // V1 wallets serialize with `Transaction.serialize()`, which throws
+  // `Invalid input` on a FundsWithdrawal input.
+  if (
+    transaction
+      .getData()
+      .inputs.some((input) => input.$kind === 'FundsWithdrawal')
+  ) {
+    throw ERROR_ADDRESS_BALANCE_NEEDS_SIGN_TRANSACTION;
   }
 
   // Use V1 signTransactionBlock (OKX, and other wallets with V2 issues)

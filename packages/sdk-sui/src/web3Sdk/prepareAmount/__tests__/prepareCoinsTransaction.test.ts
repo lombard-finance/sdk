@@ -20,7 +20,8 @@ function prepare({
   amount,
 }: {
   coins: string[];
-  addressBalance: string;
+  /** An Error makes the balance read fail. */
+  addressBalance: string | Error;
   amount: string;
 }) {
   const coinBalance = coins.reduce((sum, c) => sum + BigInt(c), 0n);
@@ -34,14 +35,17 @@ function prepare({
         hasNextPage: false,
         cursor: null,
       }),
-      getBalance: vi.fn().mockResolvedValue({
-        balance: {
-          coinType: LBTC,
-          balance: String(coinBalance + BigInt(addressBalance)),
-          coinBalance: String(coinBalance),
-          addressBalance,
-        },
-      }),
+      getBalance:
+        addressBalance instanceof Error
+          ? vi.fn().mockRejectedValue(addressBalance)
+          : vi.fn().mockResolvedValue({
+              balance: {
+                coinType: LBTC,
+                balance: String(coinBalance + BigInt(addressBalance)),
+                coinBalance: String(coinBalance),
+                addressBalance,
+              },
+            }),
     },
   } as unknown as SuiGrpcClient;
 
@@ -137,6 +141,16 @@ describe('prepareCoinsTransaction', () => {
     expect(
       transaction.getData().commands.map((command) => command.$kind),
     ).toEqual(['SplitCoins', 'MergeCoins']);
+  });
+
+  it('does not depend on the balance read when Coin objects cover the amount', async () => {
+    const { transaction } = await prepare({
+      coins: ['9000000'],
+      addressBalance: new Error('node unavailable'),
+      amount: '0.05',
+    });
+
+    expect(withdrawals(transaction)).toEqual([]);
   });
 
   it('throws when Coin objects and the address balance together fall short', async () => {
