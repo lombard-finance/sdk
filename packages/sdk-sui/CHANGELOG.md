@@ -5,7 +5,11 @@ All notable changes to `@lombard.finance/sdk-sui` will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.1] - 2026-11-18
+## [2.1.0] - 2026-11-18
+
+### Added
+
+- `ERROR_ADDRESS_BALANCE_NEEDS_SIGN_TRANSACTION`: thrown by `unstakeLBTC` when the withdraw needs the address balance and the wallet is signed through `sui:signTransactionBlock`
 
 ### Fixed
 
