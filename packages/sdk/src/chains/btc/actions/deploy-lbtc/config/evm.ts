@@ -225,7 +225,7 @@ function sameAddress(a: string | undefined, b: string | undefined): boolean {
 }
 
 /**
- * Whether the amount on the stored signature covers the deposit being prepared.
+ * Whether the stored signature is for exactly the deposit being prepared.
  *
  * `deposit_amount` is the permit's own `value`: the store call sends only the
  * signature and the typed data, so the amount the server records is the one in
@@ -233,8 +233,13 @@ function sameAddress(a: string | undefined, b: string | undefined): boolean {
  * caller passed, so the new deposit is converted the same way before the two
  * are compared.
  *
- * A record with no amount on it cannot be shown to cover anything. It is
- * treated as not covering, which costs a signature prompt that may not have
+ * The match is exact. The permit is claimed only for a deposit whose minted
+ * amount equals its `value`, so a permit for a larger amount does not cover a
+ * smaller deposit: that deposit would mint as plain LBTC and never reach the
+ * vault, while the permit stayed on file.
+ *
+ * A record with no amount on it cannot be shown to match anything. It is
+ * treated as not matching, which costs a signature prompt that may not have
  * been needed; the other way round skips the prompt for a deposit that is not
  * authorised.
  */
@@ -255,9 +260,7 @@ async function storedAmountCovers(
   );
 
   // Compared as the permit is built: the signer rounds the converted value down
-  // to whole base units, so anything below that is what the stored figure has
-  // to reach.
-  return stored.isGreaterThanOrEqualTo(
-    needed.decimalPlaces(0, BigNumber.ROUND_DOWN),
-  );
+  // to whole base units, so that rounded figure is what the stored one has to
+  // equal.
+  return stored.isEqualTo(needed.decimalPlaces(0, BigNumber.ROUND_DOWN));
 }
