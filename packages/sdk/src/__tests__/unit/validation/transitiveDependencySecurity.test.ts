@@ -79,7 +79,6 @@ describe('patched transitive dependencies', () => {
 const PATCHED_FLOORS: Record<string, Record<number, string>> = {
   '@babel/core': { 7: '7.29.1' },
   '@humanfs/node': { 0: '0.16.8' },
-  '@remix-run/router': { 1: '1.23.3' },
   '@vitest/mocker': { 4: '4.1.12' },
   ajv: { 6: '6.14.0', 8: '8.18.0' },
   'bn.js': { 4: '4.12.3', 5: '5.2.3' },
@@ -90,8 +89,8 @@ const PATCHED_FLOORS: Record<string, Record<number, string>> = {
   'ip-address': { 10: '10.7.4' },
   pbkdf2: { 3: '3.1.7' },
   qs: { 6: '6.16.1' },
-  'react-router': { 6: '6.30.4', 7: '7.18.0' },
-  'react-router-dom': { 6: '6.30.6', 7: '7.18.0' },
+  'react-router': { 7: '7.18.0' },
+  'react-router-dom': { 7: '7.18.0' },
   turbo: { 2: '2.9.14' },
   uuid: { 8: '11.1.1', 9: '11.1.1', 10: '11.1.1', 11: '11.1.1' },
   yaml: { 2: '2.8.3' },
@@ -101,6 +100,9 @@ describe('patched dependency advisories (medium and low severity)', () => {
   for (const [name, floors] of Object.entries(PATCHED_FLOORS)) {
     it(`locks no vulnerable release of ${name}`, () => {
       const versions = lockedVersions(name);
+      // An empty list would mean the lookup matched nothing, not that the
+      // package is safe.
+      expect(versions.length).toBeGreaterThan(0);
       for (const version of versions) {
         const floor = floors[Number(version.split('.')[0])];
         if (floor === undefined) continue;
@@ -110,7 +112,9 @@ describe('patched dependency advisories (medium and low severity)', () => {
   }
 
   it('locks esbuild outside the affected 0.27.3 - 0.28.0 range', () => {
-    for (const version of lockedVersions('esbuild')) {
+    const versions = lockedVersions('esbuild');
+    expect(versions.length).toBeGreaterThan(0);
+    for (const version of versions) {
       const vulnerable =
         atLeast(version, '0.27.3') && !atLeast(version, '0.28.1');
       expect(vulnerable, `esbuild@${version}`).toBe(false);
@@ -131,6 +135,25 @@ describe('patched dependency advisories (medium and low severity)', () => {
     const fromTypedoc = createRequire(requireFromTest.resolve('typedoc'));
     const { Minimatch } = fromTypedoc('minimatch');
     expect(typeof new Minimatch('src/**').matchOne).toBe('function');
+  });
+
+  it('locks minimatch 9 and 10 only as the copy pinned for typedoc', () => {
+    // Every other consumer is resolved to minimatch 11. The one exception is
+    // the 9.0.9 that typedoc needs, covered by the test above.
+    const old = lockedVersions('minimatch').filter((version) =>
+      ['9', '10'].includes(version.split('.')[0]),
+    );
+    expect(old).toEqual(['9.0.9']);
+  });
+
+  it('locks no react-router 6 or its @remix-run/router core', () => {
+    // The fix for the 6.x advisories is the 7.x line, so 6.x must not return.
+    expect(lockedVersions('@remix-run/router')).toEqual([]);
+    for (const name of ['react-router', 'react-router-dom']) {
+      for (const version of lockedVersions(name)) {
+        expect(Number(version.split('.')[0]), `${name}@${version}`).toBe(7);
+      }
+    }
   });
 
   it('loads yaml documents', () => {
