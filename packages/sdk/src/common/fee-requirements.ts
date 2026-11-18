@@ -9,8 +9,12 @@ import type { ChainId } from './chains';
 /**
  * Chains that require network fee authorization (auto-mint fee)
  *
- * Ethereum mainnet and Sepolia (testnet) require fee authorization.
+ * Ethereum mainnet and Sepolia (testnet) can require fee authorization.
  * Other chains (Base, BSC, etc.) are subsidized - Lombard absorbs gas costs.
+ *
+ * On these chains a mint still needs the approval only while its token
+ * contract predates the deposit fee; the SDK's own flows read that from the
+ * contract (`getDepositFee()`) before asking for a signature.
  */
 export const AUTO_MINT_FEE_CHAINS: readonly ChainId[] = [
   1, // Ethereum mainnet

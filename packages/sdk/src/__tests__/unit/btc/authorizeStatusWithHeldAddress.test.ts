@@ -30,6 +30,24 @@ import { DefiProtocol } from '../../../defi';
 import { BtcActionStatus } from '../../../shared/constants/statusConstants';
 import { createBtcActionHarness } from '../../harness/createBtcActionHarness';
 
+// These cover the flow with a fee approval: on the chains that can ask for it,
+// a token contract from before the deposit fee, which is what Ethereum ran when
+// they were written.
+vi.mock(
+  '../../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired',
+  async () => {
+    const { requiresAutoMintFee } =
+      await import('../../../common/fee-requirements');
+    return {
+      isMintFeeApprovalRequired: async ({
+        chainId,
+      }: {
+        chainId: Parameters<typeof requiresAutoMintFee>[0];
+      }) => requiresAutoMintFee(chainId),
+    };
+  },
+);
+
 const RECIPIENT = '0x1111111111111111111111111111111111111111';
 const HELD_ADDRESS = 'tb1qexistingdeposit0000000000000000000000';
 const AMOUNT = '0.001';

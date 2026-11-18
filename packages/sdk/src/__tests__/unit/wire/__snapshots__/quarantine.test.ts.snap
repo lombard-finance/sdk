@@ -17,6 +17,7 @@ exports[`ABI method names > calls a stable set of contract methods, the same num
   "getAssetRouter: 9",
   "getBascule: 1",
   "getBurnCommission: 1",
+  "getDepositFee: 1",
   "getFee: 1",
   "getMintFee: 1",
   "getRateInQuote: 1",
