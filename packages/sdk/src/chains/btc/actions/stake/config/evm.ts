@@ -26,10 +26,11 @@ import { toSatoshi } from '../../../../../utils/satoshi';
 import type { ChainConfig, FeeAuthConfig } from './types';
 
 /**
- * Chains that require fee authorization (unsubsidized chains).
+ * Chains that can require fee authorization (unsubsidized chains).
  *
- * These chains require users to sign a fee authorization message
- * before minting LBTC. On subsidized chains, Lombard covers the fees.
+ * On subsidized chains, Lombard covers the fees. On these, the action asks
+ * for the signed fee approval only while the LBTC contract predates the
+ * deposit fee (see `isMintFeeApprovalRequired`).
  */
 const UNSUBSIDIZED_CHAINS = [Chain.ETHEREUM, Chain.SEPOLIA] as const;
 

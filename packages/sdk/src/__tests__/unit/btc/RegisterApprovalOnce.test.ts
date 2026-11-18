@@ -22,6 +22,13 @@ import { ChainId } from '../../../common/chains';
 import { AssetId, Chain } from '../../../core';
 import type { BtcCoreContext } from '../../../shared/context';
 
+// These flows are the one with a fee approval: a token contract from before
+// the deposit fee, which is what Ethereum ran when they were written.
+vi.mock(
+  '../../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired',
+  () => ({ isMintFeeApprovalRequired: vi.fn().mockResolvedValue(true) }),
+);
+
 const RECIPIENT = '0x000000000000000000000000000000000000aBcD';
 const SIGNATURE = '0xfresh';
 const TYPED_DATA = '{"fresh":true}';
