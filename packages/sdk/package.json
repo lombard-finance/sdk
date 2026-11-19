@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "5.11.3",
+  "version": "5.11.4",
   "description": "TypeScript SDK for the Lombard protocol - stake BTC, mint LBTC, and interact with DeFi",
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
@@ -133,7 +133,7 @@
     "@layerzerolabs/lz-v2-utilities": "^3.0.17",
     "axios": "^1",
     "bignumber.js": "^9",
-    "bitcoinjs-lib": "^6.1.5",
+    "bitcoinjs-lib": "^6.1.10",
     "viem": "^2.21.0"
   },
   "scripts": {

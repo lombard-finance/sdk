@@ -1,3 +1,9 @@
+# 5.11.4
+
+### Fixed
+
+- Require BitcoinJS 6.1.10 for patched transaction-merkle verification, proof-of-work target validation and consistent PSBT input handling while preserving the BitcoinJS 6 API.
+
 # 5.11.3
 
 ### Fixed
