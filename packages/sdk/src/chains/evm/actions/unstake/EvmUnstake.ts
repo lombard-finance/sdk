@@ -7,7 +7,7 @@
  *
  * Fee authorization is required when:
  * - Output asset is BTC.b (LBTC → BTC.b conversion)
- * - Source chain is Ethereum/Sepolia (unsubsidized chains)
+ * - Source chain is Ethereum/Sepolia (fee-approval chains)
  *
  * **Flow with fee auth (LBTC → BTC.b on Ethereum/Sepolia):**
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED
@@ -80,7 +80,7 @@ export class EvmUnstake
     return this._feeAuth;
   }
 
-  /** Whether output is BTC.b (requires fee auth on unsubsidized chains) */
+  /** Whether output is BTC.b (requires fee auth on fee-approval chains) */
   private get isBtcbOutput(): boolean {
     return this.params.assetOut === AssetId.BTCb;
   }
@@ -97,7 +97,7 @@ export class EvmUnstake
 
       const chainId = parseChainIdentifier(this.params.sourceChain) as ChainId;
 
-      // Fee auth is only required for BTC.b output on unsubsidized chains
+      // Fee auth is only required for BTC.b output on fee-approval chains
       if (this.isBtcbOutput) {
         // Get EVM account for fee auth check
         const provider = await this.ctx.getProvider('evm');

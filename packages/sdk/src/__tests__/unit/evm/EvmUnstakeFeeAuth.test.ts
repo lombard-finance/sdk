@@ -60,7 +60,7 @@ describe('EvmUnstake fee authorization status', () => {
     const { checkFeeAuthorization } =
       await import('../../../chains/evm/shared/feeAuth');
 
-    // Mock: fee auth required, no valid signature (unsubsidized chain like Ethereum)
+    // Mock: fee auth required, no valid signature (fee-approval chain like Ethereum)
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
       requiresAuth: true,
       hasValidSignature: false,
@@ -95,11 +95,11 @@ describe('EvmUnstake fee authorization status', () => {
     expect(unstake.feeAuth.feeInSatoshis).toBe(BigInt(1992));
   });
 
-  it('transitions to READY when fee auth not required (subsidized chain)', async () => {
+  it('transitions to READY when fee auth not required (chain without fee approval)', async () => {
     const { checkFeeAuthorization } =
       await import('../../../chains/evm/shared/feeAuth');
 
-    // Mock: no fee auth required (subsidized chain like Base)
+    // Mock: no fee auth required (chain without fee approval, like Base)
     vi.mocked(checkFeeAuthorization).mockResolvedValue({
       requiresAuth: false,
       hasValidSignature: false,

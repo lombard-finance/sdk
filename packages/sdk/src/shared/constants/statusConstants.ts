@@ -89,7 +89,7 @@ export type BtcActionStatus =
  * **EVM Unstake (LBTC → BTC.b on Ethereum/Sepolia):**
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED
  *
- * **EVM Unstake (LBTC → BTC.b on Base/BSC - subsidized):**
+ * **EVM Unstake (LBTC → BTC.b on Base/BSC - no fee approval):**
  * IDLE → READY → COMPLETED
  *
  * **EVM Redeem (BTC.b → BTC on Ethereum/Sepolia):**

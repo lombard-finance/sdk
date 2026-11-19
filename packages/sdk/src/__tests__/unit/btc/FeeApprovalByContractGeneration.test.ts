@@ -71,7 +71,7 @@ beforeEach(() => {
 describe('isMintFeeApprovalRequired', () => {
   const sepolia = { chainId: ChainId.sepolia, env: Env.stage };
 
-  it('is not required on a subsidized chain, and reads nothing', async () => {
+  it('is not required on a chain without fee approval, and reads nothing', async () => {
     await expect(
       isMintFeeApprovalRequired({
         chainId: ChainId.base,

@@ -4,12 +4,12 @@
  * Tests to verify the fee fetching logic works correctly.
  *
  * The minting fee (also called "network fee" or "auto-mint fee") is the amount
- * in satoshis that is deducted from the minted LBTC to compensate Lombard for
- * paying the EVM gas costs during the auto-mint process.
+ * in satoshis that is deducted from the minted LBTC during the auto-mint
+ * process.
  *
  * Fee Structure:
- * - Non-subsidized chains (Ethereum, Sepolia): Have non-zero fees
- * - Subsidized chains (Base, BSC): Have 0 fees (Lombard absorbs gas costs)
+ * - Fee-approval chains (Ethereum, Sepolia): Have non-zero fees
+ * - Chains without fee approval (Base, BSC): Have 0 fees (no fee configured on-chain)
  *
  * The fee is read from the on-chain AssetRouter.maxMintCommission() function.
  */
@@ -93,15 +93,15 @@ describe('Minting Fee Logic', () => {
     /**
      * The minting fee is the auto-mint commission in satoshis.
      *
-     * When a user deposits BTC, Lombard automatically mints LBTC to their address.
-     * The fee compensates Lombard for paying the EVM gas costs.
+     * When a user deposits BTC, LBTC is minted to their address automatically,
+     * less the minting fee the contract reports.
      *
-     * Non-subsidized chains (Ethereum, Sepolia): Have fees configured on-chain
-     * Subsidized chains (Base, BSC): Lombard absorbs gas costs, fee = 0
+     * Fee-approval chains (Ethereum, Sepolia): Have fees configured on-chain
+     * Chains without fee approval (Base, BSC): no fee configured on-chain, fee = 0
      */
 
     it('should document fee structure', () => {
-      // Ethereum mainnet always has a fee (unsubsidized)
+      // Ethereum mainnet always has a fee configured
       const ethereumMainnetFee = 36; // satoshis
       expect(ethereumMainnetFee).toBeGreaterThan(0);
 
@@ -109,20 +109,20 @@ describe('Minting Fee Logic', () => {
       const sepoliaStageFee = 1433; // satoshis
       expect(sepoliaStageFee).toBeGreaterThan(0);
 
-      // Base is subsidized by design
+      // Base has no fee configured
       const baseFee = 0;
       expect(baseFee).toBe(0);
     });
 
-    it('should document which chains are subsidized vs non-subsidized', () => {
-      // Subsidized chains (fee = 0 by design, Lombard pays gas)
-      const subsidizedChains = ['Base', 'BSC'];
+    it('should document which chains have a minting fee configured', () => {
+      // Chains without fee approval (fee = 0 on-chain)
+      const noApprovalChains = ['Base', 'BSC'];
 
-      // Non-subsidized chains (fee charged to user in LBTC)
-      const nonSubsidizedChains = ['Ethereum Mainnet', 'Sepolia'];
+      // Fee-approval chains (fee configured on-chain, deducted from the minted LBTC)
+      const feeApprovalChains = ['Ethereum Mainnet', 'Sepolia'];
 
-      expect(subsidizedChains.length).toBeGreaterThan(0);
-      expect(nonSubsidizedChains.length).toBeGreaterThan(0);
+      expect(noApprovalChains.length).toBeGreaterThan(0);
+      expect(feeApprovalChains.length).toBeGreaterThan(0);
     });
   });
 });
