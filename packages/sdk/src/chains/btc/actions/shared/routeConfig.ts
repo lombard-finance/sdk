@@ -173,7 +173,7 @@ export function toBtcDepositRouteConfig(
  * Which ceremony a BTC route needs before it can issue a deposit address.
  *
  * A route needs exactly one of these, decided by the destination rather than
- * by the caller. `none` covers the subsidised destinations, where the address
+ * by the caller. `none` covers the destinations without fee approval, where the address
  * can be generated straight after `prepare()`.
  */
 export type BtcAuthorizationKind =

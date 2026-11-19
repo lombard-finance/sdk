@@ -318,9 +318,9 @@ export class BtcDeployLbtc
       // record can be: on v1 a permit another product stored for the wallet
       // and chain looks the same as this one, and adopting it reports a
       // deposit as headed for the vault when nothing will move it there. And
-      // it needs the permit to cover this deposit: it is for a fixed amount,
-      // so a permit signed for a smaller deposit does not authorise a larger
-      // one.
+      // it needs the permit to be for exactly this deposit: it is claimed only
+      // for a deposit that mints its fixed amount, so a permit signed for a
+      // smaller or a larger deposit does not authorise this one.
       if (
         hasExistingDeposit &&
         stored?.hasSignature &&

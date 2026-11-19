@@ -76,7 +76,7 @@ describe('golden baseline — the EVM withdraw merge pair on 5.x', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRedeem.mockResolvedValue(MOCK_TX_HASH as never);
-    // No fee authorization required: the subsidized path, which is the one
+    // No fee authorization required: the path without fee approval, which is the one
     // both classes share and therefore the one the merge must preserve.
     mockFeeAuth.mockResolvedValue({
       requiresAuth: false,

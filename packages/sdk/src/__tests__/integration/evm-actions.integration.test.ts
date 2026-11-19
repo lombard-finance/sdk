@@ -82,14 +82,14 @@ vi.mock('../../contract-functions/approveToken', () => ({
   getTokenAllowance: vi.fn(async () => new BigNumber('1000000')),
 }));
 
-// Mock fee authorization for EvmDepositBtcb (subsidized chains don't require fee auth)
+// Mock fee authorization for EvmDepositBtcb (chains without fee approval don't require fee auth)
 vi.mock('../../chains/evm/shared/feeAuth', async (importOriginal) => {
   const original =
     await importOriginal<typeof import('../../chains/evm/shared/feeAuth')>();
   return {
     ...original,
     checkFeeAuthorization: vi.fn(async () => ({
-      requiresAuth: false, // Avalanche is subsidized
+      requiresAuth: false, // Avalanche needs no fee approval
       hasValidSignature: false,
       feeInSatoshis: null,
       feeFormatted: null,
@@ -170,7 +170,7 @@ describe('EVM Stake Action', () => {
       expect(stake.error).toBeNull();
     });
 
-    it('should transition to READY after prepare (subsidized chain)', async () => {
+    it('should transition to READY after prepare (chain without fee approval)', async () => {
       const config = createConfig({
         env: Env.testnet,
         providers: { evm: () => mockProvider },
@@ -186,7 +186,7 @@ describe('EVM Stake Action', () => {
 
       await stake.prepare({ amount: '0.001' });
 
-      // Avalanche is a subsidized chain, so goes directly to READY
+      // Avalanche is a chain without fee approval, so goes directly to READY
       expect(stake.status).toBe(EvmOperationStatus.READY);
       expect(stake.amount).toBe('0.001');
     });
@@ -207,7 +207,7 @@ describe('EVM Stake Action', () => {
 
       await stake.prepare({ amount: '0.001' });
 
-      // Avalanche is a subsidized chain, so no fee auth needed
+      // Avalanche is a chain without fee approval, so no fee auth needed
       expect(stake.status).toBe(EvmOperationStatus.READY);
       expect(stake.feeAuth.requiresAuth).toBe(false);
     });
@@ -233,7 +233,7 @@ describe('EVM Stake Action', () => {
 
       await stake.prepare({ amount: '0.001' });
 
-      // On subsidized chains, goes directly to READY (no NEEDS_FEE_AUTHORIZATION step)
+      // On chains without fee approval, goes directly to READY (no NEEDS_FEE_AUTHORIZATION step)
       expect(statusChanges).toContain(EvmOperationStatus.READY);
     });
   });
@@ -295,7 +295,7 @@ describe('EVM Stake Action', () => {
       });
 
       await stake.prepare({ amount: '0.01' });
-      // Avalanche is subsidized, goes directly to READY
+      // Avalanche needs no fee approval, goes directly to READY
       const result = await stake.execute();
 
       expect(result.txHash).toBe(mockTxHash);
@@ -846,7 +846,7 @@ describe('EVM Action Error Handling', () => {
 
     expect(stake.isFailed).toBe(false);
     expect(stake.error).toBeNull();
-    // Avalanche is subsidized, goes directly to READY
+    // Avalanche needs no fee approval, goes directly to READY
     expect(stake.status).toBe(EvmOperationStatus.READY);
   });
 

@@ -27,7 +27,7 @@ export const ActionStatus = {
   // ── Authorization, mutually exclusive per route ──
   /** ERC20 approval needed. Renamed from the hyphenated `needs-approval`. */
   NEEDS_APPROVAL: 'needs_approval',
-  /** Fee authorization needed, on unsubsidized chains. */
+  /** Fee authorization needed, on fee-approval chains. */
   NEEDS_FEE_AUTHORIZATION: 'needs_fee_authorization',
   /** Destination address confirmation needed, on non-Ethereum destinations. */
   NEEDS_ADDRESS_CONFIRMATION: 'needs_address_confirmation',

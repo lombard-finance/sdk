@@ -17,6 +17,24 @@ import { ChainId } from '../../../common/chains';
 import { AuthErrorCode, LombardError } from '../../../shared/errors';
 import { Token } from '../../../tokens/token-addresses';
 
+// These cover the flow with a fee approval: on the chains that can ask for it,
+// a token contract from before the deposit fee, which is what Ethereum ran when
+// they were written.
+vi.mock(
+  '../../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired',
+  async () => {
+    const { requiresAutoMintFee } =
+      await import('../../../common/fee-requirements');
+    return {
+      isMintFeeApprovalRequired: async ({
+        chainId,
+      }: {
+        chainId: Parameters<typeof requiresAutoMintFee>[0];
+      }) => requiresAutoMintFee(chainId),
+    };
+  },
+);
+
 const TOKEN_ADDRESS = '0x1234567890123456789012345678901234567890' as const;
 const ACCOUNT = '0xabcdef0123456789abcdef0123456789abcdef01' as const;
 
@@ -60,7 +78,7 @@ beforeEach(() => {
   storeNetworkFeeSignature.mockResolvedValue(undefined);
 });
 
-describe('checkFeeAuthorization on a subsidized chain', () => {
+describe('checkFeeAuthorization on a chain without fee approval', () => {
   it('reports no authorization required', async () => {
     const result = await checkFeeAuthorization(
       ChainId.base,
@@ -78,8 +96,8 @@ describe('checkFeeAuthorization on a subsidized chain', () => {
     });
   });
 
-  // The early return is the point: a subsidized chain must not pay for a
-  // signature lookup, a token lookup or a fee read.
+  // The early return is the point: a chain that never asks for the approval
+  // must not make a signature lookup, a token lookup or a fee read.
   it('makes no network calls at all', async () => {
     await checkFeeAuthorization(ChainId.base, ACCOUNT, Env.prod, Token.LBTC);
 
@@ -89,7 +107,7 @@ describe('checkFeeAuthorization on a subsidized chain', () => {
   });
 });
 
-describe('checkFeeAuthorization on an unsubsidized chain', () => {
+describe('checkFeeAuthorization on a fee-approval chain', () => {
   it('requires authorization and fetches the fee when no signature exists', async () => {
     const result = await checkFeeAuthorization(
       ChainId.ethereum,

@@ -65,7 +65,7 @@ describe('EvmWithdrawBtcb prepare()', () => {
     expect(redeem.feeAuth.feeInSatoshis).toBeNull();
   });
 
-  it('transitions IDLE → READY on Sepolia (testnet of an unsubsidized chain)', async () => {
+  it('transitions IDLE → READY on Sepolia (testnet of a fee-approval chain)', async () => {
     const ctx = createContext(Env.testnet);
     const redeem = new EvmWithdrawBtcb(ctx, {
       assetIn: AssetId.BTCb,
@@ -83,7 +83,7 @@ describe('EvmWithdrawBtcb prepare()', () => {
     expect(redeem.feeAuth.requiresAuth).toBe(false);
   });
 
-  it('transitions IDLE → READY on subsidized source chain (Base)', async () => {
+  it('transitions IDLE → READY on source chain without fee approval (Base)', async () => {
     const ctx = createContext();
     const redeem = new EvmWithdrawBtcb(ctx, {
       assetIn: AssetId.BTCb,

@@ -20,6 +20,23 @@ import { AssetId, Chain } from '../../core';
 import { BtcActionStatus } from '../../shared/constants/statusConstants';
 import { createTestConfig as createConfig } from '../helpers/createTestConfig';
 
+// The fee approval cases below are for a token contract from before the
+// deposit fee, on the chains that can ask for it.
+vi.mock(
+  '../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired',
+  async () => {
+    const { requiresAutoMintFee } =
+      await import('../../common/fee-requirements');
+    return {
+      isMintFeeApprovalRequired: async ({
+        chainId,
+      }: {
+        chainId: Parameters<typeof requiresAutoMintFee>[0];
+      }) => requiresAutoMintFee(chainId),
+    };
+  },
+);
+
 // The fee approval read went out over the network: the `fetch` spies below
 // never applied, since the SDK sends through axios. What is under test here is
 // the action lifecycle once the read has answered "nothing in force"; the

@@ -21,6 +21,24 @@ import { Token } from '../../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../../tokens/tokens';
 import { createTestConfig } from '../../helpers/createTestConfig';
 
+// These cover the flow with a fee approval: on the chains that can ask for it,
+// a token contract from before the deposit fee, which is what Ethereum ran when
+// they were written.
+vi.mock(
+  '../../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired',
+  async () => {
+    const { requiresAutoMintFee } =
+      await import('../../../common/fee-requirements');
+    return {
+      isMintFeeApprovalRequired: async ({
+        chainId,
+      }: {
+        chainId: Parameters<typeof requiresAutoMintFee>[0];
+      }) => requiresAutoMintFee(chainId),
+    };
+  },
+);
+
 const RECIPIENT = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0';
 const FEE_APPROVALS = `https://api.lombard.finance/v2/mint-with-fee/fee-approvals/${RECIPIENT}`;
 const V1_FEE_SIGNATURE =

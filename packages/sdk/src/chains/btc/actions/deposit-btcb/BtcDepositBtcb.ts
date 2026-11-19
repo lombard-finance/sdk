@@ -13,6 +13,7 @@
 import type { z } from 'zod';
 
 import type { ChainId, SolanaChain } from '../../../../common/chains';
+import { isMintFeeApprovalRequired } from '../../../../contract-functions/isMintFeeApprovalRequired/isMintFeeApprovalRequired';
 import {
   getChainType,
   parseChainIdentifier,
@@ -244,6 +245,27 @@ export class BtcDepositBtcb
   // Public Methods
   // ─────────────────────────────────────────────────────────────────────────
 
+  /**
+   * The fee authorization config, when this mint still needs the approval.
+   *
+   * The chain config names the chains that can ask for it; the token contract
+   * says whether it still does (see `isMintFeeApprovalRequired`).
+   */
+  private async resolveFeeAuthConfig(): Promise<DepositFeeAuthConfig | null> {
+    const feeAuthConfig = this.config.getFeeAuthConfig(this.params.destChain);
+    if (!feeAuthConfig) {
+      return null;
+    }
+
+    const required = await isMintFeeApprovalRequired({
+      chainId: this.chainId as ChainId,
+      token: Token.BTCb,
+      env: this.ctx.env,
+    });
+
+    return required ? feeAuthConfig : null;
+  }
+
   async prepare(params: BtcDepositBtcbPrepareParams): Promise<void> {
     this.assertStatus(BtcActionStatus.IDLE, 'prepare');
 
@@ -255,7 +277,7 @@ export class BtcDepositBtcb
       this._referralCode = validated.referralCode;
 
       // Get fee auth config for this destination chain (needed for both resume and new flow)
-      this.feeAuthConfig = this.config.getFeeAuthConfig(this.params.destChain);
+      this.feeAuthConfig = await this.resolveFeeAuthConfig();
 
       // Check for existing deposit address (resume flow)
       const hasExistingDeposit = await this.resumeFromExistingDeposit(

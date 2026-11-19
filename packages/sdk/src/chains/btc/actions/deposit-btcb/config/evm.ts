@@ -32,15 +32,16 @@ import { toSatoshi } from '../../../../../utils/satoshi';
 import type { DepositChainConfig, DepositFeeAuthConfig } from './types';
 
 /**
- * Chains that require fee authorization (unsubsidized chains).
+ * Chains where a mint can require the signed fee approval.
  *
- * Ethereum mainnet and Sepolia require EIP-712 network fee signing.
- * Other chains are subsidized by Lombard.
+ * On these chains the action asks for it only when the BTC.b contract, or its
+ * adapter where there is one, does not expose `getDepositFee()` (see
+ * `isMintFeeApprovalRequired`). Other chains never ask for it.
  */
-const UNSUBSIDIZED_CHAINS = [Chain.ETHEREUM, Chain.SEPOLIA] as const;
+const FEE_APPROVAL_CHAINS = [Chain.ETHEREUM, Chain.SEPOLIA] as const;
 
 /**
- * Fee authorization config for unsubsidized chains
+ * Fee authorization config for fee-approval chains
  *
  * BTC Deposit produces BTC.b, so we must use Token.BTCb for fee signatures.
  * This ensures the backend can distinguish between LBTC and BTC.b signatures.
@@ -171,11 +172,11 @@ export const evmDepositConfig: DepositChainConfig = {
   addressSchema: evmAddressSchema,
 
   /**
-   * Get fee auth config - unsubsidized chains require fee authorization
+   * Get fee auth config - fee-approval chains require fee authorization
    * Other chains use address confirmation signing
    */
   getFeeAuthConfig(destChain: Chain): DepositFeeAuthConfig | null {
-    return (UNSUBSIDIZED_CHAINS as readonly Chain[]).includes(destChain)
+    return (FEE_APPROVAL_CHAINS as readonly Chain[]).includes(destChain)
       ? feeAuthConfig
       : null;
   },
