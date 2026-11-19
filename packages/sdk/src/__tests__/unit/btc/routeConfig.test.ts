@@ -107,7 +107,7 @@ describe('what the routes say about the merge', () => {
     const evm = toBtcDepositRouteConfig(evmConfig);
 
     expect(evm.getFeeAuthConfig(Chain.ETHEREUM)).not.toBeNull();
-    // Subsidised destinations confirm an address instead of authorising a fee.
+    // Destinations without fee approval confirm an address instead of authorising a fee.
     expect(evm.getFeeAuthConfig(Chain.BASE)).toBeNull();
     expect(evm.getFeeAuthConfig(Chain.BSC)).toBeNull();
   });

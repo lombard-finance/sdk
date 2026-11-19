@@ -27,11 +27,11 @@ describe('EVM Redeem Fee Authorization', () => {
       expect(requiresAutoMintFee(ChainId.sepolia)).toBe(true);
     });
 
-    it('returns false for Base (subsidized)', () => {
+    it('returns false for Base (no fee approval)', () => {
       expect(requiresAutoMintFee(ChainId.base)).toBe(false);
     });
 
-    it('returns false for BSC (subsidized)', () => {
+    it('returns false for BSC (no fee approval)', () => {
       expect(requiresAutoMintFee(ChainId.binanceSmartChain)).toBe(false);
     });
   });

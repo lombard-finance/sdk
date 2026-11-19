@@ -5,7 +5,7 @@
  *
  * Fee authorization is required when:
  * - Output asset is BTC.b (LBTC → BTC.b conversion)
- * - Source chain is Ethereum/Sepolia (unsubsidized chains)
+ * - Source chain is Ethereum/Sepolia (fee-approval chains)
  *
  * **Flow with fee auth (LBTC → BTC.b on Ethereum/Sepolia):**
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED

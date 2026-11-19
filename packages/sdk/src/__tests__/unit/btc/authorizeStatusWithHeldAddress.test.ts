@@ -147,8 +147,8 @@ describe('authorize() with a deposit address already held', () => {
   });
 
   /**
-   * The BTC.b route reaches the same state by a different door. Its
-   * destinations are all subsidized — fee authorization is required only on
+   * The BTC.b route reaches the same state by a different door. None of
+   * its destinations ask for the fee approval — fee authorization is required only on
    * Ethereum and Sepolia, which carry no BTC.b — so a resume never has a
    * lapsed approval to re-sign and `prepare()` reports ADDRESS_READY directly.
    *

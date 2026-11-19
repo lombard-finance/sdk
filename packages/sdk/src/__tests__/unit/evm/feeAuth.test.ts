@@ -78,7 +78,7 @@ beforeEach(() => {
   storeNetworkFeeSignature.mockResolvedValue(undefined);
 });
 
-describe('checkFeeAuthorization on a subsidized chain', () => {
+describe('checkFeeAuthorization on a chain without fee approval', () => {
   it('reports no authorization required', async () => {
     const result = await checkFeeAuthorization(
       ChainId.base,
@@ -96,8 +96,8 @@ describe('checkFeeAuthorization on a subsidized chain', () => {
     });
   });
 
-  // The early return is the point: a subsidized chain must not pay for a
-  // signature lookup, a token lookup or a fee read.
+  // The early return is the point: a chain that never asks for the approval
+  // must not make a signature lookup, a token lookup or a fee read.
   it('makes no network calls at all', async () => {
     await checkFeeAuthorization(ChainId.base, ACCOUNT, Env.prod, Token.LBTC);
 
@@ -107,7 +107,7 @@ describe('checkFeeAuthorization on a subsidized chain', () => {
   });
 });
 
-describe('checkFeeAuthorization on an unsubsidized chain', () => {
+describe('checkFeeAuthorization on a fee-approval chain', () => {
   it('requires authorization and fetches the fee when no signature exists', async () => {
     const result = await checkFeeAuthorization(
       ChainId.ethereum,

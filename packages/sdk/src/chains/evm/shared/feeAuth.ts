@@ -6,10 +6,10 @@
  * - EvmWithdrawBtcb (BTC.b → BTC on Ethereum/Sepolia)
  * - EvmWithdrawLbtc (LBTC → BTC.b on Ethereum/Sepolia)
  *
- * Fee authorization is only required on unsubsidized chains (Ethereum, Sepolia),
- * and there only while the token contract predates the deposit fee: a contract
- * with `getDepositFee()` takes its fee inside the mint. Other chains (Base, BSC,
- * Avalanche) are subsidized by Lombard.
+ * Fee authorization can only be required on Ethereum and Sepolia, and there
+ * only when the token contract, or its adapter where there is one, does not
+ * expose `getDepositFee()`. Other chains (Base, BSC, Avalanche) never ask
+ * for it.
  *
  * Reading and storing an approval go through the v2 routes when a wallet token
  * for the account is available, and the v1 routes otherwise, so the action's
@@ -109,8 +109,8 @@ export async function checkFeeAuthorization(
   token: Token,
   credentials: FeeAuthCredentials = {},
 ): Promise<FeeAuthCheckResult> {
-  // Only unsubsidized chains ask for it, and there only the token contracts
-  // that predate the deposit fee
+  // Only the chains in AUTO_MINT_FEE_CHAINS ask for it, and there only when
+  // the token contract, or its adapter, does not expose getDepositFee()
   if (!(await isMintFeeApprovalRequired({ chainId, token, env }))) {
     return {
       requiresAuth: false,

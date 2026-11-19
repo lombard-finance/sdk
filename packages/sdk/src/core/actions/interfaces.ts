@@ -87,7 +87,7 @@ export interface BitcoinSourceAction extends Action {
   generateDepositAddress(captchaToken?: string): Promise<string>;
 }
 
-/** An action whose route requires a fee signature on unsubsidized chains. */
+/** An action whose route requires a fee signature on fee-approval chains. */
 export interface FeeAuthorizedAction extends Action {
   readonly feeAuth: FeeAuthState;
 }

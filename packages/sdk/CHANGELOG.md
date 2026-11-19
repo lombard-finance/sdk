@@ -120,7 +120,7 @@ migrate once.
 
   Nothing was at risk — `generateDepositAddress()` returns a held address without a network call — but the status is what a consumer reads to choose the next step, so a UI following it offered to generate an address it was displaying on the same screen.
 
-  Two call-order consequences come with it. `generateDepositAddress()` returns a held address _before_ asserting status, so the documented `prepare` → `authorize` → `generateDepositAddress` sequence still works from `ADDRESS_READY`; and `authorize()` accepts `ADDRESS_READY` as a no-op alongside `READY`. On the BTC.b deposit route that second half was a live defect in its own right: every destination there is subsidized, so a resume reports `ADDRESS_READY` straight out of `prepare()`, and `ADDRESS_READY` was missing from the statuses `authorize()` accepted — the documented next call threw `INVALID_STATE` on the path it exists to serve.
+  Two call-order consequences come with it. `generateDepositAddress()` returns a held address _before_ asserting status, so the documented `prepare` → `authorize` → `generateDepositAddress` sequence still works from `ADDRESS_READY`; and `authorize()` accepts `ADDRESS_READY` as a no-op alongside `READY`. On the BTC.b deposit route that second half was a live defect in its own right: no destination there asks for the fee approval, so a resume reports `ADDRESS_READY` straight out of `prepare()`, and `ADDRESS_READY` was missing from the statuses `authorize()` accepted — the documented next call threw `INVALID_STATE` on the path it exists to serve.
 
 - **The shipped declarations resolved to `any` for a large part of the surface.**
 
@@ -287,7 +287,7 @@ migrate once.
 
 - `deriveRouteLabel()` names a journey from its assets and protocol. After the merges one class covers several journeys, so `constructor.name` no longer identifies what failed; the label is derived from the parameters rather than declared per class, so it cannot drift from what it describes. An unknown combination throws rather than inventing a label that would then appear in logs as fact.
 
-- Every action now has `authorize()`. Four spellings existed across the sixteen classes — `approve()`, `authorizeFee()`, `confirmAddress()` and `authorizeDeposit()` — and each threw when called at the wrong point. Which one applies is a property of the route and the chain, so working it out was effort every integrator had to repeat: on EVM it depends on whether the chain is subsidised and whether an allowance is outstanding, on BTC it depends on the destination, and on Solana, Sui and Starknet there is no ceremony at all.
+- Every action now has `authorize()`. Four spellings existed across the sixteen classes — `approve()`, `authorizeFee()`, `confirmAddress()` and `authorizeDeposit()` — and each threw when called at the wrong point. Which one applies is a property of the route and the chain, so working it out was effort every integrator had to repeat: on EVM it depends on whether the chain asks for the fee approval and whether an allowance is outstanding, on BTC it depends on the destination, and on Solana, Sui and Starknet there is no ceremony at all.
 
   `authorize()` dispatches on status, which is already the record of what is outstanding, so it is idempotent: calling it twice costs one signature, and a retry after a partial failure resumes rather than replaying. On the chains with no ceremony it is a documented no-op, so one flow can call it unconditionally instead of branching per chain.
 
@@ -306,7 +306,7 @@ migrate once.
 
 - `sdk.chain.btc.deposit()` actions gain `authorize()`, which runs whichever authorization ceremony the route needs. `authorizeFee()` and `confirmAddress()` were the two halves of one ceremony, split across two methods that each threw when called on the wrong route — and which one applies is decided by the destination, not the caller, so every integrator had to rediscover the mapping per chain. `authorize()` reads it from the route.
 
-  Both old names remain as deprecated delegators with their guards intact: `authorizeFee()` on a subsidised destination still throws rather than quietly signing an address, and `confirmAddress()` on Ethereum still throws rather than skipping the fee signature. `BtcStake` already exposed exactly this method, so the two BTC deposit routes now have one shape. Dropping the old names is deferred to the next major.
+  Both old names remain as deprecated delegators with their guards intact: `authorizeFee()` on a destination without fee approval still throws rather than quietly signing an address, and `confirmAddress()` on Ethereum still throws rather than skipping the fee signature. `BtcStake` already exposed exactly this method, so the two BTC deposit routes now have one shape. Dropping the old names is deferred to the next major.
 
 - `LombardConfig.getAuthToken` — an optional `() => string | undefined` the SDK reads when building a request. It reaches every action context and every api-function, which now inherit it through `IEnvParam` alongside `env`. Supplying it changes nothing today: no endpoint requires a token, and when the accessor is absent or returns `undefined` no `Authorization` header is sent. It exists so that when the backend does require one, the change is one place rather than 23. The SDK stays stateless about the token — it never stores or refreshes one, and reads the accessor at call time so a token acquired after construction is still seen.
 
@@ -930,7 +930,7 @@ The following exports are now `@deprecated` and emit a one-time runtime warning 
 
 # 4.3.3
 
-- Fixed fee authorization status being overwritten in `EvmUnstake.prepare()` and `EvmRedeem.prepare()`. The `successStatus` argument to `act()` was eagerly evaluated before the callback ran, always resolving to READY and preventing the NEEDS_FEE_AUTHORIZATION transition. This caused `authorizeFee()` to never be called on unsubsidized chains (Ethereum, Sepolia), meaning the `save-user-signature` API was never invoked.
+- Fixed fee authorization status being overwritten in `EvmUnstake.prepare()` and `EvmRedeem.prepare()`. The `successStatus` argument to `act()` was eagerly evaluated before the callback ran, always resolving to READY and preventing the NEEDS_FEE_AUTHORIZATION transition. This caused `authorizeFee()` to never be called on fee-approval chains (Ethereum, Sepolia), meaning the `save-user-signature` API was never invoked.
 - Fixed ESM build producing minified internal export names (e.g., `export { B as g }`) that broke Vite dev mode resolution. Set `minifyInternalExports: false` in the Rollup output config.
 - Removed WBTC from EVM deposit configuration.
 

@@ -9,8 +9,8 @@
  *
  * ## Fee Authorization (Ethereum/Sepolia only)
  *
- * Fee authorization is required on unsubsidized chains (Ethereum, Sepolia).
- * On subsidized chains (Avalanche, Base, BSC), no fee auth is required.
+ * Fee authorization is required on fee-approval chains (Ethereum, Sepolia).
+ * On chains without fee approval (Avalanche, Base, BSC), no fee auth is required.
  *
  * ## Flow Examples
  *
@@ -97,7 +97,7 @@ export interface IEvmDepositBtcb extends MonitorableAction {
   approve(): Promise<void>;
   /**
    * Authorize fee (EIP-712 signing)
-   * Only needed on unsubsidized chains (Ethereum/Sepolia).
+   * Only needed on fee-approval chains (Ethereum/Sepolia).
    */
   authorizeFee(): Promise<void>;
   execute(): Promise<{ txHash: string }>;

@@ -96,7 +96,7 @@ export type BtcActionStatus =
  * **EVM Withdraw (LBTC → BTC.b on Ethereum/Sepolia):**
  * IDLE → NEEDS_FEE_AUTHORIZATION → READY → COMPLETED
  *
- * **EVM Withdraw (LBTC → BTC.b on Base/BSC - subsidized):**
+ * **EVM Withdraw (LBTC → BTC.b on Base/BSC - no fee approval):**
  * IDLE → READY → COMPLETED
  *
  * **EVM Redeem (BTC.b → BTC on Ethereum/Sepolia):**

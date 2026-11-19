@@ -26,16 +26,16 @@ import { toSatoshi } from '../../../../../utils/satoshi';
 import type { ChainConfig, FeeAuthConfig } from './types';
 
 /**
- * Chains that can require fee authorization (unsubsidized chains).
+ * Chains where a mint can require the signed fee approval.
  *
- * On subsidized chains, Lombard covers the fees. On these, the action asks
- * for the signed fee approval only while the LBTC contract predates the
- * deposit fee (see `isMintFeeApprovalRequired`).
+ * On these chains the action asks for it only when the LBTC contract, or its
+ * adapter where there is one, does not expose `getDepositFee()` (see
+ * `isMintFeeApprovalRequired`). Other chains never ask for it.
  */
-const UNSUBSIDIZED_CHAINS = [Chain.ETHEREUM, Chain.SEPOLIA] as const;
+const FEE_APPROVAL_CHAINS = [Chain.ETHEREUM, Chain.SEPOLIA] as const;
 
 /**
- * Fee authorization config for unsubsidized chains.
+ * Fee authorization config for fee-approval chains.
  *
  * Ethereum mainnet and Sepolia require fee authorization.
  * All methods access EvmService via capabilities.
@@ -196,8 +196,8 @@ export const evmConfig: ChainConfig = {
   addressSchema: evmAddressSchema,
 
   getFeeAuthConfig(destChain) {
-    // Unsubsidized chains require fee authorization
-    return (UNSUBSIDIZED_CHAINS as readonly Chain[]).includes(destChain)
+    // Fee-approval chains require fee authorization
+    return (FEE_APPROVAL_CHAINS as readonly Chain[]).includes(destChain)
       ? feeAuthConfig
       : null;
   },
