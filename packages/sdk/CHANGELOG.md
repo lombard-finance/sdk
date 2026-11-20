@@ -1,3 +1,13 @@
+# 5.11.5
+
+### Changed
+
+- On Ethereum and Sepolia, BTC deposits, BTC stakes, BTC.b to LBTC (`EvmStake`) and LBTC to BTC.b (`EvmUnstake`) ask for the signed fee approval only when the destination token contract does not expose `getDepositFee()`. A contract that answers it, with any value including 0, takes the deposit fee inside the mint and needs no approval. A failed read keeps the approval. Ethereum mainnet LBTC and BTC.b answer `getDepositFee()`, so mainnet mints no longer ask for the approval.
+
+### Fixed
+
+- A stored stake-and-bake permit is reused only for a deposit of exactly its amount. A permit for a larger amount no longer covers a smaller deposit, which would mint as plain LBTC and never reach the vault. `prepare()` stops at `BLOCKED_BY_EXISTING_AUTHORIZATION` and reports the stored permit in `existingAuthorization`.
+
 # 5.11.4
 
 ### Fixed
