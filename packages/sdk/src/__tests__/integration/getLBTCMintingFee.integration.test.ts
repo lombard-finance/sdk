@@ -5,10 +5,10 @@
  * Run with: yarn test:integration or npx vitest run --config vitest.integration.config.ts
  *
  * The minting fee (auto-mint commission) is denominated in satoshis and is
- * deducted from the minted LBTC to compensate for EVM gas costs.
+ * deducted from the minted LBTC.
  *
- * Non-subsidized chains (Ethereum, Sepolia): Should return non-zero fees
- * Subsidized chains (Base, BSC): Return 0 (Lombard absorbs gas costs)
+ * Fee-approval chains (Ethereum, Sepolia): Should return non-zero fees
+ * Chains without fee approval (Base, BSC): Return 0 (no fee configured on-chain)
  */
 
 import { Env } from '@lombard.finance/sdk-common';

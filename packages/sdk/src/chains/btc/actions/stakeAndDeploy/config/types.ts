@@ -41,12 +41,13 @@ export interface StakeAndBakeRestoreResult {
   /** Expiration date (Unix timestamp) */
   expirationDate?: string;
   /**
-   * Whether the stored authorisation covers the amount being prepared.
+   * Whether the stored authorisation is for exactly the amount being prepared.
    *
    * A stored signature is only a resume for the deposit it was signed for. It
-   * permits a fixed amount, so one signed for a smaller deposit does not
-   * authorise a larger one, and an unexpired signature can be up to a year
-   * old.
+   * permits a fixed amount and is claimed only for a deposit of that exact
+   * amount, so one signed for a smaller deposit does not authorise a larger
+   * one, and one signed for a larger deposit does not authorise a smaller one.
+   * An unexpired signature can be up to a year old.
    */
   coversAmount: boolean;
 }

@@ -1,3 +1,13 @@
+# 5.11.5
+
+### Changed
+
+- On Ethereum and Sepolia, BTC deposits, BTC stakes, BTC.b to LBTC (`EvmStake`) and LBTC to BTC.b (`EvmUnstake`) ask for the signed fee approval only when the destination token contract does not expose `getDepositFee()`. A contract that answers it, with any value including 0, takes the deposit fee inside the mint and needs no approval. A failed read keeps the approval. Ethereum mainnet LBTC and BTC.b answer `getDepositFee()`, so mainnet mints no longer ask for the approval.
+
+### Fixed
+
+- A stored stake-and-bake permit is reused only for a deposit of exactly its amount. A permit for a larger amount no longer covers a smaller deposit, which would mint as plain LBTC and never reach the vault. `prepare()` stops at `BLOCKED_BY_EXISTING_AUTHORIZATION` and reports the stored permit in `existingAuthorization`.
+
 # 5.11.4
 
 ### Fixed
@@ -612,7 +622,7 @@ The following exports are now `@deprecated` and emit a one-time runtime warning 
 
 # 4.3.3
 
-- Fixed fee authorization status being overwritten in `EvmUnstake.prepare()` and `EvmRedeem.prepare()`. The `successStatus` argument to `act()` was eagerly evaluated before the callback ran, always resolving to READY and preventing the NEEDS_FEE_AUTHORIZATION transition. This caused `authorizeFee()` to never be called on unsubsidized chains (Ethereum, Sepolia), meaning the `save-user-signature` API was never invoked.
+- Fixed fee authorization status being overwritten in `EvmUnstake.prepare()` and `EvmRedeem.prepare()`. The `successStatus` argument to `act()` was eagerly evaluated before the callback ran, always resolving to READY and preventing the NEEDS_FEE_AUTHORIZATION transition. This caused `authorizeFee()` to never be called on fee-approval chains (Ethereum, Sepolia), meaning the `save-user-signature` API was never invoked.
 - Fixed ESM build producing minified internal export names (e.g., `export { B as g }`) that broke Vite dev mode resolution. Set `minifyInternalExports: false` in the Rollup output config.
 - Removed WBTC from EVM deposit configuration.
 

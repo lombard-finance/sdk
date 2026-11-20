@@ -3,8 +3,8 @@
  *
  * Tests the fee authorization flow for BTC.b → LBTC staking on EVM chains.
  *
- * Fee authorization is required on unsubsidized chains (Ethereum, Sepolia).
- * On subsidized chains (Avalanche, Base, BSC), no fee auth is required.
+ * Fee authorization is required on fee-approval chains (Ethereum, Sepolia).
+ * On chains without fee approval (Avalanche, Base, BSC), no fee auth is required.
  *
  * @module __tests__/unit/evm/EvmStakeFeeAuth.test.ts
  */
@@ -60,9 +60,9 @@ describe('EvmStake Fee Authorization', () => {
     vi.clearAllMocks();
   });
 
-  describe('Subsidized Chains (no fee auth required)', () => {
+  describe('Chains Without Fee Approval (no fee auth required)', () => {
     it('should transition directly to READY on Base (no approval, no fee auth)', async () => {
-      // Base doesn't require approval, and is subsidized (no fee auth)
+      // Base doesn't require approval, and needs no fee auth
       vi.mocked(feeAuthModule.checkFeeAuthorization).mockResolvedValueOnce({
         requiresAuth: false,
         hasValidSignature: false,
@@ -86,7 +86,7 @@ describe('EvmStake Fee Authorization', () => {
     });
   });
 
-  describe('Unsubsidized Chains (fee auth required)', () => {
+  describe('Fee-Approval Chains (fee auth required)', () => {
     it('should transition to NEEDS_FEE_AUTHORIZATION on Ethereum when no signature exists', async () => {
       vi.mocked(feeAuthModule.checkFeeAuthorization).mockResolvedValueOnce({
         requiresAuth: true,

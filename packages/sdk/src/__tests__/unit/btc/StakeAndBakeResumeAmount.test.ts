@@ -1,6 +1,6 @@
 /**
- * A stored stake-and-bake signature is a resume only for a deposit its own
- * amount covers.
+ * A stored stake-and-bake signature is a resume only for a deposit of exactly
+ * its own amount.
  *
  * `prepare()` looks for an unexpired signature and, finding one, marks the
  * action authorised and skips the wallet prompt. The permit behind that
@@ -99,11 +99,23 @@ describe('restoreStakeAndBakeSignature', () => {
     });
   });
 
-  it('reports a signature for a larger deposit as covering a smaller one', async () => {
+  // The permit is claimed only for a deposit that mints exactly its value. A
+  // larger one left on file does not cover a smaller deposit: that deposit
+  // would mint as plain LBTC and never reach the vault.
+  it('reports a signature for a larger deposit as not covering a smaller one', async () => {
     onFile('50000000');
 
     await expect(restore(SMALL_SATS)).resolves.toMatchObject({
-      coversAmount: true,
+      hasSignature: true,
+      coversAmount: false,
+    });
+  });
+
+  it('reports a signature one base unit above the deposit as not covering it', async () => {
+    onFile(new BigNumber(SMALL_PERMIT_VALUE).plus(1).toString());
+
+    await expect(restore(SMALL_SATS)).resolves.toMatchObject({
+      coversAmount: false,
     });
   });
 
@@ -201,6 +213,20 @@ describe('BtcStakeAndDeploy.prepare with a signature on file', () => {
     expect(subject.status).toBe(
       BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
     );
+  });
+
+  it('stops rather than going ready when the signature is for a larger deposit', async () => {
+    onFile('50000000');
+    const subject = await action();
+
+    await subject.prepare({ amount: '0.001', recipient: RECIPIENT });
+
+    expect(subject.status).toBe(
+      BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION,
+    );
+    expect(subject.existingAuthorization).toMatchObject({
+      depositAmount: '50000000',
+    });
   });
 
   it('reports what is on file and until when', async () => {
