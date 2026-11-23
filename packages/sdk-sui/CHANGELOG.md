@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `unstakeLBTC` no longer fails with `Not enough balance.` when the wallet holds its LBTC in the Sui address balance. LBTC received through `0x2::coin::send_funds` or `0x2::balance::send_funds` creates no `Coin<LBTC>` object, so coin selection, which only looked at `listCoins`, could not see it, although `getBalance` counted it. Coin objects are still spent first; only the part they do not cover is withdrawn from the address balance (`0x2::coin::redeem_funds`), so a transaction that Coin objects can pay for is built exactly as before. `getBalance` already reported the sum of both, which is now what `unstakeLBTC` can spend. The address balance is read only when Coin objects fall short, so a failing balance read cannot block a withdraw they cover. Wallets on the `sui:signTransactionBlock` path cannot serialize the withdrawal input, so for them an address-balance spend is refused before signing with an explicit error instead of failing inside the wallet
 
+## [2.0.1] - 2026-11-11
+
+### Fixed
+
+- Require the patched BitcoinJS 6.1.10 or a later 6.x release as the peer dependency, matching `sdk` and `sdk-common`.
+
 ## [2.0.0] - 2026-08-06
 
 The package now talks gRPC-Web instead of JSON-RPC. Sui is removing JSON-RPC from the node binary in mid-October 2026, and the official fullnodes already answer every JSON-RPC method with `-32601 Method not found`; gRPC is what they kept serving. The third-party JSON-RPC nodes the 1.3.0 failover leaned on are on the same clock.

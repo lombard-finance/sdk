@@ -13,7 +13,7 @@ npm install @lombard.finance/sdk
 The SDK requires these peer dependencies:
 
 ```bash
-npm install axios@^1 bignumber.js@^9 @bitcoinerlab/secp256k1@1.2.0 bitcoinjs-lib@6.1.5 @layerzerolabs/lz-v2-utilities@3.0.17
+npm install axios@^1 bignumber.js@^9 @bitcoinerlab/secp256k1@1.2.0 bitcoinjs-lib@^6.1.10 @layerzerolabs/lz-v2-utilities@3.0.17
 ```
 
 > **Note:** `viem` is included as a direct dependency and does not need to be installed separately.
