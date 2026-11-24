@@ -5,8 +5,8 @@
  *
  * ## Fee Authorization
  *
- * Fee authorization is required on unsubsidized chains (Ethereum, Sepolia).
- * On subsidized chains (Avalanche, Base, BSC), no fee auth is required.
+ * Fee authorization is required on fee-approval chains (Ethereum, Sepolia).
+ * On chains without fee approval (Avalanche, Base, BSC), no fee auth is required.
  *
  * @module __tests__/unit/evm/EvmStake.test.ts
  */
@@ -88,7 +88,7 @@ describe('EvmStake Interface', () => {
       expect(testType).toBeDefined();
     });
 
-    it('should define authorizeFee method for unsubsidized chains', () => {
+    it('should define authorizeFee method for fee-approval chains', () => {
       type AuthorizeFeeMethod = () => Promise<void>;
       const testType: AuthorizeFeeMethod = async () => {};
       expect(testType).toBeDefined();
@@ -102,14 +102,14 @@ describe('EvmStake Interface', () => {
   });
 
   describe('Fee Authorization', () => {
-    it('should require fee auth on unsubsidized chains (Ethereum, Sepolia)', () => {
-      const unsubsidizedChains = [Chain.ETHEREUM, Chain.SEPOLIA];
-      expect(unsubsidizedChains).toHaveLength(2);
+    it('should require fee auth on fee-approval chains (Ethereum, Sepolia)', () => {
+      const feeApprovalChains = [Chain.ETHEREUM, Chain.SEPOLIA];
+      expect(feeApprovalChains).toHaveLength(2);
     });
 
-    it('should skip fee auth on subsidized chains (Avalanche, Base, BSC)', () => {
-      const subsidizedChains = [Chain.AVALANCHE, Chain.BASE, Chain.BSC];
-      expect(subsidizedChains).toHaveLength(3);
+    it('should skip fee auth on chains without fee approval (Avalanche, Base, BSC)', () => {
+      const noApprovalChains = [Chain.AVALANCHE, Chain.BASE, Chain.BSC];
+      expect(noApprovalChains).toHaveLength(3);
     });
 
     it('should expose feeAuth state for UI display', () => {

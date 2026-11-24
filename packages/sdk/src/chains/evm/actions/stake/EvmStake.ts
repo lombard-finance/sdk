@@ -10,8 +10,8 @@
  *
  * ## Fee Authorization (Ethereum/Sepolia only)
  *
- * Fee authorization is required on unsubsidized chains (Ethereum, Sepolia).
- * On subsidized chains (Avalanche, Base, BSC), no fee auth is required.
+ * Fee authorization is required on fee-approval chains (Ethereum, Sepolia).
+ * On chains without fee approval (Avalanche, Base, BSC), no fee auth is required.
  *
  * **Flow with approval (Avalanche):**
  * IDLE → NEEDS_APPROVAL → READY → COMPLETED
