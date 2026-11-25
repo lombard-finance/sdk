@@ -5,6 +5,12 @@ All notable changes to `@lombard.finance/sdk-sui` will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-11-25
+
+### Fixed
+
+- `unstakeLBTC` signs an address-balance spend through `sui:signTransaction` for wallets it otherwise forces onto `sui:signTransactionBlock`, instead of refusing it with `ERROR_ADDRESS_BALANCE_NEEDS_SIGN_TRANSACTION`. `sui:signTransactionBlock` cannot carry the `FundsWithdrawal` input, so the refusal blocked those wallets from spending the address balance at all. A spend that Coin objects cover still goes through `sui:signTransactionBlock`, and a wallet without `sui:signTransaction` still gets the error
+
 ## [2.1.0] - 2026-11-18
 
 ### Added
