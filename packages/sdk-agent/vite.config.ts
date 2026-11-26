@@ -33,7 +33,6 @@ export default defineConfig({
         /^@langchain/,
         "ai",
         "zod",
-        "zod-to-json-schema",
       ],
     },
   },

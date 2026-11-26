@@ -26,7 +26,8 @@
     "react-markdown": "^9.0.0",
     "remark-gfm": "^4.0.0",
     "viem": "^2.23.0",
-    "wagmi": "^2.14.0"
+    "wagmi": "^2.14.0",
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",

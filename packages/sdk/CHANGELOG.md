@@ -1,3 +1,9 @@
+# 5.11.5
+
+### Fixed
+
+- Bundle zod 4.6.6 or later for input validation, in place of the zod 3 code bundled until now. Every input is accepted or rejected as before, with the same SDK messages. Three of zod's own default messages change wording: params that are not an object, a `referralCode` that is not a string, and a missing `protocol` now read `Invalid input: expected …, received …` instead of `Expected …, received …` or `Required`. Error codes are unchanged.
+
 # 5.11.4
 
 ### Fixed

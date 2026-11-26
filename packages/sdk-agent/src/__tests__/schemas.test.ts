@@ -23,6 +23,7 @@ import {
   StakeZod,
   StrategiesSchema,
   StrategiesZod,
+  TokenInfoSchema,
 } from "../schemas";
 
 // ─── Zod schema validation tests ─────────────────────────────────────
@@ -265,6 +266,40 @@ describe("ExchangeRateSchema (JSON Schema)", () => {
         (ExchangeRateSchema as Record<string, unknown>).required,
       ).toEqual(expect.arrayContaining([]));
     }
+  });
+});
+
+describe("strict function-calling shape", () => {
+  it("lists every property as required and makes optional ones nullable", () => {
+    expect(ExchangeRateSchema).toMatchObject({
+      type: "object",
+      properties: {
+        chainId: {
+          type: ["number", "null"],
+          description: "Chain ID for environment resolution (optional)",
+        },
+      },
+      required: ["chainId"],
+      additionalProperties: false,
+    });
+    expect(TokenInfoSchema.required).toEqual(["query", "address", "chainId"]);
+    expect(TokenInfoSchema.properties.address).toMatchObject({
+      type: ["string", "null"],
+    });
+  });
+
+  it("keeps required properties as they are", () => {
+    expect(StakeSchema.required).toEqual(["amount", "chainId"]);
+    expect(StakeSchema.properties.chainId).toMatchObject({ type: "number" });
+  });
+
+  it("gives an empty object no required list", () => {
+    expect(LbtcApySchema).toMatchObject({
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    });
+    expect(LbtcApySchema).not.toHaveProperty("required");
   });
 });
 
