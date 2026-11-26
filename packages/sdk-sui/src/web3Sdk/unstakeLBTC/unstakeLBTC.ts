@@ -5,7 +5,10 @@ import { WalletWithFeatures } from '@wallet-standard/base';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
-import { getConfig } from '../../const';
+import {
+  ERROR_ADDRESS_BALANCE_NEEDS_SIGN_TRANSACTION,
+  getConfig,
+} from '../../const';
 import {
   executeSignedTransaction,
   type ISuiExecutedTransaction,
@@ -47,7 +50,8 @@ function shouldForceV1(
  *
  * Supports both new (sui:signTransaction) and old (sui:signTransactionBlock) wallet interfaces.
  * Some wallets (like OKX) advertise V2 support but fail with the new Transaction class,
- * so we force V1 for known problematic wallets.
+ * so we force V1 for known problematic wallets, except for a spend from the
+ * address balance, which V1 cannot sign.
  */
 export async function unstakeLBTC({
   chainId,
@@ -67,9 +71,6 @@ export async function unstakeLBTC({
   const walletHasV2 = !!walletFeatures[SIGN_TRANSACTION_V2_FEATURE];
   const walletHasV1 = !!walletFeatures[SIGN_TRANSACTION_V1_FEATURE];
   const forceV1 = shouldForceV1(wallet);
-
-  // Use V2 only if available AND wallet is not in the force-V1 list
-  const useV2 = walletHasV2 && !forceV1;
 
   const { transaction, preparedCoins: unstakingCoins } =
     await prepareCoinsTransaction({
@@ -96,6 +97,17 @@ export async function unstakeLBTC({
     typeArguments: [config.LBTC],
   });
 
+  // `Transaction.serialize()` on the V1 path throws `Invalid input` on a
+  // FundsWithdrawal input, so V1 can never sign an address-balance spend.
+  const spendsAddressBalance = transaction
+    .getData()
+    .inputs.some((input) => input.$kind === 'FundsWithdrawal');
+
+  // Use V2 when available, unless the wallet is in the force-V1 list. A
+  // force-V1 wallet still gets V2 for an address-balance spend, the one
+  // transaction V1 cannot carry.
+  const useV2 = walletHasV2 && (!forceV1 || spendsAddressBalance);
+
   // Use V2 signTransaction for wallets that properly support it (Phantom, etc.)
   if (useV2) {
     const signedTransaction = await wallet.features[
@@ -114,6 +126,11 @@ export async function unstakeLBTC({
     throw new Error(
       'Wallet does not support transaction signing (sui:signTransactionBlock not available)',
     );
+  }
+
+  // Only a V1-only wallet reaches here with an address-balance spend.
+  if (spendsAddressBalance) {
+    throw ERROR_ADDRESS_BALANCE_NEEDS_SIGN_TRANSACTION;
   }
 
   // Use V1 signTransactionBlock (OKX, and other wallets with V2 issues)

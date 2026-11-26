@@ -5,6 +5,22 @@ All notable changes to `@lombard.finance/sdk-sui` will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-11-25
+
+### Fixed
+
+- `unstakeLBTC` signs an address-balance spend through `sui:signTransaction` for wallets it otherwise forces onto `sui:signTransactionBlock`, instead of refusing it with `ERROR_ADDRESS_BALANCE_NEEDS_SIGN_TRANSACTION`. `sui:signTransactionBlock` cannot carry the `FundsWithdrawal` input, so the refusal blocked those wallets from spending the address balance at all. A spend that Coin objects cover still goes through `sui:signTransactionBlock`, and a wallet without `sui:signTransaction` still gets the error
+
+## [2.1.0] - 2026-11-18
+
+### Added
+
+- `ERROR_ADDRESS_BALANCE_NEEDS_SIGN_TRANSACTION`: thrown by `unstakeLBTC` when the withdraw needs the address balance and the wallet is signed through `sui:signTransactionBlock`
+
+### Fixed
+
+- `unstakeLBTC` no longer fails with `Not enough balance.` when the wallet holds its LBTC in the Sui address balance. LBTC received through `0x2::coin::send_funds` or `0x2::balance::send_funds` creates no `Coin<LBTC>` object, so coin selection, which only looked at `listCoins`, could not see it, although `getBalance` counted it. Coin objects are still spent first; only the part they do not cover is withdrawn from the address balance (`0x2::coin::redeem_funds`), so a transaction that Coin objects can pay for is built exactly as before. `getBalance` already reported the sum of both, which is now what `unstakeLBTC` can spend. The address balance is read only when Coin objects fall short, so a failing balance read cannot block a withdraw they cover. Wallets on the `sui:signTransactionBlock` path cannot serialize the withdrawal input, so for them an address-balance spend is refused before signing with an explicit error instead of failing inside the wallet
+
 ## [2.0.1] - 2026-11-11
 
 ### Fixed
