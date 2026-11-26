@@ -121,10 +121,43 @@ describe('patched dependency advisories (medium and low severity)', () => {
     }
   });
 
-  it('keeps the Solana RPC client able to generate request ids with uuid', () => {
-    // jayson (pulled in by @solana/web3.js) calls require('uuid').v4().
-    const jayson = createRequire(requireFromTest.resolve('jayson'));
-    expect(jayson('uuid').v4()).toMatch(
+  it('locks jayson 5 and no stream-json', () => {
+    // jayson 4 is the only consumer of stream-json; 5 parses streams natively.
+    expect(lockedVersions('stream-json')).toEqual([]);
+    const versions = lockedVersions('jayson');
+    expect(versions.length).toBeGreaterThan(0);
+    for (const version of versions) {
+      expect(Number(version.split('.')[0]), `jayson@${version}`).toBe(5);
+    }
+  });
+
+  it('keeps the Solana RPC client working on jayson 5', async () => {
+    // @solana/web3.js asks for jayson ^4 but loads only its browser client,
+    // whose API 5 keeps. jayson 5 generates request ids with
+    // crypto.randomUUID, falling back to crypto.getRandomValues.
+    const { Connection, PublicKey } = requireFromTest('@solana/web3.js');
+    const requests: { id: unknown; method: string }[] = [];
+    const connection = new Connection('http://localhost:8899', {
+      fetch: async (_url: string, init: { body: string }) => {
+        const request = JSON.parse(init.body);
+        requests.push(request);
+        return new Response(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: request.id,
+            result: { context: { slot: 1 }, value: 42 },
+          }),
+          { headers: { 'Content-Type': 'application/json' } },
+        );
+      },
+    });
+
+    await expect(
+      connection.getBalance(new PublicKey('11111111111111111111111111111111')),
+    ).resolves.toBe(42);
+    expect(requests).toHaveLength(1);
+    expect(requests[0].method).toBe('getBalance');
+    expect(requests[0].id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
     );
   });
