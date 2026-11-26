@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.test' });
 
 // BFF RPC URLs (same as frontend uses)
-const BFF_RPC_BASE = 'https://bff.prod.lombard-fi.com/multi-rpc/proxy';
+const BFF_RPC_BASE = 'https://bff.prod.lombard-fi.com/multi-rpc/v2';
 const RPC_URLS = {
   sepolia: `${BFF_RPC_BASE}/eth_sepolia`,
   fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
