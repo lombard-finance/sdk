@@ -236,7 +236,7 @@ export abstract class BaseBtcAction<
    * Get the prepare schema (amount + recipient + referralCode)
    * Uses abstract getAddressSchema() for chain-specific validation
    */
-  protected get prepareSchema() {
+  protected get prepareSchema(): z.ZodType<BasePrepareParams> {
     return z.object({
       amount: btcStakeAmountSchema,
       recipient: this.getAddressSchema(),

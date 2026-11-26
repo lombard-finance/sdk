@@ -3,7 +3,6 @@
  * These are the single source of truth; JSON Schema versions are derived automatically.
  */
 import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
 
 // ─── Shared field schemas ────────────────────────────────────────────
 
@@ -207,13 +206,38 @@ export const MorphoPositionZod = z.object({
 
 interface JsonObjectSchema {
   type: string;
-  properties: Record<string, unknown>;
+  properties: Record<string, Record<string, unknown>>;
   required?: string[];
   [key: string]: unknown;
 }
 
-function toJsonSchema(zodSchema: z.ZodType): JsonObjectSchema {
-  return zodToJsonSchema(zodSchema, { target: "openAi" }) as JsonObjectSchema;
+/**
+ * Tool parameters use the shape OpenAI's strict function calling expects:
+ * every property is required, an optional one accepts null instead, and no
+ * other properties are allowed.
+ */
+function toJsonSchema(zodSchema: z.ZodObject): JsonObjectSchema {
+  const schema = z.toJSONSchema(zodSchema, {
+    io: "input",
+  }) as JsonObjectSchema;
+  const required = new Set(schema.required);
+  for (const [key, property] of Object.entries(schema.properties)) {
+    if (required.has(key)) continue;
+    // An enum or const would still reject null, so those go through anyOf.
+    if (
+      typeof property.type === "string" &&
+      !("enum" in property) &&
+      !("const" in property)
+    ) {
+      property.type = [property.type, "null"];
+    } else {
+      schema.properties[key] = { anyOf: [property, { type: "null" }] };
+    }
+  }
+  const keys = Object.keys(schema.properties);
+  if (keys.length > 0) schema.required = keys;
+  schema.additionalProperties = false;
+  return schema;
 }
 
 export const CancelWithdrawalSchema = toJsonSchema(CancelWithdrawalZod);

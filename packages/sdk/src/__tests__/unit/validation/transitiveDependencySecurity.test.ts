@@ -94,6 +94,7 @@ const PATCHED_FLOORS: Record<string, Record<number, string>> = {
   turbo: { 2: '2.9.14' },
   uuid: { 8: '11.1.1', 9: '11.1.1', 10: '11.1.1', 11: '11.1.1' },
   yaml: { 2: '2.8.3' },
+  zod: { 4: '4.6.6' },
 };
 
 describe('patched dependency advisories (medium and low severity)', () => {
@@ -119,6 +120,13 @@ describe('patched dependency advisories (medium and low severity)', () => {
         atLeast(version, '0.27.3') && !atLeast(version, '0.28.1');
       expect(vulnerable, `esbuild@${version}`).toBe(false);
     }
+  });
+
+  it('bundles a patched zod into this package', () => {
+    // zod is bundled rather than external, so the copy resolved here is the
+    // one consumers run.
+    const { version } = requireFromTest('zod/package.json');
+    expect(atLeast(version, '4.6.6'), `zod@${version}`).toBe(true);
   });
 
   it('locks jayson 5 and no stream-json', () => {

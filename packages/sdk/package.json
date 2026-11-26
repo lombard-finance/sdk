@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "5.11.4",
+  "version": "5.11.5",
   "description": "TypeScript SDK for the Lombard protocol - stake BTC, mint LBTC, and interact with DeFi",
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
@@ -27,7 +27,8 @@
     "typescript": "^5.4.5",
     "vite": "^6.3.5",
     "vitest": "^4.1.12",
-    "wagmi": "^2.14.15"
+    "wagmi": "^2.14.15",
+    "zod": "^4.6.6"
   },
   "engines": {
     "node": ">= 18.0.0"
