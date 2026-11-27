@@ -84,14 +84,14 @@ export async function signMessage({
   if (rs instanceof ec.starkCurve.Signature) {
     const fullPubKeys = recoverFullPublicKeys(rs, hashMsg);
 
-    verifiedOffChain = fullPubKeys.map(fpk => {
+    verifiedOffChain = fullPubKeys.map((fpk) => {
       return {
         fullPubKey: fpk,
         verified: typedData.verifyMessage(hashMsg, rs, fpk),
       };
     });
 
-    const tfpk = verifiedOffChain.find(x =>
+    const tfpk = verifiedOffChain.find((x) =>
       x.fullPubKey.includes(pubKey.slice(2)),
     );
     if (tfpk) verifiedOffChain = [tfpk];

@@ -12,12 +12,10 @@ export const rpcUrlConfig: TRpcUrlConfig = {
   [ChainId.base]: `${RPC_URL}/base`,
   // [ChainId.binanceSmartChain]: 'https://bsc-dataseed.bnbchain.org',
   [ChainId.binanceSmartChain]: `${RPC_URL}/bsc`,
-  [ChainId.corn]: `${RPC_URL}/corn_maizenet`,
   [ChainId.katana]: `${RPC_URL}/katana`,
   [ChainId.megaeth]: 'https://mainnet.megaeth.com/rpc',
   [ChainId.sonic]: `${RPC_URL}/sonic_mainnet`,
-  [ChainId.stable]:
-    'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf', // TODO: Update with the correct RPC URL once the stable network is live
+  [ChainId.stable]: 'https://rpc.stable.xyz',
   [ChainId.tac]: `${RPC_URL}/tac`,
   [ChainId.monad]: `${RPC_URL}/monad_mainnet`,
   // Testnets:
@@ -39,7 +37,6 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.ethereum]: `${proxy}/eth`,
     [ChainId.base]: `${proxy}/base`,
     [ChainId.binanceSmartChain]: 'https://bsc-dataseed.bnbchain.org',
-    [ChainId.corn]: `${proxy}/corn_maizenet`,
     [ChainId.katana]: `${proxy}/katana`,
     [ChainId.monad]: `${proxy}/monad_mainnet`,
     [ChainId.megaeth]: 'https://mainnet.megaeth.com/rpc',
@@ -54,7 +51,6 @@ export function getRpcUrlConfig(env: Env) {
     [ChainId.sepolia]: `${proxy}/eth_sepolia`,
     // Use direct Sonic Labs RPC for testnet (proxy returns 403)
     [ChainId.sonicBlazeTestnet]: 'https://rpc.blaze.soniclabs.com',
-    [ChainId.stable]:
-      'https://partners-rpc.stable.xyz/lombard.075830647a2c30190712a9d102011ffe5a2a01d24ff3405f711d6ea8aca10baf',
+    [ChainId.stable]: 'https://rpc.stable.xyz',
   } as TRpcUrlConfig;
 }

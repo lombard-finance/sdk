@@ -47,8 +47,7 @@ export interface EvmDeployPrepareParams {
 /**
  * EVM Deploy progress
  */
-export interface EvmDeployProgress
-  extends StrategyProgress<EvmOperationStatus> {
+export interface EvmDeployProgress extends StrategyProgress<EvmOperationStatus> {
   status: EvmOperationStatus;
   steps: {
     approval: StepStatus;

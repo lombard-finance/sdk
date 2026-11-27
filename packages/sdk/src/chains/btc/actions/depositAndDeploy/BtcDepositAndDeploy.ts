@@ -12,7 +12,7 @@ import type { z } from 'zod';
 
 import type { ChainId } from '../../../../common/chains';
 import { isValidChain } from '../../../../common/chains';
-import { Chain, parseChainIdentifier,StepStatus } from '../../../../core';
+import { Chain, parseChainIdentifier, StepStatus } from '../../../../core';
 import type { BtcCoreContext } from '../../../../shared/context';
 import { LombardError, ValidationErrorCode } from '../../../../shared/errors';
 import type { DepositAndDeployEventMap } from '../../../../shared/events';
@@ -25,6 +25,7 @@ import { ensureNotSanctionedAddress } from '../../../../utils/ensureNotSanctione
 import { toSatoshi } from '../../../../utils/satoshi';
 import {
   assetIdToToken,
+  type AuthorizeDepositOptions,
   BaseBtcAction,
   type StatusConfig,
   type StepDefinition,
@@ -232,7 +233,7 @@ export class BtcDepositAndDeploy
     }, BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION);
   }
 
-  async authorizeDeposit(): Promise<void> {
+  async authorizeDeposit(options?: AuthorizeDepositOptions): Promise<void> {
     this.assertStatus(
       [BtcActionStatus.NEEDS_DEPLOY_AUTHORIZATION, BtcActionStatus.READY],
       'authorizeDeposit',
@@ -260,6 +261,9 @@ export class BtcDepositAndDeploy
           amount: amountSats.toString(),
           vaultKey: getVaultKey(this.params.protocol),
           token: outputToken,
+          // undefined lets signStakeAndBake apply its own 24h default
+          expiry: options?.expiry,
+          storeSignature: Boolean(this._depositAddress),
         },
       );
 
@@ -330,7 +334,7 @@ export class BtcDepositAndDeploy
       fetchDeposit: async () => {
         const deposits = await this.ctx.api.getDeposits(recipient);
         const ourDeposit = deposits.find(
-          deposit => deposit.depositAddress === depositAddress,
+          (deposit) => deposit.depositAddress === depositAddress,
         );
 
         if (!ourDeposit) {
@@ -342,7 +346,7 @@ export class BtcDepositAndDeploy
           isClaimed: ourDeposit.isClaimed,
         };
       },
-      onProgress: p => {
+      onProgress: (p) => {
         this.emitProgress({
           status: this.status,
           steps: {

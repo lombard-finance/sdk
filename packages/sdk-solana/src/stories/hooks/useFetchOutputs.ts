@@ -82,7 +82,7 @@ export function useFetchOutputs({
 
       const solanaOutputs =
         response.data.outputs?.filter(
-          output =>
+          (output) =>
             output.to_chain === 'DESTINATION_BLOCKCHAIN_SOLANA' &&
             !output.claim_tx,
         ) || [];

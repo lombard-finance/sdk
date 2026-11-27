@@ -3,9 +3,11 @@ import { Hex } from 'viem';
 
 import { makeWalletClient } from '../../clients/wallet-client';
 import { CommonWriteParameters } from '../../common/parameters';
+import { assertValidExpiry } from '../../shared/validation/signing';
 import { Token } from '../../tokens/token-addresses';
 import { getTokenContractInfo } from '../../tokens/tokens';
 import { DAY, now, toUnix } from '../../utils/time';
+import { getTokenEip712Domain } from '../getTokenEip712Domain/getTokenEip712Domain';
 
 export interface ISignNetworkFeeParams extends CommonWriteParameters {
   /**
@@ -56,9 +58,16 @@ export async function signNetworkFee({
   account,
   chainId,
   provider,
+  rpcUrl,
   env,
   token = Token.LBTC,
 }: ISignNetworkFeeParams): Promise<ISignNetworkFeeResponse> {
+  // Checked before the wallet client is built, so the parameter that is wrong
+  // is the one the error names. An unbounded expiry has no symptom anywhere:
+  // the fee approval signs, is stored, and `checkFeeAuthorization` then reads
+  // it as valid forever, so the user is never asked to renew it.
+  assertValidExpiry(expiry);
+
   const tokenContract = await getTokenContractInfo(token, chainId, env);
   const walletClient = makeWalletClient({
     chainId,
@@ -68,12 +77,12 @@ export async function signNetworkFee({
   type TypedData = Parameters<typeof walletClient.signTypedData>[0];
   const typedData: TypedData = {
     account,
-    domain: {
-      name: token === Token.BTCb ? 'Bitcoin' : 'Lombard Staked Bitcoin',
-      version: '1',
+    domain: await getTokenEip712Domain({
       chainId,
-      verifyingContract: tokenContract.address,
-    },
+      tokenAddress: tokenContract.address,
+      rpcUrl,
+      env,
+    }),
     message: {
       chainId,
       fee: BigInt(BigNumber(fee).toFixed()),

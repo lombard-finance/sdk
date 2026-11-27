@@ -18,18 +18,24 @@ export {
   getChainIdByName,
   getChainNameById,
   getEthNetworkByEnv,
+  getLegacyChainNameById,
   getSolanaNetworkByEnv,
   getSonicNetworkByEnv,
   getStarknetNetworkByEnv,
-  getSuiNetworkByEnv
+  getSuiNetworkByEnv,
 } from '../common/blockchain-identifier';
 
 // All chain definitions and utilities
 export {
-  addChain, type AddChainParameters, allChains,
+  addChain,
+  type AddChainParameters,
+  allChains,
   bob,
-  bobSepolia, CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP,
-  CHAIN_ID_TO_VIEM_CHAIN_MAP, ChainId, getChain,
+  bobSepolia,
+  CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP,
+  CHAIN_ID_TO_VIEM_CHAIN_MAP,
+  ChainId,
+  getChain,
   getLlamaChainName,
   isEthereumChain,
   isKatanaChain,
@@ -43,20 +49,28 @@ export {
   katana,
   megaeth,
   monad,
+  RETIRED_CHAIN_IDS,
+  type RetiredChainId,
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
-  SOLANA_TESTNET_CHAIN, type SolanaChain, stable,
+  SOLANA_TESTNET_CHAIN,
+  type SolanaChain,
+  stable,
   STARKNET_MAINNET_CHAIN,
-  STARKNET_SEPOLIA_CHAIN, type StarknetChainId, SUI_DEVNET_CHAIN,
+  STARKNET_SEPOLIA_CHAIN,
+  type StarknetChainId,
+  SUI_DEVNET_CHAIN,
   SUI_LOCALNET_CHAIN,
   SUI_MAINNET_CHAIN,
-  SUI_TESTNET_CHAIN, type SuiChain,
-tac} from '../common/chains';
+  SUI_TESTNET_CHAIN,
+  type SuiChain,
+  tac,
+} from '../common/chains';
 
 // Fee Requirements
 export {
   AUTO_MINT_FEE_CHAINS,
-  requiresAutoMintFee
+  requiresAutoMintFee,
 } from '../common/fee-requirements';
 
 // Token utilities - LBTC Addresses
@@ -70,8 +84,9 @@ export {
   getStarknetTokenAddress,
   getSuiTokenAddress,
   getTokenAddressForChain,
-  getTokenByAddress, RATIO_TOKEN_MAP,
-type RatioToken,
+  getTokenByAddress,
+  RATIO_TOKEN_MAP,
+  type RatioToken,
   SOLANA_TOKEN_ADDRESSES,
   STARKNET_ASSET_ROUTER_ADDRESSES,
   STARKNET_TOKEN_ADDRESSES,
@@ -79,7 +94,7 @@ type RatioToken,
   Token,
   TOKEN_ADDRESSES,
   type TokenAddresses,
-  type TokenAddressesPerEnv
+  type TokenAddressesPerEnv,
 } from '../tokens/token-addresses';
 export type { BridgeTokenAddresses } from '../tokens/types';
 
@@ -90,7 +105,7 @@ export {
   isUpgradedAbi,
   retrieveTokenProperties,
   toBaseDenomination,
-  type TokenInfo
+  type TokenInfo,
 } from '../tokens/tokens';
 
 // Satoshi conversions
@@ -99,7 +114,7 @@ export {
   fromSatoshi,
   SATOSHI_SCALE,
   toSatoshi,
-  toSatoshiBigInt
+  toSatoshiBigInt,
 } from '../utils/satoshi';
 
 // RPC URL configuration
@@ -107,20 +122,21 @@ export {
   getRpcUrlConfig,
   RPC_URL,
   rpcUrlConfig,
-  type TRpcUrlConfig
+  type TRpcUrlConfig,
 } from '../clients/rpc-url-config';
 
 // Common parameters
 export {
-type CommonSignerWriteParameters,
+  type CommonSignerWriteParameters,
   isProviderFlow,
-  isSignerFlow} from '../common/parameters';
+  isSignerFlow,
+} from '../common/parameters';
 
 // Error utilities
 export {
   getErrorMessage,
   TokenContractAddressNotFoundError,
-  UnsupportedTokenFlow
+  UnsupportedTokenFlow,
 } from '../utils/err';
 
 // Hex utilities

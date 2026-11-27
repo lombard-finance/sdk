@@ -1,31 +1,39 @@
-import type { CoinStruct } from '@mysten/sui/client';
-import { SuiClient } from '@mysten/sui/client';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import type { WalletAccount } from '@wallet-standard/core';
 
-interface IUnstakeLBTCParams {
+interface IGetAllCoinsOfTypeParams {
   walletAccount: WalletAccount;
-  client: SuiClient;
+  client: SuiGrpcClient;
   coinType: string;
+}
+
+/** A coin object owned by the wallet, in the shape the callers select on. */
+export interface ICoinOfType {
+  coinObjectId: string;
+  balance: string;
 }
 
 export async function getAllCoinsOfType({
   walletAccount,
   client,
   coinType,
-}: IUnstakeLBTCParams) {
-  let cursor: string | null | undefined = undefined;
-  let coins: CoinStruct[] = [];
+}: IGetAllCoinsOfTypeParams): Promise<ICoinOfType[]> {
+  let cursor: string | null = null;
+  const coins: ICoinOfType[] = [];
 
   do {
-    const response = await client.getCoins({
+    const response = await client.core.listCoins({
       owner: walletAccount.address,
       coinType,
       cursor,
       limit: 50,
     });
 
-    coins = coins.concat(response.data);
-    cursor = response.nextCursor;
+    for (const coin of response.objects) {
+      coins.push({ coinObjectId: coin.objectId, balance: coin.balance });
+    }
+
+    cursor = response.hasNextPage ? response.cursor : null;
   } while (cursor);
 
   return coins;

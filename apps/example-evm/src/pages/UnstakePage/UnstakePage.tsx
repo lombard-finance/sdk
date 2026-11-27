@@ -64,9 +64,7 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
           .toString()
           .padStart(8, '0')
           .replace(/0+$/, '');
-        setLbtcBalance(
-          fraction ? `${whole}.${fraction}` : `${whole}`,
-        );
+        setLbtcBalance(fraction ? `${whole}.${fraction}` : `${whole}`);
       } catch {
         setLbtcBalance(null);
       }
@@ -128,7 +126,9 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
             {evmAddress && lbtcBalance !== null && (
               <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-900">
-                  LBTC Balance: <span className="font-medium font-mono">{lbtcBalance}</span> LBTC
+                  LBTC Balance:{' '}
+                  <span className="font-medium font-mono">{lbtcBalance}</span>{' '}
+                  LBTC
                 </p>
               </div>
             )}
@@ -156,7 +156,6 @@ export function UnstakePage({ env, onReset }: UnstakePageProps) {
               onReset={handleReset}
             />
           )}
-
         </div>
       </div>
     </div>

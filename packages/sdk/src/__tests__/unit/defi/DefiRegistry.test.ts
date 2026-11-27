@@ -1,5 +1,5 @@
 import { Env } from '@lombard.finance/sdk-common';
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { DEFI_REGISTRY, DefiProtocol } from '../../../defi/defi-registry';
 import { Token } from '../../../tokens/token-addresses';
@@ -22,4 +22,3 @@ describe('DEFI_REGISTRY', () => {
     expect(siloBtcb?.[Env.prod]).toBeUndefined();
   });
 });
-

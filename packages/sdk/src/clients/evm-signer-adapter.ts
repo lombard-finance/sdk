@@ -221,7 +221,7 @@ export function createAccountFromSigner(
       // because we want the signed transaction, not to broadcast it yet
       let signedTx: Hex | undefined;
 
-      await signer.sign(evmTx, async serialized => {
+      await signer.sign(evmTx, async (serialized) => {
         signedTx = serialized;
         // Return a dummy hash - the actual broadcasting happens via walletClient
         return serialized;

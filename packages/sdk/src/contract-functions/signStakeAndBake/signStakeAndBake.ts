@@ -7,8 +7,14 @@ import {
   DefiProtocol,
   StakeAndBakeToken,
 } from '../../defi/defi-registry';
+import { LombardError, ValidationErrorCode } from '../../shared/errors';
+import {
+  assertPositiveBaseUnits,
+  assertValidExpiry,
+} from '../../shared/validation/signing';
 import { DAY, now, toUnix } from '../../utils/time';
 import { getPermitNonce } from '../getPermitNonce/getPermitNonce';
+import { getTokenEip712Domain } from '../getTokenEip712Domain/getTokenEip712Domain';
 import { handleApproveFlow } from './handleApprove';
 import { handlePermitFlow } from './handlePermit';
 import { buildTypedData } from './typed-data-builder';
@@ -20,8 +26,14 @@ import { getStakeAndBakeConfig } from './validation';
 
 export interface ISignStakeAndBakeParams extends CommonWriteParameters {
   /**
-   * The approved BTC value that will be automatically claimed and deposited
-   * to the chosen vault. The function will internally calculate the correct LBTC amount using the current ratio.
+   * The approved amount that will be automatically claimed and deposited to the
+   * chosen vault, **in token base units** — satoshis on the BTC routes, where
+   * 0.001 BTC is `100000`.
+   *
+   * This is base units rather than the human-readable amount the other write
+   * helpers take, because the value goes into the permit as it stands. On a
+   * route whose amount strategy converts (BTC to LBTC) the current ratio is
+   * applied to it internally.
    */
   value: BigNumber.Value;
   /**
@@ -79,7 +91,7 @@ export interface ISignStakeAndBakeResult {
  * signature to the Lombard's system, see: `storeStakeAndBakeSignature`
  *
  * @param {ISignStakeAndBakeParams} parameters - The parameters.
- * @param {BigNumber.Value} parameters.value - The amount of BTC that will be converted to LBTC using current ratio and deposited to the DeFi vault.
+ * @param {BigNumber.Value} parameters.value - The amount to authorise, in token base units (satoshis on the BTC routes). Converted to LBTC using the current ratio where the route calls for it.
  * @param {number} parameters.expiry = The optional expiration UNIX time of the signature.
  * @param {DefiProtocol} parameters.vaultKey - The optional DeFi vault identifier.
  * @param {Address} parameters.account - The EVM account address.
@@ -103,6 +115,20 @@ export async function signStakeAndBake({
 }: ISignStakeAndBakeParams): Promise<ISignStakeAndBakeResult> {
   const strategy = getStakeAndBakeConfig(protocol, token, chainId, env);
 
+  // Both validated here, before anything reaches the network. Left until the
+  // deadline was built, a bad expiry first cost an exchange-ratio request, and
+  // a failure there reported itself instead of the parameter that was wrong.
+  // Zero-deadline strategies never read the expiry, so they are exempt from
+  // that half; every route reads the value.
+  assertPositiveBaseUnits(
+    value,
+    'value',
+    'an amount in token base units — satoshis on the BTC routes',
+  );
+  if (strategy.approval.deadlineStrategy !== 'zero') {
+    assertValidExpiry(expiry);
+  }
+
   const spenderAddress = strategy.spenderContract.address;
 
   // Calculate permit value (with conversion if needed)
@@ -111,12 +137,25 @@ export async function signStakeAndBake({
       ? await calculateStakeAndBakeLBTCAmount(value, env)
       : new BigNumber(value);
 
+  // The ratio divides, so a value small enough in satoshis rounds down to
+  // nothing: one satoshi over a ratio above 1 is zero LBTC. Authorising zero
+  // has no downstream symptom — the permit signs, stores and reports success
+  // while granting nothing — so it is refused here rather than shipped.
+  const permitBaseUnits = BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN));
+  if (permitBaseUnits <= 0n) {
+    throw new LombardError(
+      ValidationErrorCode.AMOUNT_TOO_SMALL,
+      `value ${String(value)} converts to ${permitValue.toFixed()} on this ` +
+        `route, which rounds down to zero base units. Nothing would be ` +
+        `authorised.`,
+    );
+  }
+
   // Get token contract (always use Token address for permits/approves, not adapter)
   const tokenContract = await getStakeAndBakeTokenContract(token, chainId, env);
   const tokenAddress = tokenContract.address;
   const tokenAbi = tokenContract.abi;
 
-  // Calculate deadline based on expiry behavior
   const deadline =
     strategy.approval.deadlineStrategy === 'zero' ? 0n : BigInt(expiry);
 
@@ -126,16 +165,22 @@ export async function signStakeAndBake({
       ? BigInt(await getPermitNonce({ owner: account, chainId, rpcUrl, env }))
       : 0n;
 
-  // Build typed data using config
+  const domain = await getTokenEip712Domain({
+    chainId,
+    tokenAddress,
+    rpcUrl,
+    env,
+  });
+
   const typedData = buildTypedData({
     mode: strategy.approval.mode,
     account,
     chainId,
     verifyingContract: tokenAddress,
-    domainName: strategy.approval.domainName,
-    domainVersion: strategy.approval.domainVersion,
+    domainName: domain.name,
+    domainVersion: domain.version,
     spender: spenderAddress,
-    value: BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN)),
+    value: permitBaseUnits,
     nonce,
     deadline,
   });
@@ -151,7 +196,7 @@ export async function signStakeAndBake({
       tokenAbi,
       spenderAddress,
       typedData,
-      requiredAmount: BigInt(permitValue.toFixed(0, BigNumber.ROUND_DOWN)),
+      requiredAmount: permitBaseUnits,
     });
   }
 

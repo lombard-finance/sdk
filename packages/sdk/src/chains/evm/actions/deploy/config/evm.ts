@@ -16,7 +16,7 @@ import type { ChainConfig } from './types';
  * EVM deploy configuration
  *
  * Protocol availability:
- * - Veda: Ethereum, Base, BSC, Corn (prod only)
+ * - Veda: Ethereum, Base, BSC (prod only)
  * - Silo: Avalanche (prod only)
  */
 export const evmConfig: ChainConfig = {
@@ -44,13 +44,6 @@ export const evmConfig: ChainConfig = {
       protocols: [DeployProtocol.Veda],
       envs: [Env.prod],
     },
-    // Veda - Corn
-    {
-      asset: AssetId.LBTC,
-      sourceChains: [Chain.CORN],
-      protocols: [DeployProtocol.Veda],
-      envs: [Env.prod],
-    },
     // Silo - Avalanche
     {
       asset: AssetId.LBTC,
@@ -73,7 +66,7 @@ export function isDeploySupported(
   env: Env,
 ): boolean {
   return evmConfig.routes.some(
-    route =>
+    (route) =>
       route.asset === asset &&
       route.sourceChains.includes(chain) &&
       route.protocols.includes(protocol) &&

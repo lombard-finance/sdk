@@ -72,7 +72,11 @@ const LOG_LEVELS: LogLevel[] = ['debug', 'info', 'warn', 'error', 'none'];
 export function createConsoleLogger(
   options: ConsoleLoggerOptions = {},
 ): Logger {
-  const { level = 'debug', prefix = '[Lombard SDK]', timestamp = false } = options;
+  const {
+    level = 'debug',
+    prefix = '[Lombard SDK]',
+    timestamp = false,
+  } = options;
 
   const minLevelIndex = LOG_LEVELS.indexOf(level);
 
@@ -136,5 +140,3 @@ export function createSilentLogger(): Logger {
     error: () => {},
   };
 }
-
-

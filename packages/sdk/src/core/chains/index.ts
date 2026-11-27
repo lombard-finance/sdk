@@ -17,7 +17,7 @@ export {
 } from './types';
 
 // Catalog
-export { CHAIN_CATALOG } from './catalog';
+export { CHAIN_CATALOG, isRetiredChain, RETIRED_CHAINS } from './catalog';
 
 // Query functions
 export type { ChainTypeMetadata } from './utils';

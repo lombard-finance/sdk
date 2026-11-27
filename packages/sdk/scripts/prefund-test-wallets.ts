@@ -1,7 +1,7 @@
 import { createPublicClient, http, parseEther } from 'viem';
 import { sepolia, avalancheFuji } from 'viem/chains';
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
+import { SuiClient } from '@mysten/sui/client';
 import { RpcProvider } from 'starknet';
 import dotenv from 'dotenv';
 
@@ -13,8 +13,13 @@ const RPC_URLS = {
   sepolia: `${BFF_RPC_BASE}/eth_sepolia`,
   fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
   solanaDevnet: 'https://api.devnet.solana.com',
-  starknetSepolia: 'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/demo',
+  starknetSepolia:
+    'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/demo',
 };
+
+// Sui Foundation disabled JSON-RPC on its public fullnodes, so `getFullnodeUrl()`
+// no longer works. This node still serves it.
+const SUI_TESTNET_RPC_URL = 'https://sui-testnet-endpoint.blockvision.org';
 
 interface WalletBalances {
   chain: string;
@@ -34,7 +39,7 @@ async function checkBalances(): Promise<WalletBalances[]> {
         chain: sepolia,
         transport: http(RPC_URLS.sepolia),
       });
-      
+
       const sepoliaEthBalance = await sepoliaClient.getBalance({
         address: process.env.TEST_EVM_ADDRESS as `0x${string}`,
       });
@@ -115,7 +120,7 @@ async function checkBalances(): Promise<WalletBalances[]> {
   // Sui Testnet
   if (process.env.TEST_SUI_ADDRESS) {
     try {
-      const suiClient = new SuiClient({ url: getFullnodeUrl('testnet') });
+      const suiClient = new SuiClient({ url: SUI_TESTNET_RPC_URL });
       const suiBalance = await suiClient.getBalance({
         owner: process.env.TEST_SUI_ADDRESS,
       });
@@ -143,7 +148,8 @@ async function checkBalances(): Promise<WalletBalances[]> {
     try {
       const provider = new RpcProvider({ nodeUrl: RPC_URLS.starknetSepolia });
       // ETH contract on Starknet Sepolia
-      const ethContractAddress = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7';
+      const ethContractAddress =
+        '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7';
       const balance = await provider.callContract({
         contractAddress: ethContractAddress,
         entrypoint: 'balanceOf',
@@ -175,13 +181,12 @@ async function checkBalances(): Promise<WalletBalances[]> {
 
 async function main() {
   console.log('Checking test wallet balances...\n');
-  
+
   const balances = await checkBalances();
-  
+
   console.table(balances);
-  
+
   console.log('\n⚠️  Fund wallets from faucets if balances are low!');
 }
 
 main();
-

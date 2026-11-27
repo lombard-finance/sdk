@@ -38,6 +38,9 @@ export enum ENotarizationStatus {
   /** Initial status when a deposit transaction is created but not yet processed */
   NOTARIZATION_STATUS_PENDING = 'NOTARIZATION_STATUS_PENDING',
 
+  /** Status when a deposit transaction is pending GMP processing */
+  NOTARIZATION_STATUS_GMP_PENDING = 'NOTARIZATION_STATUS_GMP_PENDING',
+
   /** The deposit has been submitted for notarization */
   NOTARIZATION_STATUS_SUBMITTED = 'NOTARIZATION_STATUS_SUBMITTED',
 
@@ -190,6 +193,9 @@ export interface DirectDeposit {
 
   /** Amount minted */
   token_amount?: string;
+
+  /** GMP mint ID for solana LBTC GMP flow */
+  mint_id?: string;
 }
 
 /** Top-level response from the Direct BTC Deposits API */
@@ -206,7 +212,19 @@ export interface DirectDepositsResponse {
  * Direct BTC Deposits or Native Deposits APIs.
  */
 export interface Deposit {
-  /** True if the record originates from the Native Deposits API. */
+  /**
+   * Whether this deposit originates from the Native Deposits API (EVM/alt-chain source).
+   *
+   * - `false` — Bitcoin mainnet direct deposit: the user sent BTC directly to a
+   *   Lombard deposit address. This is the most common case for BTC stakers.
+   * - `true`  — Native deposit: the deposit originated on an EVM or alt-chain
+   *   (e.g. a chain using Lombard's native deposits flow).
+   *
+   * When polling for standard BTC deposit status, filter on `isNative === false`.
+   *
+   * @remarks A rename to a more descriptive field (e.g. `depositSource`) is
+   * planned in a future major version to avoid confusion with "native BTC".
+   */
   isNative: boolean;
 
   /** Transaction hash on the source blockchain. */
@@ -325,10 +343,10 @@ export async function fetchDirectDeposits({
 
   const outputs = await fetchAllPaginated({
     endpoint,
-    extractItems: data => (data as DirectDepositsResponse)?.outputs ?? [],
+    extractItems: (data) => (data as DirectDepositsResponse)?.outputs ?? [],
   });
 
-  return outputs.map(d => mapDirectBtcDeposit(d, env, address));
+  return outputs.map((d) => mapDirectBtcDeposit(d, env, address));
 }
 
 /**
@@ -358,10 +376,10 @@ export async function fetchBTCbDeposits({
 
   const deposits = await fetchAllPaginated({
     endpoint,
-    extractItems: data => (data as NativeDepositsResponse)?.deposits ?? [],
+    extractItems: (data) => (data as NativeDepositsResponse)?.deposits ?? [],
   });
 
-  return deposits.map(d => mapBTCbDeposits(d, env));
+  return deposits.map((d) => mapBTCbDeposits(d, env));
 }
 
 /* -------------------------------------------------------------------------- */

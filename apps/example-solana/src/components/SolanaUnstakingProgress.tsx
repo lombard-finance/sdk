@@ -13,7 +13,10 @@ interface SolanaUnstakingProgressProps {
  * Get Solana explorer URL for transaction
  */
 function getSolanaExplorerUrl(txHash: string, chain: string): string {
-  return getExplorerTxUrl(chain, txHash) ?? `https://explorer.solana.com/tx/${txHash}`;
+  return (
+    getExplorerTxUrl(chain, txHash) ??
+    `https://explorer.solana.com/tx/${txHash}`
+  );
 }
 
 /**
@@ -41,7 +44,11 @@ export function SolanaUnstakingProgress({
   return (
     <div className="card">
       <h2 className="text-2xl font-semibold mb-6">
-        {isComplete ? 'Unstake Complete' : isError ? 'Unstaking Error' : 'Unstaking Progress'}
+        {isComplete
+          ? 'Unstake Complete'
+          : isError
+            ? 'Unstaking Error'
+            : 'Unstaking Progress'}
       </h2>
 
       {/* Status */}
@@ -89,7 +96,9 @@ export function SolanaUnstakingProgress({
               <>
                 <li>• Burning LBTC tokens on Solana</li>
                 <li>• Please confirm the transaction in your wallet</li>
-                <li>• BTC will be released to your Bitcoin address automatically</li>
+                <li>
+                  • BTC will be released to your Bitcoin address automatically
+                </li>
               </>
             )}
           </ul>
@@ -103,18 +112,22 @@ export function SolanaUnstakingProgress({
             ✓ Unstake Complete
           </h4>
           <p className="text-sm text-green-800">
-            LBTC has been burned on Solana. BTC will be sent to your Bitcoin address shortly.
+            LBTC has been burned on Solana. BTC will be sent to your Bitcoin
+            address shortly.
           </p>
         </div>
       )}
 
       {/* Action buttons */}
-      {(isComplete || isError) ? (
+      {isComplete || isError ? (
         <button onClick={onReset} className="btn btn-secondary w-full">
           Start New Unstake
         </button>
       ) : (
-        <button onClick={onReset} className="btn btn-secondary w-full mt-4 text-sm">
+        <button
+          onClick={onReset}
+          className="btn btn-secondary w-full mt-4 text-sm"
+        >
           Cancel
         </button>
       )}

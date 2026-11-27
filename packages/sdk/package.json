@@ -1,6 +1,6 @@
 {
   "name": "@lombard.finance/sdk",
-  "version": "4.4.0",
+  "version": "5.11.5",
   "description": "TypeScript SDK for the Lombard protocol - stake BTC, mint LBTC, and interact with DeFi",
   "dependencies": {
     "@lombard.finance/sdk-common": "workspace:*",
@@ -17,8 +17,8 @@
     "@storybook/react-vite": "^8.2.9",
     "@storybook/test": "^8.2.9",
     "@tanstack/react-query": "^5.71.1",
-    "@vitest/ui": "3.2.4",
-    "axios": "1.12.0",
+    "@vitest/ui": "4.1.12",
+    "axios": "1.20.0",
     "bignumber.js": "^9.1.2",
     "bootstrap": "^5.3.3",
     "rimraf": "^5",
@@ -26,8 +26,9 @@
     "typedoc": "^0.26.6",
     "typescript": "^5.4.5",
     "vite": "^6.3.5",
-    "vitest": "^3.2.4",
-    "wagmi": "^2.14.15"
+    "vitest": "^4.1.12",
+    "wagmi": "^2.14.15",
+    "zod": "^4.6.6"
   },
   "engines": {
     "node": ">= 18.0.0"
@@ -78,6 +79,11 @@
       "import": "./dist/vaults.js",
       "require": "./dist/vaults.cjs"
     },
+    "./strategies": {
+      "types": "./dist/entries/strategies.d.ts",
+      "import": "./dist/strategies.js",
+      "require": "./dist/strategies.cjs"
+    },
     "./defi": {
       "types": "./dist/entries/defi.d.ts",
       "import": "./dist/defi.js",
@@ -98,7 +104,11 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/lombard-finance/sdk"
+    "url": "https://github.com/lombard-finance/sdk.git",
+    "directory": "packages/sdk"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "homepage": "https://docs.lombard.finance",
   "bugs": {
@@ -124,7 +134,7 @@
     "@layerzerolabs/lz-v2-utilities": "^3.0.17",
     "axios": "^1",
     "bignumber.js": "^9",
-    "bitcoinjs-lib": "^6.1.5",
+    "bitcoinjs-lib": "^6.1.10",
     "viem": "^2.21.0"
   },
   "scripts": {
@@ -177,6 +187,9 @@
       ],
       "vaults": [
         "./dist/entries/vaults.d.ts"
+      ],
+      "strategies": [
+        "./dist/entries/strategies.d.ts"
       ],
       "defi": [
         "./dist/entries/defi.d.ts"

@@ -1,3 +1,4 @@
+import { Env } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 
 import { SolanaNetwork } from './network';
@@ -27,6 +28,12 @@ export interface GetBalanceParams {
    * If provided, overrides the network parameter
    */
   rpcUrl?: string;
+
+  /**
+   * Optional environment. Determines which BFF host (prod vs stage) the
+   * default RPC URL routes through when `rpcUrl` is not provided.
+   */
+  env?: Env;
 }
 
 /**

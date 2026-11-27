@@ -39,7 +39,7 @@ export const suiToBtcConfig: ChainConfig = {
  */
 export function isBtcUnstakeSupported(sourceChain: Chain, env: Env): boolean {
   return suiToBtcConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

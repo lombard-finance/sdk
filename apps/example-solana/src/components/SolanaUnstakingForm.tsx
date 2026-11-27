@@ -1,4 +1,9 @@
-import { AssetId, Chain, Env, MIN_REDEEM_AMOUNT_BTC } from '@lombard.finance/sdk';
+import {
+  AssetId,
+  Chain,
+  Env,
+  MIN_REDEEM_AMOUNT_BTC,
+} from '@lombard.finance/sdk';
 import { FormEvent, useEffect, useState } from 'react';
 
 import type { SolanaUnstakingFormData } from '../pages/SolanaUnstakePage/useSolanaUnstaking';
@@ -108,7 +113,10 @@ export function SolanaUnstakingForm({
       <div className="space-y-4">
         {/* Source Chain (read-only) */}
         <div>
-          <label htmlFor="sourceChain" className="block text-sm font-medium mb-2">
+          <label
+            htmlFor="sourceChain"
+            className="block text-sm font-medium mb-2"
+          >
             Source Chain
           </label>
           <input
@@ -151,7 +159,7 @@ export function SolanaUnstakingForm({
             step="0.00000001"
             min={MIN_REDEEM_AMOUNT_BTC}
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
             disabled={isSubmitting || disabled || isLoading}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             placeholder={String(MIN_REDEEM_AMOUNT_BTC)}
@@ -171,7 +179,7 @@ export function SolanaUnstakingForm({
             id="recipient"
             type="text"
             value={recipient}
-            onChange={e => setRecipient(e.target.value)}
+            onChange={(e) => setRecipient(e.target.value)}
             placeholder={env === Env.prod ? 'bc1q...' : 'tb1q...'}
             disabled={isSubmitting || disabled || isLoading}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm"

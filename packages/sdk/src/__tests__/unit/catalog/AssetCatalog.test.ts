@@ -134,6 +134,11 @@ describe('Asset Catalog', () => {
       expect(chains).toContain(Chain.STABLE);
     });
 
+    it('should include Ethereum in production', () => {
+      const chains = getAssetChains(AssetId.BTCb, Env.prod);
+      expect(chains).toContain(Chain.ETHEREUM);
+    });
+
     it('should include Monad when enabled', () => {
       const chains = getAssetChains(AssetId.BTCb, Env.prod);
       if (featureConfig.isMonadEnabled) {
@@ -203,9 +208,9 @@ describe('Asset Catalog', () => {
 
   describe('Unstaking chains availability', () => {
     describe('Testnet environment', () => {
-      it('should include Solana Testnet for LBTC unstaking', () => {
+      it('should include Solana Devnet for LBTC unstaking on testnet env', () => {
         const chains = getAssetChains(AssetId.LBTC, Env.testnet);
-        expect(chains).toContain(Chain.SOLANA_TESTNET);
+        expect(chains).toContain(Chain.SOLANA_DEVNET);
       });
 
       it('should include Sui Testnet for LBTC unstaking', () => {
@@ -290,4 +295,3 @@ describe('Asset Catalog Resolution', () => {
     */
   });
 });
-

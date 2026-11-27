@@ -13,6 +13,7 @@ import type { EvmService } from '@lombard.finance/sdk-common';
 import { Env } from '@lombard.finance/sdk-common';
 import type { EIP1193Provider } from 'viem';
 
+import { FeeSignatureAlreadyExistsError } from '../../../../../api-functions/storeNetworkFeeSignature/storeNetworkFeeSignature';
 import type { ChainId } from '../../../../../common/chains';
 import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
 import { LombardError } from '../../../../../shared/errors';
@@ -26,7 +27,7 @@ import type { ChainConfig, FeeAuthConfig } from './types';
 
 /**
  * Chains that require fee authorization (unsubsidized chains).
- * 
+ *
  * These chains require users to sign a fee authorization message
  * before minting LBTC. On subsidized chains, Lombard covers the fees.
  */
@@ -68,7 +69,10 @@ const feeAuthConfig: FeeAuthConfig = {
 
     // Check expiration - expirationDate is Unix timestamp in seconds
     // Convert to milliseconds for Date comparison
-    if (result.expirationDate && new Date(Number(result.expirationDate) * 1000) < new Date()) {
+    if (
+      result.expirationDate &&
+      new Date(Number(result.expirationDate) * 1000) < new Date()
+    ) {
       return null;
     }
 
@@ -81,7 +85,7 @@ const feeAuthConfig: FeeAuthConfig = {
     };
   },
 
-  async authorizeFee(ctx, { chainId, recipient, fee }) {
+  async authorizeFee(ctx, { chainId, recipient, fee, storeSignature = true }) {
     const evm = ctx.capabilities.require('evm') as EvmService;
     const provider = await ctx.getProvider('evm');
     if (!provider) {
@@ -110,13 +114,45 @@ const feeAuthConfig: FeeAuthConfig = {
       token: Token.LBTC,
     });
 
-    // Store the signature with token address to distinguish from BTC.b signatures
-    await ctx.api.storeFeeSignature({
-      address: recipient,
-      signature: result.signature,
-      typedData: result.typedData,
-      tokenAddress: tokenInfo.address,
-    });
+    if (!storeSignature) {
+      return {
+        signature: result.signature,
+        typedData: result.typedData,
+      };
+    }
+
+    // Store the signature with token address to distinguish from BTC.b signatures.
+    // If the BFF reports a signature already exists (code 6), fall back to the
+    // one it already has. This recovers from cases where restoreFeeSignature
+    // missed the existing record (race, token-address mismatch, etc.) — the
+    // user's wallet signature is consumed but the workflow continues with the
+    // server-known signature instead of surfacing a confusing "already exists"
+    // error to the end user.
+    try {
+      await ctx.api.storeFeeSignature({
+        address: recipient,
+        signature: result.signature,
+        typedData: result.typedData,
+        tokenAddress: tokenInfo.address,
+      });
+    } catch (err) {
+      if (!(err instanceof FeeSignatureAlreadyExistsError)) throw err;
+      const stored = await ctx.api.getFeeSignature({
+        address: recipient,
+        chainId: chainId as ChainId,
+        tokenAddress: tokenInfo.address,
+      });
+      if (stored?.hasSignature) {
+        return {
+          signature: stored.signature ?? result.signature,
+          typedData: stored.typedData ?? result.typedData,
+        };
+      }
+      // BFF says one exists but won't return it. Surface a clearer message.
+      throw new Error(
+        'A fee authorization signature already exists for this account but cannot be retrieved. Refresh the page and try again, or contact support if this persists.',
+      );
+    }
 
     return {
       signature: result.signature,
@@ -149,7 +185,7 @@ export const evmConfig: ChainConfig = {
   // Derived from ASSET_CATALOG - all EVM chains where LBTC is deployed
   // Note: This includes all chains across all environments
   // The `routes` config above filters by source chain + env
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain => {
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) => {
     return isEvmChain(chain);
   }),
 

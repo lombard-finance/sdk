@@ -151,9 +151,7 @@ describe('useBtcStakingEvm', () => {
       stake: mockStakeFn,
     });
 
-    const { result } = renderHook(() =>
-      useBtcStakingEvm(undefined, Env.stage),
-    );
+    const { result } = renderHook(() => useBtcStakingEvm(undefined, Env.stage));
 
     result.current.stake({
       amount: '0.1',

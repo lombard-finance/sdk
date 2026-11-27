@@ -10,7 +10,7 @@
 import type { Env } from '@lombard.finance/sdk-common';
 
 import type { AssetId, Chain } from '../../../../../core';
-import { DEFI_REGISTRY,DefiProtocol } from '../../../../../defi';
+import { DEFI_REGISTRY, DefiProtocol } from '../../../../../defi';
 import { Token } from '../../../../../tokens/token-addresses';
 import { evmStakeAndDeployConfig } from './evm';
 
@@ -49,7 +49,7 @@ export function isRouteAvailable(
 ): boolean {
   if (!sourceChain) return true;
   return stakeAndDeployConfig.routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }
@@ -86,7 +86,7 @@ export function getVaultKey(protocol: string): string {
 /**
  * Get list of supported protocols for StakeAndDeploy
  * This returns protocols that support LBTC or BTC (for StakeAndDeploy from BTC)
- * 
+ *
  * TODO: Update this to match against asset and chain
  */
 export function getSupportedProtocols(assetId: AssetId): DefiProtocol[] {

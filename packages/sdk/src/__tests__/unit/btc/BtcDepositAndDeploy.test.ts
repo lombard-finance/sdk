@@ -40,9 +40,9 @@ describe('BtcDepositAndDeploy Interface', () => {
 
     it('should support Avalanche chains only', () => {
       const validChains = [Chain.AVALANCHE, Chain.AVALANCHE_FUJI];
-      
+
       // Chains are CAIP-2 format (e.g., eip155:43114)
-      validChains.forEach(chain => {
+      validChains.forEach((chain) => {
         expect(chain).toBeDefined();
         expect(typeof chain).toBe('string');
       });
@@ -74,7 +74,7 @@ describe('BtcDepositAndDeploy Interface', () => {
         'address_ready',
       ];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -82,7 +82,10 @@ describe('BtcDepositAndDeploy Interface', () => {
 
   describe('Method Signatures', () => {
     it('should define prepare method', () => {
-      type PrepareMethod = (params: { amount: string; recipient: string }) => Promise<void>;
+      type PrepareMethod = (params: {
+        amount: string;
+        recipient: string;
+      }) => Promise<void>;
       const testType: PrepareMethod = async () => {};
       expect(testType).toBeDefined();
     });
@@ -144,9 +147,11 @@ describe('BtcDepositAndDeploy Interface', () => {
 
   describe('Event Emissions', () => {
     it('should emit progress events', () => {
-      const handler = vi.fn((progress: { status: string; steps?: Record<string, string> }) => {
-        expect(progress.status).toBeDefined();
-      });
+      const handler = vi.fn(
+        (progress: { status: string; steps?: Record<string, string> }) => {
+          expect(progress.status).toBeDefined();
+        },
+      );
 
       handler({
         status: 'address_ready',
@@ -171,4 +176,3 @@ describe('BtcDepositAndDeploy Interface', () => {
     });
   });
 });
-

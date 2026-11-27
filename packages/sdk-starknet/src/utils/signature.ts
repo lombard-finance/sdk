@@ -28,7 +28,7 @@ export function normalizeSignature(
   } else if (
     walletName === 'Keplr' ||
     (signature.length === 5 &&
-      signature.filter(x => x.startsWith('0x')).length === 5)
+      signature.filter((x) => x.startsWith('0x')).length === 5)
   ) {
     // Probably Keplr: [r low, r high, s low, s high, version]
 

@@ -102,7 +102,7 @@ export class ApiService implements IApiService {
       env: this.env,
     });
 
-    return deposits.map(d => ({
+    return deposits.map((d) => ({
       depositAddress: d.depositAddress ?? '',
       blockHeight: d.blockHeight,
       isClaimed: d.isClaimed,

@@ -21,7 +21,9 @@ const {
     status: { phase: 'idle', message: '' },
     error: null,
   };
-  const mockUseNonEvmUnstake = vi.fn().mockReturnValue(mockUseNonEvmUnstakeReturn);
+  const mockUseNonEvmUnstake = vi
+    .fn()
+    .mockReturnValue(mockUseNonEvmUnstakeReturn);
 
   const mockUseLombardSDK = vi.fn().mockImplementation(() => {
     return { sdk: null, isInitializing: false, error: null };
@@ -41,7 +43,7 @@ const {
 
 let capturedConfigFactory: (() => unknown) | undefined;
 
-vi.mock('react', async importOriginal => {
+vi.mock('react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react')>();
   return {
     ...actual,

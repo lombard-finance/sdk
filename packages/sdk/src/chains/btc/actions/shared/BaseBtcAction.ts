@@ -70,6 +70,28 @@ export interface BasePrepareParams {
 }
 
 /**
+ * Options accepted by the deploy actions' `authorizeDeposit()`.
+ *
+ * Shared by BtcStakeAndDeploy and BtcDepositAndDeploy so the two signing flows
+ * cannot drift apart.
+ */
+export interface AuthorizeDepositOptions {
+  /**
+   * Signature expiration as an absolute UNIX timestamp in seconds.
+   * Defaults to 24 hours from the time of signing when omitted.
+   *
+   * @example
+   * ```typescript
+   * // Expire in 7 days instead of 24 hours
+   * await action.authorizeDeposit({
+   *   expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+   * });
+   * ```
+   */
+  expiry?: number;
+}
+
+/**
  * Progress step definitions
  */
 export type StepDefinition = Record<string, StepStatus>;
@@ -214,7 +236,7 @@ export abstract class BaseBtcAction<
    * Get the prepare schema (amount + recipient + referralCode)
    * Uses abstract getAddressSchema() for chain-specific validation
    */
-  protected get prepareSchema() {
+  protected get prepareSchema(): z.ZodType<BasePrepareParams> {
     return z.object({
       amount: btcStakeAmountSchema,
       recipient: this.getAddressSchema(),
@@ -438,7 +460,7 @@ export abstract class BaseBtcAction<
       fetchDeposit: async () => {
         const deposits = await this.ctx.api.getDeposits(recipient);
         const ourDeposit = deposits.find(
-          deposit => deposit.depositAddress === depositAddress,
+          (deposit) => deposit.depositAddress === depositAddress,
         );
 
         if (!ourDeposit) {
@@ -450,7 +472,7 @@ export abstract class BaseBtcAction<
           isClaimed: ourDeposit.isClaimed,
         };
       },
-      onProgress: p => {
+      onProgress: (p) => {
         this.emitProgress({
           status: this.status,
           steps: p.steps,

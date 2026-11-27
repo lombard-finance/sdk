@@ -31,6 +31,11 @@ export const AssetId = {
   BTCK: 'BTCK',
   cbBTC: 'cbBTC',
   WBTC: 'WBTC',
+  /**
+   * @deprecated Corn was its only deployment and Corn is retired, so this
+   * asset has no catalog entry and no address. Kept only so existing code
+   * keeps compiling; removed in the next major.
+   */
   WBTCN: 'wBTCN',
   eBTC: 'eBTC',
   BTCBinance: 'BTCB',
@@ -123,7 +128,7 @@ export interface AssetCatalog {
 export function assetValueToKey(value: string): string {
   return (
     Object.keys(AssetId).find(
-      key => AssetId[key as keyof typeof AssetId] === value,
+      (key) => AssetId[key as keyof typeof AssetId] === value,
     ) ?? ''
   );
 }

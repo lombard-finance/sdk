@@ -1,2 +1,17 @@
 # Restrict any changes to GitHub workflow files without approval.
 /.github/workflows/ @megatron757 @fruit37 @le0n229
+
+# Ownership rules themselves require approval from this owner set.
+/CODEOWNERS @megatron757 @fruit37 @le0n229
+
+# Secret-scanning guardrails: config, ignore list, and git hooks.
+/.gitleaks.toml @megatron757 @fruit37 @le0n229
+/.gitleaksignore @megatron757 @fruit37 @le0n229
+/.husky/ @megatron757 @fruit37 @le0n229
+
+# Review-bot instructions guard the public-repo disclosure policy.
+/.coderabbit.yaml @megatron757 @fruit37 @le0n229
+
+# Agent instructions guard the public-repo disclosure policy.
+/AGENTS.md @megatron757 @fruit37 @le0n229
+/CLAUDE.md @megatron757 @fruit37 @le0n229

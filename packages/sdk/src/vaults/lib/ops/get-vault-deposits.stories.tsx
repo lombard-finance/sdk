@@ -10,14 +10,13 @@ import {
 import { ErrorBlock } from '../../../stories/components/error-block';
 import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
 import useQuery from '../../../stories/hooks/useQuery';
-import { Vault } from '../config';
 import {
-  getVaultDeposits,
-  GetVaultDepositsParameters,
+  getEarnDeposits,
+  GetEarnDepositsParameters,
 } from './get-vault-deposits';
 
 const meta = {
-  title: 'vault/ops/getVaultDeposits',
+  title: 'vault/ops/getEarnDeposits',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('api-get')],
@@ -31,15 +30,14 @@ export const WithParams: Story = {
   args: {
     account: EXAMPLE_EVM_ADDRESS,
     chainId: ChainId.ethereum,
-    vaultKey: Vault.Veda,
   },
 };
 
-type SignNetworkFeeProps = GetVaultDepositsParameters;
+type SignNetworkFeeProps = GetEarnDepositsParameters;
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getVaultDeposits({
+    return getEarnDeposits({
       ...props,
     });
   };
@@ -54,7 +52,7 @@ export function StoryView(props: SignNetworkFeeProps) {
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getVaultDeposits.name}
+        actionName={getEarnDeposits.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

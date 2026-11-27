@@ -7,13 +7,13 @@
  */
 
 import type {
-    Env,
-    EvmChainId,
-    EvmProvider,
-    EvmService as IEvmService,
-    SignNetworkFeeParams,
-    SignNetworkFeeResult,
-    SignStakeAndBakeParams,
+  Env,
+  EvmChainId,
+  EvmProvider,
+  EvmService as IEvmService,
+  SignNetworkFeeParams,
+  SignNetworkFeeResult,
+  SignStakeAndBakeParams,
 } from '@lombard.finance/sdk-common';
 import BigNumber from 'bignumber.js';
 import type { EIP1193Provider } from 'viem';
@@ -100,6 +100,8 @@ export class EvmService implements IEvmService {
       env: this.env,
       vaultKey: params.vaultKey as DefiProtocol,
       token: params.token as StakeAndBakeToken,
+      // undefined lets signStakeAndBake apply its own 24h default
+      expiry: params.expiry,
     });
 
     return {

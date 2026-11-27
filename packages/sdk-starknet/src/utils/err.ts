@@ -113,7 +113,8 @@ export const ERR_CHAIN_MISMATCH = (
       : walletChainId === '0x534e5f5345504f4c4941'
         ? 'Starknet Sepolia'
         : `unknown chain (${walletChainId})`;
-  const expectedNetwork = expectedEnv === 'prod' ? 'Starknet Mainnet' : 'Starknet Sepolia';
+  const expectedNetwork =
+    expectedEnv === 'prod' ? 'Starknet Mainnet' : 'Starknet Sepolia';
   return new StarknetSdkError(
     `Wallet network mismatch: Your wallet is connected to ${walletNetwork}, but the SDK is configured for ${expectedNetwork}. Please switch your wallet to ${expectedNetwork}.`,
     ErrorCode.CHAIN_MISMATCH,

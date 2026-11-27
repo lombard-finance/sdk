@@ -109,7 +109,10 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
             if (data.hasEnoughConfirmations) {
               setStatus({ phase: 'minting', message: 'Minting LBTC...' });
             } else {
-              setStatus({ phase: 'confirming', message: 'Confirming transaction...' });
+              setStatus({
+                phase: 'confirming',
+                message: 'Confirming transaction...',
+              });
             }
           }
 
@@ -124,8 +127,14 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
           unsubProgress();
         };
 
-        setStatus({ phase: 'preparing', message: 'Preparing stake parameters...' });
-        await action.prepare({ amount: params.amount, recipient: params.recipient });
+        setStatus({
+          phase: 'preparing',
+          message: 'Preparing stake parameters...',
+        });
+        await action.prepare({
+          amount: params.amount,
+          recipient: params.recipient,
+        });
 
         const currentStatus = action.status as BtcActionStatus;
 
@@ -137,18 +146,30 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
           await action.authorize();
         }
 
-        if (action.status === BtcActionStatus.ADDRESS_READY && action.depositAddress) {
+        if (
+          action.status === BtcActionStatus.ADDRESS_READY &&
+          action.depositAddress
+        ) {
           setDepositAddress(action.depositAddress);
           setStakeAmount(params.amount);
-          setStatus({ phase: 'waiting-deposit', message: 'Send BTC to the address below' });
+          setStatus({
+            phase: 'waiting-deposit',
+            message: 'Send BTC to the address below',
+          });
         } else if (action.status === BtcActionStatus.READY) {
-          setStatus({ phase: 'waiting-deposit', message: 'Generating deposit address...' });
+          setStatus({
+            phase: 'waiting-deposit',
+            message: 'Generating deposit address...',
+          });
           await action.generateDepositAddress();
 
           if (action.depositAddress) {
             setDepositAddress(action.depositAddress);
             setStakeAmount(params.amount);
-            setStatus({ phase: 'waiting-deposit', message: 'Send BTC to the address below' });
+            setStatus({
+              phase: 'waiting-deposit',
+              message: 'Send BTC to the address below',
+            });
           }
         }
       } catch (err) {
@@ -183,5 +204,14 @@ export function useBtcStake(sdk: LombardSDK | null): UseBtcStakeReturn {
     };
   }, []);
 
-  return { stake, reset, depositAddress, stakeAmount, status, progress, error, isLoading };
+  return {
+    stake,
+    reset,
+    depositAddress,
+    stakeAmount,
+    status,
+    progress,
+    error,
+    isLoading,
+  };
 }

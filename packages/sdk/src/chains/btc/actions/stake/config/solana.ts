@@ -14,17 +14,20 @@ import type { SolanaService } from '@lombard.finance/sdk-common';
 import { Env } from '@lombard.finance/sdk-common';
 
 import { AssetId, Chain, getAllAssetChains } from '../../../../../core';
-import { LombardError, ValidationErrorCode } from '../../../../../shared/errors';
+import {
+  LombardError,
+  ValidationErrorCode,
+} from '../../../../../shared/errors';
 import { solanaAddressSchema } from '../../../../../shared/validation';
 import { isSolanaChain } from '../../../../../utils/chain';
 import type { ChainConfig } from './types';
 
 /**
  * Map CAIP-2 Solana chain identifier to SolanaNetwork format.
- * 
+ *
  * The Solana SDK's signLbtcDestination expects network names like 'devnet', 'mainnet-beta',
  * but the SDK uses CAIP-2 chain identifiers with genesis hash references.
- * 
+ *
  * @param chainId - CAIP-2 chain identifier (e.g., 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1')
  * @returns SolanaNetwork format (e.g., 'devnet')
  */
@@ -72,7 +75,7 @@ export const solanaConfig: ChainConfig = {
   ],
 
   // Derived from ASSET_CATALOG - Solana chains where LBTC is deployed
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain =>
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) =>
     isSolanaChain(chain),
   ),
 

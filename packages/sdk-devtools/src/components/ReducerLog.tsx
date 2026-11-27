@@ -6,7 +6,7 @@
  * @module sdk-devtools/components/ReducerLog
  */
 
-import { Activity, ChevronDown, ChevronRight,Trash2 } from 'lucide-react';
+import { Activity, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 import type { ReducerLogEntry } from '../types';
@@ -61,7 +61,7 @@ export function ReducerLog({ logs, onClear, className = '' }: ReducerLogProps) {
           </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-800">
-            {logs.map(log => (
+            {logs.map((log) => (
               <LogEntry key={log.id} log={log} />
             ))}
           </div>
@@ -81,7 +81,9 @@ function LogEntry({ log }: { log: ReducerLogEntry }) {
   return (
     <div className="text-xs">
       <button
-        onClick={() => { setIsExpanded(!isExpanded); }}
+        onClick={() => {
+          setIsExpanded(!isExpanded);
+        }}
         className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors"
       >
         {isExpanded ? (
@@ -92,7 +94,9 @@ function LogEntry({ log }: { log: ReducerLogEntry }) {
         <span className="text-gray-400 dark:text-gray-600 flex-shrink-0 font-mono">
           {formatTime(log.timestamp)}
         </span>
-        <span className="text-cyan-600 dark:text-cyan-400 font-medium">{log.action.type}</span>
+        <span className="text-cyan-600 dark:text-cyan-400 font-medium">
+          {log.action.type}
+        </span>
         {log.action.payload !== undefined && (
           <span className="text-gray-500 truncate">
             {formatPayload(log.action.payload)}
@@ -160,4 +164,3 @@ function formatPayload(payload: unknown): string {
   }
   return String(payload);
 }
-

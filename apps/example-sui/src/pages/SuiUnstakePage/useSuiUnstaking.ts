@@ -26,24 +26,25 @@ export function useSuiUnstaking(
 ) {
   const currentEnv = env ?? getEnvironment();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
-    () => {
-      if (!suiAddress) return undefined;
-      const suiProvider =
-        suiWallet && suiWalletAccount
-          ? {
-              getWallet: () => suiWallet,
-              getWalletAccount: () => suiWalletAccount,
-            }
-          : undefined;
-      return createConfig({
-        env: currentEnv,
-        ...(suiProvider && { providers: { sui: () => suiProvider } }),
-        modules: [suiModule()],
-      });
-    },
-    [suiAddress, suiWallet, suiWalletAccount, currentEnv],
-  );
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(() => {
+    if (!suiAddress) return undefined;
+    const suiProvider =
+      suiWallet && suiWalletAccount
+        ? {
+            getWallet: () => suiWallet,
+            getWalletAccount: () => suiWalletAccount,
+          }
+        : undefined;
+    return createConfig({
+      env: currentEnv,
+      ...(suiProvider && { providers: { sui: () => suiProvider } }),
+      modules: [suiModule()],
+    });
+  }, [suiAddress, suiWallet, suiWalletAccount, currentEnv]);
 
   const {
     unstake: unstakeCore,

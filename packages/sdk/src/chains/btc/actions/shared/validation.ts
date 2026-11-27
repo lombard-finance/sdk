@@ -83,7 +83,7 @@ export function isRouteAvailable(
   if (!sourceChain) return true; // No source chain specified, allow all
 
   return routes.some(
-    route =>
+    (route) =>
       route.sourceChains.includes(sourceChain) && route.envs.includes(env),
   );
 }

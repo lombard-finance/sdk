@@ -60,10 +60,11 @@ export const StoryView = ({ environment, token }: ClaimTokenStoryArgs) => {
     if (!selectedOutput) throw new Error('Please select an output to claim.');
     if (!selectedOutput.raw_payload)
       throw new Error('Selected output has no raw_payload.');
-    if (!selectedOutput.proof)
-      throw new Error('Selected output has no proof.');
+    if (!selectedOutput.proof) throw new Error('Selected output has no proof.');
     if (!tokenMint)
-      throw new Error(`Token mint not configured for ${token} on ${environment}.`);
+      throw new Error(
+        `Token mint not configured for ${token} on ${environment}.`,
+      );
 
     setTransactionLogs(null);
     try {
@@ -206,8 +207,8 @@ const meta: Meta<typeof StoryView> = {
 3. Wait for backend to notarize the deposit (Consortium validation)
 4. Call \`claimToken\` to mint tokens via Asset Router's \`mint_from_payload\`
 
-Unlike the legacy \`claimLBTC\` (which uses a 3-step on-chain process), this function
-performs a single transaction — the Consortium validation is handled entirely by the backend.`,
+The Consortium validation is handled entirely by the backend, so the on-chain flow
+is a single transaction.`,
       },
     },
   },

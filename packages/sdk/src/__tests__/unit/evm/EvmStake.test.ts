@@ -75,7 +75,7 @@ describe('EvmStake Interface', () => {
         'completed',
       ];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -120,7 +120,7 @@ describe('EvmStake Interface', () => {
         feeFormatted: string | null;
         expirationDate: string | null;
       };
-      
+
       const feeAuth: FeeAuthState = {
         requiresAuth: true,
         isAuthorized: false,
@@ -128,7 +128,7 @@ describe('EvmStake Interface', () => {
         feeFormatted: '0.00000032',
         expirationDate: null,
       };
-      
+
       expect(feeAuth.requiresAuth).toBe(true);
       expect(feeAuth.isAuthorized).toBe(false);
     });
@@ -199,8 +199,12 @@ describe('EvmStake Interface', () => {
     });
 
     it('should expose feeAuth state', () => {
-      type HasFeeAuth = { readonly feeAuth: { requiresAuth: boolean; isAuthorized: boolean } };
-      const obj: HasFeeAuth = { feeAuth: { requiresAuth: true, isAuthorized: false } };
+      type HasFeeAuth = {
+        readonly feeAuth: { requiresAuth: boolean; isAuthorized: boolean };
+      };
+      const obj: HasFeeAuth = {
+        feeAuth: { requiresAuth: true, isAuthorized: false },
+      };
       expect(obj.feeAuth.requiresAuth).toBe(true);
     });
   });

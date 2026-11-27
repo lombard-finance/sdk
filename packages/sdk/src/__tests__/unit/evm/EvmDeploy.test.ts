@@ -47,22 +47,17 @@ describe('EvmDeploy Interface', () => {
     });
 
     it('should support multiple protocols', () => {
-      const protocols = ['corn-silo', 'euler-lbtc', 'aave', 'morpho', 'pendle'];
-      
-      protocols.forEach(protocol => {
+      const protocols = ['silo', 'euler-lbtc', 'aave', 'morpho', 'pendle'];
+
+      protocols.forEach((protocol) => {
         expect(typeof protocol).toBe('string');
       });
     });
 
     it('should support multiple chains', () => {
-      const chains = [
-        Chain.ETHEREUM,
-        Chain.BASE,
-        Chain.BSC,
-        Chain.SEPOLIA,
-      ];
+      const chains = [Chain.ETHEREUM, Chain.BASE, Chain.BSC, Chain.SEPOLIA];
 
-      chains.forEach(chain => {
+      chains.forEach((chain) => {
         expect(typeof chain).toBe('string');
       });
     });
@@ -89,14 +84,9 @@ describe('EvmDeploy Interface', () => {
 
   describe('Status Transitions', () => {
     it('should define all required status values', () => {
-      const statuses = [
-        'idle',
-        'needs-approval',
-        'ready',
-        'completed',
-      ];
+      const statuses = ['idle', 'needs-approval', 'ready', 'completed'];
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         expect(typeof status).toBe('string');
       });
     });
@@ -125,16 +115,16 @@ describe('EvmDeploy Interface', () => {
   describe('Protocol Integration', () => {
     it('should support DeFi protocols from registry', () => {
       const protocolTypes = ['lending', 'yield', 'liquidity'];
-      
-      protocolTypes.forEach(type => {
+
+      protocolTypes.forEach((type) => {
         expect(typeof type).toBe('string');
       });
     });
 
     it('should validate vault exists for protocol', () => {
-      const protocol = 'corn-silo';
+      const protocol = 'silo';
       const vault = 'LBTC';
-      
+
       expect(protocol).toBeDefined();
       expect(vault).toBeDefined();
     });
@@ -165,7 +155,7 @@ describe('EvmDeploy Interface', () => {
     it('should reject unsupported vaults', () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_PARAMETER,
-        `Vault invalid-vault is not available for protocol corn-silo.`,
+        `Vault invalid-vault is not available for protocol silo.`,
       );
 
       expect(error.code).toBe(ValidationErrorCode.INVALID_PARAMETER);
@@ -174,7 +164,7 @@ describe('EvmDeploy Interface', () => {
     it('should reject chains without protocol support', () => {
       const error = new LombardError(
         ValidationErrorCode.INVALID_CHAIN,
-        `Protocol corn-silo is not available on avalanche.`,
+        `Protocol silo is not available on avalanche.`,
       );
 
       expect(error.code).toBe(ValidationErrorCode.INVALID_CHAIN);
@@ -204,8 +194,8 @@ describe('EvmDeploy Interface', () => {
   describe('Public Properties', () => {
     it('should expose protocol property', () => {
       type HasProtocol = { readonly protocol: string };
-      const obj: HasProtocol = { protocol: 'corn-silo' };
-      expect(obj.protocol).toBe('corn-silo');
+      const obj: HasProtocol = { protocol: 'silo' };
+      expect(obj.protocol).toBe('silo');
     });
 
     it('should expose vault property', () => {
@@ -221,4 +211,3 @@ describe('EvmDeploy Interface', () => {
     });
   });
 });
-

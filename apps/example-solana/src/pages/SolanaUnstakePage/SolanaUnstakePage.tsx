@@ -104,7 +104,6 @@ export function SolanaUnstakePage({ env, onReset }: SolanaUnstakePageProps) {
               onReset={handleReset}
             />
           )}
-
         </div>
       </div>
     </div>

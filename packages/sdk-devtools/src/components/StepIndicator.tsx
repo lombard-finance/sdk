@@ -42,9 +42,9 @@ export function StepIndicator({
   className = '',
 }: StepIndicatorProps) {
   return (
-    <div 
-      className={`flex ${className}`} 
-      style={{ 
+    <div
+      className={`flex ${className}`}
+      style={{
         width: '100%',
       }}
     >
@@ -61,7 +61,7 @@ export function StepIndicator({
           minHeight: '28px',
           borderRadius: '6px', // Slightly rounded corners
         };
-        
+
         if (isCompleted) {
           circleStyles.backgroundColor = '#22c55e'; // green-500
           circleStyles.color = 'white';
@@ -75,9 +75,9 @@ export function StepIndicator({
         }
 
         return (
-          <div 
-            key={step.id} 
-            style={{ 
+          <div
+            key={step.id}
+            style={{
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
@@ -99,7 +99,7 @@ export function StepIndicator({
                 }}
               />
             )}
-            
+
             {/* Step square with rounded corners */}
             <div
               className="flex items-center justify-center text-sm font-medium transition-colors"
@@ -109,20 +109,24 @@ export function StepIndicator({
                 zIndex: 1,
               }}
             >
-              {isCompleted ? <Check style={{ width: '16px', height: '16px' }} /> : index + 1}
+              {isCompleted ? (
+                <Check style={{ width: '16px', height: '16px' }} />
+              ) : (
+                index + 1
+              )}
             </div>
-            
+
             {/* Label below circle */}
             <span
               className="text-xs text-center"
               style={{
                 marginTop: '6px',
-                color: isCompleted 
+                color: isCompleted
                   ? '#16a34a' // green-600
-                  : isCurrent 
+                  : isCurrent
                     ? '#111827' // gray-900 (black for active)
                     : '#9ca3af', // gray-400
-                fontWeight: (isCompleted || isCurrent) ? 500 : 400,
+                fontWeight: isCompleted || isCurrent ? 500 : 400,
               }}
             >
               {step.label}
@@ -151,4 +155,3 @@ export function createSteps(
           : 'pending',
   }));
 }
-

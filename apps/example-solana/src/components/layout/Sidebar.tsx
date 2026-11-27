@@ -46,7 +46,7 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
         <select
           id="env-select"
           value={env}
-          onChange={e => onEnvChange(e.target.value as Env)}
+          onChange={(e) => onEnvChange(e.target.value as Env)}
           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
         >
           <option value={Env.stage}>Stage</option>
@@ -56,7 +56,7 @@ export function Sidebar({ env, onEnvChange }: SidebarProps) {
 
       <nav className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-2">
-          {examples.map(example =>
+          {examples.map((example) =>
             example.disabled ? (
               <li key={example.id}>
                 <div className="block p-3 rounded-lg text-gray-400 cursor-not-allowed">

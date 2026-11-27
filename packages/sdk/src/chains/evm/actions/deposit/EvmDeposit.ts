@@ -16,7 +16,7 @@ import { z } from 'zod';
 
 import type { ChainId } from '../../../../common/chains';
 import { claimLBTC } from '../../../../contract-functions';
-import { parseChainIdentifier,StepStatus } from '../../../../core';
+import { parseChainIdentifier, StepStatus } from '../../../../core';
 import { BaseAction } from '../../../../shared/actions/BaseAction';
 import type { EvmCoreContext } from '../../../../shared/context';
 import { LombardError } from '../../../../shared/errors';

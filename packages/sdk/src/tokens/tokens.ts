@@ -23,7 +23,7 @@ import BTCK_ABI from './abi/BTCK_ABI';
 import { LBTC_ABI } from './abi/LBTC_ABI';
 import NATIVE_LBTC_ABI from './abi/NATIVE_LBTC_ABI';
 import STLBTC_ABI from './abi/STLBTC_ABI';
-import { AddressKind, Token,TOKEN_ADDRESSES } from './token-addresses';
+import { AddressKind, Token, TOKEN_ADDRESSES } from './token-addresses';
 
 export type TokenInfo = {
   address: Address;
@@ -110,7 +110,7 @@ export const isUpgradedAbi = (
   abi: unknown,
 ): abi is typeof STLBTC_ABI | typeof NATIVE_LBTC_ABI => {
   const redeemForBtcAbi = (abi as Abi).find(
-    a => a.type === 'function' && a.name === UPGRADED_CONTRACT_POINTER,
+    (a) => a.type === 'function' && a.name === UPGRADED_CONTRACT_POINTER,
   );
   return redeemForBtcAbi != null;
 };
@@ -212,7 +212,7 @@ export async function getTokenInfo(
   const tokenContractInfo = await getTokenContractInfo(token, chainId, env);
   if (!tokenContractInfo) return;
 
-  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const publicClient = makePublicClient({ chainId, rpcUrl, env });
   return retrieveTokenProperties(publicClient, tokenContractInfo);
 }
 
@@ -220,8 +220,9 @@ export async function getAssetInfo(
   address: Address,
   chainId: ChainId,
   rpcUrl?: string,
+  env?: Env,
 ) {
-  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const publicClient = makePublicClient({ chainId, rpcUrl, env });
   return retrieveTokenProperties(publicClient, {
     abi: erc20Abi,
     address,

@@ -18,10 +18,10 @@ import type { EIP1193Provider } from 'viem';
 
 import type { ChainId } from '../../../../../common/chains';
 import {
-    AssetId,
-    Chain,
-    getAllAssetChains,
-    isEvmChain,
+  AssetId,
+  Chain,
+  getAllAssetChains,
+  isEvmChain,
 } from '../../../../../core';
 import { LombardError } from '../../../../../shared/errors';
 import { ensureCorrectChain } from '../../../../../shared/evm/switchChain';
@@ -33,7 +33,7 @@ import type { DepositChainConfig, DepositFeeAuthConfig } from './types';
 
 /**
  * Chains that require fee authorization (unsubsidized chains).
- * 
+ *
  * Ethereum mainnet and Sepolia require EIP-712 network fee signing.
  * Other chains are subsidized by Lombard.
  */
@@ -73,7 +73,10 @@ const feeAuthConfig: DepositFeeAuthConfig = {
 
     // Check expiration - expirationDate is Unix timestamp in seconds
     // Convert to milliseconds for Date comparison
-    if (result.expirationDate && new Date(Number(result.expirationDate) * 1000) < new Date()) {
+    if (
+      result.expirationDate &&
+      new Date(Number(result.expirationDate) * 1000) < new Date()
+    ) {
       return null;
     }
 
@@ -86,7 +89,7 @@ const feeAuthConfig: DepositFeeAuthConfig = {
     };
   },
 
-  async authorizeFee(ctx, { chainId, recipient, fee }) {
+  async authorizeFee(ctx, { chainId, recipient, fee, storeSignature = true }) {
     const evm = ctx.capabilities.require('evm') as EvmService;
     const provider = await ctx.getProvider('evm');
     if (!provider) {
@@ -114,6 +117,13 @@ const feeAuthConfig: DepositFeeAuthConfig = {
       provider: provider as EIP1193Provider,
       token: Token.BTCb,
     });
+
+    if (!storeSignature) {
+      return {
+        signature: result.signature,
+        typedData: result.typedData,
+      };
+    }
 
     // Store the signature with token address to distinguish from LBTC signatures
     await ctx.api.storeFeeSignature({
@@ -151,7 +161,7 @@ export const evmDepositConfig: DepositChainConfig = {
   ],
 
   // Derived from ASSET_CATALOG - all chains where BTC.b is deployed
-  destChains: getAllAssetChains(AssetId.BTCb).filter(chain =>
+  destChains: getAllAssetChains(AssetId.BTCb).filter((chain) =>
     isEvmChain(chain),
   ),
 

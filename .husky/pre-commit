@@ -1,0 +1,8 @@
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed; skipping local secret scan."
+  echo "pre-commit: install it (e.g. 'brew install gitleaks') to catch secrets before they enter git history."
+  echo "pre-commit: CI and GitHub push protection will still scan this commit."
+  exit 0
+fi
+
+gitleaks git --pre-commit --staged --redact --no-banner

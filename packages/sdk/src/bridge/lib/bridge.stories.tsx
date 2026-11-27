@@ -14,7 +14,7 @@ import {
   useConnection,
 } from '../../stories/hooks/useConnection';
 import useQuery from '../../stories/hooks/useQuery';
-import { bridge,BridgeParameters } from './bridge';
+import { bridge, BridgeParameters } from './bridge';
 import { BRIDGE_CHAINS } from './config';
 
 const meta = {
@@ -39,7 +39,7 @@ export const WithParams: Story = {
     to: {
       mapping: ChainId,
       options: BRIDGE_CHAINS.map(
-        ch => Object.entries(ChainId).find(([_k, v]) => v === ch)?.[0],
+        (ch) => Object.entries(ChainId).find(([_k, v]) => v === ch)?.[0],
       ),
       control: { type: 'select' },
     },

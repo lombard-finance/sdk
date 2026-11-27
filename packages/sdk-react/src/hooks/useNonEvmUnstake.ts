@@ -1,7 +1,7 @@
 import {
   AssetId,
   type LombardSDK,
-  NonEvmUnstakeStatus,
+  NonEvmOperationStatus,
 } from '@lombard.finance/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -19,13 +19,16 @@ export interface UseNonEvmUnstakeReturn {
 }
 
 const NON_EVM_UNSTAKE_STATUS_MAP: Partial<Record<string, UnstakingStatus>> = {
-  [NonEvmUnstakeStatus.IDLE]: { phase: 'idle', message: 'Ready' },
-  [NonEvmUnstakeStatus.READY]: { phase: 'ready', message: 'Ready to execute' },
-  [NonEvmUnstakeStatus.CONFIRMING]: {
+  [NonEvmOperationStatus.IDLE]: { phase: 'idle', message: 'Ready' },
+  [NonEvmOperationStatus.READY]: {
+    phase: 'ready',
+    message: 'Ready to execute',
+  },
+  [NonEvmOperationStatus.CONFIRMING]: {
     phase: 'confirming',
     message: 'Confirming transaction...',
   },
-  [NonEvmUnstakeStatus.COMPLETED]: {
+  [NonEvmOperationStatus.COMPLETED]: {
     phase: 'complete',
     message: 'Unstake complete!',
   },
@@ -66,7 +69,10 @@ export function useNonEvmUnstake(
       try {
         setError(null);
         setIsLoading(true);
-        setStatus({ phase: 'preparing', message: 'Creating unstake action...' });
+        setStatus({
+          phase: 'preparing',
+          message: 'Creating unstake action...',
+        });
 
         const chain = sdk.chain[chainNamespace];
         const action = chain.unstake({
@@ -77,7 +83,7 @@ export function useNonEvmUnstake(
         });
 
         const unsubStatus = action.on('status-change', (...args: unknown[]) => {
-          const newStatus = args[0] as NonEvmUnstakeStatus;
+          const newStatus = args[0] as NonEvmOperationStatus;
           setStatus(
             NON_EVM_UNSTAKE_STATUS_MAP[newStatus] ?? {
               phase: 'idle',
@@ -88,14 +94,23 @@ export function useNonEvmUnstake(
 
         unsubscribeRef.current = unsubStatus;
 
-        setStatus({ phase: 'preparing', message: 'Preparing unstake parameters...' });
-        await action.prepare({ amount: params.amount, recipient: params.recipient });
+        setStatus({
+          phase: 'preparing',
+          message: 'Preparing unstake parameters...',
+        });
+        await action.prepare({
+          amount: params.amount,
+          recipient: params.recipient,
+        });
 
         setStatus({ phase: 'executing', message: 'Burning LBTC...' });
         const result = await action.execute();
 
         setTxHash(result.txHash);
-        setStatus({ phase: 'complete', message: 'Unstake complete! BTC will be released.' });
+        setStatus({
+          phase: 'complete',
+          message: 'Unstake complete! BTC will be released.',
+        });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unstaking failed';
         setError(message);

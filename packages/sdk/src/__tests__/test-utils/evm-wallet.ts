@@ -21,7 +21,7 @@ export async function createTestEvmWallet(
 ): Promise<TestEvmWallet> {
   const chain = CHAIN_MAP[chainName];
   const account = privateKeyToAccount(privateKey);
-  
+
   const walletClient = createWalletClient({
     account,
     chain,
@@ -35,4 +35,3 @@ export async function createTestEvmWallet(
 
   return { walletClient, publicClient, account, chain };
 }
-

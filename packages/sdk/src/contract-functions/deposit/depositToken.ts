@@ -132,7 +132,7 @@ export async function depositToken({
   tokenOut = Token.LBTC,
 }: DepositTokenParameters) {
   const flow = AVAILABLE_FLOWS.find(
-    af => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
+    (af) => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
   );
   if (!flow) {
     throw new UnsupportedTokenFlow(tokenIn, tokenOut, chainId, env);

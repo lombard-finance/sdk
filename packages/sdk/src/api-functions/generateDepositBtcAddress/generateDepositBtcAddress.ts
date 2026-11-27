@@ -157,8 +157,7 @@ export async function generateDepositBtcAddress({
   try {
     if (EXTRA_PARAMS_TOKENS.includes(token)) {
       if (isSolanaChain(chainId)) {
-        const solanaToken =
-          token === Token.BTCb ? Token.BTCb : Token.LBTC;
+        const solanaToken = token === Token.BTCb ? Token.BTCb : Token.LBTC;
         const solanaTokenAddress = getSolanaTokenAddress(
           chainId,
           env,
@@ -224,24 +223,40 @@ export async function generateDepositBtcAddress({
     ...additionalParams,
   };
 
+  let data: IGenerateNewAddressResponse;
+
   try {
-    const { data } = await axios.post<IGenerateNewAddressResponse>(
+    ({ data } = await axios.post<IGenerateNewAddressResponse>(
       ADDRESS_URL,
       requestParams,
       { baseURL: baseApiUrl },
-    );
-
-    return data.address;
+    ));
   } catch (error) {
     const errorMsg = getErrorMessage(error);
 
-    if (isSanctioned(errorMsg)) {
+    if (isSanctionedAddressError(errorMsg)) {
       return SANCTIONED_ADDRESS;
     }
     throw new Error(errorMsg);
   }
+
+  // Checked outside the catch so this is not run through the sanctions
+  // matcher. Both sibling routes already refuse a response with no address in
+  // it; this one returned it as-is, so a 200 carrying nothing became an
+  // `undefined` typed as `string`, handed to the caller as the address to send
+  // BTC to. The failure then surfaced later as an unrelated state error.
+  if (!data.address) {
+    throw new Error('BTC deposit address generation returned no address');
+  }
+
+  return data.address;
 }
 
-function isSanctioned(errorMsg: string): boolean {
+/**
+ * Whether an address-generation failure is the sanctions refusal, which every
+ * address route reports the same way and answers with `SANCTIONED_ADDRESS`
+ * rather than an error.
+ */
+export function isSanctionedAddressError(errorMsg: string): boolean {
   return errorMsg.includes(SANCTIONS_MESSAGE);
 }

@@ -31,19 +31,20 @@ export type { UnstakingStatus as SolanaUnstakingStatus } from '@lombard.finance/
 export function useSolanaUnstaking(solanaAddress?: string | null, env?: Env) {
   const currentEnv = env ?? getEnvironment();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
-    () => {
-      if (!solanaAddress) return undefined;
-      return createConfig({
-        env: currentEnv,
-        providers: {
-          ...(window.solana && { solana: () => window.solana! }),
-        },
-        modules: [solanaModule()],
-      });
-    },
-    [solanaAddress, currentEnv],
-  );
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(() => {
+    if (!solanaAddress) return undefined;
+    return createConfig({
+      env: currentEnv,
+      providers: {
+        ...(window.solana && { solana: () => window.solana! }),
+      },
+      modules: [solanaModule()],
+    });
+  }, [solanaAddress, currentEnv]);
 
   const {
     unstake: unstakeCore,

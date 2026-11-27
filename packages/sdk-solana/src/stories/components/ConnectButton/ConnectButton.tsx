@@ -42,13 +42,13 @@ export const ConnectButton = ({
               <select
                 title="Select Wallet"
                 className="form-select"
-                onChange={e =>
+                onChange={(e) =>
                   setSelectedWallet(e.target.value as InjectedWallet)
                 }
                 value={selectedWallet}
                 disabled={isLoading}
               >
-                {Object.values(InjectedWallet).map(opt => (
+                {Object.values(InjectedWallet).map((opt) => (
                   <option key={opt} value={opt}>
                     {opt}
                   </option>

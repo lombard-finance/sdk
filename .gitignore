@@ -12,6 +12,8 @@ node_modules
 dist
 dist-ssr
 *.local
+*.local.md
+*.local.ts
 build
 .env
 .env.local
@@ -65,3 +67,6 @@ docs/
 .claude/settings.local.json
 .claude/todos/
 .claude/plans/
+
+.agents
+skills-lock.json

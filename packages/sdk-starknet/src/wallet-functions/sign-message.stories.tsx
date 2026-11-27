@@ -8,7 +8,7 @@ import { functionType } from '../stories/components/decorators';
 import { starknetContext } from '../stories/components/decorators/starknet-context';
 import { useConnection } from '../stories/hooks/use-connection';
 import useQuery from '../stories/hooks/use-query';
-import { makeDestinationChainId,StarknetChainId } from '../utils/chains';
+import { makeDestinationChainId, StarknetChainId } from '../utils/chains';
 import { signMessage } from './sign-message';
 
 const meta = {

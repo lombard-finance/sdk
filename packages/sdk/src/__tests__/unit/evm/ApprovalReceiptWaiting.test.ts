@@ -24,16 +24,18 @@ const mockWaitForTransactionReceipt = vi.fn().mockResolvedValue({
 
 const mockWriteContract = vi.fn().mockResolvedValue('0xmocktxhash');
 
-const mockReadContract = vi.fn().mockImplementation(async ({ functionName }: { functionName: string }) => {
-  switch (functionName) {
-    case 'balanceOf':
-      return 100000000n; // 1 LBTC in base units
-    case 'allowance':
-      return 0n; // No allowance (needs approval)
-    default:
-      return 0n;
-  }
-});
+const mockReadContract = vi
+  .fn()
+  .mockImplementation(async ({ functionName }: { functionName: string }) => {
+    switch (functionName) {
+      case 'balanceOf':
+        return 100000000n; // 1 LBTC in base units
+      case 'allowance':
+        return 0n; // No allowance (needs approval)
+      default:
+        return 0n;
+    }
+  });
 
 const mockSimulateContract = vi.fn().mockResolvedValue({
   request: { address: '0xmock', abi: [], functionName: 'approve' },
@@ -66,7 +68,8 @@ const mockTxExecutorWaitForReceipt = vi.fn().mockResolvedValue({
 });
 
 vi.mock('../../../utils/transaction-executor', () => ({
-  waitForTransactionReceipt: (...args: unknown[]) => mockTxExecutorWaitForReceipt(...args),
+  waitForTransactionReceipt: (...args: unknown[]) =>
+    mockTxExecutorWaitForReceipt(...args),
   executeContractTransaction: vi.fn(),
 }));
 
@@ -103,16 +106,18 @@ describe('Approval Receipt Waiting', () => {
       gasUsed: 21000n,
     });
     mockWriteContract.mockResolvedValue('0xmocktxhash');
-    mockReadContract.mockImplementation(async ({ functionName }: { functionName: string }) => {
-      switch (functionName) {
-        case 'balanceOf':
-          return 100000000n;
-        case 'allowance':
-          return 0n;
-        default:
-          return 0n;
-      }
-    });
+    mockReadContract.mockImplementation(
+      async ({ functionName }: { functionName: string }) => {
+        switch (functionName) {
+          case 'balanceOf':
+            return 100000000n;
+          case 'allowance':
+            return 0n;
+          default:
+            return 0n;
+        }
+      },
+    );
     mockSimulateContract.mockResolvedValue({
       request: { address: '0xmock', abi: [], functionName: 'approve' },
     });
@@ -127,17 +132,22 @@ describe('Approval Receipt Waiting', () => {
   const createMockProvider = () => ({
     on: vi.fn(),
     removeListener: vi.fn(),
-    request: vi.fn().mockImplementation(async ({ method }: { method: string }) => {
-      if (method === 'eth_accounts') return ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0'];
-      if (method === 'eth_chainId') return '0x1';
-      return null;
-    }),
+    request: vi
+      .fn()
+      .mockImplementation(async ({ method }: { method: string }) => {
+        if (method === 'eth_accounts')
+          return ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0'];
+        if (method === 'eth_chainId') return '0x1';
+        return null;
+      }),
   });
 
   describe('EvmWithdraw.approve()', () => {
     it('should wait for transaction receipt after sending approval tx', async () => {
-      const { evmWithdraw } = await import('../../../chains/evm/actions/withdraw');
-      const { createTestConfig } = await import('../../helpers/createTestConfig');
+      const { evmWithdraw } =
+        await import('../../../chains/evm/actions/withdraw');
+      const { createTestConfig } =
+        await import('../../helpers/createTestConfig');
       const { Chain } = await import('../../../core');
 
       const config = createTestConfig({
@@ -166,8 +176,10 @@ describe('Approval Receipt Waiting', () => {
     });
 
     it('should set error state when receipt waiting fails', async () => {
-      const { evmWithdraw } = await import('../../../chains/evm/actions/withdraw');
-      const { createTestConfig } = await import('../../helpers/createTestConfig');
+      const { evmWithdraw } =
+        await import('../../../chains/evm/actions/withdraw');
+      const { createTestConfig } =
+        await import('../../helpers/createTestConfig');
       const { Chain } = await import('../../../core');
 
       const config = createTestConfig({
@@ -198,12 +210,15 @@ describe('Approval Receipt Waiting', () => {
   describe('EvmStake.approve()', () => {
     it('should wait for transaction receipt after approveToken call', async () => {
       const { evmStake } = await import('../../../chains/evm/actions/stake');
-      const { createTestConfig } = await import('../../helpers/createTestConfig');
+      const { createTestConfig } =
+        await import('../../helpers/createTestConfig');
       const { Chain, AssetId } = await import('../../../core');
 
       // Mock getAssetRouterAddress used by EvmStake.prepare()
       vi.doMock('../../../contract-functions/getAssetRouterAddress', () => ({
-        getAssetRouterAddress: vi.fn().mockResolvedValue('0x0000000000000000000000000000000000000001'),
+        getAssetRouterAddress: vi
+          .fn()
+          .mockResolvedValue('0x0000000000000000000000000000000000000001'),
       }));
 
       const config = createTestConfig({
@@ -252,8 +267,10 @@ describe('Approval Receipt Waiting', () => {
         };
       });
 
-      const { evmWithdraw } = await import('../../../chains/evm/actions/withdraw');
-      const { createTestConfig } = await import('../../helpers/createTestConfig');
+      const { evmWithdraw } =
+        await import('../../../chains/evm/actions/withdraw');
+      const { createTestConfig } =
+        await import('../../helpers/createTestConfig');
       const { Chain } = await import('../../../core');
 
       const config = createTestConfig({

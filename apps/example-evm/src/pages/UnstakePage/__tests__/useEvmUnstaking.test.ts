@@ -1,14 +1,17 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockCreateConfig, mockUseEvmUnstake, mockUseLombardSDK, mockSwitchNetwork } = vi.hoisted(
-  () => ({
-    mockCreateConfig: vi.fn().mockReturnValue({ env: 'stage', providers: {} }),
-    mockUseEvmUnstake: vi.fn(),
-    mockUseLombardSDK: vi.fn(),
-    mockSwitchNetwork: vi.fn().mockResolvedValue(undefined),
-  }),
-);
+const {
+  mockCreateConfig,
+  mockUseEvmUnstake,
+  mockUseLombardSDK,
+  mockSwitchNetwork,
+} = vi.hoisted(() => ({
+  mockCreateConfig: vi.fn().mockReturnValue({ env: 'stage', providers: {} }),
+  mockUseEvmUnstake: vi.fn(),
+  mockUseLombardSDK: vi.fn(),
+  mockSwitchNetwork: vi.fn().mockResolvedValue(undefined),
+}));
 
 vi.mock('@lombard.finance/sdk', () => ({
   createConfig: mockCreateConfig,

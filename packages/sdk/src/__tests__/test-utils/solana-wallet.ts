@@ -19,4 +19,3 @@ export async function createTestSolanaWallet(secretKeyBase58: string) {
     },
   };
 }
-

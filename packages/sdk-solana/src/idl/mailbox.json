@@ -1,5 +1,5 @@
 {
-  "address": "LomJw912MoUd7iiAesTQAgz1paLcTqi6ndG3w3pnKH9",
+  "address": "Lomu595CAtJGF6mpnfeAJ7daZfVdHeRkAdKyfqzXqom",
   "metadata": {
     "name": "mailbox",
     "version": "0.1.0",
@@ -9,16 +9,7 @@
   "instructions": [
     {
       "name": "accept_ownership",
-      "discriminator": [
-        172,
-        23,
-        43,
-        13,
-        238,
-        213,
-        85,
-        150
-      ],
+      "discriminator": [172, 23, 43, 13, 238, 213, 85, 150],
       "accounts": [
         {
           "name": "payer",
@@ -32,19 +23,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -56,16 +35,7 @@
     },
     {
       "name": "deliver_message",
-      "discriminator": [
-        42,
-        2,
-        185,
-        166,
-        108,
-        228,
-        198,
-        252
-      ],
+      "discriminator": [42, 2, 185, 166, 108, 228, 198, 252],
       "accounts": [
         {
           "name": "deliverer",
@@ -79,19 +49,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -105,15 +63,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  109,
-                  101,
-                  115,
-                  115,
-                  97,
-                  103,
-                  101
-                ]
+                "value": [109, 101, 115, 115, 97, 103, 101]
               },
               {
                 "kind": "arg",
@@ -143,26 +93,14 @@
         {
           "name": "payload_hash",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
     },
     {
       "name": "disable_inbound_message_path",
-      "discriminator": [
-        242,
-        182,
-        70,
-        210,
-        26,
-        33,
-        33,
-        78
-      ],
+      "discriminator": [242, 182, 70, 210, 26, 33, 33, 78],
       "accounts": [
         {
           "name": "admin",
@@ -177,19 +115,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -204,26 +130,8 @@
               {
                 "kind": "const",
                 "value": [
-                  105,
-                  110,
-                  98,
-                  111,
-                  117,
-                  110,
-                  100,
-                  95,
-                  109,
-                  101,
-                  115,
-                  115,
-                  97,
-                  103,
-                  101,
-                  95,
-                  112,
-                  97,
-                  116,
-                  104
+                  105, 110, 98, 111, 117, 110, 100, 95, 109, 101, 115, 115, 97,
+                  103, 101, 95, 112, 97, 116, 104
                 ]
               },
               {
@@ -242,26 +150,14 @@
         {
           "name": "source_chain_id",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
     },
     {
       "name": "disable_outbound_message_path",
-      "discriminator": [
-        57,
-        102,
-        27,
-        150,
-        123,
-        166,
-        38,
-        158
-      ],
+      "discriminator": [57, 102, 27, 150, 123, 166, 38, 158],
       "accounts": [
         {
           "name": "admin",
@@ -276,19 +172,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -303,27 +187,8 @@
               {
                 "kind": "const",
                 "value": [
-                  111,
-                  117,
-                  116,
-                  98,
-                  111,
-                  117,
-                  110,
-                  100,
-                  95,
-                  109,
-                  101,
-                  115,
-                  115,
-                  97,
-                  103,
-                  101,
-                  95,
-                  112,
-                  97,
-                  116,
-                  104
+                  111, 117, 116, 98, 111, 117, 110, 100, 95, 109, 101, 115, 115,
+                  97, 103, 101, 95, 112, 97, 116, 104
                 ]
               },
               {
@@ -342,26 +207,14 @@
         {
           "name": "destination_chain_id",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
     },
     {
       "name": "enable_inbound_message_path",
-      "discriminator": [
-        178,
-        201,
-        217,
-        113,
-        101,
-        52,
-        44,
-        127
-      ],
+      "discriminator": [178, 201, 217, 113, 101, 52, 44, 127],
       "accounts": [
         {
           "name": "admin",
@@ -376,19 +229,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -403,26 +244,8 @@
               {
                 "kind": "const",
                 "value": [
-                  105,
-                  110,
-                  98,
-                  111,
-                  117,
-                  110,
-                  100,
-                  95,
-                  109,
-                  101,
-                  115,
-                  115,
-                  97,
-                  103,
-                  101,
-                  95,
-                  112,
-                  97,
-                  116,
-                  104
+                  105, 110, 98, 111, 117, 110, 100, 95, 109, 101, 115, 115, 97,
+                  103, 101, 95, 112, 97, 116, 104
                 ]
               },
               {
@@ -441,35 +264,20 @@
         {
           "name": "source_chain_id",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         },
         {
           "name": "source_mailbox_address",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
     },
     {
       "name": "enable_outbound_message_path",
-      "discriminator": [
-        86,
-        206,
-        215,
-        63,
-        209,
-        234,
-        166,
-        13
-      ],
+      "discriminator": [86, 206, 215, 63, 209, 234, 166, 13],
       "accounts": [
         {
           "name": "admin",
@@ -484,19 +292,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -511,27 +307,8 @@
               {
                 "kind": "const",
                 "value": [
-                  111,
-                  117,
-                  116,
-                  98,
-                  111,
-                  117,
-                  110,
-                  100,
-                  95,
-                  109,
-                  101,
-                  115,
-                  115,
-                  97,
-                  103,
-                  101,
-                  95,
-                  112,
-                  97,
-                  116,
-                  104
+                  111, 117, 116, 98, 111, 117, 110, 100, 95, 109, 101, 115, 115,
+                  97, 103, 101, 95, 112, 97, 116, 104
                 ]
               },
               {
@@ -550,26 +327,14 @@
         {
           "name": "destination_chain_id",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
     },
     {
       "name": "grant_account_role",
-      "discriminator": [
-        166,
-        105,
-        3,
-        49,
-        241,
-        233,
-        230,
-        157
-      ],
+      "discriminator": [166, 105, 3, 49, 241, 233, 230, 157],
       "accounts": [
         {
           "name": "admin",
@@ -583,19 +348,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -610,19 +363,7 @@
               {
                 "kind": "const",
                 "value": [
-                  97,
-                  99,
-                  99,
-                  111,
-                  117,
-                  110,
-                  116,
-                  95,
-                  114,
-                  111,
-                  108,
-                  101,
-                  115
+                  97, 99, 99, 111, 117, 110, 116, 95, 114, 111, 108, 101, 115
                 ]
               },
               {
@@ -654,16 +395,7 @@
     },
     {
       "name": "handle_message",
-      "discriminator": [
-        91,
-        215,
-        39,
-        71,
-        108,
-        217,
-        94,
-        89
-      ],
+      "discriminator": [91, 215, 39, 71, 108, 217, 94, 89],
       "accounts": [
         {
           "name": "handler",
@@ -677,19 +409,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -703,15 +423,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  109,
-                  101,
-                  115,
-                  115,
-                  97,
-                  103,
-                  101
-                ]
+                "value": [109, 101, 115, 115, 97, 103, 101]
               },
               {
                 "kind": "arg",
@@ -728,27 +440,17 @@
         {
           "name": "payload_hash",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ],
-      "returns": "bytes"
+      "returns": {
+        "option": "bytes"
+      }
     },
     {
       "name": "initialize",
-      "discriminator": [
-        175,
-        175,
-        109,
-        31,
-        13,
-        152,
-        155,
-        237
-      ],
+      "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
       "accounts": [
         {
           "name": "deployer",
@@ -762,76 +464,18 @@
               {
                 "kind": "const",
                 "value": [
-                  5,
-                  18,
-                  233,
-                  90,
-                  194,
-                  193,
-                  50,
-                  141,
-                  128,
-                  131,
-                  75,
-                  41,
-                  96,
-                  114,
-                  108,
-                  90,
-                  65,
-                  124,
-                  105,
-                  212,
-                  246,
-                  221,
-                  111,
-                  217,
-                  24,
-                  17,
-                  69,
-                  69,
-                  125,
-                  185,
-                  67,
-                  232
+                  36, 139, 239, 15, 35, 69, 202, 207, 115, 142, 92, 67, 70, 108,
+                  102, 154, 92, 112, 22, 213, 14, 36, 245, 236, 182, 13, 241,
+                  250, 220, 135, 229, 116
                 ]
               }
             ],
             "program": {
               "kind": "const",
               "value": [
-                2,
-                168,
-                246,
-                145,
-                78,
-                136,
-                161,
-                176,
-                226,
-                16,
-                21,
-                62,
-                247,
-                99,
-                174,
-                43,
-                0,
-                194,
-                185,
-                61,
-                22,
-                193,
-                36,
-                210,
-                192,
-                83,
-                122,
-                16,
-                4,
-                128,
-                0,
-                0
+                2, 168, 246, 145, 78, 136, 161, 176, 226, 16, 21, 62, 247, 99,
+                174, 43, 0, 194, 185, 61, 22, 193, 36, 210, 192, 83, 122, 16, 4,
+                128, 0, 0
               ]
             }
           }
@@ -844,19 +488,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -893,16 +525,7 @@
     },
     {
       "name": "pause",
-      "discriminator": [
-        211,
-        22,
-        221,
-        251,
-        74,
-        121,
-        193,
-        47
-      ],
+      "discriminator": [211, 22, 221, 251, 74, 121, 193, 47],
       "accounts": [
         {
           "name": "pauser",
@@ -916,19 +539,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -942,19 +553,7 @@
               {
                 "kind": "const",
                 "value": [
-                  97,
-                  99,
-                  99,
-                  111,
-                  117,
-                  110,
-                  116,
-                  95,
-                  114,
-                  111,
-                  108,
-                  101,
-                  115
+                  97, 99, 99, 111, 117, 110, 116, 95, 114, 111, 108, 101, 115
                 ]
               },
               {
@@ -969,16 +568,7 @@
     },
     {
       "name": "revoke_account_roles",
-      "discriminator": [
-        88,
-        183,
-        44,
-        133,
-        35,
-        162,
-        233,
-        161
-      ],
+      "discriminator": [88, 183, 44, 133, 35, 162, 233, 161],
       "accounts": [
         {
           "name": "admin",
@@ -993,19 +583,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -1020,19 +598,7 @@
               {
                 "kind": "const",
                 "value": [
-                  97,
-                  99,
-                  99,
-                  111,
-                  117,
-                  110,
-                  116,
-                  95,
-                  114,
-                  111,
-                  108,
-                  101,
-                  115
+                  97, 99, 99, 111, 117, 110, 116, 95, 114, 111, 108, 101, 115
                 ]
               },
               {
@@ -1056,16 +622,7 @@
     },
     {
       "name": "send_message",
-      "discriminator": [
-        57,
-        40,
-        34,
-        178,
-        189,
-        10,
-        65,
-        26
-      ],
+      "discriminator": [57, 40, 34, 178, 189, 10, 65, 26],
       "accounts": [
         {
           "name": "fee_payer",
@@ -1084,19 +641,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -1108,28 +653,15 @@
         },
         {
           "name": "outbound_message",
+          "docs": ["so the mailbox program handles its data"],
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  111,
-                  117,
-                  116,
-                  98,
-                  111,
-                  117,
-                  110,
-                  100,
-                  95,
-                  109,
-                  101,
-                  115,
-                  115,
-                  97,
-                  103,
-                  101
+                  111, 117, 116, 98, 111, 117, 110, 100, 95, 109, 101, 115, 115,
+                  97, 103, 101
                 ]
               },
               {
@@ -1151,33 +683,7 @@
         },
         {
           "name": "sender_config",
-          "optional": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  101,
-                  110,
-                  100,
-                  101,
-                  114,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "sender_authority.owner"
-              }
-            ]
-          }
+          "optional": true
         }
       ],
       "args": [
@@ -1188,20 +694,14 @@
         {
           "name": "recipient",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         },
         {
           "name": "destination_caller",
           "type": {
             "option": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           }
         },
@@ -1218,16 +718,7 @@
     },
     {
       "name": "set_sender_config",
-      "discriminator": [
-        131,
-        205,
-        139,
-        221,
-        93,
-        186,
-        118,
-        146
-      ],
+      "discriminator": [131, 205, 139, 221, 93, 186, 118, 146],
       "accounts": [
         {
           "name": "admin",
@@ -1242,19 +733,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -1269,19 +748,7 @@
               {
                 "kind": "const",
                 "value": [
-                  115,
-                  101,
-                  110,
-                  100,
-                  101,
-                  114,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
+                  115, 101, 110, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103
                 ]
               },
               {
@@ -1312,17 +779,8 @@
       ]
     },
     {
-      "name": "transfer_ownership",
-      "discriminator": [
-        65,
-        177,
-        215,
-        73,
-        53,
-        45,
-        99,
-        47
-      ],
+      "name": "set_treasury",
+      "discriminator": [57, 97, 196, 95, 195, 206, 106, 136],
       "accounts": [
         {
           "name": "admin",
@@ -1336,19 +794,38 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_treasury",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "transfer_ownership",
+      "discriminator": [65, 177, 215, 73, 53, 45, 99, 47],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -1365,16 +842,7 @@
     },
     {
       "name": "unpause",
-      "discriminator": [
-        169,
-        144,
-        4,
-        38,
-        10,
-        141,
-        188,
-        255
-      ],
+      "discriminator": [169, 144, 4, 38, 10, 141, 188, 255],
       "accounts": [
         {
           "name": "admin",
@@ -1388,19 +856,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -1412,16 +868,7 @@
     },
     {
       "name": "unset_sender_config",
-      "discriminator": [
-        10,
-        248,
-        20,
-        172,
-        121,
-        20,
-        97,
-        86
-      ],
+      "discriminator": [10, 248, 20, 172, 121, 20, 97, 86],
       "accounts": [
         {
           "name": "admin",
@@ -1436,19 +883,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -1463,19 +898,7 @@
               {
                 "kind": "const",
                 "value": [
-                  115,
-                  101,
-                  110,
-                  100,
-                  101,
-                  114,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
+                  115, 101, 110, 100, 101, 114, 95, 99, 111, 110, 102, 105, 103
                 ]
               },
               {
@@ -1499,16 +922,7 @@
     },
     {
       "name": "update_config",
-      "discriminator": [
-        29,
-        158,
-        252,
-        191,
-        10,
-        83,
-        219,
-        99
-      ],
+      "discriminator": [29, 158, 252, 191, 10, 83, 219, 99],
       "accounts": [
         {
           "name": "admin",
@@ -1522,19 +936,7 @@
               {
                 "kind": "const",
                 "value": [
-                  109,
-                  97,
-                  105,
-                  108,
-                  98,
-                  111,
-                  120,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
+                  109, 97, 105, 108, 98, 111, 120, 95, 99, 111, 110, 102, 105,
                   103
                 ]
               }
@@ -1561,330 +963,101 @@
   "accounts": [
     {
       "name": "AccountRoles",
-      "discriminator": [
-        25,
-        230,
-        229,
-        88,
-        31,
-        135,
-        177,
-        142
-      ]
+      "discriminator": [25, 230, 229, 88, 31, 135, 177, 142]
     },
     {
       "name": "Config",
-      "discriminator": [
-        155,
-        12,
-        170,
-        224,
-        30,
-        250,
-        204,
-        130
-      ]
+      "discriminator": [155, 12, 170, 224, 30, 250, 204, 130]
     },
     {
       "name": "InboundMessagePath",
-      "discriminator": [
-        183,
-        101,
-        83,
-        26,
-        169,
-        221,
-        228,
-        25
-      ]
+      "discriminator": [183, 101, 83, 26, 169, 221, 228, 25]
     },
     {
       "name": "MessageV1Info",
-      "discriminator": [
-        113,
-        42,
-        224,
-        190,
-        65,
-        33,
-        233,
-        178
-      ]
-    },
-    {
-      "name": "OutboundMessage",
-      "discriminator": [
-        166,
-        139,
-        82,
-        146,
-        129,
-        32,
-        235,
-        239
-      ]
+      "discriminator": [113, 42, 224, 190, 65, 33, 233, 178]
     },
     {
       "name": "OutboundMessagePath",
-      "discriminator": [
-        58,
-        4,
-        19,
-        64,
-        132,
-        71,
-        137,
-        190
-      ]
+      "discriminator": [58, 4, 19, 64, 132, 71, 137, 190]
     },
     {
       "name": "SenderConfig",
-      "discriminator": [
-        0,
-        241,
-        220,
-        77,
-        167,
-        128,
-        79,
-        152
-      ]
+      "discriminator": [0, 241, 220, 77, 167, 128, 79, 152]
     },
     {
       "name": "SessionPayload",
-      "discriminator": [
-        33,
-        115,
-        191,
-        63,
-        132,
-        170,
-        233,
-        102
-      ]
+      "discriminator": [33, 115, 191, 63, 132, 170, 233, 102]
     },
     {
       "name": "ValidatedPayload",
-      "discriminator": [
-        129,
-        8,
-        149,
-        193,
-        22,
-        240,
-        127,
-        36
-      ]
+      "discriminator": [129, 8, 149, 193, 22, 240, 127, 36]
     }
   ],
   "events": [
     {
       "name": "AccountRoleGranted",
-      "discriminator": [
-        156,
-        201,
-        253,
-        16,
-        204,
-        194,
-        211,
-        121
-      ]
+      "discriminator": [156, 201, 253, 16, 204, 194, 211, 121]
     },
     {
       "name": "AccountRolesRevoked",
-      "discriminator": [
-        193,
-        45,
-        230,
-        213,
-        88,
-        196,
-        24,
-        174
-      ]
+      "discriminator": [193, 45, 230, 213, 88, 196, 24, 174]
     },
     {
       "name": "ConfigUpdated",
-      "discriminator": [
-        40,
-        241,
-        230,
-        122,
-        11,
-        19,
-        198,
-        194
-      ]
+      "discriminator": [40, 241, 230, 122, 11, 19, 198, 194]
     },
     {
       "name": "InboundMessagePathStatusChanged",
-      "discriminator": [
-        63,
-        7,
-        150,
-        75,
-        197,
-        37,
-        39,
-        168
-      ]
+      "discriminator": [63, 7, 150, 75, 197, 37, 39, 168]
     },
     {
       "name": "MessageDelivered",
-      "discriminator": [
-        206,
-        54,
-        202,
-        10,
-        22,
-        64,
-        153,
-        18
-      ]
+      "discriminator": [206, 54, 202, 10, 22, 64, 153, 18]
     },
     {
       "name": "MessageHandled",
-      "discriminator": [
-        241,
-        188,
-        96,
-        32,
-        20,
-        92,
-        213,
-        251
-      ]
+      "discriminator": [241, 188, 96, 32, 20, 92, 213, 251]
     },
     {
       "name": "MessageSent",
-      "discriminator": [
-        116,
-        70,
-        224,
-        76,
-        128,
-        28,
-        110,
-        55
-      ]
+      "discriminator": [116, 70, 224, 76, 128, 28, 110, 55]
     },
     {
       "name": "OutboundMessagePathStatusChanged",
-      "discriminator": [
-        106,
-        217,
-        122,
-        13,
-        125,
-        45,
-        243,
-        216
-      ]
+      "discriminator": [106, 217, 122, 13, 125, 45, 243, 216]
     },
     {
       "name": "OwnershipTransferInitiated",
-      "discriminator": [
-        181,
-        32,
-        40,
-        60,
-        60,
-        64,
-        235,
-        29
-      ]
+      "discriminator": [181, 32, 40, 60, 60, 64, 235, 29]
     },
     {
       "name": "OwnershipTransferred",
-      "discriminator": [
-        172,
-        61,
-        205,
-        183,
-        250,
-        50,
-        38,
-        98
-      ]
+      "discriminator": [172, 61, 205, 183, 250, 50, 38, 98]
     },
     {
       "name": "PauserAdded",
-      "discriminator": [
-        231,
-        206,
-        109,
-        54,
-        239,
-        205,
-        234,
-        248
-      ]
+      "discriminator": [231, 206, 109, 54, 239, 205, 234, 248]
     },
     {
       "name": "PauserRemoved",
-      "discriminator": [
-        224,
-        157,
-        132,
-        185,
-        123,
-        96,
-        72,
-        220
-      ]
+      "discriminator": [224, 157, 132, 185, 123, 96, 72, 220]
     },
     {
       "name": "ProgramPaused",
-      "discriminator": [
-        247,
-        9,
-        236,
-        38,
-        105,
-        35,
-        112,
-        115
-      ]
+      "discriminator": [247, 9, 236, 38, 105, 35, 112, 115]
     },
     {
       "name": "SenderConfigSet",
-      "discriminator": [
-        48,
-        41,
-        191,
-        185,
-        220,
-        186,
-        107,
-        160
-      ]
+      "discriminator": [48, 41, 191, 185, 220, 186, 107, 160]
     },
     {
       "name": "SenderConfigUnset",
-      "discriminator": [
-        27,
-        176,
-        73,
-        192,
-        0,
-        73,
-        206,
-        177
-      ]
+      "discriminator": [27, 176, 73, 192, 0, 73, 206, 177]
     },
     {
       "name": "TreasuryChanged",
-      "discriminator": [
-        252,
-        2,
-        55,
-        56,
-        106,
-        205,
-        227,
-        47
-      ]
+      "discriminator": [252, 2, 55, 56, 106, 205, 227, 47]
     }
   ],
   "errors": [
@@ -1910,91 +1083,96 @@
     },
     {
       "code": 6004,
+      "name": "InvalidPayloadHash",
+      "msg": "Invalid payload hash"
+    },
+    {
+      "code": 6005,
       "name": "InvalidPayloadLength",
       "msg": "Invalid payload size"
     },
     {
-      "code": 6005,
+      "code": 6006,
       "name": "PayloadTooLarge",
       "msg": "Payload too large"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "InvalidPayloadSelector",
       "msg": "Invalid payload selector"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "InvalidMessagePath",
       "msg": "Invalid message path"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "PayloadNotFound",
       "msg": "Payload not found"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "PayloadAlreadyHandled",
       "msg": "Payload already handled"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "InvalidPayloadState",
       "msg": "Invalid payload state"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "InsufficientFunds",
       "msg": "Insufficient funds for fee"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "InvalidFeeConfiguration",
       "msg": "Invalid fee configuration"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "InvalidAdmin",
       "msg": "Invalid admin"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "InvalidPauser",
       "msg": "Invalid pauser"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "PauserAlreadyExists",
       "msg": "Pauser already exists"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "PauserNotFound",
       "msg": "Pauser not found"
     },
     {
-      "code": 6017,
+      "code": 6018,
       "name": "InvalidNonce",
       "msg": "Invalid nonce"
     },
     {
-      "code": 6018,
+      "code": 6019,
       "name": "BufferIOError",
       "msg": "Buffer IO error"
     },
     {
-      "code": 6019,
+      "code": 6020,
       "name": "TreasuryMismatch",
       "msg": "treasury mismatch"
     },
     {
-      "code": 6020,
+      "code": 6021,
       "name": "PublicSendWithFeeDisabled",
       "msg": "public send with fee disabled"
     },
     {
-      "code": 6021,
+      "code": 6022,
       "name": "InvalidDestinationCaller",
       "msg": "Invalid destination caller"
     }
@@ -2132,28 +1310,19 @@
           {
             "name": "identifier",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "source_mailbox_address",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "source_chain_id",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           }
         ]
@@ -2167,28 +1336,19 @@
           {
             "name": "identifier",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "source_mailbox_address",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "source_chain_id",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -2206,28 +1366,19 @@
           {
             "name": "payload_hash",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "source_mailbox_address",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "source_chain_id",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           }
         ]
@@ -2241,10 +1392,7 @@
           {
             "name": "payload_hash",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           }
         ]
@@ -2258,19 +1406,13 @@
           {
             "name": "nonce",
             "type": "u64"
-          },
-          {
-            "name": "raw_payload",
-            "type": "bytes"
           }
         ]
       }
     },
     {
       "name": "MessageState",
-      "docs": [
-        "The state of a payload including a GMP message"
-      ],
+      "docs": ["The state of a payload including a GMP message"],
       "type": {
         "kind": "enum",
         "variants": [
@@ -2294,10 +1436,7 @@
           {
             "name": "message_path_identifier",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -2307,29 +1446,20 @@
           {
             "name": "sender",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "recipient",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "destination_caller",
             "type": {
               "option": {
-                "array": [
-                  "u8",
-                  32
-                ]
+                "array": ["u8", 32]
               }
             }
           },
@@ -2365,19 +1495,6 @@
       }
     },
     {
-      "name": "OutboundMessage",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "defined": {
-              "name": "MessageV1"
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "OutboundMessagePath",
       "type": {
         "kind": "struct",
@@ -2385,19 +1502,13 @@
           {
             "name": "identifier",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "destination_chain_id",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           }
         ]
@@ -2411,19 +1522,13 @@
           {
             "name": "identifier",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "destination_chain_id",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -2505,10 +1610,7 @@
           {
             "name": "payload_hash",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           }
         ]
@@ -2598,7 +1700,12 @@
       "name": "ValidatedPayload",
       "type": {
         "kind": "struct",
-        "fields": []
+        "fields": [
+          {
+            "name": "latest_epoch",
+            "type": "u64"
+          }
+        ]
       }
     }
   ]

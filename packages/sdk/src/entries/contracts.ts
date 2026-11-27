@@ -27,6 +27,11 @@ export {
   getStakeAndBakeFee,
   type IGetStakeAndBakeFeeParams,
 } from '../contract-functions/getStakeAndBakeFee/getStakeAndBakeFee';
+export {
+  getTokenEip712Domain,
+  type GetTokenEip712DomainParameters,
+  type TokenEip712Domain,
+} from '../contract-functions/getTokenEip712Domain/getTokenEip712Domain';
 
 // Contract functions - WRITE
 export {
@@ -62,6 +67,11 @@ export {
   signNetworkFee,
 } from '../contract-functions/signNetworkFee/signNetworkFee';
 export {
+  type ISignPermitChallengeParams,
+  type ISignPermitChallengeResult,
+  signPermitChallenge,
+} from '../contract-functions/signPermitChallenge';
+export {
   type ISignStakeAndBakeParams,
   type ISignStakeAndBakeResult,
   signStakeAndBake,
@@ -75,10 +85,42 @@ export {
 
 // Contract functions - VAULT READ
 export {
-  getSharesByAddress,
-  type IGetSharesByAddressParameters,
-} from '../contract-functions/getSharesByAddress/getSharesByAddress';
+  getBtceShares,
+  type IGetBtceSharesParameters,
+} from '../contract-functions/getBtceShares/getBtceShares';
 export {
-  getShareValue,
-  type IGetShareValueParameters,
-} from '../contract-functions/getShareValue/getShareValue';
+  getEarnPosition,
+  type IGetEarnPositionParameters,
+  type IGetEarnPositionResponse,
+} from '../contract-functions/getEarnPosition/getEarnPosition';
+
+// Contract functions - VAULT WRITE
+export {
+  cancelEarnWithdrawal,
+  type CancelEarnWithdrawalParameters,
+} from '../contract-functions/cancelEarnWithdrawal/cancelEarnWithdrawal';
+export {
+  depositEarn,
+  type DepositEarnParameters,
+} from '../contract-functions/depositEarn/depositEarn';
+export {
+  previewWithdrawEarn,
+  type PreviewWithdrawEarnParameters,
+  type PreviewWithdrawEarnResult,
+} from '../contract-functions/previewWithdrawEarn/previewWithdrawEarn';
+export {
+  unwrapBtceToLbtcv,
+  type UnwrapBtceToLbtcvParameters,
+} from '../contract-functions/unwrapBtceToLbtcv/unwrapBtceToLbtcv';
+export {
+  type EarnWithdrawQueue,
+  withdrawEarn,
+  type WithdrawEarnParameters,
+  type WithdrawEarnResult,
+} from '../contract-functions/withdrawEarn/withdrawEarn';
+export {
+  wrapToBtce,
+  type WrapToBtceParameters,
+} from '../contract-functions/wrapToBtce/wrapToBtce';
+// Part of CancelEarnWithdrawalParameters, so consumers need to be able to name it.
+export { type BoringWithdrawRequest } from '../vaults/lib/ops/withdraw';

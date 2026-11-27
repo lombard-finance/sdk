@@ -37,12 +37,10 @@ export const ASSET_CATALOG: AssetCatalog = {
             Chain.BASE,
             Chain.BSC,
             Chain.BERACHAIN,
-            Chain.CORN, // Supported for EVM Deploy (Veda), not for BTC Stake
             ...(featureConfig.isEtherlinkEnabled ? [Chain.ETHERLINK] : []),
             Chain.KATANA,
             Chain.MORPH,
             Chain.SONIC,
-            Chain.SWELL,
             Chain.TAC,
             ...(featureConfig.isMonadEnabled ? [Chain.MONAD] : []),
             Chain.STABLE,
@@ -57,7 +55,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.prod,
           chain: Chain.SOLANA_MAINNET,
-          address: 'LomP48F7bLbKyMRHHsDVt7wuHaUQvQnVVspjcbfuAek',
+          address: 'LBTCgU4b3wsFKsPwBn1rRZDx5DoFutM6RPiEt1TPDsY',
         },
         {
           env: Env.prod,
@@ -82,17 +80,13 @@ export const ASSET_CATALOG: AssetCatalog = {
         },
         {
           env: Env.testnet,
-          chains: [
-            Chain.AVALANCHE_FUJI,
-            Chain.BASE_SEPOLIA,
-            Chain.BSC_TESTNET,
-          ],
+          chains: [Chain.AVALANCHE_FUJI, Chain.BASE_SEPOLIA, Chain.BSC_TESTNET],
           address: '0x107Fc7d90484534704dD2A9e24c7BD45DB4dD1B5',
         },
         {
           env: Env.testnet,
-          chain: Chain.SOLANA_TESTNET,
-          address: '79cscM6J9Af24TGGWcXyDf56fDLoodkyXdVy4R9aZ6C6',
+          chain: Chain.SOLANA_DEVNET,
+          address: '1BTCPX3qyFtBvhQvJaHntfzZfB8qcJmJXfoRnD3vAgh',
         },
         {
           env: Env.testnet,
@@ -113,11 +107,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         // Note: Avalanche Fuji is only supported on testnet (Gastald), not stage
         {
           env: Env.stage,
-          chains: [
-            Chain.BASE_SEPOLIA,
-            Chain.BSC_TESTNET,
-            Chain.SEPOLIA,
-          ],
+          chains: [Chain.BASE_SEPOLIA, Chain.BSC_TESTNET, Chain.SEPOLIA],
           address: '0x731eFa688F3679688cf60A3993b8658138953ED6',
         },
         {
@@ -184,6 +174,7 @@ export const ASSET_CATALOG: AssetCatalog = {
         {
           env: Env.prod,
           chains: [
+            Chain.ETHEREUM,
             Chain.KATANA,
             Chain.MEGAETH,
             ...(featureConfig.isMonadEnabled ? [Chain.MONAD] : []),
@@ -197,6 +188,11 @@ export const ASSET_CATALOG: AssetCatalog = {
           address: '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
           bridgeAdapter: '0x85D1D52e11290F174444d21C2a167bEDBE36e4d2',
         },
+        {
+          env: Env.prod,
+          chain: Chain.SOLANA_MAINNET,
+          address: 'BTCbKVgfW4xMqTWEmxVwc6pzg2c5YtQWxSpBuQDhUrpu',
+        },
 
         // Testnet
         {
@@ -209,6 +205,11 @@ export const ASSET_CATALOG: AssetCatalog = {
           chain: Chain.AVALANCHE_FUJI,
           address: '0x7FbdC44BfEBDe80C970ba622B678daB36cee31f6',
           bridgeAdapter: '0x0A65C37d07c32E5eA8ea40495b7f249cdE26935e',
+        },
+        {
+          env: Env.testnet,
+          chain: Chain.SOLANA_DEVNET,
+          address: 'BTCb1Xy55DzwPMog9d3ztPau4nqXp6BhUrdGHjTrMYCn',
         },
 
         // Stage
@@ -335,21 +336,6 @@ export const ASSET_CATALOG: AssetCatalog = {
           env: Env.prod,
           chain: Chain.ETHEREUM,
           address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-        },
-      ],
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // wBTCN - Wrapped BTCN on Corn
-    // ═══════════════════════════════════════════════════════════════════════
-    [AssetId.WBTCN]: {
-      decimals: 8,
-      symbol: 'wBTCN',
-      deployments: [
-        {
-          env: Env.prod,
-          chain: Chain.CORN,
-          address: '0xda5dDd7270381A7C2717aD10D1c0ecB19e3CDFb2',
         },
       ],
     },

@@ -7,7 +7,7 @@
  * @module utils/chain
  */
 
-import { CAIP2_SEPARATOR, Chain,CHAIN_PREFIXES } from '../core';
+import { CAIP2_SEPARATOR, Chain, CHAIN_PREFIXES } from '../core';
 import { LombardError, ValidationErrorCode } from '../shared/errors';
 
 /** Helper to get prefix with separator */

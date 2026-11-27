@@ -56,6 +56,9 @@ export interface StrategyProgress<TStatus extends string> {
   /** Optional: Required confirmations for completion */
   requiredConfirmations?: number;
 
+  /** Optional: Transaction hash or signature after submission (e.g. EVM tx hash, Solana signature) */
+  txHash?: string;
+
   /** Optional: Additional metadata specific to the strategy */
   metadata?: Record<string, unknown>;
 }
@@ -115,4 +118,3 @@ export interface DeployConfig {
   /** Optional: Protocol-specific options */
   options?: Record<string, unknown>;
 }
-

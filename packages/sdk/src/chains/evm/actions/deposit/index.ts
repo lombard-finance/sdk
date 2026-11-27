@@ -7,7 +7,7 @@
 export type { ChainConfig, RouteDefinition } from './config';
 export { evmConfig, isDepositSupported } from './config';
 export { EvmDeposit } from './EvmDeposit';
-export { createEvmDeposit,evmDeposit } from './factory';
+export { createEvmDeposit, evmDeposit } from './factory';
 export {
   type EvmDepositParams,
   type EvmDepositPrepareParams,

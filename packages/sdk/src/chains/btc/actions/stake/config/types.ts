@@ -36,7 +36,7 @@ export interface SignatureResult {
 
 /**
  * Stored fee signature result from restore operation
- * 
+ *
  * Note: The API may return hasSignature: true but not the actual signature string.
  * The caller should check hasSignature to determine if a valid signature exists on the server.
  */
@@ -102,7 +102,14 @@ export interface FeeAuthConfig {
    */
   authorizeFee: (
     ctx: BtcCoreContext,
-    params: { chainId: unknown; recipient: string; fee: string },
+    params: {
+      chainId: unknown;
+      recipient: string;
+      fee: string;
+      // False while the signature is about to travel with generateDepositAddress,
+      // which registers it server-side. Registering it twice reads as a reuse.
+      storeSignature?: boolean;
+    },
   ) => Promise<FeeAuthResult>;
 }
 

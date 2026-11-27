@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useNonEvmUnstake } from '../src/hooks/useNonEvmUnstake';
 
-vi.mock('@lombard.finance/sdk', async importOriginal => {
+vi.mock('@lombard.finance/sdk', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@lombard.finance/sdk')>();
   return { ...actual };
 });
@@ -18,7 +18,7 @@ function createMockAction() {
       if (!handlers[event]) handlers[event] = [];
       handlers[event].push(handler);
       return () => {
-        handlers[event] = handlers[event].filter(h => h !== handler);
+        handlers[event] = handlers[event].filter((h) => h !== handler);
       };
     }),
     prepare: vi.fn(),
@@ -75,7 +75,9 @@ describe('useNonEvmUnstake', () => {
   });
 
   it('completes full unstake flow and returns txHash', async () => {
-    const { result } = renderHook(() => useNonEvmUnstake(mockSdk as never, 'solana'));
+    const { result } = renderHook(() =>
+      useNonEvmUnstake(mockSdk as never, 'solana'),
+    );
 
     await act(async () => {
       await result.current.unstake(unstakeParams);
@@ -116,7 +118,9 @@ describe('useNonEvmUnstake', () => {
   it('sets error on failure and reset clears state', async () => {
     mockAction.execute.mockRejectedValue(new Error('Burn failed'));
 
-    const { result } = renderHook(() => useNonEvmUnstake(mockSdk as never, 'solana'));
+    const { result } = renderHook(() =>
+      useNonEvmUnstake(mockSdk as never, 'solana'),
+    );
 
     await act(async () => {
       await result.current.unstake(unstakeParams).catch(() => {});

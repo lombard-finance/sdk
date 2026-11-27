@@ -27,13 +27,13 @@ describe('Fee Signature Expiration Parsing', () => {
     it('should correctly identify a past timestamp as expired', () => {
       // Jan 1, 2020 00:00:00 UTC - clearly in the past
       const pastTimestamp = '1577836800';
-      
+
       // Verify the timestamp represents the expected date (in UTC)
       const date = new Date(Number(pastTimestamp) * 1000);
       expect(date.getUTCFullYear()).toBe(2020);
       expect(date.getUTCMonth()).toBe(0); // January
       expect(date.getUTCDate()).toBe(1);
-      
+
       // The signature SHOULD be expired
       expect(isSignatureExpired(pastTimestamp)).toBe(true);
     });
@@ -53,20 +53,20 @@ describe('Fee Signature Expiration Parsing', () => {
   describe('Bug fix verification: Unix timestamp vs Date string parsing', () => {
     it('WRONG: new Date(string) parses incorrectly', () => {
       const timestamp = '1768491343';
-      
+
       // This is the WRONG way - new Date() tries to parse as ISO string
       const wrongDate = new Date(timestamp);
-      
+
       // This returns Invalid Date or a wrong date
       expect(wrongDate.toString()).toMatch(/Invalid Date|1970/);
     });
 
     it('CORRECT: new Date(number * 1000) parses correctly', () => {
       const timestamp = '1768491343';
-      
+
       // This is the CORRECT way - convert to milliseconds
       const correctDate = new Date(Number(timestamp) * 1000);
-      
+
       // This returns the correct date: Jan 15, 2026
       expect(correctDate.getFullYear()).toBe(2026);
       expect(correctDate.getMonth()).toBe(0);

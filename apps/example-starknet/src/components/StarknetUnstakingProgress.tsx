@@ -49,7 +49,11 @@ export function StarknetUnstakingProgress({
   return (
     <div className="card">
       <h2 className="text-2xl font-semibold mb-6">
-        {isComplete ? 'Unstake Complete' : hasError ? 'Unstaking Error' : 'Unstaking Progress'}
+        {isComplete
+          ? 'Unstake Complete'
+          : hasError
+            ? 'Unstaking Error'
+            : 'Unstaking Progress'}
       </h2>
 
       {/* Status */}
@@ -89,18 +93,22 @@ export function StarknetUnstakingProgress({
             ✓ Unstake Complete
           </h4>
           <p className="text-sm text-green-800">
-            LBTC has been burned on Starknet. BTC will be sent to your Bitcoin address shortly.
+            LBTC has been burned on Starknet. BTC will be sent to your Bitcoin
+            address shortly.
           </p>
         </div>
       )}
 
       {/* Action buttons */}
-      {(isComplete || hasError) ? (
+      {isComplete || hasError ? (
         <button onClick={onReset} className="btn btn-secondary w-full">
           Start New Unstake
         </button>
       ) : (
-        <button onClick={onReset} className="btn btn-secondary w-full mt-4 text-sm">
+        <button
+          onClick={onReset}
+          className="btn btn-secondary w-full mt-4 text-sm"
+        >
           Cancel
         </button>
       )}

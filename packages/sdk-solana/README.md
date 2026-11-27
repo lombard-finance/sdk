@@ -113,31 +113,64 @@ const depositAddress = await generateDepositBtcAddress({
 
 ```
 
-### Claiming LBTC
+### Claiming tokens (Asset Router)
 
-This operation mints the deposited amount of BTC into LBTC and transfers that
-to the provided recipient address.
+Mints BTC.b or LBTC on Solana from a notarized deposit payload using the
+Asset Router program. Replaces the previous `claimLBTC` helper.
 
-```javascript
-const txHash = await claimLBTC(provider, {
+```typescript
+import { claimToken } from '@lombard.finance/sdk-solana';
+
+const txHash = await claimToken(provider, {
   recipientAddress: address,
-  amount: '10000',
+  tokenMint: getConfig(Env.prod).btcbTokenMint, // or lbtcTokenMint
   network: 'mainnet-beta',
-  // The signatures (obtained from `getDepositsByAddress`)
+  // Obtained from `getDepositsByAddress`
   proofSignature: selectedOutput.proof,
   rawPayload: selectedOutput.raw_payload,
 });
 ```
 
-### Unstaking LBTC
+### Redeeming tokens for BTC (Asset Router)
 
-This operation burns given amount of LBTC and initiates transfer of BTC to the
-given BTC address.
+Burns BTC.b or LBTC on Solana and sends a GMP message through the Mailbox to
+trigger a BTC payout to the specified Bitcoin address.
 
-```javascript
-const txHash = await unstakeLBTC(provider, {
-  amount: '10000',
-  btcAddress,
-  network: 'mainnet-beta',
+```typescript
+import { redeemForBtc } from '@lombard.finance/sdk-solana';
+
+// BTC.b → BTC (default)
+const { signature } = await redeemForBtc(provider, {
+  amount: '2000',
+  btcAddress: 'bc1q...',
+  network: 'devnet',
+  env: 'stage',
+});
+
+// LBTC → BTC (pass LBTC mint)
+const { signature } = await redeemForBtc(provider, {
+  amount: '2000',
+  btcAddress: 'bc1q...',
+  tokenMint: 'LBTCojyVJ63rsEED2DLEGWMzSxWJyQynXE91LMLgV1J',
+  network: 'devnet',
+  env: 'stage',
 });
 ```
+
+### Redeeming LBTC for BTC.b (Asset Router)
+
+Burns LBTC and sends a GMP message to route BTC.b to the recipient on Solana.
+
+```typescript
+import { redeem } from '@lombard.finance/sdk-solana';
+
+const txHash = await redeem(provider, {
+  amount: '2000',
+  recipient: '8yarEiDaJVik7n6wX8JCbubTbtZD3WZ67Q1ytMDA2BKA',
+  network: 'devnet',
+  env: 'dev',
+});
+```
+
+Optional overrides: `tokenMint` (source token), `toTokenAddress` (destination
+token), `toLchainId` (destination chain). All default to LBTC → BTC.b on Solana.

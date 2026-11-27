@@ -10,7 +10,7 @@
  * - deploy: LBTC/BTC.b → DeFi protocols (Veda, Silo)
  * - withdraw: Queue withdrawal from DeFi protocols
  * - cancelWithdraw: Cancel pending withdrawal from DeFi protocols
- * - redeem: LBTC → BTC.b (same-chain unwrap)
+ * - redeem: BTC.b → BTC (cross-chain redemption to Bitcoin)
  *
  * @example
  * ```typescript
@@ -205,18 +205,27 @@ export class EvmActions {
   }
 
   /**
-   * Redeem LBTC to BTC.b (same-chain unwrap)
+   * Redeem BTC.b to native BTC (cross-chain to Bitcoin)
    *
-   * Converts LBTC to BTC.b on the same EVM chain.
-   * For cross-chain BTC redemption, use unstake() with destChain set to Bitcoin.
+   * Burns BTC.b on the EVM source chain and releases native BTC to a Bitcoin
+   * recipient address. This is the inverse of BTC Deposit. The destination is
+   * always the Bitcoin network — for LBTC → BTC.b on the same EVM chain, use
+   * {@link unstake} with `assetOut: AssetId.BTCb`.
    *
    * @example
    * ```typescript
    * const redeem = evm.redeem({
-   *   assetIn: AssetId.LBTC,
-   *   assetOut: AssetId.BTCb,
+   *   assetIn: AssetId.BTCb,
+   *   assetOut: AssetId.BTC,
    *   sourceChain: Chain.AVALANCHE,
+   *   destChain: Chain.BITCOIN_MAINNET,
    * });
+   *
+   * await redeem.prepare({
+   *   amount: '0.1',
+   *   recipient: 'bc1q...',
+   * });
+   * const { txHash } = await redeem.execute();
    * ```
    */
   redeem(params: EvmRedeemParams): IEvmRedeem {

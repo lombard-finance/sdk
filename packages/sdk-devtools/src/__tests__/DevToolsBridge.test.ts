@@ -1,21 +1,25 @@
 /**
  * DevToolsBridge Tests
- * 
+ *
  * Tests for the core bridge that connects SDK actions to DevTools.
  */
 
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { DevToolsBridge, getDevToolsBridge, resetDevToolsBridge } from '../bridge/DevToolsBridge';
+import {
+  DevToolsBridge,
+  getDevToolsBridge,
+  resetDevToolsBridge,
+} from '../bridge/DevToolsBridge';
 import type { MonitorableAction } from '../types';
 
 // Mock action factory
-function createMockAction(initialStatus = 'idle'): MonitorableAction & { 
+function createMockAction(initialStatus = 'idle'): MonitorableAction & {
   emit: (event: string, data: unknown) => void;
   handlers: Map<string, Array<(...args: unknown[]) => void>>;
 } {
   const handlers = new Map<string, Array<(...args: unknown[]) => void>>();
-  
+
   return {
     status: initialStatus,
     isLoading: false,
@@ -38,7 +42,9 @@ function createMockAction(initialStatus = 'idle'): MonitorableAction & {
     emit(event: string, data: unknown) {
       const eventHandlers = handlers.get(event);
       if (eventHandlers) {
-        eventHandlers.forEach(h => { h(data); });
+        eventHandlers.forEach((h) => {
+          h(data);
+        });
       }
     },
   };
@@ -67,9 +73,9 @@ describe('DevToolsBridge', () => {
   describe('registerAction', () => {
     it('should register an action', () => {
       const action = createMockAction();
-      
+
       bridge.registerAction('test-action', action);
-      
+
       const actions = bridge.getActions();
       expect(actions.size).toBe(1);
       expect(actions.has('test-action')).toBe(true);
@@ -77,9 +83,9 @@ describe('DevToolsBridge', () => {
 
     it('should emit registered event', () => {
       const action = createMockAction();
-      
+
       bridge.registerAction('test-action', action);
-      
+
       const events = bridge.getEvents();
       expect(events.length).toBe(1);
       expect(events[0].type).toBe('registered');
@@ -88,22 +94,22 @@ describe('DevToolsBridge', () => {
 
     it('should return unregister function', () => {
       const action = createMockAction();
-      
+
       const unregister = bridge.registerAction('test-action', action);
       expect(bridge.getActions().size).toBe(1);
-      
+
       unregister();
       expect(bridge.getActions().size).toBe(0);
     });
 
     it('should subscribe to action events', () => {
       const action = createMockAction();
-      
+
       bridge.registerAction('test-action', action);
-      
+
       // Emit a status change
       action.emit('status-change', 'new-status');
-      
+
       const events = bridge.getEvents();
       expect(events.length).toBe(2); // registered + status-change
       expect(events[1].type).toBe('status-change');
@@ -115,20 +121,20 @@ describe('DevToolsBridge', () => {
     it('should unregister an action', () => {
       const action = createMockAction();
       bridge.registerAction('test-action', action);
-      
+
       bridge.unregisterAction('test-action');
-      
+
       expect(bridge.getActions().size).toBe(0);
     });
 
     it('should emit unregistered event', () => {
       const action = createMockAction();
       bridge.registerAction('test-action', action);
-      
+
       bridge.unregisterAction('test-action');
-      
+
       const events = bridge.getEvents();
-      const unregEvent = events.find(e => e.type === 'unregistered');
+      const unregEvent = events.find((e) => e.type === 'unregistered');
       expect(unregEvent).toBeDefined();
     });
 
@@ -136,11 +142,11 @@ describe('DevToolsBridge', () => {
       const action = createMockAction();
       bridge.registerAction('test-action', action);
       bridge.unregisterAction('test-action');
-      
+
       // Emit after unregister
       const eventsBefore = bridge.getEvents().length;
       action.emit('status-change', 'ignored');
-      
+
       // Should not add new event
       expect(bridge.getEvents().length).toBe(eventsBefore);
     });
@@ -150,10 +156,10 @@ describe('DevToolsBridge', () => {
     it('should notify listeners on new events', () => {
       const listener = vi.fn();
       bridge.onEvent(listener);
-      
+
       const action = createMockAction();
       bridge.registerAction('test', action);
-      
+
       expect(listener).toHaveBeenCalled();
     });
 
@@ -161,10 +167,10 @@ describe('DevToolsBridge', () => {
       const listener = vi.fn();
       const unsub = bridge.onEvent(listener);
       unsub();
-      
+
       const action = createMockAction();
       bridge.registerAction('test', action);
-      
+
       expect(listener).not.toHaveBeenCalled();
     });
   });
@@ -173,10 +179,10 @@ describe('DevToolsBridge', () => {
     it('should notify state listeners on action changes', () => {
       const listener = vi.fn();
       bridge.onStateChange(listener);
-      
+
       const action = createMockAction();
       bridge.registerAction('test', action);
-      
+
       expect(listener).toHaveBeenCalled();
       expect(listener).toHaveBeenCalledWith(expect.any(Map));
     });
@@ -186,9 +192,9 @@ describe('DevToolsBridge', () => {
     it('should return summary of all actions', () => {
       const action = createMockAction('ready');
       bridge.registerAction('test', action);
-      
+
       const summary = bridge.getStateSummary();
-      
+
       expect(summary.test).toEqual({
         status: 'ready',
         isLoading: false,
@@ -201,11 +207,11 @@ describe('DevToolsBridge', () => {
     it('should clear all events', () => {
       const action = createMockAction();
       bridge.registerAction('test', action);
-      
+
       expect(bridge.getEvents().length).toBeGreaterThan(0);
-      
+
       bridge.clearEvents();
-      
+
       expect(bridge.getEvents().length).toBe(0);
     });
   });
@@ -214,13 +220,13 @@ describe('DevToolsBridge', () => {
     it('should respect maxEvents config', () => {
       const limitedBridge = new DevToolsBridge({ maxEvents: 3 });
       const action = createMockAction();
-      
+
       limitedBridge.registerAction('test', action);
       action.emit('status-change', '1');
       action.emit('status-change', '2');
       action.emit('status-change', '3');
       action.emit('status-change', '4');
-      
+
       // Should only keep last 3 events
       expect(limitedBridge.getEvents().length).toBe(3);
     });
@@ -230,9 +236,9 @@ describe('DevToolsBridge', () => {
     it('should clean up everything', () => {
       const action = createMockAction();
       bridge.registerAction('test', action);
-      
+
       bridge.destroy();
-      
+
       expect(bridge.getActions().size).toBe(0);
     });
   });
@@ -246,7 +252,7 @@ describe('getDevToolsBridge singleton', () => {
   it('should return same instance', () => {
     const bridge1 = getDevToolsBridge();
     const bridge2 = getDevToolsBridge();
-    
+
     expect(bridge1).toBe(bridge2);
   });
 
@@ -254,8 +260,7 @@ describe('getDevToolsBridge singleton', () => {
     const bridge1 = getDevToolsBridge();
     resetDevToolsBridge();
     const bridge2 = getDevToolsBridge();
-    
+
     expect(bridge1).not.toBe(bridge2);
   });
 });
-

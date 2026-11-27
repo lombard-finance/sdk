@@ -12,7 +12,7 @@ import {
 } from '../../../tokens/tokens';
 import { getErrorMessage } from '../../../utils/err';
 import toBigInt from '../../../utils/numbers';
-import { isVedaVaultChain, Vault, VAULTS } from '../config';
+import { EARN_VAULT, isEarnChain } from '../config';
 
 export type DepositParameters = {
   /** The amount to be deposited into the DeFi vault. */
@@ -25,41 +25,28 @@ export type DepositParameters = {
   approve?: boolean;
   /** The optional deposit asset. */
   token?: Token;
-  /** The vault identifier. */
-  vaultKey?: Vault;
 } & CommonWriteParameters;
 
 /**
- * Deposits specified amount to the chosen DeFi vault.
- * @param {DepositParameters} parameters
- * @param {BigNumber.Value} parameters.amount - The deposit amount.
- * @param {boolean} parameters.approve - The optional flag determining whether approve actions should be performed.
- * @param {Token} parameters.token - The optional deposit asset.
- * @param {Vault} parameters.vaultKey - The vault identifier.
- * @param {Address} parameters.account - The EVM account address.
- * @param {ChainId} parameters.chainId - The chain id.
- * @param {EIP1193Provider} parameters.provider - The EIP1193 provider.
- * @param {string} parameters.rpcUrl - The optional rpc url.
+ * @internal Internal helper used by `EvmDeploy` and other action classes.
+ * The public `deposit` function was removed in 5.0.0; consumers use
+ * `depositEarn` instead. This implementation is kept because the EVM action
+ * classes still need to deposit into the underlying vault directly.
  *
  * @returns {Promise<Hash>}
  */
-export async function deposit({
+export async function depositInternal({
   amount: amountRaw,
   approve = true,
   token = Token.LBTC,
-  vaultKey = Vault.Veda,
   account,
   chainId,
   provider,
   rpcUrl,
   env,
 }: DepositParameters) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
-  if (!isVedaVaultChain(chainId)) {
+  const vault = EARN_VAULT;
+  if (!isEarnChain(chainId)) {
     throw new Error(
       `Unsupported chain id: ${chainId}. Please switch to one of the supported chains: ${vault.chains.join(', ')}`,
     );

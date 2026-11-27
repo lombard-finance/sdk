@@ -12,4 +12,3 @@ export default defineConfig({
     options.jsx = 'automatic';
   },
 });
-

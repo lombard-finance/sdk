@@ -68,7 +68,10 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
       try {
         setError(null);
         setIsLoading(true);
-        setStatus({ phase: 'preparing', message: 'Creating unstake action...' });
+        setStatus({
+          phase: 'preparing',
+          message: 'Creating unstake action...',
+        });
 
         const action = sdk.chain.evm.unstake({
           assetIn: AssetId.LBTC,
@@ -89,20 +92,35 @@ export function useEvmUnstake(sdk: LombardSDK | null): UseEvmUnstakeReturn {
 
         unsubscribeRef.current = unsubStatus;
 
-        setStatus({ phase: 'preparing', message: 'Preparing unstake parameters...' });
-        await action.prepare({ amount: params.amount, recipient: params.recipient });
+        setStatus({
+          phase: 'preparing',
+          message: 'Preparing unstake parameters...',
+        });
+        await action.prepare({
+          amount: params.amount,
+          recipient: params.recipient,
+        });
 
         if (action.status === EvmOperationStatus.NEEDS_FEE_AUTHORIZATION) {
-          setStatus({ phase: 'authorizing', message: 'Authorizing network fee...' });
+          setStatus({
+            phase: 'authorizing',
+            message: 'Authorizing network fee...',
+          });
           await action.authorizeFee();
         }
 
-        setStatus({ phase: 'executing', message: 'Executing unstake transaction...' });
+        setStatus({
+          phase: 'executing',
+          message: 'Executing unstake transaction...',
+        });
         const result = await action.execute();
 
         if (result.txHash) {
           setTxHash(result.txHash);
-          setStatus({ phase: 'complete', message: 'Unstake completed successfully!' });
+          setStatus({
+            phase: 'complete',
+            message: 'Unstake completed successfully!',
+          });
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unstaking failed';

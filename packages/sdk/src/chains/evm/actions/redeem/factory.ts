@@ -19,9 +19,13 @@ import type { EvmRedeemParams } from './types';
  * ```typescript
  * const sdk = await createLombardSDK({ env: Env.prod, providers: { evm: () => window.ethereum } });
  * const redeem = sdk.chain.evm.redeem({
- *   sourceChain: Chain.ETHEREUM,
+ *   assetIn: AssetId.BTCb,
+ *   assetOut: AssetId.BTC,
+ *   sourceChain: Chain.AVALANCHE,
+ *   destChain: Chain.BITCOIN_MAINNET,
  * });
- * await redeem.prepare({ amount: '0.1' });
+ * await redeem.prepare({ amount: '0.1', recipient: 'bc1q...' });
+ * await redeem.execute();
  * ```
  */
 export function evmRedeem(

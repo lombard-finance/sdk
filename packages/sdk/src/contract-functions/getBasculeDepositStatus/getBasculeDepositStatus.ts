@@ -51,8 +51,7 @@ export enum BasculeDepositStatus {
   WITHDRAWN = 2,
 }
 
-export interface IGetBasculeDepositStatusParameters
-  extends CommonOptionalWriteParameters {
+export interface IGetBasculeDepositStatusParameters extends CommonOptionalWriteParameters {
   /**
    * The deposit for which the bascule status will be checked.
    * You can omit `rawPayload` parameter if `deposit` is provided.

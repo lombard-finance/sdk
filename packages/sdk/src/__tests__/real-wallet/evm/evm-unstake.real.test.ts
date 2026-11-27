@@ -8,7 +8,9 @@ import { createTestConfig as createConfig } from '../../helpers/createTestConfig
 import { walletClientToProvider } from '../../test-utils/eip1193-adapter';
 import { createTestEvmWallet } from '../../test-utils/evm-wallet';
 
-const runIfConfigured = process.env.TEST_EVM_PRIVATE_KEY ? describe : describe.skip;
+const runIfConfigured = process.env.TEST_EVM_PRIVATE_KEY
+  ? describe
+  : describe.skip;
 
 runIfConfigured('EVM Unstake Real Wallet', () => {
   let wallet: WalletClient;
@@ -16,7 +18,7 @@ runIfConfigured('EVM Unstake Real Wallet', () => {
   beforeAll(async () => {
     const res = await createTestEvmWallet(
       process.env.TEST_EVM_PRIVATE_KEY as `0x${string}`,
-      'sepolia'
+      'sepolia',
     );
     wallet = res.walletClient;
   });
@@ -44,6 +46,8 @@ runIfConfigured('EVM Unstake Real Wallet', () => {
     // Status depends on whether user has LBTC balance and allowance
     // Without LBTC: might be 'ready' (nothing to approve) or 'needs-approval'
     // With LBTC: 'needs-approval' then 'ready'
-    expect(['ready', 'needs-approval', 'needs_approval']).toContain(unstake.status);
+    expect(['ready', 'needs-approval', 'needs_approval']).toContain(
+      unstake.status,
+    );
   });
 });

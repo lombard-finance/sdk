@@ -8,9 +8,6 @@ import type { SolanaCoreContext } from '../../../../shared/context';
 import { SolanaRedeem } from './SolanaRedeem';
 import type { ISolanaRedeem, SolanaRedeemParams } from './types';
 
-/**
- * Create Solana redeem from context
- */
 export function createSolanaRedeem(
   ctx: SolanaCoreContext,
   params: SolanaRedeemParams,

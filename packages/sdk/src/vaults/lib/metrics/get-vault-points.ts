@@ -1,13 +1,11 @@
 import axios from 'axios';
 import { Address } from 'viem';
 
-import { Vault, VAULTS } from '../config';
+import { EARN_VAULT } from '../config';
 
-export type GetVaultPointsParameters = {
+export type GetEarnPointsParameters = {
   /** The account address. */
   account: Address;
-  /** The optional vault identifier */
-  vaultKey?: Vault;
 };
 
 const POINTS_URL = 'https://api.veda.tech/points/user/{account}';
@@ -30,15 +28,8 @@ type Response = {
 /**
  * Gets the points earned by specified account in the DeFi vault.
  */
-export async function getVaultPoints({
-  account,
-  vaultKey = Vault.Veda,
-}: GetVaultPointsParameters) {
-  const vault = VAULTS[vaultKey];
-  if (!vault) {
-    throw new Error(`Unknown vault key: ${vaultKey}`);
-  }
-
+export async function getEarnPoints({ account }: GetEarnPointsParameters) {
+  const vault = EARN_VAULT;
   const url = POINTS_URL.replace('{account}', account);
   const { data } = await axios.get<Response>(url, {
     headers: {

@@ -71,7 +71,11 @@ export function getTestRunId(): number {
 /**
  * Compute a deterministic index for a list based on run ID and label.
  */
-export function getRotatingIndex(length: number, label: string, runId = getTestRunId()): number {
+export function getRotatingIndex(
+  length: number,
+  label: string,
+  runId = getTestRunId(),
+): number {
   if (length <= 0) {
     return 0;
   }

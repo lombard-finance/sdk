@@ -46,6 +46,7 @@ execute()  - perform main operation
 ```
 
 Rules:
+
 - Actions (high-level) MUST wait for receipt in `approve()` before transitioning to READY
 - Contract functions (low-level) return txHash only, do not wait
 - Some actions (EvmRedeem, EvmDeposit) have no-op `approve()` that just flips state
@@ -61,12 +62,14 @@ sdk.api.getExchangeRatio(...)
 ```
 
 Lower-level:
+
 - `makePublicClient({ chainId })` - read-only, uses SDK RPC endpoints
 - `makeWalletClient({ provider, chainId })` - wraps EIP1193 provider for transactions
 
 ## Path Aliases
 
 Use path aliases in imports, not relative paths:
+
 - `api` -> `src/api-functions`
 - `chains` -> `src/chains`
 - `client` -> `src/client`

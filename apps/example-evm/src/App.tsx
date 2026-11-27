@@ -36,7 +36,10 @@ function App() {
             <Route index element={<Navigate to="/staking" replace />} />
             <Route path="staking" element={<SimpleStakingPage env={env} />} />
             <Route path="unstaking" element={<UnstakePage env={env} />} />
-            <Route path="stake-and-deploy" element={<StakeAndDeployPage env={env} />} />
+            <Route
+              path="stake-and-deploy"
+              element={<StakeAndDeployPage env={env} />}
+            />
             <Route path="*" element={<Navigate to="/staking" replace />} />
           </Route>
         </Routes>

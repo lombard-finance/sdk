@@ -12,7 +12,7 @@ export {
   isBtcUnstakeSupported,
 } from './config';
 export { EvmUnstake } from './EvmUnstake';
-export { createEvmUnstake,evmUnstake } from './factory';
+export { createEvmUnstake, evmUnstake } from './factory';
 export {
   type EvmUnstakeParams,
   type EvmUnstakePrepareParams,

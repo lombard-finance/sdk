@@ -1,3 +1,613 @@
+# 5.11.5
+
+### Fixed
+
+- Bundle zod 4.6.6 or later for input validation, in place of the zod 3 code bundled until now. Every input is accepted or rejected as before, with the same SDK messages. Three of zod's own default messages change wording: params that are not an object, a `referralCode` that is not a string, and a missing `protocol` now read `Invalid input: expected …, received …` instead of `Expected …, received …` or `Required`. Error codes are unchanged.
+
+# 5.11.4
+
+### Fixed
+
+- Require BitcoinJS 6.1.10 for patched transaction-merkle verification, proof-of-work target validation and consistent PSBT input handling while preserving the BitcoinJS 6 API.
+
+# 5.11.3
+
+### Fixed
+
+- Refresh patched HTTP, command-quoting, documentation and development-server dependencies while preserving their existing major versions.
+
+# 5.11.2
+
+### Fixed
+
+- Strategy calls with `env: 'dev'` resolve BTCoc's dev deployment on Ethereum Sepolia (`0xAbE7A9F2181E32778C284cD0f56BAC5AFbc91154`), with BTC.b as its only deposit asset. Until now they threw "not deployed in env".
+
+# 5.11.1
+
+### Fixed
+
+- Fee and stake-and-bake signing read the token's EIP-712 domain on chain, supporting both "Lombard Staked Bitcoin" and "Lombard BTC" without another SDK update. BTC.b uses the same domain lookup. Contracts without EIP-5267 fall back to `name()` and version `1`.
+- Export `getTokenEip712Domain` for callers building their own typed data. Concurrent reads are deduplicated by chain and token address only while in flight. Later calls read the contract again, so an open session sees the renamed domain without reloading.
+
+# 5.11.0
+
+### Added
+
+- `withdrawEarn({ queue: 'boring' })` and `cancelEarnWithdrawal({ queue: 'boring' })` work on Base and BSC. The BoringOnChainQueue is deployed there at the same address as on Ethereum, and `EARN_VAULT_BORING_QUEUE_CONTRACTS` now lists all three Earn chains. Until now a `'boring'` request on either chain was refused before any transaction.
+
+# 5.10.0
+
+## 🚨 BREAKING CHANGES
+
+### Removed: Season 1 and Season 2 points readers
+
+`getPointsByAddress`, `getLuxSeason1Points`, `getLuxSeason2Points` and `sdk.api.points()` are removed, along with their types (`IGetPointsByAddressParameters`, `IPointsBase`, `IPointsByAddressSeason1`, `IPointsByAddressSeason2`, `IProtocolPointsBreakdown`).
+
+They read `/api/v1/referral-system/season-{1,2}/points/{address}`, which recomputes a total on every request rather than returning the season-end figure, so the result drifted from the final total for both seasons. The SDK has no replacement: the season-end total is served by the authenticated `/v2/lux/points/season-{1,2}/final/{address}` route, which takes a wallet JWT and returns `{ total: string }`.
+
+### Migration
+
+Remove calls to the functions above. To read a season-end total, call the v2 route with the wallet's JWT as a bearer token. The route is served from `baseApiV2Url`, not the `baseApiUrl` the removed functions used:
+
+```ts
+import { getApiConfig } from '@lombard.finance/sdk';
+
+const season = 2; // 1 or 2
+const { baseApiV2Url } = getApiConfig(env);
+const res = await fetch(
+  `${baseApiV2Url}/v2/lux/points/season-${season}/final/${address}`,
+  { headers: { Authorization: `Bearer ${jwt}` } },
+);
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
+const { total } = await res.json(); // exact decimal string
+```
+
+## Added
+
+- Optional wallet challenge `clientSecret`, sent as `client_secret` on verification and status polling, including the permit flow.
+
+# 5.9.0
+
+### Added
+
+- `withdrawEarn({ queue })` and `cancelEarnWithdrawal({ queue })` select the withdrawal queue: `'atomic'` (the default, unchanged behaviour) or `'boring'` for the BoringOnChainQueue. On the BoringQueue the request is filed with `requestOnChainWithdraw` and the approval goes to that queue's address; the discount and deadline come from the vault config and sit inside the bounds the queue enforces per redemption asset. Ethereum only — a chain without a deployment is refused before any transaction.
+
+  The two queues differ in ways a caller has to plan for. `safeUpdateAtomicRequest` overwrites a single request per (user, vault, asset), while `requestOnChainWithdraw` files a new one each call, so a user can hold several at once. The BoringQueue also takes the shares into its own custody when the request is filed, so they leave the holder's balance until the request is solved or cancelled — a position read from the share balance alone will understate what the user holds by the queued amount.
+
+- `cancelEarnWithdrawal({ queue: 'boring', request })` cancels through `cancelOnChainWithdraw`, which matches on the whole request struct rather than a (user, vault, asset) key. `request` is therefore required on that path, and `BoringWithdrawRequest` is exported to name it.
+
+- `EarnWithdrawQueue`, the union behind the `queue` option.
+
+### Fixed
+
+- `withdrawEarn({ queue: 'boring' })` reads `withdrawAssets(assetOut)` on the queue and refuses a redemption asset the queue has stopped, naming the asset, before it sends anything. Withdrawals are enabled per asset and can be stopped at any time; without the check the request reverts as `BoringOnChainQueue__WithdrawsNotAllowedForAsset` after the caller has already paid for an approval.
+
+# 5.8.0
+
+### Fixed
+
+**`btc.stakeAndDeploy()` resumed on a stored signature without checking it covered the new deposit.**
+
+`prepare()` looks for an unexpired stake-and-bake signature and, finding one, marks the action authorised and skips the wallet prompt. The permit behind that signature authorises a fixed amount, and the amount being prepared was never compared to it. Since `5.4.0` an expiry may be set up to a year ahead, so a returning user with a live signature is the ordinary path rather than an edge case.
+
+Authorise 0.001 BTC, come back, `prepare({ amount: '0.5' })`: the action reported ready with no prompt, and the BTC was minted against a permit covering roughly a five-hundredth of it. Nothing failed — the vault leg is simply authorised for a fraction of the deposit.
+
+The restore result now carries `coversAmount`, and the resume happens only when it is true.
+
+**Where the action goes instead is a new state, because asking for authorisation again cannot work.**
+
+One stake-and-bake signature is kept per wallet and chain while it is unexpired and unused, so `save-stake-and-bake-signature` refuses a second one. Signing again does not get around that by carrying a different nonce either: the nonce comes from `nonces(owner)` on the token, and ERC-2612 advances it only when a permit is actually spent, so a permit signed while the stored one is unused carries the same value.
+
+Routing to `NEEDS_DEPLOY_AUTHORIZATION` would therefore have opened the wallet, taken a signature, and shown the user the gateway's own refusal string. `prepare()` stops at `BLOCKED_BY_EXISTING_AUTHORIZATION` instead and reports what is on file:
+
+```ts
+await action.prepare({ amount: '0.5', recipient });
+
+if (action.status === BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION) {
+  const { depositAmount, expiresAt } = action.existingAuthorization ?? {};
+  // Deposit within depositAmount, or wait until expiresAt.
+}
+```
+
+An expired or absent signature is unchanged: nothing is on file server-side, so the wallet can sign and the prompt is worth showing.
+
+The same state also catches a record that carries no signature. The route reports one as present off an unexpired `expiration_date` alone — its own comment notes the raw signature may be omitted — and `READY` is where `generateDepositAddress()` sends that signature as proof of control over the destination. Going ready without the bytes forwarded `undefined` from a state the action had called ready, so the record has to carry a signature to be resumed from. Waiting for the stored authorisation to lapse is the way out, as it is for one that does not cover the deposit.
+
+**A Bitcoin address for a future witness version passed validation and was paid to.**
+
+`isValidBitcoinAddress()` — and so `bitcoinAddressSchema`, the recipient schema for every unstake and redeem action — accepted anything that decoded as bech32. `bc1zxvenxvenxvenxvenxvenxvenxv8al9f3` is witness version 2, valid bech32m, and an output for an undefined witness version is spendable by anyone once mined. Versions above 1 are rejected now, and `getOutputScript()` in `@lombard.finance/sdk-common@4.3.1` refuses to build the script as well.
+
+The reachable case is a redeeming user's own bad input — a typo, a mis-scanned QR, an address pasted from somewhere untrusted — rather than an attacker. Starknet was already covered, because its redeem path also calls `getBtcAddressType`, which throws for anything but version 0 or 1.
+
+**`isValidBitcoinAddress()` rejected the all-uppercase bech32 form.**
+
+It branched on a lowercase `bc1` / `tb1` prefix, so `BC1QZYG3…H8FFKZ` fell through to the base58 check and came back false, while `toOutputScript` pays it happily. Both bech32 cases are decoded now rather than matched on their prefix. Fail-closed before, so no funds were at risk.
+
+**`generateDepositBtcAddress()` returned a missing address as an address.**
+
+A `200` carrying `{}` or `{ address: "" }` became an `undefined` typed as `string`, handed to the caller as the Bitcoin address to send a deposit to, and the failure surfaced later as an unrelated state error. Both sibling routes already refuse a response without one. The check sits outside the request's `catch`, so the sanctions refusal still answers with `SANCTIONED_ADDRESS`.
+
+**A failed JWT revoke logged the error object, and an axios error carries the request headers.**
+
+`revokeWalletToken()` sets `Authorization: Bearer <jwt>` and, on failure, passed the whole error to `console.error`. An axios rejection carries the config it failed with, headers included. The branch runs exactly when revocation did not happen, so the token is still live server-side, and a consumer whose error reporter serialises error properties would take it off the machine. It logs the message only now.
+
+**`getErrorMessage()` returned `undefined` for a response body without a JSON `message`.**
+
+An edge serving an HTML error page, or a 401 with an empty body, is not `{ message: string }`. Reading `.message` off it gave `undefined`, which callers turned into `new Error(undefined)` — message the empty string — and a `null` body threw from inside the helper itself.
+
+The consequence was worse than a blank message. Both deposit-address routes test that string for the sanctions refusal, so `undefined.includes(...)` threw a `TypeError` from inside their own error handling. In `resolveDepositBtcAddress` that meant the 401/403 branch reporting a rejected wallet JWT was never reached, and a consumer watching for `UnauthorizedWalletJwtError` to trigger a re-login saw a `TypeError` instead.
+
+Every branch answers with a string now, falling back to `HTTP error <status> <statusText>` when there is no message to quote.
+
+### Added
+
+- `BtcActionStatus.BLOCKED_BY_EXISTING_AUTHORIZATION` and `BtcStakeAndDeploy.existingAuthorization` (`depositAmount` in token base units, `expiresAt` as UNIX seconds). Both values come off the record `restoreStakeAndBakeSignature` had already read and was discarding.
+- `StakeAndBakeSignatureExistsError`, thrown by `storeStakeAndBakeSignature()` when the API refuses because a signature is already on file, so the paths that still reach the store give callers something to branch on rather than a bare `Error` carrying a server string. It carries the API's `code` when the response had one.
+- `isActiveSignatureError(message)`, the predicate that recognises that refusal. It and the message it matches were written in `ExistingSignatureHandling.test.ts`, declared inside a test next to a comment saying the SDK should be doing this; they are production code now.
+
+### Notes
+
+- The comparison is against the permit's own `value`. The store call sends only the signature and the typed data, so the amount the server records is `message.value` — the ratio-converted figure, not the satoshis passed in. The deposit being prepared is converted the same way before the two are compared.
+- A record with no amount on it is treated as not covering. That costs a prompt which may not have been needed; the other direction skips the prompt for a deposit that is not authorised.
+- `restoreStakeAndBakeSignature` on the stake-and-deploy chain config takes a fourth argument, `{ amount, token }`, describing the deposit being prepared. `StakeAndBakeRestoreResult` gains `coversAmount`.
+- `btc.depositAndDeploy()` is unaffected: it has no resume branch and always asks for authorisation.
+- Nothing here re-derives a server-issued deposit address or checks it against the action's Bitcoin network. That is worth doing and is a separate change: the network an action believes it is on defaults to testnet when `sourceChain` is omitted, so a check keyed on it would reject valid production addresses until that is settled.
+- The order in `resolveDepositBtcAddress`'s error handling is unchanged and load-bearing: the sanctions refusal arrives as a 403, so it is recognised by its message before the status is read. What made that fragile was the `undefined`, not the order.
+- `sdk-common` has its own `extractErrorMessage` covering these cases correctly. Consolidating the two is worth doing separately — it gates the response branch on `isAxiosError`, where this one reads `.response` off any `Error`, and that difference decides what a rejection which crossed a module boundary reports.
+
+# 5.7.0
+
+### Fixed
+
+**`signStakeAndBake()` takes `value` in base units and said "BTC value", so a human-readable amount signed a permit for zero.**
+
+Every other public write helper in the SDK — `depositEarn`, `redeemToken`, `bridge`, `depositToken` — takes a human-readable amount and converts it. This one takes satoshis, because the value goes into the permit as it stands, and its doc said "the approved BTC value". The internal callers convert first; a consumer calling the export directly with `'0.001'` did not.
+
+There was no lower bound either. `'0.001'` divides by the ratio to `0.000997`, rounds down to `0`, and signs: a permit authorising nothing, stored server-side and reported as success. `value` is now required to be a positive whole number of base units, and a value that converts to zero is refused with the conversion shown.
+
+```text
+value must be a whole number of base units, received 0.001. It is an amount in
+token base units — satoshis on the BTC routes, not a human-readable amount —
+0.001 BTC is 100000, not 0.001.
+```
+
+**The `expiry` bounds only existed on `signStakeAndBake`.**
+
+`signNetworkFee({ expiry })` and `signPermitChallenge({ deadline })` take the same parameter, in the same unit, and had none of its checks. A millisecond timestamp is a positive safe integer in the future, so it passed. On the fee route that is a fee authorisation `checkFeeAuthorization` then reads as valid forever, so the user is never asked to renew it.
+
+The guard is now shared by all three routes and names the parameter it was given, so the fee route reports `expiry` and the permit-challenge route reports `deadline`. Both are absolute UNIX timestamps in seconds, must be in the future, and must be at most 365 days ahead.
+
+### Notes
+
+- The `expiry` messages are unchanged on `signStakeAndBake`. The two that mentioned "permit deadline" now say "deadline", since the same text is raised for the fee approval.
+- Zero-deadline routes (Silo BTC.b) remain exempt from the expiry checks and are not exempt from the value check: every route reads the value.
+
+# 5.6.0
+
+### Fixed
+
+- `signPermitChallenge()` checks the issued permit against the values it was called with before the wallet is prompted: `domain.chainId`, `domain.verifyingContract` against the SDK's LBTC address for that chain, `message.owner`, `message.spender` against the vault spender in the registry, and `message.value` / `message.deadline` as upper bounds on what was requested. `primaryType` has to be `Permit` and the `Permit` struct has to carry the ERC-2612 fields in order.
+
+  The digest check that was already there hashes the returned payload and compares it to the returned digest, so it establishes that the two agree with each other and nothing about what the document authorises. A permit is a spending allowance, and every field above is one the caller passed in or the SDK holds as a constant, so a document that differs is not the one that was asked for.
+
+  `value` and `deadline` are bounds rather than exact matches, since the server is documented to be allowed to shorten the deadline it was asked for. `nonce` stays unchecked — reading `nonces(owner)` would need an RPC round trip, and a wrong nonce yields a permit the token rejects rather than one that authorises something else. `domain.name` and `domain.version` stay unchecked for the same reason, now that `verifyingContract` is pinned.
+
+### Added
+
+- `PermitChallengeMismatchError`, thrown by `signPermitChallenge()` when the issued permit does not describe the requested authorisation. `field` names what differed, e.g. `message.spender`.
+- `signPermitChallenge({ expectedSpender })` names the spender to check against on a chain the vault registry does not carry. Without it such a chain is refused rather than trusted, since there is nothing local to compare the document to.
+
+# 5.5.0
+
+### One-Signature Permit Authorisation
+
+A stake-and-bake deposit needed two things from the user: an ERC-2612 permit authorising the vault spender, and proof that they control the destination address so a BTC deposit address could be issued for it. The v1 deposit-address route took the permit signature as that proof, but a permit is submitted on chain and readable in the mint calldata, so it is not private and the route now refuses a signature it has already seen. Doing it properly over the v2 route meant a second, separate signature.
+
+The wallet-auth challenge can now carry the permit itself. One signature does both jobs: the server issues the permit as EIP-712 typed data, the wallet signs it, and verification returns a JWT _and_ records the permit for the claimer.
+
+```ts
+import {
+  signPermitChallenge,
+  resolveDepositBtcAddress,
+  Token,
+} from '@lombard.finance/sdk';
+
+const { jwt, signatureExpiresAt } = await signPermitChallenge({
+  account,
+  chainId: ChainId.ethereum,
+  provider,
+  value: '99512', // token base units
+  deadline: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+});
+
+const depositAddress = await resolveDepositBtcAddress({
+  address: account,
+  chainId: ChainId.ethereum,
+  token: Token.LBTC,
+  walletJwt: jwt,
+});
+```
+
+No separate call is needed to store the permit.
+
+### Added
+
+- `signPermitChallenge()` runs the whole ceremony: request a permit challenge, sign it, exchange it for a JWT, polling when the wallet verifies asynchronously. It returns the JWT alongside the signed payload and `signatureExpiresAt`, the permit deadline the server settled on.
+- `requestWalletChallenge()` accepts `challengeType` plus `permit` / `feeApproval` params, and returns `challengeType`, `digest` and `signatureExpiresAt`.
+- `verifyWalletSignature()` accepts `challengeType`.
+- `WALLET_CHALLENGE_TYPE`, `WalletChallengeType`, `PermitChallengeParams` and `FeeApprovalChallengeParams` are re-exported from the package root, so naming a challenge type does not require depending on `@lombard.finance/sdk-common` directly.
+- `ActivePermitExistsError` (`code: 9`, with the existing signature's `expiresAt` when the pre-check raised it) — thrown when a wallet already holds an active stake-and-bake signature, so a permit challenge cannot be redeemed.
+
+### Fixed
+
+**A millisecond `expiry` was accepted by `signStakeAndBake`, and set a permit deadline that never lapses.**
+
+The existing checks reject an `expiry` that is not a whole number of seconds, and one that is not in the future. `Date.now()` passed unconverted is neither: it is a positive safe integer, and it is in the future. It cleared both checks and the deadline landed roughly 56,000 years out.
+
+Nothing failed at any point. The permit signed, the signature was stored, and what the caller had granted was a spending allowance to the vault spender that does not expire — from one missing division. Of the ways an `expiry` can be wrong this is the only one with no downstream symptom: a fractional value throws from `BigInt()`, and a past value fails when the permit is used on chain.
+
+`expiry` must now also be no more than **365 days** ahead. Generous enough that no real authorisation window approaches it, small enough that a millisecond timestamp cannot pass. When the magnitude matches, the error names the mistake rather than just citing the bound:
+
+```text
+expiry looks like milliseconds: 1787588525408 is ~1000x the current time in
+seconds (1787588525), which would set the permit deadline to the year 58616.
+It is an absolute UNIX timestamp in seconds — divide by 1000.
+```
+
+Anyone who called `authorizeDeposit({ expiry })` on `5.4.0` with a millisecond value should treat the resulting permit as an open-ended approval and let it be spent or replaced.
+
+The bound is client-side. A request built without the SDK is unaffected by it.
+
+### Notes
+
+- **The permit is built server-side.** It reads `nonces(owner)` from the token and picks the deadline, because a client-chosen nonce and a predictable deadline are what make a published signature replayable. `deadline` is a request; the server may shorten it. Do not assemble the typed data locally.
+- **The payload reaches the wallet as the exact string the server returned.** It is the JSON the server hashed, and re-serialising it can move the digest off the one it reserved. `signPermitChallenge` recomputes the digest and throws before prompting if it does not match.
+- **`challengeType` is sent again on verify.** Challenges are stored per address and type, so omitting it looks up a plain-text challenge that was never issued.
+- **A wallet that already holds an active signature never reaches the prompt.** The gateway issues a permit challenge regardless of one being on file and only refuses at verify, after the user has signed a real permit that is then discarded. For a returning user that is the default state for the lifetime of their previous permit, so `signPermitChallenge` looks the record up first and throws `ActivePermitExistsError` before prompting. Fall back to the plain wallet challenge on it, which issues a JWT without a second permit. The same error is raised from `verifyWalletSignature` when the API reports code `9`, so the case stays branchable if the pre-check is bypassed. A lookup that itself fails is treated as nothing being on file: blocking a first-time user on an unrelated outage is a worse trade than the wasted prompt this avoids.
+- **A wallet rejection arrives as an `Error`.** Wallets reject with an EIP-1193 object rather than an `Error`, so an unwrapped rejection reached callers as `[object Object]` once stringified. It is normalised the same way as the two API calls in the flow.
+- A challenge requested without the params its type requires is rejected at the call site. The gateway does not refuse it — it answers with the plain-text payload, which a wallet signs happily and the server then rejects.
+- `signStakeAndBake()` is unchanged and still builds the permit locally for the v1 route.
+
+# 5.4.0
+
+### Configurable Stake-And-Bake Signature Expiry
+
+`signStakeAndBake()` has always accepted an expiry and defaulted to 24 hours, but no higher-level caller could set one. `SignStakeAndBakeParams` had no `expiry` field, so `EvmService.signStakeAndBake()` could not forward one; neither deploy config threaded it; and `authorizeDeposit()` took no arguments at all. Every consumer going through `btc.stakeAndDeploy()` or `btc.depositAndDeploy()` was pinned to 24 hours, and a user whose signature lapsed had to come back and sign again.
+
+```ts
+const action = sdk.chain.btc.stakeAndDeploy({
+  assetOut: AssetId.LBTC,
+  destChain: Chain.ETHEREUM,
+  protocol: DefiProtocol.Veda,
+});
+
+await action.prepare({ amount: '0.1', recipient: '0x...' });
+
+// Ten days instead of 24 hours
+await action.authorizeDeposit({
+  expiry: Math.floor(Date.now() / 1000) + 10 * 24 * 60 * 60,
+});
+```
+
+`expiry` is an **absolute UNIX timestamp in seconds**, matching the low-level parameter it forwards to, so no second unit convention enters the SDK. Omitting it passes `undefined` the whole way down rather than computing a default en route, so the 24-hour fallback stays in exactly one place.
+
+On routes with a non-zero deadline, an `expiry` is rejected with an `INVALID_PARAMETER` error before anything reaches the network if it is not a positive whole number of seconds, or if it is not in the future. The first catches a fractional value — what `Date.now() / 1000` produces without a `Math.floor` — which `BigInt()` would otherwise turn into a `RangeError` from inside the permit build. The second catches a relative duration (`7 * 24 * 60 * 60` puts the deadline in 1970) and a stale timestamp; both would otherwise sign and store successfully and only fail when the permit was used on chain.
+
+The override reaches the signer through all four hops — action, config, service, signer — and each is covered by a test that fails if the hop drops it.
+
+`useBtcStakeAndBake()` in `@lombard.finance/sdk-react` accepts `expiry` on its `stakeAndDeploy` params and forwards it, so consumers on the hook are not pinned to the default either.
+
+`authorizeDeposit()` still takes no required arguments, so **every existing call site compiles and behaves as before**.
+
+The BTC.b vault route signs with a zero deadline (`deadlineStrategy: 'zero'`), so the option is accepted there for interface parity and has no effect on that route.
+
+# 5.3.0
+
+### Deposit Address Over The Wallet JWT
+
+The BTC deposit address can now be obtained with a wallet JWT instead of a destination-address signature. The token already proves control of the destination address, so the request that carries it needs no signature of its own.
+
+### Added
+
+- `resolveDepositBtcAddress({ address, chainId, token, walletJwt, partnerId, referrerCode, nonce, destinationAssetAddress, env })` posts to `POST /v2/addresses/deposit` with `Authorization: Bearer <walletJwt>` and returns the BTC deposit address. It is the signature-free counterpart of `generateDepositBtcAddress`: no destination-address signature, no captcha. The JWT comes from the existing `requestWalletChallenge` / `verifyWalletSignature` flow.
+  - The v2 host comes from `getApiConfig(env).baseApiV2Url`, so every environment (dev, stage, testnet, ibc, prod) reaches its own gateway.
+  - A 401, and a 403 for a JWT that does not authorise the requested address, are both raised as `UnauthorizedWalletJwtError`, so consumers already handling an expired vault-manager token handle this route the same way.
+  - A sanctioned destination resolves to `SANCTIONED_ADDRESS`, matching `generateDepositBtcAddress` rather than throwing.
+  - `destinationAssetAddress` names the asset **instead of** `token`, not in addition to it: the two are one field on the wire and a request carrying both is refused. A token with no `ASSET_TYPE_*` identifier is reachable this way.
+  - `env` alone picks the network. A testnet chain id resolves to its mainnet identifier, so the chain id and the environment have to be consistent at the call site.
+- `canResolveDepositBtcAddressWithJwt(chainId, token = Token.LBTC)` reports whether the route has an identifier for that pair. `false` is not an error: it means the caller keeps to `generateDepositBtcAddress`. The route names `LBTC` and `BTCb`; any other token falls back instead of guessing a wire name.
+- `getDepositAssetTypeById(token)` returns the `ASSET_TYPE_*` identifier for a token, and throws when there is none.
+- `getLegacyChainNameById(chainId)` returns the short `BLOCKCHAIN_*` identifier that the v2 address route accepts, derived from the same chain resolution as `getChainNameById`. A testnet deployment answers to its mainnet name (holesky and sepolia are both `BLOCKCHAIN_ETHEREUM`), and non-EVM chains are covered too.
+
+### Changed
+
+- `UnauthorizedWalletJwtError` moved to the shared error module so routes outside the vault-manager can raise it. It is still exported from `@lombard.finance/sdk/strategies` and its `name` is unchanged; only the message text is now route-agnostic (`Wallet JWT rejected (<url>)`).
+
+---
+
+# 5.2.2
+
+### Fixed
+
+The `dev` environment now sends v2 API requests to `https://api.devnet-bft.lombard-fi.com` instead of `https://bft-dev.stage.lombard-fi.com`.
+
+The dev v1 host does not serve the `/v2/*` routes, so every v2 call from that environment returned HTTP 404 — `POST /v2/auth/wallet/challenge` and the rest of the wallet-auth flow (`verify`, `verify/status`, `token/revoke`), plus the strategy metrics endpoints (`nav-history`, `rates-history`, per-user positions). `baseApiUrl` is unchanged, so v1 calls keep hitting the same host as before.
+
+# 5.2.1
+
+### Fixed
+
+A BTC action no longer stores its fee approval or stake-and-bake signature with the server when that same signature is about to be sent to `generateDepositAddress`.
+
+Both halves used to happen: the action signed, stored the signature itself, and then handed it to address generation, which stores it again. The server cannot tell that second write apart from the same signature being presented for a second address request, so the deposit address request looks like a reuse of an approval that is readable on chain, in the mint calldata and the event logs.
+
+The rule is now one writer per signature. Each of `BtcDeposit`, `BtcStake`, `BtcDepositAndDeploy` and `BtcStakeAndDeploy` stores it only when it is not about to carry it into address generation, which is exactly when it already holds a deposit address, resuming a flow whose address was created earlier. In that case nothing else would store it: `generateDepositAddress` returns the address it already has without a network call.
+
+No API change for callers. `authorizeFee()`, `authorizeDeposit()` and the address generation that follows are called exactly as before; the config-level `authorizeFee`, `authorizeDepositAndDeploy` and `authorizeStakeAndBake` gained an optional `storeSignature` parameter that defaults to `true`, so a custom chain config keeps its current behaviour.
+
+# 5.2.0
+
+### Deprecated
+
+Corn (chain id `21000000`) and Swellchain (chain id `1923`) are retired. Neither network produces blocks any more — Swell Network shut its sequencer down at the end of June 2026 — so a transaction routed to either is accepted into the mempool and can never be mined.
+
+Both are gone from the chain registry, the Earn vault, the bridge, the deploy/stake/withdraw routes and every config that referenced them, so no code path can reach them. Their **identifiers are kept as deprecated aliases** for this release and are removed in the next major:
+
+- `ChainId.corn`, `ChainId.swell`
+- `Chain.CORN`, `Chain.SWELL`
+- `AssetId.WBTCN` (Corn was its only deployment)
+- `featureConfig.isCornEnabled`, `featureConfig.isSwellchainEnabled` — now no-ops that gate nothing
+
+Referencing these identifiers still compiles, so upgrading from 5.1.x does not break a build. Using one as a live chain does not: the retired ids are excluded from the `ChainId` type (via the new `RetiredChainId` type), so passing `ChainId.corn` to an SDK function is a type error instead of a runtime failure against a dead network.
+
+What was actually removed for both chains: the RPC endpoints, the viem chain mappings, the LBTC and OFT adapter addresses, the asset-catalog deployments, the `ethereum <-> corn` and `ethereum <-> swell` OFT bridge routes and their LayerZero endpoint ids (`30335` for Swellchain), Corn's Veda deploy/stake/withdraw routes and Earn network mappings, the DefiLlama chain-name mappings and the prod-env classification.
+
+The most user-visible behavioural effect: `EARN_VAULT.chains` no longer lists Corn, so `getEarnDepositsAllChains` and `getEarnWithdrawalsAllChains` stop fanning out to it. That Corn leg had been failing with HTTP 500 on every call (`Failed to fetch deposits for chain 21000000`), so the fan-out now issues 3 requests instead of 4 and no longer logs a per-call error. Historical Corn positions are no longer reachable through these aggregates.
+
+`Token.wBTCN` is intentionally **kept** so existing clients can still label historical Veda vault transactions; only its Corn address entry was dropped.
+
+### Added
+
+- `RETIRED_CHAINS` and `isRetiredChain(chain)` identify chains that no longer produce blocks. Retired chains keep their `CHAIN_CATALOG` entry so historical activity can still be labelled, but carry no `explorerUrl` (both explorers are offline) and are excluded from `getMainnetChains`, `getTestnetChains` and `getChainsByType`.
+
+### Changed
+
+- Stable mainnet (chain 988) now uses the public RPC endpoint `https://rpc.stable.xyz` in both `chains.ts` and `rpc-url-config.ts`, replacing the endpoint that was hardcoded while the network was still coming up. The public endpoint is rate limited to 1000 requests per 10 seconds per IP; consumers needing more throughput should pass their own transport.
+
+---
+
+# 5.1.1
+
+### Fixed
+
+- `ASSET_CATALOG` now lists Ethereum mainnet as a production deployment chain for BTC.b (`0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072`). The address was already present in the legacy `EVM_BTCB_ADDRESSES` registry, so catalog-driven helpers (`getAssetChains`, `getAssetDeployment`, and the rest of `core/assets/utils`) disagreed with the token registry and reported BTC.b as unavailable on prod Ethereum.
+
+---
+
+# 5.1.0
+
+### Added
+
+- Wallet authentication module (`walletAuthModule`) implementing the v2 wallet-auth flow. Three endpoints are wrapped:
+  - `requestChallenge` → `POST /v2/auth/wallet/challenge` — returns a chain-specific payload to be signed by the user's wallet.
+  - `verifySignature` → `POST /v2/auth/wallet/verify` — exchanges a signed payload for a JWT. Accepts an optional `publicKey` for chains where pubkey is not recoverable from the signature (Starknet, Cosmos).
+  - `revokeToken` → `POST /v2/auth/token/revoke` — invalidates a JWT server-side; best-effort (swallows network errors so callers can always clear local state).
+- Low-level functional exports for the same endpoints — `requestWalletChallenge`, `verifyWalletSignature`, `revokeWalletToken` — for consumers that don't want the module/DI layer.
+- `WalletAuthService` class implementing the `WalletAuthService` interface from `@lombard.finance/sdk-common`.
+- Signing the challenge with the user's wallet is intentionally NOT included — signing is chain-specific and belongs in the corresponding chain SDK package (or the consuming app).
+- New `@lombard.finance/sdk/strategies` entry point for the Lombard DeFi Vault Strategy contract (codename "BTCoc"). Distinct from the Bitcoin Earn vault exposed under `@lombard.finance/sdk/vaults` — do not conflate the two. Env-first: a call picks a strategy (`strategyId`, default BTCoc) and an environment (`env`), and the chain follows from that pair — `prod` → Ethereum mainnet, `stage` → Base Sepolia. An env may host several per-chain deployments (each with its own contract address); an optional `chainId` selects among them and defaults to the primary (first) chain.
+  - Per-user / op reads: `getStrategyPosition`, `getStrategyDepositAssets`, `getStrategyPendingRedeem`, `getStrategyShards`, `previewStrategyDeposit`.
+  - Writes: `depositStrategy` (4-arg `deposit(asset, amount, receiver, minSharesOut)`, approves the Strategy contract on insufficient allowance), `requestStrategyRedeem` (async redeem; parses `requestId` from the `RedeemRequested` event, supports `waitForReceipt: false` for Safe multisig flows).
+  - Types: `IStrategyState`, `IStrategyPosition`, `IStrategyConfigResponse`, `IStrategyDepositAsset`, `IStrategyDepositAssetStatic`, `IStrategyShards`, `IStrategyPendingRedeem`, `IRequestStrategyRedeemResult`, plus function-parameter types (`GetStrategy*Parameters`, `DepositStrategyParameters`, `RequestStrategyRedeemParameters`).
+  - Config: `STRATEGIES` registry + `DEFAULT_STRATEGY_ID`, resolvers `resolveStrategy` / `getStrategyDeployment` / `getStrategyDeployments` / `getStrategyChainIds` / `getStrategyDefinition`, and `findStaticDepositAsset`. Each strategy maps every environment to a list of per-chain deployments — each deployment carries its own `chainId`, contract address, and static deposit-asset catalog (LBTC / BTC.b on Ethereum, LBTC / BTC.b / USDT / wETH / BTCt on Base Sepolia).
+
+---
+
+# 5.0.5
+
+### Fixed
+
+- `sdk.chain.evm.redeem()` (BTC.b → native BTC) no longer triggers a network-fee authorization step. The action burns BTC.b on the EVM source chain and releases native BTC on the Bitcoin network — there is no auto-mint on an EVM destination, so the auto-mint fee model (used by BTC Deposit and EVM Unstake → BTC.b on Ethereum/Sepolia) does not apply. `prepare()` now transitions `IDLE → READY` directly on every source chain, including Ethereum and Sepolia, eliminating the unexpected EIP-712 signing prompt and the `GET /api/v1/claimer/get-user-signature` call that previously fired on those chains.
+
+### Deprecated
+
+- `IEvmRedeem.authorizeFee()` is now a deprecated **safe no-op** kept for backwards compatibility with consumers that subscribed to the previous status machine. The status never reaches `NEEDS_FEE_AUTHORIZATION`, and calling `authorizeFee()` resolves immediately without touching the wallet, the API, or the action state — so legacy code paths that still invoke it will no longer fail.
+
+### Docs
+
+- Removed stale JSDoc on `EvmActions.redeem()`, `EvmRedeem` types, and the redeem factory that described a non-existent `LBTC → BTC.b` same-chain unwrap. The actual `LBTC → BTC.b` flow lives in `sdk.chain.evm.unstake()` with `assetOut: AssetId.BTCb`.
+
+---
+
+# 5.0.4
+
+### Fixed
+
+- BTC stake fee-auth flow now recovers when the BFF reports that a fee signature already exists for the account (`FeeSignatureAlreadyExistsError`, code 6). Previously this surfaced as a confusing error after the user had already signed. The SDK now refetches the stored signature and continues the workflow. If the BFF reports a duplicate but will not return the existing record, a clearer error message is surfaced instead.
+
+### Added
+
+- Exported `FeeSignatureAlreadyExistsError` from the package root so consumers can branch on this specific failure mode when calling the underlying fee-auth APIs directly.
+
+---
+
+# 5.0.3
+
+### Fixed
+
+- Fixed Earn BFF helpers to honor `env` end-to-end so non-prod deployments stop hitting `bff.prod.lombard-fi.com`.
+
+---
+
+# 5.0.2
+
+### Fixed
+
+- `sdk.chain.evm.withdraw().approve()` now unwraps just enough BTCe BEFORE issuing the share approval on BTCe-supported chains. Without this, wallets that cap the displayed approval amount at the user's current token balance (e.g. OKX) granted an allowance smaller than the requested withdraw amount when the user's direct LBTCv balance was below the requested amount, causing the subsequent queue tx in `execute()` to revert on `allowance < amount`. The 5.0.1 reorder inside `withdrawEarn` masked this in `execute()` but produced an extra approve popup; with this fix `withdrawEarn` skips both approve and unwrap in `execute()` (single popup), and on BTCe chains with insufficient direct LBTCv the `approve()` step issues 2 popups (unwrap + approve). Behavior on Corn (no BTCe) and when direct LBTCv already covers the amount is unchanged: a single approve popup.
+
+---
+
+# 5.0.1
+
+### Fixed
+
+- `withdrawEarn()` and `previewWithdrawEarn()` now order the orchestrator steps as **unwrap → approve → queue** (previously approve → unwrap → queue). Wallets that cap the displayed approval amount at the user's current token balance (e.g. OKX) would otherwise show the pre-unwrap LBTCv balance and grant an allowance smaller than the withdraw amount, causing the final queue tx to revert. With the new order, the post-unwrap balance is in place by the time the approve prompt is shown. The pre-flight `maxWithdraw` check is unchanged.
+
+---
+
+# 5.0.0
+
+## 🚨 BREAKING CHANGES
+
+The five vault-shaped functions deprecated in 4.8.0 have been removed from the public API. They were replaced by Earn-native equivalents that handle the BTCe wrapper internally. The two deprecated `getEarnPosition` response field aliases have also been removed.
+
+### Bitcoin Earn rename
+
+The product is now called **Bitcoin Earn**. Public symbols that referenced "Veda" (the underlying protocol) or the legacy "Vault" abstraction have been renamed. Internal references to Veda's contracts, ABIs, and the `DefiProtocol.Veda` enum are unchanged because they identify a real third-party protocol.
+
+| Removed                                                        | Replacement                                          |
+| -------------------------------------------------------------- | ---------------------------------------------------- |
+| `Vault` enum, `VAULTS` map, `VaultNameMap`                     | (deleted, single Bitcoin Earn vault)                 |
+| `getVaultDeposits`, `getVaultDepositsAllChains`                | `getEarnDeposits`, `getEarnDepositsAllChains`        |
+| `getVaultWithdrawals`, `getVaultWithdrawalsAllChains`          | `getEarnWithdrawals`, `getEarnWithdrawalsAllChains`  |
+| `getVaultMinimumDeposit`, `previewVaultDeposit`                | `getEarnMinimumDeposit`, `previewEarnDeposit`        |
+| `getVaultApy`, `getVaultPoints`, `getVaultTVL`                 | `getEarnApy`, `getEarnPoints`, `getEarnTVL`          |
+| Type aliases (`GetVault*Parameters`, `VedaVaultDeposit`, etc.) | Renamed to `GetEarn*Parameters`, `EarnDeposit`, etc. |
+| `vaultKey: Vault` parameter on the public Earn helpers         | Removed (single vault, redundant)                    |
+
+The list above covers the public-facing renames. The full mapping is in [`MIGRATION_5.md`](./MIGRATION_5.md).
+
+### Removed exports
+
+| Removed                                                                                                                                                  | Replacement                                                                                                                  |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `deposit({ amount, token, vaultKey, account, chainId, provider })`                                                                                       | `depositEarn({ amount, token, account, chainId, provider })`                                                                 |
+| `queueWithdraw({ amount, token, vaultKey, account, chainId, provider })`                                                                                 | `withdrawEarn({ amount, account, chainId, provider })`                                                                       |
+| `cancelWithdraw({ token, vaultKey, account, chainId, provider })`                                                                                        | `cancelEarnWithdrawal({ withdrawalAsset?, account, chainId, provider })`                                                     |
+| `getSharesByAddress({ vaultKey, chainId, address })`                                                                                                     | `getEarnPosition({ address, chainId })` then read `.underlyingShares`                                                        |
+| `getShareValue({ vaultKey, chainId })`                                                                                                                   | `getEarnPosition({ address, chainId }).exchangeRate`                                                                         |
+| Parameter types: `DepositParameters`, `QueueWithdrawParameters`, `CancelWithdrawParameters`, `IGetSharesByAddressParameters`, `IGetShareValueParameters` | New types: `DepositEarnParameters`, `WithdrawEarnParameters`, `CancelEarnWithdrawalParameters`, `IGetEarnPositionParameters` |
+| `IGetEarnPositionResponse.lbtcvShares` (deprecated alias added in 4.8.0)                                                                                 | `IGetEarnPositionResponse.underlyingShares`                                                                                  |
+| `IGetEarnPositionResponse.btceSharesInLbtcv` (deprecated alias added in 4.8.0)                                                                           | `IGetEarnPositionResponse.btceSharesInUnderlying`                                                                            |
+
+The `lbtcvShares` / `btceSharesInLbtcv` removal is a **runtime-shape break** (not just a type rename): destructuring those names from a `getEarnPosition` result returns `undefined` even in untyped JavaScript. Update reads to the new names.
+
+The `LOMBARD_SDK_SUPPRESS_DEPRECATION` env var no longer has any effect (no deprecation warnings remain in 5.0.0).
+
+### Migration
+
+See [`MIGRATION_5.md`](./MIGRATION_5.md) at the package root for per-symbol before/after code blocks.
+
+### Internal-only retention
+
+The implementations live on as `@internal` helpers (`depositInternal`, `queueWithdrawInternal`, `cancelWithdrawInternal`, `getSharesByAddressInternal`, `getShareValueInternal`) and remain reachable from the SDK's own action classes (`EvmDeploy`, `EvmWithdraw`, `EvmCancelWithdraw`) and the new BTCe-native helpers. They are not part of the public API and are not re-exported from any entry point.
+
+### Migration support
+
+The `4.8.0` line stays available on npm and includes runtime deprecation warnings for the same functions. If you need a soak window, pin to `^4.8.0` until you're ready to bump.
+
+---
+
+# 4.8.0
+
+### Added
+
+- `depositEarn()` — high-level deposit orchestrator. Handles ERC20 approval to the BTCe contract and routes the deposit through the wrapper, returning the wrap transaction hash. Accepts the same `Token` enum as the legacy `deposit`.
+- `withdrawEarn()` — high-level withdrawal orchestrator. Reads both legs of the user's position (direct underlying-share + BTCe), checks the wrapper's `maxWithdraw` before sending any transaction, then issues 1–3 transactions in order (approve, conditional unwrap, queue). Throws typed errors on insufficient position or insufficient unwrappable balance before any state change.
+- `previewWithdrawEarn()` — read-only predictor that returns the steps `withdrawEarn` would execute and the expected wallet-popup count, so integrators can render a step indicator before the user signs.
+- `cancelEarnWithdrawal()` — cancels a pending Earn withdrawal request.
+
+### Changed
+
+- `getEarnPosition()` response renamed: `lbtcvShares` → `underlyingShares`, `btceSharesInLbtcv` → `btceSharesInUnderlying`. Behavior unchanged.
+
+### Deprecated
+
+The following exports are now `@deprecated` and emit a one-time runtime warning when called. They will be removed in 5.0.0. Set `process.env.LOMBARD_SDK_SUPPRESS_DEPRECATION` to silence the warning.
+
+- `getSharesByAddress` → use `getEarnPosition`
+- `getShareValue` → use `getEarnPosition().exchangeRate`
+- `deposit` → use `depositEarn`
+- `queueWithdraw` → use `withdrawEarn`
+- `cancelWithdraw` → use `cancelEarnWithdrawal`
+
+---
+
+# 4.7.2
+
+### Fixed
+
+- Fixed Ethereum chain detection to include Sepolia, so Ethereum-specific flows such as Bascule mint-history checks also run on the Ethereum testnet.
+
+---
+
+# 4.7.1
+
+- **Solana companion package** (`@lombard.finance/sdk-solana` ≥2.0.1): `deposit()`, `redeem()`, and `redeemForBtc()` derive the Mailbox `senderConfig` PDA from the Asset Router `messaging_authority` PDA instead of the Asset Router program ID. Upgrade the Solana package when targeting the upgraded Mailbox program. This `@lombard.finance/sdk` release documents that dependency; see `packages/sdk-solana/CHANGELOG.md` for details.
+
+---
+
+# 4.7.0
+
+### Added
+
+- `solana.stake()` — new action for BTC.b → LBTC on Solana via Asset Router (mirrors the EVM `stake` pattern).
+- `solana.unstake()` — new same-chain route LBTC → BTC.b on Solana (Asset Router `redeem`), alongside the existing cross-chain LBTC → BTC. Output is selected via `assetOut`; `SolanaUnstakeParams` is unchanged.
+- Solana **mainnet** production routes enabled for stake, unstake, redeem and BTC → BTC.b deposit (`Env.prod`, `SOLANA_MAINNET`). Previously only dev/stage/testnet were wired.
+- BTC.b Solana-mainnet deployment added to the asset catalog and token-addresses map.
+- Optional `txHash?: string` field on `StrategyProgress` in `core/types.ts` (used by Solana actions to surface the submitted Solana signature before final confirmation). Purely additive.
+
+### Changed
+
+- `solana.redeem()` now routes through the Asset Router `redeemForBtc` flow (replacing the direct GMP dispatch used previously). Route semantics (BTC.b → BTC) and `SolanaRedeemParams` are unchanged.
+- `SolanaRedeem` terminal status changed from `CONFIRMING` to `COMPLETED`. Integrations that treated `CONFIRMING` as the end-of-flow marker for this action should switch to `COMPLETED`.
+- `SolanaUnstake` route config reshaped: `unstake/config/solana.ts` merged into `unstake/config/btc.ts`, and `RouteDefinition` now carries `assetIn`/`assetOut` to disambiguate BTC vs BTC.b destinations.
+- Renamed `NonEvmUnstakeStatus` to `NonEvmOperationStatus` in `statusConstants.ts` — the constant is now shared by all non-EVM actions (Solana Stake/Unstake/Redeem, Sui Unstake, Starknet Unstake). Update imports if you reference the old name directly.
+
+### Fixed
+
+- Corrected the LBTC **Solana mainnet** address in the asset catalog and `SOLANA_TOKEN_ADDRESSES`. It previously pointed to the LBTC **program ID**; it is now the actual SPL **token mint**. Mainnet flows relying on the catalog/token-addresses lookup could not resolve a valid mint before this fix.
+
+---
+
+# 4.6.0
+
+- Added `getBtceShares()` to read a user's BTCe wrapper vault balance on Ethereum, Base, or BSC. BTCe is an ERC4626 wrapper around the Veda vault's LBTCv share token.
+- Added `getEarnPosition()` to compute the user's full Bitcoin Earn position (LBTCv + BTCe) on a single chain. Routes BTCe shares through the wrapper's `convertToAssets` to value them in LBTCv terms before summing and applying the Veda accountant rate, so the math stays correct if the wrapper ever drifts off the current 1:1 peg.
+- Added `wrapToBtce()` for wrapping a supported deposit asset (LBTCv, LBTC, wBTC, etc.) into BTCe shares via the wrapper's multi-asset `deposit(token, assets, receiver, minShareAmount)` overload. Caller is responsible for approving the deposit token to the BTCe contract first (use `approveToken`).
+- Added `unwrapBtceToLbtcv()` for unwrapping BTCe back into LBTCv via `withdraw(assets, receiver, owner)`. Throws if the requested amount exceeds the wrapper's `maxWithdraw(owner)`. To complete the round-trip to LBTC, follow up with `queueWithdraw()` from the SDK.
+- Added BTCe vault config exports: `BTCE_VAULT_CHAINS`, `BTCE_VAULT_CONTRACTS`, `BtceVaultChain`, `isBtceVaultChain`.
+- Clarified `getSharesByAddress()` JSDoc: the function returns LBTCv direct holdings only and does not include BTCe-wrapped positions. Use `getEarnPosition()` for the full Bitcoin Earn view.
+
+---
+
+# 4.5.2
+
+- Fixed `mapUnstakeEntry` overwriting an already-present `to_address` with a value derived from `output_script`. The script-based derivation now only runs when `toAddress` is not yet set.
+
+---
+
+# 4.5.1
+
+- **Solana companion package** (`@lombard.finance/sdk-solana` ≥1.2.2): consortium `claimToken()` uses epoch-seeded session PDAs and an updated Consortium IDL. Upgrade the Solana package when targeting the upgraded consortium program. This `@lombard.finance/sdk` release documents that dependency; see `packages/sdk-solana/CHANGELOG.md` for details.
+
+---
+
+# 4.5.0
+
+- Added `getVaultMinimumDeposit()` to calculate the minimum deposit amount for a given token that produces at least 1 vault share. The minimum is derived from the on-chain exchange rate and updates as the vault accrues yield.
+- Added `previewVaultDeposit()` to simulate a vault deposit and return the expected shares for a given amount. Uses the on-chain Lens contract for accurate results including share premiums.
+
+---
+
+# 4.4.1
+
+- Fixed `getDepositStatus()` never returning `'expired'` despite the backend setting `SESSION_STATE_EXPIRED` on the deposit's `sessionState` field. The expired check is now correctly placed after `failed` and `auto_claimed` so that more definitive terminal states take priority.
+- Deprecated `MIN_CLAIM_AMOUNT_BTC` in favour of `MIN_STAKE_AMOUNT_BTC`. Both constants are identical (`0.0002` BTC) — `MIN_CLAIM_AMOUNT_BTC` is now a re-export alias and will be removed in a future major version.
+- Improved `isNative` JSDoc on the `Deposit` type to clarify that `false` means a Bitcoin mainnet direct deposit and `true` means an EVM/alt-chain native deposit.
+
+---
+
 # 4.4.0
 
 - Added Solana destination support for BTC deposits, including destination signing and route configuration for Solana chains.
@@ -106,18 +716,21 @@ See the [Migration Guide](./docs/user-guides/MIGRATION-V4.md) for detailed upgra
 ---
 
 # 3.7.4
+
 - added missed chains to CHAIN_ID_TO_LLAMA_CHAIN_NAME_MAP
 
 # 3.7.3
+
 - added from_token_address fiild for unstakes
 - added bitcoin blockchain identifier
 
 # 3.7.2
-* **added stable support**
+
+- **added stable support**
 
 # 3.7.1
 
-* **added monad support**
+- **added monad support**
 
 # 3.7.0
 

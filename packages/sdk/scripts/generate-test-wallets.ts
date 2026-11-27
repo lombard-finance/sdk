@@ -26,4 +26,3 @@ console.log(`  Private Key: ${suiKeypair.getSecretKey()}`);
 console.log(`  Address: ${suiKeypair.getPublicKey().toSuiAddress()}\n`);
 
 console.log('=== COPY THESE TO .env.test ===');
-

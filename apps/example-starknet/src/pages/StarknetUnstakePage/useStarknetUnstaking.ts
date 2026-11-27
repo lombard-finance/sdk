@@ -66,15 +66,13 @@ export function useStarknetUnstaking(
       };
 
       if (wallet.account) {
-        const walletName =
-          wallet.name || wallet.id || walletId || 'Unknown';
-        const wrappedAccount = Object.create(
-          wallet.account,
-        ) as WalletAccount;
-        (wrappedAccount as unknown as Record<string, unknown>).walletProvider = {
-          name: walletName,
-          id: wallet.id || walletId || '',
-        };
+        const walletName = wallet.name || wallet.id || walletId || 'Unknown';
+        const wrappedAccount = Object.create(wallet.account) as WalletAccount;
+        (wrappedAccount as unknown as Record<string, unknown>).walletProvider =
+          {
+            name: walletName,
+            id: wallet.id || walletId || '',
+          };
         setWalletAccount(wrappedAccount);
         return;
       }
@@ -89,21 +87,22 @@ export function useStarknetUnstaking(
     void connectWalletAccount();
   }, [starknetProvider, starknetAddress, walletId, env]);
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
-    () => {
-      if (!starknetAddress) return undefined;
-      return createConfig({
-        env: currentEnv,
-        ...(walletAccount && {
-          providers: {
-            starknet: () => ({ getProvider: () => walletAccount }),
-          },
-        }),
-        modules: [starknetModule()],
-      });
-    },
-    [starknetAddress, walletAccount, currentEnv],
-  );
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(() => {
+    if (!starknetAddress) return undefined;
+    return createConfig({
+      env: currentEnv,
+      ...(walletAccount && {
+        providers: {
+          starknet: () => ({ getProvider: () => walletAccount }),
+        },
+      }),
+      modules: [starknetModule()],
+    });
+  }, [starknetAddress, walletAccount, currentEnv]);
 
   const {
     unstake: unstakeCore,

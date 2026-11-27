@@ -6,7 +6,13 @@ import type { EIP1193Provider, WalletClient } from 'viem';
  */
 export function walletClientToProvider(client: WalletClient): EIP1193Provider {
   return {
-    request: async ({ method, params }: { method: string; params?: unknown[] }) => {
+    request: async ({
+      method,
+      params,
+    }: {
+      method: string;
+      params?: unknown[];
+    }) => {
       switch (method) {
         case 'eth_accounts':
         case 'eth_requestAccounts':
@@ -16,7 +22,9 @@ export function walletClientToProvider(client: WalletClient): EIP1193Provider {
           return client.chain?.id ? `0x${client.chain.id.toString(16)}` : '0x1';
 
         case 'eth_sendTransaction': {
-          const [txParams] = params as [Parameters<typeof client.sendTransaction>[0]];
+          const [txParams] = params as [
+            Parameters<typeof client.sendTransaction>[0],
+          ];
           return client.sendTransaction(txParams);
         }
 
@@ -45,4 +53,3 @@ export function walletClientToProvider(client: WalletClient): EIP1193Provider {
     removeListener: () => {},
   } as EIP1193Provider;
 }
-

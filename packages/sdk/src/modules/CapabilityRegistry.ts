@@ -49,7 +49,7 @@ export class CapabilityRegistry<
     modules: readonly AnyModule[],
     private readonly config: LombardConfig,
   ) {
-    modules.forEach(mod => this.modules.set(mod.id, mod));
+    modules.forEach((mod) => this.modules.set(mod.id, mod));
   }
 
   /**

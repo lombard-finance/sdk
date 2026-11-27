@@ -66,10 +66,7 @@ vi.mock('../../../lib/config', () => ({
 }));
 
 import { Chain } from '@lombard.finance/sdk';
-import {
-  useLombardSDK,
-  useNonEvmUnstake,
-} from '@lombard.finance/sdk-react';
+import { useLombardSDK, useNonEvmUnstake } from '@lombard.finance/sdk-react';
 import { useSolanaUnstaking } from '../useSolanaUnstaking';
 
 // Minimal renderHook using react-dom/client

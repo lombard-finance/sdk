@@ -1,20 +1,24 @@
 /**
  * Hook Tests
- * 
+ *
  * Tests for DevTools React hooks.
  */
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { resetDevToolsBridge } from '../bridge/DevToolsBridge';
 import { useActionEvents } from '../hooks/useDevTools';
-import { DevToolsProvider, useDevToolsContext, useRegisterAction } from '../provider/DevToolsProvider';
+import {
+  DevToolsProvider,
+  useDevToolsContext,
+  useRegisterAction,
+} from '../provider/DevToolsProvider';
 import type { MonitorableAction } from '../types';
 
 // Mock action factory
-function createMockAction(initialStatus = 'idle'): MonitorableAction & { 
+function createMockAction(initialStatus = 'idle'): MonitorableAction & {
   emit: (event: string, data: unknown) => void;
   handlers: Map<string, Array<(...args: unknown[]) => void>>;
 } {
@@ -22,12 +26,20 @@ function createMockAction(initialStatus = 'idle'): MonitorableAction & {
   let currentStatus = initialStatus;
   let currentLoading = false;
   let currentError: Error | null = null;
-  
+
   return {
-    get status() { return currentStatus; },
-    get isLoading() { return currentLoading; },
-    get error() { return currentError; },
-    get isFailed() { return currentError !== null; },
+    get status() {
+      return currentStatus;
+    },
+    get isLoading() {
+      return currentLoading;
+    },
+    get error() {
+      return currentError;
+    },
+    get isFailed() {
+      return currentError !== null;
+    },
     handlers,
     on(event: string, handler: (...args: unknown[]) => void) {
       if (!handlers.has(event)) {
@@ -50,10 +62,12 @@ function createMockAction(initialStatus = 'idle'): MonitorableAction & {
       } else if (event === 'error') {
         currentError = data as Error;
       }
-      
+
       const eventHandlers = handlers.get(event);
       if (eventHandlers) {
-        eventHandlers.forEach(h => { h(data); });
+        eventHandlers.forEach((h) => {
+          h(data);
+        });
       }
     },
   };
@@ -62,11 +76,7 @@ function createMockAction(initialStatus = 'idle'): MonitorableAction & {
 // Provider wrapper
 const createWrapper = (enabled = true) => {
   return function Wrapper({ children }: { children: ReactNode }) {
-    return (
-      <DevToolsProvider enabled={enabled}>
-        {children}
-      </DevToolsProvider>
-    );
+    return <DevToolsProvider enabled={enabled}>{children}</DevToolsProvider>;
   };
 };
 
@@ -77,11 +87,11 @@ describe('useDevToolsContext', () => {
 
   it('should throw outside provider', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     expect(() => {
       renderHook(() => useDevToolsContext());
     }).toThrow('useDevToolsContext must be used within a DevToolsProvider');
-    
+
     consoleSpy.mockRestore();
   });
 
@@ -103,13 +113,15 @@ describe('useDevToolsContext', () => {
     });
 
     const action = createMockAction();
-    
+
     act(() => {
       result.current.registerAction('test', action);
     });
 
     expect(result.current.actions.has('test')).toBe(true);
-    expect(result.current.events.some(e => e.type === 'registered')).toBe(true);
+    expect(result.current.events.some((e) => e.type === 'registered')).toBe(
+      true,
+    );
   });
 
   it('should track action events', async () => {
@@ -118,7 +130,7 @@ describe('useDevToolsContext', () => {
     });
 
     const action = createMockAction();
-    
+
     act(() => {
       result.current.registerAction('test', action);
     });
@@ -128,7 +140,9 @@ describe('useDevToolsContext', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.events.some(e => e.type === 'status-change')).toBe(true);
+      expect(
+        result.current.events.some((e) => e.type === 'status-change'),
+      ).toBe(true);
     });
   });
 
@@ -138,7 +152,7 @@ describe('useDevToolsContext', () => {
     });
 
     const action = createMockAction();
-    
+
     act(() => {
       result.current.registerAction('test', action);
     });
@@ -165,19 +179,19 @@ describe('useRegisterAction', () => {
         () => {
           useRegisterAction('test', null);
         },
-        { wrapper: createWrapper() }
+        { wrapper: createWrapper() },
       );
     }).not.toThrow();
   });
 
   it('should not throw on unmount', () => {
     const action = createMockAction();
-    
+
     const { unmount } = renderHook(
       () => {
         useRegisterAction('test', action);
       },
-      { wrapper: createWrapper() }
+      { wrapper: createWrapper() },
     );
 
     // Should not throw on unmount
@@ -207,7 +221,9 @@ describe('useActionEvents', () => {
 
     await waitFor(() => {
       expect(result.current.status).toBe('updated');
-      expect(result.current.events.some(e => e.type === 'status-change')).toBe(true);
+      expect(
+        result.current.events.some((e) => e.type === 'status-change'),
+      ).toBe(true);
     });
   });
 

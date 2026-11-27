@@ -15,7 +15,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { DEFI_REGISTRY,DefiProtocol } from '../../../defi/defi-registry';
+import { DEFI_REGISTRY, DefiProtocol } from '../../../defi/defi-registry';
 import { Token } from '../../../tokens/token-addresses';
 
 describe('Token Parameter Consistency', () => {
@@ -87,10 +87,12 @@ describe('Token Parameter Consistency', () => {
       if (!vedaBtcConfig) return;
 
       // Verify btcToLbtc strategy exists in at least one env/chain
-      const hasConversion = Object.values(vedaBtcConfig).some(envMap =>
-        envMap ? Object.values(envMap).some(
-          chainConfig => chainConfig?.amountStrategy === 'btcToLbtc',
-        ) : false,
+      const hasConversion = Object.values(vedaBtcConfig).some((envMap) =>
+        envMap
+          ? Object.values(envMap).some(
+              (chainConfig) => chainConfig?.amountStrategy === 'btcToLbtc',
+            )
+          : false,
       );
 
       expect(hasConversion).toBe(true);
@@ -111,10 +113,12 @@ describe('Token Parameter Consistency', () => {
       if (!vedaLbtcConfig) return;
 
       // Verify identity strategy (no conversion) for LBTC token
-      const hasIdentity = Object.values(vedaLbtcConfig).some(envMap =>
-        envMap ? Object.values(envMap).some(
-          chainConfig => chainConfig?.amountStrategy === 'identity',
-        ) : false,
+      const hasIdentity = Object.values(vedaLbtcConfig).some((envMap) =>
+        envMap
+          ? Object.values(envMap).some(
+              (chainConfig) => chainConfig?.amountStrategy === 'identity',
+            )
+          : false,
       );
 
       expect(hasIdentity).toBe(true);
@@ -136,9 +140,9 @@ describe('Token Parameter Consistency', () => {
       expect(siloBtcbConfig).toBeDefined();
 
       // Verify identity strategy for BTCb
-      const hasIdentity = Object.values(siloBtcbConfig!).some(envMap =>
+      const hasIdentity = Object.values(siloBtcbConfig!).some((envMap) =>
         Object.values(envMap!).some(
-          chainConfig => chainConfig?.amountStrategy === 'identity',
+          (chainConfig) => chainConfig?.amountStrategy === 'identity',
         ),
       );
 

@@ -239,7 +239,7 @@ export async function fetchUnstakesByAddress({
 
   const unstakes = await fetchAllPaginated({
     endpoint,
-    extractItems: data => (data as UnstakesResponse)?.unstakes ?? [],
+    extractItems: (data) => (data as UnstakesResponse)?.unstakes ?? [],
     query: {
       show_redeems: options?.show_redeems ? 'true' : undefined,
       show_unstakes: options?.show_unstakes ? 'true' : undefined,
@@ -247,7 +247,7 @@ export async function fetchUnstakesByAddress({
     },
   });
 
-  return unstakes.map(d => mapUnstakeEntry(d, env));
+  return unstakes.map((d) => mapUnstakeEntry(d, env));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -269,7 +269,7 @@ function mapUnstakeEntry(
   const isNative = Boolean(d.to_chain && d.to_address);
 
   let toAddress: string | undefined = d.to_address;
-  if (!isNative && d.output_script) {
+  if (!isNative && d.output_script && !toAddress) {
     try {
       toAddress = bitcoin.address.fromOutputScript(
         Buffer.from(d.output_script.replace(/^0x/, ''), 'hex'),

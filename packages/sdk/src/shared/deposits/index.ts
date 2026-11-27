@@ -26,4 +26,3 @@ export {
   REQUIRED_CONFIRMATIONS,
   type StatusSeverity,
 } from './depositStatus';
-

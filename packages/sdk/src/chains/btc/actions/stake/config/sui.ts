@@ -39,7 +39,7 @@ export const suiConfig: ChainConfig = {
   ],
 
   // Derived from ASSET_CATALOG - Sui chains where LBTC is deployed
-  destChains: getAllAssetChains(AssetId.LBTC).filter(chain =>
+  destChains: getAllAssetChains(AssetId.LBTC).filter((chain) =>
     isSuiChain(chain),
   ),
 

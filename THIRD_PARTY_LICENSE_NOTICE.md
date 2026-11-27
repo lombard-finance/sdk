@@ -9,10 +9,12 @@ The repository enforces license policy checks in CI (`yarn licenses:check`) usin
 Current approved exceptions:
 
 1. `@layerzerolabs/*` (`BUSL-1.1`)
+
 - Reason: required by current LayerZero integration packages.
 - Scope: runtime dependencies in `@lombard.finance/sdk` and `@lombard.finance/sdk-solana`.
 
 2. `@metamask/sdk*` (custom non-commercial license)
+
 - Reason: transitive development-only dependency via `wagmi` connectors used in SDK Storybook/demo tooling.
 - Scope: development environment; not a direct runtime dependency of published SDK entrypoints.
 

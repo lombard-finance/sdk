@@ -103,7 +103,10 @@ function StakeComponent() {
 ### 3. Display DevTools Panel
 
 ```tsx
-import { DevToolsPanel, useDevToolsContext } from '@lombard.finance/sdk-devtools';
+import {
+  DevToolsPanel,
+  useDevToolsContext,
+} from '@lombard.finance/sdk-devtools';
 
 function DebugPanel() {
   const { events, clearEvents, actions } = useDevToolsContext();
@@ -174,7 +177,8 @@ For monitoring a single action with full state:
 import { useActionEvents } from '@lombard.finance/sdk-devtools';
 
 function StakeProgress({ action }) {
-  const { events, status, isLoading, error, isFailed } = useActionEvents(action);
+  const { events, status, isLoading, error, isFailed } =
+    useActionEvents(action);
 
   return (
     <div>
@@ -197,11 +201,11 @@ Full debug panel with tabs for events, actions, and state:
 <DevToolsPanel
   events={events}
   onClearEvents={clearEvents}
-  reducerLogs={logs}             // Optional: Redux-style action log
+  reducerLogs={logs} // Optional: Redux-style action log
   onClearReducerLogs={clearLogs} // Optional
-  state={{ status: 'ready' }}    // Optional: State to inspect
-  initialTab="events"            // Optional: 'events' | 'reducer' | 'state'
-  title="SDK Debug"              // Optional
+  state={{ status: 'ready' }} // Optional: State to inspect
+  initialTab="events" // Optional: 'events' | 'reducer' | 'state'
+  title="SDK Debug" // Optional
 />
 ```
 
@@ -265,61 +269,61 @@ function WalletSection() {
 }
 
 // Available mock addresses
-console.log(MOCK_ADDRESSES.evm);      // 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
-console.log(MOCK_ADDRESSES.bitcoin);  // bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
-console.log(MOCK_ADDRESSES.solana);   // DRpbCBMxVnDK7maPMxTm9dRYNLGhPEYALmJY9VvUdWTm
+console.log(MOCK_ADDRESSES.evm); // 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
+console.log(MOCK_ADDRESSES.bitcoin); // bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+console.log(MOCK_ADDRESSES.solana); // DRpbCBMxVnDK7maPMxTm9dRYNLGhPEYALmJY9VvUdWTm
 ```
 
 ## SDK Events Collected
 
 The bridge automatically subscribes to these SDK events:
 
-| Event | Description |
-|-------|-------------|
+| Event           | Description                                                      |
+| --------------- | ---------------------------------------------------------------- |
 | `status-change` | Action status changed (e.g., `idle` → `needs_fee_authorization`) |
-| `loading` | Loading state changed |
-| `error` | An error occurred |
-| `completed` | Action completed successfully |
-| `failed` | Action failed |
-| `progress` | Progress update with step details |
+| `loading`       | Loading state changed                                            |
+| `error`         | An error occurred                                                |
+| `completed`     | Action completed successfully                                    |
+| `failed`        | Action failed                                                    |
+| `progress`      | Progress update with step details                                |
 
 ## API Reference
 
 ### Provider
 
-| Export | Description |
-|--------|-------------|
-| `DevToolsProvider` | React context provider |
+| Export               | Description                     |
+| -------------------- | ------------------------------- |
+| `DevToolsProvider`   | React context provider          |
 | `useDevToolsContext` | Hook to access DevTools context |
-| `useRegisterAction` | Hook to register an action |
+| `useRegisterAction`  | Hook to register an action      |
 
 ### Bridge
 
-| Export | Description |
-|--------|-------------|
-| `DevToolsBridge` | Core bridge class |
-| `getDevToolsBridge` | Get global singleton bridge |
-| `resetDevToolsBridge` | Reset global bridge |
+| Export                | Description                 |
+| --------------------- | --------------------------- |
+| `DevToolsBridge`      | Core bridge class           |
+| `getDevToolsBridge`   | Get global singleton bridge |
+| `resetDevToolsBridge` | Reset global bridge         |
 
 ### Hooks
 
-| Hook | Description |
-|------|-------------|
-| `useDevTools` | Full DevTools state and methods |
-| `useMonitoredAction` | Create and auto-register an action |
-| `useActionEvents` | Subscribe to events from a single action |
-| `useMockWallet` | Mock wallet for testing |
+| Hook                 | Description                              |
+| -------------------- | ---------------------------------------- |
+| `useDevTools`        | Full DevTools state and methods          |
+| `useMonitoredAction` | Create and auto-register an action       |
+| `useActionEvents`    | Subscribe to events from a single action |
+| `useMockWallet`      | Mock wallet for testing                  |
 
 ### Components
 
-| Component | Description |
-|-----------|-------------|
-| `DevToolsPanel` | Full tabbed debug panel |
-| `EventLog` | SDK event stream |
-| `ReducerLog` | Redux-style action log |
-| `StateInspector` | JSON tree viewer |
-| `StatusBadge` | Status indicator |
-| `StepIndicator` | Progress steps |
+| Component        | Description             |
+| ---------------- | ----------------------- |
+| `DevToolsPanel`  | Full tabbed debug panel |
+| `EventLog`       | SDK event stream        |
+| `ReducerLog`     | Redux-style action log  |
+| `StateInspector` | JSON tree viewer        |
+| `StatusBadge`    | Status indicator        |
+| `StepIndicator`  | Progress steps          |
 
 ## Styling
 

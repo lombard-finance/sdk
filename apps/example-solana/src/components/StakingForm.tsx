@@ -1,4 +1,9 @@
-import { AssetId, Chain, Env, MIN_STAKE_AMOUNT_BTC } from '@lombard.finance/sdk';
+import {
+  AssetId,
+  Chain,
+  Env,
+  MIN_STAKE_AMOUNT_BTC,
+} from '@lombard.finance/sdk';
 import { useEffect, useState } from 'react';
 
 import { getAvailableChains, getDefaultChain } from '../lib/chains';
@@ -6,8 +11,17 @@ import type { StakingFormData } from '../lib/types';
 
 function WalletIcon() {
   return (
-    <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0.75 0H14.25H15V1.5H14.25H1.5V12.5H14.5V4.5H3.75H3V3H3.75H15.25H16V3.75V13.25V14H15.25H0.75H0V13.25V0.75V0H0.75ZM12 9.5C11.4375 9.5 11 9.0625 11 8.5C11 7.96875 11.4375 7.5 12 7.5C12.5312 7.5 13 7.96875 13 8.5C13 9.0625 12.5312 9.5 12 9.5Z" fill="currentColor" />
+    <svg
+      width="16"
+      height="14"
+      viewBox="0 0 16 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0.75 0H14.25H15V1.5H14.25H1.5V12.5H14.5V4.5H3.75H3V3H3.75H15.25H16V3.75V13.25V14H15.25H0.75H0V13.25V0.75V0H0.75ZM12 9.5C11.4375 9.5 11 9.0625 11 8.5C11 7.96875 11.4375 7.5 12 7.5C12.5312 7.5 13 7.96875 13 8.5C13 9.0625 12.5312 9.5 12 9.5Z"
+        fill="currentColor"
+      />
     </svg>
   );
 }
@@ -89,12 +103,14 @@ export function StakingForm({
             step="0.00000001"
             min={MIN_STAKE_AMOUNT_BTC}
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             placeholder={String(MIN_STAKE_AMOUNT_BTC)}
             required
           />
-          <p className="text-xs text-secondary mt-1">Minimum: {MIN_STAKE_AMOUNT_BTC} BTC</p>
+          <p className="text-xs text-secondary mt-1">
+            Minimum: {MIN_STAKE_AMOUNT_BTC} BTC
+          </p>
         </div>
 
         <div>
@@ -106,7 +122,7 @@ export function StakingForm({
               id="destChain"
               type="text"
               value={
-                availableChains.find(c => c.value === destChain)?.label ??
+                availableChains.find((c) => c.value === destChain)?.label ??
                 destChain
               }
               disabled
@@ -116,10 +132,10 @@ export function StakingForm({
             <select
               id="destChain"
               value={destChain}
-              onChange={e => setDestChain(e.target.value)}
+              onChange={(e) => setDestChain(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green"
             >
-              {availableChains.map(chain => (
+              {availableChains.map((chain) => (
                 <option key={chain.value} value={chain.value}>
                   {chain.label}
                 </option>
@@ -134,7 +150,10 @@ export function StakingForm({
         </div>
 
         <div>
-          <label htmlFor="destAddress" className="block text-sm font-medium mb-2">
+          <label
+            htmlFor="destAddress"
+            className="block text-sm font-medium mb-2"
+          >
             Your Solana Destination Address
           </label>
           <div className="relative">
@@ -142,7 +161,7 @@ export function StakingForm({
               id="destAddress"
               type="text"
               value={destAddress}
-              onChange={e => setDestAddress(e.target.value)}
+              onChange={(e) => setDestAddress(e.target.value)}
               className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-capital-green font-mono text-sm ${solanaAddress ? 'pr-10' : ''}`}
               placeholder="Solana address..."
               required

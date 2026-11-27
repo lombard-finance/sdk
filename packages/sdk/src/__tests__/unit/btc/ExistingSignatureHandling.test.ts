@@ -15,7 +15,11 @@
 import { Env } from '@lombard.finance/sdk-common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { BaseBtcAction, type StatusConfig, type StepDefinition } from '../../../chains/btc/actions/shared/BaseBtcAction';
+import {
+  BaseBtcAction,
+  type StatusConfig,
+  type StepDefinition,
+} from '../../../chains/btc/actions/shared/BaseBtcAction';
 import { PartnerConfiguration } from '../../../client/PartnerConfiguration';
 import { ChainId } from '../../../common/chains';
 import { Chain, StepStatus } from '../../../core';
@@ -23,7 +27,9 @@ import type { BtcCoreContext } from '../../../shared/context';
 import { evmAddressSchema } from '../../../shared/validation';
 
 // Mock context factory
-const createMockContext = (overrides: Partial<BtcCoreContext> = {}): BtcCoreContext => ({
+const createMockContext = (
+  overrides: Partial<BtcCoreContext> = {},
+): BtcCoreContext => ({
   env: Env.testnet,
   btc: {} as BtcCoreContext['btc'],
   api: {
@@ -61,7 +67,11 @@ const createMockContext = (overrides: Partial<BtcCoreContext> = {}): BtcCoreCont
 class TestBtcAction extends BaseBtcAction<any, string, { destChain: Chain }> {
   private chainId: ChainId = ChainId.sepolia;
 
-  constructor(ctx: BtcCoreContext, params: { destChain: Chain }, initialStatus: string = 'idle') {
+  constructor(
+    ctx: BtcCoreContext,
+    params: { destChain: Chain },
+    initialStatus: string = 'idle',
+  ) {
     super(ctx, params, initialStatus);
   }
 
@@ -134,9 +144,15 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
     it('should resume when existing deposit address found', async () => {
       // Mock API to return existing deposit address
       const existingAddress = 'tb1qexistingdeposit';
-      mockCtx.api.getDepositAddress = vi.fn().mockResolvedValue(existingAddress);
+      mockCtx.api.getDepositAddress = vi
+        .fn()
+        .mockResolvedValue(existingAddress);
 
-      const action = new TestBtcAction(mockCtx, { destChain: Chain.SEPOLIA }, 'idle');
+      const action = new TestBtcAction(
+        mockCtx,
+        { destChain: Chain.SEPOLIA },
+        'idle',
+      );
       const recipient = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0';
 
       const resumed = await action.testResumeFromExisting(recipient);
@@ -152,7 +168,11 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
       // Mock API to return null (no existing deposit)
       mockCtx.api.getDepositAddress = vi.fn().mockResolvedValue(null);
 
-      const action = new TestBtcAction(mockCtx, { destChain: Chain.SEPOLIA }, 'idle');
+      const action = new TestBtcAction(
+        mockCtx,
+        { destChain: Chain.SEPOLIA },
+        'idle',
+      );
       const recipient = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0';
 
       const resumed = await action.testResumeFromExisting(recipient);
@@ -164,9 +184,15 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
 
     it('should NOT resume when API throws error', async () => {
       // Mock API to throw (e.g., network error)
-      mockCtx.api.getDepositAddress = vi.fn().mockRejectedValue(new Error('Network error'));
+      mockCtx.api.getDepositAddress = vi
+        .fn()
+        .mockRejectedValue(new Error('Network error'));
 
-      const action = new TestBtcAction(mockCtx, { destChain: Chain.SEPOLIA }, 'idle');
+      const action = new TestBtcAction(
+        mockCtx,
+        { destChain: Chain.SEPOLIA },
+        'idle',
+      );
       const recipient = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0';
 
       const resumed = await action.testResumeFromExisting(recipient);
@@ -178,7 +204,11 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
     it('should call API with correct parameters', async () => {
       mockCtx.api.getDepositAddress = vi.fn().mockResolvedValue(null);
 
-      const action = new TestBtcAction(mockCtx, { destChain: Chain.SEPOLIA }, 'idle');
+      const action = new TestBtcAction(
+        mockCtx,
+        { destChain: Chain.SEPOLIA },
+        'idle',
+      );
       const recipient = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0';
 
       await action.testResumeFromExisting(recipient);
@@ -209,11 +239,17 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
       // Helper to check if an error message matches expected patterns
       const isActiveSignatureError = (message: string): boolean => {
         const normalized = message.toLowerCase();
-        return errorPatterns.some(pattern => normalized.includes(pattern.toLowerCase()));
+        return errorPatterns.some((pattern) =>
+          normalized.includes(pattern.toLowerCase()),
+        );
       };
 
-      expect(isActiveSignatureError('Active signature already exists for this user')).toBe(true);
-      expect(isActiveSignatureError('Signature already exists for address 0x123')).toBe(true);
+      expect(
+        isActiveSignatureError('Active signature already exists for this user'),
+      ).toBe(true);
+      expect(
+        isActiveSignatureError('Signature already exists for address 0x123'),
+      ).toBe(true);
       expect(isActiveSignatureError('Network timeout')).toBe(false);
       expect(isActiveSignatureError('Invalid address')).toBe(false);
     });
@@ -221,24 +257,29 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
     it('should provide enhanced error message for duplicate signature errors', () => {
       // This tests the error enhancement logic that should be implemented
       // in the SDK Demo or SDK itself
-      
+
       const enhanceErrorMessage = (error: Error): string => {
         const message = error.message.toLowerCase();
-        
-        if (message.includes('active signature') || message.includes('signature already exists')) {
+
+        if (
+          message.includes('active signature') ||
+          message.includes('signature already exists')
+        ) {
           return `You already have a pending stake. Please complete the existing flow using your deposit address, or wait for it to expire. You can check your pending stakes in the Deposit Addresses section.`;
         }
-        
+
         if (message.includes('stake and bake signature already exists')) {
           return `You already have a pending stake-and-deploy signature. Please complete that flow first or wait for expiration.`;
         }
-        
+
         return error.message;
       };
 
-      const originalError = new Error('Active signature already exists for this user');
+      const originalError = new Error(
+        'Active signature already exists for this user',
+      );
       const enhanced = enhanceErrorMessage(originalError);
-      
+
       expect(enhanced).toContain('pending stake');
       expect(enhanced).toContain('deposit address');
     });
@@ -248,14 +289,20 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
     it('should NOT transition status when resuming (caller sets status after fee auth check)', async () => {
       mockCtx.api.getDepositAddress = vi.fn().mockResolvedValue('tb1qexisting');
 
-      const action = new TestBtcAction(mockCtx, { destChain: Chain.SEPOLIA }, 'idle');
+      const action = new TestBtcAction(
+        mockCtx,
+        { destChain: Chain.SEPOLIA },
+        'idle',
+      );
       const statusHistory: string[] = [];
-      
+
       action.on('status-change', (status: string) => {
         statusHistory.push(status);
       });
 
-      await action.testResumeFromExisting('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
+      await action.testResumeFromExisting(
+        '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      );
 
       // resumeFromExistingDeposit no longer emits status changes
       // The caller (prepare()) sets status after validating fee auth
@@ -266,14 +313,20 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
     it('should NOT change status when no existing deposit', async () => {
       mockCtx.api.getDepositAddress = vi.fn().mockResolvedValue(null);
 
-      const action = new TestBtcAction(mockCtx, { destChain: Chain.SEPOLIA }, 'idle');
+      const action = new TestBtcAction(
+        mockCtx,
+        { destChain: Chain.SEPOLIA },
+        'idle',
+      );
       const statusHistory: string[] = [];
-      
+
       action.on('status-change', (status: string) => {
         statusHistory.push(status);
       });
 
-      await action.testResumeFromExisting('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
+      await action.testResumeFromExisting(
+        '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      );
 
       expect(statusHistory).toEqual([]); // No status changes
     });
@@ -283,8 +336,14 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
     it('should handle undefined/null address from API', async () => {
       mockCtx.api.getDepositAddress = vi.fn().mockResolvedValue(undefined);
 
-      const action = new TestBtcAction(mockCtx, { destChain: Chain.SEPOLIA }, 'idle');
-      const resumed = await action.testResumeFromExisting('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
+      const action = new TestBtcAction(
+        mockCtx,
+        { destChain: Chain.SEPOLIA },
+        'idle',
+      );
+      const resumed = await action.testResumeFromExisting(
+        '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      );
 
       expect(resumed).toBe(false);
     });
@@ -292,12 +351,17 @@ describe('Existing Signature/Deposit Handling (Bug #3 & #7)', () => {
     it('should handle empty string address from API', async () => {
       mockCtx.api.getDepositAddress = vi.fn().mockResolvedValue('');
 
-      const action = new TestBtcAction(mockCtx, { destChain: Chain.SEPOLIA }, 'idle');
-      const resumed = await action.testResumeFromExisting('0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0');
+      const action = new TestBtcAction(
+        mockCtx,
+        { destChain: Chain.SEPOLIA },
+        'idle',
+      );
+      const resumed = await action.testResumeFromExisting(
+        '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
+      );
 
       // Empty string is falsy, so should not resume
       expect(resumed).toBe(false);
     });
   });
 });
-

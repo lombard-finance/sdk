@@ -29,7 +29,11 @@ export function useEvmUnstaking(evmAddress?: string | null, env?: Env) {
   const currentEnv = env ?? getEnvironment();
   const { switchNetwork } = useEvmWallet();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(
     () =>
       createConfig({
         env: currentEnv,

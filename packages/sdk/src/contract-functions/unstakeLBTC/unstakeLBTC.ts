@@ -159,7 +159,7 @@ export async function redeemToken(params: RedeemTokenParams): Promise<Hex> {
     tokenOut,
   } = params;
   const flow = AVAILABLE_FLOWS.find(
-    af => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
+    (af) => af.tokenIn === tokenIn && af.tokenOut === tokenOut,
   );
   if (!flow) {
     throw new UnsupportedTokenFlow(tokenIn, tokenOut || 'BTC', chainId, env);

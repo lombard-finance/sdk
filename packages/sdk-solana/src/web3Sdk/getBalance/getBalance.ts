@@ -127,6 +127,7 @@ export async function getBalance({
   tokenAddress,
   network = DEFAULT_NETWORK,
   rpcUrl,
+  env,
 }: GetBalanceParams): Promise<GetBalanceResult> {
   try {
     // Validate the public key
@@ -151,7 +152,7 @@ export async function getBalance({
     }
 
     // Setup connection with appropriate RPC URL
-    const connection = getConnection(network, rpcUrl);
+    const connection = getConnection(network, rpcUrl, env);
 
     try {
       return await fetchBalance(connection, pubKey, tokenAddress);

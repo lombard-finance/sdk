@@ -1,7 +1,11 @@
 import BigNumber from 'bignumber.js';
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { fromSatoshi,toSatoshi, toSatoshiBigInt } from '../../../utils/satoshi';
+import {
+  fromSatoshi,
+  toSatoshi,
+  toSatoshiBigInt,
+} from '../../../utils/satoshi';
 
 describe('Satoshi Conversions', () => {
   it('toSatoshi should convert BTC decimal to satoshis', () => {
@@ -24,4 +28,3 @@ describe('Satoshi Conversions', () => {
     expect(fromSatoshi(100000000).toFixed()).toBe('1');
   });
 });
-

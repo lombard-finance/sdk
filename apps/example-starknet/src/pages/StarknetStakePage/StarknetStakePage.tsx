@@ -53,12 +53,7 @@ export function StarknetStakePage({ env }: { env: Env }) {
     status,
     stakeAmount,
     progress,
-  } = useBtcStakingStarknet(
-    starknetProvider,
-    partnerId,
-    env,
-    starknetWalletId,
-  );
+  } = useBtcStakingStarknet(starknetProvider, partnerId, env, starknetWalletId);
 
   const handleStartStaking = async (formData: Parameters<typeof stake>[0]) => {
     setIsStaking(true);
@@ -103,7 +98,8 @@ export function StarknetStakePage({ env }: { env: Env }) {
             {!starknetAddress && (
               <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-900">
-                  💡 Connect Starknet wallet to auto-fill your destination address
+                  💡 Connect Starknet wallet to auto-fill your destination
+                  address
                 </p>
               </div>
             )}
@@ -121,7 +117,7 @@ export function StarknetStakePage({ env }: { env: Env }) {
               id="partnerId"
               type="text"
               value={partnerId}
-              onChange={e => setPartnerId(e.target.value)}
+              onChange={(e) => setPartnerId(e.target.value)}
               placeholder="Enter your partner ID"
               className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-capital-green bg-white"
               disabled={isStaking}
@@ -146,7 +142,11 @@ export function StarknetStakePage({ env }: { env: Env }) {
               isLoading={isInitializing}
               disabled={!isStarknetConnected || !partnerId}
               solanaAddress={starknetAddress}
-              fixedDestChain={env === Env.prod ? Chain.STARKNET_MAINNET : Chain.STARKNET_SEPOLIA}
+              fixedDestChain={
+                env === Env.prod
+                  ? Chain.STARKNET_MAINNET
+                  : Chain.STARKNET_SEPOLIA
+              }
               env={env}
             />
           ) : (
@@ -159,7 +159,6 @@ export function StarknetStakePage({ env }: { env: Env }) {
               targetChain="Starknet"
             />
           )}
-
         </div>
       </div>
     </div>

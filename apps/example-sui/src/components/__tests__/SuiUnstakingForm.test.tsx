@@ -45,7 +45,9 @@ describe('SuiUnstakingForm', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     expect(onSubmit).not.toHaveBeenCalled();
@@ -56,7 +58,9 @@ describe('SuiUnstakingForm', () => {
   it('shows testnet chains for non-prod env', () => {
     renderForm({ env: Env.testnet });
 
-    const sourceInput = container.querySelector('#sourceChain') as HTMLInputElement;
+    const sourceInput = container.querySelector(
+      '#sourceChain',
+    ) as HTMLInputElement;
     const destInput = container.querySelector('#destChain') as HTMLInputElement;
     expect(sourceInput.value).toBe('Sui Testnet');
     expect(destInput.value).toBe('Bitcoin Signet');
@@ -65,7 +69,9 @@ describe('SuiUnstakingForm', () => {
   it('shows mainnet chains for prod env', () => {
     renderForm({ env: Env.prod });
 
-    const sourceInput = container.querySelector('#sourceChain') as HTMLInputElement;
+    const sourceInput = container.querySelector(
+      '#sourceChain',
+    ) as HTMLInputElement;
     const destInput = container.querySelector('#destChain') as HTMLInputElement;
     expect(sourceInput.value).toBe('Sui Mainnet');
     expect(destInput.value).toBe('Bitcoin Mainnet');
@@ -74,7 +80,9 @@ describe('SuiUnstakingForm', () => {
   it('disables submit when no sui wallet connected', () => {
     renderForm({ suiAddress: undefined, disabled: true });
 
-    const button = container.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const button = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Connect Sui Wallet');
   });
@@ -91,10 +99,13 @@ describe('SuiUnstakingForm', () => {
     const { onSubmit } = renderForm({ env: Env.testnet });
 
     // Fill recipient
-    const recipientInput = container.querySelector('#recipient') as HTMLInputElement;
+    const recipientInput = container.querySelector(
+      '#recipient',
+    ) as HTMLInputElement;
     await act(async () => {
       const setter = Object.getOwnPropertyDescriptor(
-        HTMLInputElement.prototype, 'value',
+        HTMLInputElement.prototype,
+        'value',
       )?.set;
       setter?.call(recipientInput, 'tb1qtest');
       recipientInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -103,7 +114,9 @@ describe('SuiUnstakingForm', () => {
 
     const form = container.querySelector('form') as HTMLFormElement;
     await act(async () => {
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     expect(onSubmit).toHaveBeenCalledTimes(1);

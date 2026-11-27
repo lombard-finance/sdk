@@ -8,11 +8,10 @@ import {
 } from '../../../stories/components/decorators';
 import { ErrorBlock } from '../../../stories/components/error-block';
 import useQuery from '../../../stories/hooks/useQuery';
-import { Vault } from '../config';
-import { getVaultTVL,GetVaultTVLParameters } from './get-vault-tvl';
+import { getEarnTVL, GetEarnTVLParameters } from './get-vault-tvl';
 
 const meta = {
-  title: 'vault/metrics/getVaultTVL',
+  title: 'vault/metrics/getEarnTVL',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('api-get')],
@@ -23,16 +22,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const WithParams: Story = {
-  args: {
-    vaultKey: Vault.Veda,
-  },
+  args: {},
 };
 
-type SignNetworkFeeProps = GetVaultTVLParameters;
+type SignNetworkFeeProps = GetEarnTVLParameters;
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getVaultTVL({
+    return getEarnTVL({
       ...props,
     });
   };
@@ -47,7 +44,7 @@ export function StoryView(props: SignNetworkFeeProps) {
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getVaultTVL.name}
+        actionName={getEarnTVL.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

@@ -26,10 +26,12 @@ vi.mock('@lombard.finance/sdk-starknet', () => ({
 // Capture the config factory so we can call it in tests
 let capturedConfigFn: (() => unknown) | null = null;
 
-const mockUseLombardSDK = vi.fn().mockImplementation((configFn: () => unknown) => {
-  capturedConfigFn = configFn;
-  return { sdk: null, isInitializing: false, error: null };
-});
+const mockUseLombardSDK = vi
+  .fn()
+  .mockImplementation((configFn: () => unknown) => {
+    capturedConfigFn = configFn;
+    return { sdk: null, isInitializing: false, error: null };
+  });
 
 const mockStake = vi.fn();
 const mockReset = vi.fn();
@@ -114,7 +116,9 @@ describe('useBtcStakingStarknet', () => {
       account: { address: '0x123' },
     };
 
-    renderHook(() => useBtcStakingStarknet(fakeProvider, undefined, undefined, 'braavos'));
+    renderHook(() =>
+      useBtcStakingStarknet(fakeProvider, undefined, undefined, 'braavos'),
+    );
 
     await waitFor(() => {
       expect(mockWalletAccountConnect).toHaveBeenCalled();
@@ -181,9 +185,7 @@ describe('useBtcStakingStarknet', () => {
     const fakeProvider = { id: 'braavos' };
     mockWalletAccountConnect.mockResolvedValue({ __walletAccount: true });
 
-    renderHook(() =>
-      useBtcStakingStarknet(fakeProvider, 'my-partner-id'),
-    );
+    renderHook(() => useBtcStakingStarknet(fakeProvider, 'my-partner-id'));
 
     await waitFor(() => {
       expect(capturedConfigFn).not.toBeNull();
@@ -213,7 +215,9 @@ describe('useBtcStakingStarknet', () => {
     };
     mockUseBtcStake.mockReturnValue(stakeReturn);
 
-    const { result } = renderHook(() => useBtcStakingStarknet({ id: 'braavos' }));
+    const { result } = renderHook(() =>
+      useBtcStakingStarknet({ id: 'braavos' }),
+    );
 
     // useBtcStake should have been called with the sdk from useLombardSDK
     expect(mockUseBtcStake).toHaveBeenCalledWith(fakeSdk);

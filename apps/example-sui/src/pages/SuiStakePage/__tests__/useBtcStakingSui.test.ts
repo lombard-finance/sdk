@@ -45,7 +45,7 @@ const {
 
 let capturedConfigFactory: (() => unknown) | undefined;
 
-vi.mock('react', async importOriginal => {
+vi.mock('react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react')>();
   return {
     ...actual,

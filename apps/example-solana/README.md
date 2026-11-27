@@ -26,12 +26,12 @@ yarn workspace @lombard.finance/example-solana dev
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `dev` | Start Vite dev server |
-| `build` | Type-check and build for production |
-| `preview` | Preview the production build |
-| `test` | Run tests |
+| Command   | Description                         |
+| --------- | ----------------------------------- |
+| `dev`     | Start Vite dev server               |
+| `build`   | Type-check and build for production |
+| `preview` | Preview the production build        |
+| `test`    | Run tests                           |
 
 ## What's demonstrated
 

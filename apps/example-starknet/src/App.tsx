@@ -11,7 +11,11 @@ import { StarknetUnstakePage } from './pages/StarknetUnstakePage';
 function App() {
   const [env, setEnv] = useState<Env>(() => {
     const stored = localStorage.getItem('lombard-env');
-    if (stored && Object.values(Env).includes(stored as Env) && stored !== Env.testnet) {
+    if (
+      stored &&
+      Object.values(Env).includes(stored as Env) &&
+      stored !== Env.testnet
+    ) {
       return stored as Env;
     }
     const defaultEnv = getEnvironment();
@@ -35,7 +39,10 @@ function App() {
           >
             <Route index element={<Navigate to="/staking" replace />} />
             <Route path="staking" element={<StarknetStakePage env={env} />} />
-            <Route path="unstaking" element={<StarknetUnstakePage env={env} />} />
+            <Route
+              path="unstaking"
+              element={<StarknetUnstakePage env={env} />}
+            />
             <Route path="*" element={<Navigate to="/staking" replace />} />
           </Route>
         </Routes>

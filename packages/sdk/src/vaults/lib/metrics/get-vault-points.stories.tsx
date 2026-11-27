@@ -9,11 +9,10 @@ import {
 import { ErrorBlock } from '../../../stories/components/error-block';
 import { EXAMPLE_EVM_ADDRESS } from '../../../stories/constants';
 import useQuery from '../../../stories/hooks/useQuery';
-import { Vault } from '../config';
-import { getVaultPoints,GetVaultPointsParameters } from './get-vault-points';
+import { getEarnPoints, GetEarnPointsParameters } from './get-vault-points';
 
 const meta = {
-  title: 'vault/metrics/getVaultPoints',
+  title: 'vault/metrics/getEarnPoints',
   component: StoryView,
   tags: ['autodocs'],
   decorators: [wagmiDecorator, functionType('api-get')],
@@ -26,15 +25,14 @@ type Story = StoryObj<typeof meta>;
 export const WithParams: Story = {
   args: {
     account: EXAMPLE_EVM_ADDRESS,
-    vaultKey: Vault.Veda,
   },
 };
 
-type SignNetworkFeeProps = GetVaultPointsParameters;
+type SignNetworkFeeProps = GetEarnPointsParameters;
 
 export function StoryView(props: SignNetworkFeeProps) {
   const request = async () => {
-    return getVaultPoints({
+    return getEarnPoints({
       ...props,
     });
   };
@@ -49,7 +47,7 @@ export function StoryView(props: SignNetworkFeeProps) {
         onClick={refetch}
         disabled={isLoading}
         isLoading={isLoading}
-        actionName={getVaultPoints.name}
+        actionName={getEarnPoints.name}
       />
 
       <ErrorBlock>{error}</ErrorBlock>

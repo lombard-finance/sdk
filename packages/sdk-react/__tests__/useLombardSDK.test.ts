@@ -6,7 +6,7 @@ import { useLombardSDK } from '../src/hooks/useLombardSDK';
 const mockSdk = { chain: {} };
 const mockCreateLombardSDK = vi.fn();
 
-vi.mock('@lombard.finance/sdk', async importOriginal => {
+vi.mock('@lombard.finance/sdk', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@lombard.finance/sdk')>();
   return {
     ...actual,
@@ -23,9 +23,7 @@ describe('useLombardSDK', () => {
   });
 
   it('initializes SDK when configFn returns a config', async () => {
-    const { result } = renderHook(() =>
-      useLombardSDK(() => mockConfig, []),
-    );
+    const { result } = renderHook(() => useLombardSDK(() => mockConfig, []));
 
     expect(result.current.isInitializing).toBe(true);
 
@@ -39,9 +37,7 @@ describe('useLombardSDK', () => {
   });
 
   it('skips initialization when configFn returns undefined', async () => {
-    const { result } = renderHook(() =>
-      useLombardSDK(() => undefined, []),
-    );
+    const { result } = renderHook(() => useLombardSDK(() => undefined, []));
 
     await waitFor(() => {
       expect(result.current.isInitializing).toBe(false);
@@ -55,9 +51,7 @@ describe('useLombardSDK', () => {
   it('sets error when createLombardSDK rejects', async () => {
     mockCreateLombardSDK.mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderHook(() =>
-      useLombardSDK(() => mockConfig, []),
-    );
+    const { result } = renderHook(() => useLombardSDK(() => mockConfig, []));
 
     await waitFor(() => {
       expect(result.current.isInitializing).toBe(false);
@@ -74,8 +68,7 @@ describe('useLombardSDK', () => {
       .mockResolvedValueOnce(secondSdk);
 
     const { result, rerender } = renderHook(
-      ({ dep }: { dep: string }) =>
-        useLombardSDK(() => mockConfig, [dep]),
+      ({ dep }: { dep: string }) => useLombardSDK(() => mockConfig, [dep]),
       { initialProps: { dep: 'v1' } },
     );
 
@@ -91,7 +84,7 @@ describe('useLombardSDK', () => {
   it('ignores stale response after unmount', async () => {
     let resolveInit!: (value: unknown) => void;
     mockCreateLombardSDK.mockReturnValue(
-      new Promise(resolve => {
+      new Promise((resolve) => {
         resolveInit = resolve;
       }),
     );

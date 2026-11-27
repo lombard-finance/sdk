@@ -5,7 +5,6 @@
  *
  * @module chains/btc/actions/stakeAndDeploy/types
  */
-
 import type {
   AssetId,
   Chain,
@@ -16,6 +15,7 @@ import type {
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import { BtcActionStatus } from '../../../../shared/constants/statusConstants';
 import type { MonitorProgress } from '../../../../shared/monitoring';
+import type { AuthorizeDepositOptions } from '../shared';
 
 // Re-export for convenience (single export statement avoids duplicate identifier)
 export { BtcActionStatus };
@@ -59,8 +59,7 @@ export interface BtcStakeAndDeployPrepareParams {
 /**
  * BTC StakeAndDeploy progress
  */
-export interface BtcStakeAndDeployProgress
-  extends StrategyProgress<BtcActionStatus> {
+export interface BtcStakeAndDeployProgress extends StrategyProgress<BtcActionStatus> {
   status: BtcActionStatus;
   steps: {
     created: StepStatus;
@@ -90,6 +89,17 @@ export interface BtcStakeAndDeploy extends MonitorableAction {
   readonly recipient?: string;
   readonly depositAddress?: string;
   readonly referralCode?: string;
+  /**
+   * The authorization already on file, set when `prepare()` stopped at
+   * `BLOCKED_BY_EXISTING_AUTHORIZATION` because a live signature covers less
+   * than the requested deposit.
+   */
+  readonly existingAuthorization?: {
+    /** What the stored permit covers, in token base units. */
+    depositAmount?: string;
+    /** When it lapses, as a UNIX timestamp in seconds. */
+    expiresAt?: string;
+  };
 
   /**
    * Prepare the operation
@@ -97,9 +107,12 @@ export interface BtcStakeAndDeploy extends MonitorableAction {
   prepare(params: BtcStakeAndDeployPrepareParams): Promise<void>;
 
   /**
-   * Authorize vault deposit via signature
+   * Authorize the vault deposit.
+   *
+   * @param options - Optional signing overrides. `expiry` sets the signature
+   * expiration as an absolute UNIX timestamp in seconds, defaulting to 24 hours.
    */
-  authorizeDeposit(): Promise<void>;
+  authorizeDeposit(options?: AuthorizeDepositOptions): Promise<void>;
 
   /**
    * Generate BTC deposit address

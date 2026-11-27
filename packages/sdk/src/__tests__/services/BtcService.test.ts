@@ -1,4 +1,4 @@
-import { beforeEach,describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getCurrentBlockHeight } from '../../chains/btc/client/getCurrentBlockHeight';
 import { BtcService } from '../../services/BtcService';
@@ -19,12 +19,11 @@ describe('BtcService', () => {
   describe('getCurrentBlockHeight', () => {
     it('should return block height', async () => {
       vi.mocked(getCurrentBlockHeight).mockResolvedValue(123456);
-      
+
       const height = await service.getCurrentBlockHeight('testnet');
-      
+
       expect(height).toBe(123456);
       expect(getCurrentBlockHeight).toHaveBeenCalledWith('testnet');
     });
   });
 });
-

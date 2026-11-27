@@ -11,7 +11,7 @@ import type {
   StrategyProgress,
 } from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
-import type { NonEvmUnstakeStatus } from '../../../../shared/constants/statusConstants';
+import type { NonEvmOperationStatus } from '../../../../shared/constants/statusConstants';
 
 /**
  * Starknet Unstake parameters
@@ -26,9 +26,8 @@ export interface StarknetUnstakeParams {
 /**
  * Starknet Unstake progress
  */
-export interface StarknetUnstakeProgress
-  extends StrategyProgress<NonEvmUnstakeStatus> {
-  status: NonEvmUnstakeStatus;
+export interface StarknetUnstakeProgress extends StrategyProgress<NonEvmOperationStatus> {
+  status: NonEvmOperationStatus;
   steps: {
     burning: StepStatus;
     releasing: StepStatus;
@@ -48,7 +47,7 @@ export interface StarknetUnstakePrepareParams {
  * Starknet Unstake interface
  */
 export interface IStarknetUnstake extends MonitorableAction {
-  readonly status: NonEvmUnstakeStatus;
+  readonly status: NonEvmOperationStatus;
   readonly amount?: string;
   readonly recipient?: string;
 

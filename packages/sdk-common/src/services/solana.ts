@@ -16,36 +16,65 @@ export interface SolanaService {
   }): Promise<{ signature: string }>;
 
   /**
-   * Unstake LBTC on Solana to receive BTC
+   * Redeem BTC.b or LBTC on Solana to receive BTC
    *
-   * Burns LBTC on Solana and releases BTC to the provided Bitcoin address.
-   *
-   * @param args.amount - Amount of LBTC to unstake in base units (satoshis)
-   * @param args.btcAddress - Bitcoin address to receive BTC
-   * @param args.network - Solana network ('mainnet-beta', 'devnet', 'testnet')
-   * @returns Transaction signature
-   */
-  unstake(args: {
-    amount: string;
-    btcAddress: string;
-    network: string;
-  }): Promise<{ txHash: string }>;
-
-  /**
-   * Redeem BTC.b on Solana to receive BTC
-   *
-   * Burns BTC.b on Solana and sends a GMP message to trigger
+   * Burns the source token on Solana and sends a GMP message to trigger
    * a BTC payout to the specified Bitcoin address.
    *
-   * @param args.amount - Amount of BTC.b to redeem in base units (satoshis)
+   * @param args.amount - Amount to redeem in base units (satoshis)
    * @param args.btcAddress - Bitcoin address to receive BTC
    * @param args.network - Solana network ('mainnet-beta', 'devnet', 'testnet')
-   * @returns Transaction signature
+   * @param args.tokenMint - Source SPL mint: must be the environment’s LBTC or BTC.b mint.
+   * @returns `{ signature }` — base58 Solana transaction signature for the initiating burn/GMP transaction (not a Bitcoin payout txid).
    */
   redeemForBtc(args: {
     amount: string;
     btcAddress: string;
     network: string;
     env?: Env;
-  }): Promise<{ txHash: string }>;
+    tokenMint: string;
+  }): Promise<{ signature: string }>;
+
+  /**
+   * Redeem tokens via Asset Router's generic `redeem` instruction.
+   *
+   * Burns the source token (default LBTC) and sends a GMP message through
+   * the Mailbox to route the destination token (default BTC.b) to the recipient.
+   *
+   * @param args.amount - Amount in base units (satoshis)
+   * @param args.recipient - Owner wallet (Solana base58); the SDK derives the native_mint ATA for the GMP payload from on-chain Asset Router config
+   * @param args.network - Solana network
+   * @returns `{ signature }` — base58 Solana transaction signature for the submitted transaction.
+   */
+  redeem(args: {
+    amount: string;
+    recipient: string;
+    network: string;
+    env?: Env;
+    tokenMint?: string;
+    toLchainId?: string;
+    toTokenAddress?: string;
+  }): Promise<{ signature: string }>;
+
+  /**
+   * Deposit source token (default BTC.b) to receive destination token (default LBTC)
+   * via Asset Router's `deposit` instruction.
+   *
+   * Burns the source token and sends a GMP message through the Mailbox
+   * to mint the destination token to the recipient.
+   *
+   * @param args.amount - Amount in base units (satoshis)
+   * @param args.recipient - Owner wallet (Solana base58); the SDK derives the destination mint ATA for the GMP payload
+   * @param args.network - Solana network
+   * @returns `{ signature }` — base58 Solana transaction signature for the submitted transaction.
+   */
+  deposit(args: {
+    amount: string;
+    recipient: string;
+    network: string;
+    env?: Env;
+    sourceTokenMint?: string;
+    toLchainId?: string;
+    toTokenAddress?: string;
+  }): Promise<{ signature: string }>;
 }

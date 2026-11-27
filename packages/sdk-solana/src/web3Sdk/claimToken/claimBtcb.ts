@@ -3,8 +3,9 @@ import { PublicKey, SystemProgram } from '@solana/web3.js';
 
 import { sendAndConfirmTransaction } from '../../utils';
 import { createOrGetAssociatedTokenAccount } from '../../utils/tokenAccount';
-import { ALREADY_MINTED_TX_HASH } from '../claimLBTC';
+import { ALREADY_MINTED_TX_HASH } from './constants';
 import {
+  assertBtcbDepositRecipientMatchesWallet,
   ClaimContext,
   computeDepositIdFromPayload,
   executeConsortiumSession,
@@ -18,10 +19,19 @@ import {
  */
 export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
   const {
-    provider, connection, params, payloadBytes, payloadHash,
-    payloadHashArray, assetRouterProgram, assetRouterProgramId,
-    assetRouterConfigPDA, tokenAuthorityPDA, validatedPayloadPDA,
-    arConfig, debugLog,
+    provider,
+    connection,
+    params,
+    payloadBytes,
+    payloadHash,
+    payloadHashArray,
+    assetRouterProgram,
+    assetRouterProgramId,
+    assetRouterConfigPDA,
+    tokenAuthorityPDA,
+    validatedPayloadPDA,
+    arConfig,
+    debugLog,
   } = ctx;
 
   const [depositPayloadSpentPDA] = PublicKey.findProgramAddressSync(
@@ -59,71 +69,90 @@ export async function claimBtcbFromPayload(ctx: ClaimContext): Promise<string> {
   const tokenProgramId = mintAccountInfo.owner;
   debugLog('Token program:', tokenProgramId.toBase58());
 
-  const mintAccount = await getMint(connection, mint, undefined, tokenProgramId);
+  const mintAccount = await getMint(
+    connection,
+    mint,
+    undefined,
+    tokenProgramId,
+  );
   if (!mintAccount.mintAuthority) {
     throw new Error('Mint has no mint authority');
   }
   const mintAuthority = mintAccount.mintAuthority;
   debugLog('Mint authority:', mintAuthority.toBase58());
 
-  const payloadRecipient = new PublicKey(payloadBytes.subarray(36, 68));
-  debugLog('Recipient from payload:', payloadRecipient.toBase58());
+  const recipientTokenAccount = await assertBtcbDepositRecipientMatchesWallet({
+    payloadBytes,
+    mint,
+    tokenProgramId,
+    recipientWallet: params.recipientAddress,
+  });
+  debugLog('Recipient token account:', recipientTokenAccount.toBase58());
 
   await createOrGetAssociatedTokenAccount({
     provider,
     connection,
-    ownerAddress: payloadRecipient.toBase58(),
+    ownerAddress: params.recipientAddress,
     mintAddress: mint.toBase58(),
+    allowOwnerOffCurve: true,
   });
 
-  // Build mint_from_payload instruction
+  // Build mint_from_payload instruction.
+  // Optional bascule accounts must be passed explicitly (null when disabled),
+  // otherwise Anchor builder throws "Account <x> not provided".
   debugLog('mint_from_payload...');
   const mintPayloadArray = Array.from(payloadBytes);
-  const mintIx = await assetRouterProgram.methods
-    .mintFromPayload(mintPayloadArray, payloadHashArray)
-    .accounts({
-      payer: provider.publicKey,
-      config: assetRouterConfigPDA,
-      tokenProgram: tokenProgramId,
-      recipient: payloadRecipient,
-      mint,
-      mintAuthority,
-      tokenAuthority: tokenAuthorityPDA,
-      consortiumValidatedPayload: validatedPayloadPDA,
-      depositPayloadSpent: depositPayloadSpentPDA,
-      systemProgram: SystemProgram.programId,
-    })
-    .instruction();
 
-  // Append bascule remaining accounts
+  let basculeValidatorPDA: PublicKey | undefined;
+  let basculeDataPDA: PublicKey | undefined;
+  let basculeDepositPDA: PublicKey | undefined;
+
   if (effectiveBasculeProgramId) {
-    const [basculeValidatorPDA] = PublicKey.findProgramAddressSync(
+    [basculeValidatorPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from('bascule_validator')],
       assetRouterProgramId,
     );
-    const [basculeDataPDA] = PublicKey.findProgramAddressSync(
+    [basculeDataPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from('bascule')],
       effectiveBasculeProgramId,
     );
     const depositId = computeDepositIdFromPayload(payloadBytes);
     debugLog('Deposit ID:', Buffer.from(depositId).toString('hex'));
 
-    const [basculeDepositPDA] = PublicKey.findProgramAddressSync(
+    [basculeDepositPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from('deposit'), depositId],
       effectiveBasculeProgramId,
     );
 
+    debugLog('Asset router program:', assetRouterProgramId.toBase58());
+    debugLog('Bascule program:', effectiveBasculeProgramId.toBase58());
     debugLog('Bascule validator PDA:', basculeValidatorPDA.toBase58());
     debugLog('Bascule data PDA:', basculeDataPDA.toBase58());
     debugLog('Bascule deposit PDA:', basculeDepositPDA.toBase58());
-
-    mintIx.keys.push(
-      { pubkey: basculeValidatorPDA, isSigner: false, isWritable: false },
-      { pubkey: effectiveBasculeProgramId, isSigner: false, isWritable: false },
-      { pubkey: basculeDataPDA, isSigner: false, isWritable: true },
-      { pubkey: basculeDepositPDA, isSigner: false, isWritable: true },
-    );
   }
+
+  // Anchor optional accounts: when disabled, pass the program's own ID as a
+  // "None" sentinel — this is the convention anchor-client uses for optional accounts.
+  const basculeSentinel = assetRouterProgramId;
+  const mintIx = await assetRouterProgram.methods
+    .mintFromPayload(mintPayloadArray, payloadHashArray)
+    .accountsPartial({
+      payer: provider.publicKey,
+      config: assetRouterConfigPDA,
+      tokenProgram: tokenProgramId,
+      recipient: recipientTokenAccount,
+      mint,
+      mintAuthority,
+      tokenAuthority: tokenAuthorityPDA,
+      consortiumValidatedPayload: validatedPayloadPDA,
+      depositPayloadSpent: depositPayloadSpentPDA,
+      systemProgram: SystemProgram.programId,
+      basculeValidator: basculeValidatorPDA ?? basculeSentinel,
+      basculeProgram: effectiveBasculeProgramId ?? basculeSentinel,
+      basculeData: basculeDataPDA ?? basculeSentinel,
+      basculeDeposit: basculeDepositPDA ?? basculeSentinel,
+    })
+    .instruction();
 
   debugLog('Instruction account count:', mintIx.keys.length);
 

@@ -27,10 +27,10 @@
  */
 
 import type {
-    AssetId,
-    Chain,
-    StepStatus,
-    StrategyProgress,
+  AssetId,
+  Chain,
+  StepStatus,
+  StrategyProgress,
 } from '../../../../core';
 import type { MonitorableAction } from '../../../../shared/actions/BaseAction';
 import type { EvmOperationStatus } from '../../../../shared/constants/statusConstants';

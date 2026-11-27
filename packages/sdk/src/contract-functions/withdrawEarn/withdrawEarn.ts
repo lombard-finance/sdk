@@ -1,0 +1,330 @@
+import BigNumber from 'bignumber.js';
+import { Address, erc20Abi, Hash, maxUint256 } from 'viem';
+
+import { makePublicClient } from '../../clients/public-client';
+import { makeWalletClient } from '../../clients/wallet-client';
+import { CHAIN_ID_TO_VIEM_CHAIN_MAP } from '../../common/chains';
+import { CommonWriteParameters } from '../../common/parameters';
+import { Token } from '../../tokens/token-addresses';
+import { getTokenInfo, toBaseDenomination } from '../../tokens/tokens';
+import { getErrorMessage } from '../../utils/err';
+import toBigInt from '../../utils/numbers';
+import { DAY } from '../../utils/time';
+import {
+  BTCE_VAULT,
+  EARN_VAULT,
+  EarnChain,
+  isBtceVaultChain,
+  isEarnChain,
+} from '../../vaults/lib/config';
+
+/**
+ * Which withdrawal queue to file the request against.
+ *   - `atomic`: legacy AtomicQueue (`safeUpdateAtomicRequest`). Default, so
+ *     existing callers are unchanged.
+ *   - `boring`: new BoringOnChainQueue (`requestOnChainWithdraw`). LBTC is
+ *     the only redemption asset currently allowed on-chain.
+ */
+export type EarnWithdrawQueue = 'atomic' | 'boring';
+
+export type WithdrawEarnParameters = {
+  /** Amount to withdraw, in the withdrawal asset's natural decimal units (BTC). */
+  amount: BigNumber.Value;
+  /**
+   * The token to receive when the queue resolves.
+   * Defaults to Token.LBTC. Must be a deposit-side asset accepted by the vault.
+   */
+  withdrawalAsset?: Token;
+  /**
+   * Withdrawal queue to route the request to. Defaults to `'atomic'` to
+   * preserve legacy behavior; pass `'boring'` to use the BoringOnChainQueue.
+   */
+  queue?: EarnWithdrawQueue;
+} & CommonWriteParameters;
+
+export interface WithdrawEarnResult {
+  /** Approval transaction hash, set only when an approval was required. */
+  approveTxHash?: Hash;
+  /** Unwrap transaction hash, set only when BTCe → underlying-share unwrapping was required. */
+  unwrapTxHash?: Hash;
+  /** Queue transaction hash, always set on success. */
+  queueTxHash: Hash;
+}
+
+/**
+ * Earn-native withdrawal orchestrator.
+ *
+ * Reads the user's combined position (direct underlying-share balance + BTCe),
+ * checks LBTCv allowance to the withdraw queue, pre-flight checks the BTCe
+ * wrapper's `maxWithdraw` to fail loudly when a doomed unwrap would mid-flow,
+ * then sends 1-3 transactions in order:
+ *
+ *   1. (conditional) Unwrap just enough BTCe to cover the gap between `amount`
+ *      and the user's direct underlying-share balance.
+ *   2. (conditional) Approve underlying-share token to the withdraw queue with MaxUint256.
+ *   3. (always) File the withdrawal request against the queue `queue` selects.
+ *
+ * Unwrap runs before approve so that wallets which cap the displayed approval
+ * amount at the user's current token balance (e.g. OKX) see the full
+ * post-unwrap balance and don't grant an allowance smaller than `amount`.
+ *
+ * Failure semantics:
+ *   - Throws `InsufficientPositionError` BEFORE any tx if the requested amount
+ *     exceeds `underlyingBalance + btceBalance`.
+ *   - Throws `InsufficientUnwrappableError` BEFORE any tx if the BTCe wrapper's
+ *     `maxWithdraw` shrank below the gap between read and unwrap.
+ *   - Throws BEFORE any tx when the BoringQueue has withdrawals in
+ *     `withdrawalAsset` disabled, which can happen at any time.
+ *   - Step-level failures throw with an explicit message; partial state is
+ *     retry-safe via the orchestrator's skip logic.
+ *
+ * @returns {Promise<WithdrawEarnResult>} The transaction hashes for each step run.
+ */
+export async function withdrawEarn({
+  amount: amountRaw,
+  withdrawalAsset = Token.LBTC,
+  queue = 'atomic',
+  account,
+  chainId,
+  provider,
+  rpcUrl,
+  env,
+}: WithdrawEarnParameters): Promise<WithdrawEarnResult> {
+  if (!isEarnChain(chainId)) {
+    throw new Error(
+      `Unsupported chain ${chainId}. Earn withdrawals are supported on: ${EARN_VAULT.chains.join(', ')}.`,
+    );
+  }
+
+  const useBoringQueue = queue === 'boring';
+
+  const amount = BigNumber(amountRaw);
+  if (!amount.isGreaterThan(0)) {
+    throw new Error(
+      `Withdraw amount must be greater than zero. Received: ${amount.toFixed()}.`,
+    );
+  }
+
+  const vault = EARN_VAULT;
+  const vaultAddress = vault.vaultContract.address as Address;
+  const accountantAddress = vault.accountantContract.address as Address;
+  const lensAddress = vault.lensContract.address as Address;
+
+  const boringQueue = vault.boringQueueContracts[chainId as EarnChain];
+  if (useBoringQueue && !boringQueue) {
+    throw new Error(
+      `BoringQueue withdrawals are not available on chain ${chainId}. Supported: ${Object.keys(
+        vault.boringQueueContracts,
+      ).join(', ')}.`,
+    );
+  }
+  const queueContract = useBoringQueue
+    ? boringQueue!
+    : vault.withdrawQueueContracts[chainId];
+  const queueAddress = queueContract.address as Address;
+  const queueAbi = queueContract.abi;
+
+  const withdrawTokenInfo = await getTokenInfo(
+    withdrawalAsset,
+    chainId,
+    env,
+    rpcUrl,
+  );
+  if (!withdrawTokenInfo) {
+    throw new Error(
+      `Could not resolve withdrawal asset ${withdrawalAsset} on chain ${chainId}.`,
+    );
+  }
+
+  const publicClient = makePublicClient({ chainId, rpcUrl });
+  const walletClient = makeWalletClient({ provider, chainId });
+
+  const amountBase = toBigInt(toBaseDenomination(amount, vault.decimals));
+
+  // --- Round 1: read all required state in parallel ---
+  const btceSupported = isBtceVaultChain(chainId);
+  const reads = await Promise.all([
+    publicClient.readContract({
+      address: lensAddress,
+      abi: vault.lensContract.abi,
+      functionName: 'balanceOf',
+      args: [account, vaultAddress],
+    }) as Promise<bigint>,
+    btceSupported
+      ? (publicClient.readContract({
+          address: BTCE_VAULT.contracts[chainId],
+          abi: BTCE_VAULT.abi,
+          functionName: 'balanceOf',
+          args: [account],
+        }) as Promise<bigint>)
+      : Promise.resolve(0n),
+    publicClient.readContract({
+      address: vaultAddress,
+      abi: erc20Abi,
+      functionName: 'allowance',
+      args: [account, queueAddress],
+    }) as Promise<bigint>,
+    // The BoringQueue accepts a redemption asset only while that asset is
+    // enabled on the queue, and one can be stopped at any time. Ask, so a
+    // disabled asset fails here with a readable reason instead of as a bare
+    // on-chain revert.
+    useBoringQueue
+      ? (publicClient.readContract({
+          address: queueAddress,
+          abi: queueAbi,
+          functionName: 'withdrawAssets',
+          args: [withdrawTokenInfo.address],
+        }) as Promise<readonly [boolean, ...unknown[]]>)
+      : Promise.resolve([true] as readonly [boolean, ...unknown[]]),
+  ]);
+  const underlyingBalance = reads[0];
+  const btceBalance = reads[1];
+  const allowance = reads[2];
+  const [isWithdrawalAssetAllowed] = reads[3];
+
+  if (!isWithdrawalAssetAllowed) {
+    throw new Error(
+      `The BoringQueue does not accept ${withdrawalAsset} (${withdrawTokenInfo.address}) as a redemption asset on chain ${chainId}. No transactions sent.`,
+    );
+  }
+
+  // --- Coverage check ---
+  if (amountBase > underlyingBalance + btceBalance) {
+    throw new Error(
+      `InsufficientPositionError: requested ${amount.toFixed()} exceeds total position. underlyingBalance=${underlyingBalance.toString()}, btceBalance=${btceBalance.toString()}, amount=${amountBase.toString()}.`,
+    );
+  }
+
+  // --- Pre-flight maxWithdraw check (council blocker B2) ---
+  // Read maxWithdraw BEFORE any approval so a doomed unwrap never wastes
+  // approval gas.
+  const lbtcvNeeded =
+    amountBase > underlyingBalance ? amountBase - underlyingBalance : 0n;
+  let unwrapAmount = 0n;
+  if (btceSupported && lbtcvNeeded > 0n) {
+    const maxWithdraw = (await publicClient.readContract({
+      address: BTCE_VAULT.contracts[chainId],
+      abi: BTCE_VAULT.abi,
+      functionName: 'maxWithdraw',
+      args: [account],
+    })) as bigint;
+
+    if (maxWithdraw < lbtcvNeeded) {
+      throw new Error(
+        `InsufficientUnwrappableError: needed ${lbtcvNeeded.toString()} but BTCe.maxWithdraw(${account}) returned ${maxWithdraw.toString()}. The wrapper position may have shrunk between balance read and unwrap. No transactions sent.`,
+      );
+    }
+    unwrapAmount = lbtcvNeeded;
+  }
+
+  const result: WithdrawEarnResult = {
+    queueTxHash: '0x' as Hash, // overwritten below
+  };
+
+  // --- Step 1: unwrap (conditional) ---
+  // Runs BEFORE approve so that wallets which cap the displayed approval
+  // amount at the user's current token balance see the full post-unwrap
+  // balance and grant an allowance large enough to cover `amount`.
+  if (unwrapAmount > 0n && btceSupported) {
+    try {
+      const { request } = await publicClient.simulateContract({
+        account,
+        chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+        address: BTCE_VAULT.contracts[chainId],
+        abi: BTCE_VAULT.abi,
+        functionName: 'withdraw',
+        args: [unwrapAmount, account, account],
+      });
+      result.unwrapTxHash = await walletClient.writeContract(request);
+      await publicClient.waitForTransactionReceipt({
+        hash: result.unwrapTxHash,
+      });
+    } catch (err) {
+      throw new Error(
+        `Unwrap from BTCe to underlying share failed: ${getErrorMessage(err)}.`,
+      );
+    }
+  }
+
+  // --- Step 2: approve (conditional) ---
+  if (allowance < amountBase) {
+    try {
+      const { request } = await publicClient.simulateContract({
+        account,
+        chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+        address: vaultAddress,
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [queueAddress, maxUint256],
+      });
+      result.approveTxHash = await walletClient.writeContract(request);
+      await publicClient.waitForTransactionReceipt({
+        hash: result.approveTxHash,
+      });
+    } catch (err) {
+      throw new Error(
+        `Approval of underlying share for withdraw queue failed: ${getErrorMessage(err)}. Prior steps may have completed: unwrap=${result.unwrapTxHash ?? 'n/a'}.`,
+      );
+    }
+  }
+
+  // --- Step 3: queue (always) ---
+  // BoringOnChainQueue.requestOnChainWithdraw(assetOut, amountOfShares, discount, secondsToDeadline)
+  const simulateBoringRequest = () =>
+    publicClient.simulateContract({
+      account,
+      chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+      address: queueAddress,
+      abi: queueAbi,
+      functionName: 'requestOnChainWithdraw',
+      args: [
+        withdrawTokenInfo.address,
+        amountBase, // uint128 amountOfShares
+        Number(vault.boringQueueDiscountBps), // uint16 discount (bps)
+        Number(
+          BigNumber(vault.boringQueueDaysValid)
+            .multipliedBy(DAY / 1000)
+            .toFixed(0),
+        ), // uint24 secondsToDeadline
+      ],
+    });
+
+  // Legacy AtomicQueue.safeUpdateAtomicRequest(offer, want, request, accountant, discount)
+  const simulateAtomicRequest = () => {
+    const expiry = BigNumber(Date.now())
+      .dividedBy(1000)
+      .plus(BigNumber(vault.queueWithdrawDaysValid).multipliedBy(DAY / 1000))
+      .decimalPlaces(0, BigNumber.ROUND_DOWN);
+    const discount = BigNumber(vault.queueWithdrawDiscountPercent).multipliedBy(
+      10000,
+    );
+
+    return publicClient.simulateContract({
+      account,
+      chain: CHAIN_ID_TO_VIEM_CHAIN_MAP[chainId],
+      address: queueAddress,
+      abi: queueAbi,
+      functionName: 'safeUpdateAtomicRequest',
+      args: [
+        vaultAddress,
+        withdrawTokenInfo.address,
+        [BigInt(expiry.toFixed(0)), 0n, amountBase, false],
+        accountantAddress,
+        BigInt(discount.toFixed(0)),
+      ],
+    });
+  };
+
+  try {
+    const { request } = useBoringQueue
+      ? await simulateBoringRequest()
+      : await simulateAtomicRequest();
+    result.queueTxHash = await walletClient.writeContract(request);
+  } catch (err) {
+    throw new Error(
+      `Queue withdrawal failed: ${getErrorMessage(err)}. Prior steps may have completed: approve=${result.approveTxHash ?? 'n/a'}, unwrap=${result.unwrapTxHash ?? 'n/a'}.`,
+    );
+  }
+
+  return result;
+}

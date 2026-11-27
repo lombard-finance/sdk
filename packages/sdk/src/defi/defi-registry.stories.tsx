@@ -143,8 +143,8 @@ function DefiRegistryViewer() {
       for (const token of tokens) {
         const entries = getEntriesForToken(protocol, token);
         totalConfigs += entries.length;
-        permitCount += entries.filter(e => e.mode === 'permit').length;
-        approveCount += entries.filter(e => e.mode === 'approve').length;
+        permitCount += entries.filter((e) => e.mode === 'permit').length;
+        approveCount += entries.filter((e) => e.mode === 'approve').length;
       }
     }
 
@@ -225,12 +225,12 @@ function DefiRegistryViewer() {
             id="envFilter"
             className="form-select"
             value={filterEnv}
-            onChange={e => {
+            onChange={(e) => {
               setFilterEnv(e.target.value as Env | 'all');
             }}
           >
             <option value="all">All Environments</option>
-            {Object.values(Env).map(env => (
+            {Object.values(Env).map((env) => (
               <option key={env} value={env}>
                 {env}
               </option>
@@ -245,8 +245,8 @@ function DefiRegistryViewer() {
               setExpandedProtocols(new Set(protocols));
               setExpandedTokens(
                 new Set(
-                  protocols.flatMap(p =>
-                    getTokensForProtocol(p).map(t => `${p}-${t}`),
+                  protocols.flatMap((p) =>
+                    getTokensForProtocol(p).map((t) => `${p}-${t}`),
                   ),
                 ),
               );
@@ -271,7 +271,7 @@ function DefiRegistryViewer() {
       {/* Tree View */}
       <div className="card">
         <div className="card-body">
-          {protocols.map(protocol => {
+          {protocols.map((protocol) => {
             const isProtocolExpanded = expandedProtocols.has(protocol);
             const tokens = getTokensForProtocol(protocol);
 
@@ -286,9 +286,7 @@ function DefiRegistryViewer() {
                     toggleProtocol(protocol);
                   }}
                 >
-                  <span className="me-2">
-                    {isProtocolExpanded ? '▼' : '▶'}
-                  </span>
+                  <span className="me-2">{isProtocolExpanded ? '▼' : '▶'}</span>
                   <strong>
                     {DefiProtocols[protocol as DefiProtocol]?.name || protocol}
                   </strong>
@@ -300,7 +298,7 @@ function DefiRegistryViewer() {
                 {/* Tokens Level */}
                 {isProtocolExpanded && (
                   <div className="ms-4 mt-2">
-                    {tokens.map(token => {
+                    {tokens.map((token) => {
                       const tokenKey = `${protocol}-${token}`;
                       const isTokenExpanded = expandedTokens.has(tokenKey);
                       const allEntries = getEntriesForToken(protocol, token);
@@ -323,7 +321,7 @@ function DefiRegistryViewer() {
                         filterEnv === 'all'
                           ? Object.keys(envGroups)
                           : Object.keys(envGroups).filter(
-                              env => env === filterEnv,
+                              (env) => env === filterEnv,
                             );
 
                       if (filteredEnvs.length === 0) return null;
@@ -356,7 +354,7 @@ function DefiRegistryViewer() {
                           {/* Environments Level */}
                           {isTokenExpanded && (
                             <div className="ms-4 mt-2">
-                              {filteredEnvs.map(env => {
+                              {filteredEnvs.map((env) => {
                                 const envKey = `${tokenKey}-${env}`;
                                 const isEnvExpanded = expandedEnvs.has(envKey);
                                 const entries = envGroups[env as Env];
@@ -391,7 +389,7 @@ function DefiRegistryViewer() {
                                     {/* Chains Level (Details) */}
                                     {isEnvExpanded && (
                                       <div className="ms-4 mt-2">
-                                        {entries.map(entry => (
+                                        {entries.map((entry) => (
                                           <div
                                             key={`${entry.chainId}`}
                                             className="card mb-2"

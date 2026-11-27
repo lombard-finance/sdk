@@ -17,18 +17,19 @@ import type { StakingFormData } from '../../lib/types';
 export function useBtcStakingSolana(partnerId?: string, env?: Env) {
   const currentEnv = env ?? getEnvironment();
 
-  const { sdk, isInitializing, error: sdkError } = useLombardSDK(
-    () => {
-      if (!window.solana) return undefined;
-      return createConfig({
-        env: currentEnv,
-        providers: { solana: () => window.solana! },
-        modules: [solanaModule()],
-        ...(partnerId && { partner: { partnerId } }),
-      });
-    },
-    [partnerId, currentEnv],
-  );
+  const {
+    sdk,
+    isInitializing,
+    error: sdkError,
+  } = useLombardSDK(() => {
+    if (!window.solana) return undefined;
+    return createConfig({
+      env: currentEnv,
+      providers: { solana: () => window.solana! },
+      modules: [solanaModule()],
+      ...(partnerId && { partner: { partnerId } }),
+    });
+  }, [partnerId, currentEnv]);
 
   const {
     stake: stakeCore,

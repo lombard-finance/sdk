@@ -11,7 +11,7 @@ import {
   useConnection,
 } from '../stories/hooks/useConnection';
 import useQuery from '../stories/hooks/useQuery';
-import { addChain,AddChainParameters, ChainId } from './chains';
+import { addChain, AddChainParameters, ChainId } from './chains';
 
 const meta = {
   title: 'write/addChain',

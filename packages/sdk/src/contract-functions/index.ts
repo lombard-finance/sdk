@@ -17,5 +17,13 @@ export * from './signStakeAndBake';
 export * from './unstakeLBTC';
 
 // VAULT READ functions:
-export * from './getSharesByAddress';
-export * from './getShareValue';
+export * from './getBtceShares';
+export * from './getEarnPosition';
+
+// VAULT WRITE functions:
+export * from './cancelEarnWithdrawal';
+export * from './depositEarn';
+export * from './previewWithdrawEarn';
+export * from './unwrapBtceToLbtcv';
+export * from './withdrawEarn';
+export * from './wrapToBtce';

@@ -1,13 +1,13 @@
 import { Env } from '@lombard.finance/sdk-common';
-import { SuiClient } from '@mysten/sui/client';
+import { SuiGrpcClient } from '@mysten/sui/grpc';
 import type { WalletAccount } from '@wallet-standard/core';
 import BigNumber from 'bignumber.js';
 
-import { LBTC_DECIMALS } from '../../const';
+import { resolveSuiCoinDecimals } from '../../utils/getSuiCoinDecimals';
 
 interface IGetBalanceParams {
   walletAccount: WalletAccount;
-  client: SuiClient;
+  client: SuiGrpcClient;
   coinType: string;
   env?: Env;
 }
@@ -21,19 +21,14 @@ export async function getBalance({
   client,
   coinType,
 }: IGetBalanceParams): Promise<IGetBalanceResult> {
-  const coinBalance = await client.getBalance({
+  const { balance } = await client.core.getBalance({
     owner: walletAccount.address,
     coinType,
   });
 
-  const coinMetadata = await client.getCoinMetadata({
-    coinType,
-  });
+  const decimals = await resolveSuiCoinDecimals(client, coinType);
 
-  // Fallback to LBTC decimals when CoinMetadata is not published (e.g. testnet)
-  const decimals = coinMetadata?.decimals ?? LBTC_DECIMALS;
-
-  const total = new BigNumber(coinBalance.totalBalance).div(
+  const total = new BigNumber(balance.balance).div(
     new BigNumber(10).pow(decimals),
   );
 

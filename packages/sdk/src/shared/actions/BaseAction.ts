@@ -124,8 +124,7 @@ export interface MonitorableAction {
 export abstract class BaseAction<
   TEventMap extends Record<string, EventHandler<unknown[]>>,
   TStatus extends string,
-> implements MonitorableAction
-{
+> implements MonitorableAction {
   /** Event emitter for this action */
   protected readonly eventEmitter: EventEmitter<TEventMap>;
 
@@ -377,7 +376,9 @@ export abstract class BaseAction<
     const startTime = performance.now();
     const operationName = successStatus ?? 'operation';
 
-    this.log('debug', `Starting ${operationName}`, { step: String(operationName) });
+    this.log('debug', `Starting ${operationName}`, {
+      step: String(operationName),
+    });
     this.clearError();
     this.setLoading(true);
 
@@ -398,7 +399,8 @@ export abstract class BaseAction<
       return result;
     } catch (error) {
       const duration = performance.now() - startTime;
-      const lombError = error instanceof LombardError ? error : wrapError(error);
+      const lombError =
+        error instanceof LombardError ? error : wrapError(error);
 
       this.recordTiming(String(operationName), duration);
       this.log('error', `Failed ${operationName}`, {
