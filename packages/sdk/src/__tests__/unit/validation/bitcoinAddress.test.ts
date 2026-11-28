@@ -32,7 +32,21 @@ const MAINNET = {
 };
 
 const TESTNET = {
+  p2pkh: 'mh5CE8Nbj38iND267s4XnvhSmhDW7yWc6Q',
+  p2sh: '2MtoTvMi65NXBt3sTCXNd1aqKGa7gXsX8CC',
   p2wpkh: 'tb1qzyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3apj6d3',
+};
+
+/**
+ * Checksum-valid base58check for the same hash under another chain's version
+ * byte. The checksum is shared by every base58 coin, so these decode exactly
+ * like a Bitcoin address; the version byte is the only difference.
+ */
+const FOREIGN_BASE58 = {
+  litecoinP2pkh: 'LLnCCHbSzfwWquEdaS5TF2Yt7uz5Qb1SZ1',
+  litecoinP2sh: 'M9TQAWC2R2sGUmWodGk6DH6TNvVxiqXnU6',
+  dogecoinP2pkh: 'D6hLULEGDRbk86j58t5iWmeinqM6acA16V',
+  dashP2pkh: 'XcF5mKwWsiv3k394GBQNpYAuk3CVJ48Xnp',
 };
 
 /**
@@ -54,6 +68,8 @@ describe('isValidBitcoinAddress', () => {
     ['P2WPKH', MAINNET.p2wpkh],
     ['P2WSH', MAINNET.p2wsh],
     ['P2TR', MAINNET.p2tr],
+    ['a testnet P2PKH', TESTNET.p2pkh],
+    ['a testnet P2SH', TESTNET.p2sh],
     ['a testnet P2WPKH', TESTNET.p2wpkh],
   ])('accepts %s', (_label, address) => {
     expect(isValidBitcoinAddress(address)).toBe(true);
@@ -83,6 +99,22 @@ describe('isValidBitcoinAddress', () => {
   ])('rejects %s', (_label, address) => {
     expect(isValidBitcoinAddress(address)).toBe(false);
     expect(bitcoinAddressSchema.safeParse(address).success).toBe(false);
+  });
+
+  /**
+   * The base58 counterpart of the case above: the checksum is valid, the
+   * version byte belongs to another chain, and `getOutputScript` refuses the
+   * address later with "has no matching Script".
+   */
+  it.each([
+    ['a Litecoin P2PKH address', FOREIGN_BASE58.litecoinP2pkh],
+    ['a Litecoin P2SH address', FOREIGN_BASE58.litecoinP2sh],
+    ['a Dogecoin address', FOREIGN_BASE58.dogecoinP2pkh],
+    ['a Dash address', FOREIGN_BASE58.dashP2pkh],
+  ])('rejects %s', async (_label, address) => {
+    expect(isValidBitcoinAddress(address)).toBe(false);
+    expect(bitcoinAddressSchema.safeParse(address).success).toBe(false);
+    await expect(getOutputScript(address, Env.prod)).rejects.toThrow();
   });
 
   it.each([
